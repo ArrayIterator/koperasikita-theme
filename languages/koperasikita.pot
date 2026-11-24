@@ -1751,3 +1751,15 @@ msgstr ""
 #: inc/Assets/Enqueue.php
 msgid "Admin data is not available."
 msgstr ""
+
+#: inc/Breadcrumb/Breadcrumb.php
+msgid "Breadcrumb"
+msgstr ""
+
+#: inc/Breadcrumb/Breadcrumb.php
+msgid "Search results for \"%s\""
+msgstr ""
+
+#: inc/Breadcrumb/Breadcrumb.php
+msgid "Archives"
+msgstr ""

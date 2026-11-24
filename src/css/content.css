@@ -367,6 +367,20 @@
 	margin-bottom: 16px;
 }
 
+.kk-breadcrumb ol {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 6px;
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+
+.kk-breadcrumb li[itemprop="itemListElement"] {
+	min-width: 0;
+}
+
 .kk-breadcrumb a {
 	color: var(--kk-muted);
 }
@@ -375,8 +389,9 @@
 	color: var(--kk-green, #0B6B3A);
 }
 
-.kk-breadcrumb-sep {
-	margin: 0 6px;
+.kk-breadcrumb-separator {
+	flex-shrink: 0;
+	color: var(--kk-muted);
 }
 
 /* --- Comments ------------------------------------------------------------- */

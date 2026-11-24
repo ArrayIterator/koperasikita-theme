@@ -10,6 +10,8 @@ get_header();
 
 <div class="kk-shell kk-archive-layout">
 	<div class="kk-content-area">
+		<?php get_template_part( 'template-parts/content/breadcrumb' ); ?>
+
 		<header class="kk-search-header">
 			<p class="kk-eyebrow"><?php esc_html_e( 'Search results', 'koperasikita' ); ?></p>
 			<h1 class="kk-page-title">

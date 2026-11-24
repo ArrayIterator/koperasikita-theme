@@ -11,6 +11,8 @@ get_header();
 ?>
 
 <div class="kk-shell kk-home">
+	<?php get_template_part( 'template-parts/content/breadcrumb' ); ?>
+
 	<?php get_template_part( 'template-parts/home/hero-grid' ); ?>
 
 	<div class="kk-home-layout">

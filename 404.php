@@ -10,6 +10,8 @@ get_header();
 
 <div class="kk-shell kk-not-found">
 	<section class="kk-404" aria-labelledby="kk-404-heading">
+		<?php get_template_part( 'template-parts/content/breadcrumb' ); ?>
+
 		<p class="kk-404-code" aria-hidden="true">404</p>
 		<h1 class="kk-page-title" id="kk-404-heading"><?php esc_html_e( 'Page not found', 'koperasikita' ); ?></h1>
 		<p class="kk-404-text">

@@ -10,6 +10,8 @@ get_header();
 
 <div class="kk-shell kk-archive-layout">
 	<div class="kk-content-area">
+		<?php get_template_part( 'template-parts/content/breadcrumb' ); ?>
+
 		<header class="kk-archive-header">
 			<?php
 			the_archive_title( '<h1 class="kk-page-title">', '</h1>' );
