@@ -1687,3 +1687,19 @@ msgstr ""
 #: inc/Customizer/Customizer.php
 msgid "App Background Color"
 msgstr ""
+
+#: inc/Customizer/Customizer.php
+msgid "Show Category Block %d"
+msgstr ""
+
+#: inc/Customizer/Customizer.php
+msgid "Category Block %d"
+msgstr ""
+
+#: inc/Customizer/Customizer.php
+msgid "Posts Per Category Block"
+msgstr ""
+
+#: inc/Customizer/Customizer.php
+msgid "Automatic (most posts)"
+msgstr ""

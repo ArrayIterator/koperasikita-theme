@@ -195,6 +195,54 @@ final class Customizer
             ],
         ]);
 
+        // Homepage category blocks: three slots, each either a chosen
+        // category or automatic (most posts), with its own on/off
+        // switch. Slot order is the display order on the front page.
+        $category_choices = self::categoryChoices();
+
+        for ($slot = 1; $slot <= 3; $slot++) {
+            self::addSetting(
+                $wpCustomize,
+                'kk_homepage_category_' . $slot . '_enabled',
+                true,
+                [self::class, 'sanitizeBool'],
+                'refresh'
+            );
+            $wpCustomize->add_control('kk_homepage_category_' . $slot . '_enabled', [
+                'label' => sprintf(esc_html__('Show Category Block %d', 'koperasikita'), $slot),
+                'section' => 'koperasikita_homepage',
+                'type' => 'checkbox',
+            ]);
+
+            self::addSetting(
+                $wpCustomize,
+                'kk_homepage_category_' . $slot,
+                0,
+                [self::class, 'sanitizeCategoryChoice'],
+                'refresh'
+            );
+            $wpCustomize->add_control('kk_homepage_category_' . $slot, [
+                'label' => sprintf(esc_html__('Category Block %d', 'koperasikita'), $slot),
+                'section' => 'koperasikita_homepage',
+                'type' => 'select',
+                'choices' => $category_choices,
+            ]);
+        }
+
+        self::addSetting(
+            $wpCustomize,
+            'kk_homepage_category_count',
+            4,
+            static fn ($value) => self::clampInt($value, 1, 8),
+            'refresh'
+        );
+        $wpCustomize->add_control('kk_homepage_category_count', [
+            'label' => esc_html__('Posts Per Category Block', 'koperasikita'),
+            'section' => 'koperasikita_homepage',
+            'type' => 'number',
+            'input_attrs' => ['min' => 1, 'max' => 8],
+        ]);
+
         self::addSetting(
             $wpCustomize,
             'kk_logo_invert_dark',
@@ -690,6 +738,38 @@ final class Customizer
         $color = sanitize_hex_color((string) $value);
 
         return $color === null ? '' : $color;
+    }
+
+    /**
+     * @return array<int|string, string>
+     */
+    public static function categoryChoices(): array
+    {
+        $choices = [0 => esc_html__('Automatic (most posts)', 'koperasikita')];
+        $categories = get_categories([
+            'hide_empty' => false,
+            'orderby' => 'name',
+            'order' => 'ASC',
+        ]);
+
+        foreach ($categories as $category) {
+            $choices[$category->term_id] = $category->name;
+        }
+
+        return $choices;
+    }
+
+    public static function sanitizeCategoryChoice(mixed $value): int
+    {
+        $id = (int) $value;
+
+        if ($id <= 0) {
+            return 0;
+        }
+
+        $term = get_term($id, 'category');
+
+        return $term instanceof \WP_Term ? $id : 0;
     }
 
     public static function sanitizeBreakingSource(mixed $value): string

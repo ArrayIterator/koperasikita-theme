@@ -22,7 +22,7 @@ if ( ! $category instanceof WP_Term ) {
 $block_query = new WP_Query(
 	array(
 		'post_type'           => 'post',
-		'posts_per_page'      => 4,
+		'posts_per_page'      => \KoperasiKita\Features\Homepage::categoryBlockCount(),
 		'cat'                 => $category->term_id,
 		'ignore_sticky_posts' => true,
 	)

@@ -18,17 +18,8 @@ get_header();
 			<?php get_template_part( 'template-parts/home/latest-news' ); ?>
 
 			<?php
-			// Category blocks: up to 3 categories chosen by post count.
-			$categories = get_categories(
-				array(
-					'orderby'    => 'count',
-					'order'      => 'DESC',
-					'number'     => 3,
-					'hide_empty' => true,
-				)
-			);
-
-			foreach ( $categories as $category ) {
+			// Category blocks: the three Customizer slots, in order.
+			foreach ( \KoperasiKita\Features\Homepage::categoryBlocks() as $category ) {
 				set_query_var( 'kk_category_block', $category );
 				get_template_part( 'template-parts/home/category-block' );
 			}
