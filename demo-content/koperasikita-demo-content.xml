@@ -1,0 +1,1990 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0"
+  xmlns:excerpt="http://wordpress.org/export/1.2/excerpt/"
+  xmlns:content="http://purl.org/rss/1.0/modules/content/"
+  xmlns:wfw="http://wellformedweb.org/CommentAPI/"
+  xmlns:dc="http://purl.org/dc/elements/1.1/"
+  xmlns:wp="http://wordpress.org/export/1.2/"
+>
+<channel>
+  <title>Koperasi Kita</title>
+  <link>https://koperasikita.pentagonal.org</link>
+  <description>Demo content for the Koperasi Kita WordPress theme.</description>
+  <pubDate>Wed, 25 Nov 2026 02:00:00 +0000</pubDate>
+  <language>id-ID</language>
+  <wp:wxr_version>1.2</wp:wxr_version>
+  <wp:base_site_url>https://koperasikita.pentagonal.org</wp:base_site_url>
+  <wp:base_blog_url>https://koperasikita.pentagonal.org</wp:base_blog_url>
+  <wp:author><wp:author_id>1</wp:author_id><wp:author_login><![CDATA[admin]]></wp:author_login><wp:author_email><![CDATA[admin@koperasikita.pentagonal.org]]></wp:author_email><wp:author_display_name><![CDATA[Admin Koperasi Kita]]></wp:author_display_name><wp:author_first_name><![CDATA[Admin]]></wp:author_first_name><wp:author_last_name><![CDATA[Koperasi Kita]]></wp:author_last_name></wp:author>
+  <wp:category>
+    <wp:term_id>1</wp:term_id>
+    <wp:category_nicename><![CDATA[berita-koperasi]]></wp:category_nicename>
+    <wp:category_parent><![CDATA[]]></wp:category_parent>
+    <wp:cat_name><![CDATA[Berita Koperasi]]></wp:cat_name>
+    <wp:category_description><![CDATA[Kabar terbaru dari Koperasi Kita: rapat anggota, SHU, dan kegiatan koperasi.]]></wp:category_description>
+  </wp:category>
+  <wp:category>
+    <wp:term_id>2</wp:term_id>
+    <wp:category_nicename><![CDATA[ekonomi]]></wp:category_nicename>
+    <wp:category_parent><![CDATA[]]></wp:category_parent>
+    <wp:cat_name><![CDATA[Ekonomi]]></wp:cat_name>
+    <wp:category_description><![CDATA[Ekonomi anggota: pinjaman, simpanan, dan pemberdayaan usaha.]]></wp:category_description>
+  </wp:category>
+  <wp:category>
+    <wp:term_id>3</wp:term_id>
+    <wp:category_nicename><![CDATA[emas]]></wp:category_nicename>
+    <wp:category_parent><![CDATA[]]></wp:category_parent>
+    <wp:cat_name><![CDATA[Emas & Investasi]]></wp:cat_name>
+    <wp:category_description><![CDATA[Harga emas, tabungan emas, dan investasi untuk anggota.]]></wp:category_description>
+  </wp:category>
+  <wp:category>
+    <wp:term_id>4</wp:term_id>
+    <wp:category_nicename><![CDATA[edukasi]]></wp:category_nicename>
+    <wp:category_parent><![CDATA[]]></wp:category_parent>
+    <wp:cat_name><![CDATA[Edukasi]]></wp:cat_name>
+    <wp:category_description><![CDATA[Literasi keuangan dan pelatihan untuk anggota.]]></wp:category_description>
+  </wp:category>
+  <wp:category>
+    <wp:term_id>5</wp:term_id>
+    <wp:category_nicename><![CDATA[anggota]]></wp:category_nicename>
+    <wp:category_parent><![CDATA[]]></wp:category_parent>
+    <wp:cat_name><![CDATA[Anggota]]></wp:cat_name>
+    <wp:category_description><![CDATA[Cerita dan kabar seputar anggota Koperasi Kita.]]></wp:category_description>
+  </wp:category>
+  <wp:category>
+    <wp:term_id>6</wp:term_id>
+    <wp:category_nicename><![CDATA[pengumuman]]></wp:category_nicename>
+    <wp:category_parent><![CDATA[]]></wp:category_parent>
+    <wp:cat_name><![CDATA[Pengumuman]]></wp:cat_name>
+    <wp:category_description><![CDATA[Pengumuman resmi pengurus untuk seluruh anggota.]]></wp:category_description>
+  </wp:category>
+  <wp:tag>
+    <wp:term_id>11</wp:term_id>
+    <wp:tag_slug><![CDATA[shu]]></wp:tag_slug>
+    <wp:tag_name><![CDATA[SHU]]></wp:tag_name>
+    <wp:tag_description><![CDATA[]]></wp:tag_description>
+  </wp:tag>
+  <wp:tag>
+    <wp:term_id>12</wp:term_id>
+    <wp:tag_slug><![CDATA[rat]]></wp:tag_slug>
+    <wp:tag_name><![CDATA[RAT]]></wp:tag_name>
+    <wp:tag_description><![CDATA[]]></wp:tag_description>
+  </wp:tag>
+  <wp:tag>
+    <wp:term_id>13</wp:term_id>
+    <wp:tag_slug><![CDATA[simpanan]]></wp:tag_slug>
+    <wp:tag_name><![CDATA[Simpanan]]></wp:tag_name>
+    <wp:tag_description><![CDATA[]]></wp:tag_description>
+  </wp:tag>
+  <wp:tag>
+    <wp:term_id>14</wp:term_id>
+    <wp:tag_slug><![CDATA[pinjaman]]></wp:tag_slug>
+    <wp:tag_name><![CDATA[Pinjaman]]></wp:tag_name>
+    <wp:tag_description><![CDATA[]]></wp:tag_description>
+  </wp:tag>
+  <wp:tag>
+    <wp:term_id>15</wp:term_id>
+    <wp:tag_slug><![CDATA[umkm]]></wp:tag_slug>
+    <wp:tag_name><![CDATA[UMKM]]></wp:tag_name>
+    <wp:tag_description><![CDATA[]]></wp:tag_description>
+  </wp:tag>
+  <wp:tag>
+    <wp:term_id>16</wp:term_id>
+    <wp:tag_slug><![CDATA[harga-emas]]></wp:tag_slug>
+    <wp:tag_name><![CDATA[Harga Emas]]></wp:tag_name>
+    <wp:tag_description><![CDATA[]]></wp:tag_description>
+  </wp:tag>
+  <wp:tag>
+    <wp:term_id>17</wp:term_id>
+    <wp:tag_slug><![CDATA[antam]]></wp:tag_slug>
+    <wp:tag_name><![CDATA[Antam]]></wp:tag_name>
+    <wp:tag_description><![CDATA[]]></wp:tag_description>
+  </wp:tag>
+  <wp:tag>
+    <wp:term_id>18</wp:term_id>
+    <wp:tag_slug><![CDATA[digitalisasi]]></wp:tag_slug>
+    <wp:tag_name><![CDATA[Digitalisasi]]></wp:tag_name>
+    <wp:tag_description><![CDATA[]]></wp:tag_description>
+  </wp:tag>
+  <wp:term>
+    <wp:term_id>21</wp:term_id>
+    <wp:term_taxonomy><![CDATA[nav_menu]]></wp:term_taxonomy>
+    <wp:term_slug><![CDATA[menu-utama]]></wp:term_slug>
+    <wp:term_parent><![CDATA[]]></wp:term_parent>
+    <wp:term_name><![CDATA[Menu Utama]]></wp:term_name>
+    <wp:term_description><![CDATA[]]></wp:term_description>
+  </wp:term>
+  <wp:term>
+    <wp:term_id>22</wp:term_id>
+    <wp:term_taxonomy><![CDATA[nav_menu]]></wp:term_taxonomy>
+    <wp:term_slug><![CDATA[menu-bawah]]></wp:term_slug>
+    <wp:term_parent><![CDATA[]]></wp:term_parent>
+    <wp:term_name><![CDATA[Menu Bawah]]></wp:term_name>
+    <wp:term_description><![CDATA[]]></wp:term_description>
+  </wp:term>
+  <wp:term>
+    <wp:term_id>23</wp:term_id>
+    <wp:term_taxonomy><![CDATA[nav_menu]]></wp:term_taxonomy>
+    <wp:term_slug><![CDATA[menu-footer]]></wp:term_slug>
+    <wp:term_parent><![CDATA[]]></wp:term_parent>
+    <wp:term_name><![CDATA[Menu Footer]]></wp:term_name>
+    <wp:term_description><![CDATA[]]></wp:term_description>
+  </wp:term>
+  <item>
+    <title><![CDATA[Berita Koperasi]]></title>
+    <link>https://koperasikita.pentagonal.org/wp-content/themes/koperasikita/assets/demo/demo-berita-koperasi.jpg</link>
+    <pubDate>Thu, 05 Nov 2026 02:00:00 +0000</pubDate>
+    <dc:creator><![CDATA[admin]]></dc:creator>
+    <guid isPermaLink="false">https://koperasikita.pentagonal.org/wp-content/themes/koperasikita/assets/demo/demo-berita-koperasi.jpg</guid>
+    <description></description>
+    <content:encoded><![CDATA[]]></content:encoded>
+    <excerpt:encoded><![CDATA[]]></excerpt:encoded>
+    <wp:post_id>1001</wp:post_id>
+    <wp:post_date><![CDATA[2026-11-05 09:00:00]]></wp:post_date>
+    <wp:post_date_gmt><![CDATA[2026-11-05 02:00:00]]></wp:post_date_gmt>
+    <wp:comment_status><![CDATA[closed]]></wp:comment_status>
+    <wp:ping_status><![CDATA[closed]]></wp:ping_status>
+    <wp:post_name><![CDATA[demo-berita-koperasi]]></wp:post_name>
+    <wp:status><![CDATA[inherit]]></wp:status>
+    <wp:post_parent>0</wp:post_parent>
+    <wp:menu_order>0</wp:menu_order>
+    <wp:post_type><![CDATA[attachment]]></wp:post_type>
+    <wp:post_password><![CDATA[]]></wp:post_password>
+    <wp:is_sticky>0</wp:is_sticky>
+    <wp:attachment_url><![CDATA[https://koperasikita.pentagonal.org/wp-content/themes/koperasikita/assets/demo/demo-berita-koperasi.jpg]]></wp:attachment_url>
+  </item>
+  <item>
+    <title><![CDATA[Ekonomi]]></title>
+    <link>https://koperasikita.pentagonal.org/wp-content/themes/koperasikita/assets/demo/demo-ekonomi.jpg</link>
+    <pubDate>Thu, 05 Nov 2026 02:00:00 +0000</pubDate>
+    <dc:creator><![CDATA[admin]]></dc:creator>
+    <guid isPermaLink="false">https://koperasikita.pentagonal.org/wp-content/themes/koperasikita/assets/demo/demo-ekonomi.jpg</guid>
+    <description></description>
+    <content:encoded><![CDATA[]]></content:encoded>
+    <excerpt:encoded><![CDATA[]]></excerpt:encoded>
+    <wp:post_id>1002</wp:post_id>
+    <wp:post_date><![CDATA[2026-11-05 09:00:00]]></wp:post_date>
+    <wp:post_date_gmt><![CDATA[2026-11-05 02:00:00]]></wp:post_date_gmt>
+    <wp:comment_status><![CDATA[closed]]></wp:comment_status>
+    <wp:ping_status><![CDATA[closed]]></wp:ping_status>
+    <wp:post_name><![CDATA[demo-ekonomi]]></wp:post_name>
+    <wp:status><![CDATA[inherit]]></wp:status>
+    <wp:post_parent>0</wp:post_parent>
+    <wp:menu_order>0</wp:menu_order>
+    <wp:post_type><![CDATA[attachment]]></wp:post_type>
+    <wp:post_password><![CDATA[]]></wp:post_password>
+    <wp:is_sticky>0</wp:is_sticky>
+    <wp:attachment_url><![CDATA[https://koperasikita.pentagonal.org/wp-content/themes/koperasikita/assets/demo/demo-ekonomi.jpg]]></wp:attachment_url>
+  </item>
+  <item>
+    <title><![CDATA[Emas & Investasi]]></title>
+    <link>https://koperasikita.pentagonal.org/wp-content/themes/koperasikita/assets/demo/demo-emas.jpg</link>
+    <pubDate>Thu, 05 Nov 2026 02:00:00 +0000</pubDate>
+    <dc:creator><![CDATA[admin]]></dc:creator>
+    <guid isPermaLink="false">https://koperasikita.pentagonal.org/wp-content/themes/koperasikita/assets/demo/demo-emas.jpg</guid>
+    <description></description>
+    <content:encoded><![CDATA[]]></content:encoded>
+    <excerpt:encoded><![CDATA[]]></excerpt:encoded>
+    <wp:post_id>1003</wp:post_id>
+    <wp:post_date><![CDATA[2026-11-05 09:00:00]]></wp:post_date>
+    <wp:post_date_gmt><![CDATA[2026-11-05 02:00:00]]></wp:post_date_gmt>
+    <wp:comment_status><![CDATA[closed]]></wp:comment_status>
+    <wp:ping_status><![CDATA[closed]]></wp:ping_status>
+    <wp:post_name><![CDATA[demo-emas]]></wp:post_name>
+    <wp:status><![CDATA[inherit]]></wp:status>
+    <wp:post_parent>0</wp:post_parent>
+    <wp:menu_order>0</wp:menu_order>
+    <wp:post_type><![CDATA[attachment]]></wp:post_type>
+    <wp:post_password><![CDATA[]]></wp:post_password>
+    <wp:is_sticky>0</wp:is_sticky>
+    <wp:attachment_url><![CDATA[https://koperasikita.pentagonal.org/wp-content/themes/koperasikita/assets/demo/demo-emas.jpg]]></wp:attachment_url>
+  </item>
+  <item>
+    <title><![CDATA[Edukasi]]></title>
+    <link>https://koperasikita.pentagonal.org/wp-content/themes/koperasikita/assets/demo/demo-edukasi.jpg</link>
+    <pubDate>Thu, 05 Nov 2026 02:00:00 +0000</pubDate>
+    <dc:creator><![CDATA[admin]]></dc:creator>
+    <guid isPermaLink="false">https://koperasikita.pentagonal.org/wp-content/themes/koperasikita/assets/demo/demo-edukasi.jpg</guid>
+    <description></description>
+    <content:encoded><![CDATA[]]></content:encoded>
+    <excerpt:encoded><![CDATA[]]></excerpt:encoded>
+    <wp:post_id>1004</wp:post_id>
+    <wp:post_date><![CDATA[2026-11-05 09:00:00]]></wp:post_date>
+    <wp:post_date_gmt><![CDATA[2026-11-05 02:00:00]]></wp:post_date_gmt>
+    <wp:comment_status><![CDATA[closed]]></wp:comment_status>
+    <wp:ping_status><![CDATA[closed]]></wp:ping_status>
+    <wp:post_name><![CDATA[demo-edukasi]]></wp:post_name>
+    <wp:status><![CDATA[inherit]]></wp:status>
+    <wp:post_parent>0</wp:post_parent>
+    <wp:menu_order>0</wp:menu_order>
+    <wp:post_type><![CDATA[attachment]]></wp:post_type>
+    <wp:post_password><![CDATA[]]></wp:post_password>
+    <wp:is_sticky>0</wp:is_sticky>
+    <wp:attachment_url><![CDATA[https://koperasikita.pentagonal.org/wp-content/themes/koperasikita/assets/demo/demo-edukasi.jpg]]></wp:attachment_url>
+  </item>
+  <item>
+    <title><![CDATA[Anggota]]></title>
+    <link>https://koperasikita.pentagonal.org/wp-content/themes/koperasikita/assets/demo/demo-anggota.jpg</link>
+    <pubDate>Thu, 05 Nov 2026 02:00:00 +0000</pubDate>
+    <dc:creator><![CDATA[admin]]></dc:creator>
+    <guid isPermaLink="false">https://koperasikita.pentagonal.org/wp-content/themes/koperasikita/assets/demo/demo-anggota.jpg</guid>
+    <description></description>
+    <content:encoded><![CDATA[]]></content:encoded>
+    <excerpt:encoded><![CDATA[]]></excerpt:encoded>
+    <wp:post_id>1005</wp:post_id>
+    <wp:post_date><![CDATA[2026-11-05 09:00:00]]></wp:post_date>
+    <wp:post_date_gmt><![CDATA[2026-11-05 02:00:00]]></wp:post_date_gmt>
+    <wp:comment_status><![CDATA[closed]]></wp:comment_status>
+    <wp:ping_status><![CDATA[closed]]></wp:ping_status>
+    <wp:post_name><![CDATA[demo-anggota]]></wp:post_name>
+    <wp:status><![CDATA[inherit]]></wp:status>
+    <wp:post_parent>0</wp:post_parent>
+    <wp:menu_order>0</wp:menu_order>
+    <wp:post_type><![CDATA[attachment]]></wp:post_type>
+    <wp:post_password><![CDATA[]]></wp:post_password>
+    <wp:is_sticky>0</wp:is_sticky>
+    <wp:attachment_url><![CDATA[https://koperasikita.pentagonal.org/wp-content/themes/koperasikita/assets/demo/demo-anggota.jpg]]></wp:attachment_url>
+  </item>
+  <item>
+    <title><![CDATA[Agenda]]></title>
+    <link>https://koperasikita.pentagonal.org/wp-content/themes/koperasikita/assets/demo/demo-agenda.jpg</link>
+    <pubDate>Thu, 05 Nov 2026 02:00:00 +0000</pubDate>
+    <dc:creator><![CDATA[admin]]></dc:creator>
+    <guid isPermaLink="false">https://koperasikita.pentagonal.org/wp-content/themes/koperasikita/assets/demo/demo-agenda.jpg</guid>
+    <description></description>
+    <content:encoded><![CDATA[]]></content:encoded>
+    <excerpt:encoded><![CDATA[]]></excerpt:encoded>
+    <wp:post_id>1006</wp:post_id>
+    <wp:post_date><![CDATA[2026-11-05 09:00:00]]></wp:post_date>
+    <wp:post_date_gmt><![CDATA[2026-11-05 02:00:00]]></wp:post_date_gmt>
+    <wp:comment_status><![CDATA[closed]]></wp:comment_status>
+    <wp:ping_status><![CDATA[closed]]></wp:ping_status>
+    <wp:post_name><![CDATA[demo-agenda]]></wp:post_name>
+    <wp:status><![CDATA[inherit]]></wp:status>
+    <wp:post_parent>0</wp:post_parent>
+    <wp:menu_order>0</wp:menu_order>
+    <wp:post_type><![CDATA[attachment]]></wp:post_type>
+    <wp:post_password><![CDATA[]]></wp:post_password>
+    <wp:is_sticky>0</wp:is_sticky>
+    <wp:attachment_url><![CDATA[https://koperasikita.pentagonal.org/wp-content/themes/koperasikita/assets/demo/demo-agenda.jpg]]></wp:attachment_url>
+  </item>
+  <item>
+    <title><![CDATA[Rapat Anggota Tahunan 2026: SHU Naik, Anggota Makin Sejahtera]]></title>
+    <link>https://koperasikita.pentagonal.org/2026/11/24/rapat-anggota-tahunan-2026-shu-naik-anggota-makin-sejahtera/</link>
+    <pubDate>Tue, 24 Nov 2026 02:00:00 +0000</pubDate>
+    <dc:creator><![CDATA[admin]]></dc:creator>
+    <guid isPermaLink="false">https://koperasikita.pentagonal.org/2026/11/24/rapat-anggota-tahunan-2026-shu-naik-anggota-makin-sejahtera/</guid>
+    <description></description>
+    <content:encoded><![CDATA[<p>Koperasi Kita menggelar Rapat Anggota Tahunan (RAT) 2026 pada Sabtu lalu di Aula Koperasi Kita, Padang. Rapat dihadiri 412 anggota dari total 1.180 anggota aktif, melebihi kuorum yang disyaratkan Anggaran Dasar. Ketua Koperasi, dalam sambutannya, menyampaikan bahwa tahun buku 2025 ditutup dengan kinerja yang menggembirakan di tengah kondisi ekonomi yang masih menantang.</p>
+
+<p>Dalam laporan pertanggungjawaban, pengurus memaparkan Sisa Hasil Usaha (SHU) tahun buku 2025 mencapai Rp486 juta, naik 18 persen dibanding tahun sebelumnya. Kenaikan ini didorong oleh pertumbuhan simpanan anggota, penyaluran pinjaman produktif, serta unit usaha toko koperasi yang mulai membukukan laba. Anggota menyambut laporan tersebut dengan antusias dan menyetujuinya secara aklamasi.</p>
+
+<p>RAT juga menetapkan pembagian SHU: 40 persen untuk jasa simpanan, 25 persen untuk jasa pinjaman, 20 persen untuk dana cadangan, dan sisanya untuk dana pendidikan, dana sosial, serta dana pengurus. Pembagian SHU akan ditransfer langsung ke rekening simpanan anggota paling lambat akhir November 2026. Anggota dapat memeriksa rincian bagiannya melalui aplikasi anggota atau datang langsung ke kantor koperasi.</p>
+
+<p>Selain itu, RAT memilih tiga pengurus baru untuk periode 2026–2029 dan menyepakati rencana kerja tahun depan, antara lain digitalisasi layanan simpanan, penambahan unit usaha emas, dan program pelatihan kewirausahaan bagi anggota. “Koperasi ini milik anggota. Setiap keputusan yang kami ambil harus kembali kepada anggota,” ujar ketua terpilih dalam pidato penutupnya.</p>]]></content:encoded>
+    <excerpt:encoded><![CDATA[Rapat Anggota Tahunan 2026 menyepakati pembagian SHU yang lebih besar, pengurus baru, dan rencana kerja tahun depan.]]></excerpt:encoded>
+    <wp:post_id>101</wp:post_id>
+    <wp:post_date><![CDATA[2026-11-24 09:00:00]]></wp:post_date>
+    <wp:post_date_gmt><![CDATA[2026-11-24 02:00:00]]></wp:post_date_gmt>
+    <wp:comment_status><![CDATA[open]]></wp:comment_status>
+    <wp:ping_status><![CDATA[open]]></wp:ping_status>
+    <wp:post_name><![CDATA[rapat-anggota-tahunan-2026-shu-naik-anggota-makin-sejahtera]]></wp:post_name>
+    <wp:status><![CDATA[publish]]></wp:status>
+    <wp:post_parent>0</wp:post_parent>
+    <wp:menu_order>0</wp:menu_order>
+    <wp:post_type><![CDATA[post]]></wp:post_type>
+    <wp:post_password><![CDATA[]]></wp:post_password>
+    <wp:is_sticky>0</wp:is_sticky>
+    <category domain="category" nicename="berita-koperasi"><![CDATA[Berita Koperasi]]></category>
+    <category domain="post_tag" nicename="shu"><![CDATA[SHU]]></category>
+    <category domain="post_tag" nicename="rat"><![CDATA[RAT]]></category>
+    <wp:postmeta>
+      <wp:meta_key><![CDATA[_thumbnail_id]]></wp:meta_key>
+      <wp:meta_value><![CDATA[1001]]></wp:meta_value>
+    </wp:postmeta>
+
+  </item>
+  <item>
+    <title><![CDATA[Harga Emas Antam Hari Ini: Stabil di Tengah Ketidakpastian Global]]></title>
+    <link>https://koperasikita.pentagonal.org/2026/11/24/harga-emas-antam-hari-ini-stabil/</link>
+    <pubDate>Tue, 24 Nov 2026 01:00:00 +0000</pubDate>
+    <dc:creator><![CDATA[admin]]></dc:creator>
+    <guid isPermaLink="false">https://koperasikita.pentagonal.org/2026/11/24/harga-emas-antam-hari-ini-stabil/</guid>
+    <description></description>
+    <content:encoded><![CDATA[<p>Harga emas batangan Antam bergerak relatif stabil pada perdagangan pekan ini. Berdasarkan pantauan di gerai resmi, harga emas ukuran 1 gram berada di kisaran Rp2,06 juta, tidak jauh berbeda dari pekan lalu. Pelaku pasar menilai stabilitas ini seiring dengan meredanya tekanan dolar Amerika Serikat dan sentimen suku bunga global yang mulai membaik.</p>
+
+<p>Untuk ukuran yang lebih besar, harga emas 5 gram dipatok sekitar Rp10,1 juta, sementara ukuran 10 gram berada di kisaran Rp20,1 juta. Harga buyback atau harga jual kembali ke gerai berada sedikit di bawah harga beli, sehingga selisihnya perlu diperhatikan anggota yang berencana menjual kembali emasnya dalam waktu dekat.</p>
+
+<p>Bagi anggota Koperasi Kita, emas bisa menjadi pilihan tabungan jangka panjang yang relatif aman. Koperasi menyediakan layanan pembelian emas secara tunai maupun angsuran melalui unit usaha emas, dengan harga mengikuti harga pasar harian. Anggota juga dapat memanfaatkan program tabungan emas, di mana simpanan dikonversi menjadi gramasi emas dan dapat dicairkan sewaktu-waktu.</p>
+
+<p>Pengurus mengingatkan anggota agar membeli emas hanya dari sumber resmi dan menyimpan sertifikat serta bukti pembelian dengan baik. “Jangan tergiur harga jauh di bawah pasar. Emas palsu dan penipuan berkedok investasi masih sering terjadi,” ujar pengurus unit usaha emas. Anggota yang membutuhkan informasi harga harian dapat melihat widget harga emas di halaman utama situs ini.</p>]]></content:encoded>
+    <excerpt:encoded><![CDATA[Harga emas batangan Antam bergerak stabil pekan ini. Simak rincian harga per gram dan tips membeli emas bagi anggota koperasi.]]></excerpt:encoded>
+    <wp:post_id>102</wp:post_id>
+    <wp:post_date><![CDATA[2026-11-24 08:00:00]]></wp:post_date>
+    <wp:post_date_gmt><![CDATA[2026-11-24 01:00:00]]></wp:post_date_gmt>
+    <wp:comment_status><![CDATA[open]]></wp:comment_status>
+    <wp:ping_status><![CDATA[open]]></wp:ping_status>
+    <wp:post_name><![CDATA[harga-emas-antam-hari-ini-stabil]]></wp:post_name>
+    <wp:status><![CDATA[publish]]></wp:status>
+    <wp:post_parent>0</wp:post_parent>
+    <wp:menu_order>0</wp:menu_order>
+    <wp:post_type><![CDATA[post]]></wp:post_type>
+    <wp:post_password><![CDATA[]]></wp:post_password>
+    <wp:is_sticky>0</wp:is_sticky>
+    <category domain="category" nicename="emas"><![CDATA[Emas & Investasi]]></category>
+    <category domain="post_tag" nicename="harga-emas"><![CDATA[Harga Emas]]></category>
+    <category domain="post_tag" nicename="antam"><![CDATA[Antam]]></category>
+    <wp:postmeta>
+      <wp:meta_key><![CDATA[_thumbnail_id]]></wp:meta_key>
+      <wp:meta_value><![CDATA[1003]]></wp:meta_value>
+    </wp:postmeta>
+
+  </item>
+  <item>
+    <title><![CDATA[Koperasi Salurkan Pinjaman Produktif Rp2,4 Miliar untuk UMKM Anggota]]></title>
+    <link>https://koperasikita.pentagonal.org/2026/11/23/koperasi-salurkan-pinjaman-produktif-rp24-miliar-untuk-umkm-anggota/</link>
+    <pubDate>Mon, 23 Nov 2026 03:00:00 +0000</pubDate>
+    <dc:creator><![CDATA[admin]]></dc:creator>
+    <guid isPermaLink="false">https://koperasikita.pentagonal.org/2026/11/23/koperasi-salurkan-pinjaman-produktif-rp24-miliar-untuk-umkm-anggota/</guid>
+    <description></description>
+    <content:encoded><![CDATA[<p>Koperasi Kita telah menyalurkan pinjaman produktif senilai total Rp2,4 miliar kepada 86 pelaku usaha mikro, kecil, dan menengah (UMKM) anggota sepanjang tahun 2026. Penyaluran ini merupakan bagian dari program pemberdayaan ekonomi anggota, yang menargetkan pelaku usaha di bidang kuliner, kerajinan, perdagangan, dan jasa.</p>
+
+<p>Pinjaman produktif diberikan dengan bunga ringan 0,8 persen per bulan dan jangka waktu hingga 24 bulan. Syaratnya sederhana: anggota aktif minimal enam bulan, memiliki usaha yang berjalan, dan menyerahkan rencana penggunaan dana. Proses pengajuan memakan waktu paling lama lima hari kerja sejak berkas dinyatakan lengkap.</p>
+
+<p>Salah satu penerima, seorang pedagang makanan di Pasar Raya Padang, mengaku pinjaman tersebut membantunya menambah modal dan memperluas usaha. “Dulu saya hanya berjualan di satu lapak. Setelah mendapat pinjaman koperasi, saya bisa membuka lapak kedua dan mempekerjakan dua orang tetangga,” katanya. Cerita seperti ini, menurut pengurus, adalah alasan koperasi terus memperbesar alokasi pinjaman produktif.</p>
+
+<p>Ke depan, koperasi berencana menambah plafon pinjaman produktif menjadi Rp4 miliar pada 2027 serta membuka pendampingan usaha berupa pelatihan pencatatan keuangan dan pemasaran digital. Anggota yang berminat mengajukan pinjaman dapat datang ke kantor koperasi atau mengisi formulir pengajuan melalui situs ini.</p>]]></content:encoded>
+    <excerpt:encoded><![CDATA[Sebanyak 86 pelaku UMKM anggota menerima pinjaman produktif dengan total Rp2,4 miliar sepanjang 2026.]]></excerpt:encoded>
+    <wp:post_id>103</wp:post_id>
+    <wp:post_date><![CDATA[2026-11-23 10:00:00]]></wp:post_date>
+    <wp:post_date_gmt><![CDATA[2026-11-23 03:00:00]]></wp:post_date_gmt>
+    <wp:comment_status><![CDATA[open]]></wp:comment_status>
+    <wp:ping_status><![CDATA[open]]></wp:ping_status>
+    <wp:post_name><![CDATA[koperasi-salurkan-pinjaman-produktif-rp24-miliar-untuk-umkm-anggota]]></wp:post_name>
+    <wp:status><![CDATA[publish]]></wp:status>
+    <wp:post_parent>0</wp:post_parent>
+    <wp:menu_order>0</wp:menu_order>
+    <wp:post_type><![CDATA[post]]></wp:post_type>
+    <wp:post_password><![CDATA[]]></wp:post_password>
+    <wp:is_sticky>0</wp:is_sticky>
+    <category domain="category" nicename="ekonomi"><![CDATA[Ekonomi]]></category>
+    <category domain="post_tag" nicename="pinjaman"><![CDATA[Pinjaman]]></category>
+    <category domain="post_tag" nicename="umkm"><![CDATA[UMKM]]></category>
+    <wp:postmeta>
+      <wp:meta_key><![CDATA[_thumbnail_id]]></wp:meta_key>
+      <wp:meta_value><![CDATA[1002]]></wp:meta_value>
+    </wp:postmeta>
+
+  </item>
+  <item>
+    <title><![CDATA[Edukasi Keuangan: Cara Anggota Mengatur Simpanan dan Pinjaman]]></title>
+    <link>https://koperasikita.pentagonal.org/2026/11/22/edukasi-keuangan-cara-anggota-mengatur-simpanan-dan-pinjaman/</link>
+    <pubDate>Sun, 22 Nov 2026 02:30:00 +0000</pubDate>
+    <dc:creator><![CDATA[admin]]></dc:creator>
+    <guid isPermaLink="false">https://koperasikita.pentagonal.org/2026/11/22/edukasi-keuangan-cara-anggota-mengatur-simpanan-dan-pinjaman/</guid>
+    <description></description>
+    <content:encoded><![CDATA[<p>Banyak anggota yang masih bingung membedakan simpanan dan pinjaman di koperasi. Padahal keduanya adalah layanan yang saling melengkapi. Simpanan adalah dana yang anggota titipkan ke koperasi — simpanan pokok, simpanan wajib, dan simpanan sukarela — yang menjadi modal koperasi sekaligus tabungan anggota. Pinjaman adalah dana yang koperasi salurkan kembali kepada anggota yang membutuhkan, dengan bunga yang jauh lebih ringan dibanding lembaga keuangan lain.</p>
+
+<p>Agar keuangan keluarga tetap sehat, pengurus menyarankan anggota menyisihkan minimal 10 persen penghasilan untuk simpanan sukarela sebelum membelanjakan sisanya. “Bayar diri sendiri dulu,” begitu prinsipnya. Simpanan sukarela dapat diambil sewaktu-waktu, sehingga cocok sebagai dana darurat, sementara simpanan wajib menjadi syarat keanggotaan dan dasar perhitungan jasa SHU.</p>
+
+<p>Untuk pinjaman, kuncinya adalah meminjam sesuai kebutuhan dan kemampuan membayar. Sebelum mengajukan pinjaman, hitung dulu cicilan bulanannya: idealnya tidak lebih dari 30 persen penghasilan bulanan. Pinjaman konsumtif sebaiknya dihindari, sedangkan pinjaman produktif — untuk modal usaha atau pendidikan — justru dapat meningkatkan penghasilan keluarga.</p>
+
+<p>Koperasi Kita rutin mengadakan kelas literasi keuangan gratis bagi anggota setiap bulan. Materinya berganti-ganti: dari cara membaca laporan SHU, perencanaan dana pendidikan anak, hingga pengenalan investasi emas. Jadwal kelas dapat dilihat di halaman Agenda situs ini.</p>]]></content:encoded>
+    <excerpt:encoded><![CDATA[Simpanan dan pinjaman adalah dua sisi layanan koperasi yang sama. Pahami cara mengaturnya agar keuangan keluarga tetap sehat.]]></excerpt:encoded>
+    <wp:post_id>104</wp:post_id>
+    <wp:post_date><![CDATA[2026-11-22 09:30:00]]></wp:post_date>
+    <wp:post_date_gmt><![CDATA[2026-11-22 02:30:00]]></wp:post_date_gmt>
+    <wp:comment_status><![CDATA[open]]></wp:comment_status>
+    <wp:ping_status><![CDATA[open]]></wp:ping_status>
+    <wp:post_name><![CDATA[edukasi-keuangan-cara-anggota-mengatur-simpanan-dan-pinjaman]]></wp:post_name>
+    <wp:status><![CDATA[publish]]></wp:status>
+    <wp:post_parent>0</wp:post_parent>
+    <wp:menu_order>0</wp:menu_order>
+    <wp:post_type><![CDATA[post]]></wp:post_type>
+    <wp:post_password><![CDATA[]]></wp:post_password>
+    <wp:is_sticky>0</wp:is_sticky>
+    <category domain="category" nicename="edukasi"><![CDATA[Edukasi]]></category>
+    <category domain="post_tag" nicename="simpanan"><![CDATA[Simpanan]]></category>
+    <wp:postmeta>
+      <wp:meta_key><![CDATA[_thumbnail_id]]></wp:meta_key>
+      <wp:meta_value><![CDATA[1004]]></wp:meta_value>
+    </wp:postmeta>
+
+  </item>
+  <item>
+    <title><![CDATA[Selamat Datang 128 Anggota Baru di Koperasi Kita]]></title>
+    <link>https://koperasikita.pentagonal.org/2026/11/21/selamat-datang-128-anggota-baru-di-koperasi-kita/</link>
+    <pubDate>Sat, 21 Nov 2026 04:00:00 +0000</pubDate>
+    <dc:creator><![CDATA[admin]]></dc:creator>
+    <guid isPermaLink="false">https://koperasikita.pentagonal.org/2026/11/21/selamat-datang-128-anggota-baru-di-koperasi-kita/</guid>
+    <description></description>
+    <content:encoded><![CDATA[<p>Koperasi Kita mencatat penambahan 128 anggota baru sepanjang November 2026. Dengan demikian total anggota aktif kini mencapai 1.308 orang. Sebagian besar anggota baru berasal dari kalangan pedagang pasar, guru, dan karyawan swasta di Kota Padang dan sekitarnya.</p>
+
+<p>Menurut pengurus bagian keanggotaan, pertumbuhan ini tidak lepas dari sosialisasi yang dilakukan pengurus ke pasar-pasar tradisional dan sekolah-sekolah. “Banyak calon anggota yang baru tahu bahwa menjadi anggota koperasi itu mudah dan manfaatnya nyata: simpanan berbunga jasa, pinjaman ringan, dan SHU setiap tahun,” ujarnya.</p>
+
+<p>Menjadi anggota Koperasi Kita cukup mudah. Calon anggota mengisi formulir, menyerahkan fotokopi KTP, dan membayar simpanan pokok sebesar Rp100.000 serta simpanan wajib bulanan Rp20.000. Setelah terdaftar, anggota langsung dapat menikmati seluruh layanan: simpanan, pinjaman, unit usaha emas, dan pelatihan gratis.</p>
+
+<p>Sebagai bentuk penyambutan, anggota baru yang bergabung pada November 2026 mendapatkan buku tabungan simpanan dan kupon belanja di toko koperasi. Pengurus berharap anggota baru aktif mengikuti kegiatan koperasi, termasuk RAT dan pelatihan, agar memahami hak dan kewajibannya sebagai pemilik koperasi.</p>]]></content:encoded>
+    <excerpt:encoded><![CDATA[Sebanyak 128 anggota baru bergabung sepanjang November 2026, sebagian besar dari kalangan pedagang pasar dan guru.]]></excerpt:encoded>
+    <wp:post_id>105</wp:post_id>
+    <wp:post_date><![CDATA[2026-11-21 11:00:00]]></wp:post_date>
+    <wp:post_date_gmt><![CDATA[2026-11-21 04:00:00]]></wp:post_date_gmt>
+    <wp:comment_status><![CDATA[open]]></wp:comment_status>
+    <wp:ping_status><![CDATA[open]]></wp:ping_status>
+    <wp:post_name><![CDATA[selamat-datang-128-anggota-baru-di-koperasi-kita]]></wp:post_name>
+    <wp:status><![CDATA[publish]]></wp:status>
+    <wp:post_parent>0</wp:post_parent>
+    <wp:menu_order>0</wp:menu_order>
+    <wp:post_type><![CDATA[post]]></wp:post_type>
+    <wp:post_password><![CDATA[]]></wp:post_password>
+    <wp:is_sticky>0</wp:is_sticky>
+    <category domain="category" nicename="anggota"><![CDATA[Anggota]]></category>
+    <wp:postmeta>
+      <wp:meta_key><![CDATA[_thumbnail_id]]></wp:meta_key>
+      <wp:meta_value><![CDATA[1005]]></wp:meta_value>
+    </wp:postmeta>
+
+  </item>
+  <item>
+    <title><![CDATA[Digitalisasi Koperasi: Aplikasi Anggota Kini Bisa Cek Simpanan dari HP]]></title>
+    <link>https://koperasikita.pentagonal.org/2026/11/20/digitalisasi-koperasi-aplikasi-anggota-kini-bisa-cek-simpanan-dari-hp/</link>
+    <pubDate>Fri, 20 Nov 2026 03:00:00 +0000</pubDate>
+    <dc:creator><![CDATA[admin]]></dc:creator>
+    <guid isPermaLink="false">https://koperasikita.pentagonal.org/2026/11/20/digitalisasi-koperasi-aplikasi-anggota-kini-bisa-cek-simpanan-dari-hp/</guid>
+    <description></description>
+    <content:encoded><![CDATA[<p>Koperasi Kita resmi meluncurkan layanan digital bagi anggota. Melalui aplikasi anggota yang dapat diakses dari ponsel, anggota kini dapat memeriksa saldo simpanan, riwayat pinjaman, jadwal angsuran, dan rincian SHU tanpa harus datang ke kantor koperasi.</p>
+
+<p>Layanan digital ini merupakan bagian dari program digitalisasi koperasi yang dimulai awal 2026. Tahap pertama mencakup pengecekan saldo dan riwayat transaksi. Tahap berikutnya, yang ditargetkan selesai pada kuartal pertama 2027, akan menambah fitur pengajuan pinjaman daring dan pembayaran angsuran melalui transfer bank.</p>
+
+<p>Untuk menggunakan layanan ini, anggota cukup datang sekali ke kantor koperasi untuk aktivasi akun dan verifikasi nomor ponsel. Setelah itu, seluruh pengecekan dapat dilakukan dari rumah. Petugas koperasi siap membantu anggota yang belum terbiasa menggunakan ponsel pintar, termasuk anggota lanjut usia.</p>
+
+<p>“Digitalisasi bukan untuk menggantikan tatap muka, melainkan untuk memudahkan anggota yang sibuk,” ujar pengurus. Kantor koperasi tetap buka setiap hari kerja, dan seluruh layanan tatap muka tetap berjalan seperti biasa. Anggota yang membutuhkan bantuan dapat menghubungi nomor layanan yang tertera di halaman Kontak.</p>]]></content:encoded>
+    <excerpt:encoded><![CDATA[Anggota kini dapat memeriksa saldo simpanan, riwayat pinjaman, dan jadwal angsuran langsung dari ponsel.]]></excerpt:encoded>
+    <wp:post_id>106</wp:post_id>
+    <wp:post_date><![CDATA[2026-11-20 10:00:00]]></wp:post_date>
+    <wp:post_date_gmt><![CDATA[2026-11-20 03:00:00]]></wp:post_date_gmt>
+    <wp:comment_status><![CDATA[open]]></wp:comment_status>
+    <wp:ping_status><![CDATA[open]]></wp:ping_status>
+    <wp:post_name><![CDATA[digitalisasi-koperasi-aplikasi-anggota-kini-bisa-cek-simpanan-dari-hp]]></wp:post_name>
+    <wp:status><![CDATA[publish]]></wp:status>
+    <wp:post_parent>0</wp:post_parent>
+    <wp:menu_order>0</wp:menu_order>
+    <wp:post_type><![CDATA[post]]></wp:post_type>
+    <wp:post_password><![CDATA[]]></wp:post_password>
+    <wp:is_sticky>0</wp:is_sticky>
+    <category domain="category" nicename="edukasi"><![CDATA[Edukasi]]></category>
+    <category domain="post_tag" nicename="digitalisasi"><![CDATA[Digitalisasi]]></category>
+    <wp:postmeta>
+      <wp:meta_key><![CDATA[_thumbnail_id]]></wp:meta_key>
+      <wp:meta_value><![CDATA[1004]]></wp:meta_value>
+    </wp:postmeta>
+
+  </item>
+  <item>
+    <title><![CDATA[Emas sebagai Tabungan Jangka Panjang: Apa yang Perlu Anggota Ketahui]]></title>
+    <link>https://koperasikita.pentagonal.org/2026/11/19/emas-sebagai-tabungan-jangka-panjang-apa-yang-perlu-anggota-ketahui/</link>
+    <pubDate>Thu, 19 Nov 2026 02:00:00 +0000</pubDate>
+    <dc:creator><![CDATA[admin]]></dc:creator>
+    <guid isPermaLink="false">https://koperasikita.pentagonal.org/2026/11/19/emas-sebagai-tabungan-jangka-panjang-apa-yang-perlu-anggota-ketahui/</guid>
+    <description></description>
+    <content:encoded><![CDATA[<p>Emas telah lama dikenal sebagai pelindung nilai. Ketika harga barang naik dan nilai uang menurun, harga emas cenderung bertahan bahkan meningkat dalam jangka panjang. Karena itu banyak keluarga menjadikan emas sebagai salah satu bentuk tabungan, di samping simpanan di koperasi dan bank.</p>
+
+<p>Namun menabung emas tetap memerlukan pemahaman. Pertama, harga emas naik-turun dalam jangka pendek; emas cocok untuk tujuan jangka menengah dan panjang, minimal tiga hingga lima tahun. Kedua, ada selisih antara harga beli dan harga jual kembali (spread), sehingga emas yang dijual terlalu cepat bisa merugi. Ketiga, pastikan emas dibeli dari sumber resmi dengan sertifikat yang jelas.</p>
+
+<p>Koperasi Kita menyediakan layanan tabungan emas bagi anggota. Anggota dapat menabung mulai dari 0,5 gram, dan saldo tabungan tercatat dalam gramasi. Emas dapat dicairkan dalam bentuk uang tunai mengikuti harga pasar harian, atau diambil fisiknya dalam bentuk batangan bila sudah mencapai ukuran tertentu.</p>
+
+<p>Pengurus menyarankan anggota mengalokasikan sebagian kecil dari tabungannya ke emas — bukan seluruhnya. “Emas itu pelengkap, bukan pengganti simpanan. Dana darurat tetap harus tersedia dalam bentuk tunai,” pesannya. Anggota yang ingin berkonsultasi dapat datang ke unit usaha emas koperasi pada jam layanan.</p>]]></content:encoded>
+    <excerpt:encoded><![CDATA[Emas dikenal sebagai pelindung nilai. Sebelum mulai menabung emas, pahami dulu cara kerja, risiko, dan biayanya.]]></excerpt:encoded>
+    <wp:post_id>107</wp:post_id>
+    <wp:post_date><![CDATA[2026-11-19 09:00:00]]></wp:post_date>
+    <wp:post_date_gmt><![CDATA[2026-11-19 02:00:00]]></wp:post_date_gmt>
+    <wp:comment_status><![CDATA[open]]></wp:comment_status>
+    <wp:ping_status><![CDATA[open]]></wp:ping_status>
+    <wp:post_name><![CDATA[emas-sebagai-tabungan-jangka-panjang-apa-yang-perlu-anggota-ketahui]]></wp:post_name>
+    <wp:status><![CDATA[publish]]></wp:status>
+    <wp:post_parent>0</wp:post_parent>
+    <wp:menu_order>0</wp:menu_order>
+    <wp:post_type><![CDATA[post]]></wp:post_type>
+    <wp:post_password><![CDATA[]]></wp:post_password>
+    <wp:is_sticky>0</wp:is_sticky>
+    <category domain="category" nicename="emas"><![CDATA[Emas & Investasi]]></category>
+    <category domain="post_tag" nicename="harga-emas"><![CDATA[Harga Emas]]></category>
+    <wp:postmeta>
+      <wp:meta_key><![CDATA[_thumbnail_id]]></wp:meta_key>
+      <wp:meta_value><![CDATA[1003]]></wp:meta_value>
+    </wp:postmeta>
+
+  </item>
+  <item>
+    <title><![CDATA[Sisa Hasil Usaha 2025 Dibagikan: Ini Rincian Pembagiannya]]></title>
+    <link>https://koperasikita.pentagonal.org/2026/11/18/sisa-hasil-usaha-2025-dibagikan-ini-rincian-pembagiannya/</link>
+    <pubDate>Wed, 18 Nov 2026 03:30:00 +0000</pubDate>
+    <dc:creator><![CDATA[admin]]></dc:creator>
+    <guid isPermaLink="false">https://koperasikita.pentagonal.org/2026/11/18/sisa-hasil-usaha-2025-dibagikan-ini-rincian-pembagiannya/</guid>
+    <description></description>
+    <content:encoded><![CDATA[<p>Koperasi Kita mulai membagikan Sisa Hasil Usaha (SHU) tahun buku 2025 kepada seluruh anggota aktif. Total SHU yang dibagikan mencapai Rp486 juta, naik 18 persen dibanding tahun sebelumnya. Pembagian dilakukan berdasarkan jasa simpanan dan jasa pinjaman masing-masing anggota selama tahun buku berjalan.</p>
+
+<p>Rinciannya, 40 persen SHU dialokasikan untuk jasa simpanan, 25 persen untuk jasa pinjaman, 20 persen untuk dana cadangan, dan sisanya untuk dana pendidikan, dana sosial, serta dana pengurus. Semakin besar simpanan dan semakin aktif anggota memanfaatkan layanan koperasi, semakin besar pula bagian SHU yang diterima.</p>
+
+<p>Dana SHU ditransfer langsung ke rekening simpanan sukarela anggota paling lambat 30 November 2026. Anggota dapat memeriksa jumlah yang diterima melalui aplikasi anggota atau dengan datang ke kantor koperasi. Bagi anggota yang belum memiliki rekening simpanan sukarela, dana akan dibukukan sebagai simpanan dan dapat diambil sewaktu-waktu.</p>
+
+<p>Pengurus menyampaikan terima kasih atas kepercayaan anggota selama tahun buku 2025. “SHU ini adalah bukti bahwa koperasi yang dikelola bersama dapat memberi hasil nyata bagi anggotanya,” ujar bendahara koperasi. Anggota yang merasa ada ketidaksesuaian dalam perhitungan dapat mengajukan klarifikasi ke bagian keuangan paling lambat 15 Desember 2026.</p>]]></content:encoded>
+    <excerpt:encoded><![CDATA[SHU tahun buku 2025 sebesar Rp486 juta mulai dibagikan kepada anggota. Cek rincian pembagiannya di sini.]]></excerpt:encoded>
+    <wp:post_id>108</wp:post_id>
+    <wp:post_date><![CDATA[2026-11-18 10:30:00]]></wp:post_date>
+    <wp:post_date_gmt><![CDATA[2026-11-18 03:30:00]]></wp:post_date_gmt>
+    <wp:comment_status><![CDATA[open]]></wp:comment_status>
+    <wp:ping_status><![CDATA[open]]></wp:ping_status>
+    <wp:post_name><![CDATA[sisa-hasil-usaha-2025-dibagikan-ini-rincian-pembagiannya]]></wp:post_name>
+    <wp:status><![CDATA[publish]]></wp:status>
+    <wp:post_parent>0</wp:post_parent>
+    <wp:menu_order>0</wp:menu_order>
+    <wp:post_type><![CDATA[post]]></wp:post_type>
+    <wp:post_password><![CDATA[]]></wp:post_password>
+    <wp:is_sticky>0</wp:is_sticky>
+    <category domain="category" nicename="berita-koperasi"><![CDATA[Berita Koperasi]]></category>
+    <category domain="post_tag" nicename="shu"><![CDATA[SHU]]></category>
+    <wp:postmeta>
+      <wp:meta_key><![CDATA[_thumbnail_id]]></wp:meta_key>
+      <wp:meta_value><![CDATA[1001]]></wp:meta_value>
+    </wp:postmeta>
+
+  </item>
+  <item>
+    <title><![CDATA[Pinjaman Pendidikan Ringan untuk Anak Anggota, Bunga 0,5% per Bulan]]></title>
+    <link>https://koperasikita.pentagonal.org/2026/11/17/pinjaman-pendidikan-ringan-untuk-anak-anggota-bunga-05-persen-per-bulan/</link>
+    <pubDate>Tue, 17 Nov 2026 02:00:00 +0000</pubDate>
+    <dc:creator><![CDATA[admin]]></dc:creator>
+    <guid isPermaLink="false">https://koperasikita.pentagonal.org/2026/11/17/pinjaman-pendidikan-ringan-untuk-anak-anggota-bunga-05-persen-per-bulan/</guid>
+    <description></description>
+    <content:encoded><![CDATA[<p>Koperasi Kita meluncurkan program pinjaman pendidikan bagi anggota yang membutuhkan dana untuk biaya sekolah dan kuliah anak. Pinjaman ini diberikan dengan bunga ringan 0,5 persen per bulan dan jangka waktu hingga 12 bulan, jauh lebih ringan dibanding pinjaman konsumtif pada umumnya.</p>
+
+<p>Pinjaman pendidikan dapat digunakan untuk uang pangkal, uang kuliah semesteran, pembelian buku dan perlengkapan sekolah, hingga biaya kursus. Plafon pinjaman mencapai Rp10 juta per anggota, dengan pencairan paling lama tiga hari kerja setelah berkas lengkap dan disetujui.</p>
+
+<p>Syarat pengajuannya sederhana: anggota aktif minimal satu tahun, melampirkan bukti tagihan atau surat keterangan dari sekolah atau kampus, serta fotokopi kartu keluarga. Tidak diperlukan agunan tambahan, karena pinjaman ini dijamin oleh simpanan anggota di koperasi.</p>
+
+<p>“Pendidikan anak adalah investasi terbaik keluarga. Koperasi hadir agar tidak ada anak anggota yang putus sekolah karena biaya,” ujar pengurus. Anggota yang berminat dapat mengajukan permohonan di kantor koperasi atau berkonsultasi terlebih dahulu dengan petugas layanan anggota.</p>]]></content:encoded>
+    <excerpt:encoded><![CDATA[Biaya sekolah dan kuliah anak tidak perlu lagi memberatkan. Koperasi menyediakan pinjaman pendidikan dengan bunga 0,5% per bulan.]]></excerpt:encoded>
+    <wp:post_id>109</wp:post_id>
+    <wp:post_date><![CDATA[2026-11-17 09:00:00]]></wp:post_date>
+    <wp:post_date_gmt><![CDATA[2026-11-17 02:00:00]]></wp:post_date_gmt>
+    <wp:comment_status><![CDATA[open]]></wp:comment_status>
+    <wp:ping_status><![CDATA[open]]></wp:ping_status>
+    <wp:post_name><![CDATA[pinjaman-pendidikan-ringan-untuk-anak-anggota-bunga-05-persen-per-bulan]]></wp:post_name>
+    <wp:status><![CDATA[publish]]></wp:status>
+    <wp:post_parent>0</wp:post_parent>
+    <wp:menu_order>0</wp:menu_order>
+    <wp:post_type><![CDATA[post]]></wp:post_type>
+    <wp:post_password><![CDATA[]]></wp:post_password>
+    <wp:is_sticky>0</wp:is_sticky>
+    <category domain="category" nicename="ekonomi"><![CDATA[Ekonomi]]></category>
+    <category domain="post_tag" nicename="pinjaman"><![CDATA[Pinjaman]]></category>
+    <wp:postmeta>
+      <wp:meta_key><![CDATA[_thumbnail_id]]></wp:meta_key>
+      <wp:meta_value><![CDATA[1002]]></wp:meta_value>
+    </wp:postmeta>
+
+  </item>
+  <item>
+    <title><![CDATA[Pelatihan Kewirausahaan Batch Kedua: 40 Anggota Ikut Serta]]></title>
+    <link>https://koperasikita.pentagonal.org/2026/11/15/pelatihan-kewirausahaan-batch-kedua-40-anggota-ikut-serta/</link>
+    <pubDate>Sun, 15 Nov 2026 06:00:00 +0000</pubDate>
+    <dc:creator><![CDATA[admin]]></dc:creator>
+    <guid isPermaLink="false">https://koperasikita.pentagonal.org/2026/11/15/pelatihan-kewirausahaan-batch-kedua-40-anggota-ikut-serta/</guid>
+    <description></description>
+    <content:encoded><![CDATA[<p>Koperasi Kita menggelar pelatihan kewirausahaan batch kedua yang diikuti 40 anggota pelaku usaha. Pelatihan berlangsung selama dua hari di Aula Koperasi Kita dan menghadirkan praktisi usaha kecil serta pendamping UMKM dari dinas terkait.</p>
+
+<p>Materi pelatihan meliputi pencatatan keuangan sederhana, pengemasan produk yang menarik, penetapan harga jual, serta pemasaran digital melalui media sosial dan lokapasar. Peserta juga diajak mempraktikkan langsung pembuatan foto produk dengan ponsel dan penyusunan katalog daring.</p>
+
+<p>Salah satu peserta, pemilik usaha keripik singkong rumahan, mengaku pelatihan ini membuka wawasannya. “Selama ini saya hanya mencatat pemasukan di kepala. Sekarang saya tahu cara mencatat yang benar, dan ternyata keuntungan saya lebih besar dari yang saya kira,” katanya sambil tersenyum.</p>
+
+<p>Pelatihan kewirausahaan merupakan program rutin koperasi yang dibiayai dari dana pendidikan SHU. Batch ketiga direncanakan pada Januari 2027 dengan kuota 50 peserta. Anggota yang berminat dapat mendaftar melalui kantor koperasi atau halaman Kontak situs ini.</p>]]></content:encoded>
+    <excerpt:encoded><![CDATA[Sebanyak 40 anggota mengikuti pelatihan kewirausahaan batch kedua: pencatatan keuangan, pengemasan produk, dan pemasaran digital.]]></excerpt:encoded>
+    <wp:post_id>110</wp:post_id>
+    <wp:post_date><![CDATA[2026-11-15 13:00:00]]></wp:post_date>
+    <wp:post_date_gmt><![CDATA[2026-11-15 06:00:00]]></wp:post_date_gmt>
+    <wp:comment_status><![CDATA[open]]></wp:comment_status>
+    <wp:ping_status><![CDATA[open]]></wp:ping_status>
+    <wp:post_name><![CDATA[pelatihan-kewirausahaan-batch-kedua-40-anggota-ikut-serta]]></wp:post_name>
+    <wp:status><![CDATA[publish]]></wp:status>
+    <wp:post_parent>0</wp:post_parent>
+    <wp:menu_order>0</wp:menu_order>
+    <wp:post_type><![CDATA[post]]></wp:post_type>
+    <wp:post_password><![CDATA[]]></wp:post_password>
+    <wp:is_sticky>0</wp:is_sticky>
+    <category domain="category" nicename="edukasi"><![CDATA[Edukasi]]></category>
+    <category domain="post_tag" nicename="umkm"><![CDATA[UMKM]]></category>
+    <wp:postmeta>
+      <wp:meta_key><![CDATA[_thumbnail_id]]></wp:meta_key>
+      <wp:meta_value><![CDATA[1004]]></wp:meta_value>
+    </wp:postmeta>
+
+  </item>
+  <item>
+    <title><![CDATA[Koperasi Kita Raih Penghargaan Koperasi Berprestasi Tingkat Provinsi]]></title>
+    <link>https://koperasikita.pentagonal.org/2026/11/13/koperasi-kita-raih-penghargaan-koperasi-berprestasi-tingkat-provinsi/</link>
+    <pubDate>Fri, 13 Nov 2026 03:00:00 +0000</pubDate>
+    <dc:creator><![CDATA[admin]]></dc:creator>
+    <guid isPermaLink="false">https://koperasikita.pentagonal.org/2026/11/13/koperasi-kita-raih-penghargaan-koperasi-berprestasi-tingkat-provinsi/</guid>
+    <description></description>
+    <content:encoded><![CDATA[<p>Koperasi Kita meraih penghargaan Koperasi Berprestasi Tingkat Provinsi Sumatera Barat tahun 2026. Penghargaan diserahkan langsung oleh Gubernur dalam acara peringatan Hari Koperasi di Padang, dan diterima oleh ketua koperasi didampingi pengurus.</p>
+
+<p>Penilaian meliputi kesehatan keuangan koperasi, pertumbuhan anggota, kualitas pelayanan, serta kontribusi terhadap pemberdayaan ekonomi masyarakat. Koperasi Kita dinilai unggul dalam digitalisasi layanan, penyaluran pinjaman produktif, dan program literasi keuangan bagi anggota.</p>
+
+<p>“Penghargaan ini milik seluruh anggota. Tanpa kepercayaan dan partisipasi anggota, koperasi tidak akan sampai di titik ini,” ujar ketua koperasi dalam sambutannya. Ia juga menyampaikan penghargaan ini menjadi pemacu untuk terus memperbaiki layanan dan memperluas manfaat koperasi bagi anggota.</p>
+
+<p>Sebagai tindak lanjut, pengurus menargetkan Koperasi Kita dapat mengikuti penilaian koperasi berprestasi tingkat nasional pada 2027. Persiapan yang dilakukan antara lain penyempurnaan laporan keuangan, penguatan unit usaha, dan peningkatan jumlah anggota aktif.</p>]]></content:encoded>
+    <excerpt:encoded><![CDATA[Koperasi Kita meraih penghargaan Koperasi Berprestasi Tingkat Provinsi Sumatera Barat 2026.]]></excerpt:encoded>
+    <wp:post_id>111</wp:post_id>
+    <wp:post_date><![CDATA[2026-11-13 10:00:00]]></wp:post_date>
+    <wp:post_date_gmt><![CDATA[2026-11-13 03:00:00]]></wp:post_date_gmt>
+    <wp:comment_status><![CDATA[open]]></wp:comment_status>
+    <wp:ping_status><![CDATA[open]]></wp:ping_status>
+    <wp:post_name><![CDATA[koperasi-kita-raih-penghargaan-koperasi-berprestasi-tingkat-provinsi]]></wp:post_name>
+    <wp:status><![CDATA[publish]]></wp:status>
+    <wp:post_parent>0</wp:post_parent>
+    <wp:menu_order>0</wp:menu_order>
+    <wp:post_type><![CDATA[post]]></wp:post_type>
+    <wp:post_password><![CDATA[]]></wp:post_password>
+    <wp:is_sticky>0</wp:is_sticky>
+    <category domain="category" nicename="berita-koperasi"><![CDATA[Berita Koperasi]]></category>
+    <category domain="post_tag" nicename="rat"><![CDATA[RAT]]></category>
+    <wp:postmeta>
+      <wp:meta_key><![CDATA[_thumbnail_id]]></wp:meta_key>
+      <wp:meta_value><![CDATA[1001]]></wp:meta_value>
+    </wp:postmeta>
+
+  </item>
+  <item>
+    <title><![CDATA[Pengumuman: Libur Layanan Akhir Tahun dan Jadwal Piket]]></title>
+    <link>https://koperasikita.pentagonal.org/2026/11/10/pengumuman-libur-layanan-akhir-tahun-dan-jadwal-piket/</link>
+    <pubDate>Tue, 10 Nov 2026 01:00:00 +0000</pubDate>
+    <dc:creator><![CDATA[admin]]></dc:creator>
+    <guid isPermaLink="false">https://koperasikita.pentagonal.org/2026/11/10/pengumuman-libur-layanan-akhir-tahun-dan-jadwal-piket/</guid>
+    <description></description>
+    <content:encoded><![CDATA[<p>Sehubungan dengan libur akhir tahun, kantor Koperasi Kita akan tutup pada 24–25 Desember 2026 dan 1 Januari 2027. Layanan simpanan, pinjaman, dan unit usaha emas tidak beroperasi pada tanggal tersebut. Layanan kembali normal pada hari kerja berikutnya.</p>
+
+<p>Anggota yang membutuhkan layanan mendesak selama masa libur dapat menghubungi nomor darurat yang tertera di papan pengumuman kantor dan halaman Kontak situs ini. Pengecekan saldo simpanan tetap dapat dilakukan melalui aplikasi anggota selama masa libur.</p>
+
+<p>Pengurus mengimbau anggota yang berencana mengajukan pinjaman atau mengambil simpanan dalam jumlah besar agar mengurusnya sebelum 23 Desember 2026, untuk menghindari antrean dan keterlambatan. “Kami mohon pengertian anggota. Petugas kami juga membutuhkan waktu bersama keluarga di akhir tahun,” ujar pengurus.</p>
+
+<p>Jadwal piket petugas selama masa libur akan diumumkan di papan pengumuman kantor dan grup pesan anggota. Selamat menyambut akhir tahun, semoga anggota dan keluarga selalu sehat dan sejahtera.</p>]]></content:encoded>
+    <excerpt:encoded><![CDATA[Layanan kantor koperasi libur pada 24–25 Desember 2026 dan 1 Januari 2027. Layanan darurat tetap tersedia melalui nomor yang tertera.]]></excerpt:encoded>
+    <wp:post_id>112</wp:post_id>
+    <wp:post_date><![CDATA[2026-11-10 08:00:00]]></wp:post_date>
+    <wp:post_date_gmt><![CDATA[2026-11-10 01:00:00]]></wp:post_date_gmt>
+    <wp:comment_status><![CDATA[open]]></wp:comment_status>
+    <wp:ping_status><![CDATA[open]]></wp:ping_status>
+    <wp:post_name><![CDATA[pengumuman-libur-layanan-akhir-tahun-dan-jadwal-piket]]></wp:post_name>
+    <wp:status><![CDATA[publish]]></wp:status>
+    <wp:post_parent>0</wp:post_parent>
+    <wp:menu_order>0</wp:menu_order>
+    <wp:post_type><![CDATA[post]]></wp:post_type>
+    <wp:post_password><![CDATA[]]></wp:post_password>
+    <wp:is_sticky>0</wp:is_sticky>
+    <category domain="category" nicename="pengumuman"><![CDATA[Pengumuman]]></category>
+  </item>
+  <item>
+    <title><![CDATA[Tentang Kami]]></title>
+    <link>https://koperasikita.pentagonal.org/tentang-kami/</link>
+    <pubDate>Thu, 05 Nov 2026 02:00:00 +0000</pubDate>
+    <dc:creator><![CDATA[admin]]></dc:creator>
+    <guid isPermaLink="false">https://koperasikita.pentagonal.org/tentang-kami/</guid>
+    <description></description>
+    <content:encoded><![CDATA[<p>Koperasi Kita adalah koperasi simpan pinjam yang didirikan di Padang pada tahun 2015 oleh sekelompok pedagang pasar, guru, dan karyawan yang percaya bahwa ekonomi gotong royong dapat mensejahterakan anggotanya. Berawal dari 27 anggota pendiri dengan modal awal Rp13,5 juta, koperasi kini melayani lebih dari 1.300 anggota aktif di Kota Padang dan sekitarnya.</p>
+
+<p>Visi kami sederhana: menjadi koperasi yang sehat, transparan, dan bermanfaat nyata bagi anggota. Misi kami adalah menyediakan layanan simpanan dan pinjaman yang ringan dan mudah diakses, memberdayakan usaha anggota melalui pinjaman produktif dan pelatihan, serta menumbuhkan literasi keuangan di tengah masyarakat.</p>
+
+<p>Koperasi dikelola secara demokratis. Rapat Anggota Tahunan adalah pemegang kekuasaan tertinggi; pengurus dan pengawas dipilih oleh anggota dan bertanggung jawab kepada anggota. Laporan keuangan diaudit setiap tahun dan dapat diakses seluruh anggota. Prinsip ini kami pegang teguh: dari anggota, oleh anggota, untuk anggota.</p>
+
+<p>Saat ini Koperasi Kita mengelola unit usaha simpan pinjam, toko koperasi, unit usaha emas, dan program pelatihan anggota. Kantor pusat kami berada di Padang, Sumatera Barat, dan buka setiap hari kerja pukul 08.00–16.00 WIB.</p>]]></content:encoded>
+    <excerpt:encoded><![CDATA[]]></excerpt:encoded>
+    <wp:post_id>201</wp:post_id>
+    <wp:post_date><![CDATA[2026-11-05 09:00:00]]></wp:post_date>
+    <wp:post_date_gmt><![CDATA[2026-11-05 02:00:00]]></wp:post_date_gmt>
+    <wp:comment_status><![CDATA[open]]></wp:comment_status>
+    <wp:ping_status><![CDATA[open]]></wp:ping_status>
+    <wp:post_name><![CDATA[tentang-kami]]></wp:post_name>
+    <wp:status><![CDATA[publish]]></wp:status>
+    <wp:post_parent>0</wp:post_parent>
+    <wp:menu_order>0</wp:menu_order>
+    <wp:post_type><![CDATA[page]]></wp:post_type>
+    <wp:post_password><![CDATA[]]></wp:post_password>
+    <wp:is_sticky>0</wp:is_sticky>
+  </item>
+  <item>
+    <title><![CDATA[Keanggotaan]]></title>
+    <link>https://koperasikita.pentagonal.org/keanggotaan/</link>
+    <pubDate>Thu, 05 Nov 2026 02:00:00 +0000</pubDate>
+    <dc:creator><![CDATA[admin]]></dc:creator>
+    <guid isPermaLink="false">https://koperasikita.pentagonal.org/keanggotaan/</guid>
+    <description></description>
+    <content:encoded><![CDATA[<p>Menjadi anggota Koperasi Kita itu mudah. Siapa pun warga negara Indonesia yang berusia minimal 17 tahun atau sudah menikah dapat mendaftar. Calon anggota cukup mengisi formulir pendaftaran, menyerahkan fotokopi KTP, dan membayar simpanan pokok sebesar Rp100.000 serta simpanan wajib pertama Rp20.000.</p>
+
+<p>Sebagai anggota, Anda berhak atas seluruh layanan koperasi: simpanan dengan jasa yang bersaing, pinjaman dengan bunga ringan, pembagian Sisa Hasil Usaha (SHU) setiap tahun, layanan tabungan emas, serta pelatihan dan kelas literasi keuangan gratis. Anggota juga berhak mengikuti Rapat Anggota Tahunan dan memilih pengurus.</p>
+
+<p>Kewajiban anggota pun sederhana: membayar simpanan wajib setiap bulan, mematuhi Anggaran Dasar dan Anggaran Rumah Tangga, serta menjaga nama baik koperasi. Anggota yang berhenti dapat mengambil kembali simpanan pokok dan simpanannya setelah menyelesaikan seluruh kewajibannya.</p>
+
+<p>Pendaftaran dapat dilakukan langsung di kantor koperasi pada jam layanan, atau dengan menghubungi kami melalui halaman Kontak. Petugas kami akan membantu proses pendaftaran hingga selesai, biasanya dalam waktu satu hari kerja.</p>]]></content:encoded>
+    <excerpt:encoded><![CDATA[]]></excerpt:encoded>
+    <wp:post_id>202</wp:post_id>
+    <wp:post_date><![CDATA[2026-11-05 09:00:00]]></wp:post_date>
+    <wp:post_date_gmt><![CDATA[2026-11-05 02:00:00]]></wp:post_date_gmt>
+    <wp:comment_status><![CDATA[open]]></wp:comment_status>
+    <wp:ping_status><![CDATA[open]]></wp:ping_status>
+    <wp:post_name><![CDATA[keanggotaan]]></wp:post_name>
+    <wp:status><![CDATA[publish]]></wp:status>
+    <wp:post_parent>0</wp:post_parent>
+    <wp:menu_order>0</wp:menu_order>
+    <wp:post_type><![CDATA[page]]></wp:post_type>
+    <wp:post_password><![CDATA[]]></wp:post_password>
+    <wp:is_sticky>0</wp:is_sticky>
+  </item>
+  <item>
+    <title><![CDATA[Kontak]]></title>
+    <link>https://koperasikita.pentagonal.org/kontak/</link>
+    <pubDate>Thu, 05 Nov 2026 02:00:00 +0000</pubDate>
+    <dc:creator><![CDATA[admin]]></dc:creator>
+    <guid isPermaLink="false">https://koperasikita.pentagonal.org/kontak/</guid>
+    <description></description>
+    <content:encoded><![CDATA[<p>Kantor Koperasi Kita beralamat di Jl. Raya Padang No. 12, Kota Padang, Sumatera Barat 25111. Telepon (0751) 123-456, surel halo@koperasikita.pentagonal.org. Jam layanan Senin sampai Jumat pukul 08.00–16.00 WIB dan Sabtu pukul 08.00–12.00 WIB. Minggu dan hari libur nasional, kantor tutup.</p>
+
+<p>Untuk pertanyaan seputar simpanan, pinjaman, dan keanggotaan, silakan datang langsung ke kantor atau menghubungi nomor layanan di atas. Anggota juga dapat memeriksa saldo simpanan dan jadwal angsuran melalui aplikasi anggota.</p>
+
+<p>Saran, kritik, dan pengaduan dapat disampaikan melalui surel atau kotak saran di kantor. Setiap pengaduan akan ditindaklanjuti pengurus paling lambat lima hari kerja.</p>]]></content:encoded>
+    <excerpt:encoded><![CDATA[]]></excerpt:encoded>
+    <wp:post_id>203</wp:post_id>
+    <wp:post_date><![CDATA[2026-11-05 09:00:00]]></wp:post_date>
+    <wp:post_date_gmt><![CDATA[2026-11-05 02:00:00]]></wp:post_date_gmt>
+    <wp:comment_status><![CDATA[open]]></wp:comment_status>
+    <wp:ping_status><![CDATA[open]]></wp:ping_status>
+    <wp:post_name><![CDATA[kontak]]></wp:post_name>
+    <wp:status><![CDATA[publish]]></wp:status>
+    <wp:post_parent>0</wp:post_parent>
+    <wp:menu_order>0</wp:menu_order>
+    <wp:post_type><![CDATA[page]]></wp:post_type>
+    <wp:post_password><![CDATA[]]></wp:post_password>
+    <wp:is_sticky>0</wp:is_sticky>
+  </item>
+  <item>
+    <title><![CDATA[Bookmark Saya]]></title>
+    <link>https://koperasikita.pentagonal.org/bookmark-saya/</link>
+    <pubDate>Thu, 05 Nov 2026 02:00:00 +0000</pubDate>
+    <dc:creator><![CDATA[admin]]></dc:creator>
+    <guid isPermaLink="false">https://koperasikita.pentagonal.org/bookmark-saya/</guid>
+    <description></description>
+    <content:encoded><![CDATA[<p>Halaman ini menampilkan artikel yang Anda simpan. Bookmark tersimpan di peramban Anda dan dapat dibuka kembali kapan saja, lengkap dengan catatan pribadi yang Anda tulis untuk setiap artikel.</p>]]></content:encoded>
+    <excerpt:encoded><![CDATA[]]></excerpt:encoded>
+    <wp:post_id>204</wp:post_id>
+    <wp:post_date><![CDATA[2026-11-05 09:00:00]]></wp:post_date>
+    <wp:post_date_gmt><![CDATA[2026-11-05 02:00:00]]></wp:post_date_gmt>
+    <wp:comment_status><![CDATA[open]]></wp:comment_status>
+    <wp:ping_status><![CDATA[open]]></wp:ping_status>
+    <wp:post_name><![CDATA[bookmark-saya]]></wp:post_name>
+    <wp:status><![CDATA[publish]]></wp:status>
+    <wp:post_parent>0</wp:post_parent>
+    <wp:menu_order>0</wp:menu_order>
+    <wp:post_type><![CDATA[page]]></wp:post_type>
+    <wp:post_password><![CDATA[]]></wp:post_password>
+    <wp:is_sticky>0</wp:is_sticky>
+    <wp:postmeta>
+      <wp:meta_key><![CDATA[_wp_page_template]]></wp:meta_key>
+      <wp:meta_value><![CDATA[template-bookmarks.php]]></wp:meta_value>
+    </wp:postmeta>
+
+  </item>
+  <item>
+    <title><![CDATA[Kebijakan Privasi]]></title>
+    <link>https://koperasikita.pentagonal.org/kebijakan-privasi/</link>
+    <pubDate>Thu, 05 Nov 2026 02:00:00 +0000</pubDate>
+    <dc:creator><![CDATA[admin]]></dc:creator>
+    <guid isPermaLink="false">https://koperasikita.pentagonal.org/kebijakan-privasi/</guid>
+    <description></description>
+    <content:encoded><![CDATA[<p>Koperasi Kita menghormati privasi anggota dan pengunjung situs ini. Data pribadi yang kami kumpulkan — seperti nama, alamat, nomor telepon, dan data keanggotaan — hanya digunakan untuk keperluan layanan koperasi dan tidak dibagikan kepada pihak ketiga tanpa persetujuan anggota, kecuali diwajibkan oleh hukum.</p>
+
+<p>Situs ini menggunakan cookie untuk mengingat preferensi tampilan, seperti pilihan lokasi cuaca dan ukuran huruf artikel. Bookmark yang Anda simpan hanya tersimpan di peramban Anda sendiri dan tidak dikirim ke server kami.</p>
+
+<p>Anggota berhak meminta salinan, perbaikan, atau penghapusan data pribadinya dengan menghubungi pengurus melalui halaman Kontak. Kebijakan ini dapat diperbarui sewaktu-waktu; perubahan akan diumumkan di situs ini.</p>]]></content:encoded>
+    <excerpt:encoded><![CDATA[]]></excerpt:encoded>
+    <wp:post_id>205</wp:post_id>
+    <wp:post_date><![CDATA[2026-11-05 09:00:00]]></wp:post_date>
+    <wp:post_date_gmt><![CDATA[2026-11-05 02:00:00]]></wp:post_date_gmt>
+    <wp:comment_status><![CDATA[open]]></wp:comment_status>
+    <wp:ping_status><![CDATA[open]]></wp:ping_status>
+    <wp:post_name><![CDATA[kebijakan-privasi]]></wp:post_name>
+    <wp:status><![CDATA[publish]]></wp:status>
+    <wp:post_parent>0</wp:post_parent>
+    <wp:menu_order>0</wp:menu_order>
+    <wp:post_type><![CDATA[page]]></wp:post_type>
+    <wp:post_password><![CDATA[]]></wp:post_password>
+    <wp:is_sticky>0</wp:is_sticky>
+  </item>
+  <item>
+    <title><![CDATA[Rapat Anggota Tahunan 2026]]></title>
+    <link>https://koperasikita.pentagonal.org/agenda/rapat-anggota-tahunan-2026/</link>
+    <pubDate>Thu, 12 Nov 2026 03:00:00 +0000</pubDate>
+    <dc:creator><![CDATA[admin]]></dc:creator>
+    <guid isPermaLink="false">https://koperasikita.pentagonal.org/agenda/rapat-anggota-tahunan-2026/</guid>
+    <description></description>
+    <content:encoded><![CDATA[<p>Rapat Anggota Tahunan (RAT) 2026 akan digelar pada Minggu, 6 Desember 2026, pukul 09.00–12.00 WIB di Aula Koperasi Kita, Padang. Agenda rapat meliputi laporan pertanggungjawaban pengurus tahun buku 2025, pengesahan pembagian SHU, pemilihan pengurus periode 2026–2029, serta penetapan rencana kerja dan anggaran tahun 2027.</p>
+
+<p>Seluruh anggota aktif diundang hadir. Anggota yang berhalangan dapat memberikan kuasa kepada anggota lain, dengan ketentuan satu anggota hanya dapat menerima satu kuasa. Mohon hadir 30 menit lebih awal untuk registrasi dan membawa kartu anggota.</p>]]></content:encoded>
+    <excerpt:encoded><![CDATA[]]></excerpt:encoded>
+    <wp:post_id>301</wp:post_id>
+    <wp:post_date><![CDATA[2026-11-12 10:00:00]]></wp:post_date>
+    <wp:post_date_gmt><![CDATA[2026-11-12 03:00:00]]></wp:post_date_gmt>
+    <wp:comment_status><![CDATA[closed]]></wp:comment_status>
+    <wp:ping_status><![CDATA[closed]]></wp:ping_status>
+    <wp:post_name><![CDATA[rapat-anggota-tahunan-2026]]></wp:post_name>
+    <wp:status><![CDATA[publish]]></wp:status>
+    <wp:post_parent>0</wp:post_parent>
+    <wp:menu_order>0</wp:menu_order>
+    <wp:post_type><![CDATA[agenda]]></wp:post_type>
+    <wp:post_password><![CDATA[]]></wp:post_password>
+    <wp:is_sticky>0</wp:is_sticky>
+    <wp:postmeta>
+      <wp:meta_key><![CDATA[_thumbnail_id]]></wp:meta_key>
+      <wp:meta_value><![CDATA[1006]]></wp:meta_value>
+    </wp:postmeta>
+
+    <wp:postmeta>
+      <wp:meta_key><![CDATA[_kk_agenda_start]]></wp:meta_key>
+      <wp:meta_value><![CDATA[2026-12-06 09:00]]></wp:meta_value>
+    </wp:postmeta>
+
+    <wp:postmeta>
+      <wp:meta_key><![CDATA[_kk_agenda_end]]></wp:meta_key>
+      <wp:meta_value><![CDATA[2026-12-06 12:00]]></wp:meta_value>
+    </wp:postmeta>
+
+    <wp:postmeta>
+      <wp:meta_key><![CDATA[_kk_agenda_location]]></wp:meta_key>
+      <wp:meta_value><![CDATA[Aula Koperasi Kita, Padang]]></wp:meta_value>
+    </wp:postmeta>
+
+    <wp:postmeta>
+      <wp:meta_key><![CDATA[_kk_agenda_start_ts]]></wp:meta_key>
+      <wp:meta_value><![CDATA[1796522400]]></wp:meta_value>
+    </wp:postmeta>
+
+  </item>
+  <item>
+    <title><![CDATA[Pelatihan Literasi Keuangan untuk Anggota]]></title>
+    <link>https://koperasikita.pentagonal.org/agenda/pelatihan-literasi-keuangan-untuk-anggota/</link>
+    <pubDate>Thu, 12 Nov 2026 03:00:00 +0000</pubDate>
+    <dc:creator><![CDATA[admin]]></dc:creator>
+    <guid isPermaLink="false">https://koperasikita.pentagonal.org/agenda/pelatihan-literasi-keuangan-untuk-anggota/</guid>
+    <description></description>
+    <content:encoded><![CDATA[<p>Koperasi Kita mengadakan pelatihan literasi keuangan gratis bagi anggota pada Sabtu, 13 Desember 2026, pukul 09.00–11.30 WIB. Materi meliputi cara menyusun anggaran keluarga, membedakan kebutuhan dan keinginan, serta perencanaan dana pendidikan anak.</p>
+
+<p>Pelatihan terbuka untuk 50 peserta dan tidak dipungut biaya. Pendaftaran dapat dilakukan di kantor koperasi atau melalui halaman Kontak. Peserta diimbau membawa alat tulis dan buku catatan.</p>]]></content:encoded>
+    <excerpt:encoded><![CDATA[]]></excerpt:encoded>
+    <wp:post_id>302</wp:post_id>
+    <wp:post_date><![CDATA[2026-11-12 10:00:00]]></wp:post_date>
+    <wp:post_date_gmt><![CDATA[2026-11-12 03:00:00]]></wp:post_date_gmt>
+    <wp:comment_status><![CDATA[closed]]></wp:comment_status>
+    <wp:ping_status><![CDATA[closed]]></wp:ping_status>
+    <wp:post_name><![CDATA[pelatihan-literasi-keuangan-untuk-anggota]]></wp:post_name>
+    <wp:status><![CDATA[publish]]></wp:status>
+    <wp:post_parent>0</wp:post_parent>
+    <wp:menu_order>0</wp:menu_order>
+    <wp:post_type><![CDATA[agenda]]></wp:post_type>
+    <wp:post_password><![CDATA[]]></wp:post_password>
+    <wp:is_sticky>0</wp:is_sticky>
+    <wp:postmeta>
+      <wp:meta_key><![CDATA[_thumbnail_id]]></wp:meta_key>
+      <wp:meta_value><![CDATA[1006]]></wp:meta_value>
+    </wp:postmeta>
+
+    <wp:postmeta>
+      <wp:meta_key><![CDATA[_kk_agenda_start]]></wp:meta_key>
+      <wp:meta_value><![CDATA[2026-12-13 09:00]]></wp:meta_value>
+    </wp:postmeta>
+
+    <wp:postmeta>
+      <wp:meta_key><![CDATA[_kk_agenda_end]]></wp:meta_key>
+      <wp:meta_value><![CDATA[2026-12-13 11:30]]></wp:meta_value>
+    </wp:postmeta>
+
+    <wp:postmeta>
+      <wp:meta_key><![CDATA[_kk_agenda_location]]></wp:meta_key>
+      <wp:meta_value><![CDATA[Aula Koperasi Kita, Padang]]></wp:meta_value>
+    </wp:postmeta>
+
+    <wp:postmeta>
+      <wp:meta_key><![CDATA[_kk_agenda_start_ts]]></wp:meta_key>
+      <wp:meta_value><![CDATA[1797127200]]></wp:meta_value>
+    </wp:postmeta>
+
+  </item>
+  <item>
+    <title><![CDATA[Bazar UMKM Anggota: Produk Lokal, Harga Anggota]]></title>
+    <link>https://koperasikita.pentagonal.org/agenda/bazar-umkm-anggota-produk-lokal-harga-anggota/</link>
+    <pubDate>Thu, 12 Nov 2026 03:00:00 +0000</pubDate>
+    <dc:creator><![CDATA[admin]]></dc:creator>
+    <guid isPermaLink="false">https://koperasikita.pentagonal.org/agenda/bazar-umkm-anggota-produk-lokal-harga-anggota/</guid>
+    <description></description>
+    <content:encoded><![CDATA[<p>Bazar UMKM anggota digelar pada Minggu, 20 Desember 2026, pukul 08.00–16.00 WIB di halaman kantor koperasi. Sebanyak 24 pelaku usaha anggota akan menjajakan produknya: makanan olahan, kerajinan tangan, pakaian, dan produk pertanian.</p>
+
+<p>Anggota mendapatkan potongan harga khusus di seluruh stan bazar. Acara ini juga menjadi ajang silaturahmi anggota menjelang akhir tahun. Anggota yang ingin membuka stan pada bazar berikutnya dapat mendaftar ke pengurus unit usaha.</p>]]></content:encoded>
+    <excerpt:encoded><![CDATA[]]></excerpt:encoded>
+    <wp:post_id>303</wp:post_id>
+    <wp:post_date><![CDATA[2026-11-12 10:00:00]]></wp:post_date>
+    <wp:post_date_gmt><![CDATA[2026-11-12 03:00:00]]></wp:post_date_gmt>
+    <wp:comment_status><![CDATA[closed]]></wp:comment_status>
+    <wp:ping_status><![CDATA[closed]]></wp:ping_status>
+    <wp:post_name><![CDATA[bazar-umkm-anggota-produk-lokal-harga-anggota]]></wp:post_name>
+    <wp:status><![CDATA[publish]]></wp:status>
+    <wp:post_parent>0</wp:post_parent>
+    <wp:menu_order>0</wp:menu_order>
+    <wp:post_type><![CDATA[agenda]]></wp:post_type>
+    <wp:post_password><![CDATA[]]></wp:post_password>
+    <wp:is_sticky>0</wp:is_sticky>
+    <wp:postmeta>
+      <wp:meta_key><![CDATA[_thumbnail_id]]></wp:meta_key>
+      <wp:meta_value><![CDATA[1006]]></wp:meta_value>
+    </wp:postmeta>
+
+    <wp:postmeta>
+      <wp:meta_key><![CDATA[_kk_agenda_start]]></wp:meta_key>
+      <wp:meta_value><![CDATA[2026-12-20 08:00]]></wp:meta_value>
+    </wp:postmeta>
+
+    <wp:postmeta>
+      <wp:meta_key><![CDATA[_kk_agenda_end]]></wp:meta_key>
+      <wp:meta_value><![CDATA[2026-12-20 16:00]]></wp:meta_value>
+    </wp:postmeta>
+
+    <wp:postmeta>
+      <wp:meta_key><![CDATA[_kk_agenda_location]]></wp:meta_key>
+      <wp:meta_value><![CDATA[Halaman Kantor Koperasi Kita, Padang]]></wp:meta_value>
+    </wp:postmeta>
+
+    <wp:postmeta>
+      <wp:meta_key><![CDATA[_kk_agenda_start_ts]]></wp:meta_key>
+      <wp:meta_value><![CDATA[1797728400]]></wp:meta_value>
+    </wp:postmeta>
+
+  </item>
+  <item>
+    <title><![CDATA[Beranda]]></title>
+    <link>https://koperasikita.pentagonal.org/?p=401</link>
+    <pubDate>Thu, 05 Nov 2026 02:00:00 +0000</pubDate>
+    <dc:creator><![CDATA[admin]]></dc:creator>
+    <guid isPermaLink="false">https://koperasikita.pentagonal.org/?p=401</guid>
+    <description></description>
+    <content:encoded><![CDATA[]]></content:encoded>
+    <excerpt:encoded><![CDATA[]]></excerpt:encoded>
+    <wp:post_id>401</wp:post_id>
+    <wp:post_date><![CDATA[2026-11-05 09:00:00]]></wp:post_date>
+    <wp:post_date_gmt><![CDATA[2026-11-05 02:00:00]]></wp:post_date_gmt>
+    <wp:comment_status><![CDATA[closed]]></wp:comment_status>
+    <wp:ping_status><![CDATA[closed]]></wp:ping_status>
+    <wp:post_name><![CDATA[beranda]]></wp:post_name>
+    <wp:status><![CDATA[publish]]></wp:status>
+    <wp:post_parent>0</wp:post_parent>
+    <wp:menu_order>0</wp:menu_order>
+    <wp:post_type><![CDATA[nav_menu_item]]></wp:post_type>
+    <wp:post_password><![CDATA[]]></wp:post_password>
+    <wp:is_sticky>0</wp:is_sticky>
+    <category domain="nav_menu" nicename="menu-utama"><![CDATA[Menu Utama]]></category>
+    <wp:postmeta>
+      <wp:meta_key><![CDATA[_menu_item_type]]></wp:meta_key>
+      <wp:meta_value><![CDATA[custom]]></wp:meta_value>
+    </wp:postmeta>
+
+    <wp:postmeta>
+      <wp:meta_key><![CDATA[_menu_item_menu_item_parent]]></wp:meta_key>
+      <wp:meta_value><![CDATA[0]]></wp:meta_value>
+    </wp:postmeta>
+
+    <wp:postmeta>
+      <wp:meta_key><![CDATA[_menu_item_object_id]]></wp:meta_key>
+      <wp:meta_value><![CDATA[0]]></wp:meta_value>
+    </wp:postmeta>
+
+    <wp:postmeta>
+      <wp:meta_key><![CDATA[_menu_item_object]]></wp:meta_key>
+      <wp:meta_value><![CDATA[custom]]></wp:meta_value>
+    </wp:postmeta>
+
+    <wp:postmeta>
+      <wp:meta_key><![CDATA[_menu_item_target]]></wp:meta_key>
+      <wp:meta_value><![CDATA[]]></wp:meta_value>
+    </wp:postmeta>
+
+    <wp:postmeta>
+      <wp:meta_key><![CDATA[_menu_item_classes]]></wp:meta_key>
+      <wp:meta_value><![CDATA[a:0:{}]]></wp:meta_value>
+    </wp:postmeta>
+
+    <wp:postmeta>
+      <wp:meta_key><![CDATA[_menu_item_xfn]]></wp:meta_key>
+      <wp:meta_value><![CDATA[]]></wp:meta_value>
+    </wp:postmeta>
+
+    <wp:postmeta>
+      <wp:meta_key><![CDATA[_menu_item_url]]></wp:meta_key>
+      <wp:meta_value><![CDATA[https://koperasikita.pentagonal.org/]]></wp:meta_value>
+    </wp:postmeta>
+
+    <wp:postmeta>
+      <wp:meta_key><![CDATA[_menu_item_position]]></wp:meta_key>
+      <wp:meta_value><![CDATA[1]]></wp:meta_value>
+    </wp:postmeta>
+
+  </item>
+  <item>
+    <title><![CDATA[Berita Koperasi]]></title>
+    <link>https://koperasikita.pentagonal.org/?p=402</link>
+    <pubDate>Thu, 05 Nov 2026 02:00:00 +0000</pubDate>
+    <dc:creator><![CDATA[admin]]></dc:creator>
+    <guid isPermaLink="false">https://koperasikita.pentagonal.org/?p=402</guid>
+    <description></description>
+    <content:encoded><![CDATA[]]></content:encoded>
+    <excerpt:encoded><![CDATA[]]></excerpt:encoded>
+    <wp:post_id>402</wp:post_id>
+    <wp:post_date><![CDATA[2026-11-05 09:00:00]]></wp:post_date>
+    <wp:post_date_gmt><![CDATA[2026-11-05 02:00:00]]></wp:post_date_gmt>
+    <wp:comment_status><![CDATA[closed]]></wp:comment_status>
+    <wp:ping_status><![CDATA[closed]]></wp:ping_status>
+    <wp:post_name><![CDATA[berita-koperasi]]></wp:post_name>
+    <wp:status><![CDATA[publish]]></wp:status>
+    <wp:post_parent>0</wp:post_parent>
+    <wp:menu_order>0</wp:menu_order>
+    <wp:post_type><![CDATA[nav_menu_item]]></wp:post_type>
+    <wp:post_password><![CDATA[]]></wp:post_password>
+    <wp:is_sticky>0</wp:is_sticky>
+    <category domain="nav_menu" nicename="menu-utama"><![CDATA[Menu Utama]]></category>
+    <wp:postmeta>
+      <wp:meta_key><![CDATA[_menu_item_type]]></wp:meta_key>
+      <wp:meta_value><![CDATA[category]]></wp:meta_value>
+    </wp:postmeta>
+
+    <wp:postmeta>
+      <wp:meta_key><![CDATA[_menu_item_menu_item_parent]]></wp:meta_key>
+      <wp:meta_value><![CDATA[0]]></wp:meta_value>
+    </wp:postmeta>
+
+    <wp:postmeta>
+      <wp:meta_key><![CDATA[_menu_item_object_id]]></wp:meta_key>
+      <wp:meta_value><![CDATA[1]]></wp:meta_value>
+    </wp:postmeta>
+
+    <wp:postmeta>
+      <wp:meta_key><![CDATA[_menu_item_object]]></wp:meta_key>
+      <wp:meta_value><![CDATA[category]]></wp:meta_value>
+    </wp:postmeta>
+
+    <wp:postmeta>
+      <wp:meta_key><![CDATA[_menu_item_target]]></wp:meta_key>
+      <wp:meta_value><![CDATA[]]></wp:meta_value>
+    </wp:postmeta>
+
+    <wp:postmeta>
+      <wp:meta_key><![CDATA[_menu_item_classes]]></wp:meta_key>
+      <wp:meta_value><![CDATA[a:0:{}]]></wp:meta_value>
+    </wp:postmeta>
+
+    <wp:postmeta>
+      <wp:meta_key><![CDATA[_menu_item_xfn]]></wp:meta_key>
+      <wp:meta_value><![CDATA[]]></wp:meta_value>
+    </wp:postmeta>
+
+    <wp:postmeta>
+      <wp:meta_key><![CDATA[_menu_item_url]]></wp:meta_key>
+      <wp:meta_value><![CDATA[]]></wp:meta_value>
+    </wp:postmeta>
+
+    <wp:postmeta>
+      <wp:meta_key><![CDATA[_menu_item_position]]></wp:meta_key>
+      <wp:meta_value><![CDATA[2]]></wp:meta_value>
+    </wp:postmeta>
+
+  </item>
+  <item>
+    <title><![CDATA[Ekonomi]]></title>
+    <link>https://koperasikita.pentagonal.org/?p=403</link>
+    <pubDate>Thu, 05 Nov 2026 02:00:00 +0000</pubDate>
+    <dc:creator><![CDATA[admin]]></dc:creator>
+    <guid isPermaLink="false">https://koperasikita.pentagonal.org/?p=403</guid>
+    <description></description>
+    <content:encoded><![CDATA[]]></content:encoded>
+    <excerpt:encoded><![CDATA[]]></excerpt:encoded>
+    <wp:post_id>403</wp:post_id>
+    <wp:post_date><![CDATA[2026-11-05 09:00:00]]></wp:post_date>
+    <wp:post_date_gmt><![CDATA[2026-11-05 02:00:00]]></wp:post_date_gmt>
+    <wp:comment_status><![CDATA[closed]]></wp:comment_status>
+    <wp:ping_status><![CDATA[closed]]></wp:ping_status>
+    <wp:post_name><![CDATA[ekonomi]]></wp:post_name>
+    <wp:status><![CDATA[publish]]></wp:status>
+    <wp:post_parent>0</wp:post_parent>
+    <wp:menu_order>0</wp:menu_order>
+    <wp:post_type><![CDATA[nav_menu_item]]></wp:post_type>
+    <wp:post_password><![CDATA[]]></wp:post_password>
+    <wp:is_sticky>0</wp:is_sticky>
+    <category domain="nav_menu" nicename="menu-utama"><![CDATA[Menu Utama]]></category>
+    <wp:postmeta>
+      <wp:meta_key><![CDATA[_menu_item_type]]></wp:meta_key>
+      <wp:meta_value><![CDATA[category]]></wp:meta_value>
+    </wp:postmeta>
+
+    <wp:postmeta>
+      <wp:meta_key><![CDATA[_menu_item_menu_item_parent]]></wp:meta_key>
+      <wp:meta_value><![CDATA[0]]></wp:meta_value>
+    </wp:postmeta>
+
+    <wp:postmeta>
+      <wp:meta_key><![CDATA[_menu_item_object_id]]></wp:meta_key>
+      <wp:meta_value><![CDATA[2]]></wp:meta_value>
+    </wp:postmeta>
+
+    <wp:postmeta>
+      <wp:meta_key><![CDATA[_menu_item_object]]></wp:meta_key>
+      <wp:meta_value><![CDATA[category]]></wp:meta_value>
+    </wp:postmeta>
+
+    <wp:postmeta>
+      <wp:meta_key><![CDATA[_menu_item_target]]></wp:meta_key>
+      <wp:meta_value><![CDATA[]]></wp:meta_value>
+    </wp:postmeta>
+
+    <wp:postmeta>
+      <wp:meta_key><![CDATA[_menu_item_classes]]></wp:meta_key>
+      <wp:meta_value><![CDATA[a:0:{}]]></wp:meta_value>
+    </wp:postmeta>
+
+    <wp:postmeta>
+      <wp:meta_key><![CDATA[_menu_item_xfn]]></wp:meta_key>
+      <wp:meta_value><![CDATA[]]></wp:meta_value>
+    </wp:postmeta>
+
+    <wp:postmeta>
+      <wp:meta_key><![CDATA[_menu_item_url]]></wp:meta_key>
+      <wp:meta_value><![CDATA[]]></wp:meta_value>
+    </wp:postmeta>
+
+    <wp:postmeta>
+      <wp:meta_key><![CDATA[_menu_item_position]]></wp:meta_key>
+      <wp:meta_value><![CDATA[3]]></wp:meta_value>
+    </wp:postmeta>
+
+  </item>
+  <item>
+    <title><![CDATA[Emas & Investasi]]></title>
+    <link>https://koperasikita.pentagonal.org/?p=404</link>
+    <pubDate>Thu, 05 Nov 2026 02:00:00 +0000</pubDate>
+    <dc:creator><![CDATA[admin]]></dc:creator>
+    <guid isPermaLink="false">https://koperasikita.pentagonal.org/?p=404</guid>
+    <description></description>
+    <content:encoded><![CDATA[]]></content:encoded>
+    <excerpt:encoded><![CDATA[]]></excerpt:encoded>
+    <wp:post_id>404</wp:post_id>
+    <wp:post_date><![CDATA[2026-11-05 09:00:00]]></wp:post_date>
+    <wp:post_date_gmt><![CDATA[2026-11-05 02:00:00]]></wp:post_date_gmt>
+    <wp:comment_status><![CDATA[closed]]></wp:comment_status>
+    <wp:ping_status><![CDATA[closed]]></wp:ping_status>
+    <wp:post_name><![CDATA[emas-dan-investasi]]></wp:post_name>
+    <wp:status><![CDATA[publish]]></wp:status>
+    <wp:post_parent>0</wp:post_parent>
+    <wp:menu_order>0</wp:menu_order>
+    <wp:post_type><![CDATA[nav_menu_item]]></wp:post_type>
+    <wp:post_password><![CDATA[]]></wp:post_password>
+    <wp:is_sticky>0</wp:is_sticky>
+    <category domain="nav_menu" nicename="menu-utama"><![CDATA[Menu Utama]]></category>
+    <wp:postmeta>
+      <wp:meta_key><![CDATA[_menu_item_type]]></wp:meta_key>
+      <wp:meta_value><![CDATA[category]]></wp:meta_value>
+    </wp:postmeta>
+
+    <wp:postmeta>
+      <wp:meta_key><![CDATA[_menu_item_menu_item_parent]]></wp:meta_key>
+      <wp:meta_value><![CDATA[0]]></wp:meta_value>
+    </wp:postmeta>
+
+    <wp:postmeta>
+      <wp:meta_key><![CDATA[_menu_item_object_id]]></wp:meta_key>
+      <wp:meta_value><![CDATA[3]]></wp:meta_value>
+    </wp:postmeta>
+
+    <wp:postmeta>
+      <wp:meta_key><![CDATA[_menu_item_object]]></wp:meta_key>
+      <wp:meta_value><![CDATA[category]]></wp:meta_value>
+    </wp:postmeta>
+
+    <wp:postmeta>
+      <wp:meta_key><![CDATA[_menu_item_target]]></wp:meta_key>
+      <wp:meta_value><![CDATA[]]></wp:meta_value>
+    </wp:postmeta>
+
+    <wp:postmeta>
+      <wp:meta_key><![CDATA[_menu_item_classes]]></wp:meta_key>
+      <wp:meta_value><![CDATA[a:0:{}]]></wp:meta_value>
+    </wp:postmeta>
+
+    <wp:postmeta>
+      <wp:meta_key><![CDATA[_menu_item_xfn]]></wp:meta_key>
+      <wp:meta_value><![CDATA[]]></wp:meta_value>
+    </wp:postmeta>
+
+    <wp:postmeta>
+      <wp:meta_key><![CDATA[_menu_item_url]]></wp:meta_key>
+      <wp:meta_value><![CDATA[]]></wp:meta_value>
+    </wp:postmeta>
+
+    <wp:postmeta>
+      <wp:meta_key><![CDATA[_menu_item_position]]></wp:meta_key>
+      <wp:meta_value><![CDATA[4]]></wp:meta_value>
+    </wp:postmeta>
+
+  </item>
+  <item>
+    <title><![CDATA[Agenda]]></title>
+    <link>https://koperasikita.pentagonal.org/?p=405</link>
+    <pubDate>Thu, 05 Nov 2026 02:00:00 +0000</pubDate>
+    <dc:creator><![CDATA[admin]]></dc:creator>
+    <guid isPermaLink="false">https://koperasikita.pentagonal.org/?p=405</guid>
+    <description></description>
+    <content:encoded><![CDATA[]]></content:encoded>
+    <excerpt:encoded><![CDATA[]]></excerpt:encoded>
+    <wp:post_id>405</wp:post_id>
+    <wp:post_date><![CDATA[2026-11-05 09:00:00]]></wp:post_date>
+    <wp:post_date_gmt><![CDATA[2026-11-05 02:00:00]]></wp:post_date_gmt>
+    <wp:comment_status><![CDATA[closed]]></wp:comment_status>
+    <wp:ping_status><![CDATA[closed]]></wp:ping_status>
+    <wp:post_name><![CDATA[agenda]]></wp:post_name>
+    <wp:status><![CDATA[publish]]></wp:status>
+    <wp:post_parent>0</wp:post_parent>
+    <wp:menu_order>0</wp:menu_order>
+    <wp:post_type><![CDATA[nav_menu_item]]></wp:post_type>
+    <wp:post_password><![CDATA[]]></wp:post_password>
+    <wp:is_sticky>0</wp:is_sticky>
+    <category domain="nav_menu" nicename="menu-utama"><![CDATA[Menu Utama]]></category>
+    <wp:postmeta>
+      <wp:meta_key><![CDATA[_menu_item_type]]></wp:meta_key>
+      <wp:meta_value><![CDATA[post_type_archive]]></wp:meta_value>
+    </wp:postmeta>
+
+    <wp:postmeta>
+      <wp:meta_key><![CDATA[_menu_item_menu_item_parent]]></wp:meta_key>
+      <wp:meta_value><![CDATA[0]]></wp:meta_value>
+    </wp:postmeta>
+
+    <wp:postmeta>
+      <wp:meta_key><![CDATA[_menu_item_object_id]]></wp:meta_key>
+      <wp:meta_value><![CDATA[0]]></wp:meta_value>
+    </wp:postmeta>
+
+    <wp:postmeta>
+      <wp:meta_key><![CDATA[_menu_item_object]]></wp:meta_key>
+      <wp:meta_value><![CDATA[agenda]]></wp:meta_value>
+    </wp:postmeta>
+
+    <wp:postmeta>
+      <wp:meta_key><![CDATA[_menu_item_target]]></wp:meta_key>
+      <wp:meta_value><![CDATA[]]></wp:meta_value>
+    </wp:postmeta>
+
+    <wp:postmeta>
+      <wp:meta_key><![CDATA[_menu_item_classes]]></wp:meta_key>
+      <wp:meta_value><![CDATA[a:0:{}]]></wp:meta_value>
+    </wp:postmeta>
+
+    <wp:postmeta>
+      <wp:meta_key><![CDATA[_menu_item_xfn]]></wp:meta_key>
+      <wp:meta_value><![CDATA[]]></wp:meta_value>
+    </wp:postmeta>
+
+    <wp:postmeta>
+      <wp:meta_key><![CDATA[_menu_item_url]]></wp:meta_key>
+      <wp:meta_value><![CDATA[]]></wp:meta_value>
+    </wp:postmeta>
+
+    <wp:postmeta>
+      <wp:meta_key><![CDATA[_menu_item_position]]></wp:meta_key>
+      <wp:meta_value><![CDATA[5]]></wp:meta_value>
+    </wp:postmeta>
+
+  </item>
+  <item>
+    <title><![CDATA[Tentang Kami]]></title>
+    <link>https://koperasikita.pentagonal.org/?p=406</link>
+    <pubDate>Thu, 05 Nov 2026 02:00:00 +0000</pubDate>
+    <dc:creator><![CDATA[admin]]></dc:creator>
+    <guid isPermaLink="false">https://koperasikita.pentagonal.org/?p=406</guid>
+    <description></description>
+    <content:encoded><![CDATA[]]></content:encoded>
+    <excerpt:encoded><![CDATA[]]></excerpt:encoded>
+    <wp:post_id>406</wp:post_id>
+    <wp:post_date><![CDATA[2026-11-05 09:00:00]]></wp:post_date>
+    <wp:post_date_gmt><![CDATA[2026-11-05 02:00:00]]></wp:post_date_gmt>
+    <wp:comment_status><![CDATA[closed]]></wp:comment_status>
+    <wp:ping_status><![CDATA[closed]]></wp:ping_status>
+    <wp:post_name><![CDATA[tentang-kami]]></wp:post_name>
+    <wp:status><![CDATA[publish]]></wp:status>
+    <wp:post_parent>0</wp:post_parent>
+    <wp:menu_order>0</wp:menu_order>
+    <wp:post_type><![CDATA[nav_menu_item]]></wp:post_type>
+    <wp:post_password><![CDATA[]]></wp:post_password>
+    <wp:is_sticky>0</wp:is_sticky>
+    <category domain="nav_menu" nicename="menu-utama"><![CDATA[Menu Utama]]></category>
+    <wp:postmeta>
+      <wp:meta_key><![CDATA[_menu_item_type]]></wp:meta_key>
+      <wp:meta_value><![CDATA[page]]></wp:meta_value>
+    </wp:postmeta>
+
+    <wp:postmeta>
+      <wp:meta_key><![CDATA[_menu_item_menu_item_parent]]></wp:meta_key>
+      <wp:meta_value><![CDATA[0]]></wp:meta_value>
+    </wp:postmeta>
+
+    <wp:postmeta>
+      <wp:meta_key><![CDATA[_menu_item_object_id]]></wp:meta_key>
+      <wp:meta_value><![CDATA[201]]></wp:meta_value>
+    </wp:postmeta>
+
+    <wp:postmeta>
+      <wp:meta_key><![CDATA[_menu_item_object]]></wp:meta_key>
+      <wp:meta_value><![CDATA[page]]></wp:meta_value>
+    </wp:postmeta>
+
+    <wp:postmeta>
+      <wp:meta_key><![CDATA[_menu_item_target]]></wp:meta_key>
+      <wp:meta_value><![CDATA[]]></wp:meta_value>
+    </wp:postmeta>
+
+    <wp:postmeta>
+      <wp:meta_key><![CDATA[_menu_item_classes]]></wp:meta_key>
+      <wp:meta_value><![CDATA[a:0:{}]]></wp:meta_value>
+    </wp:postmeta>
+
+    <wp:postmeta>
+      <wp:meta_key><![CDATA[_menu_item_xfn]]></wp:meta_key>
+      <wp:meta_value><![CDATA[]]></wp:meta_value>
+    </wp:postmeta>
+
+    <wp:postmeta>
+      <wp:meta_key><![CDATA[_menu_item_url]]></wp:meta_key>
+      <wp:meta_value><![CDATA[]]></wp:meta_value>
+    </wp:postmeta>
+
+    <wp:postmeta>
+      <wp:meta_key><![CDATA[_menu_item_position]]></wp:meta_key>
+      <wp:meta_value><![CDATA[6]]></wp:meta_value>
+    </wp:postmeta>
+
+  </item>
+  <item>
+    <title><![CDATA[Beranda]]></title>
+    <link>https://koperasikita.pentagonal.org/?p=407</link>
+    <pubDate>Thu, 05 Nov 2026 02:00:00 +0000</pubDate>
+    <dc:creator><![CDATA[admin]]></dc:creator>
+    <guid isPermaLink="false">https://koperasikita.pentagonal.org/?p=407</guid>
+    <description></description>
+    <content:encoded><![CDATA[]]></content:encoded>
+    <excerpt:encoded><![CDATA[]]></excerpt:encoded>
+    <wp:post_id>407</wp:post_id>
+    <wp:post_date><![CDATA[2026-11-05 09:00:00]]></wp:post_date>
+    <wp:post_date_gmt><![CDATA[2026-11-05 02:00:00]]></wp:post_date_gmt>
+    <wp:comment_status><![CDATA[closed]]></wp:comment_status>
+    <wp:ping_status><![CDATA[closed]]></wp:ping_status>
+    <wp:post_name><![CDATA[beranda]]></wp:post_name>
+    <wp:status><![CDATA[publish]]></wp:status>
+    <wp:post_parent>0</wp:post_parent>
+    <wp:menu_order>0</wp:menu_order>
+    <wp:post_type><![CDATA[nav_menu_item]]></wp:post_type>
+    <wp:post_password><![CDATA[]]></wp:post_password>
+    <wp:is_sticky>0</wp:is_sticky>
+    <category domain="nav_menu" nicename="menu-bawah"><![CDATA[Menu Bawah]]></category>
+    <wp:postmeta>
+      <wp:meta_key><![CDATA[_menu_item_type]]></wp:meta_key>
+      <wp:meta_value><![CDATA[custom]]></wp:meta_value>
+    </wp:postmeta>
+
+    <wp:postmeta>
+      <wp:meta_key><![CDATA[_menu_item_menu_item_parent]]></wp:meta_key>
+      <wp:meta_value><![CDATA[0]]></wp:meta_value>
+    </wp:postmeta>
+
+    <wp:postmeta>
+      <wp:meta_key><![CDATA[_menu_item_object_id]]></wp:meta_key>
+      <wp:meta_value><![CDATA[0]]></wp:meta_value>
+    </wp:postmeta>
+
+    <wp:postmeta>
+      <wp:meta_key><![CDATA[_menu_item_object]]></wp:meta_key>
+      <wp:meta_value><![CDATA[custom]]></wp:meta_value>
+    </wp:postmeta>
+
+    <wp:postmeta>
+      <wp:meta_key><![CDATA[_menu_item_target]]></wp:meta_key>
+      <wp:meta_value><![CDATA[]]></wp:meta_value>
+    </wp:postmeta>
+
+    <wp:postmeta>
+      <wp:meta_key><![CDATA[_menu_item_classes]]></wp:meta_key>
+      <wp:meta_value><![CDATA[a:0:{}]]></wp:meta_value>
+    </wp:postmeta>
+
+    <wp:postmeta>
+      <wp:meta_key><![CDATA[_menu_item_xfn]]></wp:meta_key>
+      <wp:meta_value><![CDATA[]]></wp:meta_value>
+    </wp:postmeta>
+
+    <wp:postmeta>
+      <wp:meta_key><![CDATA[_menu_item_url]]></wp:meta_key>
+      <wp:meta_value><![CDATA[https://koperasikita.pentagonal.org/]]></wp:meta_value>
+    </wp:postmeta>
+
+    <wp:postmeta>
+      <wp:meta_key><![CDATA[_menu_item_position]]></wp:meta_key>
+      <wp:meta_value><![CDATA[1]]></wp:meta_value>
+    </wp:postmeta>
+
+  </item>
+  <item>
+    <title><![CDATA[Berita]]></title>
+    <link>https://koperasikita.pentagonal.org/?p=408</link>
+    <pubDate>Thu, 05 Nov 2026 02:00:00 +0000</pubDate>
+    <dc:creator><![CDATA[admin]]></dc:creator>
+    <guid isPermaLink="false">https://koperasikita.pentagonal.org/?p=408</guid>
+    <description></description>
+    <content:encoded><![CDATA[]]></content:encoded>
+    <excerpt:encoded><![CDATA[]]></excerpt:encoded>
+    <wp:post_id>408</wp:post_id>
+    <wp:post_date><![CDATA[2026-11-05 09:00:00]]></wp:post_date>
+    <wp:post_date_gmt><![CDATA[2026-11-05 02:00:00]]></wp:post_date_gmt>
+    <wp:comment_status><![CDATA[closed]]></wp:comment_status>
+    <wp:ping_status><![CDATA[closed]]></wp:ping_status>
+    <wp:post_name><![CDATA[berita]]></wp:post_name>
+    <wp:status><![CDATA[publish]]></wp:status>
+    <wp:post_parent>0</wp:post_parent>
+    <wp:menu_order>0</wp:menu_order>
+    <wp:post_type><![CDATA[nav_menu_item]]></wp:post_type>
+    <wp:post_password><![CDATA[]]></wp:post_password>
+    <wp:is_sticky>0</wp:is_sticky>
+    <category domain="nav_menu" nicename="menu-bawah"><![CDATA[Menu Bawah]]></category>
+    <wp:postmeta>
+      <wp:meta_key><![CDATA[_menu_item_type]]></wp:meta_key>
+      <wp:meta_value><![CDATA[category]]></wp:meta_value>
+    </wp:postmeta>
+
+    <wp:postmeta>
+      <wp:meta_key><![CDATA[_menu_item_menu_item_parent]]></wp:meta_key>
+      <wp:meta_value><![CDATA[0]]></wp:meta_value>
+    </wp:postmeta>
+
+    <wp:postmeta>
+      <wp:meta_key><![CDATA[_menu_item_object_id]]></wp:meta_key>
+      <wp:meta_value><![CDATA[1]]></wp:meta_value>
+    </wp:postmeta>
+
+    <wp:postmeta>
+      <wp:meta_key><![CDATA[_menu_item_object]]></wp:meta_key>
+      <wp:meta_value><![CDATA[category]]></wp:meta_value>
+    </wp:postmeta>
+
+    <wp:postmeta>
+      <wp:meta_key><![CDATA[_menu_item_target]]></wp:meta_key>
+      <wp:meta_value><![CDATA[]]></wp:meta_value>
+    </wp:postmeta>
+
+    <wp:postmeta>
+      <wp:meta_key><![CDATA[_menu_item_classes]]></wp:meta_key>
+      <wp:meta_value><![CDATA[a:0:{}]]></wp:meta_value>
+    </wp:postmeta>
+
+    <wp:postmeta>
+      <wp:meta_key><![CDATA[_menu_item_xfn]]></wp:meta_key>
+      <wp:meta_value><![CDATA[]]></wp:meta_value>
+    </wp:postmeta>
+
+    <wp:postmeta>
+      <wp:meta_key><![CDATA[_menu_item_url]]></wp:meta_key>
+      <wp:meta_value><![CDATA[]]></wp:meta_value>
+    </wp:postmeta>
+
+    <wp:postmeta>
+      <wp:meta_key><![CDATA[_menu_item_position]]></wp:meta_key>
+      <wp:meta_value><![CDATA[2]]></wp:meta_value>
+    </wp:postmeta>
+
+  </item>
+  <item>
+    <title><![CDATA[Emas]]></title>
+    <link>https://koperasikita.pentagonal.org/?p=409</link>
+    <pubDate>Thu, 05 Nov 2026 02:00:00 +0000</pubDate>
+    <dc:creator><![CDATA[admin]]></dc:creator>
+    <guid isPermaLink="false">https://koperasikita.pentagonal.org/?p=409</guid>
+    <description></description>
+    <content:encoded><![CDATA[]]></content:encoded>
+    <excerpt:encoded><![CDATA[]]></excerpt:encoded>
+    <wp:post_id>409</wp:post_id>
+    <wp:post_date><![CDATA[2026-11-05 09:00:00]]></wp:post_date>
+    <wp:post_date_gmt><![CDATA[2026-11-05 02:00:00]]></wp:post_date_gmt>
+    <wp:comment_status><![CDATA[closed]]></wp:comment_status>
+    <wp:ping_status><![CDATA[closed]]></wp:ping_status>
+    <wp:post_name><![CDATA[emas]]></wp:post_name>
+    <wp:status><![CDATA[publish]]></wp:status>
+    <wp:post_parent>0</wp:post_parent>
+    <wp:menu_order>0</wp:menu_order>
+    <wp:post_type><![CDATA[nav_menu_item]]></wp:post_type>
+    <wp:post_password><![CDATA[]]></wp:post_password>
+    <wp:is_sticky>0</wp:is_sticky>
+    <category domain="nav_menu" nicename="menu-bawah"><![CDATA[Menu Bawah]]></category>
+    <wp:postmeta>
+      <wp:meta_key><![CDATA[_menu_item_type]]></wp:meta_key>
+      <wp:meta_value><![CDATA[category]]></wp:meta_value>
+    </wp:postmeta>
+
+    <wp:postmeta>
+      <wp:meta_key><![CDATA[_menu_item_menu_item_parent]]></wp:meta_key>
+      <wp:meta_value><![CDATA[0]]></wp:meta_value>
+    </wp:postmeta>
+
+    <wp:postmeta>
+      <wp:meta_key><![CDATA[_menu_item_object_id]]></wp:meta_key>
+      <wp:meta_value><![CDATA[3]]></wp:meta_value>
+    </wp:postmeta>
+
+    <wp:postmeta>
+      <wp:meta_key><![CDATA[_menu_item_object]]></wp:meta_key>
+      <wp:meta_value><![CDATA[category]]></wp:meta_value>
+    </wp:postmeta>
+
+    <wp:postmeta>
+      <wp:meta_key><![CDATA[_menu_item_target]]></wp:meta_key>
+      <wp:meta_value><![CDATA[]]></wp:meta_value>
+    </wp:postmeta>
+
+    <wp:postmeta>
+      <wp:meta_key><![CDATA[_menu_item_classes]]></wp:meta_key>
+      <wp:meta_value><![CDATA[a:0:{}]]></wp:meta_value>
+    </wp:postmeta>
+
+    <wp:postmeta>
+      <wp:meta_key><![CDATA[_menu_item_xfn]]></wp:meta_key>
+      <wp:meta_value><![CDATA[]]></wp:meta_value>
+    </wp:postmeta>
+
+    <wp:postmeta>
+      <wp:meta_key><![CDATA[_menu_item_url]]></wp:meta_key>
+      <wp:meta_value><![CDATA[]]></wp:meta_value>
+    </wp:postmeta>
+
+    <wp:postmeta>
+      <wp:meta_key><![CDATA[_menu_item_position]]></wp:meta_key>
+      <wp:meta_value><![CDATA[3]]></wp:meta_value>
+    </wp:postmeta>
+
+  </item>
+  <item>
+    <title><![CDATA[Agenda]]></title>
+    <link>https://koperasikita.pentagonal.org/?p=410</link>
+    <pubDate>Thu, 05 Nov 2026 02:00:00 +0000</pubDate>
+    <dc:creator><![CDATA[admin]]></dc:creator>
+    <guid isPermaLink="false">https://koperasikita.pentagonal.org/?p=410</guid>
+    <description></description>
+    <content:encoded><![CDATA[]]></content:encoded>
+    <excerpt:encoded><![CDATA[]]></excerpt:encoded>
+    <wp:post_id>410</wp:post_id>
+    <wp:post_date><![CDATA[2026-11-05 09:00:00]]></wp:post_date>
+    <wp:post_date_gmt><![CDATA[2026-11-05 02:00:00]]></wp:post_date_gmt>
+    <wp:comment_status><![CDATA[closed]]></wp:comment_status>
+    <wp:ping_status><![CDATA[closed]]></wp:ping_status>
+    <wp:post_name><![CDATA[agenda]]></wp:post_name>
+    <wp:status><![CDATA[publish]]></wp:status>
+    <wp:post_parent>0</wp:post_parent>
+    <wp:menu_order>0</wp:menu_order>
+    <wp:post_type><![CDATA[nav_menu_item]]></wp:post_type>
+    <wp:post_password><![CDATA[]]></wp:post_password>
+    <wp:is_sticky>0</wp:is_sticky>
+    <category domain="nav_menu" nicename="menu-bawah"><![CDATA[Menu Bawah]]></category>
+    <wp:postmeta>
+      <wp:meta_key><![CDATA[_menu_item_type]]></wp:meta_key>
+      <wp:meta_value><![CDATA[post_type_archive]]></wp:meta_value>
+    </wp:postmeta>
+
+    <wp:postmeta>
+      <wp:meta_key><![CDATA[_menu_item_menu_item_parent]]></wp:meta_key>
+      <wp:meta_value><![CDATA[0]]></wp:meta_value>
+    </wp:postmeta>
+
+    <wp:postmeta>
+      <wp:meta_key><![CDATA[_menu_item_object_id]]></wp:meta_key>
+      <wp:meta_value><![CDATA[0]]></wp:meta_value>
+    </wp:postmeta>
+
+    <wp:postmeta>
+      <wp:meta_key><![CDATA[_menu_item_object]]></wp:meta_key>
+      <wp:meta_value><![CDATA[agenda]]></wp:meta_value>
+    </wp:postmeta>
+
+    <wp:postmeta>
+      <wp:meta_key><![CDATA[_menu_item_target]]></wp:meta_key>
+      <wp:meta_value><![CDATA[]]></wp:meta_value>
+    </wp:postmeta>
+
+    <wp:postmeta>
+      <wp:meta_key><![CDATA[_menu_item_classes]]></wp:meta_key>
+      <wp:meta_value><![CDATA[a:0:{}]]></wp:meta_value>
+    </wp:postmeta>
+
+    <wp:postmeta>
+      <wp:meta_key><![CDATA[_menu_item_xfn]]></wp:meta_key>
+      <wp:meta_value><![CDATA[]]></wp:meta_value>
+    </wp:postmeta>
+
+    <wp:postmeta>
+      <wp:meta_key><![CDATA[_menu_item_url]]></wp:meta_key>
+      <wp:meta_value><![CDATA[]]></wp:meta_value>
+    </wp:postmeta>
+
+    <wp:postmeta>
+      <wp:meta_key><![CDATA[_menu_item_position]]></wp:meta_key>
+      <wp:meta_value><![CDATA[4]]></wp:meta_value>
+    </wp:postmeta>
+
+  </item>
+  <item>
+    <title><![CDATA[Bookmark]]></title>
+    <link>https://koperasikita.pentagonal.org/?p=411</link>
+    <pubDate>Thu, 05 Nov 2026 02:00:00 +0000</pubDate>
+    <dc:creator><![CDATA[admin]]></dc:creator>
+    <guid isPermaLink="false">https://koperasikita.pentagonal.org/?p=411</guid>
+    <description></description>
+    <content:encoded><![CDATA[]]></content:encoded>
+    <excerpt:encoded><![CDATA[]]></excerpt:encoded>
+    <wp:post_id>411</wp:post_id>
+    <wp:post_date><![CDATA[2026-11-05 09:00:00]]></wp:post_date>
+    <wp:post_date_gmt><![CDATA[2026-11-05 02:00:00]]></wp:post_date_gmt>
+    <wp:comment_status><![CDATA[closed]]></wp:comment_status>
+    <wp:ping_status><![CDATA[closed]]></wp:ping_status>
+    <wp:post_name><![CDATA[bookmark]]></wp:post_name>
+    <wp:status><![CDATA[publish]]></wp:status>
+    <wp:post_parent>0</wp:post_parent>
+    <wp:menu_order>0</wp:menu_order>
+    <wp:post_type><![CDATA[nav_menu_item]]></wp:post_type>
+    <wp:post_password><![CDATA[]]></wp:post_password>
+    <wp:is_sticky>0</wp:is_sticky>
+    <category domain="nav_menu" nicename="menu-bawah"><![CDATA[Menu Bawah]]></category>
+    <wp:postmeta>
+      <wp:meta_key><![CDATA[_menu_item_type]]></wp:meta_key>
+      <wp:meta_value><![CDATA[page]]></wp:meta_value>
+    </wp:postmeta>
+
+    <wp:postmeta>
+      <wp:meta_key><![CDATA[_menu_item_menu_item_parent]]></wp:meta_key>
+      <wp:meta_value><![CDATA[0]]></wp:meta_value>
+    </wp:postmeta>
+
+    <wp:postmeta>
+      <wp:meta_key><![CDATA[_menu_item_object_id]]></wp:meta_key>
+      <wp:meta_value><![CDATA[204]]></wp:meta_value>
+    </wp:postmeta>
+
+    <wp:postmeta>
+      <wp:meta_key><![CDATA[_menu_item_object]]></wp:meta_key>
+      <wp:meta_value><![CDATA[page]]></wp:meta_value>
+    </wp:postmeta>
+
+    <wp:postmeta>
+      <wp:meta_key><![CDATA[_menu_item_target]]></wp:meta_key>
+      <wp:meta_value><![CDATA[]]></wp:meta_value>
+    </wp:postmeta>
+
+    <wp:postmeta>
+      <wp:meta_key><![CDATA[_menu_item_classes]]></wp:meta_key>
+      <wp:meta_value><![CDATA[a:0:{}]]></wp:meta_value>
+    </wp:postmeta>
+
+    <wp:postmeta>
+      <wp:meta_key><![CDATA[_menu_item_xfn]]></wp:meta_key>
+      <wp:meta_value><![CDATA[]]></wp:meta_value>
+    </wp:postmeta>
+
+    <wp:postmeta>
+      <wp:meta_key><![CDATA[_menu_item_url]]></wp:meta_key>
+      <wp:meta_value><![CDATA[]]></wp:meta_value>
+    </wp:postmeta>
+
+    <wp:postmeta>
+      <wp:meta_key><![CDATA[_menu_item_position]]></wp:meta_key>
+      <wp:meta_value><![CDATA[5]]></wp:meta_value>
+    </wp:postmeta>
+
+  </item>
+  <item>
+    <title><![CDATA[Tentang Kami]]></title>
+    <link>https://koperasikita.pentagonal.org/?p=412</link>
+    <pubDate>Thu, 05 Nov 2026 02:00:00 +0000</pubDate>
+    <dc:creator><![CDATA[admin]]></dc:creator>
+    <guid isPermaLink="false">https://koperasikita.pentagonal.org/?p=412</guid>
+    <description></description>
+    <content:encoded><![CDATA[]]></content:encoded>
+    <excerpt:encoded><![CDATA[]]></excerpt:encoded>
+    <wp:post_id>412</wp:post_id>
+    <wp:post_date><![CDATA[2026-11-05 09:00:00]]></wp:post_date>
+    <wp:post_date_gmt><![CDATA[2026-11-05 02:00:00]]></wp:post_date_gmt>
+    <wp:comment_status><![CDATA[closed]]></wp:comment_status>
+    <wp:ping_status><![CDATA[closed]]></wp:ping_status>
+    <wp:post_name><![CDATA[tentang-kami]]></wp:post_name>
+    <wp:status><![CDATA[publish]]></wp:status>
+    <wp:post_parent>0</wp:post_parent>
+    <wp:menu_order>0</wp:menu_order>
+    <wp:post_type><![CDATA[nav_menu_item]]></wp:post_type>
+    <wp:post_password><![CDATA[]]></wp:post_password>
+    <wp:is_sticky>0</wp:is_sticky>
+    <category domain="nav_menu" nicename="menu-footer"><![CDATA[Menu Footer]]></category>
+    <wp:postmeta>
+      <wp:meta_key><![CDATA[_menu_item_type]]></wp:meta_key>
+      <wp:meta_value><![CDATA[page]]></wp:meta_value>
+    </wp:postmeta>
+
+    <wp:postmeta>
+      <wp:meta_key><![CDATA[_menu_item_menu_item_parent]]></wp:meta_key>
+      <wp:meta_value><![CDATA[0]]></wp:meta_value>
+    </wp:postmeta>
+
+    <wp:postmeta>
+      <wp:meta_key><![CDATA[_menu_item_object_id]]></wp:meta_key>
+      <wp:meta_value><![CDATA[201]]></wp:meta_value>
+    </wp:postmeta>
+
+    <wp:postmeta>
+      <wp:meta_key><![CDATA[_menu_item_object]]></wp:meta_key>
+      <wp:meta_value><![CDATA[page]]></wp:meta_value>
+    </wp:postmeta>
+
+    <wp:postmeta>
+      <wp:meta_key><![CDATA[_menu_item_target]]></wp:meta_key>
+      <wp:meta_value><![CDATA[]]></wp:meta_value>
+    </wp:postmeta>
+
+    <wp:postmeta>
+      <wp:meta_key><![CDATA[_menu_item_classes]]></wp:meta_key>
+      <wp:meta_value><![CDATA[a:0:{}]]></wp:meta_value>
+    </wp:postmeta>
+
+    <wp:postmeta>
+      <wp:meta_key><![CDATA[_menu_item_xfn]]></wp:meta_key>
+      <wp:meta_value><![CDATA[]]></wp:meta_value>
+    </wp:postmeta>
+
+    <wp:postmeta>
+      <wp:meta_key><![CDATA[_menu_item_url]]></wp:meta_key>
+      <wp:meta_value><![CDATA[]]></wp:meta_value>
+    </wp:postmeta>
+
+    <wp:postmeta>
+      <wp:meta_key><![CDATA[_menu_item_position]]></wp:meta_key>
+      <wp:meta_value><![CDATA[1]]></wp:meta_value>
+    </wp:postmeta>
+
+  </item>
+  <item>
+    <title><![CDATA[Keanggotaan]]></title>
+    <link>https://koperasikita.pentagonal.org/?p=413</link>
+    <pubDate>Thu, 05 Nov 2026 02:00:00 +0000</pubDate>
+    <dc:creator><![CDATA[admin]]></dc:creator>
+    <guid isPermaLink="false">https://koperasikita.pentagonal.org/?p=413</guid>
+    <description></description>
+    <content:encoded><![CDATA[]]></content:encoded>
+    <excerpt:encoded><![CDATA[]]></excerpt:encoded>
+    <wp:post_id>413</wp:post_id>
+    <wp:post_date><![CDATA[2026-11-05 09:00:00]]></wp:post_date>
+    <wp:post_date_gmt><![CDATA[2026-11-05 02:00:00]]></wp:post_date_gmt>
+    <wp:comment_status><![CDATA[closed]]></wp:comment_status>
+    <wp:ping_status><![CDATA[closed]]></wp:ping_status>
+    <wp:post_name><![CDATA[keanggotaan]]></wp:post_name>
+    <wp:status><![CDATA[publish]]></wp:status>
+    <wp:post_parent>0</wp:post_parent>
+    <wp:menu_order>0</wp:menu_order>
+    <wp:post_type><![CDATA[nav_menu_item]]></wp:post_type>
+    <wp:post_password><![CDATA[]]></wp:post_password>
+    <wp:is_sticky>0</wp:is_sticky>
+    <category domain="nav_menu" nicename="menu-footer"><![CDATA[Menu Footer]]></category>
+    <wp:postmeta>
+      <wp:meta_key><![CDATA[_menu_item_type]]></wp:meta_key>
+      <wp:meta_value><![CDATA[page]]></wp:meta_value>
+    </wp:postmeta>
+
+    <wp:postmeta>
+      <wp:meta_key><![CDATA[_menu_item_menu_item_parent]]></wp:meta_key>
+      <wp:meta_value><![CDATA[0]]></wp:meta_value>
+    </wp:postmeta>
+
+    <wp:postmeta>
+      <wp:meta_key><![CDATA[_menu_item_object_id]]></wp:meta_key>
+      <wp:meta_value><![CDATA[202]]></wp:meta_value>
+    </wp:postmeta>
+
+    <wp:postmeta>
+      <wp:meta_key><![CDATA[_menu_item_object]]></wp:meta_key>
+      <wp:meta_value><![CDATA[page]]></wp:meta_value>
+    </wp:postmeta>
+
+    <wp:postmeta>
+      <wp:meta_key><![CDATA[_menu_item_target]]></wp:meta_key>
+      <wp:meta_value><![CDATA[]]></wp:meta_value>
+    </wp:postmeta>
+
+    <wp:postmeta>
+      <wp:meta_key><![CDATA[_menu_item_classes]]></wp:meta_key>
+      <wp:meta_value><![CDATA[a:0:{}]]></wp:meta_value>
+    </wp:postmeta>
+
+    <wp:postmeta>
+      <wp:meta_key><![CDATA[_menu_item_xfn]]></wp:meta_key>
+      <wp:meta_value><![CDATA[]]></wp:meta_value>
+    </wp:postmeta>
+
+    <wp:postmeta>
+      <wp:meta_key><![CDATA[_menu_item_url]]></wp:meta_key>
+      <wp:meta_value><![CDATA[]]></wp:meta_value>
+    </wp:postmeta>
+
+    <wp:postmeta>
+      <wp:meta_key><![CDATA[_menu_item_position]]></wp:meta_key>
+      <wp:meta_value><![CDATA[2]]></wp:meta_value>
+    </wp:postmeta>
+
+  </item>
+  <item>
+    <title><![CDATA[Kontak]]></title>
+    <link>https://koperasikita.pentagonal.org/?p=414</link>
+    <pubDate>Thu, 05 Nov 2026 02:00:00 +0000</pubDate>
+    <dc:creator><![CDATA[admin]]></dc:creator>
+    <guid isPermaLink="false">https://koperasikita.pentagonal.org/?p=414</guid>
+    <description></description>
+    <content:encoded><![CDATA[]]></content:encoded>
+    <excerpt:encoded><![CDATA[]]></excerpt:encoded>
+    <wp:post_id>414</wp:post_id>
+    <wp:post_date><![CDATA[2026-11-05 09:00:00]]></wp:post_date>
+    <wp:post_date_gmt><![CDATA[2026-11-05 02:00:00]]></wp:post_date_gmt>
+    <wp:comment_status><![CDATA[closed]]></wp:comment_status>
+    <wp:ping_status><![CDATA[closed]]></wp:ping_status>
+    <wp:post_name><![CDATA[kontak]]></wp:post_name>
+    <wp:status><![CDATA[publish]]></wp:status>
+    <wp:post_parent>0</wp:post_parent>
+    <wp:menu_order>0</wp:menu_order>
+    <wp:post_type><![CDATA[nav_menu_item]]></wp:post_type>
+    <wp:post_password><![CDATA[]]></wp:post_password>
+    <wp:is_sticky>0</wp:is_sticky>
+    <category domain="nav_menu" nicename="menu-footer"><![CDATA[Menu Footer]]></category>
+    <wp:postmeta>
+      <wp:meta_key><![CDATA[_menu_item_type]]></wp:meta_key>
+      <wp:meta_value><![CDATA[page]]></wp:meta_value>
+    </wp:postmeta>
+
+    <wp:postmeta>
+      <wp:meta_key><![CDATA[_menu_item_menu_item_parent]]></wp:meta_key>
+      <wp:meta_value><![CDATA[0]]></wp:meta_value>
+    </wp:postmeta>
+
+    <wp:postmeta>
+      <wp:meta_key><![CDATA[_menu_item_object_id]]></wp:meta_key>
+      <wp:meta_value><![CDATA[203]]></wp:meta_value>
+    </wp:postmeta>
+
+    <wp:postmeta>
+      <wp:meta_key><![CDATA[_menu_item_object]]></wp:meta_key>
+      <wp:meta_value><![CDATA[page]]></wp:meta_value>
+    </wp:postmeta>
+
+    <wp:postmeta>
+      <wp:meta_key><![CDATA[_menu_item_target]]></wp:meta_key>
+      <wp:meta_value><![CDATA[]]></wp:meta_value>
+    </wp:postmeta>
+
+    <wp:postmeta>
+      <wp:meta_key><![CDATA[_menu_item_classes]]></wp:meta_key>
+      <wp:meta_value><![CDATA[a:0:{}]]></wp:meta_value>
+    </wp:postmeta>
+
+    <wp:postmeta>
+      <wp:meta_key><![CDATA[_menu_item_xfn]]></wp:meta_key>
+      <wp:meta_value><![CDATA[]]></wp:meta_value>
+    </wp:postmeta>
+
+    <wp:postmeta>
+      <wp:meta_key><![CDATA[_menu_item_url]]></wp:meta_key>
+      <wp:meta_value><![CDATA[]]></wp:meta_value>
+    </wp:postmeta>
+
+    <wp:postmeta>
+      <wp:meta_key><![CDATA[_menu_item_position]]></wp:meta_key>
+      <wp:meta_value><![CDATA[3]]></wp:meta_value>
+    </wp:postmeta>
+
+  </item>
+  <item>
+    <title><![CDATA[Kebijakan Privasi]]></title>
+    <link>https://koperasikita.pentagonal.org/?p=415</link>
+    <pubDate>Thu, 05 Nov 2026 02:00:00 +0000</pubDate>
+    <dc:creator><![CDATA[admin]]></dc:creator>
+    <guid isPermaLink="false">https://koperasikita.pentagonal.org/?p=415</guid>
+    <description></description>
+    <content:encoded><![CDATA[]]></content:encoded>
+    <excerpt:encoded><![CDATA[]]></excerpt:encoded>
+    <wp:post_id>415</wp:post_id>
+    <wp:post_date><![CDATA[2026-11-05 09:00:00]]></wp:post_date>
+    <wp:post_date_gmt><![CDATA[2026-11-05 02:00:00]]></wp:post_date_gmt>
+    <wp:comment_status><![CDATA[closed]]></wp:comment_status>
+    <wp:ping_status><![CDATA[closed]]></wp:ping_status>
+    <wp:post_name><![CDATA[kebijakan-privasi]]></wp:post_name>
+    <wp:status><![CDATA[publish]]></wp:status>
+    <wp:post_parent>0</wp:post_parent>
+    <wp:menu_order>0</wp:menu_order>
+    <wp:post_type><![CDATA[nav_menu_item]]></wp:post_type>
+    <wp:post_password><![CDATA[]]></wp:post_password>
+    <wp:is_sticky>0</wp:is_sticky>
+    <category domain="nav_menu" nicename="menu-footer"><![CDATA[Menu Footer]]></category>
+    <wp:postmeta>
+      <wp:meta_key><![CDATA[_menu_item_type]]></wp:meta_key>
+      <wp:meta_value><![CDATA[page]]></wp:meta_value>
+    </wp:postmeta>
+
+    <wp:postmeta>
+      <wp:meta_key><![CDATA[_menu_item_menu_item_parent]]></wp:meta_key>
+      <wp:meta_value><![CDATA[0]]></wp:meta_value>
+    </wp:postmeta>
+
+    <wp:postmeta>
+      <wp:meta_key><![CDATA[_menu_item_object_id]]></wp:meta_key>
+      <wp:meta_value><![CDATA[205]]></wp:meta_value>
+    </wp:postmeta>
+
+    <wp:postmeta>
+      <wp:meta_key><![CDATA[_menu_item_object]]></wp:meta_key>
+      <wp:meta_value><![CDATA[page]]></wp:meta_value>
+    </wp:postmeta>
+
+    <wp:postmeta>
+      <wp:meta_key><![CDATA[_menu_item_target]]></wp:meta_key>
+      <wp:meta_value><![CDATA[]]></wp:meta_value>
+    </wp:postmeta>
+
+    <wp:postmeta>
+      <wp:meta_key><![CDATA[_menu_item_classes]]></wp:meta_key>
+      <wp:meta_value><![CDATA[a:0:{}]]></wp:meta_value>
+    </wp:postmeta>
+
+    <wp:postmeta>
+      <wp:meta_key><![CDATA[_menu_item_xfn]]></wp:meta_key>
+      <wp:meta_value><![CDATA[]]></wp:meta_value>
+    </wp:postmeta>
+
+    <wp:postmeta>
+      <wp:meta_key><![CDATA[_menu_item_url]]></wp:meta_key>
+      <wp:meta_value><![CDATA[]]></wp:meta_value>
+    </wp:postmeta>
+
+    <wp:postmeta>
+      <wp:meta_key><![CDATA[_menu_item_position]]></wp:meta_key>
+      <wp:meta_value><![CDATA[4]]></wp:meta_value>
+    </wp:postmeta>
+
+  </item>
+</channel>
+</rss>
