@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace KoperasiKita\Customizer;
 
 use KoperasiKita\Features\Fonts;
+use KoperasiKita\Features\Footer;
 use KoperasiKita\Features\Performance;
 use WP_Customize_Color_Control;
 use WP_Customize_Manager;
@@ -211,14 +212,47 @@ final class Customizer
             $wpCustomize,
             'kk_footer_text',
             '',
-            'sanitize_textarea_field',
+            'sanitize_text_field',
             'postMessage'
         );
         $wpCustomize->add_control('kk_footer_text', [
-            'label' => esc_html__('Footer Text', 'koperasikita'),
+            'label' => esc_html__('Footer Copyright Text', 'koperasikita'),
+            'description' => esc_html__('Tokens: {year}, {month}, {month_number}, {day}, {date}, {site_name}, {site_url}, {home_url}.', 'koperasikita'),
             'section' => 'koperasikita_footer',
-            'type' => 'textarea',
+            'type' => 'text',
         ]);
+
+        self::addSetting(
+            $wpCustomize,
+            'kk_footer_alignment',
+            'left',
+            [self::class, 'sanitizeAlignment'],
+            'postMessage'
+        );
+        $wpCustomize->add_control('kk_footer_alignment', [
+            'label' => esc_html__('Copyright Alignment', 'koperasikita'),
+            'section' => 'koperasikita_footer',
+            'type' => 'select',
+            'choices' => [
+                'left' => esc_html__('Left', 'koperasikita'),
+                'center' => esc_html__('Center', 'koperasikita'),
+                'right' => esc_html__('Right', 'koperasikita'),
+            ],
+        ]);
+
+        foreach (Footer::NETWORKS as $network => $label) {
+            self::addSetting(
+                $wpCustomize,
+                'kk_footer_social_' . $network,
+                '',
+                'esc_url_raw'
+            );
+            $wpCustomize->add_control('kk_footer_social_' . $network, [
+                'label' => sprintf(esc_html__('%s URL', 'koperasikita'), esc_html($label)),
+                'section' => 'koperasikita_footer',
+                'type' => 'url',
+            ]);
+        }
 
         $toggles = [
             'kk_ticker_enabled' => ['koperasikita_header', 'Enable News Ticker'],
@@ -424,6 +458,11 @@ final class Customizer
     public static function sanitizeLayout(mixed $value): string
     {
         return in_array($value, ['grid', 'list', 'newsletter'], true) ? (string) $value : 'grid';
+    }
+
+    public static function sanitizeAlignment(mixed $value): string
+    {
+        return in_array($value, ['left', 'center', 'right'], true) ? (string) $value : 'left';
     }
 
     public static function sanitizeOrder(mixed $value): string

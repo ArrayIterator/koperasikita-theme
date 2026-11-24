@@ -196,7 +196,39 @@ msgid "Invert Logo in Dark Mode"
 msgstr ""
 
 #: inc/Customizer/Customizer.php
-msgid "Footer Text"
+msgid "Footer Copyright Text"
+msgstr ""
+
+#: inc/Customizer/Customizer.php
+msgid "Tokens: {year}, {month}, {month_number}, {day}, {date}, {site_name}, {site_url}, {home_url}."
+msgstr ""
+
+#: inc/Customizer/Customizer.php
+msgid "Copyright Alignment"
+msgstr ""
+
+#: inc/Customizer/Customizer.php
+msgid "Left"
+msgstr ""
+
+#: inc/Customizer/Customizer.php
+msgid "Center"
+msgstr ""
+
+#: inc/Customizer/Customizer.php
+msgid "Right"
+msgstr ""
+
+#: inc/Customizer/Customizer.php
+msgid "%s URL"
+msgstr ""
+
+#: inc/Features/Footer.php
+msgid "Copyright &copy; %1$s %2$s. All rights reserved."
+msgstr ""
+
+#: footer.php
+msgid "Social media"
 msgstr ""
 
 #: inc/Customizer/Customizer.php

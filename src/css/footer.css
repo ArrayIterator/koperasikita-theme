@@ -88,6 +88,36 @@
 	color: var(--kk-muted);
 }
 
+.kk-footer-bottom--center {
+	justify-content: center;
+	text-align: center;
+}
+
+.kk-footer-bottom--right {
+	justify-content: flex-end;
+	text-align: right;
+}
+
+.kk-footer-social {
+	display: inline-flex;
+	align-items: center;
+	gap: 4px;
+}
+
+.kk-footer-social a {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 44px;
+	height: 44px;
+	color: var(--kk-muted);
+	border-radius: 50%;
+}
+
+.kk-footer-social a:hover {
+	color: var(--kk-green, #0B6B3A);
+}
+
 /* --- Mobile bottom nav ---------------------------------------------------- */
 
 .kk-bottom-nav {

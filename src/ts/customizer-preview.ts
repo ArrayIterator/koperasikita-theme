@@ -253,6 +253,53 @@ function applyStyleVariant(next: SettingValue): void {
 	document.body.classList.add(`kk-variant-${variant}`);
 }
 
+/*
+ * Footer copyright preview. The copyright element carries the token values
+ * (data-kk-footer-tokens, JSON) and the default line (data-kk-footer-default)
+ * as data attributes, so the preview can replace {tokens} in the incoming
+ * text exactly the way the server does — no extra localized data needed.
+ * An empty text falls back to the default line, like the server render.
+ */
+function footerTokens(): Record<string, string> {
+	const copyright = document.querySelector<HTMLElement>('.kk-copyright');
+	if (!copyright) {
+		return {};
+	}
+	const raw = copyright.dataset.kkFooterTokens ?? '';
+	if (raw === '') {
+		return {};
+	}
+	try {
+		return JSON.parse(raw) as Record<string, string>;
+	} catch {
+		return {};
+	}
+}
+
+function replaceFooterTokens(text: string, tokens: Record<string, string>): string {
+	return text.replace(/\{(\w+)\}/g, (match: string, key: string) => tokens[key] ?? match);
+}
+
+function applyFooterText(next: SettingValue): void {
+	const copyright = document.querySelector<HTMLElement>('.kk-copyright');
+	if (!copyright) {
+		return;
+	}
+	const text = String(next).trim() !== '' ? String(next) : (copyright.dataset.kkFooterDefault ?? '');
+	copyright.textContent = replaceFooterTokens(text, footerTokens());
+}
+
+function applyFooterAlignment(next: SettingValue): void {
+	const bottom = document.querySelector('.kk-footer-bottom');
+	if (!bottom) {
+		return;
+	}
+	const value = String(next);
+	const align = value === 'center' || value === 'right' ? value : 'left';
+	bottom.classList.remove('kk-footer-bottom--left', 'kk-footer-bottom--center', 'kk-footer-bottom--right');
+	bottom.classList.add(`kk-footer-bottom--${align}`);
+}
+
 function initCustomizerPreview(): void {
 	PALETTE_SETTINGS.forEach(({ setting, variable }) => {
 		bindSetting(setting, (next) => setRootVar(variable, String(next)));
@@ -268,12 +315,8 @@ function initCustomizerPreview(): void {
 	bindSetting('kk_logo_invert_dark', applyLogoInvert);
 	bindSetting('kk_style_variant', applyStyleVariant);
 
-	bindSetting('kk_footer_text', (next) => {
-		const footerText = document.querySelector('.kk-footer-text');
-		if (footerText) {
-			footerText.textContent = String(next);
-		}
-	});
+	bindSetting('kk_footer_text', applyFooterText);
+	bindSetting('kk_footer_alignment', applyFooterAlignment);
 }
 
 initCustomizerPreview();

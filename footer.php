@@ -56,20 +56,24 @@
 			</div>
 		</div>
 
-		<div class="kk-footer-bottom">
-			<p class="kk-copyright">
-				<?php
-				/* translators: %s: Site name. */
-				printf( esc_html__( 'Copyright &copy; %1$s %2$s. All rights reserved.', 'koperasikita' ), esc_html( date_i18n( 'Y' ) ), esc_html( get_bloginfo( 'name' ) ) );
-				?>
+		<div class="kk-footer-bottom kk-footer-bottom--<?php echo esc_attr( \KoperasiKita\Features\Footer::alignment() ); ?>">
+			<p class="kk-copyright" data-kk-footer-tokens="<?php echo esc_attr( wp_json_encode( \KoperasiKita\Features\Footer::tokens() ) ); ?>" data-kk-footer-default="<?php echo esc_attr( \KoperasiKita\Features\Footer::defaultCopyrightText() ); ?>">
+				<?php echo esc_html( \KoperasiKita\Features\Footer::copyrightText() ); ?>
 			</p>
 			<?php
-			$footer_text = get_theme_mod( 'kk_footer_text', '' );
-			if ( '' !== $footer_text ) {
+			$social_links = \KoperasiKita\Features\Footer::socialLinks();
+
+			if ( [] !== $social_links ) :
 				?>
-				<p class="kk-footer-text"><?php echo esc_html( $footer_text ); ?></p>
+				<nav class="kk-footer-social" aria-label="<?php esc_attr_e( 'Social media', 'koperasikita' ); ?>">
+					<?php foreach ( $social_links as $link ) : ?>
+						<a href="<?php echo esc_url( $link['url'] ); ?>" target="_blank" rel="noopener" aria-label="<?php echo esc_attr( $link['label'] ); ?>">
+							<?php echo \KoperasiKita\Icons\Icon::svg( $link['icon'], 18 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+						</a>
+					<?php endforeach; ?>
+				</nav>
 				<?php
-			}
+			endif;
 			?>
 		</div>
 	</div>
