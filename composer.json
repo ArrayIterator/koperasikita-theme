@@ -1,0 +1,22 @@
+{
+  "autoload": {
+    "psr-4": {
+      "KoperasiKita\\": "inc/"
+    }
+  },
+  "description": "WordPress theme for the Koperasi Kita news site.",
+  "license": "GPL-2.0-or-later",
+  "name": "koperasikita/koperasi-kita-theme",
+  "require": {
+    "php": ">=8.3"
+  },
+  "require-dev": {
+    "slevomat/coding-standard": "^8.15",
+    "squizlabs/php_codesniffer": "^3.10"
+  },
+  "scripts": {
+    "i18n": "wp i18n make-pot . languages/koperasikita.pot --domain=koperasikita",
+    "phpcs": "vendor/bin/phpcs"
+  },
+  "type": "wordpress-theme"
+}

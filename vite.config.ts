@@ -1,0 +1,30 @@
+import { defineConfig } from 'vite';
+
+export default defineConfig({
+  server: {
+    host: 'localhost',
+    port: 5173,
+    strictPort: true,
+    cors: {
+      origin: [
+        'http://localhost:5173',
+        'https://koperasikita.pentagonal.org',
+        /^https?:\/\/([a-z0-9-]+\.)*test(:\d+)?$/,
+        /^https?:\/\/([a-z0-9-]+\.)*local(:\d+)?$/,
+      ],
+    },
+  },
+  build: {
+    outDir: 'dist',
+    emptyOutDir: true,
+    manifest: true,
+    rollupOptions: {
+      input: {
+        main: 'src/ts/main.ts',
+        admin: 'src/ts/admin.ts',
+        'customizer-preview': 'src/ts/customizer-preview.ts',
+        app: 'src/css/app.css',
+      },
+    },
+  },
+});

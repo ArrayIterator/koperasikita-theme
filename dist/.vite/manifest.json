@@ -1,0 +1,25 @@
+{
+  "src/css/app.css": {
+    "file": "assets/app-CAFue59q.css",
+    "src": "src/css/app.css",
+    "isEntry": true
+  },
+  "src/ts/admin.ts": {
+    "file": "assets/admin-BcJx6z5E.js",
+    "name": "admin",
+    "src": "src/ts/admin.ts",
+    "isEntry": true
+  },
+  "src/ts/customizer-preview.ts": {
+    "file": "assets/customizer-preview-DLCONJhr.js",
+    "name": "customizer-preview",
+    "src": "src/ts/customizer-preview.ts",
+    "isEntry": true
+  },
+  "src/ts/main.ts": {
+    "file": "assets/main-CaDVbl_L.js",
+    "name": "main",
+    "src": "src/ts/main.ts",
+    "isEntry": true
+  }
+}

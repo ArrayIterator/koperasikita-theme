@@ -1,0 +1,237 @@
+# Copyright (C) 2026 Koperasi Kita
+# This file is distributed under the GNU General Public License v2 or later.
+msgid ""
+msgstr ""
+"Project-Id-Version: Koperasi Kita 1.0.0\n"
+"Report-Msgid-Bugs-To: https://koperasikita.pentagonal.org/\n"
+"POT-Creation-Date: 2026-11-24 23:00+0700\n"
+"PO-Revision-Date: 2026-11-24 23:00+0700\n"
+"Last-Translator: Koperasi Kita\n"
+"Language-Team: Koperasi Kita\n"
+"Language: id_ID\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Generator: hand-written\n"
+"X-Domain: koperasikita\n"
+
+#: functions.php
+msgid "The Koperasi Kita theme requires PHP 8.3 or higher."
+msgstr "Tema Koperasi Kita membutuhkan PHP 8.3 atau lebih tinggi."
+
+#: functions.php
+msgid "The TrayDigita Stack plugin is not active. Some integrations are unavailable."
+msgstr "Plugin TrayDigita Stack tidak aktif. Beberapa integrasi tidak tersedia."
+
+#: inc/Setup/ThemeSupport.php
+msgid "Primary Menu"
+msgstr "Menu Utama"
+
+#: inc/Setup/ThemeSupport.php
+msgid "Footer Menu"
+msgstr "Menu Footer"
+
+#: inc/Setup/ThemeSupport.php
+msgid "Mobile Bottom Menu"
+msgstr "Menu Bawah Seluler"
+
+#: inc/Setup/Sidebars.php
+msgid "Main Sidebar"
+msgstr "Sidebar Utama"
+
+#: inc/Setup/Sidebars.php
+msgid "Article Sidebar"
+msgstr "Sidebar Artikel"
+
+#: inc/Setup/Sidebars.php
+msgid "Page Sidebar"
+msgstr "Sidebar Halaman"
+
+#: inc/Setup/Sidebars.php
+msgid "News Sidebar"
+msgstr "Sidebar Berita"
+
+#: inc/Customizer/Customizer.php
+msgid "Koperasi Kita Theme Options"
+msgstr "Opsi Tema Koperasi Kita"
+
+#: inc/Customizer/Customizer.php
+msgid "Color Palette"
+msgstr "Palet Warna"
+
+#: inc/Customizer/Customizer.php
+msgid "Typography"
+msgstr "Tipografi"
+
+#: inc/Customizer/Customizer.php
+msgid "Header & Breaking News"
+msgstr "Header & Berita Terkini"
+
+#: inc/Customizer/Customizer.php
+msgid "Homepage Layout"
+msgstr "Tata Letak Beranda"
+
+#: inc/Customizer/Customizer.php
+msgid "Single Post"
+msgstr "Artikel Tunggal"
+
+#: inc/Customizer/Customizer.php
+msgid "Comments"
+msgstr "Komentar"
+
+#: inc/Customizer/Customizer.php
+msgid "Appearance & Accessibility"
+msgstr "Tampilan & Aksesibilitas"
+
+#: inc/Customizer/Customizer.php
+msgid "Images & Performance"
+msgstr "Gambar & Performa"
+
+#: inc/Customizer/Customizer.php
+msgid "Advanced Performance & Cleanup"
+msgstr "Performa Lanjutan & Pembersihan"
+
+#: inc/Customizer/Customizer.php
+msgid "Breadcrumbs"
+msgstr "Breadcrumb"
+
+#: inc/Customizer/Customizer.php
+msgid "Footer"
+msgstr "Footer"
+
+#: inc/Customizer/Customizer.php
+msgid "Progressive Web App"
+msgstr "Aplikasi Web Progresif"
+
+#: inc/Customizer/Customizer.php
+msgid "Primary Color"
+msgstr "Warna Utama"
+
+#: inc/Customizer/Customizer.php
+msgid "Primary Dark Color"
+msgstr "Warna Utama Gelap"
+
+#: inc/Customizer/Customizer.php
+msgid "Primary Light Color"
+msgstr "Warna Utama Terang"
+
+#: inc/Customizer/Customizer.php
+msgid "Gold Color"
+msgstr "Warna Emas"
+
+#: inc/Customizer/Customizer.php
+msgid "Gold Light Color"
+msgstr "Warna Emas Terang"
+
+#: inc/Customizer/Customizer.php
+msgid "Ink Color"
+msgstr "Warna Tinta"
+
+#: inc/Customizer/Customizer.php
+msgid "Muted Color"
+msgstr "Warna Redup"
+
+#: inc/Customizer/Customizer.php
+msgid "Paper Color"
+msgstr "Warna Kertas"
+
+#: inc/Customizer/Customizer.php
+msgid "Surface Color"
+msgstr "Warna Permukaan"
+
+#: inc/Customizer/Customizer.php
+msgid "Border Color"
+msgstr "Warna Garis Tepi"
+
+#: inc/Customizer/Customizer.php
+msgid "Font Family"
+msgstr "Jenis Huruf"
+
+#: inc/Customizer/Customizer.php
+msgid "System UI"
+msgstr "System UI"
+
+#: inc/Customizer/Customizer.php
+msgid "Georgia editorial serif"
+msgstr "Georgia (serif editorial)"
+
+#: inc/Customizer/Customizer.php
+msgid "Palatino editorial serif"
+msgstr "Palatino (serif editorial)"
+
+#: inc/Customizer/Customizer.php
+msgid "Trebuchet MS"
+msgstr "Trebuchet MS"
+
+#: inc/Customizer/Customizer.php
+msgid "Verdana"
+msgstr "Verdana"
+
+#: inc/Customizer/Customizer.php
+msgid "Arial"
+msgstr "Arial"
+
+#: inc/Customizer/Customizer.php
+msgid "Post Title Size"
+msgstr "Ukuran Judul Artikel"
+
+#: inc/Customizer/Customizer.php
+msgid "Card Title Size"
+msgstr "Ukuran Judul Kartu"
+
+#: inc/Customizer/Customizer.php
+msgid "Excerpt Size"
+msgstr "Ukuran Kutipan"
+
+#: inc/Customizer/Customizer.php
+msgid "Hero Posts"
+msgstr "Artikel Hero"
+
+#: inc/Customizer/Customizer.php
+msgid "Latest Posts"
+msgstr "Artikel Terbaru"
+
+#: inc/Customizer/Customizer.php
+msgid "Invert Logo in Dark Mode"
+msgstr "Balik Logo dalam Mode Gelap"
+
+#: inc/Customizer/Customizer.php
+msgid "Footer Text"
+msgstr "Teks Footer"
+
+#: inc/Customizer/Customizer.php
+msgid "Enable News Ticker"
+msgstr "Aktifkan Ticker Berita"
+
+#: inc/Customizer/Customizer.php
+msgid "Enable Weather"
+msgstr "Aktifkan Cuaca"
+
+#: inc/Customizer/Customizer.php
+msgid "Enable Markets"
+msgstr "Aktifkan Pasar"
+
+#: inc/Customizer/Customizer.php
+msgid "Enable Bookmarks"
+msgstr "Aktifkan Bookmark"
+
+#: inc/Customizer/Customizer.php
+msgid "Enable Progressive Web App"
+msgstr "Aktifkan Progressive Web App"
+
+#: inc/Customizer/Customizer.php
+msgid "Enable Agenda"
+msgstr "Aktifkan Agenda"
+
+#: inc/Customizer/Customizer.php
+msgid "Grid"
+msgstr "Grid"
+
+#: inc/Customizer/Customizer.php
+msgid "List"
+msgstr "Daftar"
+
+#: inc/Breadcrumb/Breadcrumb.php
+msgid "Home"
+msgstr "Beranda"

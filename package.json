@@ -1,0 +1,15 @@
+{
+  "devDependencies": {
+    "typescript": "^5.9.3",
+    "vite": "^6.4.6"
+  },
+  "name": "koperasi-kita-theme",
+  "private": true,
+  "scripts": {
+    "build": "vite build",
+    "dev": "vite --host 0.0.0.0",
+    "typecheck": "tsc --noEmit"
+  },
+  "type": "module",
+  "version": "1.0.0"
+}

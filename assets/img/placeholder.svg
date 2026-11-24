@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="640" height="360" viewBox="0 0 640 360" role="img" aria-label="Placeholder image">
+  <rect width="640" height="360" rx="12" fill="#F7F7F5"/>
+  <rect x="1" y="1" width="638" height="358" rx="11" fill="none" stroke="#E6E3DE"/>
+  <text x="320" y="215" text-anchor="middle" font-family="Georgia, serif" font-size="140" font-weight="700" fill="#0B6B3A">K</text>
+</svg>

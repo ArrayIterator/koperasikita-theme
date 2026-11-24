@@ -1,0 +1,70 @@
+/*
+Theme Name: Koperasi Kita
+Theme URI: https://koperasikita.pentagonal.org/
+Author: Koperasi Kita
+Author URI: https://koperasikita.pentagonal.org/
+Description: Modern, clean newsletter-style news theme for Koperasi Kita. White paper background, cooperative green primary, gold accents.
+Version: 1.0.0
+Requires at least: 6.5
+Tested up to: 6.5
+Requires PHP: 8.3
+License: GNU General Public License v2 or later
+License URI: http://www.gnu.org/licenses/gpl-2.0.html
+Text Domain: koperasikita
+Domain Path: /languages
+Tags: news, cooperative, editorial, customizer, responsive, dark-mode, pwa
+*/
+
+:root {
+    --kk-green: #0B6B3A;
+    --kk-green-dark: #07522C;
+    --kk-green-light: #2FA36B;
+    --kk-gold: #C9962E;
+    --kk-gold-light: #F6D365;
+    --kk-ink: #1B1B1B;
+    --kk-muted: #5B6470;
+    --kk-paper: #FFFFFF;
+    --kk-surface: #F7F7F5;
+    --kk-border: #E6E3DE;
+    --kk-success: #218739;
+    --kk-warning: #C77D11;
+    --kk-error: #B42318;
+}
+
+html[data-color-scheme="dark"] {
+    --kk-green: #2FA36B;
+    --kk-green-dark: #2FA36B;
+    --kk-green-light: #5CC493;
+    --kk-gold: #C9962E;
+    --kk-gold-light: #F6D365;
+    --kk-ink: #F2F2EF;
+    --kk-muted: #A8AEB8;
+    --kk-paper: #141614;
+    --kk-surface: #1D1F1D;
+    --kk-border: #2E322E;
+    --kk-success: #4CAF7D;
+    --kk-warning: #E8A33D;
+    --kk-error: #F07064;
+}
+
+@media (prefers-color-scheme: dark) {
+    html[data-color-scheme="auto"] {
+        --kk-green: #2FA36B;
+        --kk-green-dark: #2FA36B;
+        --kk-green-light: #5CC493;
+        --kk-gold: #C9962E;
+        --kk-gold-light: #F6D365;
+        --kk-ink: #F2F2EF;
+        --kk-muted: #A8AEB8;
+        --kk-paper: #141614;
+        --kk-surface: #1D1F1D;
+        --kk-border: #2E322E;
+        --kk-success: #4CAF7D;
+        --kk-warning: #E8A33D;
+        --kk-error: #F07064;
+    }
+}
+
+html[data-color-scheme="dark"] .kk-logo--invert-dark {
+    filter: invert(1);
+}

@@ -1,0 +1,612 @@
+/**
+ * Koperasi Kita — main frontend script.
+ *
+ * Strict TypeScript, no jQuery, no external libraries. Every feature is
+ * guarded by the kkData flags localised by the theme, so a disabled
+ * feature runs zero code.
+ */
+
+export {};
+
+interface KkData {
+	isBookmarksEnabled?: boolean;
+	isPwaEnabled?: boolean;
+	isTickerEnabled?: boolean;
+	isWeatherEnabled?: boolean;
+	bookmarksPageUrl?: string;
+	ajaxUrl?: string;
+}
+
+declare global {
+	interface Window {
+		kkData?: KkData;
+	}
+}
+
+type ColorScheme = 'system' | 'light' | 'dark';
+
+const SCHEME_KEY = 'kk-color-scheme';
+const LAYOUT_KEY = 'kk-layout';
+const DB_NAME = 'koperasikita';
+const DB_VERSION = 1;
+const STORE_NAME = 'kk-bookmarks';
+const INSTALL_SEEN_KEY = 'kk-install-prompt-seen';
+
+interface BookmarkEntry {
+	postId: number;
+	title: string;
+	url: string;
+	excerpt: string;
+	thumbnail: string;
+	note: string;
+	createdAt: number;
+}
+
+function getKkData(): KkData {
+	return window.kkData ?? {};
+}
+
+function $(selector: string, root: ParentNode = document): HTMLElement | null {
+	return root.querySelector(selector);
+}
+
+function $all<T extends Element>(selector: string, root: ParentNode = document): T[] {
+	return Array.from(root.querySelectorAll<T>(selector));
+}
+
+/* ------------------------------------------------------------------ */
+/* Colour scheme                                                       */
+/* ------------------------------------------------------------------ */
+
+function getStoredScheme(): ColorScheme {
+	const stored = window.localStorage.getItem(SCHEME_KEY);
+	if (stored === 'light' || stored === 'dark' || stored === 'system') {
+		return stored;
+	}
+	return 'system';
+}
+
+function applyScheme(scheme: ColorScheme): void {
+	document.documentElement.setAttribute('data-color-scheme', scheme);
+	const toggle = $('#kk-color-scheme-toggle');
+	if (toggle) {
+		toggle.setAttribute('aria-pressed', scheme === 'dark' ? 'true' : 'false');
+		toggle.setAttribute(
+			'aria-label',
+			scheme === 'system'
+				? 'Switch to light mode'
+				: scheme === 'light'
+					? 'Switch to dark mode'
+					: 'Switch to system mode',
+		);
+	}
+}
+
+function initColorScheme(): void {
+	applyScheme(getStoredScheme());
+	const toggle = $('#kk-color-scheme-toggle');
+	if (!toggle) {
+		return;
+	}
+	toggle.addEventListener('click', () => {
+		const current = getStoredScheme();
+		const next: ColorScheme = current === 'system' ? 'light' : current === 'light' ? 'dark' : 'system';
+		window.localStorage.setItem(SCHEME_KEY, next);
+		applyScheme(next);
+	});
+}
+
+/* ------------------------------------------------------------------ */
+/* Mobile nav                                                          */
+/* ------------------------------------------------------------------ */
+
+function initMobileNav(): void {
+	const toggle = $('#kk-menu-toggle') as HTMLButtonElement | null;
+	const nav = $('#kk-primary-nav');
+	if (!toggle || !nav) {
+		return;
+	}
+	toggle.addEventListener('click', () => {
+		const isOpen = nav.classList.toggle('is-open');
+		toggle.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+		toggle.setAttribute('aria-label', isOpen ? 'Close menu' : 'Open menu');
+	});
+	document.addEventListener('click', (event) => {
+		if (!nav.classList.contains('is-open')) {
+			return;
+		}
+		const target = event.target as Node;
+		if (!nav.contains(target) && !toggle.contains(target)) {
+			nav.classList.remove('is-open');
+			toggle.setAttribute('aria-expanded', 'false');
+		}
+	});
+}
+
+/* ------------------------------------------------------------------ */
+/* Modals (centred popup + blurred backdrop)                           */
+/* ------------------------------------------------------------------ */
+
+let lastFocusedElement: HTMLElement | null = null;
+
+function openModal(modal: HTMLElement): void {
+	lastFocusedElement = document.activeElement as HTMLElement | null;
+	modal.hidden = false;
+	document.body.style.overflow = 'hidden';
+	const focusable = modal.querySelector<HTMLElement>(
+		'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])',
+	);
+	if (focusable) {
+		focusable.focus();
+	}
+}
+
+function closeModal(modal: HTMLElement): void {
+	modal.hidden = true;
+	document.body.style.overflow = '';
+	if (lastFocusedElement) {
+		lastFocusedElement.focus();
+		lastFocusedElement = null;
+	}
+}
+
+function initModals(): void {
+	$all<HTMLElement>('.kk-modal').forEach((modal) => {
+		$all('[data-kk-modal-close]', modal).forEach((closer) => {
+			closer.addEventListener('click', () => closeModal(modal));
+		});
+	});
+	document.addEventListener('keydown', (event) => {
+		if (event.key !== 'Escape') {
+			return;
+		}
+		$all<HTMLElement>('.kk-modal').forEach((modal) => {
+			if (!modal.hidden) {
+				closeModal(modal);
+			}
+		});
+	});
+}
+
+function initSearchOverlay(): void {
+	const overlay = $('#kk-search-overlay');
+	const openButton = $('#kk-search-open');
+	if (!overlay || !openButton) {
+		return;
+	}
+	openButton.addEventListener('click', () => openModal(overlay));
+	const input = overlay.querySelector<HTMLInputElement>('.search-field');
+	if (input) {
+		overlay.addEventListener('transitionend', () => input.focus());
+	}
+}
+
+/* ------------------------------------------------------------------ */
+/* Ticker (bouncing fade rotation)                                     */
+/* ------------------------------------------------------------------ */
+
+function initTicker(): void {
+	const data = getKkData();
+	if (data.isTickerEnabled === false) {
+		return;
+	}
+	const list = $('#kk-ticker-list');
+	if (!list) {
+		return;
+	}
+	const items = $all<HTMLElement>('.kk-ticker-item', list);
+	if (items.length <= 1) {
+		return;
+	}
+	let current = 0;
+	let timer: number | null = null;
+	const toggle = $('#kk-ticker-toggle') as HTMLButtonElement | null;
+
+	function show(index: number): void {
+		const previous = items[current];
+		current = (index + items.length) % items.length;
+		const next = items[current];
+		if (previous === next) {
+			return;
+		}
+		previous.classList.remove('is-active');
+		previous.classList.add('is-leaving');
+		window.setTimeout(() => previous.classList.remove('is-leaving'), 450);
+		next.classList.add('is-active');
+	}
+
+	function start(): void {
+		stop();
+		timer = window.setInterval(() => show(current + 1), 5000);
+	}
+
+	function stop(): void {
+		if (timer !== null) {
+			window.clearInterval(timer);
+			timer = null;
+		}
+	}
+
+	const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+	if (!reduced) {
+		start();
+	}
+
+	$('#kk-ticker-next')?.addEventListener('click', () => {
+		show(current + 1);
+		start();
+	});
+	$('#kk-ticker-prev')?.addEventListener('click', () => {
+		show(current - 1);
+		start();
+	});
+	if (toggle) {
+		toggle.addEventListener('click', () => {
+			const paused = toggle.classList.toggle('is-paused');
+			toggle.setAttribute('aria-pressed', paused ? 'true' : 'false');
+			toggle.setAttribute('aria-label', paused ? 'Resume headlines' : 'Pause headlines');
+			if (paused) {
+				stop();
+			} else {
+				start();
+			}
+		});
+	}
+	document.addEventListener('visibilitychange', () => {
+		if (document.hidden) {
+			stop();
+		} else if (!toggle?.classList.contains('is-paused') && !reduced) {
+			start();
+		}
+	});
+}
+
+/* ------------------------------------------------------------------ */
+/* Layout switcher (grid / list)                                       */
+/* ------------------------------------------------------------------ */
+
+function initLayoutSwitcher(): void {
+	const container = $('#kk-latest-items');
+	if (!container) {
+		return;
+	}
+	const stored = window.localStorage.getItem(LAYOUT_KEY);
+	if (stored === 'grid' || stored === 'list') {
+		container.classList.remove('kk-layout-grid', 'kk-layout-list');
+		container.classList.add(`kk-layout-${stored}`);
+	}
+	$all<HTMLButtonElement>('[data-kk-layout]').forEach((button) => {
+		button.addEventListener('click', () => {
+			const layout = button.dataset.kkLayout;
+			if (layout !== 'grid' && layout !== 'list') {
+				return;
+			}
+			window.localStorage.setItem(LAYOUT_KEY, layout);
+			container.classList.remove('kk-layout-grid', 'kk-layout-list');
+			container.classList.add(`kk-layout-${layout}`);
+			$all<HTMLButtonElement>('[data-kk-layout]').forEach((other) => {
+				const active = other === button;
+				other.classList.toggle('is-active', active);
+				other.setAttribute('aria-pressed', active ? 'true' : 'false');
+			});
+		});
+	});
+}
+
+/* ------------------------------------------------------------------ */
+/* Bookmarks (IndexedDB only)                                          */
+/* ------------------------------------------------------------------ */
+
+function openBookmarksDb(): Promise<IDBDatabase> {
+	return new Promise((resolve, reject) => {
+		const request = window.indexedDB.open(DB_NAME, DB_VERSION);
+		request.onupgradeneeded = () => {
+			const db = request.result;
+			if (!db.objectStoreNames.contains(STORE_NAME)) {
+				db.createObjectStore(STORE_NAME, { keyPath: 'postId' });
+			}
+		};
+		request.onsuccess = () => resolve(request.result);
+		request.onerror = () => reject(request.error);
+	});
+}
+
+async function getAllBookmarks(): Promise<BookmarkEntry[]> {
+	const db = await openBookmarksDb();
+	return new Promise((resolve, reject) => {
+		const tx = db.transaction(STORE_NAME, 'readonly');
+		const request = tx.objectStore(STORE_NAME).getAll();
+		request.onsuccess = () => resolve((request.result as BookmarkEntry[]).sort((a, b) => b.createdAt - a.createdAt));
+		request.onerror = () => reject(request.error);
+		tx.oncomplete = () => db.close();
+	});
+}
+
+async function getBookmark(postId: number): Promise<BookmarkEntry | undefined> {
+	const db = await openBookmarksDb();
+	return new Promise((resolve, reject) => {
+		const tx = db.transaction(STORE_NAME, 'readonly');
+		const request = tx.objectStore(STORE_NAME).get(postId);
+		request.onsuccess = () => resolve(request.result as BookmarkEntry | undefined);
+		request.onerror = () => reject(request.error);
+		tx.oncomplete = () => db.close();
+	});
+}
+
+async function putBookmark(entry: BookmarkEntry): Promise<void> {
+	const db = await openBookmarksDb();
+	return new Promise((resolve, reject) => {
+		const tx = db.transaction(STORE_NAME, 'readwrite');
+		tx.objectStore(STORE_NAME).put(entry);
+		tx.oncomplete = () => {
+			db.close();
+			resolve();
+		};
+		tx.onerror = () => reject(tx.error);
+	});
+}
+
+async function deleteBookmark(postId: number): Promise<void> {
+	const db = await openBookmarksDb();
+	return new Promise((resolve, reject) => {
+		const tx = db.transaction(STORE_NAME, 'readwrite');
+		tx.objectStore(STORE_NAME).delete(postId);
+		tx.oncomplete = () => {
+			db.close();
+			resolve();
+		};
+		tx.onerror = () => reject(tx.error);
+	});
+}
+
+function syncBookmarkButton(button: HTMLButtonElement, saved: boolean): void {
+	button.setAttribute('aria-pressed', saved ? 'true' : 'false');
+	button.setAttribute('aria-label', saved ? 'Remove bookmark' : 'Save bookmark');
+	const label = button.querySelector('.kk-bookmark-label');
+	if (label) {
+		label.textContent = saved ? 'Saved' : 'Save';
+	}
+}
+
+function entryFromButton(button: HTMLButtonElement): BookmarkEntry {
+	return {
+		postId: Number(button.dataset.postId ?? 0),
+		title: button.dataset.postTitle ?? '',
+		url: button.dataset.postUrl ?? '',
+		excerpt: button.dataset.postExcerpt ?? '',
+		thumbnail: button.dataset.postThumbnail ?? '',
+		note: '',
+		createdAt: Date.now(),
+	};
+}
+
+async function initBookmarkButtons(): Promise<void> {
+	const buttons = $all<HTMLButtonElement>('[data-kk-bookmark]');
+	if (buttons.length === 0) {
+		return;
+	}
+	for (const button of buttons) {
+		const postId = Number(button.dataset.postId ?? 0);
+		if (!postId) {
+			continue;
+		}
+		try {
+			const existing = await getBookmark(postId);
+			syncBookmarkButton(button, Boolean(existing));
+		} catch {
+			// IndexedDB unavailable (private mode, etc.): leave the button inert.
+			button.disabled = true;
+		}
+		button.addEventListener('click', async () => {
+			const saved = button.getAttribute('aria-pressed') === 'true';
+			try {
+				if (saved) {
+					await deleteBookmark(postId);
+					syncBookmarkButton(button, false);
+				} else {
+					const existing = await getBookmark(postId);
+					const entry = entryFromButton(button);
+					if (existing) {
+						entry.note = existing.note;
+						entry.createdAt = existing.createdAt;
+					}
+					await putBookmark(entry);
+					syncBookmarkButton(button, true);
+				}
+			} catch {
+				// Fail silently: the button simply does not change state.
+			}
+		});
+	}
+}
+
+function escapeHtml(value: string): string {
+	return value
+		.replace(/&/g, '&amp;')
+		.replace(/</g, '&lt;')
+		.replace(/>/g, '&gt;')
+		.replace(/"/g, '&quot;')
+		.replace(/'/g, '&#39;');
+}
+
+async function renderBookmarksPage(): Promise<void> {
+	const list = $('#kk-bookmarks');
+	const empty = $('#kk-bookmarks-empty');
+	if (!list) {
+		return;
+	}
+	let entries: BookmarkEntry[] = [];
+	try {
+		entries = await getAllBookmarks();
+	} catch {
+		entries = [];
+	}
+	if (entries.length === 0) {
+		list.innerHTML = '';
+		if (empty) {
+			empty.hidden = false;
+		}
+		return;
+	}
+	if (empty) {
+		empty.hidden = true;
+	}
+	list.innerHTML = entries
+		.map(
+			(entry) => `
+			<article class="kk-bookmark-item" data-post-id="${entry.postId}">
+				${entry.thumbnail ? `<a class="kk-bookmark-item-media" href="${escapeHtml(entry.url)}"><img src="${escapeHtml(entry.thumbnail)}" alt="" loading="lazy"></a>` : '<span class="kk-bookmark-item-media"></span>'}
+				<div class="kk-bookmark-item-body">
+					<h2 class="kk-bookmark-item-title"><a href="${escapeHtml(entry.url)}">${escapeHtml(entry.title)}</a></h2>
+					${entry.excerpt ? `<p class="kk-bookmark-item-excerpt">${escapeHtml(entry.excerpt)}</p>` : ''}
+					<textarea class="kk-bookmark-item-note" data-kk-note rows="2" placeholder="Add a note…" aria-label="Note for this bookmark">${escapeHtml(entry.note)}</textarea>
+					<div class="kk-bookmark-item-actions">
+						<button type="button" class="kk-icon-button" data-kk-note-save>Save note</button>
+						<button type="button" class="kk-icon-button" data-kk-note-remove>Remove</button>
+					</div>
+				</div>
+			</article>`,
+		)
+		.join('');
+
+	$all<HTMLElement>('.kk-bookmark-item', list).forEach((item) => {
+		const postId = Number(item.dataset.postId ?? 0);
+		const noteField = item.querySelector<HTMLTextAreaElement>('[data-kk-note]');
+		item.querySelector('[data-kk-note-save]')?.addEventListener('click', async () => {
+			const current = await getBookmark(postId);
+			if (current && noteField) {
+				current.note = noteField.value;
+				await putBookmark(current);
+			}
+		});
+		item.querySelector('[data-kk-note-remove]')?.addEventListener('click', async () => {
+			await deleteBookmark(postId);
+			item.remove();
+			if (list.querySelectorAll('.kk-bookmark-item').length === 0 && empty) {
+				empty.hidden = false;
+			}
+		});
+	});
+}
+
+function initBookmarks(): void {
+	const data = getKkData();
+	if (data.isBookmarksEnabled === false) {
+		return;
+	}
+	if (!('indexedDB' in window)) {
+		return;
+	}
+	void initBookmarkButtons();
+	void renderBookmarksPage();
+}
+
+/* ------------------------------------------------------------------ */
+/* PWA install                                                         */
+/* ------------------------------------------------------------------ */
+
+interface BeforeInstallPromptEvent extends Event {
+	prompt: () => Promise<void>;
+	userChoice: Promise<{ outcome: 'accepted' | 'dismissed' }>;
+}
+
+function initPwa(): void {
+	const data = getKkData();
+	if (data.isPwaEnabled === false) {
+		return;
+	}
+	const installButton = $('#kk-pwa-install') as HTMLButtonElement | null;
+	const promptModal = $('#kk-install-prompt');
+	let deferredPrompt: BeforeInstallPromptEvent | null = null;
+
+	window.addEventListener('beforeinstallprompt', (event) => {
+		event.preventDefault();
+		deferredPrompt = event as BeforeInstallPromptEvent;
+		if (installButton) {
+			installButton.hidden = false;
+		}
+		if (promptModal && !window.localStorage.getItem(INSTALL_SEEN_KEY)) {
+			window.setTimeout(() => openModal(promptModal), 1500);
+		}
+	});
+
+	async function runPrompt(): Promise<void> {
+		if (!deferredPrompt) {
+			return;
+		}
+		await deferredPrompt.prompt();
+		await deferredPrompt.userChoice;
+		deferredPrompt = null;
+		if (installButton) {
+			installButton.hidden = true;
+		}
+	}
+
+	installButton?.addEventListener('click', () => {
+		void runPrompt();
+	});
+	$('#kk-install-confirm')?.addEventListener('click', () => {
+		if (promptModal) {
+			closeModal(promptModal);
+		}
+		window.localStorage.setItem(INSTALL_SEEN_KEY, '1');
+		void runPrompt();
+	});
+	promptModal?.querySelectorAll('[data-kk-modal-close]').forEach((closer) => {
+		closer.addEventListener('click', () => {
+			window.localStorage.setItem(INSTALL_SEEN_KEY, '1');
+		});
+	});
+}
+
+/* ------------------------------------------------------------------ */
+/* Mobile bottom nav active state + back to top                        */
+/* ------------------------------------------------------------------ */
+
+function initBottomNav(): void {
+	const nav = document.querySelector('.kk-bottom-nav');
+	if (!nav) {
+		return;
+	}
+	document.body.classList.add('has-bottom-nav');
+	const currentUrl = window.location.href.split(/[?#]/)[0];
+	$all<HTMLAnchorElement>('.kk-bottom-nav-menu a').forEach((link) => {
+		const href = link.href.split(/[?#]/)[0];
+		if (href === currentUrl) {
+			link.classList.add('is-active');
+			link.setAttribute('aria-current', 'page');
+		}
+	});
+}
+
+function initBackToTop(): void {
+	const button = $('#kk-back-to-top') as HTMLButtonElement | null;
+	if (!button) {
+		return;
+	}
+	const onScroll = (): void => {
+		button.hidden = window.scrollY < 400;
+	};
+	window.addEventListener('scroll', onScroll, { passive: true });
+	onScroll();
+	button.addEventListener('click', () => {
+		window.scrollTo({ top: 0, behavior: 'smooth' });
+	});
+}
+
+/* ------------------------------------------------------------------ */
+/* Boot                                                                */
+/* ------------------------------------------------------------------ */
+
+document.addEventListener('DOMContentLoaded', () => {
+	initColorScheme();
+	initMobileNav();
+	initModals();
+	initSearchOverlay();
+	initTicker();
+	initLayoutSwitcher();
+	initBookmarks();
+	initPwa();
+	initBottomNav();
+	initBackToTop();
+});

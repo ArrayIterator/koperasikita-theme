@@ -1,0 +1,8 @@
+<?xml version="1.0"?>
+<ruleset name="Koperasi Kita">
+    <description>Code style for the Koperasi Kita theme.</description>
+    <rule ref="PSR2"/>
+    <file>inc</file>
+    <file>functions.php</file>
+    <arg name="extensions" value="php"/>
+</ruleset>
