@@ -5,14 +5,42 @@
  * homepage layout, the dark-mode logo invert, the style variant and the
  * footer text to live CSS-variable / class / DOM updates in the preview
  * frame. Setting IDs must match inc/Customizer/Customizer.php exactly.
+ *
+ * Fonts: the body and headings fonts are applied through the --kk-sans
+ * and --kk-serif variables. A selected Google font needs its local
+ * stylesheet (served from this site, never from Google) before the
+ * family name can be used; the preview downloads it on demand through
+ * the kk_download_font AJAX action and falls back to the system stack
+ * while the download is pending or when it fails.
  */
 
+interface CustomizeValue {
+	bind: (handler: (next: string | number | boolean) => void) => void;
+	get: () => string | number | boolean;
+}
+
 declare const wp: {
-	customize: (
-		setting: string,
-		callback: (value: { bind: (handler: (next: string | number | boolean) => void) => void }) => void,
-	) => void;
+	customize: (setting: string, callback: (value: CustomizeValue) => void) => void;
 };
+
+/**
+ * One catalogue entry as localized by Enqueue::registerCustomizerPreview.
+ * `stack` already names the Google family when the font is downloaded;
+ * until then it is the plain system fallback stack.
+ */
+interface PreviewFont {
+	stack: string;
+	cssUrl: string;
+	google: boolean;
+}
+
+interface FontsPreviewData {
+	ajaxUrl: string;
+	nonce: string;
+	fonts: Record<string, PreviewFont>;
+}
+
+declare const kkFontsPreview: FontsPreviewData | undefined;
 
 type SettingValue = string | number | boolean;
 
@@ -29,19 +57,28 @@ const PALETTE_SETTINGS: Array<{ setting: string; variable: string }> = [
 	{ setting: 'kk_palette_border', variable: '--kk-border' },
 ];
 
-/* One body class per font choice; see the body.font-* rules in app.css. */
-const FONT_CLASSES: string[] = [
-	'font-system',
-	'font-georgia',
-	'font-palatino',
-	'font-trebuchet',
-	'font-verdana',
-	'font-arial',
-];
-
 const LAYOUT_CLASSES: string[] = ['kk-layout-grid', 'kk-layout-list'];
 
 const VARIANT_CLASSES: string[] = ['kk-variant-classic', 'kk-variant-compact', 'kk-variant-bold'];
+
+/* One entry per font setting: setting id, CSS variable, preview link id. */
+const FONT_ROLES: Array<{ setting: string; variable: string; linkId: string }> = [
+	{ setting: 'kk_font_body', variable: '--kk-sans', linkId: 'kk-font-body' },
+	{ setting: 'kk_font_headings', variable: '--kk-serif', linkId: 'kk-font-headings' },
+];
+
+/* Font id currently selected per setting; guards against stale downloads. */
+const currentFont: Record<string, string> = {};
+
+/* Font ids with a download already in flight; duplicates are skipped. */
+const downloading = new Set<string>();
+
+function previewData(): FontsPreviewData | null {
+	if (typeof kkFontsPreview === 'undefined' || !kkFontsPreview) {
+		return null;
+	}
+	return kkFontsPreview;
+}
 
 function setRootVar(variable: string, value: string): void {
 	document.documentElement.style.setProperty(variable, value);
@@ -56,12 +93,131 @@ function bindSetting(setting: string, handler: (value: SettingValue) => void): v
 	});
 }
 
-function applyFontFamily(next: SettingValue): void {
-	const fontClass = `font-${String(next)}`;
-	document.body.classList.remove(...FONT_CLASSES);
-	if (FONT_CLASSES.includes(fontClass)) {
-		document.body.classList.add(fontClass);
+function ensureFontLink(linkId: string, href: string): void {
+	const existing = document.getElementById(linkId);
+	if (existing instanceof HTMLLinkElement) {
+		existing.href = href;
+		return;
 	}
+	const link = document.createElement('link');
+	link.id = linkId;
+	link.rel = 'stylesheet';
+	link.href = href;
+	document.head.appendChild(link);
+}
+
+function removeFontLink(linkId: string): void {
+	document.getElementById(linkId)?.remove();
+}
+
+/*
+ * Ask the server to download one Google font and return the URL of its
+ * local stylesheet. Rejects with the server's message on failure.
+ */
+async function downloadFont(id: string): Promise<string> {
+	const data = previewData();
+	if (!data || !data.ajaxUrl || !data.nonce) {
+		throw new Error('Font preview data is not available.');
+	}
+	const body = new URLSearchParams({ action: 'kk_download_font', font: id, nonce: data.nonce });
+	const response = await fetch(data.ajaxUrl, {
+		method: 'POST',
+		credentials: 'same-origin',
+		body,
+	});
+	if (!response.ok) {
+		throw new Error(`Font download request failed (${response.status}).`);
+	}
+	const json = (await response.json()) as {
+		success?: boolean;
+		data?: { cssUrl?: string; message?: string };
+	};
+	if (!json.success || typeof json.data?.cssUrl !== 'string' || json.data.cssUrl === '') {
+		throw new Error(json.data?.message ?? 'Font download failed.');
+	}
+	return json.data.cssUrl;
+}
+
+/*
+ * The local stylesheet is built by Fonts::buildLocalCss, whose first
+ * @font-face rule carries the family name. Reading it back from the
+ * downloaded file is the only way the preview can name the family in
+ * the CSS variable — the localized stack only names it once the font
+ * is already downloaded. Returns an empty string when unreadable.
+ */
+async function familyFromCss(cssUrl: string): Promise<string> {
+	const response = await fetch(cssUrl, { credentials: 'same-origin' });
+	if (!response.ok) {
+		return '';
+	}
+	const css = await response.text();
+	const match = /font-family:\s*'([^']+)'/.exec(css);
+	return match?.[1] ?? '';
+}
+
+function applyFont(setting: string, variable: string, linkId: string, id: string): void {
+	const data = previewData();
+	currentFont[setting] = id;
+
+	const font = data?.fonts[id];
+	if (!font) {
+		return;
+	}
+
+	setRootVar(variable, font.stack);
+
+	/* System fonts need no stylesheet; drop any link a previous pick left behind. */
+	if (!font.google) {
+		removeFontLink(linkId);
+		return;
+	}
+
+	if (font.cssUrl !== '') {
+		ensureFontLink(linkId, font.cssUrl);
+		return;
+	}
+
+	/* Not downloaded yet: keep the fallback stack and fetch it in the background. */
+	if (downloading.has(id)) {
+		return;
+	}
+	downloading.add(id);
+
+	void downloadFont(id)
+		.then(async (cssUrl) => {
+			font.cssUrl = cssUrl;
+			try {
+				const family = await familyFromCss(cssUrl);
+				if (family !== '') {
+					font.stack = `'${family.replace(/'/g, "\\'")}', ${font.stack}`;
+				}
+			} catch {
+				/* Keep the fallback stack; the stylesheet still loads below. */
+			}
+			/* The user may have picked another font while this one downloaded. */
+			if (currentFont[setting] !== id) {
+				return;
+			}
+			setRootVar(variable, font.stack);
+			ensureFontLink(linkId, cssUrl);
+		})
+		.catch((error: unknown) => {
+			console.warn(`Could not download the "${id}" font for the preview; using the system fallback.`, error);
+		})
+		.finally(() => {
+			downloading.delete(id);
+		});
+}
+
+function bindFontRole(role: { setting: string; variable: string; linkId: string }): void {
+	if (typeof wp === 'undefined' || !wp.customize) {
+		return;
+	}
+	wp.customize(role.setting, (value) => {
+		/* Apply the saved value on load, then keep following changes. */
+		applyFont(role.setting, role.variable, role.linkId, String(value.get()));
+		value.bind((next) => applyFont(role.setting, role.variable, role.linkId, String(next)));
+	});
 }
 
 function applyHomepageLayout(next: SettingValue): void {
@@ -102,7 +258,7 @@ function initCustomizerPreview(): void {
 		bindSetting(setting, (next) => setRootVar(variable, String(next)));
 	});
 
-	bindSetting('kk_font_family', applyFontFamily);
+	FONT_ROLES.forEach(bindFontRole);
 
 	bindSetting('kk_title_size', (next) => setRootVar('--kk-title-size', `${Number(next)}px`));
 	bindSetting('kk_card_title_size', (next) => setRootVar('--kk-card-title-size', `${Number(next)}px`));

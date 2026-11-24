@@ -57,7 +57,7 @@ final class FontsManagementControl extends WP_Customize_Control
         }
 
         echo '<p>';
-        echo '<button type="button" class="button button-primary" data-kk-font-action="download">';
+        echo '<button type="button" class="button button-primary" data-kk-font-action="download" data-kk-fonts="' . esc_attr(implode(' ', $selected)) . '">';
         echo esc_html__('Download fonts now', 'koperasikita');
         echo '</button> ';
         echo '<button type="button" class="button" data-kk-font-action="clear">';

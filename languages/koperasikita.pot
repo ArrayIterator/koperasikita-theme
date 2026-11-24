@@ -4,7 +4,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Koperasi Kita 1.0.0\n"
 "Report-Msgid-Bugs-To: https://koperasikita.pentagonal.org/\n"
-"POT-Creation-Date: 2026-11-24 18:42\n"
+"POT-Creation-Date: 2026-11-24 18:47\n"
 "PO-Revision-Date: 2026-11-24 23:00+0700\n"
 "Last-Translator: Koperasi Kita\n"
 "Language-Team: Koperasi Kita\n"
@@ -1200,6 +1200,7 @@ msgid "Quick start"
 msgstr ""
 
 #: inc/Setup/Setup.php
+#: inc/Features/FontsManagementControl.php:42
 msgid "Ready"
 msgstr ""
 
@@ -1297,4 +1298,44 @@ msgstr ""
 
 #: inc/Setup/Setup.php
 msgid "Or upload a release zip (max 20 MB):"
+msgstr ""
+
+#: inc/Features/Fonts.php:424
+msgid "Google Fonts"
+msgstr ""
+
+#: inc/Features/Fonts.php:724
+msgid "The %1$s font could not be downloaded (%2$s). The site is using a system font instead."
+msgstr ""
+
+#: inc/Features/Fonts.php:732
+msgid "Open Typography settings"
+msgstr ""
+
+#: inc/Features/FontsManagementControl.php:28
+msgid "No Google font is selected. Pick one above to download it for offline use."
+msgstr ""
+
+#: inc/Features/FontsManagementControl.php:40
+msgid "Downloading"
+msgstr ""
+
+#: inc/Features/FontsManagementControl.php:46
+msgid "Failed: %s"
+msgstr ""
+
+#: inc/Features/FontsManagementControl.php:50
+msgid "Not downloaded yet"
+msgstr ""
+
+#: inc/Features/FontsManagementControl.php:61
+msgid "Download fonts now"
+msgstr ""
+
+#: inc/Features/FontsManagementControl.php:64
+msgid "Clear font cache"
+msgstr ""
+
+#: inc/Features/FontsManagementControl.php:68
+msgid "Google fonts are downloaded once and served from this site. Until a font is downloaded, the site keeps using a system font."
 msgstr ""
