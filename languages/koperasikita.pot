@@ -1655,3 +1655,35 @@ msgstr ""
 #: inc/Customizer/TermCheckboxControl.php
 msgid "No terms found."
 msgstr ""
+
+#: inc/Customizer/Customizer.php
+msgid "Show Share Buttons"
+msgstr ""
+
+#: inc/Customizer/Customizer.php
+msgid "Serve Images Through the WordPress.com CDN (i0.wp.com)"
+msgstr ""
+
+#: inc/Customizer/Customizer.php
+msgid "Rewrites uploaded image URLs to i0.wp.com and adds DNS prefetch and preconnect hints. Only applies on a publicly reachable domain — local and test hosts keep serving images directly."
+msgstr ""
+
+#: inc/Customizer/Customizer.php
+msgid "App Name"
+msgstr ""
+
+#: inc/Customizer/Customizer.php
+msgid "App Short Name"
+msgstr ""
+
+#: inc/Customizer/Customizer.php
+msgid "App Description"
+msgstr ""
+
+#: inc/Customizer/Customizer.php
+msgid "App Theme Color"
+msgstr ""
+
+#: inc/Customizer/Customizer.php
+msgid "App Background Color"
+msgstr ""

@@ -130,9 +130,52 @@ final class Pwa
     public static function printManifestLink(): void
     {
         echo '<link rel="manifest" href="' . esc_url(self::manifestUrl()) . '">' . "\n";
-        echo '<meta name="theme-color" content="' . esc_attr(self::THEME_COLOR) . '">' . "\n";
+        echo '<meta name="theme-color" content="' . esc_attr(self::themeColor()) . '">' . "\n";
         echo '<link rel="apple-touch-icon" href="'
             . esc_url(get_template_directory_uri() . '/assets/img/logo-192.png') . '">' . "\n";
+    }
+
+    /**
+     * Manifest fields, Customizer-controlled with the shipped values
+     * as fallbacks. An empty or invalid stored value falls back too,
+     * so the manifest is never served with a blank name or colour.
+     */
+    public static function manifestName(): string
+    {
+        $name = sanitize_text_field((string) get_theme_mod('kk_pwa_name', 'Koperasi Kita'));
+
+        return $name !== '' ? $name : 'Koperasi Kita';
+    }
+
+    public static function manifestShortName(): string
+    {
+        $name = sanitize_text_field((string) get_theme_mod('kk_pwa_short_name', 'Koperasi Kita'));
+
+        return $name !== '' ? $name : 'Koperasi Kita';
+    }
+
+    public static function manifestDescription(): string
+    {
+        $description = sanitize_text_field((string) get_theme_mod(
+            'kk_pwa_description',
+            'News, announcements and market updates from Koperasi Kita.'
+        ));
+
+        return $description !== '' ? $description : 'News, announcements and market updates from Koperasi Kita.';
+    }
+
+    public static function themeColor(): string
+    {
+        $color = sanitize_hex_color((string) get_theme_mod('kk_pwa_theme_color', self::THEME_COLOR));
+
+        return $color === null || $color === '' ? self::THEME_COLOR : $color;
+    }
+
+    public static function backgroundColor(): string
+    {
+        $color = sanitize_hex_color((string) get_theme_mod('kk_pwa_background_color', self::BACKGROUND_COLOR));
+
+        return $color === null || $color === '' ? self::BACKGROUND_COLOR : $color;
     }
 
     /**
@@ -175,14 +218,14 @@ final class Pwa
 
         $manifest = [
             'id' => home_url('/'),
-            'name' => 'Koperasi Kita',
-            'short_name' => 'Koperasi Kita',
-            'description' => 'News, announcements and market updates from Koperasi Kita.',
+            'name' => self::manifestName(),
+            'short_name' => self::manifestShortName(),
+            'description' => self::manifestDescription(),
             'start_url' => home_url('/'),
             'scope' => home_url('/'),
             'display' => 'standalone',
-            'background_color' => self::BACKGROUND_COLOR,
-            'theme_color' => self::THEME_COLOR,
+            'background_color' => self::backgroundColor(),
+            'theme_color' => self::themeColor(),
             'icons' => [
                 [
                     'src' => $iconsBase . 'logo-192.png',

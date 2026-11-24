@@ -80,23 +80,31 @@ $font_size = \KoperasiKita\Features\ArticleFontSize::currentSize();
 	</div>
 
 	<?php
+	// The footer renders when there are tags to show or share buttons
+	// to offer; previously it was tied to tags alone, so an untagged
+	// post never showed its share buttons.
 	$tags = get_the_tags();
-	if ( $tags ) {
+	$show_share = (bool) get_theme_mod( 'kk_single_show_share', true );
+	if ( $tags || $show_share ) {
 		?>
 		<footer class="kk-article-footer">
-			<p class="kk-article-tags">
-				<?php foreach ( $tags as $tag ) : ?>
-					<a class="kk-tag" href="<?php echo esc_url( get_tag_link( $tag ) ); ?>"><?php echo esc_html( $tag->name ); ?></a>
-				<?php endforeach; ?>
-			</p>
+			<?php if ( $tags ) : ?>
+				<p class="kk-article-tags">
+					<?php foreach ( $tags as $tag ) : ?>
+						<a class="kk-tag" href="<?php echo esc_url( get_tag_link( $tag ) ); ?>"><?php echo esc_html( $tag->name ); ?></a>
+					<?php endforeach; ?>
+				</p>
+			<?php endif; ?>
 
-			<div class="kk-share" aria-label="<?php esc_attr_e( 'Share this article', 'koperasikita' ); ?>">
-				<span class="kk-share-label"><?php esc_html_e( 'Share', 'koperasikita' ); ?></span>
-				<a class="kk-share-link" href="<?php echo esc_url( 'https://www.facebook.com/sharer/sharer.php?u=' . rawurlencode( get_the_permalink() ) ); ?>" target="_blank" rel="noopener noreferrer">Facebook</a>
-				<a class="kk-share-link" href="<?php echo esc_url( 'https://twitter.com/intent/tweet?url=' . rawurlencode( get_the_permalink() ) . '&text=' . rawurlencode( get_the_title() ) ); ?>" target="_blank" rel="noopener noreferrer">X</a>
-				<a class="kk-share-link" href="<?php echo esc_url( 'https://wa.me/?text=' . rawurlencode( get_the_title() . ' ' . get_the_permalink() ) ); ?>" target="_blank" rel="noopener noreferrer">WhatsApp</a>
-				<a class="kk-share-link" href="<?php echo esc_url( 'mailto:?subject=' . rawurlencode( get_the_title() ) . '&body=' . rawurlencode( get_the_permalink() ) ); ?>"><?php esc_html_e( 'Email', 'koperasikita' ); ?></a>
-			</div>
+			<?php if ( $show_share ) : ?>
+				<div class="kk-share" aria-label="<?php esc_attr_e( 'Share this article', 'koperasikita' ); ?>">
+					<span class="kk-share-label"><?php esc_html_e( 'Share', 'koperasikita' ); ?></span>
+					<a class="kk-share-link" href="<?php echo esc_url( 'https://www.facebook.com/sharer/sharer.php?u=' . rawurlencode( get_the_permalink() ) ); ?>" target="_blank" rel="noopener noreferrer">Facebook</a>
+					<a class="kk-share-link" href="<?php echo esc_url( 'https://twitter.com/intent/tweet?url=' . rawurlencode( get_the_permalink() ) . '&text=' . rawurlencode( get_the_title() ) ); ?>" target="_blank" rel="noopener noreferrer">X</a>
+					<a class="kk-share-link" href="<?php echo esc_url( 'https://wa.me/?text=' . rawurlencode( get_the_title() . ' ' . get_the_permalink() ) ); ?>" target="_blank" rel="noopener noreferrer">WhatsApp</a>
+					<a class="kk-share-link" href="<?php echo esc_url( 'mailto:?subject=' . rawurlencode( get_the_title() ) . '&body=' . rawurlencode( get_the_permalink() ) ); ?>"><?php esc_html_e( 'Email', 'koperasikita' ); ?></a>
+				</div>
+			<?php endif; ?>
 		</footer>
 		<?php
 	}

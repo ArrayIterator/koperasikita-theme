@@ -277,6 +277,7 @@ final class Customizer
             'kk_single_author_box' => ['koperasikita_single', 'Show Author Box', true],
             'kk_single_related' => ['koperasikita_single', 'Show Related News', true],
             'kk_single_reading_time' => ['koperasikita_single', 'Show Reading Time', true],
+            'kk_single_show_share' => ['koperasikita_single', 'Show Share Buttons', true],
             'kk_comments_enabled' => ['koperasikita_comments', 'Enable Comments', true],
             'kk_comments_avatars' => ['koperasikita_comments', 'Show Comment Avatars', true],
             'kk_images_lazy' => ['koperasikita_media', 'Lazy-Load Images', true],
@@ -443,6 +444,62 @@ final class Customizer
             ],
         ]);
 
+        // Progressive Web App: the manifest fields. The install itself
+        // is wired in Features\Pwa; these only name and describe it.
+        self::addSetting(
+            $wpCustomize,
+            'kk_pwa_name',
+            'Koperasi Kita',
+            'sanitize_text_field',
+            'refresh'
+        );
+        $wpCustomize->add_control('kk_pwa_name', [
+            'label' => esc_html__('App Name', 'koperasikita'),
+            'section' => 'koperasikita_pwa',
+            'type' => 'text',
+        ]);
+
+        self::addSetting(
+            $wpCustomize,
+            'kk_pwa_short_name',
+            'Koperasi Kita',
+            'sanitize_text_field',
+            'refresh'
+        );
+        $wpCustomize->add_control('kk_pwa_short_name', [
+            'label' => esc_html__('App Short Name', 'koperasikita'),
+            'section' => 'koperasikita_pwa',
+            'type' => 'text',
+        ]);
+
+        self::addSetting(
+            $wpCustomize,
+            'kk_pwa_description',
+            'News, announcements and market updates from Koperasi Kita.',
+            'sanitize_text_field',
+            'refresh'
+        );
+        $wpCustomize->add_control('kk_pwa_description', [
+            'label' => esc_html__('App Description', 'koperasikita'),
+            'section' => 'koperasikita_pwa',
+            'type' => 'text',
+        ]);
+
+        $pwa_colors = [
+            'kk_pwa_theme_color' => ['#0B6B3A', 'App Theme Color'],
+            'kk_pwa_background_color' => ['#FFFFFF', 'App Background Color'],
+        ];
+
+        foreach ($pwa_colors as $id => [$default, $label]) {
+            self::addSetting($wpCustomize, $id, $default, [self::class, 'sanitizeColor'], 'refresh');
+
+            $wpCustomize->add_control(new WP_Customize_Color_Control($wpCustomize, $id, [
+                'label' => esc_html__($label, 'koperasikita'),
+                'section' => 'koperasikita_pwa',
+                'settings' => $id,
+            ]));
+        }
+
         // Default article text size in pixels. Visitors can change it
         // with the resize control before the content; their choice is
         // stored in a cookie and overrides this default.
@@ -489,6 +546,20 @@ final class Customizer
                 'oldest' => esc_html__('Oldest First', 'koperasikita'),
                 'newest' => esc_html__('Newest First', 'koperasikita'),
             ],
+        ]);
+
+        self::addSetting(
+            $wpCustomize,
+            'kk_image_cdn',
+            false,
+            [self::class, 'sanitizeBool'],
+            'refresh'
+        );
+        $wpCustomize->add_control('kk_image_cdn', [
+            'label' => esc_html__('Serve Images Through the WordPress.com CDN (i0.wp.com)', 'koperasikita'),
+            'description' => esc_html__('Rewrites uploaded image URLs to i0.wp.com and adds DNS prefetch and preconnect hints. Only applies on a publicly reachable domain — local and test hosts keep serving images directly.', 'koperasikita'),
+            'section' => 'koperasikita_media',
+            'type' => 'checkbox',
         ]);
 
         self::addSetting(
