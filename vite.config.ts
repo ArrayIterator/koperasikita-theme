@@ -24,6 +24,8 @@ export default defineConfig({
         admin: 'src/ts/admin.ts',
         'customizer-preview': 'src/ts/customizer-preview.ts',
         app: 'src/css/app.css',
+        'gold-markets': 'src/ts/gold-markets.ts',
+        'gold-markets-css': 'src/css/gold-markets.css',
       },
     },
   },

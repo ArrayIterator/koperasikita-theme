@@ -1,0 +1,126 @@
+<?php
+
+declare(strict_types=1);
+
+namespace KoperasiKita\Widgets;
+
+use KoperasiKita\Features\Gold;
+use KoperasiKita\Features\Markets;
+use WP_Widget;
+
+/**
+ * Gold price widget: a vertical auto-scroll slider with the five gold
+ * brands (Antam, UBS, Galeri 24, Pegadaian, EmasKita).
+ *
+ * Prices come from the manual snapshot in Settings -> Markets; the widget
+ * form only picks the title and which brands to show. When the Markets
+ * feature is disabled the widget renders nothing, and when no brand has a
+ * saved price it renders an honest empty state instead of invented numbers.
+ */
+final class GoldWidget extends WP_Widget
+{
+    public function __construct()
+    {
+        parent::__construct(
+            'kk_gold',
+            __('Koperasi Kita Gold Prices', 'koperasikita'),
+            [
+                'description' => __('Gold prices for five brands in an auto-scrolling slider. Prices are edited in Settings -> Markets.', 'koperasikita'),
+                'classname' => 'kk-gold-widget',
+                'customize_selective_refresh' => true,
+            ]
+        );
+    }
+
+    /** @param array<string, mixed> $args Display arguments. @param array<string, mixed> $instance Widget settings. */
+    public function widget($args, $instance): void
+    {
+        if (!Markets::isEnabled()) {
+            return;
+        }
+
+        $title = isset($instance['title']) ? (string) $instance['title'] : '';
+        $brands = isset($instance['brands']) && is_array($instance['brands'])
+            ? array_values(array_intersect($instance['brands'], array_keys(Gold::brands())))
+            : array_keys(Gold::brands());
+
+        $prices = Gold::brandPrices($brands);
+
+        echo $args['before_widget'] ?? '';
+
+        if ($title !== '') {
+            echo ($args['before_title'] ?? '') . esc_html($title) . ($args['after_title'] ?? '');
+        }
+
+        get_template_part('template-parts/gold/slider', null, [
+            'brands' => $prices,
+        ]);
+
+        echo $args['after_widget'] ?? '';
+    }
+
+    /** @param array<string, mixed> $instance Widget settings. */
+    public function form($instance): void
+    {
+        $title = isset($instance['title']) ? (string) $instance['title'] : __('Gold Prices', 'koperasikita');
+        $selected = isset($instance['brands']) && is_array($instance['brands'])
+            ? array_values(array_intersect($instance['brands'], array_keys(Gold::brands())))
+            : array_keys(Gold::brands());
+        ?>
+        <p>
+            <label for="<?php echo esc_attr($this->get_field_id('title')); ?>">
+                <?php esc_html_e('Title', 'koperasikita'); ?>
+            </label>
+            <input
+                class="widefat"
+                type="text"
+                id="<?php echo esc_attr($this->get_field_id('title')); ?>"
+                name="<?php echo esc_attr($this->get_field_name('title')); ?>"
+                value="<?php echo esc_attr($title); ?>"
+            >
+        </p>
+        <p><?php esc_html_e('Brands to show:', 'koperasikita'); ?></p>
+        <?php foreach (Gold::brands() as $slug => $label) : ?>
+            <p>
+                <input
+                    type="checkbox"
+                    id="<?php echo esc_attr($this->get_field_id('brands-' . $slug)); ?>"
+                    name="<?php echo esc_attr($this->get_field_name('brands')); ?>[]"
+                    value="<?php echo esc_attr($slug); ?>"
+                    <?php checked(in_array($slug, $selected, true)); ?>
+                >
+                <label for="<?php echo esc_attr($this->get_field_id('brands-' . $slug)); ?>">
+                    <?php echo esc_html($label); ?>
+                </label>
+            </p>
+        <?php endforeach; ?>
+        <p class="description">
+            <?php
+            printf(
+                /* translators: %s: URL of the Markets settings screen. */
+                esc_html__('Edit the prices in %s.', 'koperasikita'),
+                '<a href="' . esc_url(admin_url('options-general.php?page=kk-markets')) . '">' . esc_html__('Settings -> Markets', 'koperasikita') . '</a>'
+            );
+            ?>
+        </p>
+        <?php
+    }
+
+    /**
+     * @param array<string, mixed> $new New settings.
+     * @param array<string, mixed> $old Previous settings.
+     * @return array<string, mixed>
+     */
+    public function update($new, $old): array
+    {
+        $instance = [];
+        $instance['title'] = isset($new['title']) ? sanitize_text_field((string) $new['title']) : '';
+
+        $brands = isset($new['brands']) && is_array($new['brands'])
+            ? array_values(array_intersect($new['brands'], array_keys(Gold::brands())))
+            : [];
+        $instance['brands'] = $brands !== [] ? $brands : array_keys(Gold::brands());
+
+        return $instance;
+    }
+}

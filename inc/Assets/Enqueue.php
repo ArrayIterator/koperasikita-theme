@@ -22,10 +22,25 @@ final class Enqueue
             wp_enqueue_script('kk-main', $js, [], KK_VERSION, true);
         }
 
+        if (Features::isEnabled('markets')) {
+            $goldCss = ViteLoader::css('src/css/gold-markets.css');
+
+            if ($goldCss !== '') {
+                wp_enqueue_style('kk-gold-markets', $goldCss, ['kk-app'], KK_VERSION);
+            }
+
+            $goldJs = ViteLoader::js('src/ts/gold-markets.ts');
+
+            if ($goldJs !== '') {
+                wp_enqueue_script('kk-gold-markets', $goldJs, [], KK_VERSION, true);
+            }
+        }
+
         wp_localize_script('kk-main', 'kkData', [
             'ajaxUrl' => admin_url('admin-ajax.php'),
             'nonce' => wp_create_nonce('koperasikita_nonce'),
             'isBookmarksEnabled' => Features::isEnabled('bookmarks'),
+            'isMarketsEnabled' => Features::isEnabled('markets'),
             'isWeatherEnabled' => Features::isEnabled('weather'),
             'isPwaEnabled' => Features::isEnabled('pwa'),
             'themeUrl' => KK_URI,

@@ -1,0 +1,188 @@
+/* ==========================================================================
+   Koperasi Kita — gold slider + markets strip
+   Standalone stylesheet for the Markets feature. Only loaded when Markets
+   is enabled. Builds on the widget shells in app.css and reuses the same
+   --kk-* tokens (with hex fallbacks), so light/dark mode just works.
+   ========================================================================== */
+
+/* --- Gold slider --------------------------------------------------------- */
+
+.kk-gold-slides {
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+
+.kk-gold-slide {
+	display: none;
+	padding: 4px 2px 0;
+	text-align: center;
+}
+
+.kk-gold-slide.is-active {
+	display: block;
+	animation: kk-gold-slide-in 0.45s ease;
+}
+
+@keyframes kk-gold-slide-in {
+	from {
+		opacity: 0;
+		transform: translateY(-10px);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
+.kk-gold-slide .kk-gold-brand {
+	margin-bottom: 6px;
+}
+
+.kk-gold-slide .kk-gold-price {
+	margin-bottom: 4px;
+}
+
+.kk-gold-meta {
+	display: flex;
+	align-items: baseline;
+	justify-content: center;
+	gap: 8px;
+	font-size: 13px;
+	color: var(--kk-muted);
+}
+
+.kk-gold-updated {
+	margin-top: 6px;
+	font-size: 12px;
+	color: var(--kk-muted);
+}
+
+.kk-market-change {
+	font-weight: 700;
+	font-variant-numeric: tabular-nums;
+}
+
+/* Controls: real buttons, 44px minimum touch targets for Android. */
+.kk-gold-slider .kk-widget-nav {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	min-width: 44px;
+	min-height: 44px;
+	border-radius: var(--kk-radius);
+	color: var(--kk-ink);
+}
+
+.kk-gold-slider .kk-widget-nav:hover,
+.kk-gold-slider .kk-widget-nav:focus-visible {
+	background: var(--kk-surface-muted, #f2f2f2);
+	color: var(--kk-green, #0b6b3a);
+}
+
+.kk-gold-slider .kk-widget-nav:focus-visible {
+	outline: 2px solid var(--kk-gold, #c9962e);
+	outline-offset: 2px;
+}
+
+.kk-gold-slider .kk-widget-nav svg {
+	display: block;
+}
+
+/* Dots: large hit area, small visible dot. Overrides the 8px dot in app.css. */
+.kk-gold-slider .kk-widget-dots {
+	gap: 2px;
+}
+
+.kk-gold-slider .kk-widget-dot {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 32px;
+	height: 32px;
+	min-width: 32px;
+	min-height: 32px;
+	padding: 0;
+	background: none;
+	border-radius: 50%;
+}
+
+.kk-gold-slider .kk-widget-dot::after {
+	content: "";
+	width: 8px;
+	height: 8px;
+	border-radius: 50%;
+	background: var(--kk-border);
+}
+
+.kk-gold-slider .kk-widget-dot.is-active::after {
+	background: var(--kk-gold, #c9962e);
+}
+
+.kk-gold-slider .kk-widget-dot:focus-visible {
+	outline: 2px solid var(--kk-gold, #c9962e);
+	outline-offset: 0;
+}
+
+/* --- Markets strip ------------------------------------------------------- */
+
+.kk-markets-strip {
+	display: flex;
+	flex-direction: column;
+	gap: 16px;
+}
+
+.kk-market-group-title {
+	margin: 0 0 8px;
+	font-size: 12px;
+	font-weight: 700;
+	letter-spacing: 0.1em;
+	text-transform: uppercase;
+	color: var(--kk-muted);
+}
+
+.kk-market-list {
+	margin: 0;
+	padding: 0;
+	list-style: none;
+	display: flex;
+	flex-direction: column;
+}
+
+.kk-market-row {
+	display: flex;
+	align-items: baseline;
+	gap: 8px;
+	padding: 8px 0;
+	border-bottom: 1px solid var(--kk-border);
+	font-size: 14px;
+}
+
+.kk-market-row:last-child {
+	border-bottom: 0;
+	padding-bottom: 0;
+}
+
+.kk-market-symbol {
+	flex: 1 1 auto;
+	min-width: 0;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.kk-market-price {
+	font-weight: 700;
+	font-variant-numeric: tabular-nums;
+	white-space: nowrap;
+}
+
+.kk-market-row .kk-market-change {
+	white-space: nowrap;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.kk-gold-slide.is-active {
+		animation: none;
+	}
+}
