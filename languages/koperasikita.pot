@@ -1339,3 +1339,107 @@ msgstr ""
 #: inc/Features/FontsManagementControl.php:68
 msgid "Google fonts are downloaded once and served from this site. Until a font is downloaded, the site keeps using a system font."
 msgstr ""
+
+#: inc/Api/Ajax.php
+msgid "You do not have permission to do that."
+msgstr ""
+
+#: inc/Api/Rest.php
+msgid "Markets are disabled."
+msgstr ""
+
+#: inc/Api/Rest.php
+msgid "Unknown market."
+msgstr ""
+
+#: inc/Api/Rest.php
+msgid "Weather is disabled."
+msgstr ""
+
+#: inc/Api/Rest.php
+msgid "Coordinates are out of range."
+msgstr ""
+
+#: inc/Api/Rest.php
+msgid "Unknown city."
+msgstr ""
+
+#: inc/Api/Rest.php
+msgid "Weather service unavailable."
+msgstr ""
+
+#: inc/Features/Fonts.php
+msgid "Unknown Google font."
+msgstr ""
+
+#: inc/Features/Fonts.php
+msgid "Could not create the font directory."
+msgstr ""
+
+#: inc/Features/Fonts.php
+msgid "Download already in progress."
+msgstr ""
+
+#: inc/Features/Fonts.php
+msgid "Download failed."
+msgstr ""
+
+#: inc/Features/FontDownloader.php
+msgid "Could not reach Google Fonts."
+msgstr ""
+
+#: inc/Features/FontDownloader.php
+msgid "Google Fonts returned an unexpected response."
+msgstr ""
+
+#: inc/Features/FontDownloader.php
+msgid "Google Fonts returned an unexpected stylesheet."
+msgstr ""
+
+#: inc/Features/FontDownloader.php
+msgid "Google Fonts returned no usable font files."
+msgstr ""
+
+#: inc/Features/FontDownloader.php
+msgid "Refused an unexpected font file URL."
+msgstr ""
+
+#: inc/Features/FontDownloader.php
+msgid "Could not download the font file."
+msgstr ""
+
+#: inc/Features/FontDownloader.php
+msgid "The font file could not be downloaded."
+msgstr ""
+
+#: inc/Features/FontDownloader.php
+msgid "The downloaded font file is not a valid woff2 file."
+msgstr ""
+
+#: inc/Features/FontDownloader.php
+msgid "Could not save the font file."
+msgstr ""
+
+#: inc/Features/FontDownloader.php
+msgid "Could not write the font stylesheet."
+msgstr ""
+
+#: inc/Api/Ajax.php
+msgid "Missing security token. Please reload the page and try again."
+msgstr ""
+
+#: inc/Api/Ajax.php
+msgid "Security token expired. Please reload the page and try again."
+msgstr ""
+
+#: inc/Api/Ajax.php
+msgid "Unexpected response from the server."
+msgstr ""
+
+#: inc/Api/Rest.php
+msgid "Both latitude and longitude are required."
+msgstr ""
+
+#: inc/Admin/MarketsSettings.php
+msgid "Change (%)"
+msgstr ""

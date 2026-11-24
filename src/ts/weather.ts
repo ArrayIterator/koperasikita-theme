@@ -13,6 +13,8 @@
 
 export {};
 
+import { postAjax } from './api';
+
 interface KkData {
 	ajaxUrl?: string;
 	nonce?: string;
@@ -161,33 +163,24 @@ function storeCustomCities(cities: Location[]): void {
 /* Server API                                                          */
 /* ------------------------------------------------------------------ */
 
-async function postAjax(action: string, params: Record<string, string>): Promise<unknown> {
+async function fetchWeather(location: Location): Promise<WeatherData> {
 	const data = getKkData();
 	if (!data.ajaxUrl || !data.nonce) {
 		throw new Error('Weather endpoint is not available.');
 	}
-	const body = new URLSearchParams({ action, nonce: data.nonce, ...params });
-	const response = await fetch(data.ajaxUrl, {
-		method: 'POST',
-		credentials: 'same-origin',
-		body,
-	});
-	if (!response.ok) {
-		throw new Error(`Weather request failed (${response.status}).`);
-	}
-	return response.json() as Promise<unknown>;
-}
-
-async function fetchWeather(location: Location): Promise<WeatherData> {
-	const json = (await postAjax('kk_weather', {
-		name: location.name,
-		latitude: String(location.latitude),
-		longitude: String(location.longitude),
-	})) as { success?: boolean; data?: { weather?: WeatherData } };
-	if (!json.success || !json.data?.weather) {
+	const result = await postAjax<{ weather?: WeatherData }>(
+		{ ajaxUrl: data.ajaxUrl, nonce: data.nonce },
+		'kk_weather',
+		{
+			name: location.name,
+			latitude: String(location.latitude),
+			longitude: String(location.longitude),
+		},
+	);
+	if (!result.weather) {
 		throw new Error('Weather is unavailable right now.');
 	}
-	return json.data.weather;
+	return result.weather;
 }
 
 async function searchPlaces(query: string, signal: AbortSignal): Promise<SearchResult[]> {
@@ -195,21 +188,13 @@ async function searchPlaces(query: string, signal: AbortSignal): Promise<SearchR
 	if (!data.ajaxUrl || !data.nonce) {
 		throw new Error('Search endpoint is not available.');
 	}
-	const body = new URLSearchParams({ action: 'kk_weather_search', nonce: data.nonce, query });
-	const response = await fetch(data.ajaxUrl, {
-		method: 'POST',
-		credentials: 'same-origin',
-		body,
+	const result = await postAjax<{ results?: SearchResult[] }>(
+		{ ajaxUrl: data.ajaxUrl, nonce: data.nonce },
+		'kk_weather_search',
+		{ query },
 		signal,
-	});
-	if (!response.ok) {
-		throw new Error(`Search request failed (${response.status}).`);
-	}
-	const json = (await response.json()) as { success?: boolean; data?: { results?: SearchResult[] } };
-	if (!json.success || !Array.isArray(json.data?.results)) {
-		return [];
-	}
-	return json.data.results;
+	);
+	return Array.isArray(result.results) ? result.results : [];
 }
 
 /* ------------------------------------------------------------------ */

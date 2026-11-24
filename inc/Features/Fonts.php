@@ -4,8 +4,17 @@ declare(strict_types=1);
 
 namespace KoperasiKita\Features;
 
+use KoperasiKita\Api\Ajax;
+use KoperasiKita\Api\ApiException;
+use KoperasiKita\Api\Hooks;
+use KoperasiKita\Api\Response;
+
 /**
- * Google Fonts, self-hosted.
+ * Google Fonts, self-hosted — the façade.
+ *
+ * This class owns the catalogue, the download state, the Customizer
+ * wiring and the application of the chosen fonts (enqueue + CSS
+ * variables). The actual network and file work lives in FontDownloader.
  *
  * Google fonts are never loaded from Google on the live site. When a
  * Google font is picked in the Customizer, its woff2 files are
@@ -18,13 +27,13 @@ namespace KoperasiKita\Features;
  *
  * The catalogue below is the single source of truth: only the fonts
  * listed here can ever be selected, downloaded or enqueued, and only
- * the weights listed here are ever requested from Google.
+ * the weights listed here are ever requested from Google. Third
+ * parties may extend it through the `koperasikita/fonts/catalogue`
+ * filter; malformed entries are dropped.
  */
 final class Fonts
 {
     public const OPTION_STATE = 'kk_fonts_state';
-
-    public const NONCE_ACTION = 'koperasikita_nonce';
 
     public const AJAX_DOWNLOAD = 'kk_download_font';
 
@@ -35,17 +44,6 @@ final class Fonts
     private const LOCK_PREFIX = 'kk_fonts_downloading_';
 
     private const LOCK_TTL = 120;
-
-    private const CSS2_ENDPOINT = 'https://fonts.googleapis.com/css2';
-
-    private const FONT_HOST = 'fonts.gstatic.com';
-
-    private const USER_AGENT = 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 '
-        . '(KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36';
-
-    private const MIN_WOFF2_BYTES = 1024;
-
-    private const MAX_WOFF2_BYTES = 2097152;
 
     private const SANS_FALLBACK = "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif";
 
@@ -66,7 +64,7 @@ final class Fonts
         $sans = self::SANS_FALLBACK;
         $serif = self::SERIF_FALLBACK;
 
-        return [
+        $catalogue = [
             'body' => [
                 'system' => [
                     'id' => 'system',
@@ -206,6 +204,64 @@ final class Fonts
                 ],
             ],
         ];
+
+        $catalogue = apply_filters(Hooks::FONTS_CATALOGUE, $catalogue);
+
+        if (!is_array($catalogue)) {
+            return [];
+        }
+
+        // A filtered catalogue must still be well-formed: drop any
+        // entry that cannot be selected, downloaded or enqueued.
+        $clean = [];
+
+        foreach ($catalogue as $role => $entries) {
+            if (!is_string($role) || !is_array($entries)) {
+                continue;
+            }
+
+            foreach ($entries as $id => $entry) {
+                if (!is_string($id) || !is_array($entry)) {
+                    continue;
+                }
+
+                if (!isset($entry['id'], $entry['label'], $entry['type'], $entry['stack'])) {
+                    continue;
+                }
+
+                if (!is_string($entry['id']) || !is_string($entry['label'])
+                    || !is_string($entry['type']) || !is_string($entry['stack'])
+                ) {
+                    continue;
+                }
+
+                if ($entry['type'] === 'google') {
+                    if (!isset($entry['family'], $entry['weights'])
+                        || !is_string($entry['family']) || !is_array($entry['weights'])
+                        || $entry['weights'] === []
+                    ) {
+                        continue;
+                    }
+
+                    $weights = array_values(array_filter(
+                        array_map('intval', $entry['weights']),
+                        static fn (int $weight): bool => $weight > 0
+                    ));
+
+                    if ($weights === []) {
+                        continue;
+                    }
+
+                    $entry['weights'] = $weights;
+                } elseif ($entry['type'] !== 'system') {
+                    continue;
+                }
+
+                $clean[$role][$id] = $entry;
+            }
+        }
+
+        return $clean;
     }
 
     /**
@@ -401,8 +457,8 @@ final class Fonts
 
     public static function register(): void
     {
-        add_action('wp_ajax_' . self::AJAX_DOWNLOAD, [self::class, 'ajaxDownloadFont']);
-        add_action('wp_ajax_' . self::AJAX_CLEAR, [self::class, 'ajaxClearFonts']);
+        Ajax::add(self::AJAX_DOWNLOAD, [self::class, 'ajaxDownloadFont'], false, 'edit_theme_options');
+        Ajax::add(self::AJAX_CLEAR, [self::class, 'ajaxClearFonts'], false, 'edit_theme_options');
         add_action('customize_save_after', [self::class, 'ensureSelectedFonts']);
         add_action('admin_notices', [self::class, 'adminNotice']);
     }
@@ -430,7 +486,7 @@ final class Fonts
     /**
      * Download one Google font and store it locally.
      *
-     * @return array<string, mixed> ['success' => bool, ...]
+     * @return array{success: bool, code?: string, error?: string, http_status?: int, cssUrl?: string, status?: string, pending?: bool}
      */
     public static function ensureFont(string $id): array
     {
@@ -438,13 +494,23 @@ final class Fonts
         $entry = $slug === '' ? null : self::findEntry($slug);
 
         if ($entry === null || $entry['type'] !== 'google') {
-            return ['success' => false, 'error' => 'Unknown Google font.'];
+            return [
+                'success' => false,
+                'code' => Response::ERR_INVALID_REQUEST,
+                'error' => __('Unknown Google font.', 'koperasikita'),
+                'http_status' => 400,
+            ];
         }
 
         $dir = self::fontsDir();
 
         if (!wp_mkdir_p($dir)) {
-            return ['success' => false, 'error' => 'Could not create the font directory.'];
+            return [
+                'success' => false,
+                'code' => Response::ERR_DOWNLOAD_FAILED,
+                'error' => __('Could not create the font directory.', 'koperasikita'),
+                'http_status' => 500,
+            ];
         }
 
         $cssFile = $dir . '/' . $slug . '.css';
@@ -457,36 +523,31 @@ final class Fonts
         $lockKey = self::LOCK_PREFIX . $slug;
 
         if (get_transient($lockKey) !== false) {
-            return ['success' => false, 'error' => 'downloading', 'pending' => true];
+            return [
+                'success' => false,
+                'code' => Response::ERR_PENDING,
+                'error' => __('Download already in progress.', 'koperasikita'),
+                'http_status' => 409,
+                'pending' => true,
+            ];
         }
 
         set_transient($lockKey, 1, self::LOCK_TTL);
 
         try {
-            $faces = self::downloadFaces($entry, $slug, $dir);
-            $css = self::buildLocalCss((string) $entry['family'], $faces);
-
-            if (!self::writeFileAtomically($cssFile, $css)) {
-                throw new \RuntimeException('Could not write the font stylesheet.');
-            }
-
-            $files = [$slug . '.css'];
-
-            foreach ($faces as $face) {
-                $files[] = (string) $face['file'];
-            }
+            $result = FontDownloader::download($slug, $entry, $dir);
 
             self::setState($slug, [
                 'status' => 'ready',
-                'files' => $files,
+                'files' => $result['files'],
                 'cssUrl' => self::fontsUrl() . '/' . $slug . '.css',
                 'error' => '',
                 'downloaded_at' => time(),
             ]);
 
             return ['success' => true, 'cssUrl' => self::localCssUrl($slug), 'status' => 'ready'];
-        } catch (\Exception $exception) {
-            self::deleteFontFiles($slug);
+        } catch (ApiException $exception) {
+            FontDownloader::deleteFontFiles($dir, $slug);
             self::setState($slug, [
                 'status' => 'failed',
                 'files' => [],
@@ -495,183 +556,75 @@ final class Fonts
                 'downloaded_at' => time(),
             ]);
 
-            return ['success' => false, 'error' => $exception->getMessage()];
+            return [
+                'success' => false,
+                'code' => $exception->errorCode(),
+                'error' => $exception->getMessage(),
+                'http_status' => $exception->httpStatus(),
+            ];
+        } catch (\Exception $exception) {
+            FontDownloader::deleteFontFiles($dir, $slug);
+            self::setState($slug, [
+                'status' => 'failed',
+                'files' => [],
+                'cssUrl' => '',
+                'error' => $exception->getMessage(),
+                'downloaded_at' => time(),
+            ]);
+
+            return [
+                'success' => false,
+                'code' => Response::ERR_DOWNLOAD_FAILED,
+                'error' => $exception->getMessage(),
+                'http_status' => 500,
+            ];
         } finally {
             delete_transient($lockKey);
         }
     }
 
     /**
-     * Parse a Google Fonts css2 response into font faces.
+     * AJAX: download one selected Google font.
      *
-     * Pure function: no WordPress calls, unit-testable with plain PHP.
-     * Only latin and latin-ext subsets and only the given weights are
-     * kept; every other subset (cyrillic, greek, vietnamese, ...) is
-     * dropped, and so is any face whose URL is not a
-     * fonts.gstatic.com woff2.
+     * Called through Api\Ajax, which already verified the nonce and
+     * the `edit_theme_options` capability. Returns the success `data`
+     * array, or throws on failure.
      *
-     * @param array<int, int> $weights
-     * @return array<int, array<string, mixed>> Each face: weight (int),
-     *     subset ('latin'|'latin-ext'), url, unicode-range.
+     * @return array{cssUrl: string, status: string}
      */
-    public static function parseCss2(string $css, array $weights): array
+    public static function ajaxDownloadFont(): array
     {
-        $faces = [];
-
-        if (!preg_match_all('/\/\*\s*([a-z-]+)\s*\*\/\s*@font-face\s*\{([^}]*)\}/i', $css, $blocks, PREG_SET_ORDER)) {
-            return [];
-        }
-
-        foreach ($blocks as $block) {
-            $subset = strtolower($block[1]);
-
-            if ($subset !== 'latin' && $subset !== 'latin-ext') {
-                continue;
-            }
-
-            $body = $block[2];
-
-            if (!preg_match('/font-style:\s*normal/i', $body)) {
-                continue;
-            }
-
-            if (!preg_match('/font-weight:\s*(\d+)/i', $body, $weightMatch)) {
-                continue;
-            }
-
-            $weight = (int) $weightMatch[1];
-
-            if (!in_array($weight, $weights, true)) {
-                continue;
-            }
-
-            if (!preg_match('/src:\s*url\((https?:\/\/[^)]+)\)\s*format\(\s*[\'"]woff2[\'"]\s*\)/i', $body, $urlMatch)) {
-                continue;
-            }
-
-            $url = $urlMatch[1];
-
-            if (!self::isFontFileUrl($url)) {
-                continue;
-            }
-
-            if (!preg_match('/unicode-range:\s*([^;]+);/i', $body, $rangeMatch)) {
-                continue;
-            }
-
-            $range = trim($rangeMatch[1]);
-
-            if (!preg_match('/^[Uu0-9A-Fa-f,\s+-]+$/', $range)) {
-                continue;
-            }
-
-            $key = $weight . '-' . $subset;
-
-            if (isset($faces[$key])) {
-                continue;
-            }
-
-            $faces[$key] = [
-                'weight' => $weight,
-                'subset' => $subset,
-                'url' => $url,
-                'unicode-range' => $range,
-            ];
-        }
-
-        $faces = array_values($faces);
-
-        usort($faces, static function (array $a, array $b): int {
-            if ($a['weight'] !== $b['weight']) {
-                return $a['weight'] <=> $b['weight'];
-            }
-
-            return $a['subset'] === 'latin' ? -1 : 1;
-        });
-
-        return $faces;
-    }
-
-    /**
-     * Build the local @font-face stylesheet for already-downloaded
-     * woff2 files. Pure function: no WordPress calls. The src URLs
-     * are relative filenames in the same directory as the stylesheet,
-     * so the CSS contains no Google URL at all.
-     *
-     * Each face needs a 'file' key (the local woff2 filename, as
-     * produced by ensureFont); when it is missing the filename is
-     * derived from the family name instead.
-     */
-    public static function buildLocalCss(string $family, array $faces): string
-    {
-        $css = '';
-        $safeFamily = str_replace("'", "\\'", $family);
-
-        foreach ($faces as $face) {
-            $weight = (int) ($face['weight'] ?? 400);
-            $subset = (string) ($face['subset'] ?? 'latin');
-            $range = (string) ($face['unicode-range'] ?? '');
-            $file = isset($face['file']) && is_string($face['file']) && preg_match('/^[a-z0-9-]+\.woff2$/', $face['file'])
-                ? $face['file']
-                : self::slug($family) . '-' . $weight . '-' . $subset . '.woff2';
-
-            if ($range === '' || !preg_match('/^[Uu0-9A-Fa-f,\s+-]+$/', $range)) {
-                continue;
-            }
-
-            $css .= "@font-face {\n";
-            $css .= "  font-family: '" . $safeFamily . "';\n";
-            $css .= "  font-style: normal;\n";
-            $css .= '  font-weight: ' . $weight . ";\n";
-            $css .= "  font-display: swap;\n";
-            $css .= '  src: url(' . $file . ") format('woff2');\n";
-            $css .= '  unicode-range: ' . $range . ";\n";
-            $css .= "}\n";
-        }
-
-        return $css;
-    }
-
-    /**
-     * AJAX: download one selected Google font. Capability-gated and
-     * nonce-checked; the font id is validated against the catalogue.
-     */
-    public static function ajaxDownloadFont(): void
-    {
-        if (!current_user_can('edit_theme_options')) {
-            wp_send_json_error(['message' => 'You do not have permission to download fonts.']);
-        }
-
-        check_ajax_referer(self::NONCE_ACTION, 'nonce');
-
         $id = isset($_POST['font']) ? sanitize_text_field(wp_unslash($_POST['font'])) : '';
         $result = self::ensureFont($id);
 
         if (!($result['success'] ?? false)) {
-            wp_send_json_error(['message' => (string) ($result['error'] ?? 'Download failed.')]);
+            throw new ApiException(
+                (string) ($result['code'] ?? Response::ERR_DOWNLOAD_FAILED),
+                (string) ($result['error'] ?? __('Download failed.', 'koperasikita')),
+                (int) ($result['http_status'] ?? 500)
+            );
         }
 
-        wp_send_json_success([
+        return [
             'cssUrl' => (string) ($result['cssUrl'] ?? ''),
             'status' => (string) ($result['status'] ?? 'ready'),
-        ]);
+        ];
     }
 
     /**
      * AJAX: delete every downloaded font file and forget the state.
      * Only ever touches files inside the fonts upload directory.
+     *
+     * Called through Api\Ajax, which already verified the nonce and
+     * the `edit_theme_options` capability.
+     *
+     * @return array{status: string}
      */
-    public static function ajaxClearFonts(): void
+    public static function ajaxClearFonts(): array
     {
-        if (!current_user_can('edit_theme_options')) {
-            wp_send_json_error(['message' => 'You do not have permission to clear the font cache.']);
-        }
-
-        check_ajax_referer(self::NONCE_ACTION, 'nonce');
-
         self::clearAllFonts();
 
-        wp_send_json_success(['status' => 'cleared']);
+        return ['status' => 'cleared'];
     }
 
     /**
@@ -756,171 +709,9 @@ final class Fonts
             return;
         }
 
-        $entries = scandir($realDir);
-
-        if (is_array($entries)) {
-            foreach ($entries as $entry) {
-                if ($entry === '.' || $entry === '..') {
-                    continue;
-                }
-
-                $path = $realDir . DIRECTORY_SEPARATOR . $entry;
-
-                if (is_file($path)) {
-                    unlink($path);
-                }
-            }
-        }
+        FontDownloader::clearDirectory($realDir);
 
         delete_option(self::OPTION_STATE);
-    }
-
-    /**
-     * Fetch the css2 stylesheet and every woff2 it points at, writing
-     * each file atomically into the fonts directory.
-     *
-     * @param array<string, mixed> $entry
-     * @return array<int, array<string, mixed>> Faces with 'file' set.
-     */
-    private static function downloadFaces(array $entry, string $slug, string $dir): array
-    {
-        $weights = $entry['weights'] ?? [];
-        $weights = array_map('intval', (array) $weights);
-
-        $query = 'family=' . urlencode((string) $entry['family']) . ':wght@' . implode(';', $weights) . '&display=swap';
-        $response = wp_remote_get(self::CSS2_ENDPOINT . '?' . $query, [
-            'timeout' => 15,
-            'headers' => ['User-Agent' => self::USER_AGENT],
-        ]);
-
-        if (is_wp_error($response)) {
-            throw new \RuntimeException('Could not reach Google Fonts: ' . $response->get_error_message());
-        }
-
-        if ((int) wp_remote_retrieve_response_code($response) !== 200) {
-            throw new \RuntimeException('Google Fonts returned an unexpected response.');
-        }
-
-        $css = (string) wp_remote_retrieve_body($response);
-
-        if (!str_contains($css, '@font-face') || !str_contains($css, self::FONT_HOST)) {
-            throw new \RuntimeException('Google Fonts returned an unexpected stylesheet.');
-        }
-
-        $faces = self::parseCss2($css, $weights);
-
-        if ($faces === []) {
-            throw new \RuntimeException('Google Fonts returned no usable font files.');
-        }
-
-        foreach ($faces as $index => $face) {
-            $file = $slug . '-' . $face['weight'] . '-' . $face['subset'] . '.woff2';
-            $faces[$index]['file'] = $file;
-
-            if (!self::isFontFileUrl((string) $face['url'])) {
-                throw new \RuntimeException('Refused an unexpected font file URL.');
-            }
-
-            $fileResponse = wp_remote_get((string) $face['url'], [
-                'timeout' => 20,
-                'headers' => ['User-Agent' => self::USER_AGENT],
-            ]);
-
-            if (is_wp_error($fileResponse)) {
-                throw new \RuntimeException('Could not download the font file: ' . $fileResponse->get_error_message());
-            }
-
-            if ((int) wp_remote_retrieve_response_code($fileResponse) !== 200) {
-                throw new \RuntimeException('The font file could not be downloaded.');
-            }
-
-            $bytes = (string) wp_remote_retrieve_body($fileResponse);
-            $size = strlen($bytes);
-
-            if (substr($bytes, 0, 4) !== 'wOF2' || $size < self::MIN_WOFF2_BYTES || $size > self::MAX_WOFF2_BYTES) {
-                throw new \RuntimeException('The downloaded font file is not a valid woff2 file.');
-            }
-
-            if (!self::writeFileAtomically($dir . '/' . $file, $bytes)) {
-                throw new \RuntimeException('Could not save the font file.');
-            }
-        }
-
-        return $faces;
-    }
-
-    /**
-     * Write through a temporary file in the same directory and rename
-     * into place, so a half-written file can never be served as final.
-     * Refuses any path outside the fonts directory.
-     */
-    private static function writeFileAtomically(string $path, string $contents): bool
-    {
-        $dir = self::fontsDir();
-        $realDir = realpath($dir);
-
-        if ($realDir === false) {
-            return false;
-        }
-
-        $parent = realpath(dirname($path));
-
-        if ($parent === false || $parent !== $realDir) {
-            return false;
-        }
-
-        if (!preg_match('/^[a-z0-9-]+\.(woff2|css)$/', basename($path))) {
-            return false;
-        }
-
-        $tmp = $path . '.tmp';
-
-        if (file_put_contents($tmp, $contents, LOCK_EX) === false) {
-            return false;
-        }
-
-        if (!rename($tmp, $path)) {
-            @unlink($tmp);
-
-            return false;
-        }
-
-        return true;
-    }
-
-    /**
-     * Only ever https://fonts.gstatic.com/... — anything else is
-     * refused, so a crafted stylesheet can never turn the download
-     * into a request to another host.
-     */
-    private static function isFontFileUrl(string $url): bool
-    {
-        $parts = parse_url($url);
-
-        if (!is_array($parts)) {
-            return false;
-        }
-
-        return ($parts['scheme'] ?? '') === 'https'
-            && ($parts['host'] ?? '') === self::FONT_HOST
-            && str_ends_with(strtolower((string) ($parts['path'] ?? '')), '.woff2');
-    }
-
-    private static function deleteFontFiles(string $slug): void
-    {
-        $dir = self::fontsDir();
-
-        foreach (glob($dir . '/' . $slug . '-*.woff2') ?: [] as $file) {
-            if (is_file($file)) {
-                unlink($file);
-            }
-        }
-
-        $css = $dir . '/' . $slug . '.css';
-
-        if (is_file($css)) {
-            unlink($css);
-        }
     }
 
     private static function stackFor(string $role, string $id): string

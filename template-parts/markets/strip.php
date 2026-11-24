@@ -2,7 +2,7 @@
 /**
  * Markets strip: gold spot, stocks and crypto in one compact list.
  *
- * Expects $args['markets'] as array<string, array{label: string, prices: array<string, \KoperasiKita\Features\MarketPrice>}>
+ * Expects $args['markets'] as array<string, array{label: string, prices: array<string, \KoperasiKita\Providers\MarketPrice>}>
  * and $args['show_change'] as bool. A market with no prices renders an
  * honest "no data" line for that market; when no market has any data the
  * whole strip is replaced by a single honest empty state.

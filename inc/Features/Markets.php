@@ -4,115 +4,19 @@ declare(strict_types=1);
 
 namespace KoperasiKita\Features;
 
-/**
- * A single market price snapshot.
- *
- * Prices are plain data: a value in the given currency, the day change in
- * percent, and the Unix timestamp the snapshot was saved. A null price means
- * "no data" — renderers must treat that as an honest empty state, never as
- * zero and never as a made-up number.
- */
-final class MarketPrice
-{
-    public function __construct(
-        public readonly string $market,
-        public readonly string $symbol,
-        public readonly string $label,
-        public readonly ?float $price,
-        public readonly ?float $change,
-        public readonly string $currency,
-        public readonly int $updated
-    ) {
-    }
-
-    public function hasData(): bool
-    {
-        return $this->price !== null;
-    }
-}
-
-/**
- * Contract for anything that can supply prices for a market.
- *
- * Third-party providers plug in through the `koperasikita/markets/providers`
- * filter, which receives an array of MarketPriceProvider keyed by provider id.
- * The Manual snapshot provider below is the built-in default for every market.
- */
-interface MarketPriceProvider
-{
-    public function id(): string;
-
-    public function label(): string;
-
-    public function supports(string $market): bool;
-
-    /** @return array<string, MarketPrice> Prices keyed by symbol. */
-    public function prices(string $market): array;
-}
-
-/**
- * Manual snapshot provider: prices typed in by an admin on the
- * Settings -> Markets screen and stored in the `kk_markets_settings` option.
- *
- * This is the v1 default for gold, stock and crypto. A market with no saved
- * snapshot returns no prices at all, so the frontend shows an honest
- * "no data" state instead of inventing numbers.
- */
-final class ManualSnapshotProvider implements MarketPriceProvider
-{
-    public function id(): string
-    {
-        return 'manual';
-    }
-
-    public function label(): string
-    {
-        return 'Manual snapshot';
-    }
-
-    public function supports(string $market): bool
-    {
-        return in_array($market, Markets::markets(), true);
-    }
-
-    public function prices(string $market): array
-    {
-        if (!$this->supports($market)) {
-            return [];
-        }
-
-        $snapshots = Markets::settings()['snapshots'][$market] ?? [];
-        $prices = [];
-
-        foreach (Markets::symbols($market) as $symbol => $label) {
-            $entry = is_array($snapshots[$symbol] ?? null) ? $snapshots[$symbol] : null;
-            $price = $entry !== null && isset($entry['price']) ? (float) $entry['price'] : null;
-            $change = $entry !== null && isset($entry['change']) ? (float) $entry['change'] : null;
-            $updated = $entry !== null && isset($entry['updated']) ? (int) $entry['updated'] : 0;
-
-            // A snapshot row only counts as data when it carries a price.
-            // A saved change percent on its own is not a price.
-            if ($price === null) {
-                continue;
-            }
-
-            $prices[$symbol] = new MarketPrice(
-                $market,
-                $symbol,
-                $label,
-                $price,
-                $change,
-                Markets::currency($market),
-                $updated
-            );
-        }
-
-        return $prices;
-    }
-}
+use KoperasiKita\Admin\MarketsSettings;
+use KoperasiKita\Api\Hooks;
+use KoperasiKita\Providers\ManualSnapshotProvider;
+use KoperasiKita\Providers\MarketPrice;
+use KoperasiKita\Providers\MarketPriceProvider;
 
 /**
  * Markets data layer: gold, stock and crypto prices.
+ *
+ * This class is the thin data façade — catalogue (markets, labels,
+ * symbols), settings storage, provider resolution and formatting.
+ * The provider contracts live in KoperasiKita\Providers, and the
+ * Settings -> Markets admin screen lives in MarketsSettings.
  *
  * Provider choice (which provider supplies each market) and the manual
  * snapshots live in the `kk_markets_settings` option, edited on the
@@ -124,7 +28,11 @@ final class Markets
 {
     public const OPTION = 'kk_markets_settings';
 
-    public const PROVIDERS_FILTER = 'koperasikita/markets/providers';
+    /**
+     * Kept for backwards compatibility; the canonical name is
+     * Hooks::MARKETS_PROVIDERS.
+     */
+    public const PROVIDERS_FILTER = Hooks::MARKETS_PROVIDERS;
 
     /** @return array<int, string> Market slugs in display order. */
     public static function markets(): array
@@ -132,50 +40,83 @@ final class Markets
         return ['gold', 'stock', 'crypto'];
     }
 
-    /** @return array<string, string> Market slug => translatable label. */
+    /**
+     * Market slug => translatable label. Third parties may add or
+     * rename markets through the `koperasikita/markets/labels` filter.
+     *
+     * @return array<string, string>
+     */
     public static function labels(): array
     {
-        return [
+        $labels = apply_filters(Hooks::MARKETS_LABELS, [
             'gold' => __('Gold', 'koperasikita'),
             'stock' => __('Stocks', 'koperasikita'),
             'crypto' => __('Crypto', 'koperasikita'),
-        ];
+        ]);
+
+        if (!is_array($labels)) {
+            return [];
+        }
+
+        $clean = [];
+
+        foreach ($labels as $slug => $label) {
+            if (is_string($slug) && $slug !== '' && is_string($label)) {
+                $clean[$slug] = $label;
+            }
+        }
+
+        return $clean;
     }
 
     /**
      * Known symbols per market (slug => label). Only these symbols can ever
      * carry a snapshot, which keeps the settings screen and the widgets in
-     * agreement about what exists.
+     * agreement about what exists. Third parties may add symbols for a
+     * market through the `koperasikita/markets/symbols` filter, which
+     * receives the symbols array and the market slug.
      *
      * @return array<string, string>
      */
     public static function symbols(string $market): array
     {
         if ($market === 'gold') {
-            return array_merge(
+            $symbols = array_merge(
                 ['spot' => __('Gold spot', 'koperasikita')],
                 Gold::brands()
             );
-        }
-
-        if ($market === 'stock') {
-            return [
+        } elseif ($market === 'stock') {
+            $symbols = [
                 'ihsg' => 'IHSG',
                 'lq45' => 'LQ45',
             ];
-        }
-
-        if ($market === 'crypto') {
-            return [
+        } elseif ($market === 'crypto') {
+            $symbols = [
                 'btc' => 'Bitcoin',
                 'eth' => 'Ethereum',
                 'sol' => 'Solana',
                 'usdt' => 'Tether',
                 'xrp' => 'XRP',
             ];
+        } else {
+            $symbols = [];
         }
 
-        return [];
+        $symbols = apply_filters(Hooks::MARKETS_SYMBOLS, $symbols, $market);
+
+        if (!is_array($symbols)) {
+            return [];
+        }
+
+        $clean = [];
+
+        foreach ($symbols as $slug => $label) {
+            if (is_string($slug) && $slug !== '' && is_string($label)) {
+                $clean[$slug] = $label;
+            }
+        }
+
+        return $clean;
     }
 
     public static function currency(string $market): string
@@ -222,7 +163,7 @@ final class Markets
     /** @return array<string, MarketPriceProvider> Providers keyed by id. */
     public static function providers(): array
     {
-        $providers = apply_filters(self::PROVIDERS_FILTER, [
+        $providers = apply_filters(Hooks::MARKETS_PROVIDERS, [
             'manual' => new ManualSnapshotProvider(),
         ]);
 
@@ -303,185 +244,6 @@ final class Markets
             return;
         }
 
-        add_action('admin_menu', [self::class, 'registerSettingsPage']);
-        add_action('admin_init', [self::class, 'registerSettings']);
-    }
-
-    public static function registerSettingsPage(): void
-    {
-        add_options_page(
-            esc_html__('Markets', 'koperasikita'),
-            esc_html__('Markets', 'koperasikita'),
-            'manage_options',
-            'kk-markets',
-            [self::class, 'renderSettingsPage']
-        );
-    }
-
-    public static function registerSettings(): void
-    {
-        register_setting(self::OPTION, self::OPTION, [
-            'type' => 'array',
-            'sanitize_callback' => [self::class, 'sanitizeSettings'],
-            'default' => [],
-        ]);
-    }
-
-    /**
-     * Sanitizer for the whole settings option. Unknown markets, symbols and
-     * providers are dropped; a snapshot row without a positive price is
-     * dropped, so an empty field means "no data" rather than a zero price.
-     *
-     * @param mixed $input Raw submitted value.
-     * @return array{providers: array<string, string>, snapshots: array<string, array<string, array{price: float, change: float|null, updated: int}>>}
-     */
-    public static function sanitizeSettings($input): array
-    {
-        $clean = [
-            'providers' => [],
-            'snapshots' => [],
-        ];
-
-        if (!is_array($input)) {
-            $input = [];
-        }
-
-        $providerIds = array_keys(self::providers());
-        $submittedProviders = isset($input['providers']) && is_array($input['providers']) ? $input['providers'] : [];
-        foreach (self::markets() as $market) {
-            $chosen = $submittedProviders[$market] ?? 'manual';
-            $clean['providers'][$market] = in_array($chosen, $providerIds, true) ? $chosen : 'manual';
-        }
-
-        $now = time();
-        $submittedSnapshots = isset($input['snapshots']) && is_array($input['snapshots']) ? $input['snapshots'] : [];
-        foreach (self::markets() as $market) {
-            $rows = $submittedSnapshots[$market] ?? [];
-            if (!is_array($rows)) {
-                continue;
-            }
-
-            foreach (self::symbols($market) as $symbol => $label) {
-                $row = $rows[$symbol] ?? null;
-                if (!is_array($row)) {
-                    continue;
-                }
-
-                $priceRaw = trim((string) ($row['price'] ?? ''));
-                if ($priceRaw === '' || !is_numeric($priceRaw)) {
-                    continue;
-                }
-
-                $price = (float) $priceRaw;
-                if ($price <= 0) {
-                    continue;
-                }
-
-                $changeRaw = trim((string) ($row['change'] ?? ''));
-                $change = $changeRaw !== '' && is_numeric($changeRaw) ? (float) $changeRaw : null;
-
-                $clean['snapshots'][$market][$symbol] = [
-                    'price' => $price,
-                    'change' => $change,
-                    'updated' => $now,
-                ];
-            }
-        }
-
-        return $clean;
-    }
-
-    public static function renderSettingsPage(): void
-    {
-        if (!current_user_can('manage_options')) {
-            wp_die(esc_html__('You do not have permission to access this page.', 'koperasikita'));
-        }
-
-        $settings = self::settings();
-        $providers = self::providers();
-        $labels = self::labels();
-        ?>
-        <div class="wrap">
-            <h1><?php esc_html_e('Markets', 'koperasikita'); ?></h1>
-            <p><?php esc_html_e('Choose which provider supplies each market and keep the manual snapshot prices up to date. A market with no saved price shows an honest "no data" message on the site — prices are never invented.', 'koperasikita'); ?></p>
-            <form method="post" action="options.php">
-                <?php settings_fields(self::OPTION); ?>
-                <?php foreach (self::markets() as $market) : ?>
-                    <h2><?php echo esc_html($labels[$market]); ?></h2>
-                    <table class="form-table" role="presentation">
-                        <tr>
-                            <th scope="row">
-                                <label for="kk-provider-<?php echo esc_attr($market); ?>"><?php esc_html_e('Provider', 'koperasikita'); ?></label>
-                            </th>
-                            <td>
-                                <select
-                                    id="kk-provider-<?php echo esc_attr($market); ?>"
-                                    name="<?php echo esc_attr(self::OPTION); ?>[providers][<?php echo esc_attr($market); ?>]"
-                                >
-                                    <?php foreach ($providers as $id => $provider) : ?>
-                                        <?php if (!$provider->supports($market)) {
-                                            continue;
-                                        } ?>
-                                        <option value="<?php echo esc_attr($id); ?>" <?php selected($settings['providers'][$market], $id); ?>>
-                                            <?php echo esc_html($provider->label()); ?>
-                                        </option>
-                                    <?php endforeach; ?>
-                                </select>
-                            </td>
-                        </tr>
-                        <?php foreach (self::symbols($market) as $symbol => $label) : ?>
-                            <?php
-                            $row = $settings['snapshots'][$market][$symbol] ?? [];
-                            $price = isset($row['price']) ? (string) $row['price'] : '';
-                            $change = isset($row['change']) && $row['change'] !== null ? (string) $row['change'] : '';
-                            $updated = isset($row['updated']) ? (int) $row['updated'] : 0;
-                            ?>
-                            <tr>
-                                <th scope="row">
-                                    <label for="kk-price-<?php echo esc_attr($market); ?>-<?php echo esc_attr($symbol); ?>">
-                                        <?php echo esc_html($label); ?>
-                                    </label>
-                                </th>
-                                <td>
-                                    <input
-                                        type="number"
-                                        min="0"
-                                        step="any"
-                                        inputmode="decimal"
-                                        id="kk-price-<?php echo esc_attr($market); ?>-<?php echo esc_attr($symbol); ?>"
-                                        name="<?php echo esc_attr(self::OPTION); ?>[snapshots][<?php echo esc_attr($market); ?>][<?php echo esc_attr($symbol); ?>][price]"
-                                        value="<?php echo esc_attr($price); ?>"
-                                        placeholder="0"
-                                    >
-                                    <span><?php echo esc_html(self::currency($market)); ?></span>
-                                    <label for="kk-change-<?php echo esc_attr($market); ?>-<?php echo esc_attr($symbol); ?>">
-                                        <?php esc_html_e('Change (%)', 'koperasikita'); ?>
-                                    </label>
-                                    <input
-                                        type="number"
-                                        step="any"
-                                        inputmode="decimal"
-                                        id="kk-change-<?php echo esc_attr($market); ?>-<?php echo esc_attr($symbol); ?>"
-                                        name="<?php echo esc_attr(self::OPTION); ?>[snapshots][<?php echo esc_attr($market); ?>][<?php echo esc_attr($symbol); ?>][change]"
-                                        value="<?php echo esc_attr($change); ?>"
-                                        placeholder="0.00"
-                                    >
-                                    <?php if ($updated > 0) : ?>
-                                        <p class="description">
-                                            <?php
-                                            /* translators: %s: date the snapshot was last saved. */
-                                            printf(esc_html__('Last saved: %s', 'koperasikita'), esc_html(date_i18n(get_option('date_format') . ' ' . get_option('time_format'), $updated)));
-                                            ?>
-                                        </p>
-                                    <?php endif; ?>
-                                </td>
-                            </tr>
-                        <?php endforeach; ?>
-                    </table>
-                <?php endforeach; ?>
-                <?php submit_button(); ?>
-            </form>
-        </div>
-        <?php
+        MarketsSettings::register();
     }
 }

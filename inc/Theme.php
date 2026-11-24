@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace KoperasiKita;
 
+use KoperasiKita\Api\Api;
 use KoperasiKita\Assets\Enqueue;
 use KoperasiKita\Breadcrumb\Breadcrumb;
 use KoperasiKita\Customizer\Customizer;
@@ -25,6 +26,10 @@ final class Theme
     {
         if (!defined('KK_VERSION')) {
             define('KK_VERSION', self::VERSION);
+        }
+
+        if (!defined('KK_API_VERSION')) {
+            define('KK_API_VERSION', Api::VERSION);
         }
 
         if (!defined('KK_DIR')) {
@@ -50,6 +55,7 @@ final class Theme
 
         add_action('init', [Features::class, 'register']);
         add_action('init', [Fonts::class, 'register']);
+        add_action('init', [Api::class, 'register']);
         add_action('init', [StyleVariant::class, 'register']);
         add_action('init', [Pwa::class, 'register']);
         add_action('init', [Seo::class, 'register']);

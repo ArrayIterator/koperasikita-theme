@@ -2,7 +2,7 @@
 /**
  * Gold slider: one slide per priced brand, auto-scrolling vertically.
  *
- * Expects $args['brands'] as array<string, \KoperasiKita\Features\MarketPrice>
+ * Expects $args['brands'] as array<string, \KoperasiKita\Providers\MarketPrice>
  * keyed by brand slug. Brands without a saved snapshot price are never
  * passed in here — see Gold::brandPrices(). When the array is empty this
  * template renders an honest empty state and no slider markup at all, so
