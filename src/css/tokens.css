@@ -1,13 +1,35 @@
 /* ==========================================================================
    Koperasi Kita — tokens.css — tokens
-   Design tokens: sizes, fonts, radii, layout widths.
-   The Customizer overrides these inline; the palette colours live
-   in the Customizer, not here.
+   Design tokens: sizes, fonts, radii, layout widths, and the palette
+   colours. The palette defaults live HERE — the Customizer only prints
+   overrides for values the user actually changed
+   (Customizer::outputPaletteOverrides), so without these :root defaults
+   every var(--kk-*) colour would be undefined on a fresh site. The
+   Customizer overrides still win: Enqueue::moveAppInlineStyles() moves
+   them after the last split stylesheet.
    ========================================================================== */
 
 /* --- Tokens (defaults; the Customizer overrides these inline) ------------ */
 
 :root {
+	/* Palette — must match Customizer::PALETTE_DEFAULTS exactly. */
+	--kk-green: #0B6B3A;
+	--kk-green-dark: #07522C;
+	--kk-green-light: #2FA36B;
+	--kk-gold: #C9962E;
+	--kk-gold-light: #F6D365;
+	--kk-ink: #1B1B1B;
+	--kk-muted: #5B6470;
+	--kk-paper: #FFFFFF;
+	--kk-surface: #F7F7F5;
+	--kk-border: #E6E3DE;
+	/* Semantic — the canonical values for the fallbacks the components
+	   already used (weather.css #b3261e, gold-markets.css #f2f2f2).
+	   Success is the brand green in both modes. */
+	--kk-error: #B3261E;
+	--kk-success: #0B6B3A;
+	--kk-surface-muted: #F2F2F2;
+
 	--kk-title-size: 40px;
 	--kk-card-title-size: 20px;
 	--kk-excerpt-size: 14px;

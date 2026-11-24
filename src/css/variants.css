@@ -6,6 +6,17 @@
 
 /* --- Dark mode ------------------------------------------------------------ */
 
+/* The lightened green/gold are intentional, not brand drift: the brand
+   green #0B6B3A is only 2.84:1 on the dark paper #121212 (it fails even
+   the 3:1 large-text threshold), so dark mode uses the palette's own
+   light variants — #2FA36B (primary light, 5.86:1) and #F6D365 (gold
+   light, 12.87:1). The three green shades converge on the one readable
+   green because the dark variant #07522C would be invisible (2.01:1).
+   The semantic tokens get dark values too: the light error #B3261E is
+   only 2.87:1 on dark paper, so dark mode uses #EF5350 (5.37:1);
+   success stays the brand green (the dark-mode green); surface-muted
+   is the next neutral step up from surface in the dark scale. */
+
 html[data-color-scheme="dark"] {
 	--kk-ink: #f2f2f0;
 	--kk-muted: #a8a8a2;
@@ -17,6 +28,9 @@ html[data-color-scheme="dark"] {
 	--kk-green-light: #2fa36b;
 	--kk-gold: #f6d365;
 	--kk-gold-light: #f6d365;
+	--kk-error: #ef5350;
+	--kk-success: #2fa36b;
+	--kk-surface-muted: #232322;
 }
 
 html[data-color-scheme="dark"] .kk-brand-mark,
@@ -50,6 +64,9 @@ html[data-color-scheme="dark"] .custom-logo.is-inverted {
 		--kk-green-light: #2fa36b;
 		--kk-gold: #f6d365;
 		--kk-gold-light: #f6d365;
+		--kk-error: #ef5350;
+		--kk-success: #2fa36b;
+		--kk-surface-muted: #232322;
 	}
 
 	html[data-color-scheme="system"] .kk-brand-mark,
