@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace KoperasiKita\Assets;
 
 use KoperasiKita\Features\Features;
+use KoperasiKita\Features\Fonts;
+use KoperasiKita\Setup\Setup;
 
 final class Enqueue
 {
@@ -15,6 +17,8 @@ final class Enqueue
         if ($css !== '') {
             wp_enqueue_style('kk-app', $css, [], KK_VERSION);
         }
+
+        Fonts::enqueue();
 
         $js = ViteLoader::js('src/ts/main.ts');
 
@@ -81,6 +85,8 @@ final class Enqueue
 
             return str_replace(' src=', ' defer src=', $tag);
         }, 10, 2);
+
+        Fonts::outputFontVariables();
     }
 
     /**
@@ -114,6 +120,15 @@ final class Enqueue
     {
         $isWidgets = str_contains($hookSuffix, 'widgets');
         $isCustomizer = str_contains($hookSuffix, 'customize');
+        $isSetup = $hookSuffix === 'appearance_page_' . Setup::PAGE_SLUG;
+
+        if ($isSetup) {
+            $setupCss = ViteLoader::css('src/css/setup.css');
+
+            if ($setupCss !== '') {
+                wp_enqueue_style('kk-setup', $setupCss, [], KK_VERSION);
+            }
+        }
 
         if (!$isWidgets && !$isCustomizer) {
             return;
@@ -129,6 +144,11 @@ final class Enqueue
 
         if ($js !== '') {
             wp_enqueue_script('kk-admin', $js, [], KK_VERSION, true);
+
+            wp_localize_script('kk-admin', 'kkAdminData', [
+                'ajaxUrl' => admin_url('admin-ajax.php'),
+                'nonce' => wp_create_nonce('koperasikita_nonce'),
+            ]);
         }
     }
 
@@ -138,6 +158,12 @@ final class Enqueue
 
         if ($js !== '') {
             wp_enqueue_script('kk-customizer-preview', $js, ['customize-preview'], KK_VERSION, true);
+
+            wp_localize_script('kk-customizer-preview', 'kkFontsPreview', [
+                'ajaxUrl' => admin_url('admin-ajax.php'),
+                'nonce' => wp_create_nonce('koperasikita_nonce'),
+                'fonts' => Fonts::previewFonts(),
+            ]);
         }
     }
 }

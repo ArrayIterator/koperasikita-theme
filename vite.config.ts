@@ -32,6 +32,7 @@ export default defineConfig({
         'agenda-css': 'src/css/agenda.css',
         pwa: 'src/ts/pwa.ts',
         'pwa-css': 'src/css/pwa.css',
+        'setup-css': 'src/css/setup.css',
       },
     },
   },

@@ -38,20 +38,6 @@ if (is_readable($kkAutoload)) {
 }
 
 // The TrayDigita Stack plugin is optional. Without it the theme still loads;
-// only the Stack-backed integrations are unavailable.
-add_action('after_setup_theme', static function (): void {
-    if (class_exists('TrayDigita\\WP\\Stack\\Source\\Stack')) {
-        return;
-    }
-
-    add_action('admin_notices', static function (): void {
-        echo '<div class="notice notice-warning"><p>'
-            . esc_html__(
-                'The TrayDigita Stack plugin is not active. Some integrations are unavailable.',
-                'koperasikita'
-            )
-            . '</p></div>';
-    });
-});
-
+// only the Stack-backed integrations are unavailable. The admin notice
+// pointing at the Setup page lives in KoperasiKita\Setup\Setup::adminNotice().
 KoperasiKita\Theme::boot();

@@ -1,0 +1,362 @@
+/* Koperasi Kita — Setup page styles (WP admin).
+ *
+ * Clean, on-brand admin page: white paper, cooperative green, gold
+ * accents. Hand-written, no Tailwind. All selectors are namespaced
+ * under .kk-setup so nothing leaks into the rest of WP admin.
+ */
+
+.kk-setup,
+.kk-setup * {
+	box-sizing: border-box;
+}
+
+.kk-setup {
+	max-width: 880px;
+	margin: 0 auto;
+	padding: 8px 0 32px;
+	font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+	font-size: 15px;
+	line-height: 1.55;
+	color: #1a1a1a;
+}
+
+.kk-setup p {
+	margin: 0 0 12px;
+}
+
+.kk-setup p:last-child {
+	margin-bottom: 0;
+}
+
+/* Header: logo left, title + subtitle right. */
+
+.kk-setup-header {
+	display: flex;
+	align-items: center;
+	gap: 16px;
+	margin-bottom: 24px;
+}
+
+.kk-setup-logo {
+	flex-shrink: 0;
+	width: 64px;
+	height: 64px;
+	object-fit: contain;
+}
+
+.kk-setup-title {
+	margin: 0;
+	font-size: 28px;
+	line-height: 1.2;
+	letter-spacing: -0.01em;
+	color: #07522c;
+}
+
+.kk-setup-subtitle {
+	margin: 4px 0 0;
+	font-size: 15px;
+	color: #666;
+}
+
+/* Status banner shown after an action. */
+
+.kk-setup-notice {
+	margin-bottom: 24px;
+	padding: 12px 16px;
+	border: 1px solid transparent;
+	border-left-width: 4px;
+	border-radius: 8px;
+	font-weight: 500;
+}
+
+.kk-setup-notice--success {
+	border-left-color: #0b6b3a;
+	background: #eaf4ee;
+	color: #07522c;
+}
+
+.kk-setup-notice--error {
+	border-left-color: #b3261e;
+	background: #fdecea;
+	color: #7a1f1a;
+}
+
+/* Cards. */
+
+.kk-setup-card {
+	margin-bottom: 24px;
+	padding: 24px;
+	background: #fff;
+	border: 1px solid #e5e5e5;
+	border-radius: 12px;
+}
+
+.kk-setup-card-title {
+	margin: 0 0 16px;
+	padding-bottom: 12px;
+	font-size: 18px;
+	line-height: 1.3;
+	color: #07522c;
+	border-bottom: 1px solid #e5e5e5;
+}
+
+.kk-setup-card-body > :last-child {
+	margin-bottom: 0;
+}
+
+/* System checks: one row per check, name / detail / pill. */
+
+.kk-setup-checks {
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+
+.kk-setup-check {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	padding: 12px 0;
+	border-bottom: 1px solid #e5e5e5;
+}
+
+.kk-setup-check:last-child {
+	padding-bottom: 0;
+	border-bottom: 0;
+}
+
+.kk-setup-check-name {
+	flex-shrink: 0;
+	font-weight: 600;
+}
+
+.kk-setup-check-detail {
+	flex: 1;
+	min-width: 0;
+	overflow-wrap: anywhere;
+	font-size: 14px;
+	color: #666;
+}
+
+/* Version numbers and other code-like values read as mono. */
+.kk-setup-check-detail code {
+	font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace;
+	font-size: 13px;
+	color: #1a1a1a;
+}
+
+.kk-setup-pill {
+	flex-shrink: 0;
+	display: inline-flex;
+	align-items: center;
+	padding: 3px 10px;
+	border-radius: 999px;
+	font-size: 12px;
+	font-weight: 700;
+	line-height: 1.6;
+	letter-spacing: 0.04em;
+	text-transform: uppercase;
+	white-space: nowrap;
+}
+
+.kk-setup-pill--pass {
+	background: #0b6b3a;
+	color: #fff;
+}
+
+.kk-setup-pill--warn {
+	background: #c9962e;
+	color: #1a1a1a;
+}
+
+.kk-setup-pill--fail {
+	background: #b3261e;
+	color: #fff;
+}
+
+/* Stack info paragraphs. */
+
+.kk-setup-stack-desc {
+	color: #666;
+}
+
+.kk-setup-stack-status {
+	font-weight: 600;
+}
+
+/* Forms. */
+
+.kk-setup-form {
+	margin-top: 16px;
+}
+
+.kk-setup-form--upload {
+	padding-top: 20px;
+	border-top: 1px solid #e5e5e5;
+}
+
+.kk-setup-file-label {
+	display: block;
+	margin-bottom: 8px;
+	font-weight: 600;
+	color: #1a1a1a;
+}
+
+.kk-setup-file {
+	display: block;
+	width: 100%;
+	margin-bottom: 16px;
+	padding: 10px 12px;
+	font-size: 14px;
+	color: #1a1a1a;
+	background: #fff;
+	border: 1px solid #e5e5e5;
+	border-radius: 8px;
+}
+
+.kk-setup-button {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 8px;
+	min-height: 44px;
+	padding: 0 20px;
+	font-size: 15px;
+	font-weight: 600;
+	line-height: 1.2;
+	color: #0b6b3a;
+	background: #fff;
+	border: 1px solid #0b6b3a;
+	border-radius: 8px;
+	text-decoration: none;
+	cursor: pointer;
+}
+
+.kk-setup-button:hover {
+	background: #eaf4ee;
+}
+
+.kk-setup-button:focus-visible {
+	outline: 2px solid #c9962e;
+	outline-offset: 2px;
+}
+
+.kk-setup-button--primary {
+	color: #fff;
+	background: #0b6b3a;
+}
+
+.kk-setup-button--primary:hover {
+	background: #07522c;
+	border-color: #07522c;
+}
+
+.kk-setup-button:disabled,
+.kk-setup-button--primary:disabled {
+	opacity: 0.55;
+	cursor: not-allowed;
+}
+
+.kk-setup-button:disabled:hover {
+	background: #fff;
+}
+
+.kk-setup-button--primary:disabled:hover {
+	background: #0b6b3a;
+}
+
+/* Link cards. */
+
+.kk-setup-links {
+	display: grid;
+	grid-template-columns: repeat(2, 1fr);
+	gap: 16px;
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+
+.kk-setup-link {
+	display: block;
+	padding: 16px;
+	color: inherit;
+	background: #fff;
+	border: 1px solid #e5e5e5;
+	border-radius: 10px;
+	text-decoration: none;
+}
+
+.kk-setup-link:hover {
+	background: #eaf4ee;
+	border-color: #0b6b3a;
+}
+
+.kk-setup-link-title {
+	display: block;
+	margin-bottom: 4px;
+	font-size: 15px;
+	font-weight: 600;
+	color: #07522c;
+}
+
+.kk-setup-link-desc {
+	display: block;
+	font-size: 13px;
+	line-height: 1.5;
+	color: #666;
+}
+
+/* Footnote. */
+
+.kk-setup-footnote {
+	margin: 8px 0 0;
+	font-size: 13px;
+	color: #666;
+	text-align: center;
+}
+
+/* Responsive: everything stacks on a narrow phone. */
+
+@media (max-width: 600px) {
+	.kk-setup-links {
+		grid-template-columns: 1fr;
+	}
+}
+
+@media (max-width: 480px) {
+	.kk-setup-header {
+		flex-direction: column;
+		align-items: flex-start;
+		gap: 12px;
+	}
+
+	.kk-setup-logo {
+		width: 48px;
+		height: 48px;
+	}
+
+	.kk-setup-title {
+		font-size: 24px;
+	}
+
+	.kk-setup-card {
+		padding: 20px 16px;
+	}
+
+	/* Rows wrap instead of clipping: the detail drops to its own
+	 * line and the pill falls below the name when it no longer fits
+	 * beside it. */
+	.kk-setup-check {
+		flex-wrap: wrap;
+		row-gap: 6px;
+	}
+
+	.kk-setup-check-detail {
+		flex: 1 1 100%;
+		order: 3;
+	}
+
+	.kk-setup-button {
+		width: 100%;
+	}
+}

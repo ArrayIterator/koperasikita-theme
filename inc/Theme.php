@@ -8,9 +8,11 @@ use KoperasiKita\Assets\Enqueue;
 use KoperasiKita\Breadcrumb\Breadcrumb;
 use KoperasiKita\Customizer\Customizer;
 use KoperasiKita\Features\Features;
+use KoperasiKita\Features\Fonts;
 use KoperasiKita\Features\Pwa;
 use KoperasiKita\Features\StyleVariant;
 use KoperasiKita\SEO\Seo;
+use KoperasiKita\Setup\Setup;
 use KoperasiKita\Setup\Sidebars;
 use KoperasiKita\Setup\ThemeSupport;
 use KoperasiKita\Setup\Widgets;
@@ -47,9 +49,16 @@ final class Theme
         add_filter('get_custom_logo', [Customizer::class, 'filterCustomLogo']);
 
         add_action('init', [Features::class, 'register']);
+        add_action('init', [Fonts::class, 'register']);
         add_action('init', [StyleVariant::class, 'register']);
         add_action('init', [Pwa::class, 'register']);
         add_action('init', [Seo::class, 'register']);
         add_action('init', [Breadcrumb::class, 'register']);
+
+        add_action('admin_menu', [Setup::class, 'register']);
+        add_action('admin_notices', [Setup::class, 'adminNotice']);
+        add_action('admin_post_kk_setup_install', [Setup::class, 'handleInstall']);
+        add_action('admin_post_kk_setup_upload', [Setup::class, 'handleUpload']);
+        add_action('admin_post_kk_setup_activate', [Setup::class, 'handleActivate']);
     }
 }

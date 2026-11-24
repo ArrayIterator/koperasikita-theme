@@ -4,8 +4,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Koperasi Kita 1.0.0\n"
 "Report-Msgid-Bugs-To: https://koperasikita.pentagonal.org/\n"
-"POT-Creation-Date: 2026-11-24 18:12
-"
+"POT-Creation-Date: 2026-11-24 18:42\n"
 "PO-Revision-Date: 2026-11-24 23:00+0700\n"
 "Last-Translator: Koperasi Kita\n"
 "Language-Team: Koperasi Kita\n"
@@ -1082,4 +1081,220 @@ msgstr ""
 
 #: template-parts/weather/location-picker.php
 msgid "Use these coordinates"
+msgstr ""
+
+#: inc/Setup/Setup.php
+msgid "Activate TrayDigita Stack"
+msgstr ""
+
+#: inc/Setup/Setup.php
+msgid "Activation failed."
+msgstr ""
+
+#: inc/Setup/Setup.php
+msgid "Active"
+msgstr ""
+
+#: inc/Setup/Setup.php
+msgid "Another Stack installation is already running. Please wait a moment and try again."
+msgstr ""
+
+#: inc/Setup/Setup.php
+msgid "Attention"
+msgstr ""
+
+#: inc/Setup/Setup.php
+msgid "Bookmarks page"
+msgstr ""
+
+#: inc/Setup/Setup.php
+msgid "Could not reach the GitHub release feed. Check the connection and try again."
+msgstr ""
+
+#: inc/Setup/Setup.php
+msgid "Direct filesystem access is not available. Upload the plugin from Plugins → Add New instead."
+msgstr ""
+
+#: inc/Setup/Setup.php
+msgid "Everything the theme needs, in one place."
+msgstr ""
+
+#: inc/Setup/Setup.php
+msgid "GitHub answered with an unexpected status."
+msgstr ""
+
+#: inc/Setup/Setup.php
+msgid "Gold, markets and weather widgets for the sidebars."
+msgstr ""
+
+#: inc/Setup/Setup.php
+msgid "Install it from Setup"
+msgstr ""
+
+#: inc/Setup/Setup.php
+msgid "Install latest release from GitHub"
+msgstr ""
+
+#: inc/Setup/Setup.php
+msgid "Installation failed."
+msgstr ""
+
+#: inc/Setup/Setup.php
+msgid "Installed, not active"
+msgstr ""
+
+#: inc/Setup/Setup.php
+msgid "Koperasi Kita Setup"
+msgstr ""
+
+#: inc/Setup/Setup.php
+msgid "Koperasi Kita theme"
+msgstr ""
+
+#: inc/Setup/Setup.php
+msgid "Logo, colours, layout and typography, with live preview."
+msgstr ""
+
+#: inc/Setup/Setup.php
+msgid "Menus"
+msgstr ""
+
+#: inc/Setup/Setup.php
+msgid "Missing"
+msgstr ""
+
+#: inc/Setup/Setup.php
+msgid "No Stack release asset was found."
+msgstr ""
+
+#: inc/Setup/Setup.php
+msgid "No page uses the Bookmarks template yet"
+msgstr ""
+
+#: inc/Setup/Setup.php
+msgid "No release assets were found."
+msgstr ""
+
+#: inc/Setup/Setup.php
+msgid "Not installed"
+msgstr ""
+
+#: inc/Setup/Setup.php
+msgid "Not writable"
+msgstr ""
+
+#: inc/Setup/Setup.php
+msgid "PHP version"
+msgstr ""
+
+#: inc/Setup/Setup.php
+msgid "Page found"
+msgstr ""
+
+#: inc/Setup/Setup.php
+msgid "Primary menu and the mobile bottom navigation."
+msgstr ""
+
+#: inc/Setup/Setup.php
+msgid "Quick start"
+msgstr ""
+
+#: inc/Setup/Setup.php
+msgid "Ready"
+msgstr ""
+
+#: inc/Setup/Setup.php
+msgid "Requirements"
+msgstr ""
+
+#: inc/Setup/Setup.php
+msgid "Something went wrong."
+msgstr ""
+
+#: inc/Setup/Setup.php
+msgid "Sorry, you are not allowed to access this page."
+msgstr ""
+
+#: inc/Setup/Setup.php
+msgid "Sorry, you are not allowed to activate plugins."
+msgstr ""
+
+#: inc/Setup/Setup.php
+msgid "Sorry, you are not allowed to install plugins."
+msgstr ""
+
+#: inc/Setup/Setup.php
+msgid "The Stack is installed and active. All integrations are available."
+msgstr ""
+
+#: inc/Setup/Setup.php
+msgid "The Stack is installed but not active."
+msgstr ""
+
+#: inc/Setup/Setup.php
+msgid "The Stack is not installed yet."
+msgstr ""
+
+#: inc/Setup/Setup.php
+msgid "The Stack is the theme’s companion plugin. It provides the image, popular-posts and messaging helpers. The theme works without it, but those helpers fall back to basic behaviour."
+msgstr ""
+
+#: inc/Setup/Setup.php
+msgid "The plugin could not be installed."
+msgstr ""
+
+#: inc/Setup/Setup.php
+msgid "The release download URL was rejected."
+msgstr ""
+
+#: inc/Setup/Setup.php
+msgid "The saved-articles page. Bookmarks live in the browser, per reader."
+msgstr ""
+
+#: inc/Setup/Setup.php
+msgid "Theme options"
+msgstr ""
+
+#: inc/Setup/Setup.php
+msgid "TrayDigita Stack"
+msgstr ""
+
+#: inc/Setup/Setup.php
+msgid "TrayDigita Stack installed. Activate it below to enable the integrations."
+msgstr ""
+
+#: inc/Setup/Setup.php
+msgid "TrayDigita Stack is already active."
+msgstr ""
+
+#: inc/Setup/Setup.php
+msgid "TrayDigita Stack is now active."
+msgstr ""
+
+#: inc/Setup/Setup.php
+msgid "Upload & install"
+msgstr ""
+
+#: inc/Setup/Setup.php
+msgid "Upload failed."
+msgstr ""
+
+#: inc/Setup/Setup.php
+msgid "Uploads directory"
+msgstr ""
+
+#: inc/Setup/Setup.php
+msgid "Widgets"
+msgstr ""
+
+#: inc/Setup/Setup.php
+msgid "WordPress version"
+msgstr ""
+
+#: inc/Setup/Setup.php
+msgid "Writable"
+msgstr ""
+
+#: inc/Setup/Setup.php
+msgid "Or upload a release zip (max 20 MB):"
 msgstr ""
