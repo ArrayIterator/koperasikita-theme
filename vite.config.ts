@@ -30,6 +30,8 @@ export default defineConfig({
         'weather-css': 'src/css/weather.css',
         agenda: 'src/ts/agenda.ts',
         'agenda-css': 'src/css/agenda.css',
+        pwa: 'src/ts/pwa.ts',
+        'pwa-css': 'src/css/pwa.css',
       },
     },
   },

@@ -1,0 +1,32 @@
+/* Koperasi Kita — PWA styles.
+ *
+ * Only the install button lives here. The install prompt modal reuses
+ * the shared .kk-modal styles from app.css, and the subscribe form
+ * reuses the footer form styles — nothing is duplicated.
+ */
+
+/* .kk-button sets display:inline-flex, which beats the user-agent
+ * [hidden] rule, so without this the install button could never hide
+ * (it must stay hidden until beforeinstallprompt fires). */
+.kk-pwa-install[hidden] {
+	display: none;
+}
+
+.kk-pwa-install {
+	/* Large tap target for touch; the label keeps the action obvious. */
+	min-height: 44px;
+	white-space: nowrap;
+}
+
+/* On a narrow phone the nav bar is crowded (menu toggle + install
+ * button). Keep the icon, drop the label — the button keeps its
+ * accessible name through aria-label. */
+@media (max-width: 480px) {
+	.kk-pwa-install {
+		padding: 10px 12px;
+	}
+
+	.kk-pwa-install-label {
+		display: none;
+	}
+}

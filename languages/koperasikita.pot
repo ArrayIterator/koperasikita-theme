@@ -4,7 +4,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Koperasi Kita 1.0.0\n"
 "Report-Msgid-Bugs-To: https://koperasikita.pentagonal.org/\n"
-"POT-Creation-Date: 2026-11-24 23:00+0700\n"
+"POT-Creation-Date: 2026-11-24 18:12
+"
 "PO-Revision-Date: 2026-11-24 23:00+0700\n"
 "Last-Translator: Koperasi Kita\n"
 "Language-Team: Koperasi Kita\n"
@@ -353,4 +354,732 @@ msgstr ""
 
 #: template-parts/content/single-article.php
 msgid "%d min read"
+msgstr ""
+
+#: 404.php
+msgid "Latest news"
+msgstr ""
+
+#: 404.php
+msgid "Page not found"
+msgstr ""
+
+#: 404.php
+msgid "The page you are looking for may have moved, or it no longer exists. Try searching, or start from the latest news."
+msgstr ""
+
+#: archive-agenda.php
+msgid "No agenda items yet. Check back soon for upcoming events."
+msgstr ""
+
+#: archive.php
+msgid "No posts were found in this archive."
+msgstr ""
+
+#: comments.php
+msgid "%s comments"
+msgstr ""
+
+#: comments.php
+msgid "Comments are closed."
+msgstr ""
+
+#: comments.php
+msgid "Leave a comment"
+msgstr ""
+
+#: comments.php
+msgid "One comment"
+msgstr ""
+
+#: footer.php
+msgid "Back to top"
+msgstr ""
+
+#: footer.php
+msgid "Mobile navigation"
+msgstr ""
+
+#: footer.php
+msgid "Navigation"
+msgstr ""
+
+#: footer.php
+msgid "News, announcements and market updates from the cooperative, delivered to your inbox."
+msgstr ""
+
+#: footer.php
+msgid "Stay informed"
+msgstr ""
+
+#: header.php
+msgid "Skip to content"
+msgstr ""
+
+#: inc/Features/Agenda.php
+msgid "Add New"
+msgstr ""
+
+#: inc/Features/Agenda.php
+msgid "Add New Agenda Item"
+msgstr ""
+
+#: inc/Features/Agenda.php
+msgid "Agenda"
+msgstr ""
+
+#: inc/Features/Agenda.php
+msgid "Agenda Item"
+msgstr ""
+
+#: inc/Features/Agenda.php
+msgid "Agenda Item Attributes"
+msgstr ""
+
+#: inc/Features/Agenda.php
+msgid "Agenda item published privately."
+msgstr ""
+
+#: inc/Features/Agenda.php
+msgid "Agenda item published."
+msgstr ""
+
+#: inc/Features/Agenda.php
+msgid "Agenda item reverted to draft."
+msgstr ""
+
+#: inc/Features/Agenda.php
+msgid "Agenda item scheduled."
+msgstr ""
+
+#: inc/Features/Agenda.php
+msgid "Agenda item updated."
+msgstr ""
+
+#: inc/Features/Agenda.php
+msgid "Agenda items list"
+msgstr ""
+
+#: inc/Features/Agenda.php
+msgid "Agenda items list navigation"
+msgstr ""
+
+#: inc/Features/Agenda.php
+msgid "All Agenda Items"
+msgstr ""
+
+#: inc/Features/Agenda.php
+msgid "Date"
+msgstr ""
+
+#: inc/Features/Agenda.php
+msgid "Date, start time and location are required for the event to show up properly on the agenda archive."
+msgstr ""
+
+#: inc/Features/Agenda.php
+msgid "Dated cooperative events: meetings, gatherings and activities."
+msgstr ""
+
+#: inc/Features/Agenda.php
+msgid "Edit Agenda Item"
+msgstr ""
+
+#: inc/Features/Agenda.php
+msgid "Event Details"
+msgstr ""
+
+#: inc/Features/Agenda.php
+msgid "Filter agenda items"
+msgstr ""
+
+#: inc/Features/Agenda.php
+msgid "Insert into agenda item"
+msgstr ""
+
+#: inc/Features/Agenda.php
+msgid "Location"
+msgstr ""
+
+#: inc/Features/Agenda.php
+msgid "New Agenda Item"
+msgstr ""
+
+#: inc/Features/Agenda.php
+msgid "No agenda items found in Trash."
+msgstr ""
+
+#: inc/Features/Agenda.php
+msgid "No agenda items found."
+msgstr ""
+
+#: inc/Features/Agenda.php
+msgid "Please sign in to submit an agenda item."
+msgstr ""
+
+#: inc/Features/Agenda.php
+msgid "Search Agenda"
+msgstr ""
+
+#: inc/Features/Agenda.php
+msgid "Sign in"
+msgstr ""
+
+#: inc/Features/Agenda.php
+msgid "Start time"
+msgstr ""
+
+#: inc/Features/Agenda.php
+msgid "Uploaded to this agenda item"
+msgstr ""
+
+#: inc/Features/Agenda.php
+msgid "View Agenda"
+msgstr ""
+
+#: inc/Features/Agenda.php
+msgid "View Agenda Item"
+msgstr ""
+
+#: inc/Features/Agenda.php
+msgid "Your account cannot submit agenda items. Please contact an editor if you need contributor access."
+msgstr ""
+
+#: inc/Features/Markets.php
+msgid "Choose which provider supplies each market and keep the manual snapshot prices up to date. A market with no saved price shows an honest \"no data\" message on the site — prices are never invented."
+msgstr ""
+
+#: inc/Features/Markets.php
+msgid "Crypto"
+msgstr ""
+
+#: inc/Features/Markets.php
+msgid "Gold"
+msgstr ""
+
+#: inc/Features/Markets.php
+msgid "Gold spot"
+msgstr ""
+
+#: inc/Features/Markets.php
+msgid "Last saved: %s"
+msgstr ""
+
+#: inc/Features/Markets.php
+msgid "Markets"
+msgstr ""
+
+#: inc/Features/Markets.php
+msgid "Provider"
+msgstr ""
+
+#: inc/Features/Markets.php
+msgid "Stocks"
+msgstr ""
+
+#: inc/Features/Markets.php
+msgid "You do not have permission to access this page."
+msgstr ""
+
+#: inc/Features/Subscribe.php
+msgid "Email address"
+msgstr ""
+
+#: inc/Features/Subscribe.php
+msgid "Leave this field empty"
+msgstr ""
+
+#: inc/Features/Subscribe.php
+msgid "Please enter a valid email address."
+msgstr ""
+
+#: inc/Features/Subscribe.php
+msgid "Something went wrong. Please try again later."
+msgstr ""
+
+#: inc/Features/Subscribe.php
+msgid "Something went wrong. Please try again."
+msgstr ""
+
+#: inc/Features/Subscribe.php
+msgid "Subscribe"
+msgstr ""
+
+#: inc/Features/Subscribe.php
+msgid "Subscriptions are unavailable right now. Please try again later."
+msgstr ""
+
+#: inc/Features/Subscribe.php
+msgid "Thank you for subscribing. Please check your inbox to confirm your subscription."
+msgstr ""
+
+#: inc/Features/Subscribe.php
+msgid "Too many subscription attempts. Please try again later."
+msgstr ""
+
+#: inc/Features/Subscribe.php
+msgid "Your email address"
+msgstr ""
+
+#: inc/Features/Weather.php
+msgid "Feels like"
+msgstr ""
+
+#: inc/Features/Weather.php
+msgid "High / Low"
+msgstr ""
+
+#: inc/Features/Weather.php
+msgid "Humidity"
+msgstr ""
+
+#: inc/Features/Weather.php
+msgid "Weather is unavailable right now. Please try again later."
+msgstr ""
+
+#: inc/Features/Weather.php
+msgid "Wind"
+msgstr ""
+
+#: inc/Widgets/GoldWidget.php
+msgid "Brands to show:"
+msgstr ""
+
+#: inc/Widgets/GoldWidget.php
+msgid "Edit the prices in %s."
+msgstr ""
+
+#: inc/Widgets/GoldWidget.php
+msgid "Gold Prices"
+msgstr ""
+
+#: inc/Widgets/GoldWidget.php
+msgid "Gold prices for five brands in an auto-scrolling slider. Prices are edited in Settings -> Markets."
+msgstr ""
+
+#: inc/Widgets/GoldWidget.php
+msgid "Koperasi Kita Gold Prices"
+msgstr ""
+
+#: inc/Widgets/GoldWidget.php
+msgid "Settings -> Markets"
+msgstr ""
+
+#: inc/Widgets/GoldWidget.php
+msgid "Title"
+msgstr ""
+
+#: inc/Widgets/MarketsWidget.php
+msgid "Gold, stock and crypto prices from the Markets providers. Prices are edited in Settings -> Markets."
+msgstr ""
+
+#: inc/Widgets/MarketsWidget.php
+msgid "Koperasi Kita Markets"
+msgstr ""
+
+#: inc/Widgets/MarketsWidget.php
+msgid "Markets to show:"
+msgstr ""
+
+#: inc/Widgets/MarketsWidget.php
+msgid "Show day change"
+msgstr ""
+
+#: inc/Widgets/WeatherWidget.php
+msgid "Change location"
+msgstr ""
+
+#: inc/Widgets/WeatherWidget.php
+msgid "Current weather for a city, with a location picker."
+msgstr ""
+
+#: inc/Widgets/WeatherWidget.php
+msgid "Default city"
+msgstr ""
+
+#: inc/Widgets/WeatherWidget.php
+msgid "Koperasi Kita Weather"
+msgstr ""
+
+#: inc/Widgets/WeatherWidget.php
+msgid "Shown until a visitor picks another location."
+msgstr ""
+
+#: inc/Widgets/WeatherWidget.php
+msgid "Weather"
+msgstr ""
+
+#: inc/Widgets/WeatherWidget.php
+msgid "Weather is unavailable right now."
+msgstr ""
+
+#: index.php
+msgid "No posts were found. Try a different search."
+msgstr ""
+
+#: index.php
+msgid "Nothing found"
+msgstr ""
+
+#: search.php
+msgid "No results found"
+msgstr ""
+
+#: search.php
+msgid "Results for \"%s\""
+msgstr ""
+
+#: search.php
+msgid "Search results"
+msgstr ""
+
+#: search.php
+msgid "Try different keywords, or browse the latest news below."
+msgstr ""
+
+#: sidebar-news.php
+msgid "Sidebar"
+msgstr ""
+
+#: single-agenda.php
+msgid "Back to the agenda"
+msgstr ""
+
+#: single.php
+msgid "Related news"
+msgstr ""
+
+#: template-bookmarks.php
+msgid "Articles you saved on this device. Bookmarks are stored only in this browser."
+msgstr ""
+
+#: template-bookmarks.php
+msgid "Bookmarks"
+msgstr ""
+
+#: template-bookmarks.php
+msgid "Bookmarks are currently disabled."
+msgstr ""
+
+#: template-bookmarks.php
+msgid "Browse the latest news"
+msgstr ""
+
+#: template-bookmarks.php
+msgid "No bookmarks yet"
+msgstr ""
+
+#: template-bookmarks.php
+msgid "Tap the bookmark button on any article to save it here for later reading."
+msgstr ""
+
+#: template-parts/agenda/agenda-meta.php
+msgid "Time"
+msgstr ""
+
+#: template-parts/agenda/form-submit.php
+msgid "Description"
+msgstr ""
+
+#: template-parts/agenda/form-submit.php
+msgid "Event title"
+msgstr ""
+
+#: template-parts/agenda/form-submit.php
+msgid "Please fix the highlighted fields and submit again."
+msgstr ""
+
+#: template-parts/agenda/form-submit.php
+msgid "Please give the event a title of at least 3 characters."
+msgstr ""
+
+#: template-parts/agenda/form-submit.php
+msgid "Please pick a valid date."
+msgstr ""
+
+#: template-parts/agenda/form-submit.php
+msgid "Please pick a valid end time."
+msgstr ""
+
+#: template-parts/agenda/form-submit.php
+msgid "Please pick a valid start time."
+msgstr ""
+
+#: template-parts/agenda/form-submit.php
+msgid "Please write a short description of the event."
+msgstr ""
+
+#: template-parts/agenda/form-submit.php
+msgid "Something went wrong while saving your submission. Please try again."
+msgstr ""
+
+#: template-parts/agenda/form-submit.php
+msgid "Submit for review"
+msgstr ""
+
+#: template-parts/agenda/form-submit.php
+msgid "Thank you! Your agenda item was submitted for review. An editor will publish it once it has been checked."
+msgstr ""
+
+#: template-parts/agenda/form-submit.php
+msgid "The description is too long. Please keep it under 5000 characters."
+msgstr ""
+
+#: template-parts/agenda/form-submit.php
+msgid "The end time must be after the start time."
+msgstr ""
+
+#: template-parts/agenda/form-submit.php
+msgid "The event date is in the past. Please pick a future date."
+msgstr ""
+
+#: template-parts/agenda/form-submit.php
+msgid "The location is too long. Please keep it under 200 characters."
+msgstr ""
+
+#: template-parts/agenda/form-submit.php
+msgid "The title is too long. Please keep it under 200 characters."
+msgstr ""
+
+#: template-parts/agenda/form-submit.php
+msgid "Too many submissions. Please wait an hour and try again."
+msgstr ""
+
+#: template-parts/agenda/form-submit.php
+msgid "Website"
+msgstr ""
+
+#: template-parts/agenda/form-submit.php
+msgid "Your account cannot submit agenda items."
+msgstr ""
+
+#: template-parts/agenda/form-submit.php
+msgid "Your session expired. Please try submitting again."
+msgstr ""
+
+#: template-parts/agenda/form-submit.php
+msgid "Your submission is saved as a draft for review. It only appears on the agenda once an editor publishes it."
+msgstr ""
+
+#: template-parts/agenda/form-submit.php
+msgid "e.g. Cooperative Hall, 2nd floor"
+msgstr ""
+
+#: template-parts/content/card-news.php
+msgid "Save"
+msgstr ""
+
+#: template-parts/content/card-news.php
+msgid "Save bookmark"
+msgstr ""
+
+#: template-parts/content/layout-switcher.php
+msgid "Layout"
+msgstr ""
+
+#: template-parts/content/single-article.php
+msgid "By %s"
+msgstr ""
+
+#: template-parts/content/single-article.php
+msgid "Email"
+msgstr ""
+
+#: template-parts/content/single-article.php
+msgid "Share"
+msgstr ""
+
+#: template-parts/content/single-article.php
+msgid "Share this article"
+msgstr ""
+
+#: template-parts/gold/slider.php
+msgid "Gold brands"
+msgstr ""
+
+#: template-parts/gold/slider.php
+msgid "Gold prices are not available yet."
+msgstr ""
+
+#: template-parts/gold/slider.php
+msgid "Next brand"
+msgstr ""
+
+#: template-parts/gold/slider.php
+msgid "Pause gold prices"
+msgstr ""
+
+#: template-parts/gold/slider.php
+msgid "Previous brand"
+msgstr ""
+
+#: template-parts/gold/slider.php
+msgid "Updated %s"
+msgstr ""
+
+#: template-parts/gold/slider.php
+msgid "per gram"
+msgstr ""
+
+#: template-parts/header/site-nav.php
+msgid "Close search"
+msgstr ""
+
+#: template-parts/header/site-nav.php
+msgid "Open menu"
+msgstr ""
+
+#: template-parts/header/site-nav.php
+msgid "Primary"
+msgstr ""
+
+#: template-parts/header/site-nav.php
+msgid "Search"
+msgstr ""
+
+#: template-parts/header/ticker.php
+msgid "Breaking"
+msgstr ""
+
+#: template-parts/header/ticker.php
+msgid "Breaking news"
+msgstr ""
+
+#: template-parts/header/ticker.php
+msgid "Next headline"
+msgstr ""
+
+#: template-parts/header/ticker.php
+msgid "Pause headlines"
+msgstr ""
+
+#: template-parts/header/ticker.php
+msgid "Previous headline"
+msgstr ""
+
+#: template-parts/header/top-bar.php
+msgid "Change weather location"
+msgstr ""
+
+#: template-parts/header/top-bar.php
+msgid "Toggle color scheme"
+msgstr ""
+
+#: template-parts/home/category-block.php
+msgid "More in %s"
+msgstr ""
+
+#: template-parts/home/category-block.php
+msgid "Section"
+msgstr ""
+
+#: template-parts/home/featured-sidebar.php
+msgid "Editor’s Picks"
+msgstr ""
+
+#: template-parts/home/hero-grid.php
+msgid "Top stories"
+msgstr ""
+
+#: template-parts/home/latest-news.php
+msgid "Latest News"
+msgstr ""
+
+#: template-parts/markets/strip.php
+msgid "Market data is not available yet."
+msgstr ""
+
+#: template-parts/markets/strip.php
+msgid "No data yet."
+msgstr ""
+
+#: template-parts/pwa/install-button.php
+msgid "Install app"
+msgstr ""
+
+#: template-parts/pwa/install-prompt.php
+msgid "Add Koperasi Kita to your home screen for faster access to news, announcements and market updates — even offline."
+msgstr ""
+
+#: template-parts/pwa/install-prompt.php
+msgid "Dismiss"
+msgstr ""
+
+#: template-parts/pwa/install-prompt.php
+msgid "Install"
+msgstr ""
+
+#: template-parts/pwa/install-prompt.php
+msgid "Install Koperasi Kita"
+msgstr ""
+
+#: template-parts/pwa/install-prompt.php
+msgid "No app store download needed"
+msgstr ""
+
+#: template-parts/pwa/install-prompt.php
+msgid "Not now"
+msgstr ""
+
+#: template-parts/pwa/install-prompt.php
+msgid "Quick access from your home screen"
+msgstr ""
+
+#: template-parts/pwa/install-prompt.php
+msgid "Read the latest news offline"
+msgstr ""
+
+#: template-parts/weather/location-picker.php
+msgid "+ Add current location"
+msgstr ""
+
+#: template-parts/weather/location-picker.php
+msgid "Choose location"
+msgstr ""
+
+#: template-parts/weather/location-picker.php
+msgid "Close location picker"
+msgstr ""
+
+#: template-parts/weather/location-picker.php
+msgid "Current location: %s"
+msgstr ""
+
+#: template-parts/weather/location-picker.php
+msgid "Done"
+msgstr ""
+
+#: template-parts/weather/location-picker.php
+msgid "Latitude"
+msgstr ""
+
+#: template-parts/weather/location-picker.php
+msgid "Longitude"
+msgstr ""
+
+#: template-parts/weather/location-picker.php
+msgid "Or enter coordinates"
+msgstr ""
+
+#: template-parts/weather/location-picker.php
+msgid "Quick picks"
+msgstr ""
+
+#: template-parts/weather/location-picker.php
+msgid "Reset to default"
+msgstr ""
+
+#: template-parts/weather/location-picker.php
+msgid "Search for a city"
+msgstr ""
+
+#: template-parts/weather/location-picker.php
+msgid "Type a city name…"
+msgstr ""
+
+#: template-parts/weather/location-picker.php
+msgid "Use my location"
+msgstr ""
+
+#: template-parts/weather/location-picker.php
+msgid "Use these coordinates"
 msgstr ""

@@ -29,6 +29,7 @@ final class Features
         Markets::register();
         Bookmarks::register();
         Agenda::register();
+        Subscribe::register();
         Ticker::register();
         Comments::register();
         Performance::register();
