@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace KoperasiKita\Customizer;
 
+use KoperasiKita\Features\Fonts;
 use WP_Customize_Color_Control;
 use WP_Customize_Manager;
 
@@ -76,23 +77,30 @@ final class Customizer
 
         self::addSetting(
             $wpCustomize,
-            'kk_font_family',
+            'kk_font_body',
             'system',
-            [self::class, 'sanitizeFont'],
+            [Fonts::class, 'sanitizeBody'],
             'postMessage'
         );
-        $wpCustomize->add_control('kk_font_family', [
-            'label' => esc_html__('Font Family', 'koperasikita'),
+        $wpCustomize->add_control('kk_font_body', [
+            'label' => esc_html__('Body Font', 'koperasikita'),
             'section' => 'koperasikita_typography',
             'type' => 'select',
-            'choices' => [
-                'system' => esc_html__('System UI', 'koperasikita'),
-                'georgia' => esc_html__('Georgia editorial serif', 'koperasikita'),
-                'palatino' => esc_html__('Palatino editorial serif', 'koperasikita'),
-                'trebuchet' => esc_html__('Trebuchet MS', 'koperasikita'),
-                'verdana' => esc_html__('Verdana', 'koperasikita'),
-                'arial' => esc_html__('Arial', 'koperasikita'),
-            ],
+            'choices' => Fonts::choices('body'),
+        ]);
+
+        self::addSetting(
+            $wpCustomize,
+            'kk_font_headings',
+            'system-serif',
+            [Fonts::class, 'sanitizeHeadings'],
+            'postMessage'
+        );
+        $wpCustomize->add_control('kk_font_headings', [
+            'label' => esc_html__('Headings Font', 'koperasikita'),
+            'section' => 'koperasikita_typography',
+            'type' => 'select',
+            'choices' => Fonts::choices('headings'),
         ]);
 
         self::addSetting(
@@ -136,6 +144,8 @@ final class Customizer
             'type' => 'number',
             'input_attrs' => ['min' => 12, 'max' => 20],
         ]);
+
+        Fonts::registerControls($wpCustomize);
 
         self::addSetting(
             $wpCustomize,
@@ -397,13 +407,6 @@ final class Customizer
         $color = sanitize_hex_color((string) $value);
 
         return $color === null ? '' : $color;
-    }
-
-    public static function sanitizeFont(mixed $value): string
-    {
-        $allowed = ['system', 'georgia', 'palatino', 'trebuchet', 'verdana', 'arial'];
-
-        return in_array($value, $allowed, true) ? (string) $value : 'system';
     }
 
     public static function sanitizeLayout(mixed $value): string
