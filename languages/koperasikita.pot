@@ -267,20 +267,60 @@ msgstr ""
 msgid "Enable Responsive Images"
 msgstr ""
 
-#: inc/Customizer/Customizer.php
-msgid "Disable Emoji Scripts and Styles"
+#: inc/Features/Performance.php
+msgid "Disable texturize on content and excerpts"
 msgstr ""
 
-#: inc/Customizer/Customizer.php
-msgid "Disable Embeds"
+#: inc/Features/Performance.php
+msgid "Disable texturize on titles"
 msgstr ""
 
-#: inc/Customizer/Customizer.php
-msgid "Remove Query Strings from Asset URLs"
+#: inc/Features/Performance.php
+msgid "Disable texturize everywhere (comments, widgets, site name)"
 msgstr ""
 
-#: inc/Customizer/Customizer.php
-msgid "Remove Extra Tags from <head>"
+#: inc/Features/Performance.php
+msgid "Remove jQuery Migrate on the front end"
+msgstr ""
+
+#: inc/Features/Performance.php
+msgid "Remove version query strings from CSS and JS"
+msgstr ""
+
+#: inc/Features/Performance.php
+msgid "Remove the WordPress generator tag"
+msgstr ""
+
+#: inc/Features/Performance.php
+msgid "Disable emoji scripts and styles"
+msgstr ""
+
+#: inc/Features/Performance.php
+msgid "Remove RSD, WLW, shortlink and REST discovery links from the head"
+msgstr ""
+
+#: inc/Features/Performance.php
+msgid "Disable oEmbed discovery and the embed script"
+msgstr ""
+
+#: inc/Features/Performance.php
+msgid "Remove block library and global styles CSS (classic widgets only)"
+msgstr ""
+
+#: inc/Features/Performance.php
+msgid "Remove Dashicons for visitors"
+msgstr ""
+
+#: inc/Features/Performance.php
+msgid "Disable the Heartbeat script on the front end"
+msgstr ""
+
+#: inc/Features/Performance.php
+msgid "Disable XML-RPC"
+msgstr ""
+
+#: inc/Features/Performance.php
+msgid "Disable self pingbacks"
 msgstr ""
 
 #: inc/Customizer/Customizer.php

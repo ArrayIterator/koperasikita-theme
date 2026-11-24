@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace KoperasiKita\Customizer;
 
 use KoperasiKita\Features\Fonts;
+use KoperasiKita\Features\Performance;
 use WP_Customize_Color_Control;
 use WP_Customize_Manager;
 
@@ -246,10 +247,6 @@ final class Customizer
             'kk_comments_avatars' => ['koperasikita_comments', 'Show Comment Avatars', true],
             'kk_images_lazy' => ['koperasikita_media', 'Lazy-Load Images', true],
             'kk_images_srcset' => ['koperasikita_media', 'Enable Responsive Images', true],
-            'kk_adv_disable_emoji' => ['koperasikita_advanced', 'Disable Emoji Scripts and Styles', false],
-            'kk_adv_disable_embeds' => ['koperasikita_advanced', 'Disable Embeds', false],
-            'kk_adv_remove_query_strings' => ['koperasikita_advanced', 'Remove Query Strings from Asset URLs', false],
-            'kk_adv_cleanup_head' => ['koperasikita_advanced', 'Remove Extra Tags from <head>', false],
             'kk_breadcrumb_enabled' => ['koperasikita_breadcrumb', 'Show Breadcrumbs', true],
             'kk_breadcrumb_home' => ['koperasikita_breadcrumb', 'Show Breadcrumbs on the Homepage', false],
         ];
@@ -259,6 +256,20 @@ final class Customizer
             $wpCustomize->add_control($id, [
                 'label' => esc_html__($label, 'koperasikita'),
                 'section' => $section,
+                'type' => 'checkbox',
+            ]);
+        }
+
+        // Advanced Performance & Cleanup: one checkbox per Performance::options()
+        // entry, registered as `kk_adv_<key>`. The pre-release
+        // `kk_adv_cleanup_head` toggle is retired: its removals are covered by
+        // `remove_generator` and `remove_head_links` below, both on by default.
+        foreach (Performance::options() as $key => [$label, $default]) {
+            $id = 'kk_adv_' . $key;
+            self::addSetting($wpCustomize, $id, $default, [self::class, 'sanitizeBool'], 'refresh');
+            $wpCustomize->add_control($id, [
+                'label' => esc_html__($label, 'koperasikita'),
+                'section' => 'koperasikita_advanced',
                 'type' => 'checkbox',
             ]);
         }
