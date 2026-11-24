@@ -94,6 +94,30 @@ body.font-georgia {
 	font-family: var(--kk-serif);
 }
 
+body.font-system {
+	font-family: var(--kk-sans);
+}
+
+body.font-palatino {
+	--kk-serif: 'Palatino Linotype', Palatino, 'Book Antiqua', Georgia, serif;
+	font-family: 'Palatino Linotype', Palatino, 'Book Antiqua', Georgia, serif;
+}
+
+body.font-trebuchet {
+	--kk-serif: 'Trebuchet MS', 'Segoe UI', sans-serif;
+	font-family: 'Trebuchet MS', 'Segoe UI', sans-serif;
+}
+
+body.font-verdana {
+	--kk-serif: Verdana, Geneva, sans-serif;
+	font-family: Verdana, Geneva, sans-serif;
+}
+
+body.font-arial {
+	--kk-serif: Arial, Helvetica, sans-serif;
+	font-family: Arial, Helvetica, sans-serif;
+}
+
 h1,
 h2,
 h3,
@@ -760,6 +784,11 @@ html[data-color-scheme="system"] .kk-icon-sun {
 /* Latest news layouts */
 .kk-latest {
 	margin-top: 8px;
+}
+
+.kk-latest-items.kk-layout-grid {
+	display: grid;
+	gap: 24px;
 }
 
 .kk-latest-items.kk-layout-list .kk-card {
@@ -1747,6 +1776,375 @@ html[data-color-scheme="dark"] .custom-logo.is-inverted {
 	}
 }
 
+/* --- Style variants ------------------------------------------------------ */
+/*
+ * body_class carries exactly one kk-variant-* class (see StyleVariant):
+ * kk-variant-classic is the default look and needs no extra rules.
+ * Compact packs the same content tighter; bold turns the editorial
+ * weight up. Both keep the white paper, green and gold brand.
+ */
+
+/* --- Compact: visibly denser -------------------------------------------- */
+
+body.kk-variant-compact {
+	--kk-title-size: 32px;
+	--kk-card-title-size: 17px;
+	--kk-excerpt-size: 13px;
+	line-height: 1.45;
+}
+
+body.kk-variant-compact .kk-masthead {
+	padding: 12px 0 8px;
+}
+
+body.kk-variant-compact .kk-brand {
+	gap: 10px;
+}
+
+body.kk-variant-compact .kk-brand-mark {
+	width: 44px;
+	height: 44px;
+}
+
+body.kk-variant-compact .kk-brand-mark-letter {
+	font-size: 28px;
+}
+
+body.kk-variant-compact .kk-brand .custom-logo {
+	max-height: 48px;
+}
+
+body.kk-variant-compact .kk-site-title {
+	font-size: 26px;
+}
+
+body.kk-variant-compact .kk-main {
+	padding-bottom: 24px;
+}
+
+body.kk-variant-compact .kk-home {
+	padding-top: 12px;
+}
+
+body.kk-variant-compact .kk-home-layout,
+body.kk-variant-compact .kk-home-secondary,
+body.kk-variant-compact .kk-archive-layout,
+body.kk-variant-compact .kk-single-layout,
+body.kk-variant-compact .kk-page-layout,
+body.kk-variant-compact .kk-sidebar {
+	gap: 16px;
+}
+
+body.kk-variant-compact .kk-home-layout {
+	margin-top: 16px;
+}
+
+body.kk-variant-compact .kk-archive-layout,
+body.kk-variant-compact .kk-single-layout,
+body.kk-variant-compact .kk-page-layout {
+	padding-top: 12px;
+}
+
+body.kk-variant-compact .kk-section-title {
+	font-size: 20px;
+	padding-top: 8px;
+	margin-bottom: 8px;
+}
+
+body.kk-variant-compact .kk-section-head {
+	margin-bottom: 2px;
+}
+
+body.kk-variant-compact .kk-hero,
+body.kk-variant-compact .kk-hero-grid {
+	gap: 12px;
+}
+
+body.kk-variant-compact .kk-hero-lead-body {
+	padding-top: 8px;
+}
+
+body.kk-variant-compact .kk-hero-title {
+	font-size: 24px;
+	margin: 4px 0 6px;
+}
+
+body.kk-variant-compact .kk-hero-excerpt {
+	margin-bottom: 6px;
+}
+
+body.kk-variant-compact .kk-card-grid,
+body.kk-variant-compact .kk-latest-items.kk-layout-grid,
+body.kk-variant-compact .kk-category-block-items {
+	gap: 12px;
+}
+
+body.kk-variant-compact .kk-card {
+	padding-top: 8px;
+}
+
+body.kk-variant-compact .kk-card-body {
+	padding-top: 6px;
+}
+
+body.kk-variant-compact .kk-card-title {
+	margin: 4px 0 6px;
+}
+
+body.kk-variant-compact .kk-card-excerpt {
+	margin-bottom: 6px;
+}
+
+body.kk-variant-compact .kk-bookmark-button {
+	margin-top: 6px;
+}
+
+body.kk-variant-compact .kk-latest {
+	margin-top: 4px;
+}
+
+body.kk-variant-compact .kk-latest-items.kk-layout-list .kk-card {
+	gap: 12px;
+}
+
+body.kk-variant-compact .kk-category-block {
+	margin-top: 20px;
+}
+
+body.kk-variant-compact .kk-category-block-items .kk-card:first-child .kk-card-title {
+	font-size: 20px;
+}
+
+body.kk-variant-compact .kk-pick {
+	padding: 10px 0;
+}
+
+body.kk-variant-compact .kk-pick-number {
+	font-size: 26px;
+}
+
+body.kk-variant-compact .kk-pick-title {
+	font-size: 16px;
+	margin-bottom: 4px;
+}
+
+body.kk-variant-compact .kk-sidebar .widget {
+	padding-top: 8px;
+}
+
+body.kk-variant-compact .kk-sidebar .widget-title,
+body.kk-variant-compact .kk-sidebar .widgettitle {
+	margin-bottom: 8px;
+}
+
+body.kk-variant-compact .kk-sidebar .widget ul li {
+	padding: 5px 0;
+}
+
+body.kk-variant-compact .kk-plain-list li {
+	padding: 6px 0;
+}
+
+body.kk-variant-compact .kk-article-header {
+	margin-bottom: 12px;
+}
+
+body.kk-variant-compact .kk-article-featured {
+	margin-bottom: 12px;
+}
+
+body.kk-variant-compact .kk-entry-content {
+	font-size: 16px;
+	line-height: 1.6;
+}
+
+body.kk-variant-compact .kk-article-footer,
+body.kk-variant-compact .kk-author-box {
+	margin-top: 20px;
+}
+
+body.kk-variant-compact .kk-author-box {
+	padding: 12px;
+}
+
+body.kk-variant-compact .kk-related,
+body.kk-variant-compact .kk-comments {
+	margin-top: 20px;
+}
+
+body.kk-variant-compact .kk-comments {
+	padding-top: 12px;
+}
+
+body.kk-variant-compact .kk-comments-title {
+	margin-bottom: 12px;
+}
+
+body.kk-variant-compact .kk-pagination {
+	margin-top: 16px;
+}
+
+body.kk-variant-compact .kk-site-footer {
+	padding: 24px 0 16px;
+	margin-top: 24px;
+}
+
+body.kk-variant-compact .kk-footer-grid {
+	gap: 16px;
+}
+
+body.kk-variant-compact .kk-footer-bottom {
+	margin-top: 16px;
+}
+
+body.kk-variant-compact .kk-bookmarks-list {
+	gap: 10px;
+	margin-top: 12px;
+}
+
+body.kk-variant-compact .kk-bookmark-item {
+	padding: 10px;
+}
+
+body.kk-variant-compact .kk-primary-menu a {
+	padding-top: 10px;
+	padding-bottom: 10px;
+}
+
+body.kk-variant-compact .kk-button {
+	padding-top: 8px;
+	padding-bottom: 8px;
+}
+
+/* --- Bold: visibly heavier editorial look -------------------------------- */
+
+body.kk-variant-bold {
+	--kk-title-size: 48px;
+	--kk-card-title-size: 24px;
+	--kk-excerpt-size: 15px;
+}
+
+body.kk-variant-bold h1,
+body.kk-variant-bold h2,
+body.kk-variant-bold h3,
+body.kk-variant-bold .kk-site-title,
+body.kk-variant-bold .kk-hero-title,
+body.kk-variant-bold .kk-card-title,
+body.kk-variant-bold .kk-article-title,
+body.kk-variant-bold .kk-page-title,
+body.kk-variant-bold .kk-pick-title,
+body.kk-variant-bold .kk-author-name,
+body.kk-variant-bold .kk-bookmark-item-title {
+	font-weight: 800;
+	letter-spacing: -0.01em;
+}
+
+body.kk-variant-bold .kk-site-title {
+	font-size: 38px;
+}
+
+body.kk-variant-bold .kk-hero-title {
+	font-size: 38px;
+}
+
+body.kk-variant-bold .kk-eyebrow {
+	font-weight: 800;
+	letter-spacing: 0.18em;
+}
+
+body.kk-variant-bold .kk-section-title {
+	font-size: 32px;
+	border-top-width: 4px;
+	padding-top: 14px;
+}
+
+body.kk-variant-bold .kk-masthead,
+body.kk-variant-bold .kk-nav-wrap,
+body.kk-variant-bold .kk-ticker-wrap {
+	border-bottom-width: 2px;
+}
+
+body.kk-variant-bold .kk-card {
+	border-top-width: 2px;
+}
+
+body.kk-variant-bold .kk-category-block-items .kk-card:first-child .kk-card-title {
+	font-size: 28px;
+}
+
+body.kk-variant-bold .kk-picks-list,
+body.kk-variant-bold .kk-sidebar .widget,
+body.kk-variant-bold .kk-comments {
+	border-top-width: 3px;
+}
+
+body.kk-variant-bold .kk-archive-header,
+body.kk-variant-bold .kk-search-header {
+	border-bottom-width: 4px;
+}
+
+body.kk-variant-bold .kk-pick,
+body.kk-variant-bold .kk-sidebar .widget ul li,
+body.kk-variant-bold .kk-plain-list li,
+body.kk-variant-bold .kk-comment-list .comment {
+	border-bottom-width: 2px;
+}
+
+body.kk-variant-bold .kk-article-footer {
+	border-top-width: 2px;
+}
+
+body.kk-variant-bold .kk-site-footer {
+	border-top-width: 4px;
+}
+
+body.kk-variant-bold .kk-entry-content blockquote {
+	border-left-width: 5px;
+}
+
+body.kk-variant-bold .kk-primary-menu a:hover,
+body.kk-variant-bold .kk-primary-menu .current-menu-item > a,
+body.kk-variant-bold .kk-primary-menu .current-menu-ancestor > a {
+	box-shadow: inset 0 -3px 0 var(--kk-gold, #C9962E);
+}
+
+body.kk-variant-bold .kk-pick-number {
+	font-size: 38px;
+}
+
+body.kk-variant-bold .kk-pick-title {
+	font-size: 20px;
+}
+
+body.kk-variant-bold .kk-button {
+	font-weight: 700;
+	border-width: 2px;
+}
+
+body.kk-variant-bold .kk-tag {
+	border-width: 2px;
+}
+
+@media (min-width: 720px) {
+	body.kk-variant-compact .kk-hero-title {
+		font-size: 28px;
+	}
+
+	body.kk-variant-bold .kk-hero-title {
+		font-size: 44px;
+	}
+}
+
+@media (min-width: 1280px) {
+	body.kk-variant-compact .kk-hero-title {
+		font-size: 30px;
+	}
+
+	body.kk-variant-bold .kk-hero-title {
+		font-size: 50px;
+	}
+}
+
 /* --- Responsive ----------------------------------------------------------- */
 
 @media (min-width: 720px) {
@@ -1763,7 +2161,8 @@ html[data-color-scheme="dark"] .custom-logo.is-inverted {
 		grid-template-columns: 1fr 1fr;
 	}
 
-	.kk-card-grid {
+	.kk-card-grid,
+	.kk-latest-items.kk-layout-grid {
 		grid-template-columns: 1fr 1fr;
 	}
 
@@ -1873,7 +2272,8 @@ html[data-color-scheme="dark"] .custom-logo.is-inverted {
 }
 
 @media (min-width: 1280px) {
-	.kk-card-grid {
+	.kk-card-grid,
+	.kk-latest-items.kk-layout-grid {
 		grid-template-columns: repeat(3, 1fr);
 	}
 

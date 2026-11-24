@@ -9,6 +9,7 @@ use KoperasiKita\Breadcrumb\Breadcrumb;
 use KoperasiKita\Customizer\Customizer;
 use KoperasiKita\Features\Features;
 use KoperasiKita\Features\Pwa;
+use KoperasiKita\Features\StyleVariant;
 use KoperasiKita\SEO\Seo;
 use KoperasiKita\Setup\Sidebars;
 use KoperasiKita\Setup\ThemeSupport;
@@ -42,8 +43,11 @@ final class Theme
         add_action('wp_enqueue_scripts', [Enqueue::class, 'register']);
         add_action('admin_enqueue_scripts', [Enqueue::class, 'registerAdmin']);
         add_action('customize_preview_init', [Enqueue::class, 'registerCustomizerPreview']);
+        add_action('wp_enqueue_scripts', [Customizer::class, 'outputPaletteOverrides'], 20);
+        add_filter('get_custom_logo', [Customizer::class, 'filterCustomLogo']);
 
         add_action('init', [Features::class, 'register']);
+        add_action('init', [StyleVariant::class, 'register']);
         add_action('init', [Pwa::class, 'register']);
         add_action('init', [Seo::class, 'register']);
         add_action('init', [Breadcrumb::class, 'register']);

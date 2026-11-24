@@ -320,13 +320,14 @@ final class Customizer
             ],
         ]);
 
-        add_action('wp_enqueue_scripts', [self::class, 'outputPaletteOverrides'], 20);
+        // Palette overrides are hooked from Theme::boot() (wp_enqueue_scripts),
+        // not here: customize_register only fires inside the Customizer, so
+        // hooking here would leave the live site without the overrides.
     }
 
     public static function outputPaletteOverrides(): void
     {
         $overrides = [];
-
         foreach (self::PALETTE_DEFAULTS as $id => $default) {
             $value = (string) get_theme_mod($id, $default);
 
@@ -361,6 +362,20 @@ final class Customizer
         $css .= '}';
 
         wp_add_inline_style('kk-app', $css);
+    }
+
+    /**
+     * Add the is-inverted class to the custom logo image when the
+     * "Invert Logo in Dark Mode" setting is on, so the dark-mode invert
+     * rule in app.css applies on the live site (not just in the preview).
+     */
+    public static function filterCustomLogo(string $html): string
+    {
+        if (!(bool) get_theme_mod('kk_logo_invert_dark', false)) {
+            return $html;
+        }
+
+        return str_replace('class="custom-logo"', 'class="custom-logo is-inverted"', $html);
     }
 
     private static function addSetting(

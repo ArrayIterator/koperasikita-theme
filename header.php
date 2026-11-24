@@ -33,7 +33,7 @@
 					the_custom_logo();
 				} else {
 					?>
-					<a class="kk-brand-mark" href="<?php echo esc_url( home_url( '/' ) ); ?>" rel="home" aria-label="<?php echo esc_attr( get_bloginfo( 'name' ) ); ?>">
+					<a class="kk-brand-mark<?php echo get_theme_mod( 'kk_logo_invert_dark', false ) ? ' is-inverted' : ''; ?>" href="<?php echo esc_url( home_url( '/' ) ); ?>" rel="home" aria-label="<?php echo esc_attr( get_bloginfo( 'name' ) ); ?>">
 						<span class="kk-brand-mark-letter" aria-hidden="true">K</span>
 					</a>
 					<?php
