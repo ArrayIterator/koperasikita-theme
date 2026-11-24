@@ -34,5 +34,6 @@ final class Features
         Comments::register();
         Performance::register();
         FeaturedImage::register();
+        ArticleFontSize::register();
     }
 }

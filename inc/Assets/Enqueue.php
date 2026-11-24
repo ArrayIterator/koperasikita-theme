@@ -64,6 +64,17 @@ final class Enqueue
             }
         }
 
+        // The text-size control is injected by the `the_content` filter
+        // only on singular post/page views, so its script loads only
+        // there — nowhere else on the site.
+        if (is_singular(['post', 'page'])) {
+            $fontSizeJs = ViteLoader::js('src/ts/article-font-size.ts');
+
+            if ($fontSizeJs !== '') {
+                wp_enqueue_script('kk-article-font-size', $fontSizeJs, [], KK_VERSION, true);
+            }
+        }
+
         wp_localize_script('kk-main', 'kkData', [
             'ajaxUrl' => admin_url('admin-ajax.php'),
             'nonce' => wp_create_nonce('koperasikita_nonce'),

@@ -181,9 +181,73 @@
 }
 
 .kk-entry-content {
-	font-size: 17px;
+	font-size: var(--article-font-size, 17px);
 	line-height: 1.75;
 	max-width: var(--kk-content-max);
+}
+
+/* Article text-size control (injected before the content). */
+.kk-font-size {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	justify-content: flex-end;
+	gap: 8px;
+	margin: 0 0 20px;
+}
+
+/* The first paragraph after the control must not add its usual
+   top margin on top of the control's bottom margin. */
+.kk-entry-content > .kk-font-size + * {
+	margin-top: 0;
+}
+
+.kk-font-size-label {
+	font-size: 13px;
+	font-weight: 600;
+	color: var(--kk-muted, #5B6470);
+}
+
+.kk-font-size-btn {
+	min-width: 44px;
+	min-height: 44px;
+	padding: 8px 12px;
+	border: 1px solid var(--kk-border, #E6E3DE);
+	border-radius: var(--kk-radius);
+	background: var(--kk-paper, #FFFFFF);
+	color: var(--kk-ink, #1B1B1B);
+	font-size: 15px;
+	font-weight: 700;
+	line-height: 1;
+	cursor: pointer;
+}
+
+.kk-font-size-btn:hover {
+	border-color: var(--kk-green, #0B6B3A);
+	color: var(--kk-green, #0B6B3A);
+}
+
+.kk-font-size-btn:disabled {
+	opacity: 0.4;
+	cursor: default;
+}
+
+.kk-font-size-btn:disabled:hover {
+	border-color: var(--kk-border, #E6E3DE);
+	color: var(--kk-ink, #1B1B1B);
+}
+
+.kk-font-size-reset {
+	font-size: 14px;
+	font-weight: 600;
+}
+
+.kk-font-size-value {
+	min-width: 52px;
+	text-align: center;
+	font-size: 14px;
+	font-weight: 600;
+	color: var(--kk-ink, #1B1B1B);
 }
 
 .kk-entry-content > * + * {

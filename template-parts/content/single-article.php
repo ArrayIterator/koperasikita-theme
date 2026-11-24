@@ -8,9 +8,10 @@
  */
 
 $thumb_url = \KoperasiKita\Images\FeaturedImage::url( get_the_ID(), 'large' );
+$font_size = \KoperasiKita\Features\ArticleFontSize::currentSize();
 ?>
 
-<article id="post-<?php the_ID(); ?>" <?php post_class( 'kk-article' ); ?>>
+<article id="post-<?php the_ID(); ?>" <?php post_class( 'kk-article' ); ?> style="--article-font-size: <?php echo esc_attr( (string) $font_size ); ?>px">
 	<header class="kk-article-header">
 		<?php
 		$categories = get_the_category();

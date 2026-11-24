@@ -1515,3 +1515,23 @@ msgstr ""
 #: inc/Admin/MarketsSettings.php
 msgid "Change (%)"
 msgstr ""
+
+#: inc/Customizer/Customizer.php
+msgid "Article Text Size"
+msgstr ""
+
+#: inc/Features/ArticleFontSize.php
+msgid "Text size"
+msgstr ""
+
+#: inc/Features/ArticleFontSize.php
+msgid "Decrease text size"
+msgstr ""
+
+#: inc/Features/ArticleFontSize.php
+msgid "Increase text size"
+msgstr ""
+
+#: inc/Features/ArticleFontSize.php
+msgid "Reset"
+msgstr ""

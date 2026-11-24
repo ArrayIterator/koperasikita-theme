@@ -42,6 +42,7 @@ export default defineConfig({
         'weather-css': 'src/css/weather.css',
         agenda: 'src/ts/agenda.ts',
         'agenda-css': 'src/css/agenda.css',
+        'article-font-size': 'src/ts/article-font-size.ts',
         pwa: 'src/ts/pwa.ts',
         'pwa-css': 'src/css/pwa.css',
         'setup-css': 'src/css/setup.css',

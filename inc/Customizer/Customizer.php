@@ -294,6 +294,23 @@ final class Customizer
             ]);
         }
 
+        // Default article text size in pixels. Visitors can change it
+        // with the resize control before the content; their choice is
+        // stored in a cookie and overrides this default.
+        self::addSetting(
+            $wpCustomize,
+            'kk_single_font_size',
+            16,
+            static fn ($value) => self::clampInt($value, 8, 24),
+            'refresh'
+        );
+        $wpCustomize->add_control('kk_single_font_size', [
+            'label' => esc_html__('Article Text Size', 'koperasikita'),
+            'section' => 'koperasikita_single',
+            'type' => 'number',
+            'input_attrs' => ['min' => 8, 'max' => 24],
+        ]);
+
         // Advanced Performance & Cleanup: one checkbox per Performance::options()
         // entry, registered as `kk_adv_<key>`. The pre-release
         // `kk_adv_cleanup_head` toggle is retired: its removals are covered by
