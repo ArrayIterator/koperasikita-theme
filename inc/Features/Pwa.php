@@ -119,7 +119,7 @@ final class Pwa
         $css = ViteLoader::css('src/css/pwa.css');
 
         if ($css !== '') {
-            wp_enqueue_style('kk-pwa', $css, ['kk-app'], KK_VERSION);
+            wp_enqueue_style('kk-pwa', $css, ['kk-responsive'], KK_VERSION);
         }
     }
 
