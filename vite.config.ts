@@ -35,6 +35,7 @@ export default defineConfig({
         'overlays-css': 'src/css/overlays.css',
         'variants-css': 'src/css/variants.css',
         'responsive-css': 'src/css/responsive.css',
+        'newsletter-css': 'src/css/newsletter.css',
         'gold-markets': 'src/ts/gold-markets.ts',
         'gold-markets-css': 'src/css/gold-markets.css',
         weather: 'src/ts/weather.ts',

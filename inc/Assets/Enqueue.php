@@ -118,6 +118,18 @@ final class Enqueue
         self::enqueueStyle('kk-variants', 'src/css/variants.css', ['kk-overlays']);
         self::enqueueStyle('kk-responsive', 'src/css/responsive.css', ['kk-variants']);
 
+        // Newsletter layout styles load on every front-page render, not
+        // only when the saved layout is newsletter — the layout
+        // switcher is a live client-side control, so the restyle must
+        // apply the moment the user clicks Newsletter on a grid/list
+        // page. The rules are scoped to .kk-layout-newsletter /
+        // .kk-newsletter-*, so they are inert on grid/list pages.
+        // Last in the chain (after kk-responsive) so it wins over the
+        // card/layout rules it restyles.
+        if (is_front_page()) {
+            self::enqueueStyle('kk-newsletter', 'src/css/newsletter.css', ['kk-responsive']);
+        }
+
         // Inline styles attached to kk-app (Customizer palette overrides,
         // font variables) must print after the split files, as they did
         // when app.css was one file — otherwise the :root defaults in
