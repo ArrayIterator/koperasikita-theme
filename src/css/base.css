@@ -1,0 +1,251 @@
+/* ==========================================================================
+   Koperasi Kita — base.css — base
+   Base styles: body, fonts, links, eyebrows / section headings,
+   buttons and icon buttons.
+   ========================================================================== */
+
+/* --- Base ---------------------------------------------------------------- */
+
+body {
+	font-family: var(--kk-sans);
+	font-size: 16px;
+	line-height: 1.6;
+	color: var(--kk-ink);
+	background: var(--kk-paper);
+}
+
+body.font-georgia {
+	font-family: var(--kk-serif);
+}
+
+body.font-system {
+	font-family: var(--kk-sans);
+}
+
+body.font-palatino {
+	--kk-serif: 'Palatino Linotype', Palatino, 'Book Antiqua', Georgia, serif;
+	font-family: 'Palatino Linotype', Palatino, 'Book Antiqua', Georgia, serif;
+}
+
+body.font-trebuchet {
+	--kk-serif: 'Trebuchet MS', 'Segoe UI', sans-serif;
+	font-family: 'Trebuchet MS', 'Segoe UI', sans-serif;
+}
+
+body.font-verdana {
+	--kk-serif: Verdana, Geneva, sans-serif;
+	font-family: Verdana, Geneva, sans-serif;
+}
+
+body.font-arial {
+	--kk-serif: Arial, Helvetica, sans-serif;
+	font-family: Arial, Helvetica, sans-serif;
+}
+
+h1,
+h2,
+h3,
+.kk-site-title,
+.kk-hero-title,
+.kk-card-title,
+.kk-article-title,
+.kk-page-title {
+	font-family: var(--kk-serif);
+	font-weight: 700;
+	line-height: 1.2;
+	color: var(--kk-ink);
+}
+
+a {
+	color: var(--kk-green, #0B6B3A);
+}
+
+a:hover,
+a:focus-visible {
+	color: var(--kk-green-dark, #07522C);
+}
+
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+	outline: 2px solid var(--kk-gold, #C9962E);
+	outline-offset: 2px;
+}
+
+.kk-shell {
+	width: 100%;
+	max-width: var(--kk-shell-max);
+	margin-left: auto;
+	margin-right: auto;
+	padding-left: 16px;
+	padding-right: 16px;
+}
+
+.kk-main {
+	padding-bottom: 48px;
+}
+
+.kk-skip-link {
+	position: absolute;
+	left: 16px;
+	top: -48px;
+	z-index: 100;
+	background: var(--kk-green, #0B6B3A);
+	color: #fff;
+	padding: 10px 16px;
+	border-radius: var(--kk-radius);
+	transition: top 0.15s ease;
+}
+
+.kk-skip-link:focus {
+	top: 8px;
+	color: #fff;
+}
+
+/* --- Eyebrow / section headings ------------------------------------------ */
+
+.kk-eyebrow {
+	font-family: var(--kk-sans);
+	font-size: 12px;
+	font-weight: 700;
+	letter-spacing: 0.14em;
+	text-transform: uppercase;
+	color: var(--kk-green, #0B6B3A);
+}
+
+.kk-eyebrow a {
+	color: var(--kk-green, #0B6B3A);
+}
+
+.kk-section-title {
+	font-size: 26px;
+	border-top: 2px solid var(--kk-ink);
+	padding-top: 12px;
+	margin-bottom: 16px;
+}
+
+.kk-section-title a {
+	color: var(--kk-ink);
+}
+
+.kk-section-title a:hover {
+	color: var(--kk-green, #0B6B3A);
+}
+
+.kk-section-head {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: baseline;
+	justify-content: space-between;
+	gap: 8px 16px;
+	margin-bottom: 4px;
+}
+
+.kk-page-title {
+	font-size: var(--kk-title-size);
+	margin-bottom: 16px;
+}
+
+.kk-page-intro {
+	color: var(--kk-muted);
+	max-width: var(--kk-content-max);
+}
+
+.kk-meta {
+	font-size: 13px;
+	color: var(--kk-muted);
+}
+
+.kk-meta a {
+	color: var(--kk-muted);
+}
+
+.kk-meta a:hover {
+	color: var(--kk-green, #0B6B3A);
+}
+
+.kk-meta-sep {
+	margin: 0 6px;
+}
+
+.kk-more-link a {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	font-weight: 600;
+}
+
+.kk-plain-list li {
+	padding: 10px 0;
+	border-bottom: 1px solid var(--kk-border);
+}
+
+.kk-plain-list li:last-child {
+	border-bottom: 0;
+}
+
+.kk-plain-list a {
+	color: var(--kk-ink);
+}
+
+.kk-plain-list a:hover {
+	color: var(--kk-green, #0B6B3A);
+}
+
+/* --- Buttons / icon buttons ---------------------------------------------- */
+
+.kk-button {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 8px;
+	min-height: 44px;
+	padding: 10px 20px;
+	background: var(--kk-green, #0B6B3A);
+	color: #fff;
+	font-weight: 600;
+	font-size: 15px;
+	border-radius: var(--kk-radius);
+	border: 1px solid var(--kk-green, #0B6B3A);
+}
+
+.kk-button:hover,
+.kk-button:focus-visible {
+	background: var(--kk-green-dark, #07522C);
+	color: #fff;
+}
+
+.kk-button-ghost {
+	background: transparent;
+	color: var(--kk-ink);
+	border-color: var(--kk-border);
+}
+
+.kk-button-ghost:hover,
+.kk-button-ghost:focus-visible {
+	background: var(--kk-surface);
+	color: var(--kk-ink);
+	border-color: var(--kk-muted);
+}
+
+.kk-icon-button {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	min-width: 44px;
+	min-height: 44px;
+	padding: 8px;
+	color: var(--kk-ink);
+	border-radius: var(--kk-radius);
+}
+
+.kk-icon-button:hover {
+	background: var(--kk-surface);
+	color: var(--kk-green, #0B6B3A);
+}
+
+.kk-icon-button svg {
+	display: block;
+}

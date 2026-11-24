@@ -1,0 +1,64 @@
+/* ==========================================================================
+   Koperasi Kita — home.css — home
+   Home layout and hero.
+   ========================================================================== */
+
+/* --- Home layout ---------------------------------------------------------- */
+
+.kk-home {
+	padding-top: 24px;
+}
+
+.kk-home-layout {
+	display: grid;
+	gap: 32px;
+	margin-top: 32px;
+}
+
+.kk-home-secondary {
+	display: grid;
+	gap: 32px;
+	align-content: start;
+}
+
+/* --- Hero ----------------------------------------------------------------- */
+
+.kk-hero {
+	display: grid;
+	gap: 20px;
+}
+
+.kk-hero-lead-media img {
+	width: 100%;
+	aspect-ratio: 16 / 9;
+	object-fit: cover;
+	border-radius: var(--kk-radius);
+}
+
+.kk-hero-lead-body {
+	padding-top: 16px;
+}
+
+.kk-hero-title {
+	font-size: 30px;
+	margin: 8px 0 10px;
+}
+
+.kk-hero-title a {
+	color: var(--kk-ink);
+}
+
+.kk-hero-title a:hover {
+	color: var(--kk-green, #0B6B3A);
+}
+
+.kk-hero-excerpt {
+	font-size: var(--kk-excerpt-size);
+	color: var(--kk-muted);
+	margin-bottom: 10px;
+}
+
+.kk-hero-grid {
+	display: grid;
+	gap: 20px;
+}

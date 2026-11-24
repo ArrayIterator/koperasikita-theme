@@ -1,0 +1,83 @@
+/* ==========================================================================
+   Koperasi Kita — cards.css — cards
+   News cards, shared by home, archive, search, single and index.
+   ========================================================================== */
+
+/* --- Cards ---------------------------------------------------------------- */
+
+.kk-card-grid {
+	display: grid;
+	gap: 24px;
+}
+
+.kk-card-grid-3 {
+	grid-template-columns: 1fr;
+}
+
+.kk-card {
+	border-top: 1px solid var(--kk-border);
+	padding-top: 16px;
+}
+
+.kk-card-media img {
+	width: 100%;
+	aspect-ratio: 16 / 9;
+	object-fit: cover;
+	border-radius: var(--kk-radius);
+}
+
+.kk-card-body {
+	padding-top: 12px;
+}
+
+.kk-card-title {
+	font-size: var(--kk-card-title-size);
+	margin: 6px 0 8px;
+}
+
+.kk-card-title a {
+	color: var(--kk-ink);
+}
+
+.kk-card-title a:hover {
+	color: var(--kk-green, #0B6B3A);
+}
+
+.kk-card-excerpt {
+	font-size: var(--kk-excerpt-size);
+	color: var(--kk-muted);
+	margin-bottom: 10px;
+	display: -webkit-box;
+	-webkit-line-clamp: 3;
+	-webkit-box-orient: vertical;
+	overflow: hidden;
+}
+
+.kk-bookmark-button {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	margin-top: 10px;
+	min-height: 44px;
+	padding: 8px 12px;
+	border: 1px solid var(--kk-border);
+	border-radius: var(--kk-radius);
+	font-size: 13px;
+	font-weight: 600;
+	color: var(--kk-ink);
+}
+
+.kk-bookmark-button:hover {
+	border-color: var(--kk-green, #0B6B3A);
+	color: var(--kk-green, #0B6B3A);
+}
+
+.kk-bookmark-button[aria-pressed="true"] {
+	background: var(--kk-green, #0B6B3A);
+	border-color: var(--kk-green, #0B6B3A);
+	color: #fff;
+}
+
+.kk-bookmark-button[aria-pressed="true"] svg {
+	fill: currentColor;
+}

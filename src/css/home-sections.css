@@ -1,0 +1,103 @@
+/* ==========================================================================
+   Koperasi Kita — home-sections.css — home sections
+   Home sections: latest-news layouts, editor picks, category blocks.
+   ========================================================================== */
+
+/* Latest news layouts */
+.kk-latest {
+	margin-top: 8px;
+}
+
+.kk-latest-items.kk-layout-grid {
+	display: grid;
+	gap: 24px;
+}
+
+.kk-latest-items.kk-layout-list .kk-card {
+	display: grid;
+	grid-template-columns: 120px 1fr;
+	gap: 16px;
+}
+
+.kk-latest-items.kk-layout-list .kk-card-media img {
+	aspect-ratio: 4 / 3;
+}
+
+.kk-layout-switcher {
+	display: flex;
+	border: 1px solid var(--kk-border);
+	border-radius: var(--kk-radius);
+	overflow: hidden;
+}
+
+.kk-layout-button {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	min-height: 36px;
+	padding: 6px 12px;
+	font-size: 13px;
+	font-weight: 600;
+	color: var(--kk-muted);
+}
+
+.kk-layout-button.is-active {
+	background: var(--kk-green, #0B6B3A);
+	color: #fff;
+}
+
+/* --- Editor picks --------------------------------------------------------- */
+
+.kk-picks-list {
+	counter-reset: pick;
+	border-top: 2px solid var(--kk-ink);
+}
+
+.kk-pick {
+	display: flex;
+	gap: 16px;
+	padding: 16px 0;
+	border-bottom: 1px solid var(--kk-border);
+}
+
+.kk-pick-number {
+	font-family: var(--kk-serif);
+	font-size: 32px;
+	line-height: 1;
+	font-weight: 700;
+	color: var(--kk-gold, #C9962E);
+	flex: 0 0 auto;
+	width: 32px;
+}
+
+.kk-pick-title {
+	font-size: 18px;
+	margin-bottom: 6px;
+}
+
+.kk-pick-title a {
+	color: var(--kk-ink);
+}
+
+.kk-pick-title a:hover {
+	color: var(--kk-green, #0B6B3A);
+}
+
+/* --- Category blocks ------------------------------------------------------ */
+
+.kk-category-block {
+	margin-top: 40px;
+}
+
+.kk-category-block-items {
+	display: grid;
+	gap: 24px;
+}
+
+.kk-category-block-items .kk-card:first-child .kk-card-title {
+	font-size: 24px;
+}
+
+.kk-more-link {
+	margin-top: 16px;
+}

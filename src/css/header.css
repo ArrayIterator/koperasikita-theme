@@ -1,0 +1,321 @@
+/* ==========================================================================
+   Koperasi Kita — header.css — header
+   Site header: top bar, colour-scheme toggle, masthead,
+   primary nav and the news ticker.
+   ========================================================================== */
+
+/* --- Top bar -------------------------------------------------------------- */
+
+.kk-topbar {
+	border-bottom: 1px solid var(--kk-border);
+	font-size: 13px;
+}
+
+.kk-topbar-inner {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 12px;
+	min-height: 44px;
+}
+
+.kk-topbar-date {
+	color: var(--kk-muted);
+}
+
+.kk-topbar-right {
+	display: flex;
+	align-items: center;
+	gap: 4px;
+	margin-left: auto;
+}
+
+.kk-topbar-weather {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	color: var(--kk-muted);
+	padding-right: 8px;
+	border-right: 1px solid var(--kk-border);
+	margin-right: 4px;
+	min-height: 24px;
+}
+
+.kk-topbar-weather:empty {
+	display: none;
+}
+
+.kk-search-open-label {
+	margin-left: 6px;
+	font-size: 14px;
+}
+
+/* Colour-scheme toggle: show the icon for the mode you will switch to. */
+html[data-color-scheme="dark"] .kk-icon-sun,
+html[data-color-scheme="light"] .kk-icon-moon,
+html[data-color-scheme="system"] .kk-icon-moon {
+	display: none;
+}
+
+html[data-color-scheme="dark"] .kk-icon-moon,
+html[data-color-scheme="light"] .kk-icon-sun,
+html[data-color-scheme="system"] .kk-icon-sun {
+	display: block;
+}
+
+/* --- Masthead ------------------------------------------------------------- */
+
+.kk-masthead {
+	padding: 24px 0 20px;
+	border-bottom: 1px solid var(--kk-border);
+}
+
+.kk-masthead-inner {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 16px;
+}
+
+.kk-brand {
+	display: flex;
+	align-items: center;
+	gap: 14px;
+	min-width: 0;
+}
+
+.kk-brand .custom-logo {
+	width: auto;
+	max-height: 64px;
+}
+
+.kk-brand-mark {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 56px;
+	height: 56px;
+	flex: 0 0 auto;
+	background: var(--kk-green, #0B6B3A);
+	color: #fff;
+	border-radius: var(--kk-radius);
+}
+
+.kk-brand-mark-letter {
+	font-family: var(--kk-serif);
+	font-size: 34px;
+	font-weight: 700;
+	line-height: 1;
+}
+
+.kk-brand-text {
+	min-width: 0;
+}
+
+.kk-site-title {
+	font-size: 32px;
+	line-height: 1.1;
+}
+
+.kk-site-title a {
+	color: var(--kk-ink);
+}
+
+.kk-site-title a:hover {
+	color: var(--kk-green, #0B6B3A);
+}
+
+.kk-site-tagline {
+	font-size: 14px;
+	color: var(--kk-muted);
+}
+
+.kk-masthead-date {
+	display: none;
+	font-size: 13px;
+	color: var(--kk-muted);
+	white-space: nowrap;
+}
+
+/* --- Primary nav ---------------------------------------------------------- */
+
+.kk-nav-wrap {
+	position: sticky;
+	top: 0;
+	z-index: 40;
+	background: var(--kk-paper);
+	border-bottom: 1px solid var(--kk-border);
+}
+
+.kk-nav-inner {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+}
+
+.kk-menu-toggle {
+	display: inline-flex;
+}
+
+.kk-primary-nav {
+	display: none;
+	flex: 1;
+	min-width: 0;
+}
+
+.kk-primary-nav.is-open {
+	display: block;
+	position: absolute;
+	left: 0;
+	right: 0;
+	top: 100%;
+	background: var(--kk-paper);
+	border-bottom: 1px solid var(--kk-border);
+	padding: 8px 16px 16px;
+}
+
+.kk-primary-menu {
+	display: flex;
+	flex-direction: column;
+}
+
+.kk-primary-menu a {
+	display: block;
+	padding: 12px 4px;
+	color: var(--kk-ink);
+	font-weight: 600;
+	font-size: 15px;
+	border-bottom: 1px solid var(--kk-border);
+}
+
+.kk-primary-menu a:hover,
+.kk-primary-menu .current-menu-item > a,
+.kk-primary-menu .current-menu-ancestor > a {
+	color: var(--kk-green, #0B6B3A);
+	box-shadow: inset 0 -2px 0 var(--kk-gold, #C9962E);
+}
+
+.kk-primary-menu .sub-menu a {
+	padding-left: 20px;
+	font-weight: 400;
+}
+
+.kk-pwa-install {
+	margin-left: auto;
+	flex: 0 0 auto;
+}
+
+/* --- Ticker (content width, bouncing fade) -------------------------------- */
+
+.kk-ticker-wrap {
+	border-bottom: 1px solid var(--kk-border);
+	background: var(--kk-surface);
+}
+
+.kk-ticker {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	min-height: 48px;
+	padding-top: 4px;
+	padding-bottom: 4px;
+}
+
+.kk-ticker-label {
+	flex: 0 0 auto;
+	font-size: 12px;
+	font-weight: 700;
+	letter-spacing: 0.12em;
+	text-transform: uppercase;
+	color: #fff;
+	background: var(--kk-gold, #C9962E);
+	padding: 5px 10px;
+	border-radius: var(--kk-radius);
+}
+
+.kk-ticker-list {
+	position: relative;
+	flex: 1;
+	min-width: 0;
+	height: 1.5em;
+	overflow: hidden;
+}
+
+.kk-ticker-item {
+	position: absolute;
+	inset: 0;
+	opacity: 0;
+	visibility: hidden;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	line-height: 1.5;
+}
+
+.kk-ticker-item a {
+	color: var(--kk-ink);
+	font-weight: 600;
+}
+
+.kk-ticker-item a:hover {
+	color: var(--kk-green, #0B6B3A);
+}
+
+.kk-ticker-item.is-active {
+	opacity: 1;
+	visibility: visible;
+	animation: kk-ticker-in 0.5s ease;
+}
+
+@keyframes kk-ticker-in {
+	0% {
+		opacity: 0;
+		transform: translateY(14px);
+	}
+	55% {
+		opacity: 1;
+		transform: translateY(-3px);
+	}
+	100% {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
+.kk-ticker-item.is-leaving {
+	animation: kk-ticker-out 0.4s ease forwards;
+}
+
+@keyframes kk-ticker-out {
+	0% {
+		opacity: 1;
+		transform: translateY(0);
+	}
+	100% {
+		opacity: 0;
+		transform: translateY(-12px);
+	}
+}
+
+.kk-ticker-controls {
+	display: flex;
+	align-items: center;
+	flex: 0 0 auto;
+}
+
+.kk-ticker-controls .kk-icon-button {
+	min-width: 36px;
+	min-height: 36px;
+}
+
+.kk-ticker-toggle .kk-icon-play {
+	display: none;
+}
+
+.kk-ticker-toggle.is-paused .kk-icon-play {
+	display: block;
+}
+
+.kk-ticker-toggle.is-paused .kk-icon-pause {
+	display: none;
+}

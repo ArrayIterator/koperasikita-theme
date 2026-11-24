@@ -1,0 +1,211 @@
+/* ==========================================================================
+   Koperasi Kita — responsive.css — responsive
+   Responsive rules, reduced motion and print. Loads last.
+   ========================================================================== */
+
+/* --- Responsive ----------------------------------------------------------- */
+
+@media (min-width: 720px) {
+	.kk-shell {
+		padding-left: 24px;
+		padding-right: 24px;
+	}
+
+	.kk-hero-title {
+		font-size: 36px;
+	}
+
+	.kk-hero-grid {
+		grid-template-columns: 1fr 1fr;
+	}
+
+	.kk-card-grid,
+	.kk-latest-items.kk-layout-grid {
+		grid-template-columns: 1fr 1fr;
+	}
+
+	.kk-category-block-items {
+		grid-template-columns: 1fr 1fr;
+	}
+
+	.kk-category-block-items .kk-card:first-child {
+		grid-column: 1 / -1;
+	}
+
+	.kk-footer-grid {
+		grid-template-columns: 1fr 1fr;
+	}
+
+	.kk-masthead-date {
+		display: block;
+	}
+}
+
+@media (min-width: 1024px) {
+	.kk-menu-toggle {
+		display: none;
+	}
+
+	.kk-primary-nav {
+		display: block;
+	}
+
+	.kk-primary-nav.is-open {
+		position: static;
+		padding: 0;
+		border-bottom: 0;
+	}
+
+	.kk-primary-menu {
+		flex-direction: row;
+		flex-wrap: wrap;
+		gap: 4px;
+	}
+
+	.kk-primary-menu > li {
+		position: relative;
+	}
+
+	.kk-primary-menu a {
+		padding: 14px 12px;
+		border-bottom: 0;
+	}
+
+	.kk-primary-menu .sub-menu {
+		display: none;
+		position: absolute;
+		top: 100%;
+		left: 0;
+		min-width: 220px;
+		background: var(--kk-paper);
+		border: 1px solid var(--kk-border);
+		border-radius: var(--kk-radius);
+		padding: 8px 0;
+		z-index: 60;
+	}
+
+	.kk-primary-menu li:hover > .sub-menu,
+	.kk-primary-menu li:focus-within > .sub-menu {
+		display: block;
+	}
+
+	.kk-primary-menu .sub-menu a {
+		padding: 10px 16px;
+	}
+
+	.kk-hero {
+		grid-template-columns: 1.6fr 1fr;
+	}
+
+	.kk-hero-grid {
+		grid-template-columns: 1fr 1fr;
+	}
+
+	.kk-home-layout {
+		grid-template-columns: 1fr var(--kk-sidebar-width);
+	}
+
+	.kk-archive-layout,
+	.kk-single-layout,
+	.kk-page-layout {
+		grid-template-columns: 1fr var(--kk-sidebar-width);
+	}
+
+	.kk-card-grid-3 {
+		grid-template-columns: repeat(3, 1fr);
+	}
+
+	.kk-category-block-items {
+		grid-template-columns: 1.4fr 1fr 1fr 1fr;
+	}
+
+	.kk-category-block-items .kk-card:first-child {
+		grid-column: auto;
+		grid-row: span 1;
+	}
+
+	.kk-footer-grid {
+		grid-template-columns: 1.4fr 1fr 1.2fr;
+	}
+}
+
+@media (min-width: 1280px) {
+	.kk-card-grid,
+	.kk-latest-items.kk-layout-grid {
+		grid-template-columns: repeat(3, 1fr);
+	}
+
+	.kk-hero-title {
+		font-size: 42px;
+	}
+}
+
+@media (max-width: 767px) {
+	.kk-bottom-nav {
+		display: block;
+		position: fixed;
+		left: 0;
+		right: 0;
+		bottom: 0;
+		z-index: 50;
+		background: var(--kk-paper);
+		border-top: 1px solid var(--kk-border);
+		padding-bottom: env(safe-area-inset-bottom, 0px);
+	}
+
+	body.has-bottom-nav {
+		padding-bottom: 64px;
+	}
+
+	.kk-back-to-top {
+		bottom: 84px;
+	}
+}
+
+/* --- Reduced motion ------------------------------------------------------- */
+
+@media (prefers-reduced-motion: reduce) {
+	*,
+	*::before,
+	*::after {
+		animation-duration: 0.01ms !important;
+		animation-iteration-count: 1 !important;
+		transition-duration: 0.01ms !important;
+	}
+
+	.kk-ticker-item.is-active,
+	.kk-ticker-item.is-leaving {
+		animation: none;
+	}
+}
+
+/* --- Print (articles) ----------------------------------------------------- */
+
+@media print {
+	.kk-topbar,
+	.kk-nav-wrap,
+	.kk-ticker-wrap,
+	.kk-bottom-nav,
+	.kk-back-to-top,
+	.kk-sidebar,
+	.kk-footer-subscribe,
+	.kk-share,
+	.kk-comments,
+	.kk-bookmark-button,
+	.kk-layout-switcher {
+		display: none !important;
+	}
+
+	body {
+		color: #000;
+		background: #fff;
+	}
+
+	.kk-shell {
+		max-width: none;
+	}
+
+	.kk-entry-content {
+		max-width: none;
+	}
+}

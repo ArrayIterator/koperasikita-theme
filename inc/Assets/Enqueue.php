@@ -12,11 +12,7 @@ final class Enqueue
 {
     public static function register(): void
     {
-        $css = ViteLoader::css('src/css/app.css');
-
-        if ($css !== '') {
-            wp_enqueue_style('kk-app', $css, [], KK_VERSION);
-        }
+        self::enqueueSplitStyles();
 
         Fonts::enqueue();
 
@@ -30,7 +26,7 @@ final class Enqueue
             $goldCss = ViteLoader::css('src/css/gold-markets.css');
 
             if ($goldCss !== '') {
-                wp_enqueue_style('kk-gold-markets', $goldCss, ['kk-app'], KK_VERSION);
+                wp_enqueue_style('kk-gold-markets', $goldCss, ['kk-responsive'], KK_VERSION);
             }
 
             $goldJs = ViteLoader::js('src/ts/gold-markets.ts');
@@ -44,7 +40,7 @@ final class Enqueue
             $weatherCss = ViteLoader::css('src/css/weather.css');
 
             if ($weatherCss !== '') {
-                wp_enqueue_style('kk-weather', $weatherCss, ['kk-app'], KK_VERSION);
+                wp_enqueue_style('kk-weather', $weatherCss, ['kk-responsive'], KK_VERSION);
             }
 
             $weatherJs = ViteLoader::js('src/ts/weather.ts');
@@ -58,7 +54,7 @@ final class Enqueue
             $agendaCss = ViteLoader::css('src/css/agenda.css');
 
             if ($agendaCss !== '') {
-                wp_enqueue_style('kk-agenda', $agendaCss, ['kk-app'], KK_VERSION);
+                wp_enqueue_style('kk-agenda', $agendaCss, ['kk-responsive'], KK_VERSION);
             }
 
             $agendaJs = ViteLoader::js('src/ts/agenda.ts');
@@ -87,6 +83,96 @@ final class Enqueue
         }, 10, 2);
 
         Fonts::outputFontVariables();
+    }
+
+    /**
+     * The split stylesheets, in the exact order of the sections in the
+     * old app.css monolith — the cascade depends on it. The shell
+     * (reset, tokens, base, header, cards, footer, overlays, variants,
+     * responsive) loads on every page. Home-only and content styles
+     * load only where their templates can appear.
+     */
+    private static function enqueueSplitStyles(): void
+    {
+        self::enqueueStyle('kk-app', 'src/css/app.css', []);
+        self::enqueueStyle('kk-tokens', 'src/css/tokens.css', ['kk-app']);
+        self::enqueueStyle('kk-base', 'src/css/base.css', ['kk-tokens']);
+        self::enqueueStyle('kk-header', 'src/css/header.css', ['kk-base']);
+
+        if (is_front_page()) {
+            self::enqueueStyle('kk-home', 'src/css/home.css', ['kk-header']);
+        }
+
+        self::enqueueStyle('kk-cards', 'src/css/cards.css', ['kk-header']);
+
+        if (is_front_page()) {
+            self::enqueueStyle('kk-home-sections', 'src/css/home-sections.css', ['kk-cards']);
+        }
+
+        if (self::needsContentStyles()) {
+            self::enqueueStyle('kk-content', 'src/css/content.css', ['kk-cards']);
+        }
+
+        self::enqueueStyle('kk-footer', 'src/css/footer.css', ['kk-cards']);
+        self::enqueueStyle('kk-overlays', 'src/css/overlays.css', ['kk-footer']);
+        self::enqueueStyle('kk-variants', 'src/css/variants.css', ['kk-overlays']);
+        self::enqueueStyle('kk-responsive', 'src/css/responsive.css', ['kk-variants']);
+
+        // Inline styles attached to kk-app (Customizer palette overrides,
+        // font variables) must print after the split files, as they did
+        // when app.css was one file — otherwise the :root defaults in
+        // tokens.css would win over the user's font choice. The palette
+        // overrides are added at priority 20, so move them late.
+        add_action('wp_enqueue_scripts', [self::class, 'moveAppInlineStyles'], 30);
+    }
+
+    private static function enqueueStyle(string $handle, string $entry, array $deps): void
+    {
+        $css = ViteLoader::css($entry);
+
+        if ($css !== '') {
+            wp_enqueue_style($handle, $css, $deps, KK_VERSION);
+        }
+    }
+
+    /**
+     * Content styles cover archive / search / page layouts, the sidebar
+     * and widget shells, single articles, breadcrumbs, comments,
+     * pagination, the search form, 404 and bookmarks. Every frontend
+     * template uses at least one of those — the front page renders the
+     * news sidebar, index/archive/search/single render cards plus the
+     * sidebar, pages render breadcrumbs, and the bookmarks/404 pages
+     * are singular templates — so this is every frontend render.
+     */
+    private static function needsContentStyles(): bool
+    {
+        return is_front_page() || is_home() || is_archive() || is_search() || is_singular() || is_404();
+    }
+
+    /**
+     * Re-attach any inline styles added to kk-app to the last split
+     * stylesheet, so they keep winning over the :root defaults in
+     * tokens.css exactly as they did when app.css was a single file.
+     */
+    public static function moveAppInlineStyles(): void
+    {
+        global $wp_styles;
+
+        if (! isset($wp_styles->registered['kk-app'], $wp_styles->registered['kk-responsive'])) {
+            return;
+        }
+
+        $app = $wp_styles->registered['kk-app'];
+        $last = $wp_styles->registered['kk-responsive'];
+
+        $after = $app->extra['after'] ?? [];
+
+        if ($after === []) {
+            return;
+        }
+
+        $app->extra['after'] = [];
+        $last->extra['after'] = array_merge($last->extra['after'] ?? [], (array) $after);
     }
 
     /**

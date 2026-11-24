@@ -1,0 +1,158 @@
+/* ==========================================================================
+   Koperasi Kita — footer.css — footer
+   Footer, mobile bottom nav and back-to-top button.
+   ========================================================================== */
+
+/* --- Footer --------------------------------------------------------------- */
+
+.kk-site-footer {
+	border-top: 2px solid var(--kk-ink);
+	background: var(--kk-surface);
+	padding: 40px 0 24px;
+	margin-top: 48px;
+}
+
+.kk-footer-grid {
+	display: grid;
+	gap: 32px;
+}
+
+.kk-footer-heading {
+	font-size: 12px;
+	font-weight: 700;
+	letter-spacing: 0.14em;
+	text-transform: uppercase;
+	color: var(--kk-green, #0B6B3A);
+	margin-bottom: 12px;
+}
+
+.kk-footer-site-name {
+	font-family: var(--kk-serif);
+	font-size: 22px;
+	font-weight: 700;
+}
+
+.kk-footer-description,
+.kk-footer-note {
+	font-size: 14px;
+	color: var(--kk-muted);
+	margin-top: 8px;
+}
+
+.kk-footer-logo .custom-logo {
+	max-height: 48px;
+	width: auto;
+}
+
+.kk-footer-menu li {
+	padding: 6px 0;
+}
+
+.kk-footer-menu a {
+	color: var(--kk-ink);
+	font-weight: 600;
+	font-size: 15px;
+}
+
+.kk-footer-menu a:hover {
+	color: var(--kk-green, #0B6B3A);
+}
+
+.kk-footer-subscribe .kk-subscribe-form,
+.kk-footer-subscribe form {
+	display: flex;
+	gap: 8px;
+	margin-top: 12px;
+}
+
+.kk-footer-subscribe input[type="email"] {
+	flex: 1;
+	min-width: 0;
+	min-height: 44px;
+	padding: 10px 12px;
+	border: 1px solid var(--kk-border);
+	border-radius: var(--kk-radius);
+	background: var(--kk-paper);
+	color: var(--kk-ink);
+}
+
+.kk-footer-bottom {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px 24px;
+	justify-content: space-between;
+	margin-top: 32px;
+	padding-top: 16px;
+	border-top: 1px solid var(--kk-border);
+	font-size: 13px;
+	color: var(--kk-muted);
+}
+
+/* --- Mobile bottom nav ---------------------------------------------------- */
+
+.kk-bottom-nav {
+	display: none;
+}
+
+body.has-bottom-nav {
+	padding-bottom: 64px;
+}
+
+.kk-bottom-nav-menu {
+	display: flex;
+}
+
+.kk-bottom-nav-menu li {
+	flex: 1;
+}
+
+.kk-bottom-nav-menu a {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 2px;
+	padding: 8px 4px calc(8px + env(safe-area-inset-bottom, 0px));
+	font-size: 11px;
+	font-weight: 600;
+	color: var(--kk-muted);
+	min-height: 56px;
+	justify-content: center;
+}
+
+.kk-bottom-nav-menu a:hover,
+.kk-bottom-nav-menu .current-menu-item > a,
+.kk-bottom-nav-menu a.is-active {
+	color: var(--kk-green, #0B6B3A);
+}
+
+.kk-bottom-nav-menu svg {
+	display: block;
+}
+
+/* --- Back to top ---------------------------------------------------------- */
+
+.kk-back-to-top {
+	position: fixed;
+	right: 16px;
+	bottom: 80px;
+	z-index: 50;
+	width: 48px;
+	height: 48px;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	background: var(--kk-green, #0B6B3A);
+	color: #fff;
+	border-radius: 50%;
+	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+	transform: rotate(-90deg);
+}
+
+.kk-back-to-top:hover {
+	background: var(--kk-green-dark, #07522C);
+	color: #fff;
+}
+
+.kk-back-to-top[hidden] {
+	display: none;
+}

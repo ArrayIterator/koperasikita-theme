@@ -1,0 +1,79 @@
+/* ==========================================================================
+   Koperasi Kita — overlays.css — overlays
+   Modal / popup (always centred + blurred backdrop).
+   ========================================================================== */
+
+/* --- Modal / popup (always centred + blurred backdrop) -------------------- */
+
+.kk-modal {
+	position: fixed;
+	inset: 0;
+	z-index: 100;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: 16px;
+}
+
+.kk-modal[hidden] {
+	display: none;
+}
+
+.kk-modal-backdrop {
+	position: absolute;
+	inset: 0;
+	background: rgba(0, 0, 0, 0.55);
+	backdrop-filter: blur(6px);
+	-webkit-backdrop-filter: blur(6px);
+}
+
+.kk-modal-dialog {
+	position: relative;
+	width: 100%;
+	max-width: 520px;
+	max-height: calc(100vh - 48px);
+	overflow-y: auto;
+	background: var(--kk-paper);
+	border: 1px solid var(--kk-border);
+	border-radius: 4px;
+	padding: 28px 24px 24px;
+}
+
+.kk-modal-close {
+	position: absolute;
+	top: 8px;
+	right: 8px;
+}
+
+.kk-modal-title {
+	font-size: 26px;
+	margin-bottom: 10px;
+	padding-right: 40px;
+}
+
+.kk-modal-text {
+	color: var(--kk-muted);
+	margin-bottom: 16px;
+}
+
+.kk-modal-actions {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 12px;
+	margin-top: 20px;
+}
+
+.kk-search-dialog .search-form {
+	max-width: none;
+	margin-top: 16px;
+}
+
+.kk-install-benefits {
+	list-style: disc;
+	padding-left: 20px;
+	color: var(--kk-muted);
+}
+
+.kk-install-benefits li + li {
+	margin-top: 6px;
+}

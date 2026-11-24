@@ -1,0 +1,20 @@
+/* ==========================================================================
+   Koperasi Kita — tokens.css — tokens
+   Design tokens: sizes, fonts, radii, layout widths.
+   The Customizer overrides these inline; the palette colours live
+   in the Customizer, not here.
+   ========================================================================== */
+
+/* --- Tokens (defaults; the Customizer overrides these inline) ------------ */
+
+:root {
+	--kk-title-size: 40px;
+	--kk-card-title-size: 20px;
+	--kk-excerpt-size: 14px;
+	--kk-serif: Georgia, 'Times New Roman', serif;
+	--kk-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+	--kk-radius: 3px;
+	--kk-shell-max: 1240px;
+	--kk-content-max: 720px;
+	--kk-sidebar-width: 320px;
+}
