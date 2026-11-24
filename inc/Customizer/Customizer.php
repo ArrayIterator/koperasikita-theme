@@ -226,6 +226,100 @@ final class Customizer
             ]);
         }
 
+        $checkboxes = [
+            'kk_single_featured' => ['koperasikita_single', 'Show Featured Image', true],
+            'kk_single_author_box' => ['koperasikita_single', 'Show Author Box', true],
+            'kk_single_related' => ['koperasikita_single', 'Show Related News', true],
+            'kk_single_reading_time' => ['koperasikita_single', 'Show Reading Time', true],
+            'kk_comments_enabled' => ['koperasikita_comments', 'Enable Comments', true],
+            'kk_comments_avatars' => ['koperasikita_comments', 'Show Comment Avatars', true],
+            'kk_images_lazy' => ['koperasikita_media', 'Lazy-Load Images', true],
+            'kk_images_srcset' => ['koperasikita_media', 'Enable Responsive Images', true],
+            'kk_adv_disable_emoji' => ['koperasikita_advanced', 'Disable Emoji Scripts and Styles', false],
+            'kk_adv_disable_embeds' => ['koperasikita_advanced', 'Disable Embeds', false],
+            'kk_adv_remove_query_strings' => ['koperasikita_advanced', 'Remove Query Strings from Asset URLs', false],
+            'kk_adv_cleanup_head' => ['koperasikita_advanced', 'Remove Extra Tags from <head>', false],
+            'kk_breadcrumb_enabled' => ['koperasikita_breadcrumb', 'Show Breadcrumbs', true],
+            'kk_breadcrumb_home' => ['koperasikita_breadcrumb', 'Show Breadcrumbs on the Homepage', false],
+        ];
+
+        foreach ($checkboxes as $id => [$section, $label, $default]) {
+            self::addSetting($wpCustomize, $id, $default, [self::class, 'sanitizeBool'], 'refresh');
+            $wpCustomize->add_control($id, [
+                'label' => esc_html__($label, 'koperasikita'),
+                'section' => $section,
+                'type' => 'checkbox',
+            ]);
+        }
+
+        self::addSetting(
+            $wpCustomize,
+            'kk_comments_order',
+            'oldest',
+            [self::class, 'sanitizeOrder'],
+            'refresh'
+        );
+        $wpCustomize->add_control('kk_comments_order', [
+            'label' => esc_html__('Comment Order', 'koperasikita'),
+            'section' => 'koperasikita_comments',
+            'type' => 'select',
+            'choices' => [
+                'oldest' => esc_html__('Oldest First', 'koperasikita'),
+                'newest' => esc_html__('Newest First', 'koperasikita'),
+            ],
+        ]);
+
+        self::addSetting(
+            $wpCustomize,
+            'kk_images_quality',
+            82,
+            static fn ($value) => self::clampInt($value, 60, 100),
+            'refresh'
+        );
+        $wpCustomize->add_control('kk_images_quality', [
+            'label' => esc_html__('JPEG Quality', 'koperasikita'),
+            'section' => 'koperasikita_media',
+            'type' => 'number',
+            'input_attrs' => ['min' => 60, 'max' => 100],
+        ]);
+
+        self::addSetting(
+            $wpCustomize,
+            'kk_breadcrumb_separator',
+            '›',
+            [self::class, 'sanitizeSeparator'],
+            'refresh'
+        );
+        $wpCustomize->add_control('kk_breadcrumb_separator', [
+            'label' => esc_html__('Breadcrumb Separator', 'koperasikita'),
+            'section' => 'koperasikita_breadcrumb',
+            'type' => 'select',
+            'choices' => [
+                '›' => esc_html__('› Angle Bracket', 'koperasikita'),
+                '/' => esc_html__('/ Slash', 'koperasikita'),
+                '»' => esc_html__('» Double Angle Bracket', 'koperasikita'),
+                '—' => esc_html__('— Em Dash', 'koperasikita'),
+            ],
+        ]);
+
+        self::addSetting(
+            $wpCustomize,
+            'kk_style_variant',
+            'classic',
+            [self::class, 'sanitizeVariant'],
+            'postMessage'
+        );
+        $wpCustomize->add_control('kk_style_variant', [
+            'label' => esc_html__('Style Variant', 'koperasikita'),
+            'section' => 'koperasikita_accessibility',
+            'type' => 'select',
+            'choices' => [
+                'classic' => esc_html__('Classic Editorial', 'koperasikita'),
+                'compact' => esc_html__('Compact', 'koperasikita'),
+                'bold' => esc_html__('Bold Headlines', 'koperasikita'),
+            ],
+        ]);
+
         add_action('wp_enqueue_scripts', [self::class, 'outputPaletteOverrides'], 20);
     }
 
@@ -300,6 +394,25 @@ final class Customizer
     public static function sanitizeLayout(mixed $value): string
     {
         return in_array($value, ['grid', 'list'], true) ? (string) $value : 'grid';
+    }
+
+    public static function sanitizeOrder(mixed $value): string
+    {
+        return in_array($value, ['oldest', 'newest'], true) ? (string) $value : 'oldest';
+    }
+
+    public static function sanitizeSeparator(mixed $value): string
+    {
+        $allowed = ['›', '/', '»', '—'];
+
+        return in_array($value, $allowed, true) ? (string) $value : '›';
+    }
+
+    public static function sanitizeVariant(mixed $value): string
+    {
+        $allowed = ['classic', 'compact', 'bold'];
+
+        return in_array($value, $allowed, true) ? (string) $value : 'classic';
     }
 
     public static function sanitizeBool(mixed $value): bool

@@ -1,6 +1,8 @@
 <?php
 /**
- * Full single article: title, meta, featured image, content, tags, share, author box.
+ * Full single article: title, meta, featured image, content, tags and share.
+ *
+ * The author box lives in single.php so the Customizer can toggle it.
  *
  * @package KoperasiKita
  */
@@ -28,6 +30,16 @@ $thumb_url = \KoperasiKita\Images\FeaturedImage::url( get_the_ID(), 'large' );
 			</span>
 			<span class="kk-meta-sep" aria-hidden="true">&middot;</span>
 			<time datetime="<?php echo esc_attr( get_the_date( 'c' ) ); ?>"><?php echo esc_html( get_the_date() ); ?></time>
+			<?php if ( get_theme_mod( 'kk_single_reading_time', true ) ) : ?>
+				<span class="kk-meta-sep" aria-hidden="true">&middot;</span>
+				<span class="kk-reading-time">
+					<?php
+					$word_count = str_word_count( wp_strip_all_tags( get_the_content() ) );
+					/* translators: %d: Estimated reading time in minutes. */
+					printf( esc_html__( '%d min read', 'koperasikita' ), (int) max( 1, ceil( $word_count / 200 ) ) );
+					?>
+				</span>
+			<?php endif; ?>
 			<span class="kk-meta-sep" aria-hidden="true">&middot;</span>
 			<a href="#comments">
 				<?php
@@ -56,7 +68,7 @@ $thumb_url = \KoperasiKita\Images\FeaturedImage::url( get_the_ID(), 'large' );
 		<?php endif; ?>
 	</header>
 
-	<?php if ( $thumb_url ) : ?>
+	<?php if ( $thumb_url && get_theme_mod( 'kk_single_featured', true ) ) : ?>
 		<figure class="kk-article-featured">
 			<img src="<?php echo esc_url( $thumb_url ); ?>" alt="" loading="eager">
 		</figure>
@@ -88,27 +100,4 @@ $thumb_url = \KoperasiKita\Images\FeaturedImage::url( get_the_ID(), 'large' );
 		<?php
 	}
 	?>
-
-	<div class="kk-author-box">
-		<div class="kk-author-avatar"><?php echo get_avatar( get_the_author_meta( 'ID' ), 64 ); ?></div>
-		<div class="kk-author-info">
-			<p class="kk-author-name"><?php echo esc_html( get_the_author() ); ?></p>
-			<?php
-			$bio = get_the_author_meta( 'description' );
-			if ( $bio ) {
-				?>
-				<p class="kk-author-bio"><?php echo esc_html( $bio ); ?></p>
-				<?php
-			}
-			?>
-			<p class="kk-author-link">
-				<a href="<?php echo esc_url( get_author_posts_url( get_the_author_meta( 'ID' ) ) ); ?>">
-					<?php
-					/* translators: %s: Author display name. */
-					printf( esc_html__( 'More from %s', 'koperasikita' ), esc_html( get_the_author() ) );
-					?>
-				</a>
-			</p>
-		</div>
-	</div>
 </article>

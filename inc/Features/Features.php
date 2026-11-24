@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace KoperasiKita\Features;
 
+use KoperasiKita\Images\FeaturedImage;
+
 final class Features
 {
     /** @return array<int, string> */
@@ -28,5 +30,8 @@ final class Features
         Bookmarks::register();
         Agenda::register();
         Ticker::register();
+        Comments::register();
+        Performance::register();
+        FeaturedImage::register();
     }
 }

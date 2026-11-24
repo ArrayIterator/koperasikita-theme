@@ -14,9 +14,15 @@ final class Breadcrumb
 
     public static function render(): void
     {
-        if (is_front_page()) {
+        if (!(bool) get_theme_mod('kk_breadcrumb_enabled', true)) {
             return;
         }
+
+        if (is_front_page() && !(bool) get_theme_mod('kk_breadcrumb_home', false)) {
+            return;
+        }
+
+        $separator = (string) get_theme_mod('kk_breadcrumb_separator', '›');
 
         $crumbs = [];
 
@@ -59,8 +65,20 @@ final class Breadcrumb
             );
         }
 
-        echo '<nav aria-label="Breadcrumb" class="kk-breadcrumb"><ol><li>'
-            . implode('</li><li>', $crumbs)
-            . '</li></ol></nav>';
+        $items = [];
+
+        foreach ($crumbs as $index => $crumb) {
+            if ($index > 0) {
+                $items[] = '<li class="kk-breadcrumb-separator" aria-hidden="true">'
+                    . esc_html($separator)
+                    . '</li>';
+            }
+
+            $items[] = '<li>' . $crumb . '</li>';
+        }
+
+        echo '<nav aria-label="Breadcrumb" class="kk-breadcrumb"><ol>'
+            . implode('', $items)
+            . '</ol></nav>';
     }
 }

@@ -234,3 +234,123 @@ msgstr ""
 #: inc/Breadcrumb/Breadcrumb.php
 msgid "Home"
 msgstr ""
+
+#: inc/Customizer/Customizer.php
+msgid "Show Featured Image"
+msgstr ""
+
+#: inc/Customizer/Customizer.php
+msgid "Show Author Box"
+msgstr ""
+
+#: inc/Customizer/Customizer.php
+msgid "Show Related News"
+msgstr ""
+
+#: inc/Customizer/Customizer.php
+msgid "Show Reading Time"
+msgstr ""
+
+#: inc/Customizer/Customizer.php
+msgid "Enable Comments"
+msgstr ""
+
+#: inc/Customizer/Customizer.php
+msgid "Show Comment Avatars"
+msgstr ""
+
+#: inc/Customizer/Customizer.php
+msgid "Lazy-Load Images"
+msgstr ""
+
+#: inc/Customizer/Customizer.php
+msgid "Enable Responsive Images"
+msgstr ""
+
+#: inc/Customizer/Customizer.php
+msgid "Disable Emoji Scripts and Styles"
+msgstr ""
+
+#: inc/Customizer/Customizer.php
+msgid "Disable Embeds"
+msgstr ""
+
+#: inc/Customizer/Customizer.php
+msgid "Remove Query Strings from Asset URLs"
+msgstr ""
+
+#: inc/Customizer/Customizer.php
+msgid "Remove Extra Tags from <head>"
+msgstr ""
+
+#: inc/Customizer/Customizer.php
+msgid "Show Breadcrumbs"
+msgstr ""
+
+#: inc/Customizer/Customizer.php
+msgid "Show Breadcrumbs on the Homepage"
+msgstr ""
+
+#: inc/Customizer/Customizer.php
+msgid "Comment Order"
+msgstr ""
+
+#: inc/Customizer/Customizer.php
+msgid "Oldest First"
+msgstr ""
+
+#: inc/Customizer/Customizer.php
+msgid "Newest First"
+msgstr ""
+
+#: inc/Customizer/Customizer.php
+msgid "JPEG Quality"
+msgstr ""
+
+#: inc/Customizer/Customizer.php
+msgid "Breadcrumb Separator"
+msgstr ""
+
+#: inc/Customizer/Customizer.php
+msgid "› Angle Bracket"
+msgstr ""
+
+#: inc/Customizer/Customizer.php
+msgid "/ Slash"
+msgstr ""
+
+#: inc/Customizer/Customizer.php
+msgid "» Double Angle Bracket"
+msgstr ""
+
+#: inc/Customizer/Customizer.php
+msgid "— Em Dash"
+msgstr ""
+
+#: inc/Customizer/Customizer.php
+msgid "Style Variant"
+msgstr ""
+
+#: inc/Customizer/Customizer.php
+msgid "Classic Editorial"
+msgstr ""
+
+#: inc/Customizer/Customizer.php
+msgid "Compact"
+msgstr ""
+
+#: inc/Customizer/Customizer.php
+msgid "Bold Headlines"
+msgstr ""
+
+#: single.php
+msgid "About the author"
+msgstr ""
+
+#: single.php
+msgid "More from %s"
+msgstr ""
+
+#: template-parts/content/single-article.php
+msgid "%d min read"
+msgstr ""

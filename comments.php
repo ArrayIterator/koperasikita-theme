@@ -10,6 +10,9 @@
 if ( post_password_required() ) {
 	return;
 }
+
+$kk_show_avatars = (bool) get_theme_mod( 'kk_comments_avatars', true );
+$kk_newest_first = get_theme_mod( 'kk_comments_order', 'oldest' ) === 'newest';
 ?>
 
 <section id="comments" class="kk-comments">
@@ -30,9 +33,10 @@ if ( post_password_required() ) {
 			<?php
 			wp_list_comments(
 				array(
-					'style'       => 'ol',
-					'short_ping'  => true,
-					'avatar_size' => 48,
+					'style'             => 'ol',
+					'short_ping'        => true,
+					'avatar_size'       => $kk_show_avatars ? 48 : 0,
+					'reverse_top_level' => $kk_newest_first,
 				)
 			);
 			?>
