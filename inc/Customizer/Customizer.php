@@ -189,6 +189,7 @@ final class Customizer
             'choices' => [
                 'grid' => esc_html__('Grid', 'koperasikita'),
                 'list' => esc_html__('List', 'koperasikita'),
+                'newsletter' => esc_html__('Newsletter', 'koperasikita'),
             ],
         ]);
 
@@ -411,7 +412,7 @@ final class Customizer
 
     public static function sanitizeLayout(mixed $value): string
     {
-        return in_array($value, ['grid', 'list'], true) ? (string) $value : 'grid';
+        return in_array($value, ['grid', 'list', 'newsletter'], true) ? (string) $value : 'grid';
     }
 
     public static function sanitizeOrder(mixed $value): string

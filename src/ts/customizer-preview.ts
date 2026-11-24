@@ -14,6 +14,10 @@
  * while the download is pending or when it fails.
  */
 
+export {};
+
+import { postAjax } from './api';
+
 interface CustomizeValue {
 	bind: (handler: (next: string | number | boolean) => void) => void;
 	get: () => string | number | boolean;
@@ -57,7 +61,7 @@ const PALETTE_SETTINGS: Array<{ setting: string; variable: string }> = [
 	{ setting: 'kk_palette_border', variable: '--kk-border' },
 ];
 
-const LAYOUT_CLASSES: string[] = ['kk-layout-grid', 'kk-layout-list'];
+const LAYOUT_CLASSES: string[] = ['kk-layout-grid', 'kk-layout-list', 'kk-layout-newsletter'];
 
 const VARIANT_CLASSES: string[] = ['kk-variant-classic', 'kk-variant-compact', 'kk-variant-bold'];
 
@@ -119,27 +123,19 @@ async function downloadFont(id: string): Promise<string> {
 	if (!data || !data.ajaxUrl || !data.nonce) {
 		throw new Error('Font preview data is not available.');
 	}
-	const body = new URLSearchParams({ action: 'kk_download_font', font: id, nonce: data.nonce });
-	const response = await fetch(data.ajaxUrl, {
-		method: 'POST',
-		credentials: 'same-origin',
-		body,
-	});
-	if (!response.ok) {
-		throw new Error(`Font download request failed (${response.status}).`);
+	const result = await postAjax<{ cssUrl?: string }>(
+		{ ajaxUrl: data.ajaxUrl, nonce: data.nonce },
+		'kk_download_font',
+		{ font: id },
+	);
+	if (typeof result.cssUrl !== 'string' || result.cssUrl === '') {
+		throw new Error('Font download failed.');
 	}
-	const json = (await response.json()) as {
-		success?: boolean;
-		data?: { cssUrl?: string; message?: string };
-	};
-	if (!json.success || typeof json.data?.cssUrl !== 'string' || json.data.cssUrl === '') {
-		throw new Error(json.data?.message ?? 'Font download failed.');
-	}
-	return json.data.cssUrl;
+	return result.cssUrl;
 }
 
 /*
- * The local stylesheet is built by Fonts::buildLocalCss, whose first
+ * The local stylesheet is built by FontDownloader::buildLocalCss, whose first
  * @font-face rule carries the family name. Reading it back from the
  * downloaded file is the only way the preview can name the family in
  * the CSS variable — the localized stack only names it once the font
@@ -221,12 +217,16 @@ function bindFontRole(role: { setting: string; variable: string; linkId: string 
 }
 
 function applyHomepageLayout(next: SettingValue): void {
-	const layout = String(next) === 'list' ? 'list' : 'grid';
+	const value = String(next);
+	const layout = value === 'list' ? 'list' : value === 'newsletter' ? 'newsletter' : 'grid';
 	const container = document.getElementById('kk-latest-items');
 	if (container) {
 		container.classList.remove(...LAYOUT_CLASSES);
 		container.classList.add(`kk-layout-${layout}`);
 	}
+	document.querySelectorAll('.kk-newsletter-subscribe').forEach((block) => {
+		block.toggleAttribute('hidden', layout !== 'newsletter');
+	});
 	document.querySelectorAll<HTMLButtonElement>('[data-kk-layout]').forEach((button) => {
 		const active = button.dataset.kkLayout === layout;
 		button.classList.toggle('is-active', active);

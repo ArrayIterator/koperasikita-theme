@@ -13,8 +13,11 @@ interface KkData {
 	isPwaEnabled?: boolean;
 	isTickerEnabled?: boolean;
 	isWeatherEnabled?: boolean;
+	isMarketsEnabled?: boolean;
 	bookmarksPageUrl?: string;
 	ajaxUrl?: string;
+	nonce?: string;
+	themeUrl?: string;
 }
 
 declare global {
@@ -262,7 +265,7 @@ function initTicker(): void {
 }
 
 /* ------------------------------------------------------------------ */
-/* Layout switcher (grid / list)                                       */
+/* Layout switcher (grid / list / newsletter)                           */
 /* ------------------------------------------------------------------ */
 
 function initLayoutSwitcher(): void {
@@ -270,25 +273,33 @@ function initLayoutSwitcher(): void {
 	if (!container) {
 		return;
 	}
+	const items = container;
+	function applyLayout(layout: string): void {
+		items.classList.remove('kk-layout-grid', 'kk-layout-list', 'kk-layout-newsletter');
+		items.classList.add(`kk-layout-${layout}`);
+		// The newsletter subscribe block is rendered hidden inside the
+		// container for grid/list markup; reveal it only for newsletter.
+		$all('.kk-newsletter-subscribe').forEach((block) => {
+			block.toggleAttribute('hidden', layout !== 'newsletter');
+		});
+		$all<HTMLButtonElement>('[data-kk-layout]').forEach((other) => {
+			const active = other.dataset.kkLayout === layout;
+			other.classList.toggle('is-active', active);
+			other.setAttribute('aria-pressed', active ? 'true' : 'false');
+		});
+	}
 	const stored = window.localStorage.getItem(LAYOUT_KEY);
-	if (stored === 'grid' || stored === 'list') {
-		container.classList.remove('kk-layout-grid', 'kk-layout-list');
-		container.classList.add(`kk-layout-${stored}`);
+	if (stored === 'grid' || stored === 'list' || stored === 'newsletter') {
+		applyLayout(stored);
 	}
 	$all<HTMLButtonElement>('[data-kk-layout]').forEach((button) => {
 		button.addEventListener('click', () => {
 			const layout = button.dataset.kkLayout;
-			if (layout !== 'grid' && layout !== 'list') {
+			if (layout !== 'grid' && layout !== 'list' && layout !== 'newsletter') {
 				return;
 			}
 			window.localStorage.setItem(LAYOUT_KEY, layout);
-			container.classList.remove('kk-layout-grid', 'kk-layout-list');
-			container.classList.add(`kk-layout-${layout}`);
-			$all<HTMLButtonElement>('[data-kk-layout]').forEach((other) => {
-				const active = other === button;
-				other.classList.toggle('is-active', active);
-				other.setAttribute('aria-pressed', active ? 'true' : 'false');
-			});
+			applyLayout(layout);
 		});
 	});
 }

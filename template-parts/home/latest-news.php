@@ -8,7 +8,7 @@
 $latest_count = (int) get_theme_mod( 'kk_latest_count', 10 );
 $latest_count = max( 1, $latest_count );
 $layout       = get_theme_mod( 'kk_homepage_layout', 'grid' );
-$layout       = in_array( $layout, array( 'grid', 'list' ), true ) ? $layout : 'grid';
+$layout       = in_array( $layout, array( 'grid', 'list', 'newsletter' ), true ) ? $layout : 'grid';
 
 $latest = new WP_Query(
 	array(
@@ -29,6 +29,9 @@ if ( ! $latest->have_posts() ) {
 		<?php get_template_part( 'template-parts/content/layout-switcher' ); ?>
 	</div>
 
+	<?php if ( 'newsletter' === $layout ) : ?>
+		<?php get_template_part( 'template-parts/home/newsletter', null, array( 'query' => $latest ) ); ?>
+	<?php else : ?>
 	<div class="kk-latest-items kk-layout-<?php echo esc_attr( $layout ); ?>" id="kk-latest-items">
 		<?php
 		while ( $latest->have_posts() ) :
@@ -36,7 +39,9 @@ if ( ! $latest->have_posts() ) {
 			get_template_part( 'template-parts/content/card-news' );
 		endwhile;
 		?>
+		<?php get_template_part( 'template-parts/home/newsletter-subscribe', null, array( 'hidden' => true ) ); ?>
 	</div>
+	<?php endif; ?>
 </section>
 
 <?php

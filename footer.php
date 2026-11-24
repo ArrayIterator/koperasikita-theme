@@ -41,7 +41,7 @@
 				?>
 			</nav>
 
-			<div class="kk-footer-col kk-footer-subscribe">
+			<div class="kk-footer-col kk-footer-subscribe" id="kk-subscribe">
 				<p class="kk-footer-heading"><?php esc_html_e( 'Stay informed', 'koperasikita' ); ?></p>
 				<p class="kk-footer-note">
 					<?php esc_html_e( 'News, announcements and market updates from the cooperative, delivered to your inbox.', 'koperasikita' ); ?>
