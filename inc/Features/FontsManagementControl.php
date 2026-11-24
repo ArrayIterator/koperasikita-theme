@@ -23,6 +23,26 @@ final class FontsManagementControl extends WP_Customize_Control
         echo '<span class="customize-control-title">' . esc_html($this->label) . '</span>';
 
         echo '<div id="kk-fonts-status">';
+        echo self::statusHtml($selected);
+        echo '</div>';
+    }
+
+    /**
+     * The status list + action buttons, as HTML.
+     *
+     * Rendered server-side on Customizer load (render_content) and
+     * re-rendered on demand by the kk_fonts_status AJAX action, so
+     * the list follows the selected fonts without a Customizer
+     * reload. Pass the current (possibly unsaved) selection; when
+     * $selected is null the saved theme mods decide.
+     *
+     * @param array<int, string>|null $selected Google font ids to list.
+     */
+    public static function statusHtml(?array $selected = null): string
+    {
+        $selected ??= Fonts::selectedGoogleFonts();
+
+        ob_start();
 
         if ($selected === []) {
             echo '<p class="description">' . esc_html__('No Google font is selected. Pick one above to download it for offline use.', 'koperasikita') . '</p>';
@@ -32,7 +52,7 @@ final class FontsManagementControl extends WP_Customize_Control
             foreach ($selected as $id) {
                 $state = Fonts::state($id);
                 $status = (string) ($state['status'] ?? 'not-downloaded');
-                $label = $this->fontLabel($id);
+                $label = self::fontLabel($id);
 
                 echo '<li><strong>' . esc_html($label) . '</strong>: ';
 
@@ -67,10 +87,10 @@ final class FontsManagementControl extends WP_Customize_Control
 
         echo '<p class="description">' . esc_html__('Google fonts are downloaded once and served from this site. Until a font is downloaded, the site keeps using a system font.', 'koperasikita') . '</p>';
 
-        echo '</div>';
+        return (string) ob_get_clean();
     }
 
-    private function fontLabel(string $id): string
+    private static function fontLabel(string $id): string
     {
         $catalogue = Fonts::catalogue();
 

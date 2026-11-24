@@ -39,6 +39,8 @@ final class Fonts
 
     public const AJAX_CLEAR = 'kk_clear_fonts';
 
+    public const AJAX_STATUS = 'kk_fonts_status';
+
     public const DIR_NAME = 'koperasikita-fonts';
 
     private const LOCK_PREFIX = 'kk_fonts_downloading_';
@@ -459,6 +461,7 @@ final class Fonts
     {
         Ajax::add(self::AJAX_DOWNLOAD, [self::class, 'ajaxDownloadFont'], false, 'edit_theme_options');
         Ajax::add(self::AJAX_CLEAR, [self::class, 'ajaxClearFonts'], false, 'edit_theme_options');
+        Ajax::add(self::AJAX_STATUS, [self::class, 'ajaxFontsStatus'], false, 'edit_theme_options');
         add_action('customize_save_after', [self::class, 'ensureSelectedFonts']);
         add_action('admin_notices', [self::class, 'adminNotice']);
     }
@@ -609,6 +612,41 @@ final class Fonts
             'cssUrl' => (string) ($result['cssUrl'] ?? ''),
             'status' => (string) ($result['status'] ?? 'ready'),
         ];
+    }
+
+    /**
+     * AJAX: re-render the management-control status list for the
+     * given font selection.
+     *
+     * The Customizer holds changed settings in JS until Publish, so
+     * the saved theme mods still name the old fonts — the caller
+     * passes the current body/headings ids and they are sanitized
+     * here before the list is rendered. A missing id falls back to
+     * its saved theme mod.
+     *
+     * Called through Api\Ajax, which already verified the nonce and
+     * the `edit_theme_options` capability.
+     *
+     * @return array{html: string}
+     */
+    public static function ajaxFontsStatus(): array
+    {
+        $body = isset($_POST['body'])
+            ? sanitize_text_field(wp_unslash($_POST['body']))
+            : self::sanitizeBody(get_theme_mod('kk_font_body', 'system'));
+        $headings = isset($_POST['headings'])
+            ? sanitize_text_field(wp_unslash($_POST['headings']))
+            : self::sanitizeHeadings(get_theme_mod('kk_font_headings', 'system-serif'));
+
+        $selected = [];
+
+        foreach ([self::sanitizeBody($body), self::sanitizeHeadings($headings)] as $id) {
+            if (self::isGoogle($id) && !in_array($id, $selected, true)) {
+                $selected[] = $id;
+            }
+        }
+
+        return ['html' => FontsManagementControl::statusHtml($selected)];
     }
 
     /**

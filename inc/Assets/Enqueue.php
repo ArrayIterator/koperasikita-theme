@@ -270,6 +270,13 @@ final class Enqueue
             wp_localize_script('kk-admin', 'kkAdminData', [
                 'ajaxUrl' => admin_url('admin-ajax.php'),
                 'nonce' => wp_create_nonce('koperasikita_nonce'),
+                'strings' => [
+                    'ready' => __('Ready', 'koperasikita'),
+                    'failed' => __('Failed: %s', 'koperasikita'),
+                    'notDownloaded' => __('Not downloaded yet', 'koperasikita'),
+                    'downloadFailed' => __('Download failed.', 'koperasikita'),
+                    'adminDataMissing' => __('Admin data is not available.', 'koperasikita'),
+                ],
             ]);
         }
     }
