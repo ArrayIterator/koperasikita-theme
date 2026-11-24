@@ -1,4 +1,9 @@
 {
+  "src/css/agenda.css": {
+    "file": "assets/agenda-css-BXB08OIt.css",
+    "src": "src/css/agenda.css",
+    "isEntry": true
+  },
   "src/css/app.css": {
     "file": "assets/app-BB8NIvQb.css",
     "src": "src/css/app.css",
@@ -18,6 +23,12 @@
     "file": "assets/admin-BcJx6z5E.js",
     "name": "admin",
     "src": "src/ts/admin.ts",
+    "isEntry": true
+  },
+  "src/ts/agenda.ts": {
+    "file": "assets/agenda-DFhNTh3X.js",
+    "name": "agenda",
+    "src": "src/ts/agenda.ts",
     "isEntry": true
   },
   "src/ts/customizer-preview.ts": {

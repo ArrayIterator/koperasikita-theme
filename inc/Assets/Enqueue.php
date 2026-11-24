@@ -50,6 +50,20 @@ final class Enqueue
             }
         }
 
+        if (Features::isEnabled('agenda') && self::needsAgendaAssets()) {
+            $agendaCss = ViteLoader::css('src/css/agenda.css');
+
+            if ($agendaCss !== '') {
+                wp_enqueue_style('kk-agenda', $agendaCss, ['kk-app'], KK_VERSION);
+            }
+
+            $agendaJs = ViteLoader::js('src/ts/agenda.ts');
+
+            if ($agendaJs !== '') {
+                wp_enqueue_script('kk-agenda', $agendaJs, [], KK_VERSION, true);
+            }
+        }
+
         wp_localize_script('kk-main', 'kkData', [
             'ajaxUrl' => admin_url('admin-ajax.php'),
             'nonce' => wp_create_nonce('koperasikita_nonce'),
@@ -67,6 +81,33 @@ final class Enqueue
 
             return str_replace(' src=', ' defer src=', $tag);
         }, 10, 2);
+    }
+
+    /**
+     * Agenda assets are only needed on the agenda archive, on a single
+     * agenda item, or on a page that embeds the [kk_agenda_submit]
+     * shortcode. Everywhere else the feature loads nothing, even when
+     * it is enabled.
+     */
+    private static function needsAgendaAssets(): bool
+    {
+        if (is_post_type_archive(\KoperasiKita\Features\Agenda::POST_TYPE)) {
+            return true;
+        }
+
+        if (is_singular(\KoperasiKita\Features\Agenda::POST_TYPE)) {
+            return true;
+        }
+
+        if (is_singular()) {
+            $post = get_queried_object();
+
+            if ($post instanceof \WP_Post && has_shortcode($post->post_content, \KoperasiKita\Features\Agenda::SHORTCODE)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     public static function registerAdmin(string $hookSuffix): void

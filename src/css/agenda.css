@@ -1,0 +1,248 @@
+/* ==========================================================================
+   Koperasi Kita — agenda
+   Standalone stylesheet for the Agenda feature: the contributor submission
+   form, the agenda archive cards and the single event view. Only loaded
+   when Agenda is enabled. Builds on the shells in app.css and reuses the
+   same --kk-* tokens (with hex fallbacks), so light/dark mode just works.
+
+   Touch-first: every input and button is at least 48px tall, labels sit
+   on their own line, and the layout is a single column that fits a 390px
+   viewport with no horizontal overflow.
+   ========================================================================== */
+
+.kk-agenda-submit {
+	box-sizing: border-box;
+	width: 100%;
+	max-width: 720px;
+	margin: 0 auto;
+}
+
+/* --- Notices ------------------------------------------------------------- */
+
+.kk-agenda-notice {
+	padding: 14px 16px;
+	margin: 0 0 20px;
+	border: 1px solid var(--kk-border);
+	border-left: 4px solid var(--kk-green, #0b6b3a);
+	border-radius: var(--kk-radius);
+	background: var(--kk-surface);
+	color: var(--kk-ink);
+	font-size: 15px;
+	line-height: 1.55;
+}
+
+.kk-agenda-notice-success {
+	border-left-color: var(--kk-green, #0b6b3a);
+}
+
+.kk-agenda-notice-error {
+	border-left-color: #b3261e;
+}
+
+/* --- Form ---------------------------------------------------------------- */
+
+.kk-agenda-form {
+	box-sizing: border-box;
+	width: 100%;
+}
+
+.kk-agenda-field {
+	margin: 0 0 18px;
+}
+
+.kk-agenda-field label {
+	display: block;
+	margin-bottom: 6px;
+	font-weight: 600;
+	font-size: 15px;
+	color: var(--kk-ink);
+}
+
+.kk-agenda-field input[type="text"],
+.kk-agenda-field input[type="date"],
+.kk-agenda-field input[type="time"],
+.kk-agenda-field textarea {
+	box-sizing: border-box;
+	width: 100%;
+	min-height: 48px;
+	padding: 12px 14px;
+	font-family: var(--kk-sans);
+	font-size: 16px;
+	line-height: 1.4;
+	color: var(--kk-ink);
+	background: var(--kk-surface);
+	border: 1px solid var(--kk-border);
+	border-radius: var(--kk-radius);
+}
+
+.kk-agenda-field textarea {
+	min-height: 132px;
+	resize: vertical;
+}
+
+.kk-agenda-field input:focus-visible,
+.kk-agenda-field textarea:focus-visible {
+	outline: 2px solid var(--kk-gold, #c9962e);
+	outline-offset: 1px;
+	border-color: var(--kk-green, #0b6b3a);
+}
+
+.kk-agenda-field input[aria-invalid="true"],
+.kk-agenda-field textarea[aria-invalid="true"] {
+	border-color: #b3261e;
+}
+
+.kk-agenda-field-row {
+	display: flex;
+	flex-direction: column;
+	gap: 0;
+}
+
+.kk-agenda-error {
+	display: block;
+	margin-top: 6px;
+	font-size: 14px;
+	line-height: 1.45;
+	color: #b3261e;
+}
+
+.kk-agenda-actions {
+	margin: 24px 0 12px;
+}
+
+.kk-agenda-submit-button {
+	width: 100%;
+	min-height: 48px;
+	font-size: 16px;
+}
+
+.kk-agenda-submit-button[disabled] {
+	opacity: 0.6;
+	cursor: wait;
+}
+
+.kk-agenda-hint {
+	margin: 0;
+	font-size: 14px;
+	line-height: 1.55;
+	color: var(--kk-muted);
+}
+
+/* Honeypot: kept off-screen so humans (and screen readers) never see it,
+   but present in the DOM so bots fill it in. Never display: none — some
+   bots skip fields they cannot see. */
+.kk-agenda-honeypot {
+	position: absolute;
+	left: -9999px;
+	top: auto;
+	width: 1px;
+	height: 1px;
+	overflow: hidden;
+	margin: 0;
+	padding: 0;
+}
+
+/* --- Archive card -------------------------------------------------------- */
+
+.kk-agenda-card {
+	position: relative;
+}
+
+.kk-agenda-date-badge {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	width: 56px;
+	margin: 0 0 12px;
+	padding: 8px 0 6px;
+	border: 1px solid var(--kk-border);
+	border-top: 4px solid var(--kk-green, #0b6b3a);
+	border-radius: var(--kk-radius);
+	background: var(--kk-surface);
+	text-align: center;
+	line-height: 1.1;
+}
+
+.kk-agenda-date-day {
+	font-family: var(--kk-serif);
+	font-size: 24px;
+	font-weight: 700;
+	color: var(--kk-ink);
+}
+
+.kk-agenda-date-month {
+	font-size: 12px;
+	font-weight: 600;
+	letter-spacing: 0.08em;
+	text-transform: uppercase;
+	color: var(--kk-muted);
+}
+
+/* --- Event details ------------------------------------------------------- */
+
+.kk-agenda-meta {
+	margin: 0 0 16px;
+	padding: 14px 16px;
+	border: 1px solid var(--kk-border);
+	border-radius: var(--kk-radius);
+	background: var(--kk-surface);
+}
+
+.kk-agenda-meta-row {
+	display: flex;
+	gap: 12px;
+	padding: 4px 0;
+	font-size: 15px;
+	line-height: 1.5;
+}
+
+.kk-agenda-meta-row + .kk-agenda-meta-row {
+	border-top: 1px solid var(--kk-border);
+}
+
+.kk-agenda-meta-row dt {
+	flex: 0 0 88px;
+	margin: 0;
+	font-weight: 600;
+	color: var(--kk-muted);
+}
+
+.kk-agenda-meta-row dd {
+	margin: 0;
+	color: var(--kk-ink);
+}
+
+.kk-agenda-single .kk-article-content {
+	margin-top: 20px;
+}
+
+.kk-agenda-back {
+	margin: 28px 0 0;
+}
+
+.kk-agenda-back a {
+	display: inline-flex;
+	align-items: center;
+	min-height: 44px;
+	font-weight: 600;
+	color: var(--kk-green, #0b6b3a);
+}
+
+/* --- Wider screens ------------------------------------------------------- */
+
+@media (min-width: 640px) {
+	.kk-agenda-field-row {
+		flex-direction: row;
+		gap: 16px;
+	}
+
+	.kk-agenda-field-row .kk-agenda-field {
+		flex: 1 1 0;
+		min-width: 0;
+	}
+
+	.kk-agenda-submit-button {
+		width: auto;
+		min-width: 220px;
+	}
+}

@@ -28,6 +28,8 @@ export default defineConfig({
         'gold-markets-css': 'src/css/gold-markets.css',
         weather: 'src/ts/weather.ts',
         'weather-css': 'src/css/weather.css',
+        agenda: 'src/ts/agenda.ts',
+        'agenda-css': 'src/css/agenda.css',
       },
     },
   },
