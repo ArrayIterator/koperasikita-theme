@@ -135,7 +135,10 @@ let lastFocusedElement: HTMLElement | null = null;
 function openModal(modal: HTMLElement): void {
 	lastFocusedElement = document.activeElement as HTMLElement | null;
 	modal.hidden = false;
+	// Lock the page behind the modal on both scroll roots: locking body
+	// alone does not stop scrolling on every mobile browser.
 	document.body.style.overflow = 'hidden';
+	document.documentElement.style.overflow = 'hidden';
 	const focusable = modal.querySelector<HTMLElement>(
 		'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])',
 	);
@@ -147,10 +150,22 @@ function openModal(modal: HTMLElement): void {
 function closeModal(modal: HTMLElement): void {
 	modal.hidden = true;
 	document.body.style.overflow = '';
+	document.documentElement.style.overflow = '';
 	if (lastFocusedElement) {
 		lastFocusedElement.focus();
 		lastFocusedElement = null;
 	}
+}
+
+function isEditableElement(target: EventTarget | null): boolean {
+	if (!(target instanceof HTMLElement)) {
+		return false;
+	}
+	if (target.isContentEditable) {
+		return true;
+	}
+	const tag = target.tagName;
+	return tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT';
 }
 
 function initModals(): void {
@@ -164,9 +179,16 @@ function initModals(): void {
 			return;
 		}
 		$all<HTMLElement>('.kk-modal').forEach((modal) => {
-			if (!modal.hidden) {
-				closeModal(modal);
+			if (modal.hidden) {
+				return;
 			}
+			if (isEditableElement(event.target) && modal.contains(event.target as Node)) {
+				// The field owns Escape: leave it and keep the modal
+				// open. A second Escape (focus outside any field) closes.
+				(event.target as HTMLElement).blur();
+				return;
+			}
+			closeModal(modal);
 		});
 	});
 }
@@ -181,6 +203,17 @@ function initSearchOverlay(): void {
 	const input = overlay.querySelector<HTMLInputElement>('.search-field');
 	if (input) {
 		overlay.addEventListener('transitionend', () => input.focus());
+		// The search field owns Escape: clear the query and leave, keep
+		// the overlay open. A second Escape (focus outside the field)
+		// closes it.
+		input.addEventListener('keydown', (event) => {
+			if (event.key !== 'Escape') {
+				return;
+			}
+			event.stopPropagation();
+			input.value = '';
+			input.blur();
+		});
 	}
 }
 

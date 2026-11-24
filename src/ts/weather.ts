@@ -128,6 +128,31 @@ function storeLocation(location: Location): void {
 	}
 }
 
+/* A place is the same place when the names match (case-insensitive,
+ * trimmed) or the coordinates are within ~0.01 degrees (about 1 km).
+ * Name alone is not enough: geolocation and coordinates resolve to
+ * "My location" / "Custom location", which would otherwise duplicate
+ * a named city at the same spot. Coordinates alone are not enough
+ * either: two spellings of one city share a name but may carry
+ * slightly different coordinates from different sources. */
+const COORD_TOLERANCE = 0.01;
+
+function normalizePlaceName(name: string): string {
+	return name.trim().toLowerCase();
+}
+
+function isSamePlace(a: Location, b: Location): boolean {
+	const aName = normalizePlaceName(a.name);
+	const bName = normalizePlaceName(b.name);
+	if (aName !== '' && aName === bName) {
+		return true;
+	}
+	return (
+		Math.abs(a.latitude - b.latitude) < COORD_TOLERANCE &&
+		Math.abs(a.longitude - b.longitude) < COORD_TOLERANCE
+	);
+}
+
 function getCustomCities(): Location[] {
 	try {
 		const raw = window.localStorage.getItem(CUSTOM_CITIES_KEY);
@@ -138,7 +163,7 @@ function getCustomCities(): Location[] {
 		if (!Array.isArray(parsed)) {
 			return [];
 		}
-		return parsed.filter(
+		const valid = parsed.filter(
 			(item): item is Location =>
 				typeof item === 'object' &&
 				item !== null &&
@@ -146,6 +171,22 @@ function getCustomCities(): Location[] {
 				typeof (item as Location).latitude === 'number' &&
 				typeof (item as Location).longitude === 'number',
 		);
+		// Self-heal: drop entries that duplicate a default quick pick or
+		// an earlier entry in the list (same name or same coordinates),
+		// and persist the cleaned list so a stale duplicate disappears
+		// instead of lingering in the strip forever.
+		const cleaned: Location[] = [];
+		for (const city of valid) {
+			const duplicatesDefault = quickCities.some((quick) => isSamePlace(quick, city));
+			const duplicatesEarlier = cleaned.some((kept) => isSamePlace(kept, city));
+			if (!duplicatesDefault && !duplicatesEarlier) {
+				cleaned.push(city);
+			}
+		}
+		if (cleaned.length !== valid.length) {
+			storeCustomCities(cleaned);
+		}
+		return cleaned;
 	} catch {
 		return [];
 	}
@@ -392,7 +433,12 @@ function openPicker(): void {
 	}
 	lastFocusedElement = document.activeElement as HTMLElement | null;
 	modal.hidden = false;
+	// Lock the page behind the modal on both scroll roots: locking body
+	// alone does not stop scrolling on every mobile browser, and a page
+	// that still scrolls behind the overlay leaves sections reachable
+	// below the fold.
 	document.body.style.overflow = 'hidden';
+	document.documentElement.style.overflow = 'hidden';
 	updateCurrentLine();
 	syncCoordsInputs();
 	const search = $('[data-kk-weather-search]') as HTMLInputElement | null;
@@ -408,6 +454,7 @@ function closePicker(): void {
 	}
 	modal.hidden = true;
 	document.body.style.overflow = '';
+	document.documentElement.style.overflow = '';
 	if (lastFocusedElement) {
 		lastFocusedElement.focus();
 		lastFocusedElement = null;
@@ -435,6 +482,18 @@ function trapFocus(event: KeyboardEvent): void {
 		event.preventDefault();
 		first.focus();
 	}
+}
+
+/* Find the quick pick a location duplicates, if any. Defaults come
+ * first, so a match against a built-in city wins over a user-added
+ * copy of the same place. */
+function findExistingPick(location: Location): Location | null {
+	for (const city of [...quickCities, ...getCustomCities()]) {
+		if (isSamePlace(city, location)) {
+			return city;
+		}
+	}
+	return null;
 }
 
 function renderStrip(): void {
@@ -491,11 +550,18 @@ function initStrip(): void {
 	renderStrip();
 
 	$('[data-kk-weather-add]')?.addEventListener('click', () => {
-		const customs = getCustomCities();
-		if (customs.some((c) => c.name === currentLocation.name)) {
-			setStatus(`${currentLocation.name} is already in your quick picks.`);
+		// Dedupe against BOTH lists: the built-in quick picks and the
+		// user-added ones. Adding a city that is already a default
+		// (e.g. Medan) used to push a second identical chip into the
+		// strip; now the existing chip is selected instead.
+		const existing = findExistingPick(currentLocation);
+		if (existing) {
+			applyLocation({ ...existing, source: existing.source });
+			renderStrip();
+			setStatus(`${existing.name} is already in your quick picks.`);
 			return;
 		}
+		const customs = getCustomCities();
 		if (customs.length >= MAX_CUSTOM_CITIES) {
 			setStatus('Quick picks is full. Remove one first.');
 			return;
@@ -515,6 +581,19 @@ function initSearch(): void {
 	}
 	let timer: number | null = null;
 	let controller: AbortController | null = null;
+
+	// The search field owns Escape: clear the query and leave, keep the
+	// picker open. A second Escape (focus outside the field) closes it.
+	input.addEventListener('keydown', (event) => {
+		if (event.key !== 'Escape') {
+			return;
+		}
+		event.stopPropagation();
+		input.value = '';
+		results.textContent = '';
+		setStatus('');
+		input.blur();
+	});
 
 	input.addEventListener('input', () => {
 		if (timer !== null) {
@@ -627,12 +706,22 @@ function initGeolocate(): void {
 		setStatus('Asking for your location…');
 		navigator.geolocation.getCurrentPosition(
 			(position) => {
-				applyLocation({
+				const resolved: Location = {
 					name: 'My location',
 					latitude: position.coords.latitude,
 					longitude: position.coords.longitude,
 					source: 'geolocation',
-				});
+				};
+				// A GPS fix at a city that is already a quick pick is
+				// that city: select its chip instead of leaving an
+				// anonymous "My location" that duplicates it on Add.
+				const existing = findExistingPick(resolved);
+				if (existing) {
+					applyLocation({ ...existing, source: existing.source }, false);
+					setStatus(`You're near ${existing.name} — showing its weather.`);
+				} else {
+					applyLocation(resolved);
+				}
 				renderStrip();
 			},
 			(error) => {
@@ -649,6 +738,17 @@ function initGeolocate(): void {
 	});
 }
 
+function isEditableElement(target: EventTarget | null): boolean {
+	if (!(target instanceof HTMLElement)) {
+		return false;
+	}
+	if (target.isContentEditable) {
+		return true;
+	}
+	const tag = target.tagName;
+	return tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT';
+}
+
 function initPicker(): void {
 	const modal = getModal();
 	if (!modal) {
@@ -662,6 +762,12 @@ function initPicker(): void {
 	});
 	document.addEventListener('keydown', (event) => {
 		if (event.key === 'Escape' && !modal.hidden) {
+			if (isEditableElement(event.target) && modal.contains(event.target as Node)) {
+				// The field owns Escape: leave it and keep the picker
+				// open. A second Escape (focus outside any field) closes.
+				(event.target as HTMLElement).blur();
+				return;
+			}
 			closePicker();
 		}
 		if (event.key === 'Tab') {
