@@ -245,6 +245,41 @@ final class Customizer
 
         self::addSetting(
             $wpCustomize,
+            'kk_archive_layout',
+            'grid',
+            [self::class, 'sanitizeArchiveLayout'],
+            'refresh'
+        );
+        $wpCustomize->add_control('kk_archive_layout', [
+            'label' => esc_html__('Archive and Search Article Layout', 'koperasikita'),
+            'section' => 'koperasikita_homepage',
+            'type' => 'select',
+            'choices' => [
+                'grid' => esc_html__('Cards', 'koperasikita'),
+                'list' => esc_html__('List', 'koperasikita'),
+            ],
+        ]);
+
+        self::addSetting(
+            $wpCustomize,
+            'kk_pagination_mode',
+            'pagination',
+            [self::class, 'sanitizePaginationMode'],
+            'refresh'
+        );
+        $wpCustomize->add_control('kk_pagination_mode', [
+            'label' => esc_html__('News Pagination', 'koperasikita'),
+            'section' => 'koperasikita_homepage',
+            'type' => 'select',
+            'choices' => [
+                'pagination' => esc_html__('Page numbers', 'koperasikita'),
+                'load-more' => esc_html__('Load more', 'koperasikita'),
+                'infinite' => esc_html__('Infinite scroll', 'koperasikita'),
+            ],
+        ]);
+
+        self::addSetting(
+            $wpCustomize,
             'kk_logo_invert_dark',
             false,
             [self::class, 'sanitizeBool'],
@@ -338,6 +373,7 @@ final class Customizer
             'kk_clock_seconds' => ['koperasikita_header', 'Show Seconds on the Clock', false],
             'kk_clock_24h' => ['koperasikita_header', 'Use the 24-Hour Clock', true],
             'kk_sticky_header' => ['koperasikita_header', 'Sticky Header Navigation', true],
+            'kk_sidebar_sticky' => ['koperasikita_accessibility', 'Sticky Sidebar While Scrolling', false],
         ];
 
         foreach ($checkboxes as $id => [$section, $label, $default]) {
@@ -770,6 +806,16 @@ final class Customizer
         $term = get_term($id, 'category');
 
         return $term instanceof \WP_Term ? $id : 0;
+    }
+
+    public static function sanitizeArchiveLayout(mixed $value): string
+    {
+        return in_array($value, ['grid', 'list'], true) ? (string) $value : 'grid';
+    }
+
+    public static function sanitizePaginationMode(mixed $value): string
+    {
+        return in_array($value, ['pagination', 'load-more', 'infinite'], true) ? (string) $value : 'pagination';
     }
 
     public static function sanitizeBreakingSource(mixed $value): string

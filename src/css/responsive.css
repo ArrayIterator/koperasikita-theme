@@ -111,6 +111,22 @@
 		grid-template-columns: 1fr var(--kk-sidebar-width);
 	}
 
+	/* Sticky sidebar: the sidebar sticks while the reader scrolls.
+	 * The offset clears the sticky nav (~48px) plus a gap; when the
+	 * nav itself is not sticky the sidebar can sit closer to the top.
+	 * align-self keeps the grid item from stretching to the row
+	 * height, without which sticky has nothing to stick against.
+	 */
+	body.kk-sidebar-sticky .kk-sidebar {
+		position: sticky;
+		top: 64px;
+		align-self: start;
+	}
+
+	body.kk-sidebar-sticky.kk-sticky-off .kk-sidebar {
+		top: 16px;
+	}
+
 	.kk-card-grid-3 {
 		grid-template-columns: repeat(3, 1fr);
 	}

@@ -11,7 +11,7 @@ get_header();
 <div class="kk-shell kk-archive-layout">
 	<div class="kk-content-area">
 		<?php if ( have_posts() ) : ?>
-			<div class="kk-card-grid">
+			<div class="kk-card-grid kk-layout-<?php echo esc_attr( \KoperasiKita\Features\Pagination::archiveLayout() ); ?>">
 				<?php
 				while ( have_posts() ) :
 					the_post();

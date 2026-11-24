@@ -1703,3 +1703,35 @@ msgstr ""
 #: inc/Customizer/Customizer.php
 msgid "Automatic (most posts)"
 msgstr ""
+
+#: inc/Customizer/Customizer.php
+msgid "Sticky Sidebar While Scrolling"
+msgstr ""
+
+#: inc/Customizer/Customizer.php
+msgid "Archive and Search Article Layout"
+msgstr ""
+
+#: inc/Customizer/Customizer.php
+msgid "Cards"
+msgstr ""
+
+#: inc/Customizer/Customizer.php
+msgid "News Pagination"
+msgstr ""
+
+#: inc/Customizer/Customizer.php
+msgid "Page numbers"
+msgstr ""
+
+#: inc/Customizer/Customizer.php
+msgid "Load more"
+msgstr ""
+
+#: inc/Customizer/Customizer.php
+msgid "Infinite scroll"
+msgstr ""
+
+#: inc/Features/Pagination.php
+msgid "No more posts."
+msgstr ""

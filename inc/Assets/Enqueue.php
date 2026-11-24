@@ -75,6 +75,17 @@ final class Enqueue
             }
         }
 
+        // The pagination loader only runs where an archive loop can
+        // render it (archive / blog / search) and only when the mode
+        // is load-more or infinite — page numbers need no script.
+        if ('pagination' !== \KoperasiKita\Features\Pagination::mode() && (is_archive() || is_home() || is_search())) {
+            $paginationJs = ViteLoader::js('src/ts/pagination.ts');
+
+            if ($paginationJs !== '') {
+                wp_enqueue_script('kk-pagination', $paginationJs, [], KK_VERSION, true);
+            }
+        }
+
         wp_localize_script('kk-main', 'kkData', [
             'ajaxUrl' => admin_url('admin-ajax.php'),
             'nonce' => wp_create_nonce('koperasikita_nonce'),

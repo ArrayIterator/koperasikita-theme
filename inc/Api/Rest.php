@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace KoperasiKita\Api;
 
+use KoperasiKita\Features\Agenda;
 use KoperasiKita\Features\Fonts;
 use KoperasiKita\Features\Markets;
 use KoperasiKita\Features\Weather;
@@ -92,6 +93,66 @@ final class Rest
             'methods' => 'GET',
             'callback' => [self::class, 'fonts'],
             'permission_callback' => static fn (): bool => current_user_can('edit_theme_options'),
+        ]);
+
+        register_rest_route(Api::REST_NAMESPACE, '/posts', [
+            'methods' => 'GET',
+            'callback' => [self::class, 'posts'],
+            'permission_callback' => [self::class, 'allowPublic'],
+            'args' => [
+                'page' => [
+                    'description' => 'Page number, starting at 1.',
+                    'type' => 'integer',
+                    'default' => 1,
+                    'sanitize_callback' => 'absint',
+                ],
+                'per_page' => [
+                    'description' => 'Posts per page, 1 to 20.',
+                    'type' => 'integer',
+                    'default' => 10,
+                    'sanitize_callback' => 'absint',
+                ],
+                'cat' => [
+                    'description' => 'Category ID.',
+                    'type' => 'integer',
+                    'sanitize_callback' => 'absint',
+                ],
+                'tag_id' => [
+                    'description' => 'Tag ID.',
+                    'type' => 'integer',
+                    'sanitize_callback' => 'absint',
+                ],
+                'author' => [
+                    'description' => 'Author user ID.',
+                    'type' => 'integer',
+                    'sanitize_callback' => 'absint',
+                ],
+                's' => [
+                    'description' => 'Search keywords.',
+                    'type' => 'string',
+                    'sanitize_callback' => 'sanitize_text_field',
+                ],
+                'year' => [
+                    'description' => 'Archive year.',
+                    'type' => 'integer',
+                    'sanitize_callback' => 'absint',
+                ],
+                'monthnum' => [
+                    'description' => 'Archive month, 1 to 12.',
+                    'type' => 'integer',
+                    'sanitize_callback' => 'absint',
+                ],
+                'day' => [
+                    'description' => 'Archive day, 1 to 31.',
+                    'type' => 'integer',
+                    'sanitize_callback' => 'absint',
+                ],
+                'post_type' => [
+                    'description' => 'Post type: post, agenda or any.',
+                    'type' => 'string',
+                    'sanitize_callback' => 'sanitize_key',
+                ],
+            ],
         ]);
     }
 
@@ -219,6 +280,86 @@ final class Rest
         }
 
         return Response::restSuccess($data);
+    }
+
+    /**
+     * GET /posts — one more page of an archive loop, as rendered HTML.
+     *
+     * The query is rebuilt from an allowlist only (category, tag,
+     * author, search, date parts, post type); anything else in the
+     * request is ignored. The cards are rendered with the same
+     * template part page one used, so the appended page looks
+     * identical. Agenda archives keep their soonest-first ordering:
+     * the main query gets it from pre_get_posts, this one sets it
+     * directly because it is not the main query.
+     *
+     * Sticky posts are not pinned here (ignore_sticky_posts): the
+     * main query pins them to page one, and re-pinning them in the
+     * endpoint would duplicate them on page two.
+     */
+    public static function posts(WP_REST_Request $request): WP_REST_Response
+    {
+        $page = max(1, (int) $request->get_param('page'));
+        $per_page = min(20, max(1, (int) $request->get_param('per_page')));
+        $post_type = (string) $request->get_param('post_type');
+
+        if (!in_array($post_type, ['post', 'agenda', 'any'], true)) {
+            $post_type = 'post';
+        }
+
+        $query_args = [
+            'post_type' => $post_type,
+            'post_status' => 'publish',
+            'posts_per_page' => $per_page,
+            'paged' => $page,
+            'ignore_sticky_posts' => true,
+        ];
+
+        foreach (['cat', 'tag_id', 'author', 'year', 'monthnum', 'day'] as $key) {
+            $value = (int) $request->get_param($key);
+
+            if ($value !== 0) {
+                $query_args[$key] = $value;
+            }
+        }
+
+        $search = $request->get_param('s');
+
+        if (is_string($search) && $search !== '') {
+            $query_args['s'] = sanitize_text_field($search);
+        }
+
+        if ($post_type === 'agenda') {
+            $query_args['meta_key'] = Agenda::META_START_TS;
+            $query_args['orderby'] = 'meta_value_num';
+            $query_args['order'] = 'ASC';
+        }
+
+        $query = new \WP_Query($query_args);
+        $template = $post_type === 'agenda'
+            ? 'template-parts/agenda/card-agenda'
+            : 'template-parts/content/card-news';
+
+        ob_start();
+
+        while ($query->have_posts()) {
+            $query->the_post();
+            get_template_part($template);
+        }
+
+        $html = (string) ob_get_clean();
+
+        $pages = max(1, (int) $query->max_num_pages);
+
+        wp_reset_postdata();
+
+        return Response::restSuccess([
+            'html' => $html,
+            'page' => $page,
+            'pages' => $pages,
+            'hasMore' => $page < $pages,
+            'perPage' => $per_page,
+        ]);
     }
 
     /**

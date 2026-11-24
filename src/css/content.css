@@ -505,6 +505,60 @@
 	color: var(--kk-green, #0B6B3A);
 }
 
+/* Archive list layout: horizontal cards with a small thumb, the same
+ * shape as the homepage list layout. Grid mode needs no rules — it
+ * is the card grid as rendered today. */
+.kk-card-grid.kk-layout-list .kk-card {
+	display: grid;
+	grid-template-columns: 120px 1fr;
+	gap: 16px;
+}
+
+.kk-card-grid.kk-layout-list .kk-card-media img {
+	aspect-ratio: 4 / 3;
+}
+
+/* Load-more / infinite-scroll loader. */
+.kk-pagination-loader {
+	display: grid;
+	justify-items: center;
+	gap: 12px;
+}
+
+.kk-load-more {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	min-height: 44px;
+	padding: 10px 24px;
+	border: 1px solid var(--kk-border, #E6E3DE);
+	border-radius: var(--kk-radius, 4px);
+	background: var(--kk-paper, #FFFFFF);
+	color: var(--kk-ink, #1B1B1B);
+	font-weight: 600;
+	cursor: pointer;
+}
+
+.kk-load-more:hover {
+	border-color: var(--kk-green, #0B6B3A);
+	color: var(--kk-green, #0B6B3A);
+}
+
+.kk-load-more:disabled {
+	opacity: 0.6;
+	cursor: wait;
+}
+
+.kk-pagination-status,
+.kk-pagination-end {
+	color: var(--kk-muted, #5B6470);
+	font-size: 14px;
+}
+
+.kk-infinite-sentinel {
+	height: 1px;
+}
+
 /* --- Search form ---------------------------------------------------------- */
 
 .search-form {
