@@ -584,6 +584,41 @@ final class Customizer
             ]));
         }
 
+        // Text of the header install button (and its accessible label).
+        self::addSetting(
+            $wpCustomize,
+            'kk_pwa_button_text',
+            'Install app',
+            'sanitize_text_field',
+            'refresh'
+        );
+        $wpCustomize->add_control('kk_pwa_button_text', [
+            'label' => esc_html__('Install Button Text', 'koperasikita'),
+            'section' => 'koperasikita_pwa',
+            'type' => 'text',
+        ]);
+
+        // Seconds to wait after the browser offers installation before
+        // the install prompt appears. 0 shows it straight away.
+        self::addSetting(
+            $wpCustomize,
+            'kk_pwa_prompt_delay',
+            1.5,
+            static fn ($value) => self::clampFloat($value, 0, 60),
+            'refresh'
+        );
+        $wpCustomize->add_control('kk_pwa_prompt_delay', [
+            'label' => esc_html__('Install Prompt Delay', 'koperasikita'),
+            'description' => esc_html__('Seconds to wait after the browser offers installation before showing the install prompt. 0 shows it immediately.', 'koperasikita'),
+            'section' => 'koperasikita_pwa',
+            'type' => 'number',
+            'input_attrs' => [
+                'min' => 0,
+                'max' => 60,
+                'step' => 0.5,
+            ],
+        ]);
+
         // Default article text size in pixels. Visitors can change it
         // with the resize control before the content; their choice is
         // stored in a cookie and overrides this default.
@@ -921,5 +956,10 @@ final class Customizer
     public static function clampInt(mixed $value, int $min, int $max): int
     {
         return min($max, max($min, (int) $value));
+    }
+
+    public static function clampFloat(mixed $value, float $min, float $max): float
+    {
+        return min($max, max($min, (float) $value));
     }
 }

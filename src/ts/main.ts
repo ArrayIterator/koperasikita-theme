@@ -11,6 +11,7 @@ export {};
 interface KkData {
 	isBookmarksEnabled?: boolean;
 	isPwaEnabled?: boolean;
+	pwaPromptDelayMs?: number;
 	isTickerEnabled?: boolean;
 	isWeatherEnabled?: boolean;
 	isMarketsEnabled?: boolean;
@@ -619,7 +620,10 @@ function initPwa(): void {
 			installButton.hidden = false;
 		}
 		if (promptModal && !window.localStorage.getItem(INSTALL_SEEN_KEY)) {
-			window.setTimeout(() => openModal(promptModal), 1500);
+			// Delay comes from the Customizer (kk_pwa_prompt_delay, in
+			// seconds); 1500ms is the shipped default when it is missing.
+			const delay = Math.min(60000, Math.max(0, data.pwaPromptDelayMs ?? 1500));
+			window.setTimeout(() => openModal(promptModal), delay);
 		}
 	});
 

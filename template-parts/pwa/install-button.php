@@ -15,7 +15,7 @@ if ( ! \KoperasiKita\Features\Features::isEnabled( 'pwa' ) ) {
 }
 ?>
 
-<button type="button" class="kk-button kk-pwa-install" id="kk-pwa-install" data-kk-sw-url="<?php echo esc_url( \KoperasiKita\Features\Pwa::serviceWorkerUrl() ); ?>" aria-label="<?php esc_attr_e( 'Install app', 'koperasikita' ); ?>" hidden>
+<button type="button" class="kk-button kk-pwa-install" id="kk-pwa-install" data-kk-sw-url="<?php echo esc_url( \KoperasiKita\Features\Pwa::serviceWorkerUrl() ); ?>" aria-label="<?php echo esc_attr( \KoperasiKita\Features\Pwa::buttonText() ); ?>" hidden>
 	<?php echo \KoperasiKita\Icons\Icon::svg( 'bell', 16 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
-	<span class="kk-pwa-install-label"><?php esc_html_e( 'Install app', 'koperasikita' ); ?></span>
+	<span class="kk-pwa-install-label"><?php echo esc_html( \KoperasiKita\Features\Pwa::buttonText() ); ?></span>
 </button>

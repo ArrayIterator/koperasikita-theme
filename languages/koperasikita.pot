@@ -1735,3 +1735,15 @@ msgstr ""
 #: inc/Features/Pagination.php
 msgid "No more posts."
 msgstr ""
+
+#: inc/Customizer/Customizer.php
+msgid "Install Button Text"
+msgstr ""
+
+#: inc/Customizer/Customizer.php
+msgid "Install Prompt Delay"
+msgstr ""
+
+#: inc/Customizer/Customizer.php
+msgid "Seconds to wait after the browser offers installation before showing the install prompt. 0 shows it immediately."
+msgstr ""

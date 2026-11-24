@@ -179,6 +179,30 @@ final class Pwa
     }
 
     /**
+     * Text of the header install button. Empty falls back to the
+     * shipped label, so the button is never rendered blank.
+     */
+    public static function buttonText(): string
+    {
+        $text = sanitize_text_field((string) get_theme_mod('kk_pwa_button_text', 'Install app'));
+
+        return $text !== '' ? $text : 'Install app';
+    }
+
+    /**
+     * Delay before the install prompt appears, in milliseconds.
+     * Stored as seconds (0–60) in the Customizer; 1.5s is the
+     * shipped behaviour. Clamped again here so a hand-edited
+     * option can never delay the prompt by minutes.
+     */
+    public static function promptDelayMs(): int
+    {
+        $seconds = (float) get_theme_mod('kk_pwa_prompt_delay', 1.5);
+
+        return (int) round(min(60.0, max(0.0, $seconds)) * 1000);
+    }
+
+    /**
      * The install prompt modal is a template part, rendered once in the
      * footer. main.ts owns showing it when beforeinstallprompt fires;
      * this only makes sure the markup exists on the page.

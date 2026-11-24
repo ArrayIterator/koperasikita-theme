@@ -6,6 +6,7 @@ namespace KoperasiKita\Assets;
 
 use KoperasiKita\Features\Features;
 use KoperasiKita\Features\Fonts;
+use KoperasiKita\Features\Pwa;
 use KoperasiKita\Setup\Setup;
 
 final class Enqueue
@@ -93,6 +94,7 @@ final class Enqueue
             'isMarketsEnabled' => Features::isEnabled('markets'),
             'isWeatherEnabled' => Features::isEnabled('weather'),
             'isPwaEnabled' => Features::isEnabled('pwa'),
+            'pwaPromptDelayMs' => Pwa::promptDelayMs(),
             'themeUrl' => KK_URI,
         ]);
 
