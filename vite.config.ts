@@ -26,6 +26,8 @@ export default defineConfig({
         app: 'src/css/app.css',
         'gold-markets': 'src/ts/gold-markets.ts',
         'gold-markets-css': 'src/css/gold-markets.css',
+        weather: 'src/ts/weather.ts',
+        'weather-css': 'src/css/weather.css',
       },
     },
   },

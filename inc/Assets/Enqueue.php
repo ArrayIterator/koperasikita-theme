@@ -36,6 +36,20 @@ final class Enqueue
             }
         }
 
+        if (Features::isEnabled('weather')) {
+            $weatherCss = ViteLoader::css('src/css/weather.css');
+
+            if ($weatherCss !== '') {
+                wp_enqueue_style('kk-weather', $weatherCss, ['kk-app'], KK_VERSION);
+            }
+
+            $weatherJs = ViteLoader::js('src/ts/weather.ts');
+
+            if ($weatherJs !== '') {
+                wp_enqueue_script('kk-weather', $weatherJs, [], KK_VERSION, true);
+            }
+        }
+
         wp_localize_script('kk-main', 'kkData', [
             'ajaxUrl' => admin_url('admin-ajax.php'),
             'nonce' => wp_create_nonce('koperasikita_nonce'),

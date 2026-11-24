@@ -9,6 +9,11 @@
     "src": "src/css/gold-markets.css",
     "isEntry": true
   },
+  "src/css/weather.css": {
+    "file": "assets/weather-css-C7u-kY90.css",
+    "src": "src/css/weather.css",
+    "isEntry": true
+  },
   "src/ts/admin.ts": {
     "file": "assets/admin-BcJx6z5E.js",
     "name": "admin",
@@ -31,6 +36,12 @@
     "file": "assets/main-CaDVbl_L.js",
     "name": "main",
     "src": "src/ts/main.ts",
+    "isEntry": true
+  },
+  "src/ts/weather.ts": {
+    "file": "assets/weather-CWTKkCXA.js",
+    "name": "weather",
+    "src": "src/ts/weather.ts",
     "isEntry": true
   }
 }
