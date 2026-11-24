@@ -19,8 +19,22 @@
 	min-height: 44px;
 }
 
+.kk-topbar-left {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	min-width: 0;
+}
+
 .kk-topbar-date {
-	color: var(--kk-muted);
+	color: var(--kk-muted, #5B6470);
+}
+
+/* Live clock: tabular figures so the width never jitters as it ticks. */
+.kk-topbar-clock {
+	color: var(--kk-muted, #5B6470);
+	font-variant-numeric: tabular-nums;
+	white-space: nowrap;
 }
 
 .kk-topbar-right {
@@ -145,6 +159,11 @@ html[data-color-scheme="system"] .kk-icon-sun {
 	z-index: 40;
 	background: var(--kk-paper);
 	border-bottom: 1px solid var(--kk-border);
+}
+
+/* Sticky header off: the nav scrolls away with the page. */
+body.kk-sticky-off .kk-nav-wrap {
+	position: static;
 }
 
 .kk-nav-inner {

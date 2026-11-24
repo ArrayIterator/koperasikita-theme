@@ -283,6 +283,12 @@ final class Customizer
             'kk_images_srcset' => ['koperasikita_media', 'Enable Responsive Images', true],
             'kk_breadcrumb_enabled' => ['koperasikita_breadcrumb', 'Show Breadcrumbs', true],
             'kk_breadcrumb_home' => ['koperasikita_breadcrumb', 'Show Breadcrumbs on the Homepage', false],
+            'kk_topbar_enabled' => ['koperasikita_header', 'Show Top Bar', true],
+            'kk_topbar_date' => ['koperasikita_header', 'Show Date in Top Bar', true],
+            'kk_clock_enabled' => ['koperasikita_header', 'Show Live Clock in Top Bar', true],
+            'kk_clock_seconds' => ['koperasikita_header', 'Show Seconds on the Clock', false],
+            'kk_clock_24h' => ['koperasikita_header', 'Use the 24-Hour Clock', true],
+            'kk_sticky_header' => ['koperasikita_header', 'Sticky Header Navigation', true],
         ];
 
         foreach ($checkboxes as $id => [$section, $label, $default]) {
@@ -293,6 +299,149 @@ final class Customizer
                 'type' => 'checkbox',
             ]);
         }
+
+        // Header: breaking-news source, top bar, live clock, sticky header.
+        self::addSetting(
+            $wpCustomize,
+            'kk_breaking_source',
+            'latest',
+            [self::class, 'sanitizeBreakingSource'],
+            'refresh'
+        );
+        $wpCustomize->add_control('kk_breaking_source', [
+            'label' => esc_html__('Breaking News Posts', 'koperasikita'),
+            'section' => 'koperasikita_header',
+            'type' => 'select',
+            'choices' => [
+                'latest' => esc_html__('Latest posts', 'koperasikita'),
+                'category' => esc_html__('Selected categories', 'koperasikita'),
+                'tag' => esc_html__('Selected tags', 'koperasikita'),
+            ],
+        ]);
+
+        self::addSetting(
+            $wpCustomize,
+            'kk_breaking_category_ids',
+            [],
+            [self::class, 'sanitizeTermIds'],
+            'refresh'
+        );
+        $wpCustomize->add_control(new TermCheckboxControl($wpCustomize, 'kk_breaking_category_ids', [
+            'label' => esc_html__('Ticker Categories', 'koperasikita'),
+            'description' => esc_html__('Used when the source above is "Selected categories". Leave empty to fall back to the latest posts.', 'koperasikita'),
+            'section' => 'koperasikita_header',
+            'taxonomy' => 'category',
+        ]));
+
+        self::addSetting(
+            $wpCustomize,
+            'kk_breaking_tag_ids',
+            [],
+            [self::class, 'sanitizeTermIds'],
+            'refresh'
+        );
+        $wpCustomize->add_control(new TermCheckboxControl($wpCustomize, 'kk_breaking_tag_ids', [
+            'label' => esc_html__('Ticker Tags', 'koperasikita'),
+            'description' => esc_html__('Used when the source above is "Selected tags". Leave empty to fall back to the latest posts.', 'koperasikita'),
+            'section' => 'koperasikita_header',
+            'taxonomy' => 'post_tag',
+        ]));
+
+        self::addSetting(
+            $wpCustomize,
+            'kk_breaking_speed',
+            5,
+            static fn ($value) => self::clampInt($value, 2, 120),
+            'refresh'
+        );
+        $wpCustomize->add_control('kk_breaking_speed', [
+            'label' => esc_html__('Seconds Between Breaking News Headlines', 'koperasikita'),
+            'section' => 'koperasikita_header',
+            'type' => 'number',
+            'input_attrs' => ['min' => 2, 'max' => 120],
+        ]);
+
+        self::addSetting(
+            $wpCustomize,
+            'kk_breaking_count',
+            5,
+            static fn ($value) => self::clampInt($value, 1, 10),
+            'refresh'
+        );
+        $wpCustomize->add_control('kk_breaking_count', [
+            'label' => esc_html__('Breaking News Headlines', 'koperasikita'),
+            'section' => 'koperasikita_header',
+            'type' => 'number',
+            'input_attrs' => ['min' => 1, 'max' => 10],
+        ]);
+
+        self::addSetting(
+            $wpCustomize,
+            'kk_topbar_date_format',
+            'l, j F Y',
+            [self::class, 'sanitizeDateFormat'],
+            'refresh'
+        );
+        $wpCustomize->add_control('kk_topbar_date_format', [
+            'label' => esc_html__('Top Bar Date Format', 'koperasikita'),
+            'section' => 'koperasikita_header',
+            'type' => 'select',
+            'choices' => [
+                'l, j F Y' => esc_html__('Monday, 25 November 2026', 'koperasikita'),
+                'j F Y' => esc_html__('25 November 2026', 'koperasikita'),
+                'D, j M Y' => esc_html__('Mon, 25 Nov 2026', 'koperasikita'),
+                'j/m/Y' => esc_html__('25/11/2026', 'koperasikita'),
+            ],
+        ]);
+
+        self::addSetting(
+            $wpCustomize,
+            'kk_clock_timezone',
+            'site',
+            [self::class, 'sanitizeClockTimezone'],
+            'refresh'
+        );
+        $wpCustomize->add_control('kk_clock_timezone', [
+            'label' => esc_html__('Clock Time Zone', 'koperasikita'),
+            'section' => 'koperasikita_header',
+            'type' => 'select',
+            'choices' => [
+                'site' => esc_html__('Site time zone (Settings > General)', 'koperasikita'),
+                'device' => esc_html__('Visitor device time', 'koperasikita'),
+                'custom' => esc_html__('Custom time zone', 'koperasikita'),
+            ],
+        ]);
+
+        self::addSetting(
+            $wpCustomize,
+            'kk_clock_custom_timezone',
+            'Asia/Jakarta',
+            [self::class, 'sanitizeCustomTimezone'],
+            'refresh'
+        );
+        $wpCustomize->add_control('kk_clock_custom_timezone', [
+            'label' => esc_html__('Custom Time Zone', 'koperasikita'),
+            'section' => 'koperasikita_header',
+            'type' => 'select',
+            'choices' => self::timezoneChoices(),
+        ]);
+
+        self::addSetting(
+            $wpCustomize,
+            'kk_clock_separator',
+            'colon',
+            [self::class, 'sanitizeClockSeparator'],
+            'refresh'
+        );
+        $wpCustomize->add_control('kk_clock_separator', [
+            'label' => esc_html__('Clock Separator', 'koperasikita'),
+            'section' => 'koperasikita_header',
+            'type' => 'select',
+            'choices' => [
+                'colon' => esc_html__('Colon (14:05:30)', 'koperasikita'),
+                'dot' => esc_html__('Dot (14.05.30)', 'koperasikita'),
+            ],
+        ]);
 
         // Default article text size in pixels. Visitors can change it
         // with the resize control before the content; their choice is
@@ -470,6 +619,72 @@ final class Customizer
         $color = sanitize_hex_color((string) $value);
 
         return $color === null ? '' : $color;
+    }
+
+    public static function sanitizeBreakingSource(mixed $value): string
+    {
+        return in_array($value, ['latest', 'category', 'tag'], true) ? (string) $value : 'latest';
+    }
+
+    /**
+     * Normalise a term-ID list. Accepts a plain array (direct
+     * set_theme_mod), a JSON array string (the Customizer checkbox
+     * control) or a comma-separated string; drops anything that is not
+     * a positive integer.
+     *
+     * @return array<int>
+     */
+    public static function sanitizeTermIds(mixed $value): array
+    {
+        if (is_string($value) && $value !== '') {
+            $decoded = json_decode($value, true);
+            $value = is_array($decoded) ? $decoded : explode(',', $value);
+        }
+
+        if (!is_array($value)) {
+            return [];
+        }
+
+        // Cast, do not abs(): a negative raw ID is invalid input, not
+        // the term with the matching positive ID.
+        $ids = array_map(static fn (mixed $id): int => (int) $id, $value);
+        $ids = array_filter($ids, static fn (int $id): bool => $id > 0);
+
+        return array_values(array_unique($ids));
+    }
+
+    public static function sanitizeClockTimezone(mixed $value): string
+    {
+        return in_array($value, ['site', 'device', 'custom'], true) ? (string) $value : 'site';
+    }
+
+    public static function sanitizeCustomTimezone(mixed $value): string
+    {
+        $value = (string) $value;
+
+        return in_array($value, timezone_identifiers_list(), true) ? $value : 'Asia/Jakarta';
+    }
+
+    public static function sanitizeClockSeparator(mixed $value): string
+    {
+        return in_array($value, ['colon', 'dot'], true) ? (string) $value : 'colon';
+    }
+
+    public static function sanitizeDateFormat(mixed $value): string
+    {
+        $allowed = ['l, j F Y', 'j F Y', 'D, j M Y', 'j/m/Y'];
+
+        return in_array($value, $allowed, true) ? (string) $value : 'l, j F Y';
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    public static function timezoneChoices(): array
+    {
+        $zones = timezone_identifiers_list();
+
+        return array_combine($zones, $zones);
     }
 
     public static function sanitizeLayout(mixed $value): string

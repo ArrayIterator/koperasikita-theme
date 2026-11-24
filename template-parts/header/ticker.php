@@ -9,23 +9,20 @@ if ( ! \KoperasiKita\Features\Features::isEnabled( 'ticker' ) ) {
 	return;
 }
 
-$ticker_posts = get_posts(
-	array(
-		'numberposts' => 5,
-		'post_status' => 'publish',
-	)
-);
+$ticker_posts = \KoperasiKita\Features\Ticker::posts();
 
 if ( empty( $ticker_posts ) ) {
 	return;
 }
+
+$ticker_speed = \KoperasiKita\Features\Ticker::speed();
 ?>
 
 <div class="kk-ticker-wrap">
 	<div class="kk-shell">
 		<div class="kk-ticker" role="region" aria-label="<?php esc_attr_e( 'Breaking news', 'koperasikita' ); ?>">
 			<span class="kk-ticker-label"><?php esc_html_e( 'Breaking', 'koperasikita' ); ?></span>
-			<ul class="kk-ticker-list" id="kk-ticker-list">
+			<ul class="kk-ticker-list" id="kk-ticker-list" data-speed="<?php echo esc_attr( (string) $ticker_speed ); ?>">
 				<?php foreach ( $ticker_posts as $index => $ticker_post ) : ?>
 					<li class="kk-ticker-item<?php echo 0 === $index ? ' is-active' : ''; ?>">
 						<a href="<?php echo esc_url( get_permalink( $ticker_post ) ); ?>">

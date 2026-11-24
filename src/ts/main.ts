@@ -237,6 +237,7 @@ function initTicker(): void {
 	let current = 0;
 	let timer: number | null = null;
 	const toggle = $('#kk-ticker-toggle') as HTMLButtonElement | null;
+	const speedSeconds = Math.min(120, Math.max(2, Number(list.getAttribute('data-speed') ?? '5') || 5));
 
 	function show(index: number): void {
 		const previous = items[current];
@@ -253,7 +254,7 @@ function initTicker(): void {
 
 	function start(): void {
 		stop();
-		timer = window.setInterval(() => show(current + 1), 5000);
+		timer = window.setInterval(() => show(current + 1), speedSeconds * 1000);
 	}
 
 	function stop(): void {
@@ -295,6 +296,54 @@ function initTicker(): void {
 			start();
 		}
 	});
+}
+
+/* ------------------------------------------------------------------ */
+/* Live clock (top bar)                                                 */
+/* ------------------------------------------------------------------ */
+
+/*
+ * The server renders the first paint in the resolved time zone; this
+ * keeps it ticking. In "device" mode the time zone is the visitor's
+ * own, so no timeZone option is passed. The separator replaces only
+ * the colon literals between the time parts, never the space before
+ * an AM/PM marker.
+ */
+function initClock(): void {
+	const clock = $('#kk-clock') as HTMLTimeElement | null;
+	if (!clock) {
+		return;
+	}
+	const mode = clock.getAttribute('data-mode') ?? 'site';
+	const zone = clock.getAttribute('data-timezone') ?? '';
+	const seconds = clock.getAttribute('data-seconds') === '1';
+	const hour12 = clock.getAttribute('data-24h') !== '1';
+	const separator = clock.getAttribute('data-separator') === '.' ? '.' : ':';
+
+	const render = (): void => {
+		try {
+			const options: Intl.DateTimeFormatOptions = {
+				hour: 'numeric',
+				minute: '2-digit',
+				hour12,
+			};
+			if (seconds) {
+				options.second = '2-digit';
+			}
+			if (mode !== 'device' && zone !== '') {
+				options.timeZone = zone;
+			}
+			const parts = new Intl.DateTimeFormat(undefined, options).formatToParts(new Date());
+			clock.textContent = parts
+				.map((part) => (part.type === 'literal' && part.value === ':' ? separator : part.value))
+				.join('');
+		} catch {
+			// An unusable time zone leaves the server-rendered time in place.
+		}
+	};
+
+	render();
+	window.setInterval(render, seconds ? 1000 : 15000);
 }
 
 /* ------------------------------------------------------------------ */
@@ -648,6 +697,7 @@ document.addEventListener('DOMContentLoaded', () => {
 	initModals();
 	initSearchOverlay();
 	initTicker();
+	initClock();
 	initLayoutSwitcher();
 	initBookmarks();
 	initPwa();

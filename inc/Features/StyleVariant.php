@@ -24,6 +24,10 @@ final class StyleVariant
         add_filter('body_class', static function (array $classes): array {
             $classes[] = 'kk-variant-' . self::current();
 
+            if (!(bool) get_theme_mod('kk_sticky_header', true)) {
+                $classes[] = 'kk-sticky-off';
+            }
+
             return $classes;
         });
     }

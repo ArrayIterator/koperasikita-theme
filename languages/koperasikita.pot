@@ -1535,3 +1535,123 @@ msgstr ""
 #: inc/Features/ArticleFontSize.php
 msgid "Reset"
 msgstr ""
+
+#: inc/Customizer/Customizer.php
+msgid "Breaking News Posts"
+msgstr ""
+
+#: inc/Customizer/Customizer.php
+msgid "Latest posts"
+msgstr ""
+
+#: inc/Customizer/Customizer.php
+msgid "Selected categories"
+msgstr ""
+
+#: inc/Customizer/Customizer.php
+msgid "Selected tags"
+msgstr ""
+
+#: inc/Customizer/Customizer.php
+msgid "Ticker Categories"
+msgstr ""
+
+#: inc/Customizer/Customizer.php
+msgid "Used when the source above is \"Selected categories\". Leave empty to fall back to the latest posts."
+msgstr ""
+
+#: inc/Customizer/Customizer.php
+msgid "Ticker Tags"
+msgstr ""
+
+#: inc/Customizer/Customizer.php
+msgid "Used when the source above is \"Selected tags\". Leave empty to fall back to the latest posts."
+msgstr ""
+
+#: inc/Customizer/Customizer.php
+msgid "Seconds Between Breaking News Headlines"
+msgstr ""
+
+#: inc/Customizer/Customizer.php
+msgid "Breaking News Headlines"
+msgstr ""
+
+#: inc/Customizer/Customizer.php
+msgid "Top Bar Date Format"
+msgstr ""
+
+#: inc/Customizer/Customizer.php
+msgid "Monday, 25 November 2026"
+msgstr ""
+
+#: inc/Customizer/Customizer.php
+msgid "25 November 2026"
+msgstr ""
+
+#: inc/Customizer/Customizer.php
+msgid "Mon, 25 Nov 2026"
+msgstr ""
+
+#: inc/Customizer/Customizer.php
+msgid "25/11/2026"
+msgstr ""
+
+#: inc/Customizer/Customizer.php
+msgid "Clock Time Zone"
+msgstr ""
+
+#: inc/Customizer/Customizer.php
+msgid "Site time zone (Settings > General)"
+msgstr ""
+
+#: inc/Customizer/Customizer.php
+msgid "Visitor device time"
+msgstr ""
+
+#: inc/Customizer/Customizer.php
+msgid "Custom time zone"
+msgstr ""
+
+#: inc/Customizer/Customizer.php
+msgid "Custom Time Zone"
+msgstr ""
+
+#: inc/Customizer/Customizer.php
+msgid "Clock Separator"
+msgstr ""
+
+#: inc/Customizer/Customizer.php
+msgid "Colon (14:05:30)"
+msgstr ""
+
+#: inc/Customizer/Customizer.php
+msgid "Dot (14.05.30)"
+msgstr ""
+
+#: inc/Customizer/Customizer.php
+msgid "Show Top Bar"
+msgstr ""
+
+#: inc/Customizer/Customizer.php
+msgid "Show Date in Top Bar"
+msgstr ""
+
+#: inc/Customizer/Customizer.php
+msgid "Show Live Clock in Top Bar"
+msgstr ""
+
+#: inc/Customizer/Customizer.php
+msgid "Show Seconds on the Clock"
+msgstr ""
+
+#: inc/Customizer/Customizer.php
+msgid "Use the 24-Hour Clock"
+msgstr ""
+
+#: inc/Customizer/Customizer.php
+msgid "Sticky Header Navigation"
+msgstr ""
+
+#: inc/Customizer/TermCheckboxControl.php
+msgid "No terms found."
+msgstr ""
