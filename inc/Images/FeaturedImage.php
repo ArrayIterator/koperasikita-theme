@@ -13,6 +13,7 @@ final class FeaturedImage
     public static function register(): void
     {
         add_filter('wp_get_attachment_image_attributes', [self::class, 'filterImageAttributes'], 10, 3);
+        add_filter('wp_lazy_loading_enabled', [self::class, 'filterLazyLoadingEnabled']);
         add_filter('jpeg_quality', [self::class, 'filterQuality']);
         add_filter('wp_editor_set_quality', [self::class, 'filterQuality']);
         add_filter('wp_calculate_image_srcset', [self::class, 'filterSrcset']);
@@ -121,8 +122,10 @@ final class FeaturedImage
     /**
      * Whether lazy-loading is enabled for images. The toggle
      * defaults to on; when it is off, no `loading="lazy"` attribute
-     * is added anywhere, and the one WordPress core adds to
-     * attachment images is removed.
+     * is added anywhere: attachment images lose it in
+     * filterImageAttributes(), and content images, avatars and
+     * iframes lose it through filterLazyLoadingEnabled(), the gate
+     * WordPress core asks before adding the attribute itself.
      */
     public static function isLazyEnabled(): bool
     {
@@ -145,6 +148,19 @@ final class FeaturedImage
         }
 
         return $attr;
+    }
+
+    /**
+     * Gate for WordPress core's own lazy-loading. Core asks this
+     * filter before it adds `loading="lazy"` to images inside post
+     * content, avatars and iframes (wp_filter_content_tags and
+     * friends). Returning false here is what makes the toggle
+     * cover those paths too — filterImageAttributes() alone only
+     * reaches attachment images.
+     */
+    public static function filterLazyLoadingEnabled(bool $enabled): bool
+    {
+        return self::isLazyEnabled() ? $enabled : false;
     }
 
     public static function filterQuality(mixed $quality): int
