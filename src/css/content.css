@@ -694,18 +694,19 @@
 
 .kk-bookmarks-list {
 	display: grid;
-	gap: 16px;
+	gap: 0;
 	margin-top: 24px;
 }
 
+/* Flat ruled rows, no boxed card: the item is a hairline separator
+ * with vertical padding, like the news cards — no background fill,
+ * no border box. */
 .kk-bookmark-item {
 	display: grid;
 	grid-template-columns: 96px 1fr;
 	gap: 16px;
-	border: 1px solid var(--kk-border);
-	border-radius: var(--kk-radius);
-	padding: 16px;
-	background: var(--kk-paper);
+	border-top: 1px solid var(--kk-border);
+	padding: 20px 0;
 }
 
 .kk-bookmark-item-media img {
@@ -730,15 +731,20 @@
 	margin-top: 4px;
 }
 
+/* The note reads as plain text, not a boxed field: transparent,
+ * no border, same font as the rest of the item. It is still a
+ * textarea — click to edit, Save note persists it. */
 .kk-bookmark-item-note {
 	margin-top: 10px;
+	font-family: inherit;
 	font-size: 14px;
-	background: var(--kk-surface);
-	border: 1px solid var(--kk-border);
-	border-radius: var(--kk-radius);
-	padding: 10px 12px;
+	background: transparent;
+	border: 0;
+	border-radius: 0;
+	padding: 0;
 	width: 100%;
 	color: var(--kk-ink);
+	resize: vertical;
 }
 
 .kk-bookmark-item-actions {

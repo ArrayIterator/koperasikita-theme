@@ -323,12 +323,12 @@ body.kk-variant-compact .kk-footer-bottom {
 }
 
 body.kk-variant-compact .kk-bookmarks-list {
-	gap: 10px;
+	gap: 0;
 	margin-top: 12px;
 }
 
 body.kk-variant-compact .kk-bookmark-item {
-	padding: 10px;
+	padding: 12px 0;
 }
 
 body.kk-variant-compact .kk-primary-menu a {

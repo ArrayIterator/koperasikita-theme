@@ -161,7 +161,7 @@
 }
 
 /* Grid cards: thumbnails are back (the clean text-only treatment hid
- * them) and the excerpt goes — the card is thumb + title + read more.
+ * them) and the excerpt goes — the card is thumb + category + title.
  * The list layout keeps its excerpt: there the excerpt is the point.
  * (The old rules hid the media here and forced list cards to block
  * because the thumb column was empty — both go away with the media.) */
@@ -191,17 +191,4 @@
 /* Longer excerpts: the excerpt fills most of the card, like the shot. */
 .kk-home .kk-card-excerpt {
 	-webkit-line-clamp: 6;
-}
-
-/* No category tags on the homepage: the section label already gives
- * the context, and the Latest section needs none. */
-.kk-home .kk-card .kk-eyebrow {
-	display: none;
-}
-
-/* Bookmark stays functional, but as a quiet text button, not a pill. */
-.kk-home .kk-bookmark-button {
-	border-color: transparent;
-	padding-left: 0;
-	padding-right: 0;
 }

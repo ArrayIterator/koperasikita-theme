@@ -24,12 +24,9 @@
 	padding-top: 16px;
 }
 
-.kk-card-media-wrap {
-	grid-area: media;
-}
-
 .kk-card-media {
 	display: block;
+	grid-area: media;
 }
 
 .kk-card-media img {
@@ -88,23 +85,6 @@
 	font-size: 13px;
 	color: var(--kk-muted);
 	margin: 0 0 8px;
-}
-
-/* Lowercase bold "read more ›", green — the one brand accent on a
- * near-monochrome card. */
-.kk-read-more {
-	margin: 12px 0 0;
-	font-size: 14px;
-	font-weight: 700;
-	text-transform: lowercase;
-}
-
-.kk-read-more a {
-	color: var(--kk-green, #0B6B3A);
-}
-
-.kk-read-more a:hover {
-	color: var(--kk-green-dark, #07522C);
 }
 
 .kk-bookmark-button {
@@ -199,7 +179,7 @@
 		align-items: flex-start;
 	}
 
-	.kk-related .kk-card-media-wrap {
+	.kk-related .kk-card-media {
 		flex: 0 0 120px;
 		width: 120px;
 	}
