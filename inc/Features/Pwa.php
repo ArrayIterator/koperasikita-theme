@@ -184,9 +184,9 @@ final class Pwa
      */
     public static function buttonText(): string
     {
-        $text = sanitize_text_field((string) get_theme_mod('kk_pwa_button_text', 'Install app'));
+        $text = sanitize_text_field((string) get_theme_mod('kk_pwa_button_text', __('Install app', 'koperasikita')));
 
-        return $text !== '' ? $text : 'Install app';
+        return $text !== '' ? $text : __('Install app', 'koperasikita');
     }
 
     /**

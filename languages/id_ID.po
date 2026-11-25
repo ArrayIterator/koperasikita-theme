@@ -1084,7 +1084,9 @@ msgstr "Data pasar belum tersedia."
 msgid "No data yet."
 msgstr "Belum ada data."
 
-#: template-parts/pwa/install-button.php
+#: inc/Customizer/Customizer.php:604
+#: inc/Features/Pwa.php:187
+#: inc/Features/Pwa.php:189
 msgid "Install app"
 msgstr "Instal aplikasi"
 

@@ -601,7 +601,7 @@ final class Customizer
         self::addSetting(
             $wpCustomize,
             'kk_pwa_button_text',
-            'Install app',
+            __('Install app', 'koperasikita'),
             'sanitize_text_field',
             'refresh'
         );
