@@ -199,10 +199,16 @@ function initSearchOverlay(): void {
 	if (!overlay || !openButton) {
 		return;
 	}
-	openButton.addEventListener('click', () => openModal(overlay));
 	const input = overlay.querySelector<HTMLInputElement>('.search-field');
+	openButton.addEventListener('click', () => {
+		openModal(overlay);
+		// Focus the field directly. The old code waited for a
+		// transitionend event, but the modal has no CSS transition,
+		// so that event never fired and focus stayed on the close
+		// button — the user had to click or Tab into the field.
+		input?.focus();
+	});
 	if (input) {
-		overlay.addEventListener('transitionend', () => input.focus());
 		// The search field owns Escape: clear the query and leave, keep
 		// the overlay open. A second Escape (focus outside the field)
 		// closes it.

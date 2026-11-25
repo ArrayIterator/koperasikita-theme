@@ -124,9 +124,10 @@
 	display: none;
 }
 
-body.has-bottom-nav {
-	padding-bottom: 64px;
-}
+/* The 64px body padding lives only in responsive.css (max-width: 767px),
+ * where the fixed bar actually shows. It used to be duplicated here
+ * unscoped, which gave every desktop page 64px of dead space below
+ * the footer for a bar that is display: none. */
 
 .kk-bottom-nav-menu {
 	display: flex;

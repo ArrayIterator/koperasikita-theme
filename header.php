@@ -59,10 +59,30 @@
 			</p>
 		</div>
 	</div>
-
-	<?php get_template_part( 'template-parts/header/site-nav' ); ?>
-
-	<?php get_template_part( 'template-parts/header/ticker' ); ?>
 </header>
+
+<?php
+// The primary navigation must live outside <header>: .kk-nav-wrap is
+// position: sticky, and a sticky element can only stick within its
+// parent's box — inside the ~210px header it stuck for a few pixels
+// and then scrolled away with the header. As a direct child of <body>
+// it sticks to the top of the viewport for the whole page. The ticker
+// moves out with it so the visual order (nav, then ticker) is kept.
+get_template_part( 'template-parts/header/site-nav' );
+?>
+
+<?php get_template_part( 'template-parts/header/ticker' ); ?>
+
+<?php
+// The weather location picker lives here, not in the top bar: the top bar
+// is toggleable (kk_topbar_enabled), and the picker is the dialog opened
+// by the weather widget's "Change location" button as well as the top-bar
+// button. If it lived in the top bar, disabling the top bar would leave
+// the widget button dead (weather.ts silently skips binding when the
+// dialog is absent). Rendered once per page, only when weather is on.
+if ( \KoperasiKita\Features\Features::isEnabled( 'weather' ) ) {
+	get_template_part( 'template-parts/weather/location-picker' );
+}
+?>
 
 <main id="kk-main" class="kk-main">
