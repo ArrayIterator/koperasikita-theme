@@ -33,7 +33,7 @@ get_header();
 				</div>
 			</article>
 			<?php
-			if ( comments_open() || get_comments_number() ) {
+			if ( get_theme_mod( 'kk_comments_enabled', true ) && ( comments_open() || get_comments_number() ) ) {
 				comments_template();
 			}
 		endwhile;
