@@ -115,11 +115,14 @@ html[data-color-scheme="system"] .kk-icon-sun {
 	border-radius: var(--kk-radius);
 }
 
-.kk-brand-mark-letter {
-	font-family: var(--kk-serif);
-	font-size: 34px;
-	font-weight: 700;
-	line-height: 1;
+.kk-brand-mark--logo {
+	background: transparent;
+}
+
+.kk-brand-mark-logo {
+	display: block;
+	width: 56px;
+	height: 56px;
 }
 
 .kk-brand-text {

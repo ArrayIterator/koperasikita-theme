@@ -241,7 +241,9 @@ function applyHomepageLayout(next: SettingValue): void {
  */
 function applyLogoInvert(next: SettingValue): void {
 	const inverted = next === true || next === '1' || next === 'on';
-	document.querySelectorAll('.custom-logo, .kk-brand-mark').forEach((logo) => {
+	// The theme's own logo (Padi) is colourful and reads on light and dark,
+	// so it is never inverted — only a user-uploaded custom logo is.
+	document.querySelectorAll('.custom-logo, .kk-brand-mark:not(.kk-brand-mark--logo)').forEach((logo) => {
 		logo.classList.toggle('is-inverted', inverted);
 	});
 }

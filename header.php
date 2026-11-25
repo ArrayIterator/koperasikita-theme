@@ -33,8 +33,8 @@
 					the_custom_logo();
 				} else {
 					?>
-					<a class="kk-brand-mark<?php echo get_theme_mod( 'kk_logo_invert_dark', false ) ? ' is-inverted' : ''; ?>" href="<?php echo esc_url( home_url( '/' ) ); ?>" rel="home" aria-label="<?php echo esc_attr( get_bloginfo( 'name' ) ); ?>">
-						<span class="kk-brand-mark-letter" aria-hidden="true">K</span>
+					<a class="kk-brand-mark kk-brand-mark--logo" href="<?php echo esc_url( home_url( '/' ) ); ?>" rel="home" aria-label="<?php echo esc_attr( get_bloginfo( 'name' ) ); ?>">
+						<img class="kk-brand-mark-logo" src="<?php echo esc_url( get_template_directory_uri() . '/assets/img/logo.svg' ); ?>" alt="" width="56" height="56" aria-hidden="true">
 					</a>
 					<?php
 				}

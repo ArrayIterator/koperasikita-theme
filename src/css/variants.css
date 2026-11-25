@@ -119,8 +119,9 @@ body.kk-variant-compact .kk-brand-mark {
 	height: 44px;
 }
 
-body.kk-variant-compact .kk-brand-mark-letter {
-	font-size: 28px;
+body.kk-variant-compact .kk-brand-mark-logo {
+	width: 44px;
+	height: 44px;
 }
 
 body.kk-variant-compact .kk-brand .custom-logo {
