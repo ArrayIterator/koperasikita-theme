@@ -101,3 +101,91 @@
 .kk-more-link {
 	margin-top: 16px;
 }
+
+/* --- Clean press-page treatment (Daily UI #051 language) ------------------ */
+/* Homepage only: text-first cards on a quiet surface, lowercase serif
+ * section labels with a hairline running to the edge, generous gaps.
+ * The hero lead keeps its image — one strong visual per page. */
+
+.kk-home .kk-section-head {
+	margin-bottom: 20px;
+}
+
+/* Lowercase serif label + a hairline that sits on the text baseline
+ * and runs to the right edge (the ::after's bottom edge aligns with
+ * the label baseline, so the rule reads as one continuous divider). */
+.kk-home .kk-section-title {
+	display: flex;
+	flex: 1;
+	min-width: 0;
+	align-items: baseline;
+	gap: 16px;
+	border-top: 0;
+	padding-top: 0;
+	margin-bottom: 0;
+	text-transform: lowercase;
+	font-weight: 500;
+}
+
+.kk-home .kk-section-title::after {
+	content: "";
+	flex: 1;
+	border-top: 1px solid var(--kk-ink);
+}
+
+/* The "Section" eyebrow above a category title is noise: the title
+ * already says which section this is. */
+.kk-home .kk-category-block .kk-section-head .kk-eyebrow {
+	display: none;
+}
+
+.kk-home .kk-category-block {
+	margin-top: 56px;
+}
+
+/* Text-first cards: no thumbnails in the rows, the story is the type. */
+.kk-home .kk-latest-items .kk-card-media,
+.kk-home .kk-category-block-items .kk-card-media,
+.kk-home .kk-hero-grid .kk-card-media {
+	display: none;
+}
+
+/* The list layout's 120px thumb column would be empty without media. */
+.kk-home .kk-latest-items.kk-layout-list .kk-card {
+	display: block;
+}
+
+/* Flat quiet card: surface fill, even padding, no border, no shadow. */
+.kk-home .kk-card {
+	background: var(--kk-surface);
+	border-top: 0;
+	padding: 20px;
+}
+
+.kk-home .kk-card-body {
+	padding-top: 0;
+}
+
+/* Headlines medium, not bold — the shot's Didone-style regular weight. */
+.kk-home .kk-card-title {
+	font-weight: 500;
+	font-size: 22px;
+}
+
+/* Longer excerpts: the excerpt fills most of the card, like the shot. */
+.kk-home .kk-card-excerpt {
+	-webkit-line-clamp: 6;
+}
+
+/* No category tags on the homepage: the section label already gives
+ * the context, and the Latest section needs none. */
+.kk-home .kk-card .kk-eyebrow {
+	display: none;
+}
+
+/* Bookmark stays functional, but as a quiet text button, not a pill. */
+.kk-home .kk-bookmark-button {
+	border-color: transparent;
+	padding-left: 0;
+	padding-right: 0;
+}

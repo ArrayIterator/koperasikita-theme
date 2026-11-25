@@ -17,6 +17,8 @@ $thumb_url  = \KoperasiKita\Images\FeaturedImage::url( get_the_ID(), 'medium' );
 	<?php endif; ?>
 
 	<div class="kk-card-body">
+		<p class="kk-card-date"><time datetime="<?php echo esc_attr( get_the_date( 'c' ) ); ?>"><?php echo esc_html( get_the_date() . ' - ' . get_the_time() ); ?></time></p>
+
 		<?php if ( ! empty( $categories ) ) : ?>
 			<p class="kk-eyebrow"><a href="<?php echo esc_url( get_category_link( $categories[0] ) ); ?>"><?php echo esc_html( $categories[0]->name ); ?></a></p>
 		<?php endif; ?>
@@ -24,9 +26,9 @@ $thumb_url  = \KoperasiKita\Images\FeaturedImage::url( get_the_ID(), 'medium' );
 		<h3 class="kk-card-title"><a href="<?php the_permalink(); ?>"><?php the_title(); ?></a></h3>
 		<p class="kk-card-excerpt"><?php echo esc_html( get_the_excerpt() ); ?></p>
 
+		<p class="kk-read-more"><a href="<?php the_permalink(); ?>"><?php esc_html_e( 'Read more', 'koperasikita' ); ?> <span aria-hidden="true">&#8250;</span></a></p>
+
 		<p class="kk-meta">
-			<time datetime="<?php echo esc_attr( get_the_date( 'c' ) ); ?>"><?php echo esc_html( get_the_date() ); ?></time>
-			<span class="kk-meta-sep" aria-hidden="true">&middot;</span>
 			<a href="<?php the_permalink(); ?>#comments">
 				<?php
 				/* translators: %s: Number of comments. */

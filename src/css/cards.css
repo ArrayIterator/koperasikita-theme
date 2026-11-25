@@ -53,6 +53,30 @@
 	overflow: hidden;
 }
 
+/* Timestamp first, like a press page: small grey sans, date + time. */
+.kk-card-date {
+	font-size: 13px;
+	color: var(--kk-muted);
+	margin: 0 0 8px;
+}
+
+/* Lowercase bold "read more ›", green — the one brand accent on a
+ * near-monochrome card. */
+.kk-read-more {
+	margin: 12px 0 0;
+	font-size: 14px;
+	font-weight: 700;
+	text-transform: lowercase;
+}
+
+.kk-read-more a {
+	color: var(--kk-green, #0B6B3A);
+}
+
+.kk-read-more a:hover {
+	color: var(--kk-green-dark, #07522C);
+}
+
 .kk-bookmark-button {
 	display: inline-flex;
 	align-items: center;

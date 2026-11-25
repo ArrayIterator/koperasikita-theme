@@ -1933,3 +1933,7 @@ msgstr ""
 #: inc/Customizer/Customizer.php:685
 msgid "Banner & Floating Description"
 msgstr ""
+
+#: template-parts/content/card-news.php:29
+msgid "Read more"
+msgstr ""

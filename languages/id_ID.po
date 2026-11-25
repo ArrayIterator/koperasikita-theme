@@ -1934,3 +1934,7 @@ msgstr "Install {app_name} di perangkatmu untuk pengalaman yang lebih cepat dan 
 #: inc/Customizer/Customizer.php:685
 msgid "Banner & Floating Description"
 msgstr "Deskripsi Banner & Mengambang"
+
+#: template-parts/content/card-news.php:29
+msgid "Read more"
+msgstr "Baca selengkapnya"
