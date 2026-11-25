@@ -80,14 +80,22 @@
 </footer>
 
 <?php
-// Mobile bottom navigation (phones only, < 768px). Built from the mobile-bottom menu location.
-if ( has_nav_menu( 'mobile-bottom' ) ) :
+// Mobile bottom navigation (phones only, < 768px). Built from the
+// mobile-bottom menu location, falling back to the primary menu when no
+// menu is assigned to mobile-bottom, so the bottom bar is never empty on
+// a fresh install. Menus::mobileBottomItems() decides whether there is
+// anything to show; wp_nav_menu() renders it, so the markup (including
+// the current-menu-item state) is identical to a directly assigned menu.
+$bottom_nav_items = \KoperasiKita\Setup\Menus::mobileBottomItems();
+
+if ( [] !== $bottom_nav_items ) :
+	$bottom_nav_location = has_nav_menu( 'mobile-bottom' ) ? 'mobile-bottom' : 'primary';
 	?>
 	<nav class="kk-bottom-nav" aria-label="<?php esc_attr_e( 'Mobile navigation', 'koperasikita' ); ?>">
 		<?php
 		wp_nav_menu(
 			array(
-				'theme_location' => 'mobile-bottom',
+				'theme_location' => $bottom_nav_location,
 				'menu_class'     => 'kk-bottom-nav-menu',
 				'container'      => false,
 				'fallback_cb'    => false,
