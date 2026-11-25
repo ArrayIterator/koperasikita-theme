@@ -8,6 +8,7 @@
   "scripts": {
     "build": "vite build",
     "dev": "vite --host 0.0.0.0",
+    "release": "node release-theme.js",
     "typecheck": "tsc --noEmit"
   },
   "type": "module",
