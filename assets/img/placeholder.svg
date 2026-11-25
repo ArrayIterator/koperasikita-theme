@@ -1,5 +1,32 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="640" height="360" viewBox="0 0 640 360" role="img" aria-label="Placeholder image">
+  <defs>
+    <linearGradient id="kk-green" x1="0" y1="1" x2="0" y2="0">
+      <stop offset="0" stop-color="#0B6B3A"/>
+      <stop offset="0.55" stop-color="#1F8A54"/>
+      <stop offset="1" stop-color="#5FBF8F"/>
+    </linearGradient>
+    <linearGradient id="kk-gold" x1="0" y1="1" x2="0" y2="0">
+      <stop offset="0" stop-color="#8C6D1F"/>
+      <stop offset="0.55" stop-color="#C9962E"/>
+      <stop offset="1" stop-color="#EBCB5D"/>
+    </linearGradient>
+    <!-- A single rice grain: a pointed teardrop, base at (0,0), tip at (0,-92). -->
+    <path id="grain" d="M0 0 C 28 -14, 38 -52, 22 -92 C 6 -52, -14 -16, 0 0 Z" fill="url(#kk-gold)"/>
+  </defs>
   <rect width="640" height="360" rx="12" fill="#F7F7F5"/>
   <rect x="1" y="1" width="638" height="358" rx="11" fill="none" stroke="#E6E3DE"/>
-  <text x="320" y="215" text-anchor="middle" font-family="Georgia, serif" font-size="140" font-weight="700" fill="#0B6B3A">K</text>
+  <!-- Padi mark (same artwork as assets/img/logo.svg), centred in the frame. -->
+  <g transform="translate(320 180) scale(0.36) translate(-512 -546)">
+    <g transform="translate(512 546) scale(1.25) translate(-512 -546)">
+      <path d="M512 920 C 480 720, 545 480, 512 260" fill="none" stroke="url(#kk-green)" stroke-width="34" stroke-linecap="round"/>
+      <use href="#grain" transform="translate(494,826) rotate(-32) scale(1.35)"/>
+      <use href="#grain" transform="translate(530,706) rotate(32) scale(1.35)"/>
+      <use href="#grain" transform="translate(494,586) rotate(-32) scale(1.35)"/>
+      <use href="#grain" transform="translate(530,466) rotate(32) scale(1.35)"/>
+      <use href="#grain" transform="translate(494,346) rotate(-32) scale(1.35)"/>
+      <use href="#grain" transform="translate(512,296) scale(1.35)"/>
+      <path d="M512 920 C 430 900, 360 850, 340 770 C 430 790, 490 840, 512 920 Z" fill="url(#kk-green)"/>
+      <path d="M512 920 C 594 900, 664 850, 684 770 C 594 790, 534 840, 512 920 Z" fill="url(#kk-green)"/>
+    </g>
+  </g>
 </svg>

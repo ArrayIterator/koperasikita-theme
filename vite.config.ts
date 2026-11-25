@@ -19,6 +19,16 @@ export default defineConfig({
     emptyOutDir: true,
     manifest: true,
     rollupOptions: {
+      // NOTE: do NOT set output.format to 'iife' here — Rollup refuses it
+      // with multiple inputs ("inlineDynamicImports" conflict). The entries
+      // are ES-format bundles whose top-level names would leak into the
+      // shared global scope if loaded as classic scripts (gold-markets'
+      // `function I` vs main's `const I` threw "Identifier 'I' has already
+      // been declared" and killed main.js on every page). The fix lives in
+      // inc/Assets/Enqueue.php instead: EVERY JS entry is loaded as
+      // type="module", so each entry runs in its own module scope and no
+      // entry can ever collide with another. Never enqueue a JS entry as a
+      // classic script.
       input: {
         main: 'src/ts/main.ts',
         admin: 'src/ts/admin.ts',

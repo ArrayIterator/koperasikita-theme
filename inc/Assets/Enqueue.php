@@ -104,11 +104,25 @@ final class Enqueue
     }
 
     /**
-     * Registers the script-tag filter that loads the Vite entries
-     * which start with a top-level `import` as ES modules, at most
-     * once per request. The Customizer preview fires both
-     * wp_enqueue_scripts and customize_preview_init, so register()
+     * Registers the script-tag filter that loads every Vite JS entry as an
+     * ES module, at most once per request. The Customizer preview fires
+     * both wp_enqueue_scripts and customize_preview_init, so register()
      * and registerCustomizerPreview() both call this.
+     *
+     * Two reasons, both fatal when an entry loads as a plain <script>:
+     * (1) Vite's default 'es' output splits any module shared by two
+     * entries (src/ts/api.ts is imported by weather, admin and
+     * customizer-preview) into a separate chunk, and the entries then
+     * start with a top-level `import` — a SyntaxError as a plain
+     * <script>. (2) Even entries without imports leak their top-level
+     * names into the one shared global scope, and Vite's minifier
+     * reuses single-letter names across bundles: gold-markets'
+     * `function I` vs main's `const I` threw "Identifier 'I' has
+     * already been declared" and killed main.js — ticker, clock,
+     * dark-mode toggle, search overlay, mobile nav, bookmarks, share
+     * copy — on every page. Module scope gives each entry its own
+     * scope, so no entry can ever collide with another. Never enqueue
+     * a JS entry as a classic script (see vite.config.ts).
      */
     private static bool $moduleScriptFilterAdded = false;
 
@@ -121,7 +135,7 @@ final class Enqueue
         self::$moduleScriptFilterAdded = true;
 
         add_filter('script_loader_tag', static function (string $tag, string $handle): string {
-            if (in_array($handle, ['kk-weather', 'kk-admin', 'kk-customizer-preview'], true) && !str_contains($tag, 'type="module"')) {
+            if (in_array($handle, ['kk-main', 'kk-gold-markets', 'kk-weather', 'kk-agenda', 'kk-article-font-size', 'kk-pagination', 'kk-pwa', 'kk-admin', 'kk-customizer-preview', 'kk-customizer-controls'], true) && !str_contains($tag, 'type="module"')) {
                 // Load these entries as modules. Vite's default 'es'
                 // output splits any module shared by two entries
                 // (src/ts/api.ts is imported by weather, admin and
@@ -131,11 +145,14 @@ final class Enqueue
                 // whole file: weather.js lost the picker, the top-bar
                 // slot and the widget refresh; admin.js lost the Fonts
                 // management controls; customizer-preview.js lost every
-                // live-preview binding. Module scripts are deferred by
-                // default, so the DOMContentLoaded boots still run
-                // (admin.ts guards on document.readyState, and the
-                // preview only binds wp.customize, which its
-                // 'customize-preview' dependency loads first).
+                // live-preview binding. And even import-free entries
+                // collide in the shared global scope (gold-markets'
+                // `function I` vs main's `const I` killed main.js on
+                // every page). Module scripts are deferred by default,
+                // so the DOMContentLoaded boots still run (admin.ts
+                // guards on document.readyState, and the preview only
+                // binds wp.customize, which its 'customize-preview'
+                // dependency loads first).
                 return str_replace(' src=', ' type="module" src=', $tag);
             }
 
