@@ -30,7 +30,7 @@
 		<nav id="kk-primary-nav" class="kk-primary-nav" aria-label="<?php esc_attr_e( 'Primary', 'koperasikita' ); ?>">
 			<div class="kk-drawer-head">
 				<span class="kk-drawer-brand">
-					<img class="kk-drawer-brand-logo" src="<?php echo esc_url( get_template_directory_uri() . '/assets/img/logo.svg' ); ?>" alt="" width="32" height="32" aria-hidden="true">
+					<img class="kk-drawer-brand-logo" src="<?php echo esc_url( get_template_directory_uri() . '/assets/img/logo-k.svg' ); ?>" alt="" width="32" height="32" aria-hidden="true">
 					<span><?php esc_html_e( 'Menu', 'koperasikita' ); ?></span>
 				</span>
 				<button type="button" class="kk-icon-button kk-drawer-close" id="kk-drawer-close" aria-label="<?php esc_attr_e( 'Close menu', 'koperasikita' ); ?>">

@@ -31,7 +31,7 @@ $sw_url = \KoperasiKita\Features\Pwa::serviceWorkerUrl();
 	<aside class="kk-pwa-banner" data-kk-pwa-button data-kk-pwa-button-style="above-header"<?php echo $hidden_attr; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
 		<div class="kk-shell kk-pwa-banner-inner">
 			<div class="kk-pwa-banner-content">
-				<img class="kk-pwa-banner-icon" src="<?php echo esc_url( get_template_directory_uri() . '/assets/img/logo.svg' ); ?>" alt="" width="28" height="28" loading="lazy" decoding="async">
+				<img class="kk-pwa-banner-icon" src="<?php echo esc_url( get_template_directory_uri() . '/assets/img/logo-k.svg' ); ?>" alt="" width="28" height="28" loading="lazy" decoding="async">
 				<span class="kk-pwa-banner-text"><?php echo esc_html( $button_desc ); ?></span>
 			</div>
 			<div class="kk-pwa-banner-actions">
@@ -56,7 +56,7 @@ $sw_url = \KoperasiKita\Features\Pwa::serviceWorkerUrl();
 	<aside class="kk-pwa-float kk-pwa-float--<?php echo esc_attr( $style ); ?>" data-kk-pwa-button data-kk-pwa-button-style="<?php echo esc_attr( $style ); ?>"<?php echo $hidden_attr; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
 		<?php if ( 'float-bottom' === $style ) : ?>
 			<div class="kk-pwa-float-content">
-				<img class="kk-pwa-float-icon" src="<?php echo esc_url( get_template_directory_uri() . '/assets/img/logo.svg' ); ?>" alt="" width="24" height="24" loading="lazy" decoding="async">
+				<img class="kk-pwa-float-icon" src="<?php echo esc_url( get_template_directory_uri() . '/assets/img/logo-k.svg' ); ?>" alt="" width="24" height="24" loading="lazy" decoding="async">
 				<span class="kk-pwa-float-desc"><?php echo esc_html( $button_desc ); ?></span>
 			</div>
 		<?php endif; ?>

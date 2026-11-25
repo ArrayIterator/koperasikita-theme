@@ -42,7 +42,7 @@ if ( \KoperasiKita\Features\Pwa::isButtonPosition( 'above-header' ) ) {
 				} else {
 					?>
 					<a class="kk-brand-mark kk-brand-mark--logo" href="<?php echo esc_url( home_url( '/' ) ); ?>" rel="home" aria-label="<?php echo esc_attr( get_bloginfo( 'name' ) ); ?>">
-						<img class="kk-brand-mark-logo" src="<?php echo esc_url( get_template_directory_uri() . '/assets/img/logo.svg' ); ?>" alt="" width="56" height="56" aria-hidden="true">
+						<img class="kk-brand-mark-logo" src="<?php echo esc_url( get_template_directory_uri() . '/assets/img/logo-k.svg' ); ?>" alt="" width="56" height="56" aria-hidden="true">
 					</a>
 					<?php
 				}

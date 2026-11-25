@@ -220,6 +220,16 @@ body.kk-sticky-off .kk-nav-wrap {
 	opacity: 1;
 }
 
+/* While the drawer is open the whole sticky bar — which contains the
+ * drawer — must paint above the backdrop. The backdrop is a body-level
+ * fixed layer at z 55, and the drawer is trapped inside the wrap's
+ * z 40 stacking context, so without this the backdrop covers the
+ * drawer and blurs it too. Same ordering as padangkita: drawer above
+ * backdrop, backdrop above the page. */
+html.kk-nav-open .kk-nav-wrap {
+	z-index: 60;
+}
+
 /* Lock the page behind the open drawer. */
 html.kk-nav-open,
 html.kk-nav-open body {

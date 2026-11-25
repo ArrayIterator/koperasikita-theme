@@ -41,6 +41,25 @@
 	}
 }
 
+@media (max-width: 1023px) {
+	/* The sticky nav bar is the whole header once the masthead has
+	 * scrolled away — give it real presence: a taller bar, bigger
+	 * touch targets and bigger icons. */
+	.kk-nav-inner {
+		min-height: 64px;
+	}
+
+	.kk-nav-inner .kk-icon-button {
+		min-width: 48px;
+		min-height: 48px;
+	}
+
+	.kk-nav-inner .kk-icon-button svg {
+		width: 24px;
+		height: 24px;
+	}
+}
+
 @media (min-width: 1024px) {
 	.kk-menu-toggle {
 		display: none;
