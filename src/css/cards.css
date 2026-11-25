@@ -15,11 +15,25 @@
 }
 
 .kk-card {
+	/* A grid so the bookmark can share the media area (overlaying the
+	 * thumbnail) in grid layouts and take its own column in list rows
+	 * — without absolute positioning or padding maths. */
+	display: grid;
+	grid-template-areas: "media" "body";
 	border-top: 1px solid var(--kk-border);
 	padding-top: 16px;
 }
 
+.kk-card-media-wrap {
+	grid-area: media;
+}
+
+.kk-card-media {
+	display: block;
+}
+
 .kk-card-media img {
+	display: block;
 	width: 100%;
 	aspect-ratio: 16 / 9;
 	object-fit: cover;
@@ -27,6 +41,7 @@
 }
 
 .kk-card-body {
+	grid-area: body;
 	padding-top: 12px;
 }
 
@@ -46,6 +61,15 @@
 }
 
 .kk-card-title a:hover {
+	color: var(--kk-green, #0B6B3A);
+}
+
+/* The clamp ellipsis is painted by the heading, not the link, so it
+ * keeps the heading's ink colour while the title turns green on
+ * hover. Colour the heading on hover too, so the "…" follows the
+ * link colour with the rest of the title. */
+.kk-card-title:hover,
+.kk-card-title:hover a {
 	color: var(--kk-green, #0B6B3A);
 }
 
@@ -112,6 +136,52 @@
 	fill: currentColor;
 }
 
+/* Bookmark on the card: an icon-only circle over the thumbnail (grid)
+ * or a trailing action at the right edge of the row (list) — never a
+ * stray button under the text. The "Save" label is hidden; the button
+ * keeps its "Save bookmark" aria-label, and the saved state is the
+ * green fill, same as before. */
+.kk-card .kk-bookmark-button {
+	grid-area: media;
+	justify-self: end;
+	align-self: start;
+	z-index: 1;
+	width: 36px;
+	height: 36px;
+	margin: 10px;
+	min-height: 0;
+	padding: 0;
+	justify-content: center;
+	border: 0;
+	border-radius: 50%;
+	background: rgb(255 255 255 / 0.92);
+	box-shadow: 0 1px 4px rgb(0 0 0 / 0.2);
+}
+
+.kk-card .kk-bookmark-button .kk-bookmark-label {
+	display: none;
+}
+
+.kk-card .kk-bookmark-button:hover {
+	background: #fff;
+	border-color: transparent;
+	color: var(--kk-green, #0B6B3A);
+}
+
+.kk-card .kk-bookmark-button[aria-pressed="true"] {
+	background: var(--kk-green, #0B6B3A);
+	color: #fff;
+}
+
+/* List rows: the bookmark takes its own column at the right edge of
+ * the row, vertically centred (the grid gives it the room, so no
+ * padding maths and no text running underneath). */
+.kk-layout-list .kk-card .kk-bookmark-button {
+	grid-area: bookmark;
+	align-self: center;
+	margin: 0;
+}
+
 /* --- Related news on phones: compact horizontal rows ---------------------- */
 /*
  * The related section reuses the standard news card, so on phones each card
@@ -129,7 +199,7 @@
 		align-items: flex-start;
 	}
 
-	.kk-related .kk-card-media {
+	.kk-related .kk-card-media-wrap {
 		flex: 0 0 120px;
 		width: 120px;
 	}

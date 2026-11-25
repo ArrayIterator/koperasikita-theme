@@ -209,6 +209,23 @@ final class Customizer
             ],
         ]);
 
+        // Comment count on news cards: off by default, so a card never
+        // shows a bare "0 comments" line. Turn it on when the site has
+        // real discussion to show.
+        self::addSetting(
+            $wpCustomize,
+            'kk_card_show_comments',
+            false,
+            [self::class, 'sanitizeBool'],
+            'refresh'
+        );
+        $wpCustomize->add_control('kk_card_show_comments', [
+            'label' => esc_html__('Show Comment Count on Cards', 'koperasikita'),
+            'section' => 'koperasikita_homepage',
+            'type' => 'checkbox',
+            'description' => esc_html__('Shows the "N comments" line on news cards.', 'koperasikita'),
+        ]);
+
         // Homepage category blocks: three slots, each either a chosen
         // category or automatic (most posts), with its own on/off
         // switch. Slot order is the display order on the front page.

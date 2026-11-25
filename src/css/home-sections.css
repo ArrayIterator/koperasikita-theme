@@ -15,7 +15,8 @@
 
 .kk-latest-items.kk-layout-list .kk-card {
 	display: grid;
-	grid-template-columns: 120px 1fr;
+	grid-template-columns: 120px 1fr auto;
+	grid-template-areas: "media body bookmark";
 	gap: 16px;
 }
 
