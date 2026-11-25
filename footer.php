@@ -47,8 +47,9 @@
 					<?php esc_html_e( 'News, announcements and market updates from the cooperative, delivered to your inbox.', 'koperasikita' ); ?>
 				</p>
 				<?php
-				// The [kk_subscribe] shortcode (MailPoet) lands in Phase 3; until then
-				// render nothing instead of printing the literal shortcode text.
+				// The [kk_subscribe] shortcode renders the MailPoet subscribe
+				// form; when it is not registered (MailPoet inactive) render
+				// nothing instead of printing the literal shortcode text.
 				if ( shortcode_exists( 'kk_subscribe' ) ) {
 					echo do_shortcode( '[kk_subscribe]' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 				}

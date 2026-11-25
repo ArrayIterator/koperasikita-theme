@@ -12,7 +12,6 @@ interface KkData {
 	isBookmarksEnabled?: boolean;
 	isPwaEnabled?: boolean;
 	pwaPromptDelayMs?: number;
-	isTickerEnabled?: boolean;
 	isWeatherEnabled?: boolean;
 	isMarketsEnabled?: boolean;
 	bookmarksPageUrl?: string;
@@ -223,10 +222,6 @@ function initSearchOverlay(): void {
 /* ------------------------------------------------------------------ */
 
 function initTicker(): void {
-	const data = getKkData();
-	if (data.isTickerEnabled === false) {
-		return;
-	}
 	const list = $('#kk-ticker-list');
 	if (!list) {
 		return;

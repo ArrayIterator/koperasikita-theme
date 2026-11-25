@@ -2,12 +2,13 @@
 /**
  * Editor picks: numbered editorial list (1-4).
  *
- * Accepts $args['offset'] (default 1, so picks start after the hero lead).
+ * Accepts $args['offset'] (default: the hero count, so picks start
+ * after the hero instead of repeating its stories).
  *
  * @package KoperasiKita
  */
 
-$offset = isset( $args['offset'] ) ? (int) $args['offset'] : 1;
+$offset = isset( $args['offset'] ) ? (int) $args['offset'] : max( 1, (int) get_theme_mod( 'kk_hero_count', 5 ) );
 
 $picks = new WP_Query(
 	array(
