@@ -7,6 +7,7 @@ namespace KoperasiKita\Customizer;
 use KoperasiKita\Features\Fonts;
 use KoperasiKita\Features\Footer;
 use KoperasiKita\Features\Performance;
+use KoperasiKita\Features\StyleVariant;
 use WP_Customize_Color_Control;
 use WP_Customize_Manager;
 
@@ -23,6 +24,18 @@ final class Customizer
         'kk_palette_paper' => '#FFFFFF',
         'kk_palette_surface' => '#F7F7F5',
         'kk_palette_border' => '#E6E3DE',
+    ];
+
+    /**
+     * Typography size settings: theme-mod id => [CSS variable, default px, min px, max px].
+     * Mirrors the kk_title_size / kk_card_title_size / kk_excerpt_size controls
+     * in register(), the --kk-*-size defaults in tokens.css, and the ranges
+     * of their sanitize callbacks.
+     */
+    private const SIZE_SETTINGS = [
+        'kk_title_size' => ['--kk-title-size', 40, 24, 72],
+        'kk_card_title_size' => ['--kk-card-title-size', 20, 14, 32],
+        'kk_excerpt_size' => ['--kk-excerpt-size', 14, 12, 20],
     ];
 
     private const PALETTE_LABELS = [
@@ -772,6 +785,53 @@ final class Customizer
         }
 
         $css .= '}';
+
+        wp_add_inline_style('kk-app', $css);
+    }
+
+    /**
+     * Print the saved typography sizes onto the live site. The three size
+     * settings only ever ran inside the Customizer preview (the preview JS
+     * sets the --kk-*-size variables as an inline style on <html>), so on
+     * the live site the tokens.css defaults always won and the settings did
+     * nothing. This mirrors the palette overrides: only values that differ
+     * from their defaults are printed.
+     *
+     * The overrides are also repeated under each style-variant body class.
+     * The variant rules in variants.css (body.kk-variant-compact /
+     * body.kk-variant-bold) have higher specificity than :root, so a bare
+     * :root rule would lose to them — while the preview's inline style on
+     * <html> always beats the variants, so the live site must too. When no
+     * size differs from its default nothing is printed and the variant
+     * values apply untouched.
+     */
+    public static function outputTypographySizeOverrides(): void
+    {
+        $declarations = '';
+
+        foreach (self::SIZE_SETTINGS as $id => [$variable, $default, $min, $max]) {
+            $value = self::clampInt(get_theme_mod($id, $default), $min, $max);
+
+            if ($value !== $default) {
+                $declarations .= $variable . ':' . $value . 'px;';
+            }
+        }
+
+        if ($declarations === '') {
+            return;
+        }
+
+        $css = ':root{' . $declarations . '}';
+
+        // 'classic' is the default look and defines no size overrides in
+        // variants.css, so it needs no scoped rule.
+        foreach (StyleVariant::all() as $variant) {
+            if ($variant === 'classic') {
+                continue;
+            }
+
+            $css .= 'body.kk-variant-' . $variant . '{' . $declarations . '}';
+        }
 
         wp_add_inline_style('kk-app', $css);
     }
