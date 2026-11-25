@@ -118,6 +118,14 @@
 	bottom: 140px;
 }
 
+/* Never float above an open drawer or the search dialog: the green
+ * button glows through the blurred backdrop and competes with the
+ * overlay. */
+html.kk-nav-open .kk-pwa-float,
+html.kk-search-open .kk-pwa-float {
+	display: none;
+}
+
 .kk-pwa-float--float-bottom-left {
 	left: 16px;
 	bottom: 80px;

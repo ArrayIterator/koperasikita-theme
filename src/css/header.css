@@ -189,6 +189,7 @@ body.kk-sticky-off .kk-nav-wrap {
 	background: var(--kk-paper);
 	box-shadow: 8px 0 32px rgba(0, 0, 0, 0.25);
 	overflow-y: auto;
+	overflow-x: hidden;
 	overscroll-behavior: contain;
 	transform: translateX(-105%);
 	visibility: hidden;
@@ -220,14 +221,27 @@ body.kk-sticky-off .kk-nav-wrap {
 	opacity: 1;
 }
 
-/* While the drawer is open the whole sticky bar — which contains the
- * drawer — must paint above the backdrop. The backdrop is a body-level
- * fixed layer at z 55, and the drawer is trapped inside the wrap's
- * z 40 stacking context, so without this the backdrop covers the
- * drawer and blurs it too. Same ordering as padangkita: drawer above
- * backdrop, backdrop above the page. */
+/* While the drawer is open the drawer — trapped inside the wrap's
+ * z 40 stacking context — must paint above the body-level backdrop
+ * (z 55), so the wrap is raised to z 60. Same ordering as
+ * padangkita: drawer above backdrop, backdrop above the page.
+ * But only the DRAWER may stay crisp: the sticky bar itself (its
+ * hamburger, search and toggle) must not float over the backdrop,
+ * so the wrap goes transparent and its bar content hides while open.
+ * The drawer overrides visibility back to visible; it is the one
+ * thing inside the wrap that must paint above the backdrop. */
 html.kk-nav-open .kk-nav-wrap {
 	z-index: 60;
+	background: transparent;
+	border-bottom-color: transparent;
+}
+
+html.kk-nav-open .kk-nav-inner {
+	visibility: hidden;
+}
+
+html.kk-nav-open .kk-primary-nav {
+	visibility: visible;
 }
 
 /* Lock the page behind the open drawer. */
@@ -301,6 +315,40 @@ html.kk-nav-open body {
  * only that parent's sub-menu shows, under the back bar. */
 .kk-primary-menu .sub-menu {
 	display: none;
+}
+
+/* AMP-style slide: opening a sub-menu slides it in from the right as
+ * a new panel; going back slides the top level back in from the left.
+ * overflow-x: hidden on the drawer clips the slide at its edge. */
+@keyframes kk-submenu-slide-in {
+	from {
+		transform: translateX(56px);
+		opacity: 0;
+	}
+	to {
+		transform: translateX(0);
+		opacity: 1;
+	}
+}
+
+@keyframes kk-menu-slide-in {
+	from {
+		transform: translateX(-56px);
+		opacity: 0;
+	}
+	to {
+		transform: translateX(0);
+		opacity: 1;
+	}
+}
+
+.kk-primary-nav.is-drilling .kk-drawer-back,
+.kk-primary-nav.is-drilling .kk-primary-menu > li.is-active-parent > .sub-menu {
+	animation: kk-submenu-slide-in 0.28s ease;
+}
+
+.kk-primary-nav.is-sliding-back .kk-primary-menu > li {
+	animation: kk-menu-slide-in 0.28s ease;
 }
 
 .kk-primary-menu li.menu-item-has-children {

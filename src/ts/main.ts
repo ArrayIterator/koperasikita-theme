@@ -218,6 +218,10 @@ function initMobileNav(): void {
 	closeButton?.addEventListener('click', () => closeNav(true));
 	backdrop?.addEventListener('click', () => closeNav(true));
 	backButton?.addEventListener('click', () => {
+		// Slide the top level back in from the left (AMP-style); the
+		// class comes off once the 0.28s animation has run.
+		nav.classList.add('is-sliding-back');
+		window.setTimeout(() => nav.classList.remove('is-sliding-back'), 300);
 		resetDrill();
 		drillToggle?.focus();
 	});
@@ -329,6 +333,7 @@ function initSearchDialog(): void {
 	let lastFocused: HTMLElement | null = null;
 	openButton.addEventListener('click', () => {
 		lastFocused = document.activeElement as HTMLElement | null;
+		document.documentElement.classList.add('kk-search-open');
 		if (typeof dialog.showModal === 'function') {
 			dialog.showModal();
 		} else {
@@ -356,6 +361,7 @@ function initSearchDialog(): void {
 		}
 	});
 	dialog.addEventListener('close', () => {
+		document.documentElement.classList.remove('kk-search-open');
 		lastFocused?.focus();
 		lastFocused = null;
 	});
