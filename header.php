@@ -37,6 +37,10 @@ if ( \KoperasiKita\Features\Pwa::isButtonPosition( 'above-header' ) ) {
 		<div class="kk-shell kk-masthead-inner">
 			<div class="kk-brand">
 				<?php
+				// A custom logo is the site's banner lockup (mark + wordmark
+				// as one image), so it stands alone: the text title and
+				// tagline would duplicate the wordmark baked into the
+				// image. They render only with the built-in K mark.
 				if ( has_custom_logo() ) {
 					the_custom_logo();
 				} else {
@@ -44,22 +48,22 @@ if ( \KoperasiKita\Features\Pwa::isButtonPosition( 'above-header' ) ) {
 					<a class="kk-brand-mark kk-brand-mark--logo" href="<?php echo esc_url( home_url( '/' ) ); ?>" rel="home" aria-label="<?php echo esc_attr( get_bloginfo( 'name' ) ); ?>">
 						<img class="kk-brand-mark-logo" src="<?php echo esc_url( get_template_directory_uri() . '/assets/img/logo-k.svg' ); ?>" alt="" width="56" height="56" aria-hidden="true">
 					</a>
+					<div class="kk-brand-text">
+						<p class="kk-site-title">
+							<a href="<?php echo esc_url( home_url( '/' ) ); ?>" rel="home"><?php bloginfo( 'name' ); ?></a>
+						</p>
+						<?php
+						$description = get_bloginfo( 'description', 'display' );
+						if ( $description ) {
+							?>
+							<p class="kk-site-tagline"><?php echo esc_html( $description ); ?></p>
+							<?php
+						}
+						?>
+					</div>
 					<?php
 				}
 				?>
-				<div class="kk-brand-text">
-					<p class="kk-site-title">
-						<a href="<?php echo esc_url( home_url( '/' ) ); ?>" rel="home"><?php bloginfo( 'name' ); ?></a>
-					</p>
-					<?php
-					$description = get_bloginfo( 'description', 'display' );
-					if ( $description ) {
-						?>
-						<p class="kk-site-tagline"><?php echo esc_html( $description ); ?></p>
-						<?php
-					}
-					?>
-				</div>
 			</div>
 
 			<p class="kk-masthead-date">

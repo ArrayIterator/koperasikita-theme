@@ -99,6 +99,7 @@ html[data-color-scheme="system"] .kk-icon-sun {
 
 .kk-brand .custom-logo {
 	width: auto;
+	max-width: 100%;
 	max-height: 64px;
 }
 

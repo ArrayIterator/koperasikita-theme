@@ -154,11 +154,11 @@
 }
 
 /* List rows: the bookmark takes its own column at the right edge of
- * the row, vertically centred (the grid gives it the room, so no
- * padding maths and no text running underneath). */
+ * the row, pinned to the top corner (level with the date) — centred
+ * vertically it floats oddly in the middle of a tall row. */
 .kk-layout-list .kk-card .kk-bookmark-button {
 	grid-area: bookmark;
-	align-self: center;
+	align-self: start;
 	margin: 0;
 }
 
