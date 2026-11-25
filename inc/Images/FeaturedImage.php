@@ -119,13 +119,29 @@ final class FeaturedImage
     }
 
     /**
+     * Whether lazy-loading is enabled for images. The toggle
+     * defaults to on; when it is off, no `loading="lazy"` attribute
+     * is added anywhere, and the one WordPress core adds to
+     * attachment images is removed.
+     */
+    public static function isLazyEnabled(): bool
+    {
+        return (bool) get_theme_mod('kk_images_lazy', true);
+    }
+
+    /**
      * @param array<string, string> $attr
      * @return array<string, string>
      */
     public static function filterImageAttributes(array $attr, \WP_Post $attachment, mixed $size): array
     {
-        if ((bool) get_theme_mod('kk_images_lazy', true)) {
+        if (self::isLazyEnabled()) {
             $attr['loading'] = 'lazy';
+        } else {
+            // WordPress core merges its own `loading="lazy"` into
+            // $attr before this filter runs, so removing the key
+            // here genuinely strips it from the attachment image.
+            unset($attr['loading']);
         }
 
         return $attr;

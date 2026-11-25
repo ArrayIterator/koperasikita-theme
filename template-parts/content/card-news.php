@@ -12,7 +12,7 @@ $thumb_url  = \KoperasiKita\Images\FeaturedImage::url( get_the_ID(), 'medium' );
 <article class="kk-card">
 	<?php if ( $thumb_url ) : ?>
 		<a class="kk-card-media" href="<?php the_permalink(); ?>" tabindex="-1" aria-hidden="true">
-			<img src="<?php echo esc_url( $thumb_url ); ?>" alt="" loading="lazy">
+			<img src="<?php echo esc_url( $thumb_url ); ?>" alt=""<?php if ( \KoperasiKita\Images\FeaturedImage::isLazyEnabled() ) : ?> loading="lazy"<?php endif; ?>>
 		</a>
 	<?php endif; ?>
 
