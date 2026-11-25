@@ -493,7 +493,9 @@ html.kk-nav-open body {
 	font-weight: 700;
 	letter-spacing: 0.12em;
 	text-transform: uppercase;
-	color: #fff;
+	/* Dark text on the gold: white on #C9962E is 2.66:1, dark text
+	 * is 7.03:1 (dark mode already uses #121212). */
+	color: #121212;
 	background: var(--kk-gold, #C9962E);
 	padding: 5px 10px;
 	border-radius: var(--kk-radius);

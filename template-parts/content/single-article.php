@@ -8,6 +8,10 @@
  */
 
 $thumb_url = \KoperasiKita\Images\FeaturedImage::url( get_the_ID(), 'large' );
+$thumb_alt = get_post_meta( get_post_thumbnail_id(), '_wp_attachment_image_alt', true );
+if ( ! $thumb_alt ) {
+	$thumb_alt = get_the_title();
+}
 $font_size = \KoperasiKita\Features\ArticleFontSize::currentSize();
 ?>
 
@@ -71,7 +75,7 @@ $font_size = \KoperasiKita\Features\ArticleFontSize::currentSize();
 
 	<?php if ( $thumb_url && get_theme_mod( 'kk_single_featured', true ) ) : ?>
 		<figure class="kk-article-featured">
-			<img src="<?php echo esc_url( $thumb_url ); ?>" alt="" loading="eager">
+			<img src="<?php echo esc_url( $thumb_url ); ?>" alt="<?php echo esc_attr( $thumb_alt ); ?>" loading="eager">
 		</figure>
 	<?php endif; ?>
 

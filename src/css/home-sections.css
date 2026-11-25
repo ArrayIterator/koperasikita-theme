@@ -66,7 +66,10 @@
 	font-size: 32px;
 	line-height: 1;
 	font-weight: 700;
-	color: var(--kk-gold, #C9962E);
+	/* Deeper gold: #C9962E on white is 2.66:1, #8A6D1B is 4.9:1
+	 * (large text needs 3:1). Dark mode keeps the bright gold via
+	 * the variants override. */
+	color: #8A6D1B;
 	flex: 0 0 auto;
 	width: 32px;
 }
