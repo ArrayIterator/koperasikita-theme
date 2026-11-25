@@ -75,7 +75,6 @@ if ( $show_clock ) {
 				<button type="button" class="kk-icon-button kk-weather-open" data-kk-weather-open aria-label="<?php esc_attr_e( 'Change weather location', 'koperasikita' ); ?>" aria-haspopup="dialog" aria-controls="kk-weather-picker">
 					<?php echo \KoperasiKita\Icons\Icon::svg( 'location', 18 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 				</button>
-				<?php get_template_part( 'template-parts/weather/location-picker' ); ?>
 			<?php endif; ?>
 
 			<button type="button" class="kk-icon-button kk-color-scheme-toggle" id="kk-color-scheme-toggle" aria-label="<?php esc_attr_e( 'Toggle color scheme', 'koperasikita' ); ?>" aria-pressed="false">

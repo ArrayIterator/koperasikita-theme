@@ -99,6 +99,21 @@ final class Enqueue
         ]);
 
         add_filter('script_loader_tag', static function (string $tag, string $handle): string {
+            if ($handle === 'kk-weather' && !str_contains($tag, 'type="module"')) {
+                // Load weather.js as a module. Vite's default 'es' output
+                // splits any module shared by two entries (src/ts/api.ts
+                // was imported by weather, admin and customizer-preview)
+                // into a separate chunk, and the entries then start with a
+                // top-level `import` — a SyntaxError as a plain <script>,
+                // which killed the whole file: the picker, the top-bar
+                // weather slot and the widget refresh were all dead on the
+                // live site. weather.js is self-contained today, but
+                // loading it as a module keeps it working if a shared
+                // import ever comes back; module scripts are deferred by
+                // default, so the DOMContentLoaded boot still runs.
+                return str_replace(' src=', ' type="module" src=', $tag);
+            }
+
             if ($handle !== 'kk-main' || str_contains($tag, ' defer')) {
                 return $tag;
             }
