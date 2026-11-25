@@ -111,6 +111,22 @@
 	margin-bottom: 20px;
 }
 
+/* Narrow phones: the heading and the layout switcher share one row,
+ * and the title (flex: 1, min-width: 0) gets crushed to a sliver
+ * instead of wrapping. Stack them: the title takes its own line at
+ * full width (so its hairline still runs to the edge) and the
+ * switcher sits below it. */
+@media (max-width: 640px) {
+	.kk-home .kk-section-head {
+		flex-direction: column;
+		align-items: flex-start;
+	}
+
+	.kk-home .kk-section-head .kk-section-title {
+		align-self: stretch;
+	}
+}
+
 /* Lowercase serif label + a hairline that sits on the text baseline
  * and runs to the right edge (the ::after's bottom edge aligns with
  * the label baseline, so the rule reads as one continuous divider). */

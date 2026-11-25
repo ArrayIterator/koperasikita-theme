@@ -573,3 +573,26 @@ html.kk-nav-open body {
 .kk-ticker-toggle.is-paused .kk-icon-pause {
 	display: none;
 }
+
+/* Narrow phones: the label plus three 36px controls leave the headline
+ * almost no room (about 60px at 320px — a few characters). The ticker
+ * auto-advances anyway, so the prev/next buttons go; the pause toggle
+ * stays for accessibility. The headline may then wrap to two lines so
+ * a long headline stays readable instead of truncating to a stub. */
+@media (max-width: 480px) {
+	.kk-ticker-prev,
+	.kk-ticker-next {
+		display: none;
+	}
+
+	.kk-ticker-list {
+		height: 3em;
+	}
+
+	.kk-ticker-item {
+		white-space: normal;
+		display: -webkit-box;
+		-webkit-line-clamp: 2;
+		-webkit-box-orient: vertical;
+	}
+}

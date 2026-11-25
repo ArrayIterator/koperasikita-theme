@@ -51,6 +51,13 @@ html[data-color-scheme="dark"] .kk-ticker-label {
 	color: #121212;
 }
 
+/* Photos and placeholder art are made for a white page; in dark mode
+ * dim card images slightly so a light image (the flat placeholder
+ * especially) does not glare out of a dark card. */
+html[data-color-scheme="dark"] .kk-card-media img {
+	filter: brightness(0.85);
+}
+
 html[data-color-scheme="dark"] .kk-brand-mark.is-inverted,
 html[data-color-scheme="dark"] .custom-logo.is-inverted {
 	filter: invert(1);

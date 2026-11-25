@@ -122,6 +122,15 @@
 	min-width: 0;
 }
 
+/* Very narrow phones: the placeholder ("Search news…") is clipped by
+ * a few pixels because the dialog padding eats the input's width.
+ * Slim the side padding so the input gains the room back. */
+@media (max-width: 360px) {
+	.kk-search-dialog-inner {
+		padding: 24px 12px 20px;
+	}
+}
+
 .kk-install-benefits {
 	list-style: disc;
 	padding-left: 20px;

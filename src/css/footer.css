@@ -14,7 +14,16 @@
 
 .kk-footer-grid {
 	display: grid;
+	grid-template-columns: minmax(0, 1fr);
 	gap: 32px;
+}
+
+/* The columns must be allowed to shrink below their content: without
+ * minmax(0, 1fr) the grid track sizes to the widest item's min-content
+ * (the subscribe form's email input) and the whole footer blows out
+ * past the viewport on narrow phones. */
+.kk-footer-col {
+	min-width: 0;
 }
 
 .kk-footer-heading {
@@ -135,6 +144,7 @@
 
 .kk-bottom-nav-menu li {
 	flex: 1;
+	min-width: 0;
 }
 
 .kk-bottom-nav-menu a {
@@ -158,6 +168,16 @@
 
 .kk-bottom-nav-menu svg {
 	display: block;
+}
+
+/* Very narrow phones (320px): six labels in 320px only fit if the
+ * type shrinks a touch — otherwise the longest label clips mid-word. */
+@media (max-width: 360px) {
+	.kk-bottom-nav-menu a {
+		font-size: 10px;
+		padding-left: 2px;
+		padding-right: 2px;
+	}
 }
 
 /* --- Back to top ---------------------------------------------------------- */
