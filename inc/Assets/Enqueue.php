@@ -98,19 +98,44 @@ final class Enqueue
             'themeUrl' => KK_URI,
         ]);
 
+        self::addModuleScriptFilter();
+
+        Fonts::outputFontVariables();
+    }
+
+    /**
+     * Registers the script-tag filter that loads the Vite entries
+     * which start with a top-level `import` as ES modules, at most
+     * once per request. The Customizer preview fires both
+     * wp_enqueue_scripts and customize_preview_init, so register()
+     * and registerCustomizerPreview() both call this.
+     */
+    private static bool $moduleScriptFilterAdded = false;
+
+    private static function addModuleScriptFilter(): void
+    {
+        if (self::$moduleScriptFilterAdded) {
+            return;
+        }
+
+        self::$moduleScriptFilterAdded = true;
+
         add_filter('script_loader_tag', static function (string $tag, string $handle): string {
-            if ($handle === 'kk-weather' && !str_contains($tag, 'type="module"')) {
-                // Load weather.js as a module. Vite's default 'es' output
-                // splits any module shared by two entries (src/ts/api.ts
-                // was imported by weather, admin and customizer-preview)
-                // into a separate chunk, and the entries then start with a
-                // top-level `import` — a SyntaxError as a plain <script>,
-                // which killed the whole file: the picker, the top-bar
-                // weather slot and the widget refresh were all dead on the
-                // live site. weather.js is self-contained today, but
-                // loading it as a module keeps it working if a shared
-                // import ever comes back; module scripts are deferred by
-                // default, so the DOMContentLoaded boot still runs.
+            if (in_array($handle, ['kk-weather', 'kk-admin', 'kk-customizer-preview'], true) && !str_contains($tag, 'type="module"')) {
+                // Load these entries as modules. Vite's default 'es'
+                // output splits any module shared by two entries
+                // (src/ts/api.ts is imported by weather, admin and
+                // customizer-preview) into a separate chunk, and the
+                // entries then start with a top-level `import` — a
+                // SyntaxError as a plain <script>, which killed the
+                // whole file: weather.js lost the picker, the top-bar
+                // slot and the widget refresh; admin.js lost the Fonts
+                // management controls; customizer-preview.js lost every
+                // live-preview binding. Module scripts are deferred by
+                // default, so the DOMContentLoaded boots still run
+                // (admin.ts guards on document.readyState, and the
+                // preview only binds wp.customize, which its
+                // 'customize-preview' dependency loads first).
                 return str_replace(' src=', ' type="module" src=', $tag);
             }
 
@@ -120,8 +145,6 @@ final class Enqueue
 
             return str_replace(' src=', ' defer src=', $tag);
         }, 10, 2);
-
-        Fonts::outputFontVariables();
     }
 
     /**
@@ -255,6 +278,13 @@ final class Enqueue
 
     public static function registerAdmin(string $hookSuffix): void
     {
+        // The admin entry starts with a top-level `import` (see
+        // addModuleScriptFilter): without this the kk-admin tag is a
+        // classic script and admin.js never runs. The frontend
+        // register() never fires on admin pages, so the filter has to
+        // be registered here too.
+        self::addModuleScriptFilter();
+
         $isWidgets = str_contains($hookSuffix, 'widgets');
         $isCustomizer = str_contains($hookSuffix, 'customize');
         $isSetup = $hookSuffix === 'appearance_page_' . Setup::PAGE_SLUG;
@@ -298,6 +328,11 @@ final class Enqueue
 
     public static function registerCustomizerPreview(): void
     {
+        // Same module trap as the admin entry: the preview entry
+        // starts with a top-level `import`, and the frontend filter
+        // is not registered in the preview frame on its own.
+        self::addModuleScriptFilter();
+
         $js = ViteLoader::js('src/ts/customizer-preview.ts');
 
         if ($js !== '') {

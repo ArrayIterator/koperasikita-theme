@@ -33,8 +33,12 @@ html[data-color-scheme="dark"] {
 	--kk-surface-muted: #232322;
 }
 
+/* The solid green button gets near-black text in dark mode — it sits
+   on the light green the button turns into. The ghost button is
+   excluded: its background is transparent, so #121212 text on the
+   dark paper would be invisible. */
 html[data-color-scheme="dark"] .kk-brand-mark,
-html[data-color-scheme="dark"] .kk-button,
+html[data-color-scheme="dark"] .kk-button:not(.kk-button-ghost),
 html[data-color-scheme="dark"] .kk-pagination .page-numbers.current,
 html[data-color-scheme="dark"] .kk-layout-button.is-active,
 html[data-color-scheme="dark"] .kk-bookmark-button[aria-pressed="true"],
@@ -70,7 +74,7 @@ html[data-color-scheme="dark"] .custom-logo.is-inverted {
 	}
 
 	html[data-color-scheme="system"] .kk-brand-mark,
-	html[data-color-scheme="system"] .kk-button,
+	html[data-color-scheme="system"] .kk-button:not(.kk-button-ghost),
 	html[data-color-scheme="system"] .kk-pagination .page-numbers.current,
 	html[data-color-scheme="system"] .kk-layout-button.is-active,
 	html[data-color-scheme="system"] .kk-bookmark-button[aria-pressed="true"],
