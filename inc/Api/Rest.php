@@ -74,12 +74,12 @@ final class Rest
                 'lat' => [
                     'description' => 'Latitude, -90 to 90.',
                     'type' => 'number',
-                    'sanitize_callback' => 'floatval',
+                    'sanitize_callback' => static fn ($value): float => (float) $value,
                 ],
                 'lon' => [
                     'description' => 'Longitude, -180 to 180.',
                     'type' => 'number',
-                    'sanitize_callback' => 'floatval',
+                    'sanitize_callback' => static fn ($value): float => (float) $value,
                 ],
                 'city' => [
                     'description' => 'City name; resolved against the known city list.',
