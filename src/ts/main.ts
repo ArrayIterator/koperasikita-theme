@@ -687,6 +687,67 @@ function initBackToTop(): void {
 }
 
 /* ------------------------------------------------------------------ */
+/* Article share: copy link                                            */
+/* ------------------------------------------------------------------ */
+
+function initShareCopy(): void {
+	const button = $('.kk-share-copy') as HTMLButtonElement | null;
+	if (!button) {
+		return;
+	}
+	const status = $('.kk-share-status');
+	const url = button.dataset.shareUrl ?? '';
+	if (!url) {
+		return;
+	}
+	let timer = 0;
+	const showMessage = (message: string, isError: boolean): void => {
+		if (!status) {
+			return;
+		}
+		status.textContent = message;
+		status.classList.toggle('is-error', isError);
+		window.clearTimeout(timer);
+		timer = window.setTimeout(() => {
+			status.textContent = '';
+			status.classList.remove('is-error');
+		}, 3000);
+	};
+	// Fallback for non-secure contexts and older browsers where the
+	// async Clipboard API is unavailable.
+	const copyWithFallback = (text: string): boolean => {
+		const textarea = document.createElement('textarea');
+		textarea.value = text;
+		textarea.setAttribute('readonly', '');
+		textarea.style.position = 'fixed';
+		textarea.style.opacity = '0';
+		document.body.appendChild(textarea);
+		textarea.select();
+		let ok = false;
+		try {
+			ok = document.execCommand('copy');
+		} catch {
+			ok = false;
+		}
+		document.body.removeChild(textarea);
+		return ok;
+	};
+	button.addEventListener('click', () => {
+		const success = button.dataset.copySuccess ?? 'Link copied';
+		const failure = button.dataset.copyError ?? 'The link could not be copied.';
+		const done = (ok: boolean): void => showMessage(ok ? success : failure, !ok);
+		if (navigator.clipboard && navigator.clipboard.writeText) {
+			navigator.clipboard.writeText(url).then(
+				() => done(true),
+				() => done(copyWithFallback(url)),
+			);
+		} else {
+			done(copyWithFallback(url));
+		}
+	});
+}
+
+/* ------------------------------------------------------------------ */
 /* Boot                                                                */
 /* ------------------------------------------------------------------ */
 
@@ -702,4 +763,5 @@ document.addEventListener('DOMContentLoaded', () => {
 	initPwa();
 	initBottomNav();
 	initBackToTop();
+	initShareCopy();
 });

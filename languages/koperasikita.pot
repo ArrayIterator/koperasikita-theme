@@ -952,7 +952,11 @@ msgid "By %s"
 msgstr ""
 
 #: template-parts/content/single-article.php
-msgid "Email"
+msgid "Copy link"
+msgstr ""
+
+#: template-parts/content/single-article.php
+msgid "Link copied"
 msgstr ""
 
 #: template-parts/content/single-article.php
@@ -960,7 +964,27 @@ msgid "Share"
 msgstr ""
 
 #: template-parts/content/single-article.php
+msgid "Share by email"
+msgstr ""
+
+#: template-parts/content/single-article.php
+msgid "Share on Facebook"
+msgstr ""
+
+#: template-parts/content/single-article.php
+msgid "Share on WhatsApp"
+msgstr ""
+
+#: template-parts/content/single-article.php
+msgid "Share on X"
+msgstr ""
+
+#: template-parts/content/single-article.php
 msgid "Share this article"
+msgstr ""
+
+#: template-parts/content/single-article.php
+msgid "The link could not be copied."
 msgstr ""
 
 #: template-parts/gold/slider.php

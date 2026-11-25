@@ -99,10 +99,12 @@ $font_size = \KoperasiKita\Features\ArticleFontSize::currentSize();
 			<?php if ( $show_share ) : ?>
 				<div class="kk-share" aria-label="<?php esc_attr_e( 'Share this article', 'koperasikita' ); ?>">
 					<span class="kk-share-label"><?php esc_html_e( 'Share', 'koperasikita' ); ?></span>
-					<a class="kk-share-link" href="<?php echo esc_url( 'https://www.facebook.com/sharer/sharer.php?u=' . rawurlencode( get_the_permalink() ) ); ?>" target="_blank" rel="noopener noreferrer">Facebook</a>
-					<a class="kk-share-link" href="<?php echo esc_url( 'https://twitter.com/intent/tweet?url=' . rawurlencode( get_the_permalink() ) . '&text=' . rawurlencode( get_the_title() ) ); ?>" target="_blank" rel="noopener noreferrer">X</a>
-					<a class="kk-share-link" href="<?php echo esc_url( 'https://wa.me/?text=' . rawurlencode( get_the_title() . ' ' . get_the_permalink() ) ); ?>" target="_blank" rel="noopener noreferrer">WhatsApp</a>
-					<a class="kk-share-link" href="<?php echo esc_url( 'mailto:?subject=' . rawurlencode( get_the_title() ) . '&body=' . rawurlencode( get_the_permalink() ) ); ?>"><?php esc_html_e( 'Email', 'koperasikita' ); ?></a>
+					<a class="kk-share-link" href="<?php echo esc_url( 'https://www.facebook.com/sharer/sharer.php?u=' . rawurlencode( get_the_permalink() ) ); ?>" target="_blank" rel="noopener noreferrer" aria-label="<?php esc_attr_e( 'Share on Facebook', 'koperasikita' ); ?>"><?php echo \KoperasiKita\Icons\Icon::svg( 'facebook', 20 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></a>
+					<a class="kk-share-link" href="<?php echo esc_url( 'https://twitter.com/intent/tweet?url=' . rawurlencode( get_the_permalink() ) . '&text=' . rawurlencode( get_the_title() ) ); ?>" target="_blank" rel="noopener noreferrer" aria-label="<?php esc_attr_e( 'Share on X', 'koperasikita' ); ?>"><?php echo \KoperasiKita\Icons\Icon::svg( 'x-social', 20 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></a>
+					<a class="kk-share-link" href="<?php echo esc_url( 'https://wa.me/?text=' . rawurlencode( get_the_title() . ' ' . get_the_permalink() ) ); ?>" target="_blank" rel="noopener noreferrer" aria-label="<?php esc_attr_e( 'Share on WhatsApp', 'koperasikita' ); ?>"><?php echo \KoperasiKita\Icons\Icon::svg( 'whatsapp', 20 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></a>
+					<a class="kk-share-link" href="<?php echo esc_url( 'mailto:?subject=' . rawurlencode( get_the_title() ) . '&body=' . rawurlencode( get_the_permalink() ) ); ?>" aria-label="<?php esc_attr_e( 'Share by email', 'koperasikita' ); ?>"><?php echo \KoperasiKita\Icons\Icon::svg( 'mail', 20 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></a>
+					<button type="button" class="kk-share-link kk-share-copy" data-share-url="<?php echo esc_url( get_the_permalink() ); ?>" data-copy-success="<?php esc_attr_e( 'Link copied', 'koperasikita' ); ?>" data-copy-error="<?php esc_attr_e( 'The link could not be copied.', 'koperasikita' ); ?>"><?php echo \KoperasiKita\Icons\Icon::svg( 'link', 20 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?><span class="kk-share-copy-text"><?php esc_html_e( 'Copy link', 'koperasikita' ); ?></span></button>
+					<span class="kk-share-status" aria-live="polite"></span>
 				</div>
 			<?php endif; ?>
 		</footer>
