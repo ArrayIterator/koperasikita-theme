@@ -58,6 +58,12 @@
 		width: 24px;
 		height: 24px;
 	}
+
+	/* No dark-mode toggle in the sticky bar on mobile: it lives in
+	 * the drawer footer instead. The search icon stays. */
+	.kk-color-scheme-toggle {
+		display: none;
+	}
 }
 
 @media (min-width: 1024px) {
@@ -81,6 +87,7 @@
 	/* The drawer chrome exists only below this breakpoint. */
 	.kk-drawer-head,
 	.kk-drawer-back,
+	.kk-drawer-foot,
 	.kk-nav-backdrop,
 	.kk-submenu-toggle {
 		display: none;

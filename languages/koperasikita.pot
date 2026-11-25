@@ -1937,3 +1937,7 @@ msgstr ""
 #: template-parts/content/card-news.php:29
 msgid "Read more"
 msgstr ""
+
+#: template-parts/header/site-nav.php:64
+msgid "Appearance"
+msgstr ""

@@ -1938,3 +1938,7 @@ msgstr "Deskripsi Banner & Mengambang"
 #: template-parts/content/card-news.php:29
 msgid "Read more"
 msgstr "Baca selengkapnya"
+
+#: template-parts/header/site-nav.php:64
+msgid "Appearance"
+msgstr "Tampilan"

@@ -71,8 +71,9 @@ function getStoredScheme(): ColorScheme {
 
 function applyScheme(scheme: ColorScheme): void {
 	document.documentElement.setAttribute('data-color-scheme', scheme);
-	const toggle = $('#kk-color-scheme-toggle');
-	if (toggle) {
+	// Every toggle (header on desktop, drawer footer on mobile) stays
+	// in sync: same pressed state, same next-mode label.
+	$all<HTMLButtonElement>('[data-kk-scheme-toggle]').forEach((toggle) => {
 		toggle.setAttribute('aria-pressed', scheme === 'dark' ? 'true' : 'false');
 		toggle.setAttribute(
 			'aria-label',
@@ -82,20 +83,18 @@ function applyScheme(scheme: ColorScheme): void {
 					? 'Switch to dark mode'
 					: 'Switch to system mode',
 		);
-	}
+	});
 }
 
 function initColorScheme(): void {
 	applyScheme(getStoredScheme());
-	const toggle = $('#kk-color-scheme-toggle');
-	if (!toggle) {
-		return;
-	}
-	toggle.addEventListener('click', () => {
-		const current = getStoredScheme();
-		const next: ColorScheme = current === 'system' ? 'light' : current === 'light' ? 'dark' : 'system';
-		window.localStorage.setItem(SCHEME_KEY, next);
-		applyScheme(next);
+	$all<HTMLButtonElement>('[data-kk-scheme-toggle]').forEach((toggle) => {
+		toggle.addEventListener('click', () => {
+			const current = getStoredScheme();
+			const next: ColorScheme = current === 'system' ? 'light' : current === 'light' ? 'dark' : 'system';
+			window.localStorage.setItem(SCHEME_KEY, next);
+			applyScheme(next);
+		});
 	});
 }
 

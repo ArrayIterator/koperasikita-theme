@@ -188,6 +188,8 @@ body.kk-sticky-off .kk-nav-wrap {
 	width: min(320px, 85vw);
 	background: var(--kk-paper);
 	box-shadow: 8px 0 32px rgba(0, 0, 0, 0.25);
+	display: flex;
+	flex-direction: column;
 	overflow-y: auto;
 	overflow-x: hidden;
 	overscroll-behavior: contain;
@@ -295,6 +297,37 @@ html.kk-nav-open body {
 	background: none;
 	border: 0;
 	cursor: pointer;
+}
+
+/* Drawer footer: the colour-scheme toggle lives here on mobile, not
+ * in the sticky bar. The nav is a flex column, so the footer pins to
+ * the bottom when the menu is short and scrolls after it when long. */
+.kk-primary-nav > .kk-drawer-head,
+.kk-primary-nav > .kk-drawer-back,
+.kk-primary-nav > .kk-primary-menu,
+.kk-primary-nav > .kk-drawer-foot {
+	flex-shrink: 0;
+}
+
+.kk-drawer-foot {
+	margin-top: auto;
+	border-top: 1px solid var(--kk-border);
+	padding: 8px 16px 16px;
+}
+
+.kk-drawer-scheme {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	width: 100%;
+	padding: 12px 4px;
+	font-weight: 600;
+	font-size: 15px;
+	color: var(--kk-ink);
+	background: none;
+	border: 0;
+	cursor: pointer;
+	text-align: left;
 }
 
 /* Header actions in the sticky bar: search + colour-scheme toggle. */
