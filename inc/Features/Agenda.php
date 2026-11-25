@@ -231,14 +231,21 @@ final class Agenda
      * stored sort key is the far-future NO_DATE_TS sentinel (see saveMeta):
      * consumers must never have to know about the sentinel.
      *
+     * The meta is read duplicate-tolerantly: every row for each key is
+     * considered and the first usable one wins. An item imported from a
+     * WXR file can carry two rows per key — the empty rows ensureMeta()
+     * wrote during wp_insert_post, plus the real rows the importer added
+     * afterwards — and get_post_meta(..., true) would return the first
+     * (empty) row, hiding the event's date entirely.
+     *
      * @return array{start: string, end: string, location: string, start_ts: int}
      */
     public static function getMeta(int $postId): array
     {
-        $start = self::sanitizeDatetime(get_post_meta($postId, self::META_START, true));
-        $end = self::sanitizeDatetime(get_post_meta($postId, self::META_END, true));
-        $location = sanitize_text_field((string) get_post_meta($postId, self::META_LOCATION, true));
-        $startTs = (int) get_post_meta($postId, self::META_START_TS, true);
+        $start = self::firstValidDatetime(get_post_meta($postId, self::META_START, false));
+        $end = self::firstValidDatetime(get_post_meta($postId, self::META_END, false));
+        $location = self::firstNonEmptyText(get_post_meta($postId, self::META_LOCATION, false));
+        $startTs = self::firstRealTimestamp(get_post_meta($postId, self::META_START_TS, false));
 
         if ($start === '') {
             return [
@@ -252,7 +259,7 @@ final class Agenda
         // Older items (or items saved before the timestamp existed) only
         // carry the string: derive the timestamp from it instead of
         // leaving the item unsortable.
-        if ($startTs <= 0 || $startTs === self::NO_DATE_TS) {
+        if ($startTs <= 0) {
             $parsed = date_create_immutable_from_format('Y-m-d H:i', $start, wp_timezone());
             $startTs = $parsed !== false ? (int) $parsed->getTimestamp() : 0;
         }
@@ -263,6 +270,65 @@ final class Agenda
             'location' => $location,
             'start_ts' => $startTs,
         ];
+    }
+
+    /**
+     * First meta row that parses to a real datetime, or ''. The rows
+     * come back oldest first, so an empty row written during an import
+     * is skipped in favour of the real value added afterwards.
+     *
+     * @param array<int, mixed> $rows
+     */
+    private static function firstValidDatetime(array $rows): string
+    {
+        foreach ($rows as $row) {
+            $clean = self::sanitizeDatetime($row);
+
+            if ($clean !== '') {
+                return $clean;
+            }
+        }
+
+        return '';
+    }
+
+    /**
+     * First meta row that survives sanitisation with something left,
+     * or ''.
+     *
+     * @param array<int, mixed> $rows
+     */
+    private static function firstNonEmptyText(array $rows): string
+    {
+        foreach ($rows as $row) {
+            $clean = sanitize_text_field((string) $row);
+
+            if ($clean !== '') {
+                return $clean;
+            }
+        }
+
+        return '';
+    }
+
+    /**
+     * First timestamp row that is a real event time: a positive integer
+     * that is not the NO_DATE_TS sentinel. Returns 0 when there is none
+     * (the caller derives the timestamp from the start string instead).
+     *
+     * @param array<int, mixed> $rows
+     */
+    private static function firstRealTimestamp(array $rows): int
+    {
+        foreach ($rows as $row) {
+            $ts = (int) $row;
+
+            if ($ts > 0 && $ts !== self::NO_DATE_TS) {
+                return $ts;
+            }
+        }
+
+        return 0;
     }
 
     /**
@@ -297,9 +363,19 @@ final class Agenda
      * meta-ordered query. Runs after the meta box save, and only writes
      * when the rows are missing entirely, so it never overwrites an
      * editor's saved details.
+     *
+     * During a WXR import this does nothing: wp_insert_post fires
+     * save_post before the importer adds the real meta rows, so writing
+     * empty rows here would leave duplicates whose first (empty) row
+     * shadows the real values (see getMeta). The importer owns the meta
+     * while WP_IMPORTING is set.
      */
     public static function ensureMeta(int $postId): void
     {
+        if (defined('WP_IMPORTING') && WP_IMPORTING) {
+            return;
+        }
+
         if (metadata_exists('post', $postId, self::META_START_TS)) {
             return;
         }
@@ -310,6 +386,13 @@ final class Agenda
     /**
      * The agenda archive lists events soonest first. Items without a date
      * carry the far-future NO_DATE_TS sort key, so they sink to the end.
+     *
+     * The ordering is applied through the posts_orderby filter (see
+     * orderByStartTsSql) instead of meta_value_num: an item imported
+     * from WXR can carry duplicate timestamp rows, and the meta JOIN
+     * sort key is then whichever row MySQL happens to pick. The filter
+     * orders by the MIN timestamp across all rows, which is
+     * deterministic and agrees with getMeta().
      */
     public static function orderArchive(\WP_Query $query): void
     {
@@ -317,9 +400,60 @@ final class Agenda
             return;
         }
 
-        $query->set('meta_key', self::META_START_TS);
-        $query->set('orderby', 'meta_value_num');
-        $query->set('order', 'ASC');
+        self::attachSoonestFirstOrder();
+    }
+
+    /**
+     * Attach the duplicate-safe soonest-first ORDER BY to the next
+     * agenda query. The filter removes itself after applying once, so
+     * later queries in the same request are untouched.
+     */
+    public static function attachSoonestFirstOrder(): void
+    {
+        add_filter('posts_orderby', [self::class, 'orderByStartTsSql'], 10, 2);
+    }
+
+    /**
+     * posts_orderby callback for agenda queries: the main agenda
+     * archive, or any query that carries the `kk_agenda_order` query
+     * var (the REST /posts endpoint sets it). Every other query passes
+     * through unchanged.
+     */
+    public static function orderByStartTsSql(string $orderby, \WP_Query $query): string
+    {
+        $flagged = (bool) $query->get('kk_agenda_order');
+        $isArchive = $query->is_main_query() && $query->is_post_type_archive(self::POST_TYPE);
+
+        if (!$flagged && !$isArchive) {
+            return $orderby;
+        }
+
+        remove_filter('posts_orderby', [self::class, 'orderByStartTsSql'], 10);
+
+        return self::orderByStartTsFragment();
+    }
+
+    /**
+     * ORDER BY fragment: soonest event first, dateless items last,
+     * deterministic tie-break by post date then ID.
+     *
+     * MIN over every timestamp row for the post: an imported item
+     * carries the NO_DATE_TS sentinel as its first row and the real
+     * timestamp as a second row — MIN picks the real one. A dateless
+     * item only has the sentinel, so it sinks to the end. COALESCE
+     * covers an item with no timestamp row at all (it also sorts last).
+     * The key is a class constant, never user input, so interpolating
+     * it is safe.
+     */
+    public static function orderByStartTsFragment(): string
+    {
+        global $wpdb;
+
+        $posts = $wpdb->posts;
+        $postmeta = $wpdb->postmeta;
+        $sentinel = self::NO_DATE_TS;
+
+        return "COALESCE((SELECT MIN(CAST(pm.meta_value AS UNSIGNED)) FROM {$postmeta} pm WHERE pm.post_id = {$posts}.ID AND pm.meta_key = '" . self::META_START_TS . "' AND pm.meta_value <> ''), {$sentinel}) ASC, {$posts}.post_date ASC, {$posts}.ID ASC";
     }
 
     // -- Admin: meta box and list columns ---------------------------------

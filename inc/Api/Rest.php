@@ -330,12 +330,21 @@ final class Rest
         }
 
         if ($post_type === 'agenda') {
-            $query_args['meta_key'] = Agenda::META_START_TS;
-            $query_args['orderby'] = 'meta_value_num';
-            $query_args['order'] = 'ASC';
+            // Soonest first, same as the main archive (see
+            // Agenda::orderByStartTsFragment): the meta_value_num sort
+            // is not used here because an imported item can carry
+            // duplicate timestamp rows and the JOIN sort key would be
+            // whichever row MySQL happens to pick. The flag tells the
+            // filter this query is an agenda query.
+            $query_args['kk_agenda_order'] = true;
+            Agenda::attachSoonestFirstOrder();
         }
 
         $query = new \WP_Query($query_args);
+
+        // The filter removes itself after applying once, but make sure
+        // it cannot leak into a later query in this request.
+        remove_filter('posts_orderby', [Agenda::class, 'orderByStartTsSql'], 10);
         $template = $post_type === 'agenda'
             ? 'template-parts/agenda/card-agenda'
             : 'template-parts/content/card-news';
