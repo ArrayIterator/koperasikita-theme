@@ -4,8 +4,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Koperasi Kita 1.0.0\n"
 "Report-Msgid-Bugs-To: https://koperasikita.pentagonal.org/\n"
-"POT-Creation-Date: 2026-11-24 18:47\n"
-"PO-Revision-Date: 2026-11-24 23:00+0700\n"
+"POT-Creation-Date: 2026-11-25 09:05+0700\n"
+"PO-Revision-Date: 2026-11-25 09:05+0700\n"
 "Last-Translator: Koperasi Kita\n"
 "Language-Team: Koperasi Kita\n"
 "MIME-Version: 1.0\n"
@@ -141,10 +141,6 @@ msgstr ""
 
 #: inc/Customizer/Customizer.php
 msgid "Border Color"
-msgstr ""
-
-#: inc/Customizer/Customizer.php
-msgid "Font Family"
 msgstr ""
 
 #: inc/Customizer/Customizer.php
@@ -1295,7 +1291,6 @@ msgstr ""
 msgid "Quick start"
 msgstr ""
 
-#: inc/Setup/Setup.php
 #: inc/Features/FontsManagementControl.php:42
 msgid "Ready"
 msgstr ""
@@ -1798,4 +1793,65 @@ msgstr ""
 
 #: inc/Breadcrumb/Breadcrumb.php
 msgid "Archives"
+msgstr ""
+
+#: template-parts/content/pagination.php:20
+msgid "&larr; Newer"
+msgstr ""
+
+#: template-parts/content/pagination.php:21
+msgid "Older &rarr;"
+msgstr ""
+
+#: comments.php:48
+msgid "&larr; Older comments"
+msgstr ""
+
+#: comments.php:49
+msgid "Newer comments &rarr;"
+msgstr ""
+
+#: inc/Customizer/Customizer.php:102
+msgid "Body Font"
+msgstr ""
+
+#: inc/Customizer/Customizer.php:116
+msgid "Headings Font"
+msgstr ""
+
+#: inc/Customizer/Customizer.php:208
+#: template-parts/content/layout-switcher.php:23
+msgid "Newsletter"
+msgstr ""
+
+#: template-parts/home/newsletter.php:49
+msgid "More stories"
+msgstr ""
+
+#: template-parts/home/newsletter-subscribe.php:17
+msgid "Get the newsletter"
+msgstr ""
+
+#: sidebar.php:12
+#: sidebar-news.php:12
+#: sidebar-page.php:12
+#: sidebar-single.php:12
+msgid "No widgets added yet. Add widgets in Appearance &rarr; Widgets."
+msgstr ""
+
+#: inc/Features/Agenda.php:491
+#: template-parts/agenda/form-submit.php:145
+msgid "End time (optional)"
+msgstr ""
+
+#: template-parts/agenda/form-submit.php:46
+msgid "Please tell us where the event takes place (at least 3 characters)."
+msgstr ""
+
+#: inc/Widgets/WeatherWidget.php:115
+msgid "Show details (feels like, high/low, humidity, wind)"
+msgstr ""
+
+#: inc/Setup/Setup.php:612
+msgid "The uploaded file is not a valid plugin zip (max 20 MB)."
 msgstr ""

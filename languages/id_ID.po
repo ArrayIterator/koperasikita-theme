@@ -4,8 +4,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Koperasi Kita 1.0.0\n"
 "Report-Msgid-Bugs-To: https://koperasikita.pentagonal.org/\n"
-"POT-Creation-Date: 2026-11-24 23:00+0700\n"
-"PO-Revision-Date: 2026-11-24 23:00+0700\n"
+"POT-Creation-Date: 2026-11-25 09:05+0700\n"
+"PO-Revision-Date: 2026-11-25 09:05+0700\n"
 "Last-Translator: Koperasi Kita\n"
 "Language-Team: Koperasi Kita\n"
 "Language: id_ID\n"
@@ -145,10 +145,6 @@ msgid "Border Color"
 msgstr "Warna Garis Tepi"
 
 #: inc/Customizer/Customizer.php
-msgid "Font Family"
-msgstr "Jenis Huruf"
-
-#: inc/Customizer/Customizer.php
 msgid "System UI"
 msgstr "System UI"
 
@@ -197,8 +193,40 @@ msgid "Invert Logo in Dark Mode"
 msgstr "Balik Logo dalam Mode Gelap"
 
 #: inc/Customizer/Customizer.php
-msgid "Footer Text"
-msgstr "Teks Footer"
+msgid "Footer Copyright Text"
+msgstr "Teks Hak Cipta Footer"
+
+#: inc/Customizer/Customizer.php
+msgid "Tokens: {year}, {month}, {month_number}, {day}, {date}, {site_name}, {site_url}, {home_url}."
+msgstr "Token: {year}, {month}, {month_number}, {day}, {date}, {site_name}, {site_url}, {home_url}."
+
+#: inc/Customizer/Customizer.php
+msgid "Copyright Alignment"
+msgstr "Perataan Hak Cipta"
+
+#: inc/Customizer/Customizer.php
+msgid "Left"
+msgstr "Kiri"
+
+#: inc/Customizer/Customizer.php
+msgid "Center"
+msgstr "Tengah"
+
+#: inc/Customizer/Customizer.php
+msgid "Right"
+msgstr "Kanan"
+
+#: inc/Customizer/Customizer.php
+msgid "%s URL"
+msgstr "URL %s"
+
+#: inc/Features/Footer.php
+msgid "Copyright &copy; %1$s %2$s. All rights reserved."
+msgstr "Hak cipta &copy; %1$s %2$s. Semua hak dilindungi."
+
+#: footer.php
+msgid "Social media"
+msgstr "Media sosial"
 
 #: inc/Customizer/Customizer.php
 msgid "Enable News Ticker"
@@ -235,3 +263,1596 @@ msgstr "Daftar"
 #: inc/Breadcrumb/Breadcrumb.php
 msgid "Home"
 msgstr "Beranda"
+
+#: inc/Customizer/Customizer.php
+msgid "Show Featured Image"
+msgstr "Tampilkan Gambar Unggulan"
+
+#: inc/Customizer/Customizer.php
+msgid "Show Author Box"
+msgstr "Tampilkan Kotak Penulis"
+
+#: inc/Customizer/Customizer.php
+msgid "Show Related News"
+msgstr "Tampilkan Berita Terkait"
+
+#: inc/Customizer/Customizer.php
+msgid "Show Reading Time"
+msgstr "Tampilkan Waktu Baca"
+
+#: inc/Customizer/Customizer.php
+msgid "Enable Comments"
+msgstr "Aktifkan Komentar"
+
+#: inc/Customizer/Customizer.php
+msgid "Show Comment Avatars"
+msgstr "Tampilkan Avatar Komentar"
+
+#: inc/Customizer/Customizer.php
+msgid "Lazy-Load Images"
+msgstr "Muat Gambar secara Lazy"
+
+#: inc/Customizer/Customizer.php
+msgid "Enable Responsive Images"
+msgstr "Aktifkan Gambar Responsif"
+
+#: inc/Features/Performance.php
+msgid "Disable texturize on content and excerpts"
+msgstr "Nonaktifkan texturize pada konten dan kutipan"
+
+#: inc/Features/Performance.php
+msgid "Disable texturize on titles"
+msgstr "Nonaktifkan texturize pada judul"
+
+#: inc/Features/Performance.php
+msgid "Disable texturize everywhere (comments, widgets, site name)"
+msgstr "Nonaktifkan texturize di mana-mana (komentar, widget, nama situs)"
+
+#: inc/Features/Performance.php
+msgid "Remove jQuery Migrate on the front end"
+msgstr "Hapus jQuery Migrate di front end"
+
+#: inc/Features/Performance.php
+msgid "Remove version query strings from CSS and JS"
+msgstr "Hapus query string versi dari CSS dan JS"
+
+#: inc/Features/Performance.php
+msgid "Remove the WordPress generator tag"
+msgstr "Hapus tag generator WordPress"
+
+#: inc/Features/Performance.php
+msgid "Disable emoji scripts and styles"
+msgstr "Nonaktifkan skrip dan gaya emoji"
+
+#: inc/Features/Performance.php
+msgid "Remove RSD, WLW, shortlink and REST discovery links from the head"
+msgstr "Hapus tautan discovery RSD, WLW, shortlink, dan REST dari head"
+
+#: inc/Features/Performance.php
+msgid "Disable oEmbed discovery and the embed script"
+msgstr "Nonaktifkan discovery oEmbed dan skrip embed"
+
+#: inc/Features/Performance.php
+msgid "Remove block library and global styles CSS (classic widgets only)"
+msgstr "Hapus CSS pustaka blok dan gaya global (hanya widget klasik)"
+
+#: inc/Features/Performance.php
+msgid "Remove Dashicons for visitors"
+msgstr "Hapus Dashicons untuk pengunjung"
+
+#: inc/Features/Performance.php
+msgid "Disable the Heartbeat script on the front end"
+msgstr "Nonaktifkan skrip Heartbeat di front end"
+
+#: inc/Features/Performance.php
+msgid "Disable XML-RPC"
+msgstr "Nonaktifkan XML-RPC"
+
+#: inc/Features/Performance.php
+msgid "Disable self pingbacks"
+msgstr "Nonaktifkan pingback mandiri"
+
+#: inc/Customizer/Customizer.php
+msgid "Show Breadcrumbs"
+msgstr "Tampilkan Breadcrumb"
+
+#: inc/Customizer/Customizer.php
+msgid "Show Breadcrumbs on the Homepage"
+msgstr "Tampilkan Breadcrumb di Beranda"
+
+#: inc/Customizer/Customizer.php
+msgid "Comment Order"
+msgstr "Urutan Komentar"
+
+#: inc/Customizer/Customizer.php
+msgid "Oldest First"
+msgstr "Terlama Dulu"
+
+#: inc/Customizer/Customizer.php
+msgid "Newest First"
+msgstr "Terbaru Dulu"
+
+#: inc/Customizer/Customizer.php
+msgid "JPEG Quality"
+msgstr "Kualitas JPEG"
+
+#: inc/Customizer/Customizer.php
+msgid "Breadcrumb Separator"
+msgstr "Pemisah Breadcrumb"
+
+#: inc/Customizer/Customizer.php
+msgid "› Angle Bracket"
+msgstr "› Kurung Sudut"
+
+#: inc/Customizer/Customizer.php
+msgid "/ Slash"
+msgstr "/ Garis Miring"
+
+#: inc/Customizer/Customizer.php
+msgid "» Double Angle Bracket"
+msgstr "» Kurung Sudut Ganda"
+
+#: inc/Customizer/Customizer.php
+msgid "— Em Dash"
+msgstr "— Strip Em"
+
+#: inc/Customizer/Customizer.php
+msgid "Style Variant"
+msgstr "Varian Gaya"
+
+#: inc/Customizer/Customizer.php
+msgid "Classic Editorial"
+msgstr "Editorial Klasik"
+
+#: inc/Customizer/Customizer.php
+msgid "Compact"
+msgstr "Ringkas"
+
+#: inc/Customizer/Customizer.php
+msgid "Bold Headlines"
+msgstr "Judul Tebal"
+
+#: single.php
+msgid "About the author"
+msgstr "Tentang penulis"
+
+#: single.php
+msgid "More from %s"
+msgstr "Lainnya dari %s"
+
+#: template-parts/content/single-article.php
+msgid "%d min read"
+msgstr "%d mnt baca"
+
+#: 404.php
+msgid "Latest news"
+msgstr "Berita terbaru"
+
+#: 404.php
+msgid "Page not found"
+msgstr "Halaman tidak ditemukan"
+
+#: 404.php
+msgid "The page you are looking for may have moved, or it no longer exists. Try searching, or start from the latest news."
+msgstr "Halaman yang Anda cari mungkin sudah dipindah, atau tidak ada lagi. Coba cari, atau mulai dari berita terbaru."
+
+#: archive-agenda.php
+msgid "No agenda items yet. Check back soon for upcoming events."
+msgstr "Belum ada agenda. Cek lagi nanti untuk acara mendatang."
+
+#: archive.php
+msgid "No posts were found in this archive."
+msgstr "Tidak ada artikel di arsip ini."
+
+#: comments.php
+msgid "%s comments"
+msgstr "%s komentar"
+
+#: comments.php
+msgid "Comments are closed."
+msgstr "Komentar ditutup."
+
+#: comments.php
+msgid "Leave a comment"
+msgstr "Tinggalkan komentar"
+
+#: comments.php
+msgid "One comment"
+msgstr "Satu komentar"
+
+#: footer.php
+msgid "Back to top"
+msgstr "Kembali ke atas"
+
+#: footer.php
+msgid "Mobile navigation"
+msgstr "Navigasi seluler"
+
+#: footer.php
+msgid "Navigation"
+msgstr "Navigasi"
+
+#: footer.php
+msgid "News, announcements and market updates from the cooperative, delivered to your inbox."
+msgstr "Berita, pengumuman, dan kabar pasar dari koperasi, dikirim ke kotak masuk Anda."
+
+#: footer.php
+msgid "Stay informed"
+msgstr "Tetap terinformasi"
+
+#: header.php
+msgid "Skip to content"
+msgstr "Lewati ke konten"
+
+#: inc/Features/Agenda.php
+msgid "Add New"
+msgstr "Tambah Baru"
+
+#: inc/Features/Agenda.php
+msgid "Add New Agenda Item"
+msgstr "Tambah Item Agenda Baru"
+
+#: inc/Features/Agenda.php
+msgid "Agenda"
+msgstr "Agenda"
+
+#: inc/Features/Agenda.php
+msgid "Agenda Item"
+msgstr "Item Agenda"
+
+#: inc/Features/Agenda.php
+msgid "Agenda Item Attributes"
+msgstr "Atribut Item Agenda"
+
+#: inc/Features/Agenda.php
+msgid "Agenda item published privately."
+msgstr "Item agenda diterbitkan secara privat."
+
+#: inc/Features/Agenda.php
+msgid "Agenda item published."
+msgstr "Item agenda diterbitkan."
+
+#: inc/Features/Agenda.php
+msgid "Agenda item reverted to draft."
+msgstr "Item agenda dikembalikan ke draf."
+
+#: inc/Features/Agenda.php
+msgid "Agenda item scheduled."
+msgstr "Item agenda dijadwalkan."
+
+#: inc/Features/Agenda.php
+msgid "Agenda item updated."
+msgstr "Item agenda diperbarui."
+
+#: inc/Features/Agenda.php
+msgid "Agenda items list"
+msgstr "Daftar item agenda"
+
+#: inc/Features/Agenda.php
+msgid "Agenda items list navigation"
+msgstr "Navigasi daftar item agenda"
+
+#: inc/Features/Agenda.php
+msgid "All Agenda Items"
+msgstr "Semua Item Agenda"
+
+#: inc/Features/Agenda.php
+msgid "Date"
+msgstr "Tanggal"
+
+#: inc/Features/Agenda.php
+msgid "Date, start time and location are required for the event to show up properly on the agenda archive."
+msgstr "Tanggal, waktu mulai, dan lokasi wajib diisi agar acara tampil dengan benar di arsip agenda."
+
+#: inc/Features/Agenda.php
+msgid "Dated cooperative events: meetings, gatherings and activities."
+msgstr "Acara koperasi terjadwal: rapat, pertemuan, dan kegiatan."
+
+#: inc/Features/Agenda.php
+msgid "Edit Agenda Item"
+msgstr "Ubah Item Agenda"
+
+#: inc/Features/Agenda.php
+msgid "Event Details"
+msgstr "Detail Acara"
+
+#: inc/Features/Agenda.php
+msgid "Filter agenda items"
+msgstr "Filter item agenda"
+
+#: inc/Features/Agenda.php
+msgid "Insert into agenda item"
+msgstr "Sisipkan ke item agenda"
+
+#: inc/Features/Agenda.php
+msgid "Location"
+msgstr "Lokasi"
+
+#: inc/Features/Agenda.php
+msgid "New Agenda Item"
+msgstr "Item Agenda Baru"
+
+#: inc/Features/Agenda.php
+msgid "No agenda items found in Trash."
+msgstr "Tidak ada item agenda di Sampah."
+
+#: inc/Features/Agenda.php
+msgid "No agenda items found."
+msgstr "Tidak ada item agenda ditemukan."
+
+#: inc/Features/Agenda.php
+msgid "Please sign in to submit an agenda item."
+msgstr "Silakan masuk untuk mengirim item agenda."
+
+#: inc/Features/Agenda.php
+msgid "Search Agenda"
+msgstr "Cari Agenda"
+
+#: inc/Features/Agenda.php
+msgid "Sign in"
+msgstr "Masuk"
+
+#: inc/Features/Agenda.php
+msgid "Start time"
+msgstr "Waktu mulai"
+
+#: inc/Features/Agenda.php
+msgid "Uploaded to this agenda item"
+msgstr "Diunggah ke item agenda ini"
+
+#: inc/Features/Agenda.php
+msgid "View Agenda"
+msgstr "Lihat Agenda"
+
+#: inc/Features/Agenda.php
+msgid "View Agenda Item"
+msgstr "Lihat Item Agenda"
+
+#: inc/Features/Agenda.php
+msgid "Your account cannot submit agenda items. Please contact an editor if you need contributor access."
+msgstr "Akun Anda tidak dapat mengirim item agenda. Hubungi editor jika Anda membutuhkan akses kontributor."
+
+#: inc/Features/Markets.php
+msgid "Choose which provider supplies each market and keep the manual snapshot prices up to date. A market with no saved price shows an honest \"no data\" message on the site — prices are never invented."
+msgstr "Pilih penyedia untuk setiap pasar dan jaga harga snapshot manual tetap terbaru. Pasar tanpa harga tersimpan menampilkan pesan \"tidak ada data\" yang jujur di situs — harga tidak pernah dikarang."
+
+#: inc/Features/Markets.php
+msgid "Crypto"
+msgstr "Kripto"
+
+#: inc/Features/Markets.php
+msgid "Gold"
+msgstr "Emas"
+
+#: inc/Features/Markets.php
+msgid "Gold spot"
+msgstr "Harga spot emas"
+
+#: inc/Features/Markets.php
+msgid "Last saved: %s"
+msgstr "Terakhir disimpan: %s"
+
+#: inc/Features/Markets.php
+msgid "Markets"
+msgstr "Pasar"
+
+#: inc/Features/Markets.php
+msgid "Provider"
+msgstr "Penyedia"
+
+#: inc/Features/Markets.php
+msgid "Stocks"
+msgstr "Saham"
+
+#: inc/Features/Markets.php
+msgid "You do not have permission to access this page."
+msgstr "Anda tidak memiliki izin untuk mengakses halaman ini."
+
+#: inc/Features/Subscribe.php
+msgid "Email address"
+msgstr "Alamat email"
+
+#: inc/Features/Subscribe.php
+msgid "Leave this field empty"
+msgstr "Biarkan kolom ini kosong"
+
+#: inc/Features/Subscribe.php
+msgid "Please enter a valid email address."
+msgstr "Masukkan alamat email yang valid."
+
+#: inc/Features/Subscribe.php
+msgid "Something went wrong. Please try again later."
+msgstr "Terjadi kesalahan. Silakan coba lagi nanti."
+
+#: inc/Features/Subscribe.php
+msgid "Something went wrong. Please try again."
+msgstr "Terjadi kesalahan. Silakan coba lagi."
+
+#: inc/Features/Subscribe.php
+msgid "Subscribe"
+msgstr "Berlangganan"
+
+#: inc/Features/Subscribe.php
+msgid "Subscriptions are unavailable right now. Please try again later."
+msgstr "Langganan tidak tersedia saat ini. Silakan coba lagi nanti."
+
+#: inc/Features/Subscribe.php
+msgid "Thank you for subscribing. Please check your inbox to confirm your subscription."
+msgstr "Terima kasih sudah berlangganan. Periksa kotak masuk Anda untuk mengonfirmasi langganan."
+
+#: inc/Features/Subscribe.php
+msgid "Too many subscription attempts. Please try again later."
+msgstr "Terlalu banyak percobaan berlangganan. Silakan coba lagi nanti."
+
+#: inc/Features/Subscribe.php
+msgid "Your email address"
+msgstr "Alamat email Anda"
+
+#: inc/Features/Weather.php
+msgid "Feels like"
+msgstr "Terasa seperti"
+
+#: inc/Features/Weather.php
+msgid "High / Low"
+msgstr "Tertinggi / Terendah"
+
+#: inc/Features/Weather.php
+msgid "Humidity"
+msgstr "Kelembapan"
+
+#: inc/Features/Weather.php
+msgid "Weather is unavailable right now. Please try again later."
+msgstr "Cuaca tidak tersedia saat ini. Silakan coba lagi nanti."
+
+#: inc/Features/Weather.php
+msgid "Wind"
+msgstr "Angin"
+
+#: inc/Widgets/GoldWidget.php
+msgid "Brands to show:"
+msgstr "Merek yang ditampilkan:"
+
+#: inc/Widgets/GoldWidget.php
+msgid "Edit the prices in %s."
+msgstr "Ubah harga di %s."
+
+#: inc/Widgets/GoldWidget.php
+msgid "Gold Prices"
+msgstr "Harga Emas"
+
+#: inc/Widgets/GoldWidget.php
+msgid "Gold prices for five brands in an auto-scrolling slider. Prices are edited in Settings -> Markets."
+msgstr "Harga emas lima merek dalam slider gulir otomatis. Harga diubah di Pengaturan -> Pasar."
+
+#: inc/Widgets/GoldWidget.php
+msgid "Koperasi Kita Gold Prices"
+msgstr "Harga Emas Koperasi Kita"
+
+#: inc/Widgets/GoldWidget.php
+msgid "Settings -> Markets"
+msgstr "Pengaturan -> Pasar"
+
+#: inc/Widgets/GoldWidget.php
+msgid "Title"
+msgstr "Judul"
+
+#: inc/Widgets/MarketsWidget.php
+msgid "Gold, stock and crypto prices from the Markets providers. Prices are edited in Settings -> Markets."
+msgstr "Harga emas, saham, dan kripto dari penyedia Pasar. Harga diubah di Pengaturan -> Pasar."
+
+#: inc/Widgets/MarketsWidget.php
+msgid "Koperasi Kita Markets"
+msgstr "Pasar Koperasi Kita"
+
+#: inc/Widgets/MarketsWidget.php
+msgid "Markets to show:"
+msgstr "Pasar yang ditampilkan:"
+
+#: inc/Widgets/MarketsWidget.php
+msgid "Show day change"
+msgstr "Tampilkan perubahan harian"
+
+#: inc/Widgets/WeatherWidget.php
+msgid "Change location"
+msgstr "Ubah lokasi"
+
+#: inc/Widgets/WeatherWidget.php
+msgid "Current weather for a city, with a location picker."
+msgstr "Cuaca terkini sebuah kota, dengan pemilih lokasi."
+
+#: inc/Widgets/WeatherWidget.php
+msgid "Default city"
+msgstr "Kota default"
+
+#: inc/Widgets/WeatherWidget.php
+msgid "Koperasi Kita Weather"
+msgstr "Cuaca Koperasi Kita"
+
+#: inc/Widgets/WeatherWidget.php
+msgid "Shown until a visitor picks another location."
+msgstr "Ditampilkan sampai pengunjung memilih lokasi lain."
+
+#: inc/Widgets/WeatherWidget.php
+msgid "Weather"
+msgstr "Cuaca"
+
+#: inc/Widgets/WeatherWidget.php
+msgid "Weather is unavailable right now."
+msgstr "Cuaca tidak tersedia saat ini."
+
+#: index.php
+msgid "No posts were found. Try a different search."
+msgstr "Tidak ada artikel ditemukan. Coba pencarian lain."
+
+#: index.php
+msgid "Nothing found"
+msgstr "Tidak ada yang ditemukan"
+
+#: search.php
+msgid "No results found"
+msgstr "Tidak ada hasil ditemukan"
+
+#: search.php
+msgid "Results for \"%s\""
+msgstr "Hasil untuk \"%s\""
+
+#: search.php
+msgid "Search results"
+msgstr "Hasil pencarian"
+
+#: search.php
+msgid "Try different keywords, or browse the latest news below."
+msgstr "Coba kata kunci lain, atau jelajahi berita terbaru di bawah."
+
+#: sidebar-news.php
+msgid "Sidebar"
+msgstr "Sidebar"
+
+#: single-agenda.php
+msgid "Back to the agenda"
+msgstr "Kembali ke agenda"
+
+#: single.php
+msgid "Related news"
+msgstr "Berita terkait"
+
+#: template-bookmarks.php
+msgid "Articles you saved on this device. Bookmarks are stored only in this browser."
+msgstr "Artikel yang Anda simpan di perangkat ini. Bookmark hanya tersimpan di browser ini."
+
+#: template-bookmarks.php
+msgid "Bookmarks"
+msgstr "Bookmark"
+
+#: template-bookmarks.php
+msgid "Bookmarks are currently disabled."
+msgstr "Bookmark saat ini dinonaktifkan."
+
+#: template-bookmarks.php
+msgid "Browse the latest news"
+msgstr "Jelajahi berita terbaru"
+
+#: template-bookmarks.php
+msgid "No bookmarks yet"
+msgstr "Belum ada bookmark"
+
+#: template-bookmarks.php
+msgid "Tap the bookmark button on any article to save it here for later reading."
+msgstr "Ketuk tombol bookmark di artikel mana pun untuk menyimpannya di sini dan membacanya nanti."
+
+#: template-parts/agenda/agenda-meta.php
+msgid "Time"
+msgstr "Waktu"
+
+#: template-parts/agenda/form-submit.php
+msgid "Description"
+msgstr "Deskripsi"
+
+#: template-parts/agenda/form-submit.php
+msgid "Event title"
+msgstr "Judul acara"
+
+#: template-parts/agenda/form-submit.php
+msgid "Please fix the highlighted fields and submit again."
+msgstr "Perbaiki kolom yang ditandai lalu kirim lagi."
+
+#: template-parts/agenda/form-submit.php
+msgid "Please give the event a title of at least 3 characters."
+msgstr "Beri acara judul minimal 3 karakter."
+
+#: template-parts/agenda/form-submit.php
+msgid "Please pick a valid date."
+msgstr "Pilih tanggal yang valid."
+
+#: template-parts/agenda/form-submit.php
+msgid "Please pick a valid end time."
+msgstr "Pilih waktu selesai yang valid."
+
+#: template-parts/agenda/form-submit.php
+msgid "Please pick a valid start time."
+msgstr "Pilih waktu mulai yang valid."
+
+#: template-parts/agenda/form-submit.php
+msgid "Please write a short description of the event."
+msgstr "Tulis deskripsi singkat tentang acara."
+
+#: template-parts/agenda/form-submit.php
+msgid "Something went wrong while saving your submission. Please try again."
+msgstr "Terjadi kesalahan saat menyimpan kiriman Anda. Silakan coba lagi."
+
+#: template-parts/agenda/form-submit.php
+msgid "Submit for review"
+msgstr "Kirim untuk ditinjau"
+
+#: template-parts/agenda/form-submit.php
+msgid "Thank you! Your agenda item was submitted for review. An editor will publish it once it has been checked."
+msgstr "Terima kasih! Item agenda Anda telah dikirim untuk ditinjau. Editor akan menerbitkannya setelah diperiksa."
+
+#: template-parts/agenda/form-submit.php
+msgid "The description is too long. Please keep it under 5000 characters."
+msgstr "Deskripsi terlalu panjang. Maksimal 5000 karakter."
+
+#: template-parts/agenda/form-submit.php
+msgid "The end time must be after the start time."
+msgstr "Waktu selesai harus setelah waktu mulai."
+
+#: template-parts/agenda/form-submit.php
+msgid "The event date is in the past. Please pick a future date."
+msgstr "Tanggal acara sudah lewat. Pilih tanggal di masa depan."
+
+#: template-parts/agenda/form-submit.php
+msgid "The location is too long. Please keep it under 200 characters."
+msgstr "Lokasi terlalu panjang. Maksimal 200 karakter."
+
+#: template-parts/agenda/form-submit.php
+msgid "The title is too long. Please keep it under 200 characters."
+msgstr "Judul terlalu panjang. Maksimal 200 karakter."
+
+#: template-parts/agenda/form-submit.php
+msgid "Too many submissions. Please wait an hour and try again."
+msgstr "Terlalu banyak kiriman. Tunggu satu jam lalu coba lagi."
+
+#: template-parts/agenda/form-submit.php
+msgid "Website"
+msgstr "Situs web"
+
+#: template-parts/agenda/form-submit.php
+msgid "Your account cannot submit agenda items."
+msgstr "Akun Anda tidak dapat mengirim item agenda."
+
+#: template-parts/agenda/form-submit.php
+msgid "Your session expired. Please try submitting again."
+msgstr "Sesi Anda berakhir. Silakan coba kirim lagi."
+
+#: template-parts/agenda/form-submit.php
+msgid "Your submission is saved as a draft for review. It only appears on the agenda once an editor publishes it."
+msgstr "Kiriman Anda disimpan sebagai draf untuk ditinjau. Kiriman baru muncul di agenda setelah editor menerbitkannya."
+
+#: template-parts/agenda/form-submit.php
+msgid "e.g. Cooperative Hall, 2nd floor"
+msgstr "cth. Aula Koperasi, lantai 2"
+
+#: template-parts/content/card-news.php
+msgid "Save"
+msgstr "Simpan"
+
+#: template-parts/content/card-news.php
+msgid "Save bookmark"
+msgstr "Simpan bookmark"
+
+#: template-parts/content/layout-switcher.php
+msgid "Layout"
+msgstr "Tata letak"
+
+#: template-parts/content/single-article.php
+msgid "By %s"
+msgstr "Oleh %s"
+
+#: template-parts/content/single-article.php
+msgid "Copy link"
+msgstr "Salin tautan"
+
+#: template-parts/content/single-article.php
+msgid "Link copied"
+msgstr "Tautan disalin"
+
+#: template-parts/content/single-article.php
+msgid "Share"
+msgstr "Bagikan"
+
+#: template-parts/content/single-article.php
+msgid "Share by email"
+msgstr "Bagikan lewat email"
+
+#: template-parts/content/single-article.php
+msgid "Share on Facebook"
+msgstr "Bagikan ke Facebook"
+
+#: template-parts/content/single-article.php
+msgid "Share on WhatsApp"
+msgstr "Bagikan ke WhatsApp"
+
+#: template-parts/content/single-article.php
+msgid "Share on X"
+msgstr "Bagikan ke X"
+
+#: template-parts/content/single-article.php
+msgid "Share this article"
+msgstr "Bagikan artikel ini"
+
+#: template-parts/content/single-article.php
+msgid "The link could not be copied."
+msgstr "Tautan tidak dapat disalin."
+
+#: template-parts/gold/slider.php
+msgid "Gold brands"
+msgstr "Merek emas"
+
+#: template-parts/gold/slider.php
+msgid "Gold prices are not available yet."
+msgstr "Harga emas belum tersedia."
+
+#: template-parts/gold/slider.php
+msgid "Next brand"
+msgstr "Merek berikutnya"
+
+#: template-parts/gold/slider.php
+msgid "Pause gold prices"
+msgstr "Jeda harga emas"
+
+#: template-parts/gold/slider.php
+msgid "Previous brand"
+msgstr "Merek sebelumnya"
+
+#: template-parts/gold/slider.php
+msgid "Updated %s"
+msgstr "Diperbarui %s"
+
+#: template-parts/gold/slider.php
+msgid "per gram"
+msgstr "per gram"
+
+#: template-parts/header/site-nav.php
+msgid "Close search"
+msgstr "Tutup pencarian"
+
+#: template-parts/header/site-nav.php
+msgid "Open menu"
+msgstr "Buka menu"
+
+#: template-parts/header/site-nav.php
+msgid "Primary"
+msgstr "Utama"
+
+#: template-parts/header/site-nav.php
+msgid "Search"
+msgstr "Cari"
+
+#: template-parts/header/ticker.php
+msgid "Breaking"
+msgstr "Terkini"
+
+#: template-parts/header/ticker.php
+msgid "Breaking news"
+msgstr "Berita Terkini"
+
+#: template-parts/header/ticker.php
+msgid "Next headline"
+msgstr "Judul berikutnya"
+
+#: template-parts/header/ticker.php
+msgid "Pause headlines"
+msgstr "Jeda judul"
+
+#: template-parts/header/ticker.php
+msgid "Previous headline"
+msgstr "Judul sebelumnya"
+
+#: template-parts/header/top-bar.php
+msgid "Change weather location"
+msgstr "Ubah lokasi cuaca"
+
+#: template-parts/header/top-bar.php
+msgid "Toggle color scheme"
+msgstr "Ganti skema warna"
+
+#: template-parts/home/category-block.php
+msgid "More in %s"
+msgstr "Lainnya di %s"
+
+#: template-parts/home/category-block.php
+msgid "Section"
+msgstr "Bagian"
+
+#: template-parts/home/featured-sidebar.php
+msgid "Editor’s Picks"
+msgstr "Pilihan Redaksi"
+
+#: template-parts/home/hero-grid.php
+msgid "Top stories"
+msgstr "Berita Utama"
+
+#: template-parts/home/latest-news.php
+msgid "Latest News"
+msgstr "Berita Terbaru"
+
+#: template-parts/markets/strip.php
+msgid "Market data is not available yet."
+msgstr "Data pasar belum tersedia."
+
+#: template-parts/markets/strip.php
+msgid "No data yet."
+msgstr "Belum ada data."
+
+#: template-parts/pwa/install-button.php
+msgid "Install app"
+msgstr "Instal aplikasi"
+
+#: template-parts/pwa/install-prompt.php
+msgid "Add Koperasi Kita to your home screen for faster access to news, announcements and market updates — even offline."
+msgstr "Tambahkan Koperasi Kita ke layar utama untuk akses berita, pengumuman, dan kabar pasar yang lebih cepat — bahkan offline."
+
+#: template-parts/pwa/install-prompt.php
+msgid "Dismiss"
+msgstr "Tutup"
+
+#: template-parts/pwa/install-prompt.php
+msgid "Install"
+msgstr "Instal"
+
+#: template-parts/pwa/install-prompt.php
+msgid "Install Koperasi Kita"
+msgstr "Instal Koperasi Kita"
+
+#: template-parts/pwa/install-prompt.php
+msgid "No app store download needed"
+msgstr "Tidak perlu unduh dari toko aplikasi"
+
+#: template-parts/pwa/install-prompt.php
+msgid "Not now"
+msgstr "Nanti saja"
+
+#: template-parts/pwa/install-prompt.php
+msgid "Quick access from your home screen"
+msgstr "Akses cepat dari layar utama"
+
+#: template-parts/pwa/install-prompt.php
+msgid "Read the latest news offline"
+msgstr "Baca berita terbaru secara offline"
+
+#: template-parts/weather/location-picker.php
+msgid "+ Add current location"
+msgstr "+ Tambah lokasi saat ini"
+
+#: template-parts/weather/location-picker.php
+msgid "Choose location"
+msgstr "Pilih lokasi"
+
+#: template-parts/weather/location-picker.php
+msgid "Close location picker"
+msgstr "Tutup pemilih lokasi"
+
+#: template-parts/weather/location-picker.php
+msgid "Current location: %s"
+msgstr "Lokasi saat ini: %s"
+
+#: template-parts/weather/location-picker.php
+msgid "Done"
+msgstr "Selesai"
+
+#: template-parts/weather/location-picker.php
+msgid "Latitude"
+msgstr "Lintang"
+
+#: template-parts/weather/location-picker.php
+msgid "Longitude"
+msgstr "Bujur"
+
+#: template-parts/weather/location-picker.php
+msgid "Or enter coordinates"
+msgstr "Atau masukkan koordinat"
+
+#: template-parts/weather/location-picker.php
+msgid "Quick picks"
+msgstr "Pilihan cepat"
+
+#: template-parts/weather/location-picker.php
+msgid "Reset to default"
+msgstr "Kembalikan ke default"
+
+#: template-parts/weather/location-picker.php
+msgid "Search for a city"
+msgstr "Cari kota"
+
+#: template-parts/weather/location-picker.php
+msgid "Type a city name…"
+msgstr "Ketik nama kota…"
+
+#: template-parts/weather/location-picker.php
+msgid "Use my location"
+msgstr "Gunakan lokasi saya"
+
+#: template-parts/weather/location-picker.php
+msgid "Use these coordinates"
+msgstr "Gunakan koordinat ini"
+
+#: inc/Setup/Setup.php
+msgid "Activate TrayDigita Stack"
+msgstr "Aktifkan TrayDigita Stack"
+
+#: inc/Setup/Setup.php
+msgid "Activation failed."
+msgstr "Aktivasi gagal."
+
+#: inc/Setup/Setup.php
+msgid "Active"
+msgstr "Aktif"
+
+#: inc/Setup/Setup.php
+msgid "Another Stack installation is already running. Please wait a moment and try again."
+msgstr "Instalasi Stack lain sedang berjalan. Tunggu sebentar lalu coba lagi."
+
+#: inc/Setup/Setup.php
+msgid "Attention"
+msgstr "Perhatian"
+
+#: inc/Setup/Setup.php
+msgid "Bookmarks page"
+msgstr "Halaman bookmark"
+
+#: inc/Setup/Setup.php
+msgid "Could not reach the GitHub release feed. Check the connection and try again."
+msgstr "Tidak dapat menjangkau feed rilis GitHub. Periksa koneksi lalu coba lagi."
+
+#: inc/Setup/Setup.php
+msgid "Direct filesystem access is not available. Upload the plugin from Plugins → Add New instead."
+msgstr "Akses filesystem langsung tidak tersedia. Unggah plugin dari Plugin → Tambah Baru."
+
+#: inc/Setup/Setup.php
+msgid "Everything the theme needs, in one place."
+msgstr "Semua yang dibutuhkan tema, di satu tempat."
+
+#: inc/Setup/Setup.php
+msgid "GitHub answered with an unexpected status."
+msgstr "GitHub menjawab dengan status yang tidak terduga."
+
+#: inc/Setup/Setup.php
+msgid "Gold, markets and weather widgets for the sidebars."
+msgstr "Widget emas, pasar, dan cuaca untuk sidebar."
+
+#: inc/Setup/Setup.php
+msgid "Install it from Setup"
+msgstr "Instal dari Setup"
+
+#: inc/Setup/Setup.php
+msgid "Install latest release from GitHub"
+msgstr "Instal rilis terbaru dari GitHub"
+
+#: inc/Setup/Setup.php
+msgid "Installation failed."
+msgstr "Instalasi gagal."
+
+#: inc/Setup/Setup.php
+msgid "Installed, not active"
+msgstr "Terinstal, belum aktif"
+
+#: inc/Setup/Setup.php
+msgid "Koperasi Kita Setup"
+msgstr "Setup Koperasi Kita"
+
+#: inc/Setup/Setup.php
+msgid "Koperasi Kita theme"
+msgstr "Tema Koperasi Kita"
+
+#: inc/Setup/Setup.php
+msgid "Logo, colours, layout and typography, with live preview."
+msgstr "Logo, warna, tata letak, dan tipografi, dengan pratinjau live."
+
+#: inc/Setup/Setup.php
+msgid "Menus"
+msgstr "Menu"
+
+#: inc/Setup/Setup.php
+msgid "Missing"
+msgstr "Tidak ada"
+
+#: inc/Setup/Setup.php
+msgid "No Stack release asset was found."
+msgstr "Tidak ditemukan aset rilis Stack."
+
+#: inc/Setup/Setup.php
+msgid "No page uses the Bookmarks template yet"
+msgstr "Belum ada halaman yang memakai template Bookmark"
+
+#: inc/Setup/Setup.php
+msgid "No release assets were found."
+msgstr "Tidak ditemukan aset rilis."
+
+#: inc/Setup/Setup.php
+msgid "Not installed"
+msgstr "Belum terinstal"
+
+#: inc/Setup/Setup.php
+msgid "Not writable"
+msgstr "Tidak dapat ditulisi"
+
+#: inc/Setup/Setup.php
+msgid "PHP version"
+msgstr "Versi PHP"
+
+#: inc/Setup/Setup.php
+msgid "Page found"
+msgstr "Halaman ditemukan"
+
+#: inc/Setup/Setup.php
+msgid "Primary menu and the mobile bottom navigation."
+msgstr "Menu utama dan navigasi bawah seluler."
+
+#: inc/Setup/Setup.php
+msgid "Quick start"
+msgstr "Mulai cepat"
+
+#: inc/Features/FontsManagementControl.php:42
+msgid "Ready"
+msgstr "Siap"
+
+#: inc/Setup/Setup.php
+msgid "Requirements"
+msgstr "Persyaratan"
+
+#: inc/Setup/Setup.php
+msgid "Something went wrong."
+msgstr "Terjadi kesalahan."
+
+#: inc/Setup/Setup.php
+msgid "Sorry, you are not allowed to access this page."
+msgstr "Maaf, Anda tidak diizinkan mengakses halaman ini."
+
+#: inc/Setup/Setup.php
+msgid "Sorry, you are not allowed to activate plugins."
+msgstr "Maaf, Anda tidak diizinkan mengaktifkan plugin."
+
+#: inc/Setup/Setup.php
+msgid "Sorry, you are not allowed to install plugins."
+msgstr "Maaf, Anda tidak diizinkan menginstal plugin."
+
+#: inc/Setup/Setup.php
+msgid "The Stack is installed and active. All integrations are available."
+msgstr "Stack sudah terinstal dan aktif. Semua integrasi tersedia."
+
+#: inc/Setup/Setup.php
+msgid "The Stack is installed but not active."
+msgstr "Stack sudah terinstal tetapi belum aktif."
+
+#: inc/Setup/Setup.php
+msgid "The Stack is not installed yet."
+msgstr "Stack belum terinstal."
+
+#: inc/Setup/Setup.php
+msgid "The Stack is the theme’s companion plugin. It provides the image, popular-posts and messaging helpers. The theme works without it, but those helpers fall back to basic behaviour."
+msgstr "Stack adalah plugin pendamping tema. Plugin ini menyediakan helper gambar, artikel populer, dan pesan. Tema tetap berjalan tanpanya, tetapi helper tersebut kembali ke perilaku dasar."
+
+#: inc/Setup/Setup.php
+msgid "The plugin could not be installed."
+msgstr "Plugin tidak dapat diinstal."
+
+#: inc/Setup/Setup.php
+msgid "The release download URL was rejected."
+msgstr "URL unduhan rilis ditolak."
+
+#: inc/Setup/Setup.php
+msgid "The saved-articles page. Bookmarks live in the browser, per reader."
+msgstr "Halaman artikel tersimpan. Bookmark hidup di browser, per pembaca."
+
+#: inc/Setup/Setup.php
+msgid "Theme options"
+msgstr "Opsi tema"
+
+#: inc/Setup/Setup.php
+msgid "TrayDigita Stack"
+msgstr "TrayDigita Stack"
+
+#: inc/Setup/Setup.php
+msgid "TrayDigita Stack installed. Activate it below to enable the integrations."
+msgstr "TrayDigita Stack terinstal. Aktifkan di bawah untuk mengaktifkan integrasi."
+
+#: inc/Setup/Setup.php
+msgid "TrayDigita Stack is already active."
+msgstr "TrayDigita Stack sudah aktif."
+
+#: inc/Setup/Setup.php
+msgid "TrayDigita Stack is now active."
+msgstr "TrayDigita Stack kini aktif."
+
+#: inc/Setup/Setup.php
+msgid "Upload & install"
+msgstr "Unggah & instal"
+
+#: inc/Setup/Setup.php
+msgid "Upload failed."
+msgstr "Unggahan gagal."
+
+#: inc/Setup/Setup.php
+msgid "Uploads directory"
+msgstr "Direktori unggahan"
+
+#: inc/Setup/Setup.php
+msgid "Widgets"
+msgstr "Widget"
+
+#: inc/Setup/Setup.php
+msgid "WordPress version"
+msgstr "Versi WordPress"
+
+#: inc/Setup/Setup.php
+msgid "Writable"
+msgstr "Dapat ditulisi"
+
+#: inc/Setup/Setup.php
+msgid "Or upload a release zip (max 20 MB):"
+msgstr "Atau unggah zip rilis (maks 20 MB):"
+
+#: inc/Features/Fonts.php:424
+msgid "Google Fonts"
+msgstr "Google Fonts"
+
+#: inc/Features/Fonts.php:724
+msgid "The %1$s font could not be downloaded (%2$s). The site is using a system font instead."
+msgstr "Font %1$s tidak dapat diunduh (%2$s). Situs memakai font sistem sebagai gantinya."
+
+#: inc/Features/Fonts.php:732
+msgid "Open Typography settings"
+msgstr "Buka pengaturan Tipografi"
+
+#: inc/Features/FontsManagementControl.php:28
+msgid "No Google font is selected. Pick one above to download it for offline use."
+msgstr "Belum ada font Google yang dipilih. Pilih di atas untuk mengunduhnya agar bisa dipakai offline."
+
+#: inc/Features/FontsManagementControl.php:40
+msgid "Downloading"
+msgstr "Mengunduh"
+
+#: inc/Features/FontsManagementControl.php:46
+msgid "Failed: %s"
+msgstr "Gagal: %s"
+
+#: inc/Features/FontsManagementControl.php:50
+msgid "Not downloaded yet"
+msgstr "Belum diunduh"
+
+#: inc/Features/FontsManagementControl.php:61
+msgid "Download fonts now"
+msgstr "Unduh font sekarang"
+
+#: inc/Features/FontsManagementControl.php:64
+msgid "Clear font cache"
+msgstr "Bersihkan cache font"
+
+#: inc/Features/FontsManagementControl.php:68
+msgid "Google fonts are downloaded once and served from this site. Until a font is downloaded, the site keeps using a system font."
+msgstr "Font Google diunduh sekali lalu disajikan dari situs ini. Sampai font diunduh, situs tetap memakai font sistem."
+
+#: inc/Api/Ajax.php
+msgid "You do not have permission to do that."
+msgstr "Anda tidak memiliki izin untuk melakukan itu."
+
+#: inc/Api/Rest.php
+msgid "Markets are disabled."
+msgstr "Pasar dinonaktifkan."
+
+#: inc/Api/Rest.php
+msgid "Unknown market."
+msgstr "Pasar tidak dikenal."
+
+#: inc/Api/Rest.php
+msgid "Weather is disabled."
+msgstr "Cuaca dinonaktifkan."
+
+#: inc/Api/Rest.php
+msgid "Coordinates are out of range."
+msgstr "Koordinat di luar jangkauan."
+
+#: inc/Api/Rest.php
+msgid "Unknown city."
+msgstr "Kota tidak dikenal."
+
+#: inc/Api/Rest.php
+msgid "Weather service unavailable."
+msgstr "Layanan cuaca tidak tersedia."
+
+#: inc/Features/Fonts.php
+msgid "Unknown Google font."
+msgstr "Font Google tidak dikenal."
+
+#: inc/Features/Fonts.php
+msgid "Could not create the font directory."
+msgstr "Tidak dapat membuat direktori font."
+
+#: inc/Features/Fonts.php
+msgid "Download already in progress."
+msgstr "Unduhan sudah berjalan."
+
+#: inc/Features/Fonts.php
+msgid "Download failed."
+msgstr "Unduhan gagal."
+
+#: inc/Features/FontDownloader.php
+msgid "Could not reach Google Fonts."
+msgstr "Tidak dapat menjangkau Google Fonts."
+
+#: inc/Features/FontDownloader.php
+msgid "Google Fonts returned an unexpected response."
+msgstr "Google Fonts mengembalikan respons yang tidak terduga."
+
+#: inc/Features/FontDownloader.php
+msgid "Google Fonts returned an unexpected stylesheet."
+msgstr "Google Fonts mengembalikan stylesheet yang tidak terduga."
+
+#: inc/Features/FontDownloader.php
+msgid "Google Fonts returned no usable font files."
+msgstr "Google Fonts tidak mengembalikan file font yang bisa dipakai."
+
+#: inc/Features/FontDownloader.php
+msgid "Refused an unexpected font file URL."
+msgstr "Menolak URL file font yang tidak terduga."
+
+#: inc/Features/FontDownloader.php
+msgid "Could not download the font file."
+msgstr "Tidak dapat mengunduh file font."
+
+#: inc/Features/FontDownloader.php
+msgid "The font file could not be downloaded."
+msgstr "File font tidak dapat diunduh."
+
+#: inc/Features/FontDownloader.php
+msgid "The downloaded font file is not a valid woff2 file."
+msgstr "File font yang diunduh bukan file woff2 yang valid."
+
+#: inc/Features/FontDownloader.php
+msgid "Could not save the font file."
+msgstr "Tidak dapat menyimpan file font."
+
+#: inc/Features/FontDownloader.php
+msgid "Could not write the font stylesheet."
+msgstr "Tidak dapat menulis stylesheet font."
+
+#: inc/Api/Ajax.php
+msgid "Missing security token. Please reload the page and try again."
+msgstr "Token keamanan hilang. Muat ulang halaman lalu coba lagi."
+
+#: inc/Api/Ajax.php
+msgid "Security token expired. Please reload the page and try again."
+msgstr "Token keamanan kedaluwarsa. Muat ulang halaman lalu coba lagi."
+
+#: inc/Api/Ajax.php
+msgid "Unexpected response from the server."
+msgstr "Respons server yang tidak terduga."
+
+#: inc/Api/Rest.php
+msgid "Both latitude and longitude are required."
+msgstr "Lintang dan bujur wajib diisi."
+
+#: inc/Admin/MarketsSettings.php
+msgid "Change (%)"
+msgstr "Perubahan (%)"
+
+#: inc/Customizer/Customizer.php
+msgid "Article Text Size"
+msgstr "Ukuran Teks Artikel"
+
+#: inc/Features/ArticleFontSize.php
+msgid "Text size"
+msgstr "Ukuran teks"
+
+#: inc/Features/ArticleFontSize.php
+msgid "Decrease text size"
+msgstr "Perkecil ukuran teks"
+
+#: inc/Features/ArticleFontSize.php
+msgid "Increase text size"
+msgstr "Perbesar ukuran teks"
+
+#: inc/Features/ArticleFontSize.php
+msgid "Reset"
+msgstr "Atur ulang"
+
+#: inc/Customizer/Customizer.php
+msgid "Breaking News Posts"
+msgstr "Artikel Berita Terkini"
+
+#: inc/Customizer/Customizer.php
+msgid "Latest posts"
+msgstr "Artikel terbaru"
+
+#: inc/Customizer/Customizer.php
+msgid "Selected categories"
+msgstr "Kategori terpilih"
+
+#: inc/Customizer/Customizer.php
+msgid "Selected tags"
+msgstr "Tag terpilih"
+
+#: inc/Customizer/Customizer.php
+msgid "Ticker Categories"
+msgstr "Kategori Ticker"
+
+#: inc/Customizer/Customizer.php
+msgid "Used when the source above is \"Selected categories\". Leave empty to fall back to the latest posts."
+msgstr "Dipakai saat sumber di atas adalah \"Kategori terpilih\". Kosongkan untuk kembali ke artikel terbaru."
+
+#: inc/Customizer/Customizer.php
+msgid "Ticker Tags"
+msgstr "Tag Ticker"
+
+#: inc/Customizer/Customizer.php
+msgid "Used when the source above is \"Selected tags\". Leave empty to fall back to the latest posts."
+msgstr "Dipakai saat sumber di atas adalah \"Tag terpilih\". Kosongkan untuk kembali ke artikel terbaru."
+
+#: inc/Customizer/Customizer.php
+msgid "Seconds Between Breaking News Headlines"
+msgstr "Detik Antar Judul Berita Terkini"
+
+#: inc/Customizer/Customizer.php
+msgid "Breaking News Headlines"
+msgstr "Judul Berita Terkini"
+
+#: inc/Customizer/Customizer.php
+msgid "Top Bar Date Format"
+msgstr "Format Tanggal Bar Atas"
+
+#: inc/Customizer/Customizer.php
+msgid "Monday, 25 November 2026"
+msgstr "Senin, 25 November 2026"
+
+#: inc/Customizer/Customizer.php
+msgid "25 November 2026"
+msgstr "25 November 2026"
+
+#: inc/Customizer/Customizer.php
+msgid "Mon, 25 Nov 2026"
+msgstr "Sen, 25 Nov 2026"
+
+#: inc/Customizer/Customizer.php
+msgid "25/11/2026"
+msgstr "25/11/2026"
+
+#: inc/Customizer/Customizer.php
+msgid "Clock Time Zone"
+msgstr "Zona Waktu Jam"
+
+#: inc/Customizer/Customizer.php
+msgid "Site time zone (Settings > General)"
+msgstr "Zona waktu situs (Pengaturan > Umum)"
+
+#: inc/Customizer/Customizer.php
+msgid "Visitor device time"
+msgstr "Waktu perangkat pengunjung"
+
+#: inc/Customizer/Customizer.php
+msgid "Custom time zone"
+msgstr "Zona waktu kustom"
+
+#: inc/Customizer/Customizer.php
+msgid "Custom Time Zone"
+msgstr "Zona Waktu Kustom"
+
+#: inc/Customizer/Customizer.php
+msgid "Clock Separator"
+msgstr "Pemisah Jam"
+
+#: inc/Customizer/Customizer.php
+msgid "Colon (14:05:30)"
+msgstr "Titik dua (14:05:30)"
+
+#: inc/Customizer/Customizer.php
+msgid "Dot (14.05.30)"
+msgstr "Titik (14.05.30)"
+
+#: inc/Customizer/Customizer.php
+msgid "Show Top Bar"
+msgstr "Tampilkan Bar Atas"
+
+#: inc/Customizer/Customizer.php
+msgid "Show Date in Top Bar"
+msgstr "Tampilkan Tanggal di Bar Atas"
+
+#: inc/Customizer/Customizer.php
+msgid "Show Live Clock in Top Bar"
+msgstr "Tampilkan Jam Live di Bar Atas"
+
+#: inc/Customizer/Customizer.php
+msgid "Show Seconds on the Clock"
+msgstr "Tampilkan Detik pada Jam"
+
+#: inc/Customizer/Customizer.php
+msgid "Use the 24-Hour Clock"
+msgstr "Gunakan Jam 24 Jam"
+
+#: inc/Customizer/Customizer.php
+msgid "Sticky Header Navigation"
+msgstr "Navigasi Header Menempel"
+
+#: inc/Customizer/TermCheckboxControl.php
+msgid "No terms found."
+msgstr "Tidak ada istilah ditemukan."
+
+#: inc/Customizer/Customizer.php
+msgid "Show Share Buttons"
+msgstr "Tampilkan Tombol Bagikan"
+
+#: inc/Customizer/Customizer.php
+msgid "Serve Images Through the WordPress.com CDN (i0.wp.com)"
+msgstr "Sajikan Gambar Lewat CDN WordPress.com (i0.wp.com)"
+
+#: inc/Customizer/Customizer.php
+msgid "Rewrites uploaded image URLs to i0.wp.com and adds DNS prefetch and preconnect hints. Only applies on a publicly reachable domain — local and test hosts keep serving images directly."
+msgstr "Menulis ulang URL gambar yang diunggah ke i0.wp.com dan menambahkan hint DNS prefetch dan preconnect. Hanya berlaku di domain yang dapat dijangkau publik — host lokal dan pengujian tetap menyajikan gambar langsung."
+
+#: inc/Customizer/Customizer.php
+msgid "App Name"
+msgstr "Nama Aplikasi"
+
+#: inc/Customizer/Customizer.php
+msgid "App Short Name"
+msgstr "Nama Pendek Aplikasi"
+
+#: inc/Customizer/Customizer.php
+msgid "App Description"
+msgstr "Deskripsi Aplikasi"
+
+#: inc/Customizer/Customizer.php
+msgid "App Theme Color"
+msgstr "Warna Tema Aplikasi"
+
+#: inc/Customizer/Customizer.php
+msgid "App Background Color"
+msgstr "Warna Latar Aplikasi"
+
+#: inc/Customizer/Customizer.php
+msgid "Show Category Block %d"
+msgstr "Tampilkan Blok Kategori %d"
+
+#: inc/Customizer/Customizer.php
+msgid "Category Block %d"
+msgstr "Blok Kategori %d"
+
+#: inc/Customizer/Customizer.php
+msgid "Posts Per Category Block"
+msgstr "Artikel per Blok Kategori"
+
+#: inc/Customizer/Customizer.php
+msgid "Automatic (most posts)"
+msgstr "Otomatis (artikel terbanyak)"
+
+#: inc/Customizer/Customizer.php
+msgid "Sticky Sidebar While Scrolling"
+msgstr "Sidebar Menempel saat Menggulir"
+
+#: inc/Customizer/Customizer.php
+msgid "Archive and Search Article Layout"
+msgstr "Tata Letak Artikel Arsip dan Pencarian"
+
+#: inc/Customizer/Customizer.php
+msgid "Cards"
+msgstr "Kartu"
+
+#: inc/Customizer/Customizer.php
+msgid "News Pagination"
+msgstr "Paginasi Berita"
+
+#: inc/Customizer/Customizer.php
+msgid "Page numbers"
+msgstr "Nomor halaman"
+
+#: inc/Customizer/Customizer.php
+msgid "Load more"
+msgstr "Muat lebih banyak"
+
+#: inc/Features/Pagination.php
+msgid "No more posts."
+msgstr "Tidak ada artikel lagi."
+
+#: inc/Customizer/Customizer.php
+msgid "Install Button Text"
+msgstr "Teks Tombol Instal"
+
+#: inc/Customizer/Customizer.php
+msgid "Install Prompt Delay"
+msgstr "Jeda Prompt Instal"
+
+#: inc/Customizer/Customizer.php
+msgid "Install Screenshot (Wide)"
+msgstr "Screenshot Instal (Lebar)"
+
+#: inc/Customizer/Customizer.php
+msgid "Desktop screenshot shown when installing the app (landscape, e.g. 1280x720). Leave empty to skip."
+msgstr "Screenshot desktop yang ditampilkan saat menginstal aplikasi (lanskap, cth. 1280x720). Kosongkan untuk melewati."
+
+#: inc/Customizer/Customizer.php
+msgid "Install Screenshot (Narrow)"
+msgstr "Screenshot Instal (Sempit)"
+
+#: inc/Customizer/Customizer.php
+msgid "Phone screenshot shown when installing the app (portrait, e.g. 390x844). Leave empty to skip."
+msgstr "Screenshot ponsel yang ditampilkan saat menginstal aplikasi (potret, cth. 390x844). Kosongkan untuk melewati."
+
+#: inc/Customizer/Customizer.php
+msgid "Seconds to wait after the browser offers installation before showing the install prompt. 0 shows it immediately."
+msgstr "Detik menunggu setelah browser menawarkan instalasi sebelum menampilkan prompt instal. 0 langsung menampilkannya."
+
+#: inc/Assets/Enqueue.php
+msgid "Admin data is not available."
+msgstr "Data admin tidak tersedia."
+
+#: inc/Breadcrumb/Breadcrumb.php
+msgid "Breadcrumb"
+msgstr "Breadcrumb"
+
+#: inc/Breadcrumb/Breadcrumb.php
+msgid "Search results for \"%s\""
+msgstr "Hasil pencarian untuk \"%s\""
+
+#: inc/Breadcrumb/Breadcrumb.php
+msgid "Archives"
+msgstr "Arsip"
+
+#: template-parts/content/pagination.php:20
+msgid "&larr; Newer"
+msgstr "&larr; Lebih baru"
+
+#: template-parts/content/pagination.php:21
+msgid "Older &rarr;"
+msgstr "Lebih lama &rarr;"
+
+#: comments.php:48
+msgid "&larr; Older comments"
+msgstr "&larr; Komentar lebih lama"
+
+#: comments.php:49
+msgid "Newer comments &rarr;"
+msgstr "Komentar lebih baru &rarr;"
+
+#: inc/Customizer/Customizer.php:102
+msgid "Body Font"
+msgstr "Font Isi"
+
+#: inc/Customizer/Customizer.php:116
+msgid "Headings Font"
+msgstr "Font Judul"
+
+#: inc/Customizer/Customizer.php:208
+#: template-parts/content/layout-switcher.php:23
+msgid "Newsletter"
+msgstr "Buletin"
+
+#: template-parts/home/newsletter.php:49
+msgid "More stories"
+msgstr "Artikel lainnya"
+
+#: template-parts/home/newsletter-subscribe.php:17
+msgid "Get the newsletter"
+msgstr "Dapatkan buletin"
+
+#: sidebar.php:12
+#: sidebar-news.php:12
+#: sidebar-page.php:12
+#: sidebar-single.php:12
+msgid "No widgets added yet. Add widgets in Appearance &rarr; Widgets."
+msgstr "Belum ada widget. Tambahkan widget di Tampilan &rarr; Widget."
+
+#: inc/Features/Agenda.php:491
+#: template-parts/agenda/form-submit.php:145
+msgid "End time (optional)"
+msgstr "Waktu selesai (opsional)"
+
+#: template-parts/agenda/form-submit.php:46
+msgid "Please tell us where the event takes place (at least 3 characters)."
+msgstr "Beri tahu kami di mana acara berlangsung (minimal 3 karakter)."
+
+#: inc/Widgets/WeatherWidget.php:115
+msgid "Show details (feels like, high/low, humidity, wind)"
+msgstr "Tampilkan detail (terasa seperti, tertinggi/terendah, kelembapan, angin)"
+
+#: inc/Setup/Setup.php:612
+msgid "The uploaded file is not a valid plugin zip (max 20 MB)."
+msgstr "File yang diunggah bukan zip plugin yang valid (maks 20 MB)."
