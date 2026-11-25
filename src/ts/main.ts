@@ -352,48 +352,46 @@ function initModals(): void {
 	});
 }
 
-function initSearchDialog(): void {
-	const dialog = $('#kk-search-dialog') as HTMLDialogElement | null;
-	const openButton = $('#kk-search-open');
-	const closeButton = $('#kk-search-close') as HTMLButtonElement | null;
-	if (!dialog || !openButton) {
+/* Expanding search: the icon toggles a field that grows out of it
+ * to the left. Escape, an outside click or submit closes it again;
+ * the query is cleared on close so a stale query never reopens. */
+function initExpandingSearch(): void {
+	const form = $('#kk-search-expand') as HTMLFormElement | null;
+	const toggle = $('#kk-search-open') as HTMLButtonElement | null;
+	const input = $('#kk-search-input') as HTMLInputElement | null;
+	if (!form || !toggle || !input) {
 		return;
 	}
-	const input = dialog.querySelector<HTMLInputElement>('.search-field');
-	let lastFocused: HTMLElement | null = null;
-	openButton.addEventListener('click', () => {
-		lastFocused = document.activeElement as HTMLElement | null;
-		document.documentElement.classList.add('kk-search-open');
-		if (typeof dialog.showModal === 'function') {
-			dialog.showModal();
+	const open = (): void => {
+		form.classList.add('is-open');
+		toggle.setAttribute('aria-expanded', 'true');
+		input.focus();
+	};
+	const close = (refocus: boolean): void => {
+		form.classList.remove('is-open');
+		toggle.setAttribute('aria-expanded', 'false');
+		input.value = '';
+		if (refocus) {
+			toggle.focus();
+		}
+	};
+	toggle.addEventListener('click', () => {
+		if (form.classList.contains('is-open')) {
+			close(true);
 		} else {
-			dialog.setAttribute('open', '');
-		}
-		input?.focus();
-	});
-	closeButton?.addEventListener('click', () => dialog.close());
-	dialog.addEventListener('click', (event) => {
-		// A click on the dialog element itself (not its content) is a
-		// backdrop click: the ::backdrop is not a real element, so the
-		// target is the dialog when the click lands outside the box.
-		if (event.target === dialog) {
-			dialog.close();
+			open();
 		}
 	});
-	dialog.addEventListener('cancel', (event) => {
-		// The field owns Escape: clear the query and leave, keep the
-		// dialog open. A second Escape (focus outside the field)
-		// closes it.
-		if (input && document.activeElement === input) {
+	input.addEventListener('keydown', (event) => {
+		if (event.key === 'Escape') {
 			event.preventDefault();
-			input.value = '';
-			input.blur();
+			close(true);
 		}
 	});
-	dialog.addEventListener('close', () => {
-		document.documentElement.classList.remove('kk-search-open');
-		lastFocused?.focus();
-		lastFocused = null;
+	document.addEventListener('click', (event) => {
+		if (form.classList.contains('is-open') && !form.contains(event.target as Node)) {
+			close(false);
+		}
 	});
 }
 
@@ -953,7 +951,7 @@ document.addEventListener('DOMContentLoaded', () => {
 	initColorScheme();
 	initMobileNav();
 	initModals();
-	initSearchDialog();
+	initExpandingSearch();
 	initTicker();
 	initClock();
 	initLayoutSwitcher();

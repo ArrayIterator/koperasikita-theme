@@ -55,6 +55,13 @@ html[data-color-scheme="dark"] .kk-pick-number {
 	color: var(--kk-gold-light, #F6D365);
 }
 
+/* Elevated homepage cards need a hairline in dark mode: the soft
+ * shadow cannot define a dark card on a dark page. */
+html[data-color-scheme="dark"] .kk-home .kk-card {
+	border: 1px solid var(--kk-border);
+	box-shadow: 0 1px 2px rgb(0 0 0 / 0.2), 0 8px 24px rgb(0 0 0 / 0.3);
+}
+
 /* Photos and placeholder art are made for a white page; in dark mode
  * dim card images slightly so a light image (the flat placeholder
  * especially) does not glare out of a dark card. */
@@ -100,6 +107,11 @@ html[data-color-scheme="dark"] .custom-logo.is-inverted {
 
 	html[data-color-scheme="system"] .kk-pick-number {
 		color: var(--kk-gold-light, #F6D365);
+	}
+
+	html[data-color-scheme="system"] .kk-home .kk-card {
+		border: 1px solid var(--kk-border);
+		box-shadow: 0 1px 2px rgb(0 0 0 / 0.2), 0 8px 24px rgb(0 0 0 / 0.3);
 	}
 
 	html[data-color-scheme="system"] .kk-brand-mark.is-inverted,

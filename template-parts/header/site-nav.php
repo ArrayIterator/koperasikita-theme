@@ -12,9 +12,9 @@
  * not in the top bar. The PWA install button never lives here either:
  * its position is a Customizer setting (footer by default).
  *
- * The search dialog is a native <dialog>: a compact centred box with
- * a backdrop, an icon badge, a title and a search form with a submit
- * button.
+ * Search is an expanding field, not a popup: the search icon is the
+ * toggle and the input grows out of it to the left when opened
+ * (Escape, outside click or submit closes it again).
  *
  * @package KoperasiKita
  */
@@ -67,9 +67,14 @@
 		</nav>
 
 		<div class="kk-nav-actions">
-			<button type="button" class="kk-icon-button kk-search-open" id="kk-search-open" aria-label="<?php esc_attr_e( 'Search', 'koperasikita' ); ?>" aria-haspopup="dialog" aria-controls="kk-search-dialog">
-				<?php echo \KoperasiKita\Icons\Icon::svg( 'search', 18 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
-			</button>
+			<form class="kk-search-expand" id="kk-search-expand" role="search" method="get" action="<?php echo esc_url( home_url( '/' ) ); ?>">
+				<label class="screen-reader-text" for="kk-search-input"><?php esc_html_e( 'Search for:', 'koperasikita' ); ?></label>
+				<input class="kk-search-expand-input search-field" id="kk-search-input" type="search" name="s" value="<?php echo esc_attr( get_search_query() ); ?>" autocomplete="off" placeholder="<?php esc_attr_e( 'Search news…', 'koperasikita' ); ?>">
+				<button type="button" class="kk-icon-button kk-search-expand-toggle" id="kk-search-open" aria-label="<?php esc_attr_e( 'Search', 'koperasikita' ); ?>" aria-expanded="false" aria-controls="kk-search-input">
+					<span class="kk-search-expand-icon kk-search-expand-icon-search"><?php echo \KoperasiKita\Icons\Icon::svg( 'search', 18 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></span>
+					<span class="kk-search-expand-icon kk-search-expand-icon-close"><?php echo \KoperasiKita\Icons\Icon::svg( 'close', 18 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></span>
+				</button>
+			</form>
 
 			<button type="button" class="kk-icon-button kk-color-scheme-toggle" id="kk-color-scheme-toggle" data-kk-scheme-toggle aria-label="<?php esc_attr_e( 'Toggle color scheme', 'koperasikita' ); ?>" aria-pressed="false">
 				<span class="kk-icon-sun"><?php echo \KoperasiKita\Icons\Icon::svg( 'sun', 18 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></span>
@@ -80,18 +85,3 @@
 </div>
 
 <div class="kk-nav-backdrop" id="kk-nav-backdrop" hidden></div>
-
-<dialog class="kk-search-dialog" id="kk-search-dialog" aria-labelledby="kk-search-dialog-title">
-	<div class="kk-search-dialog-inner">
-		<button type="button" class="kk-icon-button kk-search-dialog-close" id="kk-search-close" aria-label="<?php esc_attr_e( 'Close search', 'koperasikita' ); ?>">
-			<?php echo \KoperasiKita\Icons\Icon::svg( 'close', 20 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
-		</button>
-		<p class="kk-search-dialog-badge" aria-hidden="true"><?php echo \KoperasiKita\Icons\Icon::svg( 'search', 22 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></p>
-		<h2 class="kk-search-dialog-title" id="kk-search-dialog-title"><?php esc_html_e( 'Search', 'koperasikita' ); ?></h2>
-		<form class="kk-search-dialog-form" role="search" method="get" action="<?php echo esc_url( home_url( '/' ) ); ?>">
-			<label class="screen-reader-text" for="kk-search-input"><?php esc_html_e( 'Search for:', 'koperasikita' ); ?></label>
-			<input class="search-field" id="kk-search-input" type="search" name="s" value="<?php echo esc_attr( get_search_query() ); ?>" autocomplete="off" placeholder="<?php esc_attr_e( 'Search news…', 'koperasikita' ); ?>">
-			<button type="submit" class="kk-button search-submit"><?php esc_html_e( 'Search', 'koperasikita' ); ?></button>
-		</form>
-	</div>
-</dialog>

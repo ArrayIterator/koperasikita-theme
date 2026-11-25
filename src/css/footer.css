@@ -182,9 +182,8 @@
 
 /* --- Back to top ---------------------------------------------------------- */
 
-/* Like the PWA float: never glow through an open drawer or dialog. */
-html.kk-nav-open .kk-back-to-top,
-html.kk-search-open .kk-back-to-top {
+/* Like the PWA float: never glow through an open drawer. */
+html.kk-nav-open .kk-back-to-top {
 	display: none;
 }
 
