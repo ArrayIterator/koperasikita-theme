@@ -13,7 +13,50 @@
 
 export {};
 
-import { postAjax } from './api';
+/* Local AJAX client (self-contained on purpose).
+ *
+ * This used to import postAjax from ./api, but Vite splits that shared
+ * module into a separate chunk (api-*.js) and weather.js then starts with
+ * a top-level `import` — an ES module. The theme enqueues its scripts as
+ * classic <script> tags (no type="module" anywhere), so the browser
+ * throws "Uncaught SyntaxError: Cannot use import statement outside a
+ * module" and this whole file never runs: the top-bar weather slot stays
+ * empty and the location picker never opens. Every other frontend entry
+ * (main, gold-markets, pagination, agenda, pwa) is self-contained and
+ * loads fine, so this file is self-contained too: the ~20-line envelope
+ * client lives here instead of in the shared chunk. Keep it in sync
+ * with src/ts/api.ts if the envelope ever changes. */
+
+interface ApiEnvelope<T> {
+	success: boolean;
+	data: T | null;
+	error: { code: string; message: string } | null;
+}
+
+interface AjaxConfig {
+	ajaxUrl: string;
+	nonce: string;
+}
+
+async function postAjax<T>(
+	config: AjaxConfig,
+	action: string,
+	params: Record<string, string> = {},
+	signal?: AbortSignal,
+): Promise<T> {
+	const body = new URLSearchParams({ action, nonce: config.nonce, ...params });
+	const response = await fetch(config.ajaxUrl, {
+		method: 'POST',
+		credentials: 'same-origin',
+		body,
+		signal,
+	});
+	const json = (await response.json().catch(() => null)) as ApiEnvelope<T> | null;
+	if (!response.ok || !json?.success || json.data === null) {
+		throw new Error(json?.error?.message ?? `Request failed (${response.status}).`);
+	}
+	return json.data;
+}
 
 interface KkData {
 	ajaxUrl?: string;

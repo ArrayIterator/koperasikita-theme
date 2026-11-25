@@ -91,6 +91,25 @@
  * edge. The page behind is scroll-locked while the picker is open
  * (see openPicker in weather.ts), so no section below can peek out. */
 
+/* Dark mode: keep ghost-button text readable inside weather surfaces.
+ *
+ * variants.css forces `color: #121212` on every `.kk-button` under
+ * `html[data-color-scheme="dark"]` — meant for the solid green primary
+ * button, whose dark-mode background is the light green. But the rule
+ * also matches `.kk-button-ghost` (transparent background), so the
+ * picker's "Use these coordinates" / "Use my location" / "Reset to
+ * default" buttons and the widget's "Change location" button render
+ * near-black text on the near-black dialog: invisible. This override
+ * (higher specificity, loaded after variants.css) restores the ink
+ * colour for ghost buttons inside weather surfaces only. The same
+ * variants.css rule also catches the PWA install prompt's "Not now"
+ * button — that one lives outside weather CSS and needs the same
+ * treatment where it is owned. */
+html[data-color-scheme="dark"] .kk-weather-modal .kk-button-ghost,
+html[data-color-scheme="dark"] .kk-weather-widget .kk-button-ghost {
+	color: var(--kk-ink);
+}
+
 .kk-weather-modal {
 	position: fixed;
 	top: 0;
