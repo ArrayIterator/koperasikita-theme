@@ -236,7 +236,69 @@ final class Pwa
         self::serveServiceWorker();
     }
 
-    private static function serveManifest(): void
+    /**
+     * Screenshots for the manifest, from the Customizer media
+     * pickers. Each slot stores an attachment ID; an empty slot, a
+     * deleted attachment, an image without dimensions or a
+     * non-image attachment is skipped, and with no usable
+     * screenshot the manifest has no screenshots field at all.
+     *
+     * @return array<int, array<string, string>>
+     */
+    public static function manifestScreenshots(): array
+    {
+        $screenshots = [];
+
+        foreach (['wide' => 'kk_pwa_screenshot_wide', 'narrow' => 'kk_pwa_screenshot_narrow'] as $formFactor => $setting) {
+            $id = absint(get_theme_mod($setting, 0));
+
+            if ($id === 0) {
+                continue;
+            }
+
+            $image = wp_get_attachment_image_src($id, 'full');
+
+            if ($image === false) {
+                continue;
+            }
+
+            [$url, $width, $height] = $image;
+
+            if (!is_string($url) || $url === '' || $width <= 0 || $height <= 0) {
+                continue;
+            }
+
+            $mime = get_post_mime_type($id);
+
+            if (is_string($mime) && $mime !== '' && !str_starts_with($mime, 'image/')) {
+                continue;
+            }
+
+            $entry = [
+                'src' => $url,
+                'sizes' => $width . 'x' . $height,
+            ];
+
+            if (is_string($mime) && $mime !== '') {
+                $entry['type'] = $mime;
+            }
+
+            $entry['form_factor'] = $formFactor;
+
+            $screenshots[] = $entry;
+        }
+
+        return $screenshots;
+    }
+
+    /**
+     * The manifest document. Screenshots are added only when at
+     * least one is configured, so the field is honestly absent
+     * instead of an empty array.
+     *
+     * @return array<string, mixed>
+     */
+    public static function manifestData(): array
     {
         $iconsBase = get_template_directory_uri() . '/assets/img/';
 
@@ -266,12 +328,23 @@ final class Pwa
             ],
         ];
 
+        $screenshots = self::manifestScreenshots();
+
+        if ($screenshots !== []) {
+            $manifest['screenshots'] = $screenshots;
+        }
+
+        return $manifest;
+    }
+
+    private static function serveManifest(): void
+    {
         nocache_headers();
         header('Content-Type: application/manifest+json; charset=utf-8');
         header('Cache-Control: public, max-age=3600');
         header('X-Content-Type-Options: nosniff');
 
-        echo wp_json_encode($manifest, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
+        echo wp_json_encode(self::manifestData(), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
         exit;
     }
 

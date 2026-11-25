@@ -1765,6 +1765,22 @@ msgid "Install Prompt Delay"
 msgstr ""
 
 #: inc/Customizer/Customizer.php
+msgid "Install Screenshot (Wide)"
+msgstr ""
+
+#: inc/Customizer/Customizer.php
+msgid "Desktop screenshot shown when installing the app (landscape, e.g. 1280x720). Leave empty to skip."
+msgstr ""
+
+#: inc/Customizer/Customizer.php
+msgid "Install Screenshot (Narrow)"
+msgstr ""
+
+#: inc/Customizer/Customizer.php
+msgid "Phone screenshot shown when installing the app (portrait, e.g. 390x844). Leave empty to skip."
+msgstr ""
+
+#: inc/Customizer/Customizer.php
 msgid "Seconds to wait after the browser offers installation before showing the install prompt. 0 shows it immediately."
 msgstr ""
 

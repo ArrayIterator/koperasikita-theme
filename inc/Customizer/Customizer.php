@@ -10,6 +10,7 @@ use KoperasiKita\Features\Performance;
 use KoperasiKita\Features\StyleVariant;
 use WP_Customize_Color_Control;
 use WP_Customize_Manager;
+use WP_Customize_Media_Control;
 
 final class Customizer
 {
@@ -630,6 +631,33 @@ final class Customizer
                 'step' => 0.5,
             ],
         ]);
+
+        // Install screenshots for the manifest (shown by the browser
+        // on the install prompt). Both are optional: an empty slot is
+        // skipped, and with neither set the manifest has no
+        // screenshots field at all.
+        $pwa_screenshots = [
+            'kk_pwa_screenshot_wide' => [
+                'Install Screenshot (Wide)',
+                'Desktop screenshot shown when installing the app (landscape, e.g. 1280x720). Leave empty to skip.',
+            ],
+            'kk_pwa_screenshot_narrow' => [
+                'Install Screenshot (Narrow)',
+                'Phone screenshot shown when installing the app (portrait, e.g. 390x844). Leave empty to skip.',
+            ],
+        ];
+
+        foreach ($pwa_screenshots as $id => [$label, $description]) {
+            self::addSetting($wpCustomize, $id, 0, 'absint', 'refresh');
+
+            $wpCustomize->add_control(new WP_Customize_Media_Control($wpCustomize, $id, [
+                'label' => esc_html__($label, 'koperasikita'),
+                'description' => esc_html__($description, 'koperasikita'),
+                'section' => 'koperasikita_pwa',
+                'settings' => $id,
+                'mime_type' => 'image',
+            ]));
+        }
 
         // Default article text size in pixels. Visitors can change it
         // with the resize control before the content; their choice is
