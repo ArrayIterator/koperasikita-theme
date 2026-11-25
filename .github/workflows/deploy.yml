@@ -5,6 +5,15 @@ on:
     branches: [main]
   workflow_dispatch:
 
+# Serialize deploys: parallel pushes used to race each other on the
+# server (git pull + bun install + bun run build in the same checkout),
+# failing runs. cancel-in-progress is false on purpose — never cancel a
+# deploy mid-flight, or the server could be left half-deployed; queued
+# runs wait and then run one after another.
+concurrency:
+  group: deploy-live
+  cancel-in-progress: false
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
