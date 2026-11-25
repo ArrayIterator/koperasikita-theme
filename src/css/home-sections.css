@@ -159,16 +159,15 @@
 	margin-top: 56px;
 }
 
-/* Text-first cards: no thumbnails in the rows, the story is the type. */
-.kk-home .kk-latest-items .kk-card-media,
-.kk-home .kk-category-block-items .kk-card-media,
-.kk-home .kk-hero-grid .kk-card-media {
+/* Grid cards: thumbnails are back (the clean text-only treatment hid
+ * them) and the excerpt goes — the card is thumb + title + read more.
+ * The list layout keeps its excerpt: there the excerpt is the point.
+ * (The old rules hid the media here and forced list cards to block
+ * because the thumb column was empty — both go away with the media.) */
+.kk-home .kk-hero-grid .kk-card-excerpt,
+.kk-home .kk-category-block-items .kk-card-excerpt,
+.kk-home .kk-latest-items:not(.kk-layout-list) .kk-card-excerpt {
 	display: none;
-}
-
-/* The list layout's 120px thumb column would be empty without media. */
-.kk-home .kk-latest-items.kk-layout-list .kk-card {
-	display: block;
 }
 
 /* Flat quiet card: surface fill, even padding, no border, no shadow. */

@@ -33,6 +33,12 @@
 .kk-card-title {
 	font-size: var(--kk-card-title-size);
 	margin: 6px 0 8px;
+	/* Long titles wrap to 4+ lines and make rows uneven; clamp to 3
+	 * with an ellipsis so every card stays the same height. */
+	display: -webkit-box;
+	-webkit-line-clamp: 3;
+	-webkit-box-orient: vertical;
+	overflow: hidden;
 }
 
 .kk-card-title a {
