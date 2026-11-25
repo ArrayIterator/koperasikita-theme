@@ -39,7 +39,7 @@ $rest  = $hero_posts;
 	?>
 	<article class="kk-hero-lead">
 		<a class="kk-hero-lead-media" href="<?php the_permalink(); ?>" tabindex="-1" aria-hidden="true">
-			<img src="<?php echo esc_url( \KoperasiKita\Images\FeaturedImage::url( get_the_ID(), 'large' ) ); ?>" alt="" loading="eager">
+			<img src="<?php echo esc_url( \KoperasiKita\Images\FeaturedImage::url( get_the_ID(), 'large' ) ); ?>" alt="" loading="eager" fetchpriority="high">
 		</a>
 		<div class="kk-hero-lead-body">
 			<?php

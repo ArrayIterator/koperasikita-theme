@@ -11,6 +11,20 @@
 <!doctype html>
 <html <?php language_attributes(); ?> data-color-scheme="system">
 <head>
+	<script>
+	/* Colour scheme, resolved before first paint: read the stored
+	 * preference (or the OS scheme) and set data-color-scheme now, so
+	 * the page never flashes. main.ts keeps the same preference in
+	 * sync afterwards and follows OS changes while it is "system". */
+	(function () {
+		try {
+			var stored = window.localStorage.getItem('kk-color-scheme');
+			var media = window.matchMedia('(prefers-color-scheme: dark)');
+			var resolved = (stored === 'dark' || stored === 'light') ? stored : (media.matches ? 'dark' : 'light');
+			document.documentElement.setAttribute('data-color-scheme', resolved);
+		} catch (e) { /* private mode / no storage: keep the "system" default */ }
+	})();
+	</script>
 	<meta charset="<?php bloginfo( 'charset' ); ?>">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="profile" href="https://gmpg.org/xfn/11">

@@ -236,10 +236,6 @@ body.kk-variant-compact .kk-category-block {
 	margin-top: 20px;
 }
 
-body.kk-variant-compact .kk-category-block-items .kk-card:first-child .kk-card-title {
-	font-size: 20px;
-}
-
 body.kk-variant-compact .kk-pick {
 	padding: 10px 0;
 }
@@ -391,10 +387,6 @@ body.kk-variant-bold .kk-ticker-wrap {
 
 body.kk-variant-bold .kk-card {
 	border-top-width: 2px;
-}
-
-body.kk-variant-bold .kk-category-block-items .kk-card:first-child .kk-card-title {
-	font-size: 28px;
 }
 
 body.kk-variant-bold .kk-picks-list,

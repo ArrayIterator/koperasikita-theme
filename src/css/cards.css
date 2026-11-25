@@ -132,14 +132,20 @@
 	min-height: 0;
 	padding: 0;
 	justify-content: center;
-	border: 0;
+	border: 1px solid rgb(255 255 255 / 0.6);
 	border-radius: 50%;
-	background: rgb(255 255 255 / 0.92);
-	box-shadow: 0 1px 4px rgb(0 0 0 / 0.2);
+	/* Frosted glass over the thumbnail: a translucent white circle
+	 * with a slight blur, so the button reads as a floating action
+	 * instead of a flat sticker. The icon stays dark (#1a1a1a) — the
+	 * frosted white keeps it legible in both modes. (Hover green and
+	 * the saved white-on-green state still win — higher specificity.) */
+	background: rgb(255 255 255 / 0.55);
+	-webkit-backdrop-filter: blur(6px);
+	backdrop-filter: blur(6px);
+	box-shadow: 0 2px 10px rgb(0 0 0 / 0.18);
 	/* The circle is white in BOTH modes, so the icon must be dark in
 	 * both modes too: --kk-ink turns near-white in dark mode and the
-	 * bookmark vanishes on the white circle. (Hover green and the
-	 * saved white-on-green state still win — higher specificity.) */
+	 * bookmark vanishes on the white circle. */
 	color: #1a1a1a;
 }
 
@@ -165,6 +171,23 @@
 	grid-area: bookmark;
 	align-self: start;
 	margin: 0;
+}
+
+/* Desktop: the bookmark is a hover reveal — it appears only while the
+ * card is hovered (or the button is focused / already saved), so the
+ * thumbnail stays clean. Touch devices have no hover, so the button
+ * is always visible there. */
+@media (hover: hover) and (pointer: fine) {
+	.kk-card .kk-bookmark-button {
+		opacity: 0;
+		transition: opacity 0.18s ease;
+	}
+
+	.kk-card:hover .kk-bookmark-button,
+	.kk-card .kk-bookmark-button:focus-visible,
+	.kk-card .kk-bookmark-button[aria-pressed="true"] {
+		opacity: 1;
+	}
 }
 
 /* --- Related news on phones: compact horizontal rows ---------------------- */

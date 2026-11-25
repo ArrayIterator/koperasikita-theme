@@ -62,6 +62,12 @@ function $all<T extends Element>(selector: string, root: ParentNode = document):
 /* Colour scheme                                                       */
 /* ------------------------------------------------------------------ */
 
+// The inline script in header.php already resolved the stored
+// preference (or the OS scheme) before first paint, so the page never
+// flashes. This module keeps the same preference in sync afterwards
+// and follows OS changes while the preference is "system".
+const SCHEME_MEDIA = window.matchMedia('(prefers-color-scheme: dark)');
+
 function getStoredScheme(): ColorScheme {
 	const stored = window.localStorage.getItem(SCHEME_KEY);
 	if (stored === 'light' || stored === 'dark' || stored === 'system') {
@@ -70,12 +76,36 @@ function getStoredScheme(): ColorScheme {
 	return 'system';
 }
 
+function resolveScheme(scheme: ColorScheme): 'light' | 'dark' {
+	if (scheme === 'light' || scheme === 'dark') {
+		return scheme;
+	}
+	return SCHEME_MEDIA.matches ? 'dark' : 'light';
+}
+
+function onSystemSchemeChange(event: MediaQueryListEvent): void {
+	document.documentElement.setAttribute('data-color-scheme', event.matches ? 'dark' : 'light');
+}
+
 function applyScheme(scheme: ColorScheme): void {
-	document.documentElement.setAttribute('data-color-scheme', scheme);
+	// The attribute always carries the RESOLVED scheme (light/dark),
+	// never the literal "system" — that is what the header script set
+	// before paint, and what the CSS reads.
+	document.documentElement.setAttribute('data-color-scheme', resolveScheme(scheme));
+	// Follow the OS while the preference is "system"; stop when the
+	// user pins light or dark.
+	if (scheme === 'system') {
+		SCHEME_MEDIA.addEventListener('change', onSystemSchemeChange);
+	} else {
+		SCHEME_MEDIA.removeEventListener('change', onSystemSchemeChange);
+	}
 	// Every toggle (header on desktop, drawer footer on mobile) stays
-	// in sync: same pressed state, same next-mode label.
+	// in sync. aria-pressed reflects the resolved scheme (is the page
+	// dark right now); the label names the next mode in the cycle,
+	// which depends on the stored preference.
+	const isDark = resolveScheme(scheme) === 'dark';
 	$all<HTMLButtonElement>('[data-kk-scheme-toggle]').forEach((toggle) => {
-		toggle.setAttribute('aria-pressed', scheme === 'dark' ? 'true' : 'false');
+		toggle.setAttribute('aria-pressed', isDark ? 'true' : 'false');
 		toggle.setAttribute(
 			'aria-label',
 			scheme === 'system'

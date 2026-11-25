@@ -28,10 +28,6 @@
 		grid-template-columns: 1fr 1fr;
 	}
 
-	.kk-category-block-items .kk-card:first-child {
-		grid-column: 1 / -1;
-	}
-
 	.kk-footer-grid {
 		grid-template-columns: 1fr 1fr;
 	}
@@ -202,13 +198,12 @@
 		grid-template-columns: repeat(3, 1fr);
 	}
 
+	/* Uniform grid: every card the same width — the old "1 large lead
+	 * + 3 small" made the first card read as a grid card and the rest
+	 * as list cards. auto-fit fills the row whether the block has 3
+	 * or 4 posts. */
 	.kk-category-block-items {
-		grid-template-columns: 1.4fr 1fr 1fr 1fr;
-	}
-
-	.kk-category-block-items .kk-card:first-child {
-		grid-column: auto;
-		grid-row: span 1;
+		grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
 	}
 
 	.kk-footer-grid {

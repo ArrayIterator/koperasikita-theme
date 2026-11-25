@@ -1,6 +1,6 @@
 <?php
 /**
- * One category block: eyebrow + title + 1 large + 3 small cards.
+ * One category block: eyebrow + title + a uniform grid of cards.
  *
  * Accepts $args['category'] (WP_Term) or the query var kk_category_block.
  *
