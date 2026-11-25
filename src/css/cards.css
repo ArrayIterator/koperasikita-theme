@@ -136,6 +136,11 @@
 	border-radius: 50%;
 	background: rgb(255 255 255 / 0.92);
 	box-shadow: 0 1px 4px rgb(0 0 0 / 0.2);
+	/* The circle is white in BOTH modes, so the icon must be dark in
+	 * both modes too: --kk-ink turns near-white in dark mode and the
+	 * bookmark vanishes on the white circle. (Hover green and the
+	 * saved white-on-green state still win — higher specificity.) */
+	color: #1a1a1a;
 }
 
 .kk-card .kk-bookmark-button .kk-bookmark-label {

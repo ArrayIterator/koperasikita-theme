@@ -183,15 +183,18 @@
 .kk-entry-content {
 	font-size: var(--article-font-size, 17px);
 	line-height: 1.75;
-	max-width: var(--kk-content-max);
+	/* Full width of the article column: no 720px readability cap. */
+	width: 100%;
+	max-width: none;
 }
 
-/* Article text-size control (injected before the content). */
+/* Article text-size control (injected before the content): left
+ * aligned by default, with the article text. */
 .kk-font-size {
 	display: flex;
 	flex-wrap: wrap;
 	align-items: center;
-	justify-content: flex-end;
+	justify-content: flex-start;
 	gap: 8px;
 	margin: 0 0 20px;
 }

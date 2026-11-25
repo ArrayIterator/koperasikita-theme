@@ -403,6 +403,28 @@ final class Customizer
             ]);
         }
 
+        // Weather cache lifetime (client-side localStorage cache for
+        // the top-bar and widget weather). 0 disables the browser
+        // cache: every page load fetches fresh data.
+        self::addSetting(
+            $wpCustomize,
+            'kk_weather_cache_lifetime',
+            15,
+            static fn ($value) => self::clampInt($value, 0, 1440),
+            'refresh'
+        );
+        $wpCustomize->add_control('kk_weather_cache_lifetime', [
+            'label' => esc_html__('Weather Cache Lifetime', 'koperasikita'),
+            'description' => esc_html__('Minutes the browser keeps weather data in local storage before fetching fresh data. The top bar shows the cached weather instantly while fresh data loads in the background. 0 disables the browser cache.', 'koperasikita'),
+            'section' => 'koperasikita_header',
+            'type' => 'number',
+            'input_attrs' => [
+                'min' => 0,
+                'max' => 1440,
+                'step' => 1,
+            ],
+        ]);
+
         $checkboxes = [
             'kk_single_featured' => ['koperasikita_single', 'Show Featured Image', true],
             'kk_single_author_box' => ['koperasikita_single', 'Show Author Box', true],

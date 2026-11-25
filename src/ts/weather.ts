@@ -62,6 +62,9 @@ interface KkData {
 	ajaxUrl?: string;
 	nonce?: string;
 	isWeatherEnabled?: boolean;
+	// Minutes the browser may serve weather from localStorage before
+	// fetching fresh data (Customizer: kk_weather_cache_lifetime).
+	weatherCacheLifetimeMin?: number;
 }
 
 // No global augmentation here: src/ts/main.ts already declares
@@ -102,6 +105,77 @@ interface SearchResult {
 const LOCATION_KEY = 'kk-weather-location';
 const CUSTOM_CITIES_KEY = 'kk-weather-cities';
 const MAX_CUSTOM_CITIES = 8;
+
+// Client-side weather cache: the last fetched conditions, kept in
+// localStorage so the top bar can paint instantly on the next visit
+// instead of waiting for a round-trip. Keyed by location (rounded
+// coords) so a moved pin never serves another place's weather.
+const WEATHER_CACHE_KEY = 'kk-weather-data';
+
+interface CachedWeather {
+	fetchedAt: number;
+	latitude: number;
+	longitude: number;
+	weather: WeatherData;
+}
+
+// Cache lifetime in ms, from the Customizer (kk_weather_cache_lifetime,
+// minutes). 0 disables the browser cache entirely.
+function getCacheLifetimeMs(): number {
+	const data = getKkData();
+	const minutes =
+		typeof data.weatherCacheLifetimeMin === 'number' && Number.isFinite(data.weatherCacheLifetimeMin)
+			? data.weatherCacheLifetimeMin
+			: 15;
+	return Math.max(0, minutes) * 60 * 1000;
+}
+
+function getCachedWeather(location: Location): WeatherData | null {
+	if (getCacheLifetimeMs() === 0) {
+		return null;
+	}
+	try {
+		const raw = window.localStorage.getItem(WEATHER_CACHE_KEY);
+		if (!raw) {
+			return null;
+		}
+		const cached = JSON.parse(raw) as Partial<CachedWeather>;
+		if (!cached || typeof cached.fetchedAt !== 'number' || !cached.weather) {
+			return null;
+		}
+		// Same place (within ~1 km) and still within the lifetime.
+		if (
+			Math.abs((cached.latitude ?? Number.NaN) - location.latitude) > 0.01 ||
+			Math.abs((cached.longitude ?? Number.NaN) - location.longitude) > 0.01
+		) {
+			return null;
+		}
+		if (Date.now() - cached.fetchedAt > getCacheLifetimeMs()) {
+			return null;
+		}
+		return cached.weather;
+	} catch {
+		return null;
+	}
+}
+
+function setCachedWeather(location: Location, weather: WeatherData): void {
+	if (getCacheLifetimeMs() === 0) {
+		return;
+	}
+	try {
+		const cached: CachedWeather = {
+			fetchedAt: Date.now(),
+			latitude: location.latitude,
+			longitude: location.longitude,
+			weather,
+		};
+		window.localStorage.setItem(WEATHER_CACHE_KEY, JSON.stringify(cached));
+	} catch {
+		// Private mode or full storage: the fetch still worked, the
+		// next visit just fetches again.
+	}
+}
 
 const DEFAULT_LOCATION: Location = {
 	name: 'Padang',
@@ -267,6 +341,7 @@ async function fetchWeather(location: Location): Promise<WeatherData> {
 	if (!result.weather) {
 		throw new Error('Weather is unavailable right now.');
 	}
+	setCachedWeather(location, result.weather);
 	return result.weather;
 }
 
@@ -316,6 +391,7 @@ function renderTopbar(weather: WeatherData): void {
 		return;
 	}
 	slot.textContent = '';
+	slot.removeAttribute('aria-busy');
 	// The condition icon rides in the response as the theme's own icon
 	// SVG (trusted markup from the server, no user input in it).
 	if (weather.icon) {
@@ -335,6 +411,44 @@ function renderTopbar(weather: WeatherData): void {
 	slot.setAttribute('title', weather.condition);
 }
 
+// Loading state for the top bar, shown while the first fetch runs and
+// there is no cached weather to paint. It carries the place name
+// (known immediately from the stored location) plus a "—°" temperature,
+// so the slot keeps its width and the top bar does not bounce when the
+// real numbers land.
+function renderTopbarLoading(location: Location): void {
+	const slot = $('#kk-topbar-weather');
+	if (!slot) {
+		return;
+	}
+	slot.textContent = '';
+	slot.setAttribute('aria-busy', 'true');
+	const temp = document.createElement('span');
+	temp.className = 'kk-topbar-weather-temp kk-topbar-weather-loading';
+	temp.textContent = '—°';
+	const place = document.createElement('span');
+	place.className = 'kk-topbar-weather-place';
+	place.textContent = location.name;
+	slot.append(temp, document.createTextNode(' '), place);
+	slot.setAttribute('title', 'Loading weather');
+}
+
+// Paint the top bar and any weather widgets from one weather object
+// (fresh fetch or browser cache — the rendering is the same).
+function renderWeatherDisplays(weather: WeatherData): void {
+	renderTopbar(weather);
+	$all<HTMLElement>('[data-kk-weather-widget]').forEach((widget) => {
+		const body = widget.querySelector<HTMLElement>('[data-kk-weather-body]');
+		const place = widget.querySelector<HTMLElement>('.kk-weather-place');
+		if (place) {
+			place.textContent = weather.name;
+		}
+		if (body) {
+			renderWidgetBody(body, weather, widget.dataset.showDetails === '1');
+		}
+	});
+}
+
 function hideTopbar(): void {
 	const slot = $('#kk-topbar-weather');
 	if (slot) {
@@ -342,6 +456,7 @@ function hideTopbar(): void {
 		// leaves no gap and no fake numbers behind.
 		slot.textContent = '';
 		slot.removeAttribute('title');
+		slot.removeAttribute('aria-busy');
 	}
 }
 
@@ -400,21 +515,17 @@ function renderWidgetEmpty(body: HTMLElement): void {
 async function refreshWeatherDisplays(location: Location): Promise<void> {
 	try {
 		const weather = await fetchWeather(location);
-		renderTopbar(weather);
-		$all<HTMLElement>('[data-kk-weather-widget]').forEach((widget) => {
-			const body = widget.querySelector<HTMLElement>('[data-kk-weather-body]');
-			const place = widget.querySelector<HTMLElement>('.kk-weather-place');
-			if (place) {
-				place.textContent = weather.name;
-			}
-			if (body) {
-				renderWidgetBody(body, weather, widget.dataset.showDetails === '1');
-			}
-		});
+		renderWeatherDisplays(weather);
 	} catch {
-		hideTopbar();
-		// Widgets keep their server-side first paint on failure: it shows
-		// the widget's default city, labelled as such, so nothing is faked.
+		// A failed revalidation keeps a cached display (it is still
+		// fresh); only a page with no data at all — still showing the
+		// loading state — hides the slot. Widgets keep their
+		// server-side first paint on failure: it shows the widget's
+		// default city, labelled as such, so nothing is faked.
+		const slot = $('#kk-topbar-weather');
+		if (slot && slot.querySelector('.kk-topbar-weather-loading')) {
+			hideTopbar();
+		}
 	}
 }
 
@@ -904,6 +1015,16 @@ document.addEventListener('DOMContentLoaded', () => {
 	}
 	const topbar = $('#kk-topbar-weather');
 	if (topbar) {
+		// Paint instantly from the browser cache when it is fresh, or
+		// hold the slot with a loading state so the top bar does not
+		// bounce — then always revalidate in the background so the
+		// numbers stay current.
+		const cached = getCachedWeather(currentLocation);
+		if (cached) {
+			renderWeatherDisplays(cached);
+		} else {
+			renderTopbarLoading(currentLocation);
+		}
 		void refreshWeatherDisplays(currentLocation);
 	} else {
 		void refreshWidgetsFor(currentLocation);

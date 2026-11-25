@@ -1950,3 +1950,11 @@ msgstr "Tampilkan Jumlah Komentar di Kartu"
 #: inc/Customizer/Customizer.php:227
 msgid "Shows the \"N comments\" line on news cards."
 msgstr "Menampilkan baris \"N komentar\" di kartu berita."
+
+#: inc/Customizer/Customizer.php:417
+msgid "Weather Cache Lifetime"
+msgstr "Masa Cache Cuaca"
+
+#: inc/Customizer/Customizer.php:418
+msgid "Minutes the browser keeps weather data in local storage before fetching fresh data. The top bar shows the cached weather instantly while fresh data loads in the background. 0 disables the browser cache."
+msgstr "Menit data cuaca disimpan browser di local storage sebelum mengambil data baru. Top bar langsung menampilkan cuaca dari cache selagi data baru dimuat di latar belakang. 0 menonaktifkan cache browser."

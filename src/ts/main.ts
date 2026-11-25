@@ -13,6 +13,7 @@ interface KkData {
 	isPwaEnabled?: boolean;
 	pwaPromptDelayMs?: number;
 	isWeatherEnabled?: boolean;
+	weatherCacheLifetimeMin?: number;
 	isMarketsEnabled?: boolean;
 	bookmarksPageUrl?: string;
 	ajaxUrl?: string;

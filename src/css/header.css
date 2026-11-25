@@ -63,6 +63,13 @@
 	display: inline-flex;
 }
 
+/* Loading state: muted, so the "—°" reads as a placeholder while the
+ * weather loads. The slot keeps the place name, so it holds its width
+ * and the top bar does not bounce when the real numbers land. */
+.kk-topbar-weather-loading {
+	opacity: 0.55;
+}
+
 /* Colour-scheme toggle: show the icon for the mode you will switch to. */
 html[data-color-scheme="dark"] .kk-icon-sun,
 html[data-color-scheme="light"] .kk-icon-moon,

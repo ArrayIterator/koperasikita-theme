@@ -48,8 +48,12 @@
 
 /* --- Lead story (first card) ---------------------------------------------- */
 
+/* Lead story (first card): media on top, body below. The base card
+ * grid already does exactly that — do NOT set display: block here,
+ * or the bookmark (a grid item) falls into flow below the body. Kept
+ * as a grid, the bookmark overlays the lead image top-right, like
+ * the grid layout. */
 .kk-latest-items.kk-layout-newsletter > .kk-card:first-child {
-	display: block;
 	border-top: 0;
 	padding-top: 0;
 }
@@ -70,13 +74,24 @@
 
 /* --- Feed rows (remaining cards) ------------------------------------------ */
 
+/* Feed rows (remaining cards): thumbnail left, text middle, bookmark
+ * in its own column at the top-right corner — the same three-column
+ * grid as the list layout. Without the bookmark area the button
+ * auto-places into a stray row below the thumbnail. */
 .kk-latest-items.kk-layout-newsletter > .kk-card:not(:first-child) {
 	display: grid;
-	grid-template-columns: 144px 1fr;
+	grid-template-columns: 144px 1fr auto;
+	grid-template-areas: "media body bookmark";
 	gap: 16px;
 	padding-top: 20px;
 	padding-bottom: 20px;
 	border-top: 1px solid var(--kk-border, #E6E3DE);
+}
+
+.kk-latest-items.kk-layout-newsletter > .kk-card:not(:first-child) .kk-bookmark-button {
+	grid-area: bookmark;
+	align-self: start;
+	margin: 0;
 }
 
 .kk-latest-items.kk-layout-newsletter > .kk-card:not(:first-child) .kk-card-media img {
@@ -169,10 +184,18 @@
 /* --- Small screens -------------------------------------------------------- */
 
 @media (max-width: 640px) {
-	/* Feed rows stack: thumbnail on top, text below. */
+	/* Feed rows stack: thumbnail on top, text below. The bookmark
+	 * goes back to the base placement — overlaid on the thumbnail
+	 * top-right — instead of a stray row of its own. */
 	.kk-latest-items.kk-layout-newsletter > .kk-card:not(:first-child) {
 		grid-template-columns: 1fr;
+		grid-template-areas: "media" "body";
 		gap: 0;
+	}
+
+	.kk-latest-items.kk-layout-newsletter > .kk-card:not(:first-child) .kk-bookmark-button {
+		grid-area: media;
+		margin: 10px;
 	}
 
 	.kk-latest-items.kk-layout-newsletter > .kk-card:not(:first-child) .kk-card-media img {
