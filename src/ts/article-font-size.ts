@@ -3,9 +3,9 @@
  *
  * Standalone module, auto-initialised on DOMContentLoaded. It only runs
  * when a `[data-kk-font-size]` control is on the page — the control is
- * injected by the `the_content` filter on singular post/page views, so
- * this file is only enqueued there. Anything else on the site never
- * loads it, and even if it did, there is nothing for it to do.
+ * injected by the `the_content` filter on singular post/page/agenda
+ * views, so this file is only enqueued there. Anything else on the site
+ * never loads it, and even if it did, there is nothing for it to do.
  *
  * The server renders the article with `--article-font-size` already set
  * (cookie size, or the Customizer default), so the first paint is

@@ -214,6 +214,14 @@
 
 .kk-agenda-single .kk-article-content {
 	margin-top: 20px;
+	font-size: var(--article-font-size, 17px);
+	line-height: 1.75;
+}
+
+/* The first paragraph after the text-size control must not add its
+   usual top margin on top of the control's bottom margin. */
+.kk-agenda-single .kk-article-content > .kk-font-size + * {
+	margin-top: 0;
 }
 
 .kk-agenda-back {

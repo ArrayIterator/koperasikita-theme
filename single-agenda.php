@@ -17,9 +17,10 @@ get_header();
 		while (have_posts()) :
 			the_post();
 			get_template_part('template-parts/content/breadcrumb');
+			$font_size = \KoperasiKita\Features\ArticleFontSize::currentSize();
 			?>
 
-			<article class="kk-article kk-agenda-single">
+			<article class="kk-article kk-agenda-single" style="--article-font-size: <?php echo esc_attr((string) $font_size); ?>px">
 				<header class="kk-article-header">
 					<h1 class="kk-article-title"><?php the_title(); ?></h1>
 					<?php get_template_part('template-parts/agenda/agenda-meta'); ?>

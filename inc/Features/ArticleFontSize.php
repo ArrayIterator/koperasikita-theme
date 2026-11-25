@@ -14,9 +14,9 @@ namespace KoperasiKita\Features;
  * on the next load, so the first paint is already the right size.
  *
  * The control is injected by one `the_content` filter, so it appears
- * on every full-content view (single posts and pages) without the
- * markup being duplicated into every template. The size itself is
- * applied as the `--article-font-size` custom property on the
+ * on every full-content view (single posts, pages and agenda items)
+ * without the markup being duplicated into every template. The size
+ * itself is applied as the `--article-font-size` custom property on the
  * `<article>` element, which the content styles read.
  */
 final class ArticleFontSize
@@ -72,8 +72,8 @@ final class ArticleFontSize
 
     /**
      * Prepend the resize control before the content. Only on singular
-     * post/page views, in the main loop and main query — never in the
-     * admin, feeds, excerpts, cards, widgets, or secondary loops.
+     * post/page/agenda views, in the main loop and main query — never in
+     * the admin, feeds, excerpts, cards, widgets, or secondary loops.
      */
     public static function prependControl(string $content): string
     {
@@ -85,7 +85,7 @@ final class ArticleFontSize
             return $content;
         }
 
-        if (!is_singular(['post', 'page'])) {
+        if (!is_singular(['post', 'page', 'agenda'])) {
             return $content;
         }
 

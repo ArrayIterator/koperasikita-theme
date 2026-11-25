@@ -66,9 +66,9 @@ final class Enqueue
         }
 
         // The text-size control is injected by the `the_content` filter
-        // only on singular post/page views, so its script loads only
-        // there — nowhere else on the site.
-        if (is_singular(['post', 'page'])) {
+        // only on singular post/page/agenda views, so its script loads
+        // only there — nowhere else on the site.
+        if (is_singular(['post', 'page', 'agenda'])) {
             $fontSizeJs = ViteLoader::js('src/ts/article-font-size.ts');
 
             if ($fontSizeJs !== '') {
