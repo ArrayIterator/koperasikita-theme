@@ -1752,10 +1752,6 @@ msgstr ""
 msgid "Load more"
 msgstr ""
 
-#: inc/Customizer/Customizer.php
-msgid "Infinite scroll"
-msgstr ""
-
 #: inc/Features/Pagination.php
 msgid "No more posts."
 msgstr ""

@@ -8,7 +8,7 @@ use KoperasiKita\Api\Api;
 
 /**
  * Archive listings: the card layout, the pagination mode, and the
- * data the load-more / infinite-scroll loader needs.
+ * data the load-more loader needs.
  *
  * The loader never trusts the browser's idea of the query. The
  * template renders the current main query's allowlisted vars as a
@@ -23,7 +23,7 @@ final class Pagination
      */
     public static function modes(): array
     {
-        return ['pagination', 'load-more', 'infinite'];
+        return ['pagination', 'load-more'];
     }
 
     public static function mode(): string
@@ -115,9 +115,9 @@ final class Pagination
     }
 
     /**
-     * The load-more button (or the infinite-scroll sentinel) plus the
-     * status region. The loader script reads everything from these
-     * data attributes; there is no inline script.
+     * The load-more button plus the status region. The loader script
+     * reads everything from these data attributes; there is no inline
+     * script.
      */
     public static function renderLoader(): void
     {
@@ -147,13 +147,9 @@ final class Pagination
             data-max-pages="<?php echo esc_attr((string) $max_pages); ?>"
             data-per-page="<?php echo esc_attr((string) self::perPage()); ?>"
         >
-            <?php if ($mode === 'load-more') : ?>
-                <button type="button" class="kk-load-more" data-kk-load-more>
-                    <?php esc_html_e('Load more', 'koperasikita'); ?>
-                </button>
-            <?php else : ?>
-                <div class="kk-infinite-sentinel" data-kk-infinite-sentinel aria-hidden="true"></div>
-            <?php endif; ?>
+            <button type="button" class="kk-load-more" data-kk-load-more>
+                <?php esc_html_e('Load more', 'koperasikita'); ?>
+            </button>
             <p class="kk-pagination-status" data-kk-pagination-status aria-live="polite"></p>
             <p class="kk-pagination-end" data-kk-pagination-end hidden><?php esc_html_e('No more posts.', 'koperasikita'); ?></p>
         </div>

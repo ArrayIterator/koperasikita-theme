@@ -582,7 +582,7 @@
 	aspect-ratio: 4 / 3;
 }
 
-/* Load-more / infinite-scroll loader. */
+/* Load-more loader. */
 .kk-pagination-loader {
 	display: grid;
 	justify-items: center;
@@ -617,10 +617,6 @@
 .kk-pagination-end {
 	color: var(--kk-muted, #5B6470);
 	font-size: 14px;
-}
-
-.kk-infinite-sentinel {
-	height: 1px;
 }
 
 /* --- Search form ---------------------------------------------------------- */

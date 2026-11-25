@@ -1,5 +1,5 @@
 /**
- * Koperasi Kita — archive pagination loader (load-more / infinite).
+ * Koperasi Kita — archive pagination loader (load-more).
  *
  * Reads the current archive query from the loader's data attributes
  * (rendered server-side by Features\Pagination), fetches the next
@@ -54,12 +54,10 @@ function initPagination(): void {
 	const perPage = Math.min(20, Math.max(1, Number(loader.getAttribute('data-per-page') ?? '10') || 10));
 	let page = Math.max(1, Number(loader.getAttribute('data-page') ?? '1') || 1);
 	let loading = false;
-	let observer: IntersectionObserver | null = null;
 
 	const status = loader.querySelector<HTMLElement>('[data-kk-pagination-status]');
 	const end = loader.querySelector<HTMLElement>('[data-kk-pagination-end]');
 	const button = loader.querySelector<HTMLButtonElement>('[data-kk-load-more]');
-	const sentinel = loader.querySelector<HTMLElement>('[data-kk-infinite-sentinel]');
 
 	const setStatus = (text: string): void => {
 		if (status) {
@@ -73,9 +71,6 @@ function initPagination(): void {
 		}
 		if (end) {
 			end.hidden = false;
-		}
-		if (observer) {
-			observer.disconnect();
 		}
 	};
 
@@ -125,16 +120,6 @@ function initPagination(): void {
 		button?.addEventListener('click', () => {
 			void loadNext();
 		});
-	} else if (mode === 'infinite' && sentinel) {
-		observer = new IntersectionObserver(
-			(entries) => {
-				if (entries.some((entry) => entry.isIntersecting)) {
-					void loadNext();
-				}
-			},
-			{ rootMargin: '400px' },
-		);
-		observer.observe(sentinel);
 	}
 }
 

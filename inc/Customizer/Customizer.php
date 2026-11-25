@@ -287,7 +287,6 @@ final class Customizer
             'choices' => [
                 'pagination' => esc_html__('Page numbers', 'koperasikita'),
                 'load-more' => esc_html__('Load more', 'koperasikita'),
-                'infinite' => esc_html__('Infinite scroll', 'koperasikita'),
             ],
         ]);
 
@@ -910,7 +909,7 @@ final class Customizer
 
     public static function sanitizePaginationMode(mixed $value): string
     {
-        return in_array($value, ['pagination', 'load-more', 'infinite'], true) ? (string) $value : 'pagination';
+        return in_array($value, ['pagination', 'load-more'], true) ? (string) $value : 'pagination';
     }
 
     public static function sanitizeBreakingSource(mixed $value): string
