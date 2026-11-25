@@ -48,6 +48,23 @@
 
 	.kk-primary-nav {
 		display: block;
+		position: static;
+		transform: none;
+		visibility: visible;
+		width: auto;
+		height: auto;
+		box-shadow: none;
+		overflow: visible;
+		background: transparent;
+		transition: none;
+	}
+
+	/* The drawer chrome exists only below this breakpoint. */
+	.kk-drawer-head,
+	.kk-drawer-back,
+	.kk-nav-backdrop,
+	.kk-submenu-toggle {
+		display: none;
 	}
 
 	.kk-primary-nav.is-open {
@@ -60,6 +77,34 @@
 		flex-direction: row;
 		flex-wrap: wrap;
 		gap: 4px;
+		padding: 0;
+	}
+
+	.kk-primary-menu li.menu-item-has-children {
+		display: list-item;
+	}
+
+	.kk-primary-menu li.menu-item-has-children > a {
+		flex: none;
+	}
+
+	/* A drill state left over from a mobile viewport never shows a
+	 * sub-menu on desktop: hover owns it here. The :not(:hover) keeps
+	 * the hover rule able to open it. */
+	.kk-primary-nav.is-drilling .kk-primary-menu > li {
+		display: list-item;
+	}
+
+	.kk-primary-nav.is-drilling .kk-primary-menu > li.is-active-parent {
+		display: list-item;
+	}
+
+	.kk-primary-nav.is-drilling .kk-primary-menu > li.is-active-parent > a {
+		display: block;
+	}
+
+	.kk-primary-nav.is-drilling .kk-primary-menu > li.is-active-parent:not(:hover) > .sub-menu {
+		display: none;
 	}
 
 	.kk-primary-menu > li {

@@ -17,6 +17,21 @@ get_header();
 
 	<div class="kk-home-layout">
 		<div class="kk-home-primary">
+			<?php
+			// Market strip: gold spot, stocks and crypto above the latest
+			// news. Rendered only when the Markets feature is on and the
+			// homepage toggle (Customizer -> Homepage Layout) allows it;
+			// the strip template shows an honest empty state until prices
+			// are entered in Settings -> Markets.
+			$kk_strip_markets = \KoperasiKita\Features\Markets::homepageStripMarkets();
+			if ($kk_strip_markets !== []) {
+				get_template_part('template-parts/markets/strip', null, [
+					'markets' => $kk_strip_markets,
+					'show_change' => true,
+				]);
+			}
+			?>
+
 			<?php get_template_part( 'template-parts/home/latest-news' ); ?>
 
 			<?php

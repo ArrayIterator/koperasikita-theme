@@ -257,6 +257,24 @@ final class Customizer
             'input_attrs' => ['min' => 1, 'max' => 8],
         ]);
 
+        // Market strip on the homepage: gold spot, stocks and crypto above
+        // the latest news. On by default so prices are visible on a fresh
+        // install; with no price data yet the strip shows an honest empty
+        // state until snapshots are entered in Settings -> Markets.
+        self::addSetting(
+            $wpCustomize,
+            'kk_homepage_markets_strip',
+            true,
+            [self::class, 'sanitizeBool'],
+            'refresh'
+        );
+        $wpCustomize->add_control('kk_homepage_markets_strip', [
+            'label' => esc_html__('Show Market Strip on Homepage', 'koperasikita'),
+            'section' => 'koperasikita_homepage',
+            'type' => 'checkbox',
+            'description' => esc_html__('Gold spot, stocks and crypto prices above the latest news. Prices are edited in Settings -> Markets.', 'koperasikita'),
+        ]);
+
         self::addSetting(
             $wpCustomize,
             'kk_archive_layout',
@@ -597,7 +615,7 @@ final class Customizer
             ]));
         }
 
-        // Text of the header install button (and its accessible label).
+        // Text of the install button (and its accessible label).
         self::addSetting(
             $wpCustomize,
             'kk_pwa_button_text',
@@ -607,6 +625,64 @@ final class Customizer
         );
         $wpCustomize->add_control('kk_pwa_button_text', [
             'label' => esc_html__('Install Button Text', 'koperasikita'),
+            'section' => 'koperasikita_pwa',
+            'type' => 'text',
+        ]);
+
+        // Whether the install button/banner shows at all. When off,
+        // the install prompt modal is still the install path.
+        self::addSetting(
+            $wpCustomize,
+            'kk_pwa_button_enabled',
+            true,
+            [self::class, 'sanitizeBool'],
+            'refresh'
+        );
+        $wpCustomize->add_control('kk_pwa_button_enabled', [
+            'label' => esc_html__('Show Install App Button', 'koperasikita'),
+            'section' => 'koperasikita_pwa',
+            'type' => 'checkbox',
+            'description' => esc_html__('Shows an install button/banner on the site when PWA is available.', 'koperasikita'),
+        ]);
+
+        // Where and how the install button shows: floating at the
+        // bottom corners/center, a full bottom bar, inline in the top
+        // bar, or sliding down as a banner above the header. The
+        // sticky header is never an option.
+        self::addSetting(
+            $wpCustomize,
+            'kk_pwa_button_style',
+            'float-bottom-right',
+            [self::class, 'sanitizePwaButtonStyle'],
+            'refresh'
+        );
+        $wpCustomize->add_control('kk_pwa_button_style', [
+            'label' => esc_html__('Install Button Position & Style', 'koperasikita'),
+            'section' => 'koperasikita_pwa',
+            'type' => 'select',
+            'choices' => [
+                'float-bottom' => esc_html__('Bottom Float', 'koperasikita'),
+                'float-bottom-right' => esc_html__('Float Bottom Right', 'koperasikita'),
+                'float-bottom-left' => esc_html__('Float Bottom Left', 'koperasikita'),
+                'float-bottom-center' => esc_html__('Float Bottom Center', 'koperasikita'),
+                'beside-weather' => esc_html__('Beside Weather (Right)', 'koperasikita'),
+                'beside-clock' => esc_html__('Beside Clock (Left)', 'koperasikita'),
+                'above-header' => esc_html__('Above Top Header (Slide Animation)', 'koperasikita'),
+            ],
+            'description' => esc_html__('Select where and how the install app prompt button is displayed: floating at the bottom corners/center, full bottom bar, inline in the top bar header, or sliding down as a banner above the top header.', 'koperasikita'),
+        ]);
+
+        // Description shown on the banner and the full bottom bar,
+        // with {app_name} replaced by the app name.
+        self::addSetting(
+            $wpCustomize,
+            'kk_pwa_button_desc',
+            __('Install {app_name} on your device for a faster and smoother experience.', 'koperasikita'),
+            'sanitize_text_field',
+            'refresh'
+        );
+        $wpCustomize->add_control('kk_pwa_button_desc', [
+            'label' => esc_html__('Banner & Floating Description', 'koperasikita'),
             'section' => 'koperasikita_pwa',
             'type' => 'text',
         ]);
@@ -975,6 +1051,13 @@ final class Customizer
     public static function sanitizeClockTimezone(mixed $value): string
     {
         return in_array($value, ['site', 'device', 'custom'], true) ? (string) $value : 'site';
+    }
+
+    public static function sanitizePwaButtonStyle(mixed $value): string
+    {
+        $allowed = ['float-bottom', 'float-bottom-right', 'float-bottom-left', 'float-bottom-center', 'beside-weather', 'beside-clock', 'above-header'];
+
+        return in_array($value, $allowed, true) ? (string) $value : 'float-bottom-right';
     }
 
     public static function sanitizeCustomTimezone(mixed $value): string

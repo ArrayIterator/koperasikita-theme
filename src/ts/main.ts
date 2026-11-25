@@ -106,22 +106,147 @@ function initColorScheme(): void {
 function initMobileNav(): void {
 	const toggle = $('#kk-menu-toggle') as HTMLButtonElement | null;
 	const nav = $('#kk-primary-nav');
+	const backdrop = $('#kk-nav-backdrop');
+	const closeButton = $('#kk-drawer-close') as HTMLButtonElement | null;
+	const backBar = $('#kk-drawer-back');
+	const backButton = $('#kk-drawer-back-button') as HTMLButtonElement | null;
+	const backLabel = $('#kk-drawer-back-label');
 	if (!toggle || !nav) {
 		return;
 	}
-	toggle.addEventListener('click', () => {
-		const isOpen = nav.classList.toggle('is-open');
-		toggle.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
-		toggle.setAttribute('aria-label', isOpen ? 'Close menu' : 'Open menu');
-	});
-	document.addEventListener('click', (event) => {
-		if (!nav.classList.contains('is-open')) {
+
+	const desktopQuery = window.matchMedia('(min-width: 1024px)');
+	const isDesktop = (): boolean => desktopQuery.matches;
+	let drillToggle: HTMLButtonElement | null = null;
+
+	// Sub-menu drill-down: every parent item gets a chevron button
+	// after its link. Tapping it opens that sub-menu under the back
+	// bar; the back button returns to the top level.
+	const chevronSvg =
+		'<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg>';
+	$all<HTMLLIElement>('.kk-primary-menu > li.menu-item-has-children', nav).forEach((item) => {
+		const link = item.querySelector<HTMLAnchorElement>(':scope > a');
+		const sub = item.querySelector<HTMLElement>(':scope > .sub-menu');
+		if (!link || !sub) {
 			return;
 		}
-		const target = event.target as Node;
-		if (!nav.contains(target) && !toggle.contains(target)) {
+		const button = document.createElement('button');
+		button.type = 'button';
+		button.className = 'kk-submenu-toggle';
+		button.setAttribute('aria-expanded', 'false');
+		button.setAttribute('aria-label', `Open ${link.textContent?.trim() ?? ''} submenu`);
+		button.innerHTML = chevronSvg;
+		link.after(button);
+		button.addEventListener('click', () => {
+			nav.classList.add('is-drilling');
+			item.classList.add('is-active-parent');
+			button.setAttribute('aria-expanded', 'true');
+			if (backBar) {
+				backBar.hidden = false;
+			}
+			if (backLabel) {
+				backLabel.textContent = link.textContent?.trim() ?? '';
+			}
+			drillToggle = button;
+			backButton?.focus();
+		});
+	});
+
+	const resetDrill = (): void => {
+		nav.classList.remove('is-drilling');
+		$all('.is-active-parent', nav).forEach((item) => item.classList.remove('is-active-parent'));
+		$all<HTMLButtonElement>('.kk-submenu-toggle', nav).forEach((button) => {
+			button.setAttribute('aria-expanded', 'false');
+		});
+		if (backBar) {
+			backBar.hidden = true;
+		}
+		if (backLabel) {
+			backLabel.textContent = '';
+		}
+		drillToggle = null;
+	};
+
+	const openNav = (): void => {
+		if (isDesktop()) {
+			return;
+		}
+		nav.classList.add('is-open');
+		nav.inert = false;
+		toggle.setAttribute('aria-expanded', 'true');
+		toggle.setAttribute('aria-label', 'Close menu');
+		if (backdrop) {
+			backdrop.hidden = false;
+			// Force a frame so the opacity transition runs.
+			window.requestAnimationFrame(() => backdrop.classList.add('is-visible'));
+		}
+		document.documentElement.classList.add('kk-nav-open');
+		closeButton?.focus();
+	};
+
+	const closeNav = (refocusToggle: boolean): void => {
+		nav.classList.remove('is-open');
+		nav.inert = true;
+		toggle.setAttribute('aria-expanded', 'false');
+		toggle.setAttribute('aria-label', 'Open menu');
+		if (backdrop) {
+			backdrop.classList.remove('is-visible');
+			window.setTimeout(() => {
+				if (!nav.classList.contains('is-open')) {
+					backdrop.hidden = true;
+				}
+			}, 300);
+		}
+		document.documentElement.classList.remove('kk-nav-open');
+		resetDrill();
+		if (refocusToggle) {
+			toggle.focus();
+		}
+	};
+
+	// Closed on load: keep the drawer out of the tab order on mobile.
+	// On desktop the nav is the horizontal bar and must stay reachable.
+	nav.inert = !isDesktop();
+
+	toggle.addEventListener('click', () => {
+		if (nav.classList.contains('is-open')) {
+			closeNav(false);
+		} else {
+			openNav();
+		}
+	});
+	closeButton?.addEventListener('click', () => closeNav(true));
+	backdrop?.addEventListener('click', () => closeNav(true));
+	backButton?.addEventListener('click', () => {
+		resetDrill();
+		drillToggle?.focus();
+	});
+	// A menu link navigates away; close the drawer first so a
+	// same-page jump does not leave it open over the content.
+	$all<HTMLAnchorElement>('.kk-primary-menu a', nav).forEach((link) => {
+		link.addEventListener('click', () => closeNav(false));
+	});
+	document.addEventListener('keydown', (event) => {
+		if (event.key === 'Escape' && nav.classList.contains('is-open')) {
+			closeNav(true);
+		}
+	});
+	// Resizing to desktop turns the drawer back into the bar: drop
+	// the drawer state instead of leaving it open off-canvas.
+	desktopQuery.addEventListener('change', (event) => {
+		if (event.matches) {
 			nav.classList.remove('is-open');
+			nav.inert = false;
+			if (backdrop) {
+				backdrop.classList.remove('is-visible');
+				backdrop.hidden = true;
+			}
+			document.documentElement.classList.remove('kk-nav-open');
+			resetDrill();
 			toggle.setAttribute('aria-expanded', 'false');
+			toggle.setAttribute('aria-label', 'Open menu');
+		} else {
+			nav.inert = !nav.classList.contains('is-open');
 		}
 	});
 }
@@ -193,34 +318,47 @@ function initModals(): void {
 	});
 }
 
-function initSearchOverlay(): void {
-	const overlay = $('#kk-search-overlay');
+function initSearchDialog(): void {
+	const dialog = $('#kk-search-dialog') as HTMLDialogElement | null;
 	const openButton = $('#kk-search-open');
-	if (!overlay || !openButton) {
+	const closeButton = $('#kk-search-close') as HTMLButtonElement | null;
+	if (!dialog || !openButton) {
 		return;
 	}
-	const input = overlay.querySelector<HTMLInputElement>('.search-field');
+	const input = dialog.querySelector<HTMLInputElement>('.search-field');
+	let lastFocused: HTMLElement | null = null;
 	openButton.addEventListener('click', () => {
-		openModal(overlay);
-		// Focus the field directly. The old code waited for a
-		// transitionend event, but the modal has no CSS transition,
-		// so that event never fired and focus stayed on the close
-		// button — the user had to click or Tab into the field.
+		lastFocused = document.activeElement as HTMLElement | null;
+		if (typeof dialog.showModal === 'function') {
+			dialog.showModal();
+		} else {
+			dialog.setAttribute('open', '');
+		}
 		input?.focus();
 	});
-	if (input) {
-		// The search field owns Escape: clear the query and leave, keep
-		// the overlay open. A second Escape (focus outside the field)
+	closeButton?.addEventListener('click', () => dialog.close());
+	dialog.addEventListener('click', (event) => {
+		// A click on the dialog element itself (not its content) is a
+		// backdrop click: the ::backdrop is not a real element, so the
+		// target is the dialog when the click lands outside the box.
+		if (event.target === dialog) {
+			dialog.close();
+		}
+	});
+	dialog.addEventListener('cancel', (event) => {
+		// The field owns Escape: clear the query and leave, keep the
+		// dialog open. A second Escape (focus outside the field)
 		// closes it.
-		input.addEventListener('keydown', (event) => {
-			if (event.key !== 'Escape') {
-				return;
-			}
-			event.stopPropagation();
+		if (input && document.activeElement === input) {
+			event.preventDefault();
 			input.value = '';
 			input.blur();
-		});
-	}
+		}
+	});
+	dialog.addEventListener('close', () => {
+		lastFocused?.focus();
+		lastFocused = null;
+	});
 }
 
 /* ------------------------------------------------------------------ */
@@ -611,6 +749,7 @@ function initPwa(): void {
 		return;
 	}
 	const installButton = $('#kk-pwa-install') as HTMLButtonElement | null;
+	const installWrap = document.querySelector('[data-kk-pwa-button]') as HTMLElement | null;
 	const promptModal = $('#kk-install-prompt');
 	let deferredPrompt: BeforeInstallPromptEvent | null = null;
 
@@ -619,6 +758,9 @@ function initPwa(): void {
 		deferredPrompt = event as BeforeInstallPromptEvent;
 		if (installButton) {
 			installButton.hidden = false;
+		}
+		if (installWrap) {
+			installWrap.hidden = false;
 		}
 		if (promptModal && !window.localStorage.getItem(INSTALL_SEEN_KEY)) {
 			// Delay comes from the Customizer (kk_pwa_prompt_delay, in
@@ -639,6 +781,20 @@ function initPwa(): void {
 			installButton.hidden = true;
 		}
 	}
+
+	// Dismiss (X on the banner/float): hide it for an hour. The
+	// server reads the same cookie and keeps the button hidden until
+	// the hour passes.
+	$all<HTMLButtonElement>('[data-kk-pwa-dismiss]').forEach((dismiss) => {
+		dismiss.addEventListener('click', () => {
+			const wrap = dismiss.closest('[data-kk-pwa-button]');
+			if (wrap instanceof HTMLElement) {
+				wrap.hidden = true;
+			}
+			const secure = window.location.protocol === 'https:' ? '; Secure' : '';
+			document.cookie = `koperasikita_pwa_button_dismissed=${Math.floor(Date.now() / 1000)}; Path=/; Max-Age=3600; SameSite=Lax${secure}`;
+		});
+	});
 
 	installButton?.addEventListener('click', () => {
 		void runPrompt();
@@ -761,7 +917,7 @@ document.addEventListener('DOMContentLoaded', () => {
 	initColorScheme();
 	initMobileNav();
 	initModals();
-	initSearchOverlay();
+	initSearchDialog();
 	initTicker();
 	initClock();
 	initLayoutSwitcher();

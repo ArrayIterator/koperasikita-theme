@@ -179,7 +179,7 @@ final class Pwa
     }
 
     /**
-     * Text of the header install button. Empty falls back to the
+     * Text of the install button. Empty falls back to the
      * shipped label, so the button is never rendered blank.
      */
     public static function buttonText(): string
@@ -187,6 +187,68 @@ final class Pwa
         $text = sanitize_text_field((string) get_theme_mod('kk_pwa_button_text', __('Install app', 'koperasikita')));
 
         return $text !== '' ? $text : __('Install app', 'koperasikita');
+    }
+
+    /**
+     * The install button style: where and how it shows. Defaults to
+     * the floating button at the bottom right.
+     */
+    public static function buttonStyle(): string
+    {
+        $style = (string) get_theme_mod('kk_pwa_button_style', 'float-bottom-right');
+
+        return in_array($style, ['float-bottom', 'float-bottom-right', 'float-bottom-left', 'float-bottom-center', 'beside-weather', 'beside-clock', 'above-header'], true) ? $style : 'float-bottom-right';
+    }
+
+    /**
+     * Whether the install button shows in this position: PWA on, the
+     * button enabled, not dismissed in the last hour, and the chosen
+     * style matches. The sticky header is never a position.
+     */
+    public static function isButtonPosition(string $position): bool
+    {
+        if (!self::isEnabled() || !(bool) get_theme_mod('kk_pwa_button_enabled', true)) {
+            return false;
+        }
+
+        if (self::isButtonDismissed()) {
+            return false;
+        }
+
+        return self::buttonStyle() === $position;
+    }
+
+    /**
+     * The button was dismissed (X on the banner/float) within the
+     * last hour: keep it hidden until the hour passes.
+     */
+    public static function isButtonDismissed(): bool
+    {
+        $raw = $_COOKIE['koperasikita_pwa_button_dismissed'] ?? '';
+        if ($raw === '' || $raw === null) {
+            return false;
+        }
+        if (!is_numeric($raw)) {
+            return true;
+        }
+        $ts = (int) $raw;
+        $ts = $ts > 10000000000 ? (int) ($ts / 1000) : $ts;
+
+        return $ts > 0 && (time() - $ts) < 3600;
+    }
+
+    /**
+     * Description for the banner and the full bottom bar, with
+     * {app_name} replaced by the app name.
+     */
+    public static function buttonDescription(): string
+    {
+        $desc = (string) get_theme_mod('kk_pwa_button_desc', 'Install {app_name} on your device for a faster and smoother experience.');
+        if (trim($desc) === '') {
+            $desc = 'Install {app_name} on your device for a faster and smoother experience.';
+        }
+
+        return str_replace('{app_name}', self::manifestName(), $desc);
     }
 
     /**
@@ -210,6 +272,13 @@ final class Pwa
     public static function printInstallPrompt(): void
     {
         locate_template('template-parts/pwa/install-prompt.php', true, false);
+
+        // Floating styles render here, in the footer: a full bottom
+        // bar or a floating button at the bottom corners/center.
+        $style = self::buttonStyle();
+        if (str_starts_with($style, 'float-') && self::isButtonPosition($style)) {
+            get_template_part('template-parts/pwa/install-button', null, ['style' => $style]);
+        }
     }
 
     /**

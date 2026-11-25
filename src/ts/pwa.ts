@@ -57,6 +57,10 @@ document.addEventListener('DOMContentLoaded', () => {
 		return;
 	}
 	window.addEventListener('appinstalled', () => {
+		const wrap = document.querySelector('[data-kk-pwa-button]');
+		if (wrap instanceof HTMLElement) {
+			wrap.hidden = true;
+		}
 		const button = document.querySelector('#kk-pwa-install');
 		if (button instanceof HTMLButtonElement) {
 			button.hidden = true;

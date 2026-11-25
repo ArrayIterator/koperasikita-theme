@@ -1,14 +1,18 @@
 /* Koperasi Kita — PWA styles.
  *
- * Only the install button lives here. The install prompt modal reuses
- * the shared .kk-modal styles from app.css, and the subscribe form
- * reuses the footer form styles — nothing is duplicated.
+ * The install button/banner: four shapes from one template, chosen by
+ * the Customizer style (kk_pwa_button_style) — a banner above the
+ * header, an inline button in the top bar, or a floating button/bar
+ * at the bottom. The install prompt modal reuses the shared
+ * .kk-modal styles from app.css — nothing is duplicated.
  */
 
-/* .kk-button sets display:inline-flex, which beats the user-agent
- * [hidden] rule, so without this the install button could never hide
- * (it must stay hidden until beforeinstallprompt fires). */
-.kk-pwa-install[hidden] {
+/* The wrapper carries [hidden] until beforeinstallprompt fires; the
+ * display rules below would beat the user-agent [hidden] rule, so
+ * hide it explicitly. */
+.kk-pwa-banner[hidden],
+.kk-pwa-float[hidden],
+.kk-pwa-inline[hidden] {
 	display: none;
 }
 
@@ -18,15 +22,157 @@
 	white-space: nowrap;
 }
 
-/* On a narrow phone the nav bar is crowded (menu toggle + install
- * button). Keep the icon, drop the label — the button keeps its
- * accessible name through aria-label. */
+/* --- Banner above the header ---------------------------------------------- */
+
+.kk-pwa-banner {
+	background: var(--kk-surface);
+	border-bottom: 1px solid var(--kk-border);
+	animation: kk-pwa-slide-down 0.3s ease;
+}
+
+@keyframes kk-pwa-slide-down {
+	from {
+		transform: translateY(-100%);
+	}
+	to {
+		transform: translateY(0);
+	}
+}
+
+.kk-pwa-banner-inner {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 16px;
+	padding-top: 10px;
+	padding-bottom: 10px;
+}
+
+.kk-pwa-banner-content {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	min-width: 0;
+	font-size: 14px;
+	color: var(--kk-muted);
+}
+
+.kk-pwa-banner-icon {
+	flex: 0 0 auto;
+	width: 28px;
+	height: 28px;
+}
+
+.kk-pwa-banner-text {
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.kk-pwa-banner-actions {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	flex: 0 0 auto;
+}
+
+/* --- Inline button in the top bar ------------------------------------------ */
+
+.kk-pwa-inline {
+	display: inline-flex;
+}
+
+.kk-pwa-inline-btn {
+	gap: 6px;
+	font-size: 14px;
+	font-weight: 600;
+	color: var(--kk-ink);
+}
+
 @media (max-width: 480px) {
-	.kk-pwa-install {
-		padding: 10px 12px;
+	/* A narrow phone top bar has no room for the label. */
+	.kk-pwa-inline-label {
+		display: none;
+	}
+}
+
+/* --- Floating button / bottom bar ------------------------------------------- */
+/* Offsets clear the mobile bottom nav (64px) and the back-to-top
+ * button (bottom: 80px mobile, 84px desktop). */
+
+.kk-pwa-float {
+	position: fixed;
+	z-index: 45;
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	padding: 8px;
+	background: var(--kk-paper);
+	border: 1px solid var(--kk-border);
+	border-radius: 12px;
+	box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+}
+
+.kk-pwa-float--float-bottom-right {
+	right: 16px;
+	bottom: 140px;
+}
+
+.kk-pwa-float--float-bottom-left {
+	left: 16px;
+	bottom: 80px;
+}
+
+.kk-pwa-float--float-bottom-center {
+	left: 50%;
+	transform: translateX(-50%);
+	bottom: 80px;
+}
+
+.kk-pwa-float--float-bottom {
+	left: 0;
+	right: 0;
+	bottom: 64px;
+	border-radius: 0;
+	border-left: 0;
+	border-right: 0;
+	justify-content: center;
+}
+
+.kk-pwa-float-content {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	min-width: 0;
+	font-size: 14px;
+	color: var(--kk-muted);
+}
+
+.kk-pwa-float-icon {
+	flex: 0 0 auto;
+	width: 24px;
+	height: 24px;
+}
+
+.kk-pwa-float-desc {
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+@media (min-width: 768px) {
+	/* No bottom nav on desktop: the floats sit lower, clear of the
+	 * back-to-top button (bottom: 84px). */
+	.kk-pwa-float--float-bottom-right {
+		bottom: 144px;
 	}
 
-	.kk-pwa-install-label {
-		display: none;
+	.kk-pwa-float--float-bottom-left,
+	.kk-pwa-float--float-bottom-center {
+		bottom: 16px;
+	}
+
+	.kk-pwa-float--float-bottom {
+		bottom: 0;
 	}
 }

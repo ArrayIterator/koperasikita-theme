@@ -1858,3 +1858,79 @@ msgstr "Tampilkan detail (terasa seperti, tertinggi/terendah, kelembapan, angin)
 #: inc/Setup/Setup.php:612
 msgid "The uploaded file is not a valid plugin zip (max 20 MB)."
 msgstr "File yang diunggah bukan zip plugin yang valid (maks 20 MB)."
+
+#: inc/Customizer/Customizer.php:272
+msgid "Show Market Strip on Homepage"
+msgstr "Tampilkan Strip Pasar di Beranda"
+
+#: inc/Customizer/Customizer.php:275
+msgid "Gold spot, stocks and crypto prices above the latest news. Prices are edited in Settings -> Markets."
+msgstr "Harga spot emas, saham, dan kripto di atas berita terbaru. Harga diubah di Pengaturan -> Pasar."
+
+#: template-parts/header/site-nav.php:34
+msgid "Menu"
+msgstr "Menu"
+
+#: template-parts/header/site-nav.php:36
+msgid "Close menu"
+msgstr "Tutup menu"
+
+#: template-parts/header/site-nav.php:84
+msgid "Search for:"
+msgstr "Cari:"
+
+#: template-parts/header/site-nav.php:85
+msgid "Search news…"
+msgstr "Cari berita…"
+
+#: inc/Customizer/Customizer.php:642
+msgid "Show Install App Button"
+msgstr "Tampilkan Tombol Install App"
+
+#: inc/Customizer/Customizer.php:645
+msgid "Shows an install button/banner on the site when PWA is available."
+msgstr "Menampilkan tombol/banner install di situs saat PWA tersedia."
+
+#: inc/Customizer/Customizer.php:660
+msgid "Install Button Position & Style"
+msgstr "Posisi & Gaya Tombol Install"
+
+#: inc/Customizer/Customizer.php:664
+msgid "Bottom Float"
+msgstr "Mengambang Bawah"
+
+#: inc/Customizer/Customizer.php:665
+msgid "Float Bottom Right"
+msgstr "Mengambang Kanan Bawah"
+
+#: inc/Customizer/Customizer.php:666
+msgid "Float Bottom Left"
+msgstr "Mengambang Kiri Bawah"
+
+#: inc/Customizer/Customizer.php:667
+msgid "Float Bottom Center"
+msgstr "Mengambang Tengah Bawah"
+
+#: inc/Customizer/Customizer.php:668
+msgid "Beside Weather (Right)"
+msgstr "Di Sebelah Cuaca (Kanan)"
+
+#: inc/Customizer/Customizer.php:669
+msgid "Beside Clock (Left)"
+msgstr "Di Sebelah Jam (Kiri)"
+
+#: inc/Customizer/Customizer.php:670
+msgid "Above Top Header (Slide Animation)"
+msgstr "Di Atas Header (Animasi Geser)"
+
+#: inc/Customizer/Customizer.php:672
+msgid "Select where and how the install app prompt button is displayed: floating at the bottom corners/center, full bottom bar, inline in the top bar header, or sliding down as a banner above the top header."
+msgstr "Pilih di mana dan bagaimana tombol install app ditampilkan: mengambang di sudut/tengah bawah, bar bawah penuh, inline di top bar, atau banner yang meluncur di atas header."
+
+#: inc/Customizer/Customizer.php:680
+msgid "Install {app_name} on your device for a faster and smoother experience."
+msgstr "Install {app_name} di perangkatmu untuk pengalaman yang lebih cepat dan lancar."
+
+#: inc/Customizer/Customizer.php:685
+msgid "Banner & Floating Description"
+msgstr "Deskripsi Banner & Mengambang"

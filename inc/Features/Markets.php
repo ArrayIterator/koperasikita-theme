@@ -219,6 +219,34 @@ final class Markets
         return self::providerFor($market)->prices($market);
     }
 
+    /**
+     * Markets for the homepage strip, in the same shape the widget passes
+     * to template-parts/markets/strip.php. An empty array means "do not
+     * render the strip at all": the Markets feature is disabled, or the
+     * homepage toggle (Customizer -> Homepage Layout -> Show Market Strip
+     * on Homepage, default on) is off. When the strip does render, the
+     * template itself shows an honest empty state if no market has data
+     * yet — the same as the widget.
+     *
+     * @return array<string, array{label: string, prices: array<string, MarketPrice>}>
+     */
+    public static function homepageStripMarkets(): array
+    {
+        if (!self::isEnabled() || !(bool) get_theme_mod('kk_homepage_markets_strip', true)) {
+            return [];
+        }
+
+        $markets = [];
+        foreach (self::markets() as $market) {
+            $markets[$market] = [
+                'label' => self::labels()[$market] ?? $market,
+                'prices' => self::prices($market),
+            ];
+        }
+
+        return $markets;
+    }
+
     public static function formatPrice(float $price, string $currency = 'IDR'): string
     {
         if ($currency === 'IDR') {

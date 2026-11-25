@@ -1,7 +1,9 @@
 <?php
 /**
- * Top bar: date, live clock, weather slot, dark-mode toggle, search button.
+ * Top bar: date, live clock, weather slot.
  *
+ * Search and the colour-scheme toggle live in the sticky nav bar,
+ * not here.
  * The clock is server-rendered in the resolved time zone so the first
  * paint is correct, then main.ts keeps it ticking. In "device" mode the
  * server renders the site time and the script replaces it with the
@@ -67,6 +69,11 @@ if ( $show_clock ) {
 			// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- built above with escaping.
 			echo $clock_html;
 			?>
+			<?php
+			if ( \KoperasiKita\Features\Pwa::isButtonPosition( 'beside-clock' ) ) {
+				get_template_part( 'template-parts/pwa/install-button', null, array( 'style' => 'beside-clock' ) );
+			}
+			?>
 		</div>
 
 		<div class="kk-topbar-right">
@@ -77,15 +84,11 @@ if ( $show_clock ) {
 				</button>
 			<?php endif; ?>
 
-			<button type="button" class="kk-icon-button kk-color-scheme-toggle" id="kk-color-scheme-toggle" aria-label="<?php esc_attr_e( 'Toggle color scheme', 'koperasikita' ); ?>" aria-pressed="false">
-				<span class="kk-icon-sun"><?php echo \KoperasiKita\Icons\Icon::svg( 'sun', 18 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></span>
-				<span class="kk-icon-moon"><?php echo \KoperasiKita\Icons\Icon::svg( 'moon', 18 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></span>
-			</button>
-
-			<button type="button" class="kk-icon-button kk-search-open" id="kk-search-open" aria-label="<?php esc_attr_e( 'Search', 'koperasikita' ); ?>" aria-haspopup="dialog" aria-controls="kk-search-overlay">
-				<?php echo \KoperasiKita\Icons\Icon::svg( 'search', 18 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
-				<span class="kk-search-open-label"><?php esc_html_e( 'Search', 'koperasikita' ); ?></span>
-			</button>
+			<?php
+			if ( \KoperasiKita\Features\Pwa::isButtonPosition( 'beside-weather' ) ) {
+				get_template_part( 'template-parts/pwa/install-button', null, array( 'style' => 'beside-weather' ) );
+			}
+			?>
 		</div>
 	</div>
 </div>

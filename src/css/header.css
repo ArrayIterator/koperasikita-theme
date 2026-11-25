@@ -59,11 +59,6 @@
 	display: none;
 }
 
-.kk-search-open-label {
-	margin-left: 6px;
-	font-size: 14px;
-}
-
 /* Colour-scheme toggle: show the icon for the mode you will switch to. */
 html[data-color-scheme="dark"] .kk-icon-sun,
 html[data-color-scheme="light"] .kk-icon-moon,
@@ -179,26 +174,177 @@ body.kk-sticky-off .kk-nav-wrap {
 	display: inline-flex;
 }
 
+/* --- Mobile nav: a slide-in sidebar (drawer), not a dropdown ------------ */
+/* The nav is a fixed drawer off-canvas left; .is-open slides it in over
+ * a blurred backdrop (see .kk-nav-backdrop). visibility keeps it out of
+ * the tab order while closed, and the transition makes it slide. */
+
 .kk-primary-nav {
-	display: none;
-	flex: 1;
-	min-width: 0;
+	position: fixed;
+	top: 0;
+	left: 0;
+	bottom: 0;
+	z-index: 60;
+	width: min(320px, 85vw);
+	background: var(--kk-paper);
+	box-shadow: 8px 0 32px rgba(0, 0, 0, 0.25);
+	overflow-y: auto;
+	overscroll-behavior: contain;
+	transform: translateX(-105%);
+	visibility: hidden;
+	transition: transform 0.28s ease, visibility 0s linear 0.28s;
 }
 
 .kk-primary-nav.is-open {
-	display: block;
-	position: absolute;
-	left: 0;
-	right: 0;
-	top: 100%;
-	background: var(--kk-paper);
+	transform: translateX(0);
+	visibility: visible;
+	transition: transform 0.28s ease;
+}
+
+.kk-nav-backdrop {
+	position: fixed;
+	inset: 0;
+	z-index: 55;
+	background: rgba(0, 0, 0, 0.5);
+	backdrop-filter: blur(6px);
+	-webkit-backdrop-filter: blur(6px);
+	opacity: 0;
+	transition: opacity 0.28s ease;
+}
+
+.kk-nav-backdrop[hidden] {
+	display: none;
+}
+
+.kk-nav-backdrop.is-visible {
+	opacity: 1;
+}
+
+/* Lock the page behind the open drawer. */
+html.kk-nav-open,
+html.kk-nav-open body {
+	overflow: hidden;
+}
+
+/* Drawer header: logo + Menu label + close button. */
+.kk-drawer-head {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 12px;
+	padding: 14px 16px;
 	border-bottom: 1px solid var(--kk-border);
-	padding: 8px 16px 16px;
+}
+
+.kk-drawer-brand {
+	display: inline-flex;
+	align-items: center;
+	gap: 10px;
+	font-weight: 700;
+	font-size: 17px;
+}
+
+.kk-drawer-brand-logo {
+	display: block;
+	width: 32px;
+	height: 32px;
+}
+
+/* Drill-down back bar: shown when a sub-menu is open. */
+.kk-drawer-back {
+	padding: 8px 16px;
+	border-bottom: 1px solid var(--kk-border);
+}
+
+.kk-drawer-back[hidden] {
+	display: none;
+}
+
+.kk-drawer-back-button {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	padding: 8px 0;
+	font-weight: 600;
+	font-size: 15px;
+	color: var(--kk-green, #0B6B3A);
+	background: none;
+	border: 0;
+	cursor: pointer;
+}
+
+/* Header actions in the sticky bar: search + colour-scheme toggle. */
+.kk-nav-actions {
+	display: flex;
+	align-items: center;
+	gap: 4px;
+	margin-left: auto;
 }
 
 .kk-primary-menu {
 	display: flex;
 	flex-direction: column;
+	padding: 8px 16px 16px;
+}
+
+/* Drill-down: sub-menus stay hidden until their parent is opened; then
+ * only that parent's sub-menu shows, under the back bar. */
+.kk-primary-menu .sub-menu {
+	display: none;
+}
+
+.kk-primary-menu li.menu-item-has-children {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+}
+
+.kk-primary-menu li.menu-item-has-children > a {
+	flex: 1;
+	min-width: 0;
+}
+
+.kk-primary-menu li.menu-item-has-children > .sub-menu {
+	flex: 0 0 100%;
+}
+
+.kk-submenu-toggle {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 40px;
+	height: 40px;
+	flex: 0 0 auto;
+	color: var(--kk-muted);
+	background: none;
+	border: 0;
+	cursor: pointer;
+}
+
+.kk-submenu-toggle svg {
+	width: 18px;
+	height: 18px;
+}
+
+.kk-primary-nav.is-drilling .kk-primary-menu > li {
+	display: none;
+}
+
+.kk-primary-nav.is-drilling .kk-primary-menu > li.is-active-parent {
+	display: block;
+}
+
+.kk-primary-nav.is-drilling .kk-primary-menu > li.is-active-parent > a,
+.kk-primary-nav.is-drilling .kk-primary-menu > li.is-active-parent > .kk-submenu-toggle {
+	display: none;
+}
+
+.kk-primary-nav.is-drilling .kk-primary-menu > li.is-active-parent > .sub-menu {
+	display: block;
+}
+
+.kk-primary-nav.is-drilling .kk-primary-menu .sub-menu a {
+	padding-left: 4px;
 }
 
 .kk-primary-menu a {
@@ -220,11 +366,6 @@ body.kk-sticky-off .kk-nav-wrap {
 .kk-primary-menu .sub-menu a {
 	padding-left: 20px;
 	font-weight: 400;
-}
-
-.kk-pwa-install {
-	margin-left: auto;
-	flex: 0 0 auto;
 }
 
 /* --- Ticker (content width, bouncing fade) -------------------------------- */

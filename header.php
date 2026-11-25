@@ -22,6 +22,14 @@
 
 <a class="kk-skip-link" href="#kk-main"><?php esc_html_e( 'Skip to content', 'koperasikita' ); ?></a>
 
+<?php
+// The install banner above the header, when the Customizer puts it
+// there. It never lives in the sticky nav bar.
+if ( \KoperasiKita\Features\Pwa::isButtonPosition( 'above-header' ) ) {
+	get_template_part( 'template-parts/pwa/install-button', null, array( 'style' => 'above-header' ) );
+}
+?>
+
 <header class="kk-site-header" id="kk-top">
 	<?php get_template_part( 'template-parts/header/top-bar' ); ?>
 
