@@ -8,6 +8,7 @@ use KoperasiKita\Api\Ajax;
 use KoperasiKita\Api\ApiException;
 use KoperasiKita\Api\Hooks;
 use KoperasiKita\Api\Response;
+use KoperasiKita\Icons\Icon;
 use KoperasiKita\Providers\OpenMeteoProvider;
 use KoperasiKita\Providers\WeatherProvider;
 
@@ -46,6 +47,7 @@ final class Weather
 
         Ajax::add('kk_weather', [self::class, 'ajaxCurrent'], true);
         Ajax::add('kk_weather_search', [self::class, 'ajaxSearch'], true);
+        Ajax::add('kk_weather_reverse', [self::class, 'ajaxReverse'], true);
     }
 
     /**
@@ -297,7 +299,7 @@ final class Weather
      * Called through Api\Ajax, which already verified the nonce.
      * Returns the success `data` array, or throws on upstream failure.
      *
-     * @return array{weather: array{name: string, latitude: float, longitude: float, temperature: float, feels_like: float|null, humidity: int|null, wind_speed: float|null, wind_direction: int|null, high: float|null, low: float|null, code: int, condition: string}}
+     * @return array{weather: array{name: string, latitude: float, longitude: float, temperature: float, feels_like: float|null, humidity: int|null, wind_speed: float|null, wind_direction: int|null, high: float|null, low: float|null, code: int, condition: string, icon: string}}
      */
     public static function ajaxCurrent(): array
     {
@@ -328,6 +330,11 @@ final class Weather
             );
         }
 
+        // The condition icon is presentation, not provider data: the
+        // provider's cached shape stays untouched and the façade adds
+        // the rendered SVG here, so the top bar can show it.
+        $weather['icon'] = Icon::svg(self::codeIcon((int) $weather['code']), 18);
+
         return ['weather' => $weather];
     }
 
@@ -343,6 +350,137 @@ final class Weather
         $query = isset($_POST['query']) ? sanitize_text_field(wp_unslash($_POST['query'])) : '';
 
         return ['results' => self::search($query)];
+    }
+
+    /**
+     * AJAX: area name for coordinates (reverse geocoding).
+     *
+     * A GPS fix or a typed coordinate pair has no name of its own, so
+     * the top bar used to show the anonymous "My location" / "Custom
+     * location". This resolves the coordinates to their area — city,
+     * town or regency — so the top bar reads "Kabupaten Malang"
+     * instead. Returns a null name (never an error) when the place
+     * cannot be resolved; the caller keeps the generic label then.
+     *
+     * Called through Api\Ajax, which already verified the nonce.
+     *
+     * @return array{name: string|null}
+     */
+    public static function ajaxReverse(): array
+    {
+        $coordinates = self::validateCoordinates(
+            isset($_POST['latitude']) ? wp_unslash($_POST['latitude']) : null,
+            isset($_POST['longitude']) ? wp_unslash($_POST['longitude']) : null
+        );
+
+        if ($coordinates === null) {
+            return ['name' => null];
+        }
+
+        return ['name' => self::reverseGeocode($coordinates[0], $coordinates[1])];
+    }
+
+    /**
+     * Resolve coordinates to the name of the area they sit in.
+     *
+     * Keyless Nominatim reverse lookup, zoom 10 (city / regency
+     * level — a village would be too specific for a weather label).
+     * The most specific populated place wins: city, town, village,
+     * municipality, then the regency (county) and the province. Only
+     * successful names are cached (30 days); a failure is retried on
+     * the next lookup instead of caching an empty answer.
+     *
+     * This lives on the façade, not on the WeatherProvider contract:
+     * reverse geocoding is city resolution (the façade's job), and
+     * adding it to the interface would break third-party providers.
+     */
+    public static function reverseGeocode(float $latitude, float $longitude): ?string
+    {
+        $cacheKey = 'kk_weather_reverse_' . md5(round($latitude, 2) . ',' . round($longitude, 2));
+        $cached = get_transient($cacheKey);
+
+        if (is_string($cached) && $cached !== '') {
+            return $cached;
+        }
+
+        $url = add_query_arg(
+            [
+                'format' => 'jsonv2',
+                'lat' => $latitude,
+                'lon' => $longitude,
+                'zoom' => 10,
+                'addressdetails' => 1,
+                'accept-language' => 'en',
+            ],
+            'https://nominatim.openstreetmap.org/reverse'
+        );
+
+        $response = wp_remote_get($url, [
+            'timeout' => 5,
+            'user-agent' => 'KoperasiKita/1.0 (+' . home_url() . ')',
+        ]);
+
+        if (is_wp_error($response) || (int) wp_remote_retrieve_response_code($response) !== 200) {
+            return null;
+        }
+
+        $body = json_decode((string) wp_remote_retrieve_body($response), true);
+
+        if (!is_array($body) || !isset($body['address']) || !is_array($body['address'])) {
+            return null;
+        }
+
+        $address = $body['address'];
+
+        foreach (['city', 'town', 'village', 'municipality', 'county', 'state_district', 'state'] as $key) {
+            if (!isset($address[$key]) || !is_string($address[$key])) {
+                continue;
+            }
+
+            $name = sanitize_text_field($address[$key]);
+
+            if ($name === '') {
+                continue;
+            }
+
+            set_transient($cacheKey, $name, 30 * DAY_IN_SECONDS);
+
+            return $name;
+        }
+
+        return null;
+    }
+
+    /**
+     * Icon name for a WMO weather code, for the top-bar weather icon.
+     */
+    public static function codeIcon(int $code): string
+    {
+        if ($code === 0 || $code === 1) {
+            return 'sun';
+        }
+
+        if ($code === 2 || $code === 3 || $code === 45 || $code === 48) {
+            return 'cloud';
+        }
+
+        if ($code >= 51 && $code <= 57) {
+            return 'cloud-drizzle';
+        }
+
+        if (($code >= 61 && $code <= 67) || ($code >= 80 && $code <= 82)) {
+            return 'cloud-rain';
+        }
+
+        if ($code === 71 || $code === 73 || $code === 75 || $code === 77 || $code === 85 || $code === 86) {
+            return 'cloud-snow';
+        }
+
+        if ($code === 95 || $code === 96 || $code === 99) {
+            return 'cloud-lightning';
+        }
+
+        return 'cloud';
     }
 
     /**

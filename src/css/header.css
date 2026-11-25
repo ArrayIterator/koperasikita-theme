@@ -59,6 +59,10 @@
 	display: none;
 }
 
+.kk-topbar-weather-icon {
+	display: inline-flex;
+}
+
 /* Colour-scheme toggle: show the icon for the mode you will switch to. */
 html[data-color-scheme="dark"] .kk-icon-sun,
 html[data-color-scheme="light"] .kk-icon-moon,

@@ -87,6 +87,9 @@ interface WeatherData {
 	low: number | null;
 	code: number;
 	condition: string;
+	// Rendered condition icon (SVG markup from the server). Present on
+	// the top-bar response; older or widget-only shapes omit it.
+	icon?: string;
 }
 
 interface SearchResult {
@@ -281,6 +284,28 @@ async function searchPlaces(query: string, signal: AbortSignal): Promise<SearchR
 	return Array.isArray(result.results) ? result.results : [];
 }
 
+/* Resolve coordinates to their area name ("Kabupaten Malang"), so a
+ * GPS fix or a typed coordinate pair shows the place instead of the
+ * anonymous "My location" / "Custom location". Null when the place
+ * cannot be resolved — the caller keeps the generic label then. */
+async function reverseGeocode(latitude: number, longitude: number): Promise<string | null> {
+	const data = getKkData();
+	if (!data.ajaxUrl || !data.nonce) {
+		return null;
+	}
+	try {
+		const result = await postAjax<{ name?: string | null }>(
+			{ ajaxUrl: data.ajaxUrl, nonce: data.nonce },
+			'kk_weather_reverse',
+			{ latitude: String(latitude), longitude: String(longitude) },
+		);
+		const name = typeof result.name === 'string' ? result.name.trim() : '';
+		return name !== '' ? name : null;
+	} catch {
+		return null;
+	}
+}
+
 /* ------------------------------------------------------------------ */
 /* Rendering                                                           */
 /* ------------------------------------------------------------------ */
@@ -291,6 +316,15 @@ function renderTopbar(weather: WeatherData): void {
 		return;
 	}
 	slot.textContent = '';
+	// The condition icon rides in the response as the theme's own icon
+	// SVG (trusted markup from the server, no user input in it).
+	if (weather.icon) {
+		const icon = document.createElement('span');
+		icon.className = 'kk-topbar-weather-icon';
+		icon.setAttribute('aria-hidden', 'true');
+		icon.innerHTML = weather.icon;
+		slot.appendChild(icon);
+	}
 	const temp = document.createElement('span');
 	temp.className = 'kk-topbar-weather-temp';
 	temp.textContent = `${Math.round(weather.temperature)}°`;
@@ -731,8 +765,14 @@ function initCoords(): void {
 			errorEl.textContent = '';
 			errorEl.hidden = true;
 		}
-		applyLocation({ name: 'Custom location', latitude, longitude, source: 'coords' });
-		renderStrip();
+		// Typed coordinates have no name of their own: resolve the area
+		// first so the top bar reads e.g. "Kabupaten Malang" instead of
+		// the anonymous "Custom location".
+		void (async () => {
+			const name = await reverseGeocode(latitude, longitude);
+			applyLocation({ name: name ?? 'Custom location', latitude, longitude, source: 'coords' });
+			renderStrip();
+		})();
 	});
 }
 
@@ -749,23 +789,29 @@ function initGeolocate(): void {
 		setStatus('Asking for your location…');
 		navigator.geolocation.getCurrentPosition(
 			(position) => {
-				const resolved: Location = {
-					name: 'My location',
-					latitude: position.coords.latitude,
-					longitude: position.coords.longitude,
-					source: 'geolocation',
-				};
-				// A GPS fix at a city that is already a quick pick is
-				// that city: select its chip instead of leaving an
-				// anonymous "My location" that duplicates it on Add.
-				const existing = findExistingPick(resolved);
-				if (existing) {
-					applyLocation({ ...existing, source: existing.source }, false);
-					setStatus(`You're near ${existing.name} — showing its weather.`);
-				} else {
-					applyLocation(resolved);
-				}
-				renderStrip();
+				void (async () => {
+					const resolved: Location = {
+						name: 'My location',
+						latitude: position.coords.latitude,
+						longitude: position.coords.longitude,
+						source: 'geolocation',
+					};
+					// A GPS fix at a city that is already a quick pick is
+					// that city: select its chip instead of leaving an
+					// anonymous "My location" that duplicates it on Add.
+					const existing = findExistingPick(resolved);
+					if (existing) {
+						applyLocation({ ...existing, source: existing.source }, false);
+						setStatus(`You're near ${existing.name} — showing its weather.`);
+					} else {
+						// Otherwise resolve the fix to its area name so
+						// the top bar reads "Kabupaten Malang", not
+						// "My location".
+						const name = await reverseGeocode(resolved.latitude, resolved.longitude);
+						applyLocation({ ...resolved, name: name ?? 'My location' });
+					}
+					renderStrip();
+				})();
 			},
 			(error) => {
 				if (error.code === error.PERMISSION_DENIED) {
@@ -839,6 +885,23 @@ document.addEventListener('DOMContentLoaded', () => {
 		return;
 	}
 	currentLocation = getStoredLocation() ?? DEFAULT_LOCATION;
+	// A stored "My location" / "Custom location" predates area names:
+	// resolve it once in the background so the top bar shows the area
+	// instead of the generic label. The first paint does not wait for
+	// it — the name updates in place when the lookup returns.
+	if (currentLocation.name === 'My location' || currentLocation.name === 'Custom location') {
+		const stored = currentLocation;
+		void reverseGeocode(stored.latitude, stored.longitude).then((name) => {
+			if (!name) {
+				return;
+			}
+			currentLocation = { ...stored, name };
+			storeLocation(currentLocation);
+			updateCurrentLine();
+			void refreshWeatherDisplays(currentLocation);
+			renderStrip();
+		});
+	}
 	const topbar = $('#kk-topbar-weather');
 	if (topbar) {
 		void refreshWeatherDisplays(currentLocation);
