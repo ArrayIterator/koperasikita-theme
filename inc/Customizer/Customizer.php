@@ -218,6 +218,41 @@ final class Customizer
             ],
         ]);
 
+        /* Hero cards (the cards beside the lead in the Leads + Cards
+         * modes): which parts show, and where the title sits. */
+        $hero_card_toggles = [
+            'kk_hero_card_show_title' => ['Show Title', true],
+            'kk_hero_card_show_category' => ['Show Category', true],
+            'kk_hero_card_show_date' => ['Show Date', true],
+            'kk_hero_card_show_excerpt' => ['Show Excerpt', false],
+        ];
+        foreach ($hero_card_toggles as $id => [$label, $default]) {
+            self::addSetting($wpCustomize, $id, $default, [self::class, 'sanitizeBool'], 'refresh');
+            $wpCustomize->add_control($id, [
+                'label' => esc_html__($label, 'koperasikita'),
+                'section' => 'koperasikita_homepage',
+                'type' => 'checkbox',
+            ]);
+        }
+
+        self::addSetting(
+            $wpCustomize,
+            'kk_hero_card_title_position',
+            'below',
+            [self::class, 'sanitizeHeroCardTitlePosition'],
+            'refresh'
+        );
+        $wpCustomize->add_control('kk_hero_card_title_position', [
+            'label' => esc_html__('Card Title Position', 'koperasikita'),
+            'section' => 'koperasikita_homepage',
+            'type' => 'select',
+            'choices' => [
+                'below' => esc_html__('Title Below', 'koperasikita'),
+                'above' => esc_html__('Title Above', 'koperasikita'),
+                'inside' => esc_html__('Title Inside Featured Image', 'koperasikita'),
+            ],
+        ]);
+
         self::addSetting(
             $wpCustomize,
             'kk_hero_category_ids',
@@ -1658,6 +1693,11 @@ final class Customizer
         }
 
         return \KoperasiKita\Features\Hero::sanitize($value);
+    }
+
+    public static function sanitizeHeroCardTitlePosition(mixed $value): string
+    {
+        return in_array($value, ['below', 'above', 'inside'], true) ? (string) $value : 'below';
     }
 
     public static function sanitizeHeroSource(mixed $value): string

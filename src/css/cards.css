@@ -42,6 +42,49 @@
 	padding-top: 12px;
 }
 
+/* --- Hero card title position -------------------------------------------- */
+/* The Hero Card settings place the title below the image (default),
+ * above the image, or inside the featured image. The CSS adapts so
+ * each position reads correctly. */
+
+/* Title Above: the title is a direct child before the media, so it
+ * gets its own grid row on top. */
+.kk-card--title-above {
+	grid-template-areas: "title" "media" "body";
+}
+
+.kk-card--title-above > .kk-card-title {
+	grid-area: title;
+	margin-top: 0;
+}
+
+/* Title Inside: the title sits in a media wrap, overlaid on the
+ * bottom of the image with a gradient so white text stays legible. */
+.kk-card-media-wrap {
+	grid-area: media;
+	position: relative;
+}
+
+.kk-card--title-inside .kk-card-title {
+	position: absolute;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	margin: 0;
+	padding: 2.5rem 1rem 0.75rem;
+	background: linear-gradient(to top, rgba(0, 0, 0, 0.75), rgba(0, 0, 0, 0));
+	color: #fff;
+}
+
+.kk-card--title-inside .kk-card-title a {
+	color: #fff;
+}
+
+.kk-card--title-inside .kk-card-title a:hover {
+	color: #fff;
+	text-decoration: underline;
+}
+
 .kk-card-title {
 	font-size: var(--kk-card-title-size);
 	margin: 6px 0 8px;

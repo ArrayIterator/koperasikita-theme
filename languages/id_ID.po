@@ -2484,3 +2484,15 @@ msgstr "Widget Kiri Hero"
 
 msgid "Hero Right Widget"
 msgstr "Widget Kanan Hero"
+
+msgid "Card Title Position"
+msgstr "Posisi Judul Kartu"
+
+msgid "Title Below"
+msgstr "Judul di Bawah"
+
+msgid "Title Above"
+msgstr "Judul di Atas"
+
+msgid "Title Inside Featured Image"
+msgstr "Judul di Dalam Gambar Utama"

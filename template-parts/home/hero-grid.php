@@ -96,7 +96,7 @@ if ( Hero::GRID_CENTER === $hero_mode && ! empty( $rest ) ) {
 					<?php
 					foreach ( $rest_left as $post ) :
 						setup_postdata( $post );
-						get_template_part( 'template-parts/content/card-news' );
+						get_template_part( 'template-parts/content/card-news', null, ['hero_card' => true] );
 					endforeach;
 					?>
 				</div>
@@ -134,7 +134,7 @@ if ( Hero::GRID_CENTER === $hero_mode && ! empty( $rest ) ) {
 						<?php
 						foreach ( $rest_right as $post ) :
 							setup_postdata( $post );
-							get_template_part( 'template-parts/content/card-news' );
+							get_template_part( 'template-parts/content/card-news', null, ['hero_card' => true] );
 						endforeach;
 						?>
 					</div>
@@ -144,7 +144,7 @@ if ( Hero::GRID_CENTER === $hero_mode && ! empty( $rest ) ) {
 					<?php
 					foreach ( $rest as $post ) :
 						setup_postdata( $post );
-						get_template_part( 'template-parts/content/card-news' );
+						get_template_part( 'template-parts/content/card-news', null, ['hero_card' => true] );
 					endforeach;
 					?>
 				</div>
