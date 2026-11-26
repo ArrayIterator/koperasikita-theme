@@ -39,7 +39,7 @@ final class Customizer
         'kk_title_size' => ['--kk-title-size', 40, 24, 72],
         'kk_card_title_size' => ['--kk-card-title-size', 20, 14, 32],
         'kk_excerpt_size' => ['--kk-excerpt-size', 14, 12, 20],
-        'kk_list_thumbnail_size' => ['--kk-list-thumb-size', 120, 80, 200],
+        'kk_list_thumbnail_size' => ['--kk-list-thumb-size', 180, 80, 200],
     ];
 
     private const PALETTE_LABELS = [
@@ -1215,7 +1215,7 @@ final class Customizer
         self::addSetting(
             $wpCustomize,
             'kk_list_thumbnail_size',
-            120,
+            180,
             static fn ($value) => self::clampInt($value, 80, 200),
             'refresh'
         );

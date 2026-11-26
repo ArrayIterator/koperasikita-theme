@@ -35,8 +35,8 @@
 .kk-home .kk-category-block-items.kk-layout-list .kk-card {
 	display: grid;
 	/* Thumbnail width is the Article List Thumbnail Size setting
-	 * (--kk-list-thumb-size, default 120px). */
-	grid-template-columns: var(--kk-list-thumb-size, 120px) 1fr auto;
+	 * (--kk-list-thumb-size, default 180px). */
+	grid-template-columns: var(--kk-list-thumb-size, 180px) 1fr auto;
 	grid-template-areas: "media body bookmark";
 	gap: 1rem;
 	background: transparent;
@@ -220,10 +220,10 @@
  * List layout — thumbnail, body, bookmark in their own columns,
  * no background/shadow, a thin divider. The thumbnail width is
  * the Article List Thumbnail Size setting
- * (--kk-list-thumb-size, default 120px). */
+ * (--kk-list-thumb-size, default 180px). */
 .kk-home .kk-category-block-items.kk-layout-list-columns .kk-card {
 	display: grid;
-	grid-template-columns: var(--kk-list-thumb-size, 120px) 1fr auto;
+	grid-template-columns: var(--kk-list-thumb-size, 180px) 1fr auto;
 	grid-template-areas: "media body bookmark";
 	gap: 1rem;
 	background: transparent;

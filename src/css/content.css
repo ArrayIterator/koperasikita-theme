@@ -641,7 +641,7 @@
 
 .kk-card-grid.kk-layout-list .kk-card {
 	display: grid;
-	grid-template-columns: var(--kk-list-thumb-size, 120px) 1fr auto;
+	grid-template-columns: var(--kk-list-thumb-size, 180px) 1fr auto;
 	grid-template-areas: "media body bookmark";
 	gap: 16px;
 }
