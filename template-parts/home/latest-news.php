@@ -82,6 +82,20 @@ $latest_eyebrow = trim( $latest_eyebrow );
 		endwhile;
 		?>
 		<?php get_template_part( 'template-parts/home/newsletter-subscribe', null, array( 'hidden' => true ) ); ?>
+		<?php
+		/* The newsletter-only rule and "More stories" label, rendered
+		 * hidden like the subscribe block: the client-side switcher
+		 * reveals all three when the visitor picks newsletter, and
+		 * the flex order in newsletter.css places them after the lead
+		 * whatever their DOM position is. Without them here, switching
+		 * TO newsletter client-side would show no rule and no label. */
+		if ( $latest->post_count > 1 ) :
+			?>
+			<hr class="kk-newsletter-rule" hidden>
+			<p class="kk-newsletter-more" hidden><?php esc_html_e( 'More stories', 'koperasikita' ); ?></p>
+			<?php
+		endif;
+		?>
 	</div>
 	<?php endif; ?>
 

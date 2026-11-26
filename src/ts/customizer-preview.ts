@@ -224,7 +224,7 @@ function applyHomepageLayout(next: SettingValue): void {
 		container.classList.remove(...LAYOUT_CLASSES);
 		container.classList.add(`kk-layout-${layout}`);
 	}
-	document.querySelectorAll('.kk-newsletter-subscribe').forEach((block) => {
+	document.querySelectorAll('.kk-newsletter-subscribe, .kk-newsletter-rule, .kk-newsletter-more').forEach((block) => {
 		block.toggleAttribute('hidden', layout !== 'newsletter');
 	});
 	document.querySelectorAll<HTMLButtonElement>('[data-kk-layout]').forEach((button) => {

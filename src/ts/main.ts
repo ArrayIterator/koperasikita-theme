@@ -674,7 +674,11 @@ function initLayoutSwitcher(): void {
 		items.classList.add(`kk-layout-${layout}`);
 		// The newsletter subscribe block is rendered hidden inside the
 		// container for grid/list markup; reveal it only for newsletter.
-		$all('.kk-newsletter-subscribe').forEach((block) => {
+		// The gold rule and the "More stories" label are newsletter-only
+		// too — the server renders them in the newsletter markup, so
+		// switching away must hide them as well, or the line stays
+		// visible under the first card in list/grid mode.
+		$all('.kk-newsletter-subscribe, .kk-newsletter-rule, .kk-newsletter-more').forEach((block) => {
 			block.toggleAttribute('hidden', layout !== 'newsletter');
 		});
 		$all<HTMLButtonElement>('[data-kk-layout]').forEach((other) => {

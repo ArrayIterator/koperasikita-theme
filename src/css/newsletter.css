@@ -125,6 +125,17 @@
 
 /* --- Gold rule and feed label --------------------------------------------- */
 
+/* Newsletter-only: when the layout class switches away from
+ * newsletter (client-side switcher), the rule and the label must go
+ * with the subscribe block — otherwise the gold line stays visible
+ * under the first card in list/grid mode. The `hidden` toggle in
+ * main.ts does the same job; this rule is the backup when the class
+ * is the only thing that changed. */
+.kk-latest-items:not(.kk-layout-newsletter) > .kk-newsletter-rule,
+.kk-latest-items:not(.kk-layout-newsletter) > .kk-newsletter-more {
+	display: none;
+}
+
 .kk-newsletter-rule {
 	width: 100%;
 	margin: 4px 0 0;
