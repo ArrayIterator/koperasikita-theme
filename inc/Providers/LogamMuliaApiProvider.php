@@ -755,6 +755,12 @@ final class LogamMuliaApiProvider extends AbstractLiveProvider
 
             $step = $provider->syncSource($source);
             $step['next'] = $provider->nextSourceAfter($source);
+            // Progress bookkeeping for the admin page: how many
+            // sources there are in total and which step this is
+            // (1-based), so the progress bar is real, not estimated.
+            $stepIndex = array_search($source, self::SOURCES, true);
+            $step['total'] = count(self::SOURCES);
+            $step['step'] = $stepIndex !== false ? (int) $stepIndex + 1 : 1;
 
             return $step;
         }, false, 'manage_options');

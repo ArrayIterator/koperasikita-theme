@@ -350,3 +350,19 @@
 	margin: 1rem 0 0;
 	color: #646970;
 }
+
+/*
+ * Gold Prices per-brand provider table: the provider labels are long
+ * ("Scraped (live Antam, Galeri 24, …)"), so uncapped selects would
+ * blow the table wider than the admin page and cut the Supplied by
+ * column off. The selects cap at 15rem; the wrapper scrolls
+ * horizontally only when the viewport is still too narrow.
+ */
+.kk-gold-brand-providers-wrap {
+	overflow-x: auto;
+}
+
+.kk-gold-brand-providers select {
+	width: 100%;
+	max-width: 15rem;
+}

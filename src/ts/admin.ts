@@ -36,6 +36,10 @@ interface AdminStrings {
 	notDownloaded: string;
 	downloadFailed: string;
 	adminDataMissing: string;
+	syncingSource: string;
+	syncStepDone: string;
+	syncStepLatest: string;
+	syncDone: string;
 }
 
 interface AdminData {
@@ -53,7 +57,8 @@ interface MenuIconData {
 
 /* One step of the manual gold sync (kk_logam_mulia_sync): the source
  * just synced, rows inserted vs skipped, its latest date, an error
- * (null on success), and the next source to sync (null when done). */
+ * (null on success), the next source to sync (null when done), and
+ * the step position (step of total) for the progress bar. */
 interface GoldSyncStep {
 	source: string;
 	inserted: number;
@@ -61,6 +66,8 @@ interface GoldSyncStep {
 	latest_date: string | null;
 	error: string | null;
 	next: string | null;
+	total?: number;
+	step?: number;
 }
 
 interface CustomizeValue {
@@ -86,6 +93,10 @@ const FALLBACK_STRINGS: AdminStrings = {
 	notDownloaded: 'Not downloaded yet',
 	downloadFailed: 'Download failed.',
 	adminDataMissing: 'Admin data is not available.',
+	syncingSource: 'Syncing %s…',
+	syncStepDone: '%s: inserted %s, skipped %s',
+	syncStepLatest: ' (latest %s)',
+	syncDone: 'Done — inserted %s, skipped %s (already in database). Reloading…',
 };
 
 function adminData(): AdminData | null {
@@ -106,7 +117,20 @@ function adminStrings(): AdminStrings {
 		notDownloaded: strings?.notDownloaded ?? FALLBACK_STRINGS.notDownloaded,
 		downloadFailed: strings?.downloadFailed ?? FALLBACK_STRINGS.downloadFailed,
 		adminDataMissing: strings?.adminDataMissing ?? FALLBACK_STRINGS.adminDataMissing,
+		syncingSource: strings?.syncingSource ?? FALLBACK_STRINGS.syncingSource,
+		syncStepDone: strings?.syncStepDone ?? FALLBACK_STRINGS.syncStepDone,
+		syncStepLatest: strings?.syncStepLatest ?? FALLBACK_STRINGS.syncStepLatest,
+		syncDone: strings?.syncDone ?? FALLBACK_STRINGS.syncDone,
 	};
+}
+
+/* Fill %s placeholders in order (one replacement per argument). */
+function formatTemplate(template: string, ...args: Array<string | number>): string {
+	let out = template;
+	for (const arg of args) {
+		out = out.replace('%s', String(arg));
+	}
+	return out;
 }
 
 function errorMessage(error: unknown): string {
@@ -310,16 +334,20 @@ function initAdmin(): void {
 }
 
 /**
- * Manual gold sync on Settings -> Gold Prices.
+ * Manual gold sync on Settings -> Gold Prices, with real progress.
  *
  * One AJAX call per source, in step order (galeri24, pegadaian,
  * hargaemas-net): the first call carries no source, each step
- * returns `next` (the following source, or null when done), and
- * the button chains the calls. A per-source failure is reported
- * as its own line and does not stop the remaining sources. At the
- * end the page reloads so the status, history list and chart show
- * the new rows. Without the button (any other admin screen) this
- * does nothing.
+ * returns `next` (the following source, or null when done) plus
+ * `step`/`total` for the progress bar. While a sync runs the Sync
+ * now button is disabled (aria-busy), the progress bar + status
+ * line show which source is syncing ("Syncing galeri24… 1/3"), each
+ * finished source gets its own line in the step list, and the
+ * automatic-sync form is disabled with a note saying it is paused.
+ * A per-source failure is reported as its own line and does not
+ * stop the remaining sources. At the end the page reloads so the
+ * status, history list and chart show the new rows. Without the
+ * button (any other admin screen) this does nothing.
  */
 function initGoldSync(): void {
 	const config = adminData();
@@ -333,9 +361,43 @@ function initGoldSync(): void {
 		return;
 	}
 
+	const progressWrap = document.querySelector<HTMLElement>('[data-kk-gold-sync-progress]');
+	const bar = document.querySelector<HTMLProgressElement>('[data-kk-gold-sync-bar]');
+	const statusEl = document.querySelector<HTMLElement>('[data-kk-gold-sync-status]');
+	const stepsEl = document.querySelector<HTMLElement>('[data-kk-gold-sync-steps]');
+	const settingsForm = document.querySelector<HTMLFormElement>('[data-kk-gold-sync-settings]');
+	const runningNote = document.querySelector<HTMLElement>('[data-kk-gold-sync-running]');
+
+	const setRunning = (running: boolean): void => {
+		button.disabled = running;
+		if (running) {
+			button.setAttribute('aria-busy', 'true');
+		} else {
+			button.removeAttribute('aria-busy');
+		}
+		if (progressWrap) {
+			progressWrap.hidden = !running;
+		}
+		if (runningNote) {
+			runningNote.hidden = !running;
+		}
+		if (settingsForm) {
+			settingsForm.querySelectorAll<HTMLInputElement | HTMLSelectElement | HTMLButtonElement>('input, select, button').forEach((el) => {
+				el.disabled = running;
+			});
+		}
+	};
+
 	button.addEventListener('click', async () => {
-		button.disabled = true;
+		const strings = adminStrings();
+		setRunning(true);
 		result.textContent = '';
+		if (stepsEl) {
+			stepsEl.textContent = '';
+		}
+		if (bar) {
+			bar.value = 0;
+		}
 
 		let totalInserted = 0;
 		let totalSkipped = 0;
@@ -347,15 +409,34 @@ function initGoldSync(): void {
 			 * a server that ever returns a cycle in `next`. */
 			for (let step = 0; step < 10; step += 1) {
 				const params: Record<string, string> = source === null ? {} : { source };
+				const current = source ?? '';
+				/* The step line appears first as "Syncing <source>…"
+				 * and is rewritten with its result when the call
+				 * returns, so the list always shows live progress. */
+				const line = document.createElement('li');
+				if (stepsEl) {
+					line.textContent = formatTemplate(strings.syncingSource, current);
+					stepsEl.appendChild(line);
+				}
+
 				const data: GoldSyncStep = await postAjax<GoldSyncStep>(config, 'kk_logam_mulia_sync', params);
 				totalInserted += data.inserted;
 				totalSkipped += data.skipped;
 
-				const line = document.createElement('div');
+				const total = typeof data.total === 'number' && data.total > 0 ? data.total : 3;
+				const done = typeof data.step === 'number' && data.step > 0 ? data.step : step + 1;
+				if (bar) {
+					bar.max = total;
+					bar.value = done;
+				}
+				if (statusEl) {
+					statusEl.textContent = `${formatTemplate(strings.syncingSource, data.source)} (${done}/${total})`;
+				}
+
 				line.textContent = data.error
-					? `${data.source}: ${data.error}`
-					: `${data.source}: inserted ${data.inserted}, skipped ${data.skipped}${data.latest_date ? ` (latest ${data.latest_date})` : ''}`;
-				result.appendChild(line);
+					? formatTemplate(strings.failed, `${data.source}: ${data.error}`)
+					: formatTemplate(strings.syncStepDone, data.source, data.inserted, data.skipped)
+						+ (data.latest_date ? formatTemplate(strings.syncStepLatest, data.latest_date) : '');
 
 				if (data.next === null) {
 					break;
@@ -363,16 +444,21 @@ function initGoldSync(): void {
 				source = data.next;
 			}
 
+			if (bar) {
+				bar.value = bar.max;
+			}
+			if (statusEl) {
+				statusEl.textContent = formatTemplate(strings.syncDone, totalInserted, totalSkipped);
+			}
 			const summary = document.createElement('div');
-			summary.textContent = `Done — inserted ${totalInserted}, skipped ${totalSkipped} (already in database). Reloading…`;
+			summary.textContent = formatTemplate(strings.syncDone, totalInserted, totalSkipped);
 			result.appendChild(summary);
 			window.setTimeout(() => window.location.reload(), 1500);
 		} catch (error) {
 			const line = document.createElement('div');
 			line.textContent = errorMessage(error);
 			result.appendChild(line);
-		} finally {
-			button.disabled = false;
+			setRunning(false);
 		}
 	});
 }

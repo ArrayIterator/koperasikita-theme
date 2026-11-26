@@ -891,18 +891,6 @@ msgstr "Tanpa Margin"
 msgid "No Margin sits flush, with no top border, padding or bottom margin."
 msgstr "Tanpa Margin menempel rapat, tanpa garis atas, padding, atau margin bawah."
 
-#: inc/Admin/GoldPricesPage.php
-msgid "Gold price provider"
-msgstr "Penyedia harga emas"
-
-#: inc/Admin/GoldPricesPage.php
-msgid "Gold provider saved."
-msgstr "Penyedia emas disimpan."
-
-#: inc/Admin/GoldPricesPage.php
-msgid "Save provider"
-msgstr "Simpan penyedia"
-
 #: inc/Widgets/GoldWidget.php
 msgid "Settings -> Markets"
 msgstr "Pengaturan -> Pasar"
@@ -2472,7 +2460,6 @@ msgstr "Tampilkan Breadcrumb di Hasil Pencarian"
 msgid "Show Breadcrumbs on 404 Pages"
 msgstr "Tampilkan Breadcrumb di Halaman 404"
 
-
 msgid "Classic Top Border"
 msgstr "Klasik Garis Atas"
 
@@ -3219,9 +3206,6 @@ msgstr "Harga emas harian dari riwayat harga Logam Mulia API (CSV backup/prices 
 msgid "Gold price history per brand"
 msgstr "Riwayat harga emas per merek"
 
-msgid "Gold prices on the site currently come from: %s."
-msgstr "Harga emas di situs saat ini berasal dari: %s."
-
 msgid "In backlog — failed %1$d×, next retry %2$s."
 msgstr "Dalam antrean — gagal %1$d×, coba lagi %2$s."
 
@@ -3795,3 +3779,63 @@ msgstr "Setiap %d jam"
 
 msgid "Daily gold prices from the Logam Mulia API price history (backup/prices CSV on GitHub). The sync runs automatically via WP-Cron on the schedule below and only inserts rows that are not in the database yet — one row per brand per day. Use the button below to sync on demand."
 msgstr "Harga emas harian dari riwayat harga Logam Mulia API (CSV backup/prices di GitHub). Sinkronisasi berjalan otomatis lewat WP-Cron sesuai jadwal di bawah dan hanya menyisipkan baris yang belum ada di database — satu baris per brand per hari. Gunakan tombol di bawah untuk sinkronisasi manual."
+
+#: inc/Admin/GoldPricesPage.php
+msgid "Gold price providers"
+msgstr "Penyedia harga emas"
+
+#: inc/Admin/GoldPricesPage.php
+msgid "Brand providers saved."
+msgstr "Penyedia tiap merek disimpan."
+
+#: inc/Admin/GoldPricesPage.php
+msgid "Save brand providers"
+msgstr "Simpan penyedia tiap merek"
+
+#: inc/Admin/GoldPricesPage.php
+msgid "Current price"
+msgstr "Harga saat ini"
+
+#: inc/Admin/GoldPricesPage.php
+msgid "Fallback"
+msgstr "Cadangan"
+
+#: inc/Admin/GoldPricesPage.php
+msgid "Supplied by"
+msgstr "Dipasok oleh"
+
+#: inc/Admin/GoldPricesPage.php
+msgid "Provider for %s"
+msgstr "Penyedia untuk %s"
+
+#: inc/Admin/GoldPricesPage.php
+msgid "Fallback provider for %s"
+msgstr "Penyedia cadangan untuk %s"
+
+#: inc/Admin/GoldPricesPage.php
+msgid "Source: %s"
+msgstr "Sumber: %s"
+
+#: inc/Admin/GoldPricesPage.php
+msgid "A manual sync is running. Automatic sync settings are paused until it finishes."
+msgstr "Sinkronisasi manual sedang berjalan. Pengaturan sinkronisasi otomatis dijeda sampai selesai."
+
+#: inc/Admin/GoldPricesPage.php
+msgid "Choose which provider supplies the price for each brand. Only providers that can actually supply that brand are listed. When the primary provider has no price for a brand, its fallback provider is tried automatically. A brand neither provider can price shows no price on the site."
+msgstr "Pilih penyedia yang memasok harga untuk tiap merek. Hanya penyedia yang memang bisa memasok merek itu yang ditampilkan. Bila penyedia utama tidak punya harga untuk suatu merek, penyedia cadangannya dicoba otomatis. Merek yang tidak bisa dipasok kedua penyedia tidak menampilkan harga di situs."
+
+#: inc/Admin/GoldPricesPage.php
+msgid "Syncing %s…"
+msgstr "Menyinkronkan %s…"
+
+#: inc/Admin/GoldPricesPage.php
+msgid "%s: inserted %s, skipped %s"
+msgstr "%s: dimasukkan %s, dilewati %s"
+
+#: inc/Admin/GoldPricesPage.php
+msgid " (latest %s)"
+msgstr " (terbaru %s)"
+
+#: inc/Admin/GoldPricesPage.php
+msgid "Done — inserted %s, skipped %s (already in database). Reloading…"
+msgstr "Selesai — dimasukkan %s, dilewati %s (sudah ada di database). Memuat ulang…"

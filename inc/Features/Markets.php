@@ -30,7 +30,10 @@ use KoperasiKita\Providers\YahooStockProvider;
  * Provider choice (which provider supplies each market) and the manual
  * snapshots live in the `kk_markets_settings` option, edited on the
  * Settings -> Markets screen — never in the Customizer and never hardcoded
- * in a template. When the feature is disabled nothing here hooks in at all:
+ * in a template. Gold is the exception: each gold brand has its own
+ * provider + fallback, stored in `kk_gold_brand_providers` /
+ * `kk_gold_brand_fallback_providers` and edited on the Gold Prices page
+ * (see Gold::brandProviders()). When the feature is disabled nothing here hooks in at all:
  * no settings page, no settings registration, no frontend output.
  */
 final class Markets
@@ -172,15 +175,39 @@ final class Markets
     }
 
     /**
-     * Symbols shown for a market: the admin's picker choice for the
-     * market's current provider. No stored choice (fresh install, or a
-     * provider switched before the picker was opened) means every
-     * symbol the provider supplies — nothing is hidden by default.
+     * Symbols shown for a market.
+     *
+     * Gold is per-brand now (see prices()): every gold symbol has its
+     * own provider, so the shown set is the full symbol list — the
+     * stored picker (from the removed Settings -> Markets screen) is
+     * still honoured when it is non-empty, for backwards compatibility.
+     * Other markets still show the current provider's symbols.
      *
      * @return array<string, string> Enabled symbols (slug => label).
      */
     public static function enabledSymbols(string $market): array
     {
+        if ($market === 'gold') {
+            $symbols = self::symbols('gold');
+            $stored = self::settings()['enabled'][$market] ?? null;
+
+            if (!is_array($stored) || $stored === []) {
+                return $symbols;
+            }
+
+            $enabled = [];
+
+            foreach ($symbols as $symbol => $label) {
+                if (!empty($stored[$symbol])) {
+                    $enabled[$symbol] = $label;
+                }
+            }
+
+            // An admin who unchecks everything gets the full list
+            // back: an empty picker must not blank the whole market.
+            return $enabled !== [] ? $enabled : $symbols;
+        }
+
         $supplies = self::providerFor($market)->supplies($market);
 
         if ($supplies === []) {
@@ -296,12 +323,21 @@ final class Markets
      * caller renders an honest empty state. Only the symbols the admin
      * picked in the provider picker are returned (see enabledSymbols()).
      *
+     * Gold resolves PER BRAND (see goldPrices()): each brand's own
+     * provider is tried first, then its fallback provider, and the
+     * returned price is annotated with the provider that actually
+     * supplied it (MarketPrice::$provider).
+     *
      * @return array<string, MarketPrice>
      */
     public static function prices(string $market): array
     {
         if (!self::isEnabled() || !in_array($market, self::markets(), true)) {
             return [];
+        }
+
+        if ($market === 'gold') {
+            return self::goldPrices();
         }
 
         $enabled = self::enabledSymbols($market);
@@ -313,6 +349,85 @@ final class Markets
         $prices = self::providerFor($market)->prices($market);
 
         return array_intersect_key($prices, $enabled);
+    }
+
+    /**
+     * In-request cache of one provider's gold prices: a provider is
+     * fetched at most once per page render / request, no matter how
+     * many brands use it (the transient underneath already caches
+     * across requests; this stops repeat fetches inside one request).
+     *
+     * @var array<string, array<string, MarketPrice>|null>
+     */
+    private static array $goldProviderPrices = [];
+
+    /** One provider's gold prices, fetched at most once per request. */
+    private static function goldProviderPrices(string $providerId): array
+    {
+        if (!isset(self::$goldProviderPrices[$providerId])) {
+            $providers = self::providers();
+            $provider = $providers[$providerId] ?? null;
+            self::$goldProviderPrices[$providerId] = $provider instanceof MarketPriceProvider && $provider->supports('gold')
+                ? $provider->prices('gold')
+                : [];
+        }
+
+        return self::$goldProviderPrices[$providerId] ?? [];
+    }
+
+    /**
+     * Gold prices resolved per brand.
+     *
+     * Each enabled symbol is priced from its own primary provider
+     * (Gold::brandProvider); when the primary has no price for the
+     * symbol, the symbol's fallback provider (Gold::brandFallbackProvider)
+     * is tried. A symbol neither can price is left out — the widget
+     * and strip show an honest empty state for it, never an invented
+     * price. Every returned price carries the provider that actually
+     * supplied it in MarketPrice::$provider.
+     *
+     * Request count: providers are grouped, so one fetch per provider
+     * serves every brand that uses it — the scraped prices.json is
+     * read once for all six of its symbols, the Logam Mulia table is
+     * read once for all five of its brands.
+     *
+     * @return array<string, MarketPrice>
+     */
+    public static function goldPrices(): array
+    {
+        $enabled = self::enabledSymbols('gold');
+
+        if ($enabled === []) {
+            return [];
+        }
+
+        $prices = [];
+
+        foreach ($enabled as $symbol => $label) {
+            $primary = Gold::brandProvider($symbol);
+            $fromPrimary = self::goldProviderPrices($primary);
+            $price = $fromPrimary[$symbol] ?? null;
+
+            if ($price instanceof MarketPrice && $price->hasData()) {
+                $prices[$symbol] = $price->withProvider($primary);
+                continue;
+            }
+
+            $fallback = Gold::brandFallbackProvider($symbol);
+
+            if ($fallback === '' || $fallback === $primary) {
+                continue;
+            }
+
+            $fromFallback = self::goldProviderPrices($fallback);
+            $fallbackPrice = $fromFallback[$symbol] ?? null;
+
+            if ($fallbackPrice instanceof MarketPrice && $fallbackPrice->hasData()) {
+                $prices[$symbol] = $fallbackPrice->withProvider($fallback);
+            }
+        }
+
+        return $prices;
     }
 
     /**
@@ -410,7 +525,8 @@ final class Markets
 
             return [
                 'market' => $market,
-                'provider' => self::providerFor($market)->id(),
+                // Gold is per-brand: no single provider supplies it.
+                'provider' => $market === 'gold' ? 'per-brand' : self::providerFor($market)->id(),
                 'prices' => $prices,
             ];
         }, true);
@@ -431,10 +547,47 @@ final class Markets
      * The frontend (src/ts/markets.ts) uses this to decide whether
      * to call the public API straight from the browser.
      *
+     * Gold is per-brand: the direct client API is the one provider
+     * with a browser-callable URL among the brands' effective
+     * providers — Scraped (prices.json, covers six symbols) first,
+     * then Xaus (spot only). The browser refresh only updates the
+     * symbols that provider covers; the rest stay server-rendered
+     * and refresh through the backend endpoint.
+     *
      * @return array{provider: string, clientApiUrl: string|null}
      */
     public static function clientInfo(string $market): array
     {
+        if ($market === 'gold') {
+            $inUse = [];
+
+            foreach (array_keys(self::enabledSymbols('gold')) as $symbol) {
+                $inUse[Gold::brandProvider($symbol)] = true;
+                $fallback = Gold::brandFallbackProvider($symbol);
+
+                if ($fallback !== '') {
+                    $inUse[$fallback] = true;
+                }
+            }
+
+            foreach (['scraped-gold', 'xaus'] as $candidate) {
+                if (!isset($inUse[$candidate])) {
+                    continue;
+                }
+
+                $provider = self::providers()[$candidate] ?? null;
+
+                if ($provider instanceof AbstractLiveProvider && $provider->clientApiUrl() !== null) {
+                    return [
+                        'provider' => $provider->id(),
+                        'clientApiUrl' => $provider->clientApiUrl(),
+                    ];
+                }
+            }
+
+            return ['provider' => 'manual', 'clientApiUrl' => null];
+        }
+
         $provider = self::providerFor($market);
         $url = $provider instanceof AbstractLiveProvider ? $provider->clientApiUrl() : null;
 

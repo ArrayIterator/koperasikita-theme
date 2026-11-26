@@ -12,10 +12,11 @@ use WP_Widget;
  * Gold price widget: a vertical auto-scroll slider with the five gold
  * brands (Antam, UBS, Galeri 24, Pegadaian, EmasKita).
  *
- * Prices come from the manual snapshot in Settings -> Markets; the widget
- * form only picks the title and which brands to show. When the Markets
- * feature is disabled the widget renders nothing, and when no brand has a
- * saved price it renders an honest empty state instead of invented numbers.
+ * Prices come from each brand's own provider, picked per brand on the
+ * Gold Prices page (Gold::brandPrices); the widget form only picks the
+ * title and which brands to show. When the Markets feature is disabled
+ * the widget renders nothing, and when no brand has a saved price it
+ * renders an honest empty state instead of invented numbers.
  */
 final class GoldWidget extends WP_Widget
 {
