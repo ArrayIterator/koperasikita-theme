@@ -176,12 +176,6 @@
 		grid-template-columns: 1fr var(--kk-sidebar-width);
 	}
 
-	/* Block Area empty: the homepage sidebar drops below the primary
-	 * content (single column) instead of sitting beside it. */
-	.kk-home-layout.kk-home--no-block-widget {
-		grid-template-columns: 1fr;
-	}
-
 	.kk-archive-layout,
 	.kk-single-layout,
 	.kk-page-layout {

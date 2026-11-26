@@ -32,12 +32,13 @@ get_header();
 
 	<?php
 	// Block Area widget (global, locked): ONE shared area for the
-	// whole category-block region, not one per block. When it has
-	// no widget, the homepage sidebar drops below the primary
-	// content instead of sitting beside it.
+	// whole category-block region, not one per block. Whether it
+	// has a widget or not, the homepage sidebar always sits beside
+	// the primary content on desktop — an empty Block Area must
+	// never collapse the layout to a single column.
 	$kk_has_block_widget = is_active_sidebar( 'kk-block' );
 	?>
-	<div class="kk-home-layout<?php echo $kk_has_block_widget ? '' : ' kk-home--no-block-widget'; ?>">
+	<div class="kk-home-layout">
 		<div class="kk-home-primary">
 			<?php
 			// Market strip: gold spot, stocks and crypto above the latest
