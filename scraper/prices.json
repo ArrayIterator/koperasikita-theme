@@ -1,25 +1,25 @@
 {
-  "updated": "2026-11-26T15:28:42.547Z",
+  "updated": "2026-11-26T18:33:25.820Z",
   "prices": {
     "antam": {
       "price": 2501000,
       "currency": "IDR",
-      "updated": "2026-11-26T15:28:42.547Z"
+      "updated": "2026-11-26T18:33:25.820Z"
     },
     "galeri-24": {
       "price": 2339000,
       "currency": "IDR",
-      "updated": "2026-11-26T15:28:42.547Z"
+      "updated": "2026-11-26T18:33:25.820Z"
     },
     "ubs": {
       "price": 2362000,
       "currency": "IDR",
-      "updated": "2026-11-26T15:28:42.547Z"
+      "updated": "2026-11-26T18:33:25.820Z"
     },
     "spot": {
-      "price": 2102744,
+      "price": 2098947,
       "currency": "IDR",
-      "updated": "2026-11-26T15:28:42.547Z"
+      "updated": "2026-11-26T18:33:25.820Z"
     }
   },
   "sources": {
