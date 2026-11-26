@@ -11,17 +11,18 @@ use KoperasiKita\Providers\LogamMuliaApiProvider;
 
 /**
  * Settings -> Gold Prices: the management page for the Logam Mulia
- * gold price sync, with two tabs.
+ * gold price sync, with three tabs.
  *
  * "Prices" shows the sync status (last sync, latest recorded date,
  * which symbols are stored, the failure backlog), a manual sync
  * button that steps through the sources one at a time via AJAX,
- * which provider is active for gold, and the stored price history
- * as both a list (table) and a dependency-free inline SVG line
- * chart (one line per brand). "Enabled Gold Brands" is the master
- * switch for which gold brands the site shows — a disabled brand
- * is hidden from the Gold widget and from the widget's Brands to
- * show picker. Uses WP admin styles only — no heavy custom CSS.
+ * and which provider is active for gold. "Enabled Gold Brands" is
+ * the master switch for which gold brands the site shows — a
+ * disabled brand is hidden from the Gold widget and from the
+ * widget's Brands to show picker. "History" shows the stored price
+ * history as both a list (table) and a dependency-free inline SVG
+ * line chart (one line per brand). Uses WP admin styles only — no
+ * heavy custom CSS.
  */
 final class GoldPricesPage
 {
@@ -65,7 +66,7 @@ final class GoldPricesPage
 
         // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- tab is display-only.
         $tab = isset($_GET['tab']) ? sanitize_key((string) wp_unslash($_GET['tab'])) : 'prices';
-        $tab = $tab === 'brands' ? 'brands' : 'prices';
+        $tab = in_array($tab, ['prices', 'brands', 'history'], true) ? $tab : 'prices';
         $brands = Gold::brands();
         $pageUrl = admin_url('admin.php?page=' . self::PAGE_SLUG);
         ?>
@@ -74,9 +75,12 @@ final class GoldPricesPage
             <h2 class="nav-tab-wrapper">
                 <a href="<?php echo esc_url(add_query_arg('tab', 'prices', $pageUrl)); ?>" class="nav-tab<?php echo $tab === 'prices' ? ' nav-tab-active' : ''; ?>"><?php esc_html_e('Prices', 'koperasikita'); ?></a>
                 <a href="<?php echo esc_url(add_query_arg('tab', 'brands', $pageUrl)); ?>" class="nav-tab<?php echo $tab === 'brands' ? ' nav-tab-active' : ''; ?>"><?php esc_html_e('Enabled Gold Brands', 'koperasikita'); ?></a>
+                <a href="<?php echo esc_url(add_query_arg('tab', 'history', $pageUrl)); ?>" class="nav-tab<?php echo $tab === 'history' ? ' nav-tab-active' : ''; ?>"><?php esc_html_e('History', 'koperasikita'); ?></a>
             </h2>
             <?php if ($tab === 'brands') : ?>
                 <?php self::renderBrandsTab($brands); ?>
+            <?php elseif ($tab === 'history') : ?>
+                <?php self::renderHistoryTab($brands); ?>
             <?php else : ?>
                 <?php self::renderPricesTab($brands); ?>
             <?php endif; ?>
@@ -157,15 +161,14 @@ final class GoldPricesPage
     }
 
     /**
-     * Prices tab: the sync status, manual sync, active provider
-     * and price history (the page as it was before the tabs).
+     * Prices tab: the sync status, manual sync and active provider.
+     * The price history lives on its own History tab.
      *
      * @param array<string, string> $brands Slug => label.
      */
     private static function renderPricesTab(array $brands): void
     {
         $status = LogamMuliaApiProvider::status();
-        $history = GoldPricesTable::history(LogamMuliaApiProvider::PROVIDER_ID, 200);
         $active = Markets::providerFor('gold');
         ?>
         <p><?php esc_html_e('Daily gold prices from the Logam Mulia API price history (backup/prices CSV on GitHub). The sync runs once a day via WP-Cron and only inserts rows that are not in the database yet — one row per brand per day. Use the button below to sync on demand.', 'koperasikita'); ?></p>
@@ -190,7 +193,18 @@ final class GoldPricesPage
             ?>
             <a href="<?php echo esc_url(admin_url('customize.php?autofocus[section]=koperasikita_homepage')); ?>"><?php esc_html_e('Change in the Customizer', 'koperasikita'); ?></a>
         </p>
+        <?php
+    }
 
+    /**
+     * History tab: the stored price history as a chart and a list.
+     *
+     * @param array<string, string> $brands Slug => label.
+     */
+    private static function renderHistoryTab(array $brands): void
+    {
+        $history = GoldPricesTable::history(LogamMuliaApiProvider::PROVIDER_ID, 200);
+        ?>
         <h2><?php esc_html_e('Price history', 'koperasikita'); ?></h2>
         <?php self::renderChart($history, $brands); ?>
         <?php self::renderHistoryTable($history, $brands); ?>

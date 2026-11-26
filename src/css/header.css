@@ -196,6 +196,14 @@ html[data-kk-scheme="system"] .kk-icon-monitor {
 	color: var(--kk-green, #0B6B3A);
 }
 
+/* Default logo: the mark and the title are separate links, so hover
+ * them as one unit — hovering the mark also greens the title link,
+ * and hovering the title does the same. (With a custom logo the
+ * title lives inside the logo link already, so it hovers with it.) */
+.kk-brand:hover .kk-site-title a {
+	color: var(--kk-green, #0B6B3A);
+}
+
 .kk-site-tagline {
 	font-size: 14px;
 	color: var(--kk-muted);

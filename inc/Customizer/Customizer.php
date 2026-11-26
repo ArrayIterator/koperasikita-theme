@@ -1128,6 +1128,25 @@ final class Customizer
             ]);
         }
 
+        /* Mobile text size: the body font size on phones (max-width
+         * 767px). The desktop body size stays 16px; this only ever
+         * moves the mobile size, so a bigger phone size never blows
+         * up the desktop layout. Default 16. */
+        self::addSetting(
+            $wpCustomize,
+            'kk_mobile_font_size',
+            16,
+            static fn ($value) => self::clampInt($value, 12, 20),
+            'refresh'
+        );
+        $wpCustomize->add_control('kk_mobile_font_size', [
+            'label' => esc_html__('Mobile Text Size', 'koperasikita'),
+            'description' => esc_html__('Body text size on phones, in pixels. Default 16.', 'koperasikita'),
+            'section' => 'koperasikita_accessibility',
+            'type' => 'number',
+            'input_attrs' => ['min' => 12, 'max' => 20],
+        ]);
+
         self::addSetting(
             $wpCustomize,
             'kk_logo_invert_dark',
@@ -2289,6 +2308,23 @@ final class Customizer
         }
 
         wp_add_inline_style('kk-app', ':root{' . $declarations . '}');
+    }
+
+    /**
+     * Print the saved mobile text size onto the live site. Only when
+     * it differs from the 16px default: a media-query rule that sets
+     * the body font size on phones (max-width 767px). The desktop
+     * body size is untouched.
+     */
+    public static function outputMobileFontSizeOverride(): void
+    {
+        $size = self::clampInt(get_theme_mod('kk_mobile_font_size', 16), 12, 20);
+
+        if ($size === 16) {
+            return;
+        }
+
+        wp_add_inline_style('kk-app', '@media (max-width: 767px){body{font-size:' . $size . 'px}}');
     }
 
     /**

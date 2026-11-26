@@ -1600,6 +1600,14 @@ msgstr "Perubahan (%)"
 msgid "Article Text Size"
 msgstr "Ukuran Teks Artikel"
 
+#: inc/Customizer/Customizer.php
+msgid "Mobile Text Size"
+msgstr "Ukuran Teks Mobile"
+
+#: inc/Customizer/Customizer.php
+msgid "Body text size on phones, in pixels. Default 16."
+msgstr "Ukuran teks isi di ponsel, dalam piksel. Default 16."
+
 #: inc/Features/ArticleFontSize.php
 msgid "Text size"
 msgstr "Ukuran teks"
@@ -3112,6 +3120,10 @@ msgstr "Sinkronisasi manual"
 #: inc/Admin/GoldPricesPage.php
 msgid "Prices"
 msgstr "Harga"
+
+#: inc/Admin/GoldPricesPage.php
+msgid "History"
+msgstr "Riwayat"
 
 #: inc/Admin/GoldPricesPage.php
 msgid "Enabled Gold Brands"
