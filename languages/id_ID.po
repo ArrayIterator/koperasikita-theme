@@ -193,6 +193,22 @@ msgid "Invert Logo in Dark Mode"
 msgstr "Balik Logo dalam Mode Gelap"
 
 #: inc/Customizer/Customizer.php
+msgid "Excerpt Length (words)"
+msgstr "Panjang Kutipan (kata)"
+
+#: inc/Customizer/Customizer.php
+msgid "How many words the excerpt shows before it is cut short. Applies to card and hero excerpts."
+msgstr "Berapa kata yang ditampilkan kutipan sebelum dipotong. Berlaku untuk kutipan kartu dan hero."
+
+#: inc/Customizer/Customizer.php
+msgid "Excerpt Ending"
+msgstr "Akhir Kutipan"
+
+#: inc/Customizer/Customizer.php
+msgid "The text shown when an excerpt is cut short. Leave the default three dots, or type your own ending."
+msgstr "Teks yang ditampilkan saat kutipan dipotong. Biarkan tiga titik bawaan, atau ketik akhiran Anda sendiri."
+
+#: inc/Customizer/Customizer.php
 msgid "Footer Copyright Text"
 msgstr "Teks Hak Cipta Footer"
 

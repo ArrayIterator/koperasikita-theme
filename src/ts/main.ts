@@ -524,6 +524,19 @@ function initClock(): void {
 /* Layout switcher (grid / list / featured / newsletter)                 */
 /* ------------------------------------------------------------------ */
 
+/* Read the saved layout from the `kk_layout` cookie (the value the
+ * server renders from). Returns null when there is no valid cookie. */
+function readLayoutCookie(): 'grid' | 'list' | 'featured' | 'newsletter' | null {
+	const match = document.cookie.match(/(?:^|;)\s*kk_layout=([^;]*)/);
+	if (!match) {
+		return null;
+	}
+	const value = decodeURIComponent(match[1] ?? '');
+	return value === 'grid' || value === 'list' || value === 'featured' || value === 'newsletter'
+		? value
+		: null;
+}
+
 function initLayoutSwitcher(): void {
 	const container = $('#kk-latest-items');
 	if (!container) {
@@ -545,8 +558,18 @@ function initLayoutSwitcher(): void {
 		});
 	}
 	const stored = window.localStorage.getItem(LAYOUT_KEY);
-	if (stored === 'grid' || stored === 'list' || stored === 'featured' || stored === 'newsletter') {
-		applyLayout(stored);
+	/* The server already rendered the saved layout from the cookie,
+	 * so on load we only sync the active button — but re-applying
+	 * the stored layout here keeps the switcher correct even when
+	 * the server rendered the Customizer default (e.g. the cookie
+	 * was set after the HTML was cached). The cookie is the source
+	 * the server reads; localStorage is kept for backwards
+	 * compatibility with the earlier switcher. */
+	const saved = stored === 'grid' || stored === 'list' || stored === 'featured' || stored === 'newsletter'
+		? stored
+		: readLayoutCookie();
+	if (saved !== null) {
+		applyLayout(saved);
 	}
 	$all<HTMLButtonElement>('[data-kk-layout]').forEach((button) => {
 		button.addEventListener('click', () => {
@@ -555,6 +578,9 @@ function initLayoutSwitcher(): void {
 				return;
 			}
 			window.localStorage.setItem(LAYOUT_KEY, layout);
+			/* A real cookie so the server can render the saved
+			 * layout on the next page load (first paint, no flash). */
+			document.cookie = `kk_layout=${layout}; path=/; max-age=31536000; SameSite=Lax`;
 			applyLayout(layout);
 		});
 	});

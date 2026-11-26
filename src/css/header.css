@@ -369,10 +369,14 @@ html.kk-nav-open body {
 	transform: translateY(-50%);
 	width: 0;
 	min-width: 0;
-	padding: 10px 0;
+	/* Slim field: the base .search-field is 44px tall, too tall for
+	 * the sticky bar — 7px padding + text + border is ~36px. No
+	 * outer shadow: the focus state uses an inner shadow instead. */
+	min-height: 0;
+	padding: 7px 0;
 	border: 1px solid var(--kk-border);
 	border-radius: var(--kk-radius);
-	box-shadow: 0 8px 24px rgb(0 0 0 / 0.12);
+	box-shadow: none;
 	opacity: 0;
 	visibility: hidden;
 	pointer-events: none;
@@ -380,12 +384,28 @@ html.kk-nav-open body {
 }
 
 .kk-search-expand.is-open .kk-search-expand-input {
-	width: min(300px, 55vw);
-	padding: 10px 12px;
+	width: min(240px, 55vw);
+	padding: 7px 12px;
 	opacity: 1;
 	visibility: visible;
 	pointer-events: auto;
 	transition: width 0.28s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.2s ease, padding 0.28s ease, visibility 0s;
+}
+
+/* Focus: no outline, inner shadow (inset) — never an outer glow. */
+.kk-search-expand .kk-search-expand-input:focus {
+	outline: none;
+	border-color: var(--kk-green);
+	box-shadow: inset 0 1px 3px rgb(0 0 0 / 0.12);
+}
+
+@media (max-width: 767px) {
+	/* Mobile: the field stretches full-width up to near the
+	 * hamburger (sidebar) button — it spans the bar from the
+	 * toggle leftwards to just short of the hamburger. */
+	.kk-search-expand.is-open .kk-search-expand-input {
+		width: calc(100vw - 130px);
+	}
 }
 
 /* The toggle swaps its icon: search when closed, close when open. */

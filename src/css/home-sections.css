@@ -23,9 +23,12 @@
 	display: grid;
 	/* One column of rows: the category-block responsive rule makes
 	 * the grid multi-column at tablet width, so this pins the list
-	 * back to a single vertical stack. */
+	 * back to a single vertical stack. The rows carry their own
+	 * vertical padding, so the container gap is 0 — one single
+	 * 16px rhythm (row padding + internal gap) instead of two
+	 * competing values (container gap + row padding). */
 	grid-template-columns: 1fr;
-	gap: 12px;
+	gap: 0;
 }
 
 .kk-home .kk-latest-items.kk-layout-list .kk-card,
@@ -39,7 +42,12 @@
 	border-bottom: 1px solid var(--kk-border);
 	border-radius: 0;
 	box-shadow: none;
-	padding: 0 0 12px;
+	padding: 16px 0;
+}
+
+.kk-latest-items.kk-layout-list .kk-card:first-child,
+.kk-category-block-items.kk-layout-list .kk-card:first-child {
+	padding-top: 0;
 }
 
 .kk-latest-items.kk-layout-list .kk-card:last-child,

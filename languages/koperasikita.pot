@@ -192,6 +192,22 @@ msgid "Invert Logo in Dark Mode"
 msgstr ""
 
 #: inc/Customizer/Customizer.php
+msgid "Excerpt Length (words)"
+msgstr ""
+
+#: inc/Customizer/Customizer.php
+msgid "How many words the excerpt shows before it is cut short. Applies to card and hero excerpts."
+msgstr ""
+
+#: inc/Customizer/Customizer.php
+msgid "Excerpt Ending"
+msgstr ""
+
+#: inc/Customizer/Customizer.php
+msgid "The text shown when an excerpt is cut short. Leave the default three dots, or type your own ending."
+msgstr ""
+
+#: inc/Customizer/Customizer.php
 msgid "Footer Copyright Text"
 msgstr ""
 

@@ -358,6 +358,37 @@ final class Customizer
             'type' => 'checkbox',
         ]);
 
+        /* Excerpt: how long the card/hero excerpt runs, and the
+         * ending shown when it is cut short (default the 3 dots). */
+        self::addSetting(
+            $wpCustomize,
+            'kk_excerpt_length',
+            55,
+            [self::class, 'sanitizeExcerptLength'],
+            'refresh'
+        );
+        $wpCustomize->add_control('kk_excerpt_length', [
+            'label' => esc_html__('Excerpt Length (words)', 'koperasikita'),
+            'description' => esc_html__('How many words the excerpt shows before it is cut short. Applies to card and hero excerpts.', 'koperasikita'),
+            'section' => 'koperasikita_accessibility',
+            'type' => 'number',
+            'input_attrs' => ['min' => 10, 'max' => 200, 'step' => 1],
+        ]);
+
+        self::addSetting(
+            $wpCustomize,
+            'kk_excerpt_more',
+            '...',
+            'sanitize_text_field',
+            'refresh'
+        );
+        $wpCustomize->add_control('kk_excerpt_more', [
+            'label' => esc_html__('Excerpt Ending', 'koperasikita'),
+            'description' => esc_html__('The text shown when an excerpt is cut short. Leave the default three dots, or type your own ending.', 'koperasikita'),
+            'section' => 'koperasikita_accessibility',
+            'type' => 'text',
+        ]);
+
         self::addSetting(
             $wpCustomize,
             'kk_footer_text',
@@ -1040,6 +1071,18 @@ final class Customizer
         return str_replace('class="custom-logo"', 'class="custom-logo is-inverted"', $html);
     }
 
+    public static function filterExcerptLength(int $length): int
+    {
+        return (int) get_theme_mod('kk_excerpt_length', 55);
+    }
+
+    public static function filterExcerptMore(string $more): string
+    {
+        $ending = (string) get_theme_mod('kk_excerpt_more', '...');
+
+        return $ending !== '' ? $ending : '...';
+    }
+
     private static function addSetting(
         WP_Customize_Manager $wpCustomize,
         string $id,
@@ -1184,6 +1227,13 @@ final class Customizer
         $zones = timezone_identifiers_list();
 
         return array_combine($zones, $zones);
+    }
+
+    public static function sanitizeExcerptLength(mixed $value): int
+    {
+        $length = (int) $value;
+
+        return max(10, min(200, $length));
     }
 
     public static function sanitizeLayout(mixed $value): string
