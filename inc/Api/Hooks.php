@@ -49,6 +49,19 @@ final class Hooks
     public const MARKETS_SYMBOLS = 'koperasikita/markets/symbols';
 
     /**
+     * Stock symbols the Yahoo provider supplies live, slug => label.
+     *
+     * Filter: `koperasikita/markets/yahoo_stock_symbols`
+     * Receives: the default set (the 2 indices + the 12 heaviest LQ45
+     * constituents), plus the market slug as the second argument.
+     * Returns: the same shape; slugs that are not in the stock
+     * catalogue are dropped, so a site can widen the live set up to
+     * the full LQ45 catalogue — or narrow it — without editing the
+     * theme. A widened set fetches more symbols per refresh.
+     */
+    public const MARKETS_YAHOO_STOCK_SYMBOLS = 'koperasikita/markets/yahoo_stock_symbols';
+
+    /**
      * Weather providers, keyed by provider id.
      *
      * Filter: `koperasikita/weather/providers`
