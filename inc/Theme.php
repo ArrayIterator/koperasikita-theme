@@ -50,6 +50,7 @@ final class Theme
         add_action('widgets_init', [Widgets::class, 'register']);
 
         add_action('customize_register', [Customizer::class, 'register']);
+        add_action('customize_register', [Customizer::class, 'registerLogoControls'], 20);
 
         add_action('wp_enqueue_scripts', [Enqueue::class, 'register']);
         add_action('admin_enqueue_scripts', [Enqueue::class, 'registerAdmin']);

@@ -2773,3 +2773,19 @@ msgstr "Ketik untuk memfilter ikon…"
 #: inc/Setup/MenuIcons.php
 msgid "No icons match your search."
 msgstr "Tidak ada ikon yang cocok dengan pencarian Anda."
+
+#: inc/Customizer/Customizer.php
+msgid "Logo"
+msgstr "Logo"
+
+#: inc/Customizer/Customizer.php
+msgid "Mobile Logo"
+msgstr "Logo Seluler"
+
+#: inc/Customizer/Customizer.php
+msgid "Mobile Logo Dark"
+msgstr "Logo Seluler Gelap"
+
+#: inc/Customizer/Customizer.php
+msgid "Dark Logo"
+msgstr "Logo Gelap"

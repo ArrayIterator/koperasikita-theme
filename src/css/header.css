@@ -110,6 +110,40 @@ html[data-color-scheme="system"] .kk-icon-sun {
 	max-height: 64px;
 }
 
+/* Logo variants: one link holds a desktop pair and a mobile pair of
+ * logos (light + dark each). The dark logo is hidden until dark mode
+ * and only when a dark logo is set (the --has-dark guard on the
+ * wrapper); the mobile pair only shows on small screens. */
+.kk-brand .custom-logo-link {
+	display: inline-flex;
+	align-items: center;
+	min-width: 0;
+}
+
+.kk-brand-logos {
+	display: inline-flex;
+	align-items: center;
+	min-width: 0;
+}
+
+.kk-brand-logos--mobile {
+	display: none;
+}
+
+.kk-logo--dark {
+	display: none;
+}
+
+@media (max-width: 1023px) {
+	.kk-brand-logos--desktop {
+		display: none;
+	}
+
+	.kk-brand-logos--mobile {
+		display: inline-flex;
+	}
+}
+
 .kk-brand-mark {
 	display: inline-flex;
 	align-items: center;
@@ -319,7 +353,7 @@ html.kk-nav-open body {
 	overflow: hidden;
 }
 
-/* Drawer header: logo + Menu label + close button. */
+/* Drawer header: logo + close button. */
 .kk-drawer-head {
 	display: flex;
 	align-items: center;
@@ -332,15 +366,20 @@ html.kk-nav-open body {
 .kk-drawer-brand {
 	display: inline-flex;
 	align-items: center;
-	gap: 10px;
-	font-weight: 700;
-	font-size: 17px;
+	min-width: 0;
+}
+
+.kk-drawer-brand-logos {
+	display: inline-flex;
+	align-items: center;
+	min-width: 0;
 }
 
 .kk-drawer-brand-logo {
-	display: block;
-	width: 32px;
-	height: 32px;
+	width: auto;
+	height: auto;
+	max-width: 180px;
+	max-height: 32px;
 }
 
 /* Drill-down back bar: shown when a sub-menu is open. */

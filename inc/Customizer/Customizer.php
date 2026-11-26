@@ -64,6 +64,7 @@ final class Customizer
 
         $sections = [
             'koperasikita_colors' => esc_html__('Color Palette', 'koperasikita'),
+            'koperasikita_logo' => esc_html__('Logo', 'koperasikita'),
             'koperasikita_typography' => esc_html__('Typography', 'koperasikita'),
             'koperasikita_header' => esc_html__('Header & Breaking News', 'koperasikita'),
             'koperasikita_homepage' => esc_html__('Homepage Layout', 'koperasikita'),
@@ -1942,6 +1943,52 @@ final class Customizer
         }
 
         wp_add_inline_style('kk-app', $css);
+    }
+
+    /**
+     * The Logo section (Customizer -> Logo). Runs on customize_register
+     * at priority 20, after WordPress core registers the native
+     * custom_logo control (priority 10), so the control can be moved
+     * into this section.
+     *
+     * Order in the section: Mobile Logo, Mobile Logo Dark, Logo
+     * (the native custom_logo), Dark Logo. Each variant is an image
+     * media control storing an attachment ID; an unset variant falls
+     * back to its counterpart (see Features\Logo).
+     */
+    public static function registerLogoControls(WP_Customize_Manager $wpCustomize): void
+    {
+        $controls = [
+            'kk_logo_mobile' => [
+                'label' => esc_html__('Mobile Logo', 'koperasikita'),
+                'priority' => 10,
+            ],
+            'kk_logo_mobile_dark' => [
+                'label' => esc_html__('Mobile Logo Dark', 'koperasikita'),
+                'priority' => 20,
+            ],
+            'kk_logo_dark' => [
+                'label' => esc_html__('Dark Logo', 'koperasikita'),
+                'priority' => 40,
+            ],
+        ];
+
+        foreach ($controls as $id => $args) {
+            self::addSetting($wpCustomize, $id, 0, 'absint');
+            $wpCustomize->add_control(new WP_Customize_Media_Control($wpCustomize, $id, [
+                'label' => $args['label'],
+                'section' => 'koperasikita_logo',
+                'mime_type' => 'image',
+                'priority' => $args['priority'],
+            ]));
+        }
+
+        $logoControl = $wpCustomize->get_control('custom_logo');
+
+        if ($logoControl) {
+            $logoControl->section = 'koperasikita_logo';
+            $logoControl->priority = 30;
+        }
     }
 
     /**

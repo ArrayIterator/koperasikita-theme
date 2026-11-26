@@ -60,8 +60,8 @@ if ( \KoperasiKita\Features\Pwa::isButtonPosition( 'above-header' ) ) {
 				// as one image), so it stands alone: the text title and
 				// tagline would duplicate the wordmark baked into the
 				// image. They render only with the built-in K mark.
-				if ( has_custom_logo() ) {
-					the_custom_logo();
+				if ( \KoperasiKita\Features\Logo::hasLogo() ) {
+					echo \KoperasiKita\Features\Logo::brand(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 				} else {
 					?>
 					<a class="kk-brand-mark kk-brand-mark--logo" href="<?php echo esc_url( home_url( '/' ) ); ?>" rel="home" aria-label="<?php echo esc_attr( get_bloginfo( 'name' ) ); ?>">

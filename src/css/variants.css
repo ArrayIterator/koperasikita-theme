@@ -80,6 +80,17 @@ html[data-color-scheme="dark"] .custom-logo.is-inverted {
 	filter: invert(1);
 }
 
+/* Dark logo: when a device pair has a dark logo (the --has-dark guard
+ * on the wrapper), dark mode hides the light logo and shows the dark
+ * one — masthead and drawer alike. */
+html[data-color-scheme="dark"] .kk-logos--has-dark .kk-logo--light {
+	display: none;
+}
+
+html[data-color-scheme="dark"] .kk-logo--dark {
+	display: block;
+}
+
 @media (prefers-color-scheme: dark) {
 	html[data-color-scheme="system"] {
 		--kk-ink: #f2f2f0;
@@ -122,6 +133,14 @@ html[data-color-scheme="dark"] .custom-logo.is-inverted {
 	html[data-color-scheme="system"] .kk-brand-mark.is-inverted,
 	html[data-color-scheme="system"] .custom-logo.is-inverted {
 		filter: invert(1);
+	}
+
+	html[data-color-scheme="system"] .kk-logos--has-dark .kk-logo--light {
+		display: none;
+	}
+
+	html[data-color-scheme="system"] .kk-logo--dark {
+		display: block;
 	}
 }
 
