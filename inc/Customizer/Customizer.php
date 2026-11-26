@@ -6,6 +6,7 @@ namespace KoperasiKita\Customizer;
 
 use KoperasiKita\Features\Fonts;
 use KoperasiKita\Features\Footer;
+use KoperasiKita\Features\Markets;
 use KoperasiKita\Features\Performance;
 use KoperasiKita\Features\StyleVariant;
 use WP_Customize_Color_Control;
@@ -900,6 +901,29 @@ final class Customizer
             'section' => 'koperasikita_homepage',
             'type' => 'checkbox',
             'description' => esc_html__('Gold spot, stocks and crypto prices above the latest news. Prices are edited in Settings -> Markets.', 'koperasikita'),
+        ]);
+
+        // Gold price provider: where the gold widget and the market
+        // strip get their gold prices. Manual is the default, so a
+        // fresh install keeps the honest empty state until the admin
+        // picks a live provider. Only providers that support gold
+        // are listed. The choice overrides the stored
+        // kk_markets_settings option for gold (see
+        // Markets::providerFor()).
+        self::addSetting(
+            $wpCustomize,
+            'kk_gold_provider',
+            'manual',
+            [self::class, 'sanitizeGoldProvider'],
+            'refresh'
+        );
+        $wpCustomize->add_control('kk_gold_provider', [
+            'label' => esc_html__('Gold Price Provider', 'koperasikita'),
+            'section' => 'koperasikita_homepage',
+            'type' => 'select',
+            'choices' => self::goldProviderChoices(),
+            'description' => esc_html__('Source for gold prices in the widget and market strip. Logam Mulia API is live and free, no key needed.', 'koperasikita'),
+            'active_callback' => [self::class, 'isMarketsEnabled'],
         ]);
 
         self::addSetting(
@@ -2287,6 +2311,11 @@ final class Customizer
         return (bool) get_theme_mod('kk_weather_enabled', true);
     }
 
+    public static function isMarketsEnabled(): bool
+    {
+        return (bool) get_theme_mod('kk_markets_enabled', true);
+    }
+
     /* The slider settings only show while the Hero Presentation is
      * a slider mode (Slider One / Slider Full / Slider Center /
      * Slider + Widget). */
@@ -2693,6 +2722,41 @@ final class Customizer
     public static function sanitizeBool(mixed $value): bool
     {
         return $value === true || $value === 1 || $value === '1' || $value === 'on';
+    }
+
+    /**
+     * Choices for the Gold Price Provider select: every registered
+     * provider that supports gold, id => label. Manual is always
+     * first (it is the default and the fallback).
+     *
+     * @return array<string, string>
+     */
+    private static function goldProviderChoices(): array
+    {
+        $choices = [];
+
+        foreach (Markets::providers() as $id => $provider) {
+            if ($provider->supports('gold')) {
+                $choices[$id] = $provider->label();
+            }
+        }
+
+        if (!isset($choices['manual'])) {
+            $choices = ['manual' => __('Manual', 'koperasikita')] + $choices;
+        }
+
+        return $choices;
+    }
+
+    /**
+     * The gold provider must be a registered provider that supports
+     * gold; anything else falls back to Manual.
+     */
+    public static function sanitizeGoldProvider(mixed $value): string
+    {
+        $value = is_string($value) ? $value : '';
+
+        return isset(self::goldProviderChoices()[$value]) ? $value : 'manual';
     }
 
     public static function clampInt(mixed $value, int $min, int $max): int

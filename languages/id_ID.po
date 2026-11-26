@@ -3057,3 +3057,12 @@ msgstr "Kolom Footer 3"
 
 msgid "Footer, third column (Stay Informed). When empty, shows the newsletter subscribe form."
 msgstr "Footer, kolom ketiga (Tetap Terinformasi). Saat kosong, menampilkan formulir berlangganan newsletter."
+
+msgid "Gold Price Provider"
+msgstr "Penyedia Harga Emas"
+
+msgid "Source for gold prices in the widget and market strip. Logam Mulia API is live and free, no key needed."
+msgstr "Sumber harga emas di widget dan strip pasar. Logam Mulia API live dan gratis, tanpa kunci."
+
+msgid "Manual"
+msgstr "Manual"

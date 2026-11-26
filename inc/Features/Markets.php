@@ -11,6 +11,7 @@ use KoperasiKita\Api\Hooks;
 use KoperasiKita\Providers\AbstractLiveProvider;
 use KoperasiKita\Providers\CoinGeckoProvider;
 use KoperasiKita\Providers\IndodaxProvider;
+use KoperasiKita\Providers\LogamMuliaApiProvider;
 use KoperasiKita\Providers\ManualSnapshotProvider;
 use KoperasiKita\Providers\MarketPrice;
 use KoperasiKita\Providers\MarketPriceProvider;
@@ -235,6 +236,20 @@ final class Markets
         $providers = self::providers();
         $chosen = self::settings()['providers'][$market] ?? 'manual';
 
+        // The Customizer gold provider select (kk_gold_provider)
+        // overrides the stored option for gold: the Settings ->
+        // Markets screen is gone, so the Customizer is where the
+        // admin picks the gold provider. An unset theme mod means
+        // "not picked in the Customizer" and the stored option
+        // wins; default Manual keeps the live behaviour (honest
+        // empty state) until a live provider is picked.
+        if ($market === 'gold') {
+            $customizer = get_theme_mod('kk_gold_provider', '');
+            if (is_string($customizer) && $customizer !== '') {
+                $chosen = $customizer;
+            }
+        }
+
         if (isset($providers[$chosen]) && $providers[$chosen]->supports($market)) {
             return $providers[$chosen];
         }
@@ -342,6 +357,7 @@ final class Markets
         add_filter(Hooks::MARKETS_PROVIDERS, static function (array $providers): array {
             $providers['xaus'] = new XausProvider();
             $providers['scraped-gold'] = new ScrapedGoldProvider();
+            $providers['logam-mulia-api'] = new LogamMuliaApiProvider();
             $providers['coingecko'] = new CoinGeckoProvider();
             $providers['indodax'] = new IndodaxProvider();
             $providers['yahoo'] = new YahooStockProvider();
