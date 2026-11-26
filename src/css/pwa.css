@@ -139,18 +139,41 @@ html.kk-nav-open .kk-pwa-float {
 .kk-pwa-float--float-bottom {
 	/* Full width like the top banner: the top PWA banner's background
 	 * spans the whole viewport (its content sits in .kk-shell), so
-	 * the bottom bar does the same — edge to edge, content centred.
-	 * The old shell max-width left white gaps at the sides and never
-	 * matched the top. */
+	 * the bottom bar does the same — edge to edge, content spread
+	 * across the shell (text left, buttons right) instead of bunched
+	 * in the centre. The old shell max-width left white gaps at the
+	 * sides and never matched the top. The aside carries no padding
+	 * of its own here: the inner shell provides the vertical spacing
+	 * and the 16px side padding, exactly like the top banner. */
 	left: 0;
 	right: 0;
 	width: 100%;
 	max-width: none;
 	bottom: 64px;
+	padding: 0;
 	border-radius: 0;
 	border-left: 0;
 	border-right: 0;
 	justify-content: center;
+}
+
+/* Inner row of the full-width bottom bar: same shape as the top
+ * banner's inner — content on the left, actions on the right,
+ * spread across the shell. */
+.kk-pwa-float-inner {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 16px;
+	padding-top: 8px;
+	padding-bottom: 8px;
+}
+
+.kk-pwa-float-actions {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	flex: 0 0 auto;
 }
 
 .kk-pwa-float-content {

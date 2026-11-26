@@ -55,17 +55,29 @@ $sw_url = \KoperasiKita\Features\Pwa::serviceWorkerUrl();
 <?php else : ?>
 	<aside class="kk-pwa-float kk-pwa-float--<?php echo esc_attr( $style ); ?>" data-kk-pwa-button data-kk-pwa-button-style="<?php echo esc_attr( $style ); ?>"<?php echo $hidden_attr; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
 		<?php if ( 'float-bottom' === $style ) : ?>
-			<div class="kk-pwa-float-content">
-				<img class="kk-pwa-float-icon" src="<?php echo esc_url( get_template_directory_uri() . '/assets/img/logo-k.svg' ); ?>" alt="" width="24" height="24" loading="lazy" decoding="async">
-				<span class="kk-pwa-float-desc"><?php echo esc_html( $button_desc ); ?></span>
+			<div class="kk-shell kk-pwa-float-inner">
+				<div class="kk-pwa-float-content">
+					<img class="kk-pwa-float-icon" src="<?php echo esc_url( get_template_directory_uri() . '/assets/img/logo-k.svg' ); ?>" alt="" width="24" height="24" loading="lazy" decoding="async">
+					<span class="kk-pwa-float-desc"><?php echo esc_html( $button_desc ); ?></span>
+				</div>
+				<div class="kk-pwa-float-actions">
+					<button type="button" class="kk-button kk-pwa-install" id="kk-pwa-install" data-kk-sw-url="<?php echo esc_url( $sw_url ); ?>" aria-label="<?php echo esc_attr( $button_text ); ?>">
+						<?php echo \KoperasiKita\Icons\Icon::svg( 'download', 16 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+						<span><?php echo esc_html( $button_text ); ?></span>
+					</button>
+					<button type="button" class="kk-icon-button kk-pwa-dismiss" data-kk-pwa-dismiss aria-label="<?php esc_attr_e( 'Close', 'koperasikita' ); ?>">
+						<?php echo \KoperasiKita\Icons\Icon::svg( 'close', 18 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+					</button>
+				</div>
 			</div>
+		<?php else : ?>
+			<button type="button" class="kk-button kk-pwa-install" id="kk-pwa-install" data-kk-sw-url="<?php echo esc_url( $sw_url ); ?>" aria-label="<?php echo esc_attr( $button_text ); ?>">
+				<?php echo \KoperasiKita\Icons\Icon::svg( 'download', 16 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+				<span><?php echo esc_html( $button_text ); ?></span>
+			</button>
+			<button type="button" class="kk-icon-button kk-pwa-dismiss" data-kk-pwa-dismiss aria-label="<?php esc_attr_e( 'Close', 'koperasikita' ); ?>">
+				<?php echo \KoperasiKita\Icons\Icon::svg( 'close', 18 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+			</button>
 		<?php endif; ?>
-		<button type="button" class="kk-button kk-pwa-install" id="kk-pwa-install" data-kk-sw-url="<?php echo esc_url( $sw_url ); ?>" aria-label="<?php echo esc_attr( $button_text ); ?>">
-			<?php echo \KoperasiKita\Icons\Icon::svg( 'download', 16 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
-			<span><?php echo esc_html( $button_text ); ?></span>
-		</button>
-		<button type="button" class="kk-icon-button kk-pwa-dismiss" data-kk-pwa-dismiss aria-label="<?php esc_attr_e( 'Close', 'koperasikita' ); ?>">
-			<?php echo \KoperasiKita\Icons\Icon::svg( 'close', 18 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
-		</button>
 	</aside>
 <?php endif; ?>
