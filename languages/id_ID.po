@@ -3744,3 +3744,54 @@ msgstr "ditambahkan."
 
 msgid "Search for a city to add it. The first location is the default; the rest appear as quick picks in the location picker."
 msgstr "Cari kota untuk menambahkannya. Lokasi pertama adalah bawaan; sisanya tampil sebagai pilihan cepat di pemilih lokasi."
+
+msgid "Automatic sync"
+msgstr "Sinkronisasi otomatis"
+
+msgid "Automatic sync settings saved."
+msgstr "Pengaturan sinkronisasi otomatis disimpan."
+
+msgid "Enable automatic sync"
+msgstr "Aktifkan sinkronisasi otomatis"
+
+msgid "Sync automatically on schedule (WP-Cron)."
+msgstr "Sinkronisasi otomatis sesuai jadwal (WP-Cron)."
+
+msgid "Automatic sync is off. Only manual sync runs."
+msgstr "Sinkronisasi otomatis mati. Hanya sinkronisasi manual yang berjalan."
+
+msgid "Next automatic sync: %s."
+msgstr "Sinkronisasi otomatis berikutnya: %s."
+
+msgid "No automatic sync is scheduled yet — it will be scheduled on the next page load."
+msgstr "Belum ada sinkronisasi otomatis yang dijadwalkan — akan dijadwalkan saat halaman dimuat berikutnya."
+
+msgid "How often"
+msgstr "Seberapa sering"
+
+msgid "Days per run"
+msgstr "Hari per jalan"
+
+msgid "How many recent days of price history each run imports (1–30). A fresh site gets a week of chart history on its first sync."
+msgstr "Berapa hari terakhir riwayat harga yang diimpor tiap jalan (1–30). Situs baru langsung dapat seminggu riwayat grafik pada sinkronisasi pertamanya."
+
+msgid "Fetch timeout (seconds)"
+msgstr "Batas waktu ambil (detik)"
+
+msgid "How long to wait for each price file before giving up (5–60 seconds). A failed fetch is recorded in the backlog, never retried in a tight loop."
+msgstr "Berapa lama menunggu tiap berkas harga sebelum menyerah (5–60 detik). Gagal ambil dicatat di antrean, tidak pernah diulang dalam putaran rapat."
+
+msgid "Save sync settings"
+msgstr "Simpan pengaturan sinkronisasi"
+
+msgid "Every hour"
+msgstr "Setiap jam"
+
+msgid "Once a day"
+msgstr "Sehari sekali"
+
+msgid "Every %d hours"
+msgstr "Setiap %d jam"
+
+msgid "Daily gold prices from the Logam Mulia API price history (backup/prices CSV on GitHub). The sync runs automatically via WP-Cron on the schedule below and only inserts rows that are not in the database yet — one row per brand per day. Use the button below to sync on demand."
+msgstr "Harga emas harian dari riwayat harga Logam Mulia API (CSV backup/prices di GitHub). Sinkronisasi berjalan otomatis lewat WP-Cron sesuai jadwal di bawah dan hanya menyisipkan baris yang belum ada di database — satu baris per brand per hari. Gunakan tombol di bawah untuk sinkronisasi manual."

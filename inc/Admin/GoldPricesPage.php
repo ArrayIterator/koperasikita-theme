@@ -64,6 +64,7 @@ final class GoldPricesPage
 
         self::handleBrandsSave();
         self::handleProviderSave();
+        self::handleSyncSettingsSave();
 
         // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- tab is display-only.
         $tab = isset($_GET['tab']) ? sanitize_key((string) wp_unslash($_GET['tab'])) : 'prices';
@@ -150,6 +151,41 @@ final class GoldPricesPage
     }
 
     /**
+     * Save the automatic sync settings form (Prices tab): nonce +
+     * capability checked, then redirect back with a saved flag so
+     * a refresh never resubmits the form. Saving reschedules the
+     * WP-Cron event to match (see LogamMuliaApiProvider).
+     */
+    private static function handleSyncSettingsSave(): void
+    {
+        if (!isset($_POST['kk_gold_sync_settings_nonce'])) {
+            return;
+        }
+
+        if (!current_user_can('manage_options')) {
+            wp_die(esc_html__('You do not have permission to access this page.', 'koperasikita'));
+        }
+
+        check_admin_referer('kk_gold_sync_settings', 'kk_gold_sync_settings_nonce');
+
+        // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- sanitised below.
+        $raw = wp_unslash($_POST);
+
+        LogamMuliaApiProvider::saveSyncSettings([
+            'enabled' => isset($raw['kk_sync_enabled']),
+            'interval_hours' => isset($raw['kk_sync_interval']) ? (int) $raw['kk_sync_interval'] : 24,
+            'batch_days' => isset($raw['kk_sync_batch']) ? (int) $raw['kk_sync_batch'] : 7,
+            'timeout' => isset($raw['kk_sync_timeout']) ? (int) $raw['kk_sync_timeout'] : 8,
+        ]);
+
+        wp_safe_redirect(add_query_arg(
+            ['tab' => 'prices', 'sync_settings_saved' => '1'],
+            admin_url('admin.php?page=' . self::PAGE_SLUG)
+        ));
+        exit;
+    }
+
+    /**
      * Brands tab: the master switch for which gold brands the site
      * shows. A disabled brand is hidden from the Gold widget and
      * from the widget's "Brands to show" picker. Unchecking every
@@ -200,7 +236,7 @@ final class GoldPricesPage
         $status = LogamMuliaApiProvider::status();
         $active = Markets::providerFor('gold');
         ?>
-        <p><?php esc_html_e('Daily gold prices from the Logam Mulia API price history (backup/prices CSV on GitHub). The sync runs once a day via WP-Cron and only inserts rows that are not in the database yet — one row per brand per day. Use the button below to sync on demand.', 'koperasikita'); ?></p>
+        <p><?php esc_html_e('Daily gold prices from the Logam Mulia API price history (backup/prices CSV on GitHub). The sync runs automatically via WP-Cron on the schedule below and only inserts rows that are not in the database yet — one row per brand per day. Use the button below to sync on demand.', 'koperasikita'); ?></p>
 
         <h2><?php esc_html_e('Sync status', 'koperasikita'); ?></h2>
         <?php self::renderStatus($status); ?>
@@ -242,6 +278,75 @@ final class GoldPricesPage
                 );
                 ?>
             </p>
+        </form>
+
+        <h2><?php esc_html_e('Automatic sync', 'koperasikita'); ?></h2>
+        <?php
+        // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- saved flag is display-only.
+        $syncSettingsSaved = isset($_GET['sync_settings_saved']) && $_GET['sync_settings_saved'] === '1';
+        $sync = LogamMuliaApiProvider::syncSettings();
+        $nextRun = wp_next_scheduled(LogamMuliaApiProvider::CRON_HOOK);
+        if ($syncSettingsSaved) :
+            ?>
+            <div class="notice notice-success inline"><p><?php esc_html_e('Automatic sync settings saved.', 'koperasikita'); ?></p></div>
+        <?php endif; ?>
+        <form method="post" action="<?php echo esc_url(admin_url('admin.php?page=' . self::PAGE_SLUG . '&tab=prices')); ?>">
+            <?php wp_nonce_field('kk_gold_sync_settings', 'kk_gold_sync_settings_nonce'); ?>
+            <table class="form-table" role="presentation">
+                <tbody>
+                    <tr>
+                        <th scope="row"><?php esc_html_e('Enable automatic sync', 'koperasikita'); ?></th>
+                        <td>
+                            <label>
+                                <input type="checkbox" name="kk_sync_enabled" value="1" <?php checked($sync['enabled']); ?>>
+                                <?php esc_html_e('Sync automatically on schedule (WP-Cron).', 'koperasikita'); ?>
+                            </label>
+                            <p class="description">
+                                <?php
+                                if (!$sync['enabled']) {
+                                    esc_html_e('Automatic sync is off. Only manual sync runs.', 'koperasikita');
+                                } elseif ($nextRun !== false) {
+                                    printf(
+                                        /* translators: %s: next scheduled run date/time. */
+                                        esc_html__('Next automatic sync: %s.', 'koperasikita'),
+                                        esc_html(date_i18n(get_option('date_format', 'Y-m-d') . ' ' . get_option('time_format', 'H:i'), (int) $nextRun))
+                                    );
+                                } else {
+                                    esc_html_e('No automatic sync is scheduled yet — it will be scheduled on the next page load.', 'koperasikita');
+                                }
+                                ?>
+                            </p>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th scope="row"><label for="kk-sync-interval"><?php esc_html_e('How often', 'koperasikita'); ?></label></th>
+                        <td>
+                            <select id="kk-sync-interval" name="kk_sync_interval">
+                                <?php foreach (LogamMuliaApiProvider::intervalChoices() as $hours => $label) : ?>
+                                    <option value="<?php echo esc_attr((string) $hours); ?>" <?php selected($sync['interval_hours'], $hours); ?>>
+                                        <?php echo esc_html($label); ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th scope="row"><label for="kk-sync-batch"><?php esc_html_e('Days per run', 'koperasikita'); ?></label></th>
+                        <td>
+                            <input type="number" id="kk-sync-batch" name="kk_sync_batch" value="<?php echo esc_attr((string) $sync['batch_days']); ?>" min="1" max="30" step="1" class="small-text">
+                            <p class="description"><?php esc_html_e('How many recent days of price history each run imports (1–30). A fresh site gets a week of chart history on its first sync.', 'koperasikita'); ?></p>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th scope="row"><label for="kk-sync-timeout"><?php esc_html_e('Fetch timeout (seconds)', 'koperasikita'); ?></label></th>
+                        <td>
+                            <input type="number" id="kk-sync-timeout" name="kk_sync_timeout" value="<?php echo esc_attr((string) $sync['timeout']); ?>" min="5" max="60" step="1" class="small-text">
+                            <p class="description"><?php esc_html_e('How long to wait for each price file before giving up (5–60 seconds). A failed fetch is recorded in the backlog, never retried in a tight loop.', 'koperasikita'); ?></p>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <?php submit_button(__('Save sync settings', 'koperasikita'), 'secondary'); ?>
         </form>
         <?php
     }

@@ -23,8 +23,8 @@ use KoperasiKita\Features\Markets;
  *    until Galeri 24's ANTAM section reports a positive price.
  *  - pegadaian.csv: Pegadaian 0.01-gram price, scaled x100 to 1 gram.
  *
- * Each file is append-only history; only rows at the MAXIMUM
- * recordedDate count, with weight 1 (0.01 for Pegadaian), material
+ * Each file is append-only history; only rows at the most recent
+ * recordedDates count, with weight 1 (0.01 for Pegadaian), material
  * gold, and a positive sell price — zero prices are skipped.
  * Logam Mulia's CSV is stale (latest 2026-10-23, its Jina key is
  * dead), so it is not used. EmasKita is not in the upstream at
@@ -32,22 +32,25 @@ use KoperasiKita\Features\Markets;
  * is a spot price (they are retail brand prices); spot stays
  * with Xaus.
  *
- * SYNC MODEL (the upstream updates once a day, so the sync runs
- * once a day — never on the live 15-minute cadence):
+ * SYNC MODEL (the upstream updates once a day; the sync runs on a
+ * schedule the admin picks — see the sync settings on the Gold
+ * Prices page — never on the live 15-minute cadence):
  *  - The hot path (prices()) reads the 15-minute transient, then
  *    the custom table — it never fetches a CSV.
- *  - The sync runs once daily (WP-Cron) and on demand (admin
- *    page, AJAX), ONE SOURCE AT A TIME. Each step fetches one
- *    file, checks every row against the table by
- *    (provider, symbol, recordedDate), and inserts only the rows
- *    that are not there yet (INSERT IGNORE + the UNIQUE key, so a
- *    re-run can never duplicate). A coarse fast-path reads
- *    MAX(recordedDate) first and skips a file whose max date is
- *    strictly older than the table's; the per-row check is the
- *    guarantee and heals gaps (a missed day is picked up next run
- *    because that exact date is absent). Each step commits only
- *    its own source's rows, so a request that dies mid-way leaves
- *    no half-synced state.
+ *  - The sync runs on WP-Cron and on demand (admin page, AJAX),
+ *    ONE SOURCE AT A TIME. Each step fetches one file, checks
+ *    every row against the table by (provider, symbol,
+ *    recordedDate), and inserts only the rows that are not there
+ *    yet (INSERT IGNORE + the UNIQUE key, so a re-run can never
+ *    duplicate). Each run imports the most recent N days (the
+ *    batch size setting, default 7), oldest first, so a fresh site
+ *    gets a week of chart history on its first sync. A coarse
+ *    fast-path reads MAX(recordedDate) first and skips a file
+ *    whose max date is strictly older than the table's; the
+ *    per-row check is the guarantee and heals gaps (a missed day
+ *    is picked up next run because that exact date is absent).
+ *    Each step commits only its own source's rows, so a request
+ *    that dies mid-way leaves no half-synced state.
  *  - Every fetched price is stored in the kk_gold_prices custom
  *    table (GoldPricesTable), which is also the last-good fallback
  *    when the upstream is unreachable — so the widget keeps showing
@@ -69,6 +72,12 @@ final class LogamMuliaApiProvider extends AbstractLiveProvider
 
     /** Option holding the last sync status (per source + global). */
     public const STATUS_OPTION = 'kk_gold_logam_mulia_status';
+
+    /** Option holding the automatic sync settings (see syncSettings()). */
+    public const SYNC_SETTINGS_OPTION = 'kk_gold_logam_mulia_sync';
+
+    /** Hours between automatic sync runs the admin may pick. */
+    public const INTERVAL_HOURS = [1, 2, 3, 4, 6, 8, 12, 24];
 
     /** Provider id (also the value stored in the prices table). */
     public const PROVIDER_ID = 'logam-mulia-api';
@@ -185,8 +194,19 @@ final class LogamMuliaApiProvider extends AbstractLiveProvider
         $merged = [];
 
         foreach (self::SOURCES as $source) {
-            foreach ($this->fetchSource($source, $now) as $symbol => $entry) {
-                $merged[$symbol] = $entry;
+            $byDate = $this->fetchSource($source, $now, 1);
+
+            if ($byDate === []) {
+                continue;
+            }
+
+            // Latest date only, like before the batch change.
+            $latest = end($byDate);
+
+            if (is_array($latest)) {
+                foreach ($latest as $symbol => $entry) {
+                    $merged[$symbol] = $entry;
+                }
             }
         }
 
@@ -195,12 +215,12 @@ final class LogamMuliaApiProvider extends AbstractLiveProvider
 
     /**
      * Sync ONE source (one step). Fetches that source's CSV, keeps
-     * only its latest-date rows, and inserts only the rows whose
-     * (provider, symbol, recorded_date) is not in the table yet.
-     * Returns the step result (inserted vs skipped, latest date,
-     * error). A failed fetch inserts nothing and records the
-     * failure in the backlog (never a tight retry loop); a
-     * successful fetch clears the source's backlog entry.
+     * the most recent N dates (the batch size setting), and inserts
+     * only the rows whose (provider, symbol, recorded_date) is not
+     * in the table yet. Returns the step result (inserted vs
+     * skipped, latest date, error). A failed fetch inserts nothing
+     * and records the failure in the backlog (never a tight retry
+     * loop); a successful fetch clears the source's backlog entry.
      *
      * @return array{source: string, inserted: int, skipped: int, latest_date: string|null, error: string|null, deferred: bool}
      */
@@ -229,9 +249,11 @@ final class LogamMuliaApiProvider extends AbstractLiveProvider
             'deferred' => false,
         ];
 
-        $entries = $this->fetchSource($source, $now);
+        // One run imports the most recent N days (the batch size
+        // setting), oldest first, grouped by date.
+        $byDate = $this->fetchSource($source, $now, self::syncSettings()['batch_days']);
 
-        if ($entries === []) {
+        if ($byDate === []) {
             // Distinguish "fetch failed" from "file has no usable
             // rows": fetchSource returns [] for both, so re-check
             // the raw fetch to name the error honestly.
@@ -250,59 +272,64 @@ final class LogamMuliaApiProvider extends AbstractLiveProvider
         // consecutive count).
         $this->clearFailure($source);
 
-        // Coarse fast-path: the file's max date is the recorded
-        // date of its rows (they are all the latest date). When it
-        // is strictly older than the table's max, the file holds
-        // nothing new — skip it without touching the table. When it
-        // is equal or newer, the per-row check below decides (it
-        // also heals gaps at that date).
+        // Coarse fast-path: the file's max date is the newest date
+        // in the batch. When it is strictly older than the table's
+        // max, the file holds nothing new — skip it without touching
+        // the table. When it is equal or newer, the per-row check
+        // below decides (it also heals gaps at those dates).
         $fileMax = null;
-        foreach ($entries as $entry) {
-            $date = (string) ($entry['recorded_date'] ?? '');
+        $totalEntries = 0;
+
+        foreach ($byDate as $date => $entries) {
             if ($date !== '' && ($fileMax === null || $date > $fileMax)) {
                 $fileMax = $date;
             }
+
+            $totalEntries += count($entries);
         }
 
         $result['latest_date'] = $fileMax;
 
         $tableMax = GoldPricesTable::maxRecordedDate($this->id());
         if ($fileMax !== null && $tableMax !== null && $fileMax < $tableMax) {
-            $result['skipped'] = count($entries);
+            $result['skipped'] = $totalEntries;
             $this->recordStep($source, $result, $now);
 
             return $result;
         }
 
-        // Per-row check-then-insert: only rows whose exact
-        // (provider, symbol, recorded_date) is absent are inserted.
-        // INSERT IGNORE + the UNIQUE key make a re-run idempotent.
+        // Per-row check-then-insert, oldest date first: only rows
+        // whose exact (provider, symbol, recorded_date) is absent
+        // are inserted. INSERT IGNORE + the UNIQUE key make a
+        // re-run idempotent.
         $inserted = 0;
         $skipped = 0;
 
-        foreach ($entries as $symbol => $entry) {
-            $date = (string) ($entry['recorded_date'] ?? '');
-            if ($date === '') {
-                $skipped++;
-                continue;
-            }
+        foreach ($byDate as $entries) {
+            foreach ($entries as $symbol => $entry) {
+                $date = (string) ($entry['recorded_date'] ?? '');
+                if ($date === '') {
+                    $skipped++;
+                    continue;
+                }
 
-            $n = GoldPricesTable::insertIgnore(
-                $this->id(),
-                $symbol,
-                (float) $entry['price'],
-                isset($entry['buyback']) && is_numeric($entry['buyback'])
-                    ? (float) $entry['buyback']
-                    : null,
-                'IDR',
-                $date,
-                (int) ($entry['updated'] ?? $now)
-            );
+                $n = GoldPricesTable::insertIgnore(
+                    $this->id(),
+                    $symbol,
+                    (float) $entry['price'],
+                    isset($entry['buyback']) && is_numeric($entry['buyback'])
+                        ? (float) $entry['buyback']
+                        : null,
+                    'IDR',
+                    $date,
+                    (int) ($entry['updated'] ?? $now)
+                );
 
-            if ($n > 0) {
-                $inserted++;
-            } else {
-                $skipped++;
+                if ($n > 0) {
+                    $inserted++;
+                } else {
+                    $skipped++;
+                }
             }
         }
 
@@ -561,17 +588,152 @@ final class LogamMuliaApiProvider extends AbstractLiveProvider
     }
 
     /**
-     * Register the daily cron + the manual sync AJAX endpoint.
+     * The automatic sync settings, sanitized with the defaults
+     * applied. Never saved = the defaults: auto-sync on, once a
+     * day, 7 days per run, 8-second fetch timeout.
+     *
+     * @return array{enabled: bool, interval_hours: int, batch_days: int, timeout: int}
+     */
+    public static function syncSettings(): array
+    {
+        $stored = get_option(self::SYNC_SETTINGS_OPTION, []);
+        $stored = is_array($stored) ? $stored : [];
+
+        $interval = isset($stored['interval_hours']) ? (int) $stored['interval_hours'] : 24;
+        $batch = isset($stored['batch_days']) ? (int) $stored['batch_days'] : 7;
+        $timeout = isset($stored['timeout']) ? (int) $stored['timeout'] : 8;
+
+        return [
+            'enabled' => !isset($stored['enabled']) || (bool) $stored['enabled'],
+            'interval_hours' => in_array($interval, self::INTERVAL_HOURS, true) ? $interval : 24,
+            'batch_days' => max(1, min(30, $batch)),
+            'timeout' => max(5, min(60, $timeout)),
+        ];
+    }
+
+    /**
+     * Interval choices for the settings form: hours => label.
+     *
+     * @return array<int, string>
+     */
+    public static function intervalChoices(): array
+    {
+        $choices = [];
+
+        foreach (self::INTERVAL_HOURS as $hours) {
+            $choices[$hours] = $hours === 1
+                ? __('Every hour', 'koperasikita')
+                : ($hours === 24
+                    ? __('Once a day', 'koperasikita')
+                    /* translators: %d: hours between sync runs. */
+                    : sprintf(__('Every %d hours', 'koperasikita'), $hours));
+        }
+
+        return $choices;
+    }
+
+    /**
+     * Save the automatic sync settings (from the Gold Prices page),
+     * then reschedule the cron to match. Returns the saved settings.
+     *
+     * @param array<string, mixed> $data
+     * @return array{enabled: bool, interval_hours: int, batch_days: int, timeout: int}
+     */
+    public static function saveSyncSettings(array $data): array
+    {
+        $settings = [
+            'enabled' => !empty($data['enabled']),
+            'interval_hours' => isset($data['interval_hours']) ? (int) $data['interval_hours'] : 24,
+            'batch_days' => isset($data['batch_days']) ? (int) $data['batch_days'] : 7,
+            'timeout' => isset($data['timeout']) ? (int) $data['timeout'] : 8,
+        ];
+
+        // Sanitize through the same defaults as the reader, so the
+        // stored row is already canonical.
+        update_option(self::SYNC_SETTINGS_OPTION, $settings);
+        $settings = self::syncSettings();
+        self::rescheduleSync();
+
+        return $settings;
+    }
+
+    /** WP-Cron schedule name for one interval (hours). */
+    public static function scheduleName(int $hours): string
+    {
+        return 'kk_logam_mulia_' . $hours . 'h';
+    }
+
+    /**
+     * The cron_schedules callback: one recurrence per interval the
+     * admin may pick. Registered in registerSync() on every load,
+     * so the names exist both when scheduling and when WP-Cron runs.
+     *
+     * @param array<string, array{interval: int, display: string}> $schedules
+     * @return array<string, array{interval: int, display: string}>
+     */
+    public static function addCronSchedules(array $schedules): array
+    {
+        foreach (self::INTERVAL_HOURS as $hours) {
+            $name = self::scheduleName($hours);
+
+            if (isset($schedules[$name])) {
+                continue;
+            }
+
+            $schedules[$name] = [
+                'interval' => $hours * HOUR_IN_SECONDS,
+                'display' => $hours === 1
+                    ? __('Every hour', 'koperasikita')
+                    : ($hours === 24
+                        ? __('Once a day', 'koperasikita')
+                        /* translators: %d: hours between sync runs. */
+                        : sprintf(__('Every %d hours', 'koperasikita'), $hours)),
+            ];
+        }
+
+        return $schedules;
+    }
+
+    /**
+     * (Re)schedule the automatic sync to match the saved settings:
+     * clear the event when auto-sync is off, schedule it with the
+     * chosen interval when it is on. Called on save and from
+     * registerSync() on every load, so a changed interval takes
+     * effect without waiting for the next run.
+     */
+    public static function rescheduleSync(): void
+    {
+        $settings = self::syncSettings();
+
+        if (!$settings['enabled']) {
+            wp_clear_scheduled_hook(self::CRON_HOOK);
+
+            return;
+        }
+
+        $wanted = self::scheduleName($settings['interval_hours']);
+        $event = wp_get_scheduled_event(self::CRON_HOOK);
+
+        if ($event === false || ($event->schedule ?? '') !== $wanted) {
+            wp_clear_scheduled_hook(self::CRON_HOOK);
+            wp_schedule_event(time(), $wanted, self::CRON_HOOK);
+        }
+    }
+
+    /**
+     * Register the sync cron + the manual sync AJAX endpoint.
      * Called from Markets::register() (which only runs when the
      * Markets feature is enabled).
      */
     public static function registerSync(): void
     {
         add_action(self::CRON_HOOK, [self::class, 'cronSync']);
+        add_filter('cron_schedules', [self::class, 'addCronSchedules']);
 
-        if (!wp_next_scheduled(self::CRON_HOOK)) {
-            wp_schedule_event(time(), 'daily', self::CRON_HOOK);
-        }
+        // Reconcile the scheduled event with the saved settings:
+        // a changed interval or a disabled auto-sync takes effect
+        // on the next page load, not the next run.
+        self::rescheduleSync();
 
         // Manual sync, one source per call (the admin page steps
         // through the sources in order). Capability-gated,
@@ -614,62 +776,69 @@ final class LogamMuliaApiProvider extends AbstractLiveProvider
     }
 
     /**
-     * Fetch + parse + map ONE source's CSV into symbol entries.
-     * Only the file's latest-date rows, weight 1 (0.01 for
-     * Pegadaian, scaled to 1 gram), material gold, positive sell
-     * price. An empty array means the fetch failed or the file has
-     * no usable rows — never an invented price.
+     * Fetch + parse + map ONE source's CSV into symbol entries,
+     * grouped by recorded date (oldest first). Only the $dates most
+     * recent dates count — the batch size setting decides how many
+     * days one sync run imports.
      *
-     * @return array<string, array{price: float, change: float|null, updated: int, buyback: float|null, recorded_date: string|null}>
+     * @return array<string, array<string, array{price: float, change: float|null, updated: int, buyback: float|null, recorded_date: string|null}>>
      */
-    private function fetchSource(string $source, int $now): array
+    private function fetchSource(string $source, int $now, int $dates = 1): array
     {
-        $rows = $this->parseCsv($this->getCsv(self::CSV_BASE . '/' . $source . '.csv'));
+        $byDate = $this->parseCsv($this->getCsv(self::CSV_BASE . '/' . $source . '.csv'), max(1, $dates));
         $entries = [];
 
-        if ($source === 'galeri24') {
-            $galeri24 = $this->findRow($rows, 'GALERI 24', 1.0);
-            if ($galeri24 !== null) {
-                $entries['galeri-24'] = $this->rowToEntry($galeri24, 1.0, $now);
-            }
+        foreach ($byDate as $date => $rows) {
+            $day = [];
 
-            $ubs = $this->findRow($rows, 'UBS', 1.0);
-            if ($ubs !== null) {
-                $entries['ubs'] = $this->rowToEntry($ubs, 1.0, $now);
-            }
-
-            $antam = $this->findRow($rows, 'ANTAM', 1.0);
-            if ($antam !== null) {
-                $entries['antam'] = $this->rowToEntry($antam, 1.0, $now);
-            }
-
-            // Same source as the scraper's Lotus Archi table: the CSV
-            // carries a 1-gram LOTUS ARCHI row at the latest date.
-            // findRow matches the material type exactly, so the
-            // LOTUS ARCHI GIFT rows never match.
-            $lotusArchi = $this->findRow($rows, 'LOTUS ARCHI', 1.0);
-            if ($lotusArchi !== null) {
-                $entries['lotus-archi'] = $this->rowToEntry($lotusArchi, 1.0, $now);
-            }
-        } elseif ($source === 'hargaemas-net') {
-            $antam = $this->findAntamRow($rows);
-            if ($antam !== null) {
-                $entries['antam'] = $this->rowToEntry($antam, 1.0, $now);
-            }
-        } elseif ($source === 'pegadaian') {
-            foreach ($rows as $row) {
-                $weight = (float) ($row['weight'] ?? 0);
-                if ($weight <= 0) {
-                    continue;
+            if ($source === 'galeri24') {
+                $galeri24 = $this->findRow($rows, 'GALERI 24', 1.0);
+                if ($galeri24 !== null) {
+                    $day['galeri-24'] = $this->rowToEntry($galeri24, 1.0, $now);
                 }
 
-                $sell = $row['sellPrice'] ?? null;
-                if (!is_numeric($sell) || (float) $sell <= 0) {
-                    continue;
+                $ubs = $this->findRow($rows, 'UBS', 1.0);
+                if ($ubs !== null) {
+                    $day['ubs'] = $this->rowToEntry($ubs, 1.0, $now);
                 }
 
-                $entries['pegadaian'] = $this->rowToEntry($row, 1.0 / $weight, $now);
-                break;
+                $antam = $this->findRow($rows, 'ANTAM', 1.0);
+                if ($antam !== null) {
+                    $day['antam'] = $this->rowToEntry($antam, 1.0, $now);
+                }
+
+                // Same source as the scraper's Lotus Archi table: the CSV
+                // carries a 1-gram LOTUS ARCHI row at the latest date.
+                // findRow matches the material type exactly, so the
+                // LOTUS ARCHI GIFT rows never match.
+                $lotusArchi = $this->findRow($rows, 'LOTUS ARCHI', 1.0);
+                if ($lotusArchi !== null) {
+                    $day['lotus-archi'] = $this->rowToEntry($lotusArchi, 1.0, $now);
+                }
+            } elseif ($source === 'hargaemas-net') {
+                $antam = $this->findAntamRow($rows);
+                if ($antam !== null) {
+                    $day['antam'] = $this->rowToEntry($antam, 1.0, $now);
+                }
+            } elseif ($source === 'pegadaian') {
+                foreach ($rows as $row) {
+                    $weight = (float) ($row['weight'] ?? 0);
+                    if ($weight <= 0) {
+                        continue;
+                    }
+
+                    $sell = $row['sellPrice'] ?? null;
+                    if (!is_numeric($sell) || (float) $sell <= 0) {
+                        continue;
+                    }
+
+                    $day['pegadaian'] = $this->rowToEntry($row, 1.0 / $weight, $now);
+                    break;
+                }
+            }
+
+            if ($day !== []) {
+                $entries[$date] = $day;
             }
         }
 
@@ -678,15 +847,15 @@ final class LogamMuliaApiProvider extends AbstractLiveProvider
 
     /**
      * One CSV fetch (raw.githubusercontent.com), returning the raw
-     * text or null on any failure. Fixed 8-second timeout, same as
-     * the other live providers — a fetch that exceeds it fails
-     * cleanly instead of hanging (and the failure goes to the
-     * backlog, never a tight retry loop).
+     * text or null on any failure. The timeout comes from the sync
+     * settings (default 8 seconds, same as the other live providers)
+     * — a fetch that exceeds it fails cleanly instead of hanging
+     * (and the failure goes to the backlog, never a tight retry loop).
      */
     private function getCsv(string $url): ?string
     {
         $response = wp_remote_get($url, [
-            'timeout' => 8,
+            'timeout' => self::syncSettings()['timeout'],
             'headers' => ['Accept' => 'text/csv'],
         ]);
 
@@ -704,15 +873,16 @@ final class LogamMuliaApiProvider extends AbstractLiveProvider
     }
 
     /**
-     * Parse a CSV payload into the rows at the maximum recordedDate.
-     * The files are append-only history; only the newest date
-     * counts. fgetcsv parses the quoted fields correctly (commas
-     * inside materialType are quoted, never split naively).
-     * Returns rows as header-keyed string arrays.
+     * Parse a CSV payload into rows grouped by recordedDate, oldest
+     * first, keeping only the $dates most recent dates. The files
+     * are append-only history; only the newest dates count. fgetcsv
+     * parses the quoted fields correctly (commas inside materialType
+     * are quoted, never split naively). Returns date => rows as
+     * header-keyed string arrays.
      *
-     * @return array<int, array<string, string>>
+     * @return array<string, array<int, array<string, string>>>
      */
-    private function parseCsv(?string $csv): array
+    private function parseCsv(?string $csv, int $dates = 1): array
     {
         if ($csv === null || $csv === '') {
             return [];
@@ -734,8 +904,7 @@ final class LogamMuliaApiProvider extends AbstractLiveProvider
 
         $header = array_map(static fn ($h) => trim((string) $h), $header);
 
-        $maxDate = '';
-        $rows = [];
+        $byDate = [];
 
         while (($fields = fgetcsv($stream)) !== false) {
             if (!is_array($fields) || count($fields) < count($header)) {
@@ -756,17 +925,25 @@ final class LogamMuliaApiProvider extends AbstractLiveProvider
                 continue;
             }
 
-            if ($date > $maxDate) {
-                $maxDate = $date;
-                $rows = [$row];
-            } elseif ($date === $maxDate) {
-                $rows[] = $row;
-            }
+            $byDate[$date][] = $row;
         }
 
         fclose($stream);
 
-        return $rows;
+        if ($byDate === []) {
+            return [];
+        }
+
+        // Oldest first, then keep only the $dates most recent dates
+        // (the batch one sync run imports).
+        ksort($byDate);
+        $dates = max(1, $dates);
+
+        if (count($byDate) > $dates) {
+            $byDate = array_slice($byDate, -$dates, $dates, true);
+        }
+
+        return $byDate;
     }
 
     /**
