@@ -11,10 +11,15 @@ use WP_Widget;
 /**
  * Weather widget.
  *
- * Renders the current weather for the configured default city on the
- * server (first paint, cached by the Weather module), then the frontend
- * script re-renders it for the visitor's picked location. When the
- * weather module is disabled the widget outputs nothing at all.
+ * Renders the current weather for the first configured location on
+ * the server (first paint, cached by the Weather module), then the
+ * frontend script re-renders it for the visitor's picked location.
+ * The widget carries a list of locations (not one city): the
+ * frontend location picker offers them as quick picks, so a visitor
+ * can switch between the cities the widget was set up with. An old
+ * instance with only a default city keeps working — the city becomes
+ * the single location. When the weather module is disabled the
+ * widget outputs nothing at all.
  */
 final class WeatherWidget extends WP_Widget
 {
@@ -38,12 +43,10 @@ final class WeatherWidget extends WP_Widget
         }
 
         $title = isset($instance['title']) ? (string) $instance['title'] : '';
-        $city = isset($instance['default_city']) && trim((string) $instance['default_city']) !== ''
-            ? (string) $instance['default_city']
-            : Weather::DEFAULT_CITY;
         $showDetails = !empty($instance['show_details']);
 
-        $location = Weather::resolveCity($city);
+        $locations = $this->instanceLocations($instance);
+        $location = $locations[0];
         $weather = Weather::current($location);
 
         echo $args['before_widget'] ?? ''; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
@@ -55,6 +58,7 @@ final class WeatherWidget extends WP_Widget
             data-default-city="<?php echo esc_attr($location['name']); ?>"
             data-default-latitude="<?php echo esc_attr((string) $location['latitude']); ?>"
             data-default-longitude="<?php echo esc_attr((string) $location['longitude']); ?>"
+            data-locations="<?php echo esc_attr(wp_json_encode($locations) ?: '[]'); ?>"
             data-show-details="<?php echo $showDetails ? '1' : '0'; ?>">
             <p class="kk-weather-place"><?php echo esc_html($location['name']); ?></p>
             <div class="kk-weather-body" data-kk-weather-body>
@@ -78,12 +82,34 @@ final class WeatherWidget extends WP_Widget
     }
 
     /**
+     * The widget's locations: the saved list, or the single default
+     * city for an old instance that never had a list.
+     *
+     * @param array<string, mixed> $instance
+     * @return array<int, array{name: string, latitude: float, longitude: float}>
+     */
+    private function instanceLocations(array $instance): array
+    {
+        $locations = isset($instance['locations']) ? Weather::sanitizeLocations($instance['locations']) : [];
+
+        if ($locations !== []) {
+            return $locations;
+        }
+
+        $city = isset($instance['default_city']) && trim((string) $instance['default_city']) !== ''
+            ? (string) $instance['default_city']
+            : Weather::DEFAULT_CITY;
+
+        return [Weather::resolveCity($city)];
+    }
+
+    /**
      * @param array<string, mixed> $instance
      */
     public function form($instance): void
     {
         $title = isset($instance['title']) ? (string) $instance['title'] : __('Weather', 'koperasikita');
-        $city = isset($instance['default_city']) ? (string) $instance['default_city'] : Weather::DEFAULT_CITY;
+        $locationsText = Weather::locationsText($this->instanceLocations($instance));
         $showDetails = !empty($instance['show_details']);
         ?>
         <p>
@@ -96,14 +122,13 @@ final class WeatherWidget extends WP_Widget
         </p>
         <?php WidgetHeader::field($this, $instance); ?>
         <p>
-            <label for="<?php echo esc_attr($this->get_field_id('default_city')); ?>">
-                <?php esc_html_e('Default city', 'koperasikita'); ?>
+            <label for="<?php echo esc_attr($this->get_field_id('locations')); ?>">
+                <?php esc_html_e('Locations', 'koperasikita'); ?>
             </label>
-            <input class="widefat" id="<?php echo esc_attr($this->get_field_id('default_city')); ?>"
-                name="<?php echo esc_attr($this->get_field_name('default_city')); ?>" type="text"
-                value="<?php echo esc_attr($city); ?>">
+            <textarea class="widefat" rows="5" id="<?php echo esc_attr($this->get_field_id('locations')); ?>"
+                name="<?php echo esc_attr($this->get_field_name('locations')); ?>"><?php echo esc_textarea($locationsText); ?></textarea>
             <span class="description">
-                <?php esc_html_e('Shown until a visitor picks another location.', 'koperasikita'); ?>
+                <?php esc_html_e('One location per line: Name, latitude, longitude. The first location is the default; the rest appear as quick picks in the location picker.', 'koperasikita'); ?>
             </span>
         </p>
         <p>
@@ -130,12 +155,32 @@ final class WeatherWidget extends WP_Widget
             ? sanitize_text_field((string) $newInstance['title'])
             : '';
 
-        $instance['default_city'] = isset($newInstance['default_city'])
-            ? sanitize_text_field((string) $newInstance['default_city'])
-            : Weather::DEFAULT_CITY;
+        // Locations arrive two ways: the block editor sends an array
+        // of {name, latitude, longitude}; the classic form sends one
+        // textarea line per location. Both go through the same
+        // sanitizer, so block and classic instances validate alike.
+        if (isset($newInstance['locations']) && is_string($newInstance['locations'])) {
+            $locations = Weather::parseLocationsText($newInstance['locations']);
+        } elseif (isset($newInstance['locations']) && is_array($newInstance['locations'])) {
+            $locations = Weather::sanitizeLocations($newInstance['locations']);
+        } else {
+            $locations = [];
+        }
+
+        // Backwards compat: an old instance with only a default city
+        // keeps working — the city becomes the single location.
+        if ($locations === [] && isset($newInstance['default_city']) && trim((string) $newInstance['default_city']) !== '') {
+            $found = Weather::findCity((string) $newInstance['default_city']);
+            $locations = $found !== null ? [$found] : [];
+        }
+
+        $instance['locations'] = $locations;
+        $instance['default_city'] = $locations !== []
+            ? $locations[0]['name']
+            : (isset($newInstance['default_city']) ? sanitize_text_field((string) $newInstance['default_city']) : Weather::DEFAULT_CITY);
 
         $instance['show_details'] = !empty($newInstance['show_details']) ? 1 : 0;
-        $instance['header_style'] = WidgetHeader::sanitize($newInstance['header_style'] ?? WidgetHeader::CLASSIC);
+        $instance['header_style'] = WidgetHeader::sanitize($newInstance['header_style'] ?? WidgetHeader::CLASSIC_TOP);
 
         return $instance;
     }

@@ -3720,3 +3720,27 @@ msgstr "Widget memilih template, bukan membawa pengaturannya sendiri. Template b
 
 msgid "dari kemarin (%s)"
 msgstr "dari kemarin (%s)"
+
+msgid "One location per line: Name, latitude, longitude. The first location is the default; the rest appear as quick picks in the location picker."
+msgstr "Satu lokasi per baris: Nama, lintang, bujur. Lokasi pertama adalah bawaan; sisanya tampil sebagai pilihan cepat di pemilih lokasi."
+
+msgid "Add a location"
+msgstr "Tambah lokasi"
+
+msgid "Searching…"
+msgstr "Mencari…"
+
+msgid "Search is unavailable right now."
+msgstr "Pencarian tidak tersedia saat ini."
+
+msgid "No places found. Try another name."
+msgstr "Tidak ada tempat ditemukan. Coba nama lain."
+
+msgid "is already in the list."
+msgstr "sudah ada di daftar."
+
+msgid "added."
+msgstr "ditambahkan."
+
+msgid "Search for a city to add it. The first location is the default; the rest appear as quick picks in the location picker."
+msgstr "Cari kota untuk menambahkannya. Lokasi pertama adalah bawaan; sisanya tampil sebagai pilihan cepat di pemilih lokasi."

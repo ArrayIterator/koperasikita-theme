@@ -752,6 +752,43 @@ function initStrip(): void {
 		longitude: Number(chip.dataset.longitude ?? 0),
 		source: 'quick' as const,
 	}));
+	// Widget-configured locations join the quick picks, so a visitor
+	// can switch between the cities the widget was set up with. The
+	// built-in quick picks win a duplicate (they come first).
+	$all<HTMLElement>('[data-kk-weather-widget]').forEach((widget) => {
+		const raw = widget.dataset.locations ?? '';
+		if (raw === '') {
+			return;
+		}
+		try {
+			const parsed: unknown = JSON.parse(raw);
+			if (!Array.isArray(parsed)) {
+				return;
+			}
+			for (const item of parsed) {
+				const candidate = item as Partial<Location>;
+				if (
+					typeof candidate.name !== 'string' ||
+					typeof candidate.latitude !== 'number' ||
+					typeof candidate.longitude !== 'number'
+				) {
+					continue;
+				}
+				const location: Location = {
+					name: candidate.name,
+					latitude: candidate.latitude,
+					longitude: candidate.longitude,
+					source: 'quick',
+				};
+				if (!quickCities.some((kept) => isSamePlace(kept, location))) {
+					quickCities.push(location);
+				}
+			}
+		} catch {
+			// Malformed data-locations: the widget still renders, the
+			// strip just keeps the built-in quick picks.
+		}
+	});
 	renderStrip();
 
 	$('[data-kk-weather-add]')?.addEventListener('click', () => {

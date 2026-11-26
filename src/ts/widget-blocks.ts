@@ -32,7 +32,8 @@ type FieldDef =
 	| { key: string; kind: 'checkboxes'; label: string; options: OptionItem[] }
 	| { key: string; kind: 'multiselect'; label: string; help?: string; options: OptionItem[] }
 	| { key: string; kind: 'categories'; label: string; help?: string }
-	| { key: string; kind: 'tags'; label: string; help?: string };
+	| { key: string; kind: 'tags'; label: string; help?: string }
+	| { key: string; kind: 'locations'; label: string; help?: string };
 
 interface BlockDef {
 	slug: string;
@@ -86,6 +87,8 @@ interface Wp {
 			...children: unknown[]
 		) => unknown;
 		Fragment: unknown;
+		useState: <T>(initial: T) => [T, (next: T | ((prev: T) => T)) => void];
+		useRef: <T>(initial: T) => { current: T };
 	};
 	components: {
 		TextControl: unknown;
@@ -124,8 +127,174 @@ declare const kkWidgetBlocks:
 			tags?: OptionItem[];
 			dataDeskTemplates?: OptionItem[];
 			dataDeskTableTemplates?: OptionItem[];
+			ajaxUrl?: string;
+			nonce?: string;
 	  }
 	| undefined;
+
+interface WeatherLocation {
+	name: string;
+	latitude: number;
+	longitude: number;
+}
+
+interface WeatherSearchResult {
+	name: string;
+	latitude: number;
+	longitude: number;
+	country: string;
+}
+
+function isWeatherLocation(item: unknown): item is WeatherLocation {
+	return (
+		typeof item === 'object' &&
+		item !== null &&
+		typeof (item as WeatherLocation).name === 'string' &&
+		typeof (item as WeatherLocation).latitude === 'number' &&
+		typeof (item as WeatherLocation).longitude === 'number'
+	);
+}
+
+function isSameWeatherLocation(a: WeatherLocation, b: WeatherLocation): boolean {
+	if (a.name.trim().toLowerCase() === b.name.trim().toLowerCase()) {
+		return true;
+	}
+	return Math.abs(a.latitude - b.latitude) < 0.01 && Math.abs(a.longitude - b.longitude) < 0.01;
+}
+
+/* The weather locations field: the saved list (name + coordinates
+ * with a remove button each) plus a search box that adds places
+ * through the theme's own kk_weather_search endpoint — the same
+ * geocoding the frontend location picker uses. A real component
+ * (not a renderField branch) so it can hold the search state. */
+function LocationsField(props: {
+	field: { key: string; label: string; help?: string };
+	value: unknown;
+	set: (key: string, value: unknown) => void;
+	api: Wp;
+}): unknown {
+	const { field, value, set, api } = props;
+	const __ = (text: string): string => api.i18n.__(text, 'koperasikita');
+	const locations: WeatherLocation[] = Array.isArray(value) ? value.filter(isWeatherLocation) : [];
+	const [query, setQuery] = api.element.useState('');
+	const [results, setResults] = api.element.useState<WeatherSearchResult[]>([]);
+	const [searching, setSearching] = api.element.useState(false);
+	const [status, setStatus] = api.element.useState('');
+	const timer = api.element.useRef<number | null>(null);
+
+	const search = (nextQuery: string): void => {
+		if (timer.current !== null) {
+			window.clearTimeout(timer.current);
+			timer.current = null;
+		}
+		if (nextQuery.trim().length < 2) {
+			setResults([]);
+			setStatus('');
+			return;
+		}
+		setStatus(__('Searching…'));
+		timer.current = window.setTimeout(() => {
+			const ajaxUrl = kkWidgetBlocks?.ajaxUrl ?? '';
+			const nonce = kkWidgetBlocks?.nonce ?? '';
+			if (ajaxUrl === '' || nonce === '') {
+				setSearching(false);
+				setStatus(__('Search is unavailable right now.'));
+				return;
+			}
+			setSearching(true);
+			const body = new URLSearchParams({ action: 'kk_weather_search', nonce, query: nextQuery.trim() });
+			void fetch(ajaxUrl, { method: 'POST', credentials: 'same-origin', body })
+				.then((response) => response.json() as Promise<unknown>)
+				.then((json) => {
+					setSearching(false);
+					const data = json as {
+						success?: boolean;
+						data?: { results?: WeatherSearchResult[] };
+					};
+					const found = Array.isArray(data.data?.results) ? data.data.results : [];
+					setResults(found);
+					setStatus(found.length === 0 ? __('No places found. Try another name.') : '');
+				})
+				.catch(() => {
+					setSearching(false);
+					setStatus(__('Search is unavailable right now.'));
+				});
+		}, 300);
+	};
+
+	const add = (place: WeatherSearchResult): void => {
+		const candidate: WeatherLocation = { name: place.name, latitude: place.latitude, longitude: place.longitude };
+		if (locations.some((kept) => isSameWeatherLocation(kept, candidate))) {
+			setStatus(`${place.name} ${__('is already in the list.')}`);
+			return;
+		}
+		set(field.key, [...locations, candidate]);
+		setResults([]);
+		setQuery('');
+		setStatus(`${place.name} ${__('added.')}`);
+	};
+
+	const rows = locations.map((location, index) =>
+		api.element.createElement(
+			'li',
+			{ key: `${location.name}-${location.latitude}-${location.longitude}`, className: 'kk-locations-row' },
+			api.element.createElement(
+				'span',
+				{ className: 'kk-locations-name' },
+				`${location.name} — ${location.latitude}, ${location.longitude}`,
+			),
+			api.element.createElement(
+				'button',
+				{
+					type: 'button',
+					className: 'kk-locations-remove',
+					'aria-label': `${__('Remove')} ${location.name}`,
+					onClick: () => set(field.key, locations.filter((_, i) => i !== index)),
+				},
+				'×',
+			),
+		),
+	);
+
+	const resultButtons = results.map((place) =>
+		api.element.createElement(
+			'li',
+			{ key: `${place.name}-${place.latitude}-${place.longitude}` },
+			api.element.createElement(
+				'button',
+				{
+					type: 'button',
+					className: 'kk-locations-result',
+					onClick: () => add(place),
+				},
+				place.country && place.country !== place.name ? `${place.name}, ${place.country}` : place.name,
+			),
+		),
+	);
+
+	return api.element.createElement(
+		'div',
+		{ key: field.key, className: 'kk-locations-field' },
+		api.element.createElement('p', { className: 'kk-locations-label' }, field.label),
+		api.element.createElement('ul', { className: 'kk-locations-list' }, ...rows),
+		api.element.createElement(api.components.TextControl, {
+			label: __('Add a location'),
+			help: field.help ?? '',
+			value: query,
+			onChange: (next: string) => {
+				setQuery(next);
+				search(next);
+			},
+		}),
+		searching ? api.element.createElement(api.components.Spinner, null) : null,
+		resultButtons.length > 0
+			? api.element.createElement('ul', { className: 'kk-locations-results' }, ...resultButtons)
+			: null,
+		status !== ''
+			? api.element.createElement('p', { className: 'components-base-control__help' }, status)
+			: null,
+	);
+}
 
 function renderField(
 	field: FieldDef,
@@ -291,6 +460,12 @@ function renderField(
 					? api.element.createElement('p', { className: 'components-base-control__help' }, field.help)
 					: null,
 			);
+		}
+		case 'locations': {
+			/* The weather locations list: saved places with remove
+			 * buttons, plus a geocoding search to add more. A real
+			 * component — it holds the search state. */
+			return api.element.createElement(LocationsField, { key, field, value, set, api });
 		}
 	}
 }
@@ -748,11 +923,17 @@ function buildDefinitions(api: Wp): BlockDef[] {
 				headerStyle: { type: 'string', default: 'classic-top' },
 				defaultCity: { type: 'string', default: 'Padang' },
 				showDetails: { type: 'boolean', default: false },
+				locations: { type: 'array', default: [] },
 			},
 			fields: [
 				{ key: 'title', kind: 'text', label: __('Title') },
 				headerStyleField,
-				{ key: 'defaultCity', kind: 'text', label: __('Default city') },
+				{
+					key: 'locations',
+					kind: 'locations',
+					label: __('Locations'),
+					help: __('Search for a city to add it. The first location is the default; the rest appear as quick picks in the location picker.'),
+				},
 				{
 					key: 'showDetails',
 					kind: 'toggle',

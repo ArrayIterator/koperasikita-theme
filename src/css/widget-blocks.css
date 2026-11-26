@@ -26,3 +26,72 @@
 .kk-widget-block-preview p + p {
 	margin-top: 0.25rem;
 }
+
+/* --- Weather locations field ---------------------------------------------- */
+
+.kk-locations-field {
+	margin-bottom: 1.5rem;
+}
+
+.kk-locations-label {
+	margin: 0 0 0.5rem;
+	font-size: 0.8125rem;
+	font-weight: 600;
+}
+
+.kk-locations-list,
+.kk-locations-results {
+	margin: 0 0 0.75rem;
+	padding: 0;
+	list-style: none;
+}
+
+.kk-locations-row {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	padding: 0.375rem 0;
+	border-bottom: 1px solid #f0f0f0;
+}
+
+.kk-locations-name {
+	flex: 1;
+	min-width: 0;
+	font-size: 0.8125rem;
+}
+
+.kk-locations-remove {
+	flex: none;
+	width: 1.5rem;
+	height: 1.5rem;
+	padding: 0;
+	font-size: 1rem;
+	line-height: 1;
+	color: #cc1818;
+	background: transparent;
+	border: 0;
+	border-radius: 50%;
+	cursor: pointer;
+}
+
+.kk-locations-remove:hover,
+.kk-locations-remove:focus-visible {
+	background: #f6d2d2;
+}
+
+.kk-locations-result {
+	display: block;
+	width: 100%;
+	padding: 0.5rem 0.75rem;
+	font-size: 0.8125rem;
+	text-align: left;
+	background: #f6f7f7;
+	border: 0;
+	border-radius: 0.25rem;
+	cursor: pointer;
+}
+
+.kk-locations-result:hover,
+.kk-locations-result:focus-visible {
+	background: #e5e8e8;
+}

@@ -34,6 +34,125 @@ final class Weather
 
     public const DEFAULT_LONGITUDE = 100.4172;
 
+    /** Most locations one weather widget may carry. */
+    public const MAX_LOCATIONS = 10;
+
+    /**
+     * Clean a locations list into its canonical shape: one row per
+     * place, `{name, latitude, longitude}`, duplicates dropped (same
+     * name or same coordinates within ~1 km) and capped at
+     * MAX_LOCATIONS. Rows may be arrays or objects — the block
+     * editor and the widget form both feed this.
+     *
+     * @param mixed $locations
+     * @return array<int, array{name: string, latitude: float, longitude: float}>
+     */
+    public static function sanitizeLocations($locations): array
+    {
+        if (!is_array($locations)) {
+            return [];
+        }
+
+        $clean = [];
+
+        foreach ($locations as $row) {
+            if (is_object($row)) {
+                $row = (array) $row;
+            }
+
+            if (!is_array($row)) {
+                continue;
+            }
+
+            $name = isset($row['name']) ? trim((string) $row['name']) : '';
+
+            if ($name === '') {
+                continue;
+            }
+
+            $coords = self::validateCoordinates($row['latitude'] ?? null, $row['longitude'] ?? null);
+
+            if ($coords === null) {
+                continue;
+            }
+
+            $candidate = [
+                'name' => $name,
+                'latitude' => $coords[0],
+                'longitude' => $coords[1],
+            ];
+
+            $duplicate = false;
+
+            foreach ($clean as $kept) {
+                if (
+                    mb_strtolower($kept['name']) === mb_strtolower($name)
+                    || (abs($kept['latitude'] - $coords[0]) < 0.01 && abs($kept['longitude'] - $coords[1]) < 0.01)
+                ) {
+                    $duplicate = true;
+                    break;
+                }
+            }
+
+            if ($duplicate) {
+                continue;
+            }
+
+            $clean[] = $candidate;
+
+            if (count($clean) >= self::MAX_LOCATIONS) {
+                break;
+            }
+        }
+
+        return $clean;
+    }
+
+    /**
+     * Parse the classic-form locations textarea: one location per
+     * line, `Name, latitude, longitude`. Blank and invalid lines are
+     * skipped, never stored.
+     *
+     * @return array<int, array{name: string, latitude: float, longitude: float}>
+     */
+    public static function parseLocationsText(string $text): array
+    {
+        $rows = [];
+
+        foreach (preg_split('/\r\n|\r|\n/', $text) ?: [] as $line) {
+            $parts = array_map('trim', explode(',', (string) $line));
+
+            if (count($parts) !== 3 || $parts[0] === '') {
+                continue;
+            }
+
+            $rows[] = [
+                'name' => $parts[0],
+                'latitude' => $parts[1],
+                'longitude' => $parts[2],
+            ];
+        }
+
+        return self::sanitizeLocations($rows);
+    }
+
+    /**
+     * The inverse of parseLocationsText: one `Name, lat, lng` line
+     * per location, for the classic-form textarea value.
+     *
+     * @param array<int, array{name: string, latitude: float, longitude: float}> $locations
+     */
+    public static function locationsText(array $locations): string
+    {
+        $lines = [];
+
+        foreach (self::sanitizeLocations($locations) as $location) {
+            $lines[] = $location['name'] . ', ' . $location['latitude'] . ', ' . $location['longitude'];
+        }
+
+        return implode("\n", $lines);
+    }
+
     public static function isEnabled(): bool
     {
         return Features::isEnabled('weather');

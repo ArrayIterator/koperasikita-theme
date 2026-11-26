@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace KoperasiKita\Widgets;
 
+use KoperasiKita\Api\Ajax;
 use KoperasiKita\Assets\ViteLoader;
 use KoperasiKita\Features\DataDesk;
 use KoperasiKita\Features\Features;
@@ -339,12 +340,25 @@ final class Blocks
                     'headerStyle' => ['type' => 'string', 'default' => 'classic-top'],
                     'defaultCity' => ['type' => 'string', 'default' => 'Padang'],
                     'showDetails' => ['type' => 'boolean', 'default' => false],
+                    'locations' => [
+                        'type' => 'array',
+                        'default' => [],
+                        'items' => [
+                            'type' => 'object',
+                            'properties' => [
+                                'name' => ['type' => 'string'],
+                                'latitude' => ['type' => 'number'],
+                                'longitude' => ['type' => 'number'],
+                            ],
+                        ],
+                    ],
                 ],
                 'map' => [
                     'title' => 'title',
                     'headerStyle' => 'header_style',
                     'defaultCity' => 'default_city',
                     'showDetails' => 'show_details',
+                    'locations' => 'locations',
                 ],
             ];
         }
@@ -391,6 +405,10 @@ final class Blocks
                 'tags' => self::termOptions('post_tag'),
                 'dataDeskTemplates' => self::templateOptions(DataDesk::KIND_PANEL),
                 'dataDeskTableTemplates' => self::templateOptions(DataDesk::KIND_TABLE),
+                // The locations field searches places through the
+                // theme's own AJAX endpoint (kk_weather_search).
+                'ajaxUrl' => admin_url('admin-ajax.php'),
+                'nonce' => Ajax::nonce(),
             ]);
         }
 
