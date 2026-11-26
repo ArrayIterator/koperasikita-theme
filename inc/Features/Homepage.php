@@ -151,7 +151,7 @@ final class Homepage
             'post_type' => 'post',
             'post_status' => 'publish',
             'posts_per_page' => $count,
-            'ignore_sticky_posts' => false,
+            'ignore_sticky_posts' => true,
         ];
 
         if ($source === 'category') {
