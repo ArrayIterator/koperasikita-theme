@@ -682,6 +682,9 @@ msgstr "Terakhir disimpan: %s"
 msgid "Markets"
 msgstr "Pasar"
 
+msgid "KK Markets"
+msgstr "KK Pasar"
+
 #: inc/Features/Markets.php
 msgid "Provider"
 msgstr "Penyedia"
@@ -766,6 +769,9 @@ msgstr "Ubah harga di %s."
 msgid "Gold Prices"
 msgstr "Harga Emas"
 
+msgid "KK Gold Prices"
+msgstr "KK Harga Emas"
+
 #: inc/Widgets/GoldWidget.php
 msgid "Gold prices for five brands in an auto-scrolling slider. Prices are edited in Settings -> Markets."
 msgstr "Harga emas lima merek dalam slider gulir otomatis. Harga diubah di Pengaturan -> Pasar."
@@ -821,6 +827,9 @@ msgstr "Ditampilkan sampai pengunjung memilih lokasi lain."
 #: inc/Widgets/WeatherWidget.php
 msgid "Weather"
 msgstr "Cuaca"
+
+msgid "KK Weather"
+msgstr "KK Cuaca"
 
 #: inc/Widgets/WeatherWidget.php
 msgid "Weather is unavailable right now."
@@ -1116,8 +1125,6 @@ msgid "Section"
 msgstr "Bagian"
 
 #: template-parts/home/featured-sidebar.php
-msgid "Editor’s Picks"
-msgstr "Pilihan Redaksi"
 
 #: template-parts/home/hero-grid.php
 msgid "Top stories"
@@ -2151,9 +2158,15 @@ msgstr "Satu zona waktu IANA per baris, mis. Asia/Jakarta."
 msgid "Pages"
 msgstr "Halaman"
 
+msgid "KK Pages"
+msgstr "KK Halaman"
+
 #: inc/Widgets/Blocks.php
 msgid "Popular News"
 msgstr "Berita Populer"
+
+msgid "KK Popular News"
+msgstr "KK Berita Populer"
 
 #: inc/Widgets/Blocks.php
 msgid "Posts from the categories you pick, newest first."
@@ -2167,9 +2180,15 @@ msgstr "Artikel terkait dengan yang sedang dibaca, atau artikel terbaru di tempa
 msgid "Recent News"
 msgstr "Berita Terbaru"
 
+msgid "KK Recent News"
+msgstr "KK Berita Terbaru"
+
 #: inc/Widgets/Blocks.php
 msgid "Related News"
 msgstr "Berita Terkait"
+
+msgid "KK Related News"
+msgstr "KK Berita Terkait"
 
 #: inc/Widgets/AbstractStoryWidget.php
 msgid "Settings"
@@ -2198,6 +2217,9 @@ msgstr "Zona waktu"
 #: inc/Widgets/Blocks.php
 msgid "World Clock"
 msgstr "Jam Dunia"
+
+msgid "KK World Clock"
+msgstr "KK Jam Dunia"
 
 #: inc/Customizer/Customizer.php
 msgid "Hero Presentation"
@@ -3174,3 +3196,6 @@ msgstr "Koperasi Kita Post Berdasarkan Term"
 
 msgid "Post By Terms"
 msgstr "Post Berdasarkan Term"
+
+msgid "KK Post By Terms"
+msgstr "KK Post Berdasarkan Term"

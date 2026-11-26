@@ -103,7 +103,7 @@ final class Blocks
             'recent-news' => [
                 'class' => RecentPostsWidget::class,
                 'icon' => 'megaphone',
-                'title' => __('Recent News', 'koperasikita'),
+                'title' => __('KK Recent News', 'koperasikita'),
                 'description' => __('The latest published posts, newest first.', 'koperasikita'),
                 'attributes' => $storyAttributes,
                 'map' => $storyMap,
@@ -111,7 +111,7 @@ final class Blocks
             'popular-news' => [
                 'class' => PopularPostsWidget::class,
                 'icon' => 'chart-line',
-                'title' => __('Popular News', 'koperasikita'),
+                'title' => __('KK Popular News', 'koperasikita'),
                 'description' => __('Most discussed posts, ranked by comment count.', 'koperasikita'),
                 'attributes' => $storyAttributes,
                 'map' => $storyMap,
@@ -119,7 +119,7 @@ final class Blocks
             'related-news' => [
                 'class' => RelatedPostsWidget::class,
                 'icon' => 'networking',
-                'title' => __('Related News', 'koperasikita'),
+                'title' => __('KK Related News', 'koperasikita'),
                 'description' => __('Posts related to the one being read, or the latest posts elsewhere.', 'koperasikita'),
                 'attributes' => $storyAttributes,
                 'map' => $storyMap,
@@ -127,7 +127,7 @@ final class Blocks
             'editors-picks' => [
                 'class' => EditorsPicksWidget::class,
                 'icon' => 'star-filled',
-                'title' => __('Editor’s Picks', 'koperasikita'),
+                'title' => __('KK Post By Terms', 'koperasikita'),
                 'description' => __('Numbered list of posts from the categories and tags you pick, newest first.', 'koperasikita'),
                 'attributes' => array_merge($storyAttributes, [
                     'categoryIds' => ['type' => 'array', 'default' => [], 'items' => ['type' => 'number']],
@@ -147,7 +147,7 @@ final class Blocks
             'world-clock' => [
                 'class' => WorldClockWidget::class,
                 'icon' => 'clock',
-                'title' => __('World Clock', 'koperasikita'),
+                'title' => __('KK World Clock', 'koperasikita'),
                 'description' => __('Current time in the timezones you list, one per line.', 'koperasikita'),
                 'attributes' => [
                     'title' => ['type' => 'string', 'default' => ''],
@@ -165,7 +165,7 @@ final class Blocks
             'pages' => [
                 'class' => PagesWidget::class,
                 'icon' => 'page',
-                'title' => __('Pages', 'koperasikita'),
+                'title' => __('KK Pages', 'koperasikita'),
                 'description' => __('A list of page links, in menu order, by date or by title.', 'koperasikita'),
                 'attributes' => [
                     'title' => ['type' => 'string', 'default' => ''],
@@ -186,7 +186,7 @@ final class Blocks
             $definitions['gold'] = [
                 'class' => GoldWidget::class,
                 'icon' => 'star-filled',
-                'title' => __('Gold Prices', 'koperasikita'),
+                'title' => __('KK Gold Prices', 'koperasikita'),
                 'description' => __('Gold prices for five brands in an auto-scrolling slider.', 'koperasikita'),
                 'attributes' => [
                     'title' => ['type' => 'string', 'default' => ''],
@@ -202,7 +202,7 @@ final class Blocks
             $definitions['markets'] = [
                 'class' => MarketsWidget::class,
                 'icon' => 'chart-line',
-                'title' => __('Markets', 'koperasikita'),
+                'title' => __('KK Markets', 'koperasikita'),
                 'description' => __('Gold, stock and crypto prices from the Markets providers.', 'koperasikita'),
                 'attributes' => [
                     'title' => ['type' => 'string', 'default' => ''],
@@ -223,7 +223,7 @@ final class Blocks
             $definitions['weather'] = [
                 'class' => WeatherWidget::class,
                 'icon' => 'cloud',
-                'title' => __('Weather', 'koperasikita'),
+                'title' => __('KK Weather', 'koperasikita'),
                 'description' => __('Current weather for a city, with a location picker.', 'koperasikita'),
                 'attributes' => [
                     'title' => ['type' => 'string', 'default' => ''],

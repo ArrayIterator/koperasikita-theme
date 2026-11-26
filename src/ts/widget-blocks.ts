@@ -365,7 +365,7 @@ function buildDefinitions(api: Wp): BlockDef[] {
 	return [
 		{
 			slug: 'recent-news',
-			title: __('Recent News'),
+			title: __('KK Recent News'),
 			description: __('The latest published posts, newest first.'),
 			icon: 'megaphone',
 			attributes: storyAttributes,
@@ -373,7 +373,7 @@ function buildDefinitions(api: Wp): BlockDef[] {
 		},
 		{
 			slug: 'popular-news',
-			title: __('Popular News'),
+			title: __('KK Popular News'),
 			description: __('Most discussed posts, ranked by comment count.'),
 			icon: 'chart-line',
 			attributes: storyAttributes,
@@ -381,7 +381,7 @@ function buildDefinitions(api: Wp): BlockDef[] {
 		},
 		{
 			slug: 'related-news',
-			title: __('Related News'),
+			title: __('KK Related News'),
 			description: __('Posts related to the one being read, or the latest posts elsewhere.'),
 			icon: 'networking',
 			attributes: storyAttributes,
@@ -389,7 +389,7 @@ function buildDefinitions(api: Wp): BlockDef[] {
 		},
 		{
 			slug: 'editors-picks',
-			title: __('Post By Terms'),
+			title: __('KK Post By Terms'),
 			description: __('Numbered list of posts from the categories and tags you pick, newest first.'),
 			icon: 'star-filled',
 			attributes: {
@@ -421,7 +421,7 @@ function buildDefinitions(api: Wp): BlockDef[] {
 		},
 		{
 			slug: 'world-clock',
-			title: __('World Clock'),
+			title: __('KK World Clock'),
 			description: __('Current time in the timezones you list, one per line.'),
 			icon: 'clock',
 			attributes: {
@@ -444,7 +444,7 @@ function buildDefinitions(api: Wp): BlockDef[] {
 		},
 		{
 			slug: 'pages',
-			title: __('Pages'),
+			title: __('KK Pages'),
 			description: __('A list of page links, in menu order, by date or by title.'),
 			icon: 'page',
 			attributes: {
@@ -471,7 +471,7 @@ function buildDefinitions(api: Wp): BlockDef[] {
 		},
 		{
 			slug: 'gold',
-			title: __('Gold Prices'),
+			title: __('KK Gold Prices'),
 			description: __('Gold prices for five brands in an auto-scrolling slider.'),
 			icon: 'star-filled',
 			attributes: {
@@ -492,7 +492,7 @@ function buildDefinitions(api: Wp): BlockDef[] {
 		},
 		{
 			slug: 'markets',
-			title: __('Markets'),
+			title: __('KK Markets'),
 			description: __('Gold, stock and crypto prices from the Markets providers.'),
 			icon: 'chart-line',
 			attributes: {
@@ -515,7 +515,7 @@ function buildDefinitions(api: Wp): BlockDef[] {
 		},
 		{
 			slug: 'weather',
-			title: __('Weather'),
+			title: __('KK Weather'),
 			description: __('Current weather for a city, with a location picker.'),
 			icon: 'cloud',
 			attributes: {
