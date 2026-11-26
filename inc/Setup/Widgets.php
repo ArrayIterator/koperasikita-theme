@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace KoperasiKita\Setup;
 
 use KoperasiKita\Features\Features;
+use KoperasiKita\Widgets\EditorsPicksWidget;
 use KoperasiKita\Widgets\GoldWidget;
 use KoperasiKita\Widgets\MarketsWidget;
 use KoperasiKita\Widgets\PagesWidget;
@@ -25,6 +26,7 @@ final class Widgets
         register_widget(PopularPostsWidget::class);
         register_widget(RelatedPostsWidget::class);
         register_widget(TaxonomyPostsWidget::class);
+        register_widget(EditorsPicksWidget::class);
         register_widget(WorldClockWidget::class);
         register_widget(PagesWidget::class);
 

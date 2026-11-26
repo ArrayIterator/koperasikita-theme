@@ -47,7 +47,6 @@ get_header();
 		</div>
 
 		<div class="kk-home-secondary">
-			<?php get_template_part( 'template-parts/home/featured-sidebar' ); ?>
 			<?php get_sidebar( 'news' ); ?>
 		</div>
 	</div>

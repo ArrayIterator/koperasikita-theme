@@ -2517,3 +2517,36 @@ msgstr "Interval Slide Otomatis (detik)"
 
 msgid "Lead Title Position"
 msgstr "Posisi Judul Lead"
+
+msgid "Koperasi Kita Editor’s Picks"
+msgstr "Pilihan Editor Koperasi Kita"
+
+msgid "Numbered list of posts from the categories and tags you pick, newest first."
+msgstr "Daftar bernomor dari kategori dan tag yang Anda pilih, terbaru dulu."
+
+msgid "Tags:"
+msgstr "Tag:"
+
+msgid "No tags yet."
+msgstr "Belum ada tag."
+
+msgid "Leave all unchecked to show the latest posts from every category and tag."
+msgstr "Biarkan semua tidak dicentang untuk menampilkan posting terbaru dari semua kategori dan tag."
+
+msgid "Show Numeric"
+msgstr "Tampilkan Angka"
+
+msgid "Show Categories"
+msgstr "Tampilkan Kategori"
+
+msgid "No posts to show yet."
+msgstr "Belum ada posting untuk ditampilkan."
+
+msgid "Show numeric"
+msgstr "Tampilkan angka"
+
+msgid "Show categories"
+msgstr "Tampilkan kategori"
+
+msgid "Leave all unchecked to show posts from every tag."
+msgstr "Biarkan semua tidak dicentang untuk menampilkan posting dari semua tag."

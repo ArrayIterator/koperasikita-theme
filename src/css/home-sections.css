@@ -175,46 +175,6 @@
 	color: #fff;
 }
 
-/* --- Editor picks --------------------------------------------------------- */
-
-.kk-picks-list {
-	counter-reset: pick;
-	border-top: 2px solid var(--kk-ink);
-}
-
-.kk-pick {
-	display: flex;
-	gap: 16px;
-	padding: 16px 0;
-	border-bottom: 1px solid var(--kk-border);
-}
-
-.kk-pick-number {
-	font-family: var(--kk-serif);
-	font-size: 32px;
-	line-height: 1;
-	font-weight: 700;
-	/* Deeper gold: #C9962E on white is 2.66:1, #8A6D1B is 4.9:1
-	 * (large text needs 3:1). Dark mode keeps the bright gold via
-	 * the variants override. */
-	color: #8A6D1B;
-	flex: 0 0 auto;
-	width: 32px;
-}
-
-.kk-pick-title {
-	font-size: 18px;
-	margin-bottom: 6px;
-}
-
-.kk-pick-title a {
-	color: var(--kk-ink);
-}
-
-.kk-pick-title a:hover {
-	color: var(--kk-green, #0B6B3A);
-}
-
 /* --- Category blocks ------------------------------------------------------ */
 
 .kk-category-block {

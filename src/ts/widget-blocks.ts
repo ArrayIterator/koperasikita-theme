@@ -28,7 +28,8 @@ type FieldDef =
 	| { key: string; kind: 'select'; label: string; options: OptionItem[] }
 	| { key: string; kind: 'toggle'; label: string }
 	| { key: string; kind: 'checkboxes'; label: string; options: OptionItem[] }
-	| { key: string; kind: 'categories'; label: string; help?: string };
+	| { key: string; kind: 'categories'; label: string; help?: string }
+	| { key: string; kind: 'tags'; label: string; help?: string };
 
 interface BlockDef {
 	slug: string;
@@ -120,6 +121,7 @@ function renderField(
 	attributes: Record<string, unknown>,
 	set: (key: string, value: unknown) => void,
 	categories: CategoryRecord[] | null,
+	tags: CategoryRecord[] | null,
 	api: Wp,
 ): unknown {
 	const value = attributes[field.key];
@@ -220,6 +222,36 @@ function renderField(
 					: null,
 			);
 		}
+		case 'tags': {
+			if (tags === null) {
+				return api.element.createElement(api.components.Spinner, { key });
+			}
+			const selected: number[] = Array.isArray(value)
+				? value.filter((item): item is number => typeof item === 'number')
+				: [];
+			const boxes = tags.map((tag) =>
+				api.element.createElement(api.components.CheckboxControl, {
+					key: String(tag.id),
+					label: `${tag.name} (${tag.count})`,
+					checked: selected.includes(tag.id),
+					onChange: (next: boolean) => {
+						const nextSelected = next
+							? [...selected, tag.id]
+							: selected.filter((id) => id !== tag.id);
+						set(key, nextSelected);
+					},
+				}),
+			);
+			return api.element.createElement(
+				'div',
+				{ key },
+				api.element.createElement('p', null, field.label),
+				...boxes,
+				field.help !== undefined
+					? api.element.createElement('p', { className: 'components-base-control__help' }, field.help)
+					: null,
+			);
+		}
 	}
 }
 
@@ -232,11 +264,16 @@ function createEdit(def: BlockDef, api: Wp): (props: BlockEditProps) => unknown 
 				select('core').getEntityRecords('taxonomy', 'category', { per_page: 100 }),
 			[],
 		);
+		const tags = api.data.useSelect(
+			(select) =>
+				select('core').getEntityRecords('taxonomy', 'post_tag', { per_page: 100 }),
+			[],
+		);
 		const set = (key: string, next: unknown): void => {
 			setAttributes({ [key]: next });
 		};
 		const controls = def.fields.map((field) =>
-			renderField(field, attributes, set, categories, api),
+			renderField(field, attributes, set, categories, tags, api),
 		);
 		const inspector = api.element.createElement(
 			api.blockEditor.InspectorControls,
@@ -343,6 +380,38 @@ function buildDefinitions(api: Wp): BlockDef[] {
 					label: __('Categories'),
 					help: __('Leave all unchecked to show posts from every category.'),
 				},
+			],
+		},
+		{
+			slug: 'editors-picks',
+			title: __('Editor’s Picks'),
+			description: __('Numbered list of posts from the categories and tags you pick, newest first.'),
+			icon: 'star-filled',
+			attributes: {
+				...storyAttributes,
+				categoryIds: { type: 'array', default: [], items: { type: 'number' } },
+				tagIds: { type: 'array', default: [], items: { type: 'number' } },
+				showNumeric: { type: 'boolean', default: true },
+				showDate: { type: 'boolean', default: true },
+				showCategories: { type: 'boolean', default: false },
+			},
+			fields: [
+				...storyFields,
+				{
+					key: 'categoryIds',
+					kind: 'categories',
+					label: __('Categories'),
+					help: __('Leave all unchecked to show posts from every category.'),
+				},
+				{
+					key: 'tagIds',
+					kind: 'tags',
+					label: __('Tags'),
+					help: __('Leave all unchecked to show posts from every tag.'),
+				},
+				{ key: 'showNumeric', kind: 'toggle', label: __('Show numeric') },
+				{ key: 'showDate', kind: 'toggle', label: __('Show date') },
+				{ key: 'showCategories', kind: 'toggle', label: __('Show categories') },
 			],
 		},
 		{

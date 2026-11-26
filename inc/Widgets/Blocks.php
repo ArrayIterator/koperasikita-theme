@@ -131,6 +131,26 @@ final class Blocks
                 ]),
                 'map' => array_merge($storyMap, ['categoryIds' => 'category_ids']),
             ],
+            'editors-picks' => [
+                'class' => EditorsPicksWidget::class,
+                'icon' => 'star-filled',
+                'title' => __('Editor’s Picks', 'koperasikita'),
+                'description' => __('Numbered list of posts from the categories and tags you pick, newest first.', 'koperasikita'),
+                'attributes' => array_merge($storyAttributes, [
+                    'categoryIds' => ['type' => 'array', 'default' => [], 'items' => ['type' => 'number']],
+                    'tagIds' => ['type' => 'array', 'default' => [], 'items' => ['type' => 'number']],
+                    'showNumeric' => ['type' => 'boolean', 'default' => true],
+                    'showDate' => ['type' => 'boolean', 'default' => true],
+                    'showCategories' => ['type' => 'boolean', 'default' => false],
+                ]),
+                'map' => array_merge($storyMap, [
+                    'categoryIds' => 'category_ids',
+                    'tagIds' => 'tag_ids',
+                    'showNumeric' => 'show_numeric',
+                    'showDate' => 'show_date',
+                    'showCategories' => 'show_categories',
+                ]),
+            ],
             'world-clock' => [
                 'class' => WorldClockWidget::class,
                 'icon' => 'clock',
