@@ -114,15 +114,6 @@ final class MarketsWidget extends WP_Widget
                 <?php esc_html_e('Show day change', 'koperasikita'); ?>
             </label>
         </p>
-        <p class="description">
-            <?php
-            printf(
-                /* translators: %s: URL of the Markets settings screen. */
-                esc_html__('Edit the prices in %s.', 'koperasikita'),
-                '<a href="' . esc_url(admin_url('options-general.php?page=kk-markets')) . '">' . esc_html__('Settings -> Markets', 'koperasikita') . '</a>'
-            );
-            ?>
-        </p>
         <?php
     }
 
