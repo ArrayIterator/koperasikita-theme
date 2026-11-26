@@ -62,3 +62,46 @@
 	display: grid;
 	gap: 20px;
 }
+
+/* --- Hero slider (Hero Presentation = Slider) ---------------------------- */
+/* One story at a time: a scroll-snap row, one full-width slide per
+ * stop, prev/next buttons scroll by one slide. The scrollbar is
+ * hidden (the buttons are the discoverable control). */
+
+.kk-hero-head {
+	align-items: end;
+}
+
+.kk-slider-controls {
+	display: flex;
+	gap: 0.5rem;
+	flex: 0 0 auto;
+}
+
+.kk-hero-slider {
+	display: flex;
+	gap: 1rem;
+	overflow-x: auto;
+	scroll-snap-type: x mandatory;
+	scrollbar-width: none;
+}
+
+.kk-hero-slider::-webkit-scrollbar {
+	display: none;
+}
+
+.kk-hero-slide {
+	flex: 0 0 100%;
+	scroll-snap-align: start;
+}
+
+.kk-hero-slide-media img {
+	width: 100%;
+	aspect-ratio: 16 / 9;
+	object-fit: cover;
+	border-radius: var(--kk-radius);
+}
+
+.kk-hero-slide-body {
+	padding-top: 1rem;
+}

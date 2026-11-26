@@ -2137,3 +2137,115 @@ msgstr ""
 #: inc/Widgets/Blocks.php
 msgid "World Clock"
 msgstr ""
+
+#: template-parts/home/hero-grid.php
+msgid "Top News"
+msgstr ""
+
+#: inc/Customizer/Customizer.php
+msgid "Hero Title"
+msgstr ""
+
+#: inc/Customizer/Customizer.php
+msgid "The heading above the hero stories. Leave it empty to hide the heading."
+msgstr ""
+
+#: inc/Customizer/Customizer.php
+msgid "Berita terbaru dari Koperasi Kita"
+msgstr ""
+
+#: inc/Customizer/Customizer.php
+msgid "Hero Eyebrow"
+msgstr ""
+
+#: inc/Customizer/Customizer.php
+msgid "The small line above the hero title. Leave it empty to hide it."
+msgstr ""
+
+#: inc/Customizer/Customizer.php
+msgid "Hero Presentation"
+msgstr ""
+
+#: inc/Customizer/Customizer.php
+msgid "Grid (lead + cards)"
+msgstr ""
+
+#: inc/Customizer/Customizer.php
+msgid "Slider (one story at a time)"
+msgstr ""
+
+#: inc/Customizer/Customizer.php
+msgid "Hero Source"
+msgstr ""
+
+#: inc/Customizer/Customizer.php
+msgid "Hero Categories"
+msgstr ""
+
+#: inc/Customizer/Customizer.php
+msgid "Used when the hero source is Selected categories. Leave it empty to fall back to the latest posts."
+msgstr ""
+
+#: inc/Customizer/Customizer.php
+msgid "Latest News Title"
+msgstr ""
+
+#: inc/Customizer/Customizer.php
+msgid "The heading of the latest-news section. Leave it empty to hide the heading."
+msgstr ""
+
+#: inc/Customizer/Customizer.php
+msgid "Latest News Eyebrow"
+msgstr ""
+
+#: inc/Customizer/Customizer.php
+msgid "The small line above the latest-news title. Leave it empty to hide it."
+msgstr ""
+
+#: inc/Customizer/Customizer.php
+msgid "Show Highlights (Sorotan)"
+msgstr ""
+
+#: template-parts/home/highlights.php
+msgid "Sorotan"
+msgstr ""
+
+#: inc/Customizer/Customizer.php
+msgid "Highlights Title"
+msgstr ""
+
+#: inc/Customizer/Customizer.php
+msgid "Highlights Display Style"
+msgstr ""
+
+#: inc/Customizer/Customizer.php
+msgid "Grid (Cards)"
+msgstr ""
+
+#: inc/Customizer/Customizer.php
+msgid "Horizontal Slider"
+msgstr ""
+
+#: inc/Customizer/Customizer.php
+msgid "Highlights Posts"
+msgstr ""
+
+#: inc/Customizer/Customizer.php
+msgid "Highlights Categories"
+msgstr ""
+
+#: inc/Customizer/Customizer.php
+msgid "Posts from these categories (or any of the tags below). Leave both empty for the latest posts."
+msgstr ""
+
+#: inc/Customizer/Customizer.php
+msgid "Highlights Tags"
+msgstr ""
+
+#: inc/Customizer/Customizer.php
+msgid "Posts with any of these tags (or any of the categories above). Leave both empty for the latest posts."
+msgstr ""
+
+#: inc/Customizer/Customizer.php
+msgid "The app logo used when installing the PWA (manifest icons and home-screen icon). Use a square image, at least 512×512. Leave empty to use the shipped logo."
+msgstr ""

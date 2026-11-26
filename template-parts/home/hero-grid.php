@@ -1,72 +1,123 @@
 <?php
 /**
- * Hero grid: first post large, next four as a 2x2 grid of cards.
+ * Hero: first post large, next four as a 2x2 grid of cards — or a
+ * one-at-a-time slider when the Hero Presentation is Slider.
  *
- * Accepts $args['posts'] (array of WP_Post) or queries itself with kk_hero_count.
+ * Accepts $args['posts'] (array of WP_Post) or queries itself via
+ * Homepage::heroPosts() (latest posts, or the picked categories when
+ * the hero source is Category). The editable title + eyebrow render
+ * above the stories; an empty title hides the heading.
  *
  * @package KoperasiKita
  */
 
-$hero_count = (int) get_theme_mod( 'kk_hero_count', 5 );
-$hero_count = max( 1, $hero_count );
-
 if ( isset( $args['posts'] ) && is_array( $args['posts'] ) ) {
 	$hero_posts = $args['posts'];
 } else {
-	$hero_query = new WP_Query(
-		array(
-			'post_type'           => 'post',
-			'posts_per_page'      => $hero_count,
-			'ignore_sticky_posts' => false,
-		)
-	);
-	$hero_posts = $hero_query->posts;
+	$hero_posts = \KoperasiKita\Features\Homepage::heroPosts();
 }
 
 if ( empty( $hero_posts ) ) {
 	return;
 }
 
+$hero_title = (string) get_theme_mod( 'kk_hero_title', __( 'Top News', 'koperasikita' ) );
+$hero_title = trim( $hero_title );
+$hero_eyebrow = (string) get_theme_mod( 'kk_hero_eyebrow', '' );
+$hero_eyebrow = trim( $hero_eyebrow );
+$hero_mode = (string) get_theme_mod( 'kk_hero_mode', 'grid' );
+$hero_mode = in_array( $hero_mode, ['grid', 'slider'], true ) ? $hero_mode : 'grid';
 $lead  = array_shift( $hero_posts );
 $rest  = $hero_posts;
 ?>
 
-<section class="kk-hero" aria-label="<?php esc_attr_e( 'Top stories', 'koperasikita' ); ?>">
-	<?php
-	// Lead story.
-	$post = $lead;
-	setup_postdata( $post );
-	?>
-	<article class="kk-hero-lead">
-		<a class="kk-hero-lead-media" href="<?php the_permalink(); ?>" tabindex="-1" aria-hidden="true">
-			<img src="<?php echo esc_url( \KoperasiKita\Images\FeaturedImage::url( get_the_ID(), 'large' ) ); ?>" alt="" loading="eager" fetchpriority="high">
-		</a>
-		<div class="kk-hero-lead-body">
-			<?php
-			$categories = get_the_category();
-			if ( ! empty( $categories ) ) {
-				?>
-				<p class="kk-eyebrow"><a href="<?php echo esc_url( get_category_link( $categories[0] ) ); ?>"><?php echo esc_html( $categories[0]->name ); ?></a></p>
-				<?php
-			}
-			?>
-			<h2 class="kk-hero-title"><a href="<?php the_permalink(); ?>"><?php the_title(); ?></a></h2>
-			<p class="kk-hero-excerpt"><?php echo esc_html( get_the_excerpt() ); ?></p>
-			<p class="kk-meta">
-				<time datetime="<?php echo esc_attr( get_the_date( 'c' ) ); ?>"><?php echo esc_html( get_the_date() ); ?></time>
-			</p>
+<section class="kk-hero<?php echo 'slider' === $hero_mode ? ' kk-hero--slider' : ''; ?>" aria-label="<?php esc_attr_e( 'Top stories', 'koperasikita' ); ?>">
+	<?php if ( '' !== $hero_title || '' !== $hero_eyebrow ) : ?>
+		<div class="kk-section-head kk-hero-head">
+			<div>
+				<?php if ( '' !== $hero_eyebrow ) : ?>
+					<p class="kk-eyebrow"><?php echo esc_html( $hero_eyebrow ); ?></p>
+				<?php endif; ?>
+				<?php if ( '' !== $hero_title ) : ?>
+					<h2 class="kk-section-title"><?php echo esc_html( $hero_title ); ?></h2>
+				<?php endif; ?>
+			</div>
+			<?php if ( 'slider' === $hero_mode ) : ?>
+				<div class="kk-slider-controls">
+					<button type="button" class="kk-icon-button kk-slider-prev" aria-label="<?php esc_attr_e( 'Previous story', 'koperasikita' ); ?>"><?php echo \KoperasiKita\Icons\Icon::svg( 'prev', 16 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></button>
+					<button type="button" class="kk-icon-button kk-slider-next" aria-label="<?php esc_attr_e( 'Next story', 'koperasikita' ); ?>"><?php echo \KoperasiKita\Icons\Icon::svg( 'next', 16 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></button>
+				</div>
+			<?php endif; ?>
 		</div>
-	</article>
+	<?php endif; ?>
 
-	<?php if ( ! empty( $rest ) ) : ?>
-		<div class="kk-hero-grid">
+	<?php if ( 'slider' === $hero_mode ) : ?>
+		<div class="kk-hero-slider" data-kk-slider>
 			<?php
-			foreach ( $rest as $post ) :
+			// The lead is the first slide; the rest follow in order.
+			array_unshift( $hero_posts, $lead );
+			foreach ( $hero_posts as $post ) :
 				setup_postdata( $post );
-				get_template_part( 'template-parts/content/card-news' );
-			endforeach;
-			?>
+				?>
+				<article class="kk-hero-slide">
+					<a class="kk-hero-slide-media" href="<?php the_permalink(); ?>" tabindex="-1" aria-hidden="true">
+						<img src="<?php echo esc_url( \KoperasiKita\Images\FeaturedImage::url( get_the_ID(), 'large' ) ); ?>" alt="" loading="lazy">
+					</a>
+					<div class="kk-hero-slide-body">
+						<?php
+						$categories = get_the_category();
+						if ( ! empty( $categories ) ) {
+							?>
+							<p class="kk-eyebrow"><a href="<?php echo esc_url( get_category_link( $categories[0] ) ); ?>"><?php echo esc_html( $categories[0]->name ); ?></a></p>
+							<?php
+						}
+						?>
+						<h2 class="kk-hero-title"><a href="<?php the_permalink(); ?>"><?php the_title(); ?></a></h2>
+						<p class="kk-hero-excerpt"><?php echo esc_html( get_the_excerpt() ); ?></p>
+						<p class="kk-meta">
+							<time datetime="<?php echo esc_attr( get_the_date( 'c' ) ); ?>"><?php echo esc_html( get_the_date() ); ?></time>
+						</p>
+					</div>
+				</article>
+			<?php endforeach; ?>
 		</div>
+	<?php else : ?>
+		<?php
+		// Lead story.
+		$post = $lead;
+		setup_postdata( $post );
+		?>
+		<article class="kk-hero-lead">
+			<a class="kk-hero-lead-media" href="<?php the_permalink(); ?>" tabindex="-1" aria-hidden="true">
+				<img src="<?php echo esc_url( \KoperasiKita\Images\FeaturedImage::url( get_the_ID(), 'large' ) ); ?>" alt="" loading="eager" fetchpriority="high">
+			</a>
+			<div class="kk-hero-lead-body">
+				<?php
+				$categories = get_the_category();
+				if ( ! empty( $categories ) ) {
+					?>
+					<p class="kk-eyebrow"><a href="<?php echo esc_url( get_category_link( $categories[0] ) ); ?>"><?php echo esc_html( $categories[0]->name ); ?></a></p>
+					<?php
+				}
+				?>
+				<h2 class="kk-hero-title"><a href="<?php the_permalink(); ?>"><?php the_title(); ?></a></h2>
+				<p class="kk-hero-excerpt"><?php echo esc_html( get_the_excerpt() ); ?></p>
+				<p class="kk-meta">
+					<time datetime="<?php echo esc_attr( get_the_date( 'c' ) ); ?>"><?php echo esc_html( get_the_date() ); ?></time>
+				</p>
+			</div>
+		</article>
+
+		<?php if ( ! empty( $rest ) ) : ?>
+			<div class="kk-hero-grid">
+				<?php
+				foreach ( $rest as $post ) :
+					setup_postdata( $post );
+					get_template_part( 'template-parts/content/card-news' );
+				endforeach;
+				?>
+			</div>
+		<?php endif; ?>
 	<?php endif; ?>
 
 	<?php wp_reset_postdata(); ?>

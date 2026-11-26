@@ -399,6 +399,41 @@ function initExpandingSearch(): void {
 /* Ticker (bouncing fade rotation)                                     */
 /* ------------------------------------------------------------------ */
 
+/**
+ * Horizontal sliders (hero slider, highlights slider): every
+ * [data-kk-slider] is a scroll-snap row; the prev/next buttons in
+ * the same section header scroll it by one child (one slide for the
+ * hero, one card for highlights). The buttons live in the section
+ * head, so the slider is found via the closest section.
+ */
+function initSliders(): void {
+	document.querySelectorAll<HTMLElement>('[data-kk-slider]').forEach((slider) => {
+		const section = slider.closest('section');
+		if (!section) {
+			return;
+		}
+		const prev = section.querySelector<HTMLButtonElement>('.kk-slider-prev');
+		const next = section.querySelector<HTMLButtonElement>('.kk-slider-next');
+		if (!prev || !next) {
+			return;
+		}
+		const step = (): number => {
+			const first = slider.firstElementChild as HTMLElement | null;
+			if (!first) {
+				return slider.clientWidth;
+			}
+			const gap = Number.parseFloat(getComputedStyle(slider).columnGap || '0') || 0;
+			return first.offsetWidth + gap;
+		};
+		prev.addEventListener('click', () => {
+			slider.scrollBy({ left: -step(), behavior: 'smooth' });
+		});
+		next.addEventListener('click', () => {
+			slider.scrollBy({ left: step(), behavior: 'smooth' });
+		});
+	});
+}
+
 function initTicker(): void {
 	const list = $('#kk-ticker-list');
 	if (!list) {
@@ -407,8 +442,7 @@ function initTicker(): void {
 	const items = $all<HTMLElement>('.kk-ticker-item', list);
 	if (items.length <= 1) {
 		return;
-	}
-	let current = 0;
+	}	let current = 0;
 	let timer: number | null = null;
 	const toggle = $('#kk-ticker-toggle') as HTMLButtonElement | null;
 	const speedSeconds = Math.min(120, Math.max(2, Number(list.getAttribute('data-speed') ?? '5') || 5));
@@ -979,6 +1013,7 @@ document.addEventListener('DOMContentLoaded', () => {
 	initModals();
 	initExpandingSearch();
 	initTicker();
+	initSliders();
 	initClock();
 	initLayoutSwitcher();
 	initBookmarks();

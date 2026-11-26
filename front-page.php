@@ -15,6 +15,8 @@ get_header();
 
 	<?php get_template_part( 'template-parts/home/hero-grid' ); ?>
 
+	<?php get_template_part( 'template-parts/home/highlights' ); ?>
+
 	<div class="kk-home-layout">
 		<div class="kk-home-primary">
 			<?php

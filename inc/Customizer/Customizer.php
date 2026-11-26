@@ -177,6 +177,86 @@ final class Customizer
             'input_attrs' => ['min' => 3, 'max' => 8],
         ]);
 
+        /* Hero header + source: an editable title and eyebrow above
+         * the hero grid, a Grid/Slider presentation switch, and a
+         * Latest/Category source (the category picker only matters
+         * when the source is Category). */
+        self::addSetting(
+            $wpCustomize,
+            'kk_hero_title',
+            __('Top News', 'koperasikita'),
+            'sanitize_text_field',
+            'refresh'
+        );
+        $wpCustomize->add_control('kk_hero_title', [
+            'label' => esc_html__('Hero Title', 'koperasikita'),
+            'description' => esc_html__('The heading above the hero stories. Leave it empty to hide the heading.', 'koperasikita'),
+            'section' => 'koperasikita_homepage',
+            'type' => 'text',
+        ]);
+
+        self::addSetting(
+            $wpCustomize,
+            'kk_hero_eyebrow',
+            __('Berita terbaru dari Koperasi Kita', 'koperasikita'),
+            'sanitize_text_field',
+            'refresh'
+        );
+        $wpCustomize->add_control('kk_hero_eyebrow', [
+            'label' => esc_html__('Hero Eyebrow', 'koperasikita'),
+            'description' => esc_html__('The small line above the hero title. Leave it empty to hide it.', 'koperasikita'),
+            'section' => 'koperasikita_homepage',
+            'type' => 'text',
+        ]);
+
+        self::addSetting(
+            $wpCustomize,
+            'kk_hero_mode',
+            'grid',
+            [self::class, 'sanitizeHeroMode'],
+            'refresh'
+        );
+        $wpCustomize->add_control('kk_hero_mode', [
+            'label' => esc_html__('Hero Presentation', 'koperasikita'),
+            'section' => 'koperasikita_homepage',
+            'type' => 'select',
+            'choices' => [
+                'grid' => esc_html__('Grid (lead + cards)', 'koperasikita'),
+                'slider' => esc_html__('Slider (one story at a time)', 'koperasikita'),
+            ],
+        ]);
+
+        self::addSetting(
+            $wpCustomize,
+            'kk_hero_source',
+            'latest',
+            [self::class, 'sanitizeHeroSource'],
+            'refresh'
+        );
+        $wpCustomize->add_control('kk_hero_source', [
+            'label' => esc_html__('Hero Source', 'koperasikita'),
+            'section' => 'koperasikita_homepage',
+            'type' => 'select',
+            'choices' => [
+                'latest' => esc_html__('Latest posts', 'koperasikita'),
+                'category' => esc_html__('Selected categories', 'koperasikita'),
+            ],
+        ]);
+
+        self::addSetting(
+            $wpCustomize,
+            'kk_hero_category_ids',
+            [],
+            [self::class, 'sanitizeTermIds'],
+            'refresh'
+        );
+        $wpCustomize->add_control(new TermMultiSelectControl($wpCustomize, 'kk_hero_category_ids', [
+            'label' => esc_html__('Hero Categories', 'koperasikita'),
+            'description' => esc_html__('Used when the hero source is Selected categories. Leave it empty to fall back to the latest posts.', 'koperasikita'),
+            'section' => 'koperasikita_homepage',
+            'taxonomy' => 'category',
+        ]));
+
         self::addSetting(
             $wpCustomize,
             'kk_latest_count',
@@ -189,6 +269,36 @@ final class Customizer
             'section' => 'koperasikita_homepage',
             'type' => 'number',
             'input_attrs' => ['min' => 5, 'max' => 20],
+        ]);
+
+        /* Latest-news heading: an editable title and eyebrow for the
+         * Latest News section (was a hardcoded "Latest News"). */
+        self::addSetting(
+            $wpCustomize,
+            'kk_latest_title',
+            __('Latest News', 'koperasikita'),
+            'sanitize_text_field',
+            'refresh'
+        );
+        $wpCustomize->add_control('kk_latest_title', [
+            'label' => esc_html__('Latest News Title', 'koperasikita'),
+            'description' => esc_html__('The heading of the latest-news section. Leave it empty to hide the heading.', 'koperasikita'),
+            'section' => 'koperasikita_homepage',
+            'type' => 'text',
+        ]);
+
+        self::addSetting(
+            $wpCustomize,
+            'kk_latest_eyebrow',
+            '',
+            'sanitize_text_field',
+            'refresh'
+        );
+        $wpCustomize->add_control('kk_latest_eyebrow', [
+            'label' => esc_html__('Latest News Eyebrow', 'koperasikita'),
+            'description' => esc_html__('The small line above the latest-news title. Leave it empty to hide it.', 'koperasikita'),
+            'section' => 'koperasikita_homepage',
+            'type' => 'text',
         ]);
 
         self::addSetting(
@@ -292,6 +402,95 @@ final class Customizer
                 ],
             ]);
         }
+
+        // Highlights ("Sorotan"): editor-picked posts filtered by
+        // category and/or tag, with a custom title, a post count and
+        // a Grid/Slider layout. Empty filters = the latest posts, so
+        // the section never shows a hole.
+        self::addSetting(
+            $wpCustomize,
+            'kk_highlights_enabled',
+            true,
+            [self::class, 'sanitizeBool'],
+            'refresh'
+        );
+        $wpCustomize->add_control('kk_highlights_enabled', [
+            'label' => esc_html__('Show Highlights (Sorotan)', 'koperasikita'),
+            'section' => 'koperasikita_homepage',
+            'type' => 'checkbox',
+        ]);
+
+        self::addSetting(
+            $wpCustomize,
+            'kk_highlights_title',
+            __('Sorotan', 'koperasikita'),
+            'sanitize_text_field',
+            'refresh'
+        );
+        $wpCustomize->add_control('kk_highlights_title', [
+            'label' => esc_html__('Highlights Title', 'koperasikita'),
+            'section' => 'koperasikita_homepage',
+            'type' => 'text',
+        ]);
+
+        self::addSetting(
+            $wpCustomize,
+            'kk_highlights_layout',
+            'grid',
+            [self::class, 'sanitizeHighlightsLayout'],
+            'refresh'
+        );
+        $wpCustomize->add_control('kk_highlights_layout', [
+            'label' => esc_html__('Highlights Display Style', 'koperasikita'),
+            'section' => 'koperasikita_homepage',
+            'type' => 'select',
+            'choices' => [
+                'grid' => esc_html__('Grid (Cards)', 'koperasikita'),
+                'slider' => esc_html__('Horizontal Slider', 'koperasikita'),
+            ],
+        ]);
+
+        self::addSetting(
+            $wpCustomize,
+            'kk_highlights_count',
+            3,
+            static fn ($value) => self::clampInt($value, 1, 9),
+            'refresh'
+        );
+        $wpCustomize->add_control('kk_highlights_count', [
+            'label' => esc_html__('Highlights Posts', 'koperasikita'),
+            'section' => 'koperasikita_homepage',
+            'type' => 'number',
+            'input_attrs' => ['min' => 1, 'max' => 9],
+        ]);
+
+        self::addSetting(
+            $wpCustomize,
+            'kk_highlights_category_ids',
+            [],
+            [self::class, 'sanitizeTermIds'],
+            'refresh'
+        );
+        $wpCustomize->add_control(new TermMultiSelectControl($wpCustomize, 'kk_highlights_category_ids', [
+            'label' => esc_html__('Highlights Categories', 'koperasikita'),
+            'description' => esc_html__('Posts from these categories (or any of the tags below). Leave both empty for the latest posts.', 'koperasikita'),
+            'section' => 'koperasikita_homepage',
+            'taxonomy' => 'category',
+        ]));
+
+        self::addSetting(
+            $wpCustomize,
+            'kk_highlights_tag_ids',
+            [],
+            [self::class, 'sanitizeTermIds'],
+            'refresh'
+        );
+        $wpCustomize->add_control(new TermMultiSelectControl($wpCustomize, 'kk_highlights_tag_ids', [
+            'label' => esc_html__('Highlights Tags', 'koperasikita'),
+            'description' => esc_html__('Posts with any of these tags (or any of the categories above). Leave both empty for the latest posts.', 'koperasikita'),
+            'section' => 'koperasikita_homepage',
+            'taxonomy' => 'post_tag',
+        ]));
 
         // Market strip on the homepage: gold spot, stocks and crypto above
         // the latest news. On by default so prices are visible on a fresh
@@ -1185,6 +1384,21 @@ final class Customizer
         $allowed = ['gold', 'green', 'dark', 'red', 'outline'];
 
         return in_array($value, $allowed, true) ? (string) $value : 'gold';
+    }
+
+    public static function sanitizeHeroMode(mixed $value): string
+    {
+        return in_array($value, ['grid', 'slider'], true) ? (string) $value : 'grid';
+    }
+
+    public static function sanitizeHeroSource(mixed $value): string
+    {
+        return in_array($value, ['latest', 'category'], true) ? (string) $value : 'latest';
+    }
+
+    public static function sanitizeHighlightsLayout(mixed $value): string
+    {
+        return in_array($value, ['grid', 'slider'], true) ? (string) $value : 'grid';
     }
 
     /**

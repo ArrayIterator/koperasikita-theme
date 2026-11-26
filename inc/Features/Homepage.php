@@ -86,4 +86,91 @@ final class Homepage
 
         return in_array($layout, ['grid', 'list', 'featured'], true) ? $layout : 'grid';
     }
+
+    /**
+     * Highlights ("Sorotan") posts: the editor-picked categories
+     * and/or tags, OR-related (a post matches when it is in any
+     * picked category OR has any picked tag). Empty filters fall back
+     * to the latest posts, so the section never shows a hole.
+     *
+     * @return \WP_Post[]
+     */
+    public static function highlightsPosts(): array
+    {
+        $count = min(9, max(1, (int) get_theme_mod('kk_highlights_count', 3)));
+        $categoryIds = array_values(array_filter(array_map('absint', (array) get_theme_mod('kk_highlights_category_ids', []))));
+        $tagIds = array_values(array_filter(array_map('absint', (array) get_theme_mod('kk_highlights_tag_ids', []))));
+
+        $args = [
+            'post_type' => 'post',
+            'post_status' => 'publish',
+            'posts_per_page' => $count,
+            'ignore_sticky_posts' => true,
+        ];
+
+        if ($categoryIds !== [] && $tagIds !== []) {
+            $args['tax_query'] = [
+                'relation' => 'OR',
+                [
+                    'taxonomy' => 'category',
+                    'field' => 'term_id',
+                    'terms' => $categoryIds,
+                    'operator' => 'IN',
+                ],
+                [
+                    'taxonomy' => 'post_tag',
+                    'field' => 'term_id',
+                    'terms' => $tagIds,
+                    'operator' => 'IN',
+                ],
+            ];
+        } elseif ($categoryIds !== []) {
+            $args['category__in'] = $categoryIds;
+        } elseif ($tagIds !== []) {
+            $args['tag__in'] = $tagIds;
+        }
+
+        $query = new \WP_Query($args);
+
+        return $query->posts;
+    }
+
+    /**
+     * Hero posts: the latest posts, or the picked categories when the
+     * hero source is Category (empty pick falls back to latest).
+     *
+     * @return \WP_Post[]
+     */
+    public static function heroPosts(): array
+    {
+        $count = min(8, max(1, (int) get_theme_mod('kk_hero_count', 5)));
+        $source = (string) get_theme_mod('kk_hero_source', 'latest');
+        $source = in_array($source, ['latest', 'category'], true) ? $source : 'latest';
+
+        $args = [
+            'post_type' => 'post',
+            'post_status' => 'publish',
+            'posts_per_page' => $count,
+            'ignore_sticky_posts' => false,
+        ];
+
+        if ($source === 'category') {
+            $categoryIds = array_values(array_filter(array_map('absint', (array) get_theme_mod('kk_hero_category_ids', []))));
+
+            if ($categoryIds !== []) {
+                $args['category__in'] = $categoryIds;
+            }
+        }
+
+        $query = new \WP_Query($args);
+
+        // A category with fewer posts than the count still renders
+        // what it has; only an empty result falls back to latest.
+        if ($query->posts === [] && $source === 'category') {
+            unset($args['category__in']);
+            $query = new \WP_Query($args);
+        }
+
+        return $query->posts;
+    }
 }

@@ -31,11 +31,23 @@ $latest = new WP_Query(
 if ( ! $latest->have_posts() ) {
 	return;
 }
+
+$latest_title = (string) get_theme_mod( 'kk_latest_title', __( 'Latest News', 'koperasikita' ) );
+$latest_title = trim( $latest_title );
+$latest_eyebrow = (string) get_theme_mod( 'kk_latest_eyebrow', '' );
+$latest_eyebrow = trim( $latest_eyebrow );
 ?>
 
 <section class="kk-latest" aria-labelledby="kk-latest-heading">
 	<div class="kk-section-head">
-		<h2 class="kk-section-title" id="kk-latest-heading"><?php esc_html_e( 'Latest News', 'koperasikita' ); ?></h2>
+		<div>
+			<?php if ( '' !== $latest_eyebrow ) : ?>
+				<p class="kk-eyebrow"><?php echo esc_html( $latest_eyebrow ); ?></p>
+			<?php endif; ?>
+			<?php if ( '' !== $latest_title ) : ?>
+				<h2 class="kk-section-title" id="kk-latest-heading"><?php echo esc_html( $latest_title ); ?></h2>
+			<?php endif; ?>
+		</div>
 		<?php get_template_part( 'template-parts/content/layout-switcher' ); ?>
 	</div>
 
