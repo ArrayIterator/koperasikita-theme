@@ -645,9 +645,11 @@ final class Customizer
             ]);
         }
 
+        /* Master feature toggles. The Header toggles (ticker, weather)
+         * are NOT in this list: each one is registered inline, right
+         * before its own settings, so the Customizer shows the toggle
+         * followed by its settings — never another checkbox. */
         $toggles = [
-            'kk_ticker_enabled' => ['koperasikita_header', 'Enable News Ticker'],
-            'kk_weather_enabled' => ['koperasikita_header', 'Enable Weather'],
             'kk_markets_enabled' => ['koperasikita_homepage', 'Enable Markets'],
             'kk_bookmarks_enabled' => ['koperasikita_accessibility', 'Enable Bookmarks'],
             'kk_pwa_enabled' => ['koperasikita_pwa', 'Enable Progressive Web App'],
@@ -662,6 +664,29 @@ final class Customizer
                 'type' => 'checkbox',
             ]);
         }
+
+        /* --- Header: News Ticker group -------------------------------- */
+        /* Toggle first, then its settings in order. Each setting hides
+         * when the ticker is off (active_callback), so a disabled
+         * ticker leaves no orphan settings behind. */
+        self::addSetting($wpCustomize, 'kk_ticker_enabled', true, [self::class, 'sanitizeBool'], 'refresh');
+        $wpCustomize->add_control('kk_ticker_enabled', [
+            'label' => esc_html__('Enable News Ticker', 'koperasikita'),
+            'section' => 'koperasikita_header',
+            'type' => 'checkbox',
+            'priority' => 10,
+        ]);
+
+        /* --- Header: Weather group ------------------------------------ */
+        /* Toggle first, then its settings in order. Each setting hides
+         * when weather is off (active_callback). */
+        self::addSetting($wpCustomize, 'kk_weather_enabled', true, [self::class, 'sanitizeBool'], 'refresh');
+        $wpCustomize->add_control('kk_weather_enabled', [
+            'label' => esc_html__('Enable Weather', 'koperasikita'),
+            'section' => 'koperasikita_header',
+            'type' => 'checkbox',
+            'priority' => 20,
+        ]);
 
         // Weather cache lifetime (client-side localStorage cache for
         // the top-bar and widget weather). 0 disables the browser
@@ -678,6 +703,8 @@ final class Customizer
             'description' => esc_html__('Minutes the browser keeps weather data in local storage before fetching fresh data. The top bar shows the cached weather instantly while fresh data loads in the background. 0 disables the browser cache.', 'koperasikita'),
             'section' => 'koperasikita_header',
             'type' => 'number',
+            'active_callback' => [self::class, 'isWeatherEnabled'],
+            'priority' => 21,
             'input_attrs' => [
                 'min' => 0,
                 'max' => 1440,
@@ -699,6 +726,8 @@ final class Customizer
             'label' => esc_html__('Weather Temperature Unit', 'koperasikita'),
             'section' => 'koperasikita_header',
             'type' => 'select',
+            'active_callback' => [self::class, 'isWeatherEnabled'],
+            'priority' => 22,
             'choices' => [
                 'celsius' => esc_html__('Celsius (°C)', 'koperasikita'),
                 'fahrenheit' => esc_html__('Fahrenheit (°F)', 'koperasikita'),
@@ -719,44 +748,49 @@ final class Customizer
             'label' => esc_html__('Mobile Menu Slide Side', 'koperasikita'),
             'section' => 'koperasikita_header',
             'type' => 'select',
+            'priority' => 40,
             'choices' => [
                 'left' => esc_html__('Left', 'koperasikita'),
                 'right' => esc_html__('Right', 'koperasikita'),
             ],
         ]);
 
+        /* The 4th element is the Header-section display priority
+         * (feature-group order: top bar 30, clock 33, sticky nav 39).
+         * Other sections keep the default priority. */
         $checkboxes = [
-            'kk_single_featured' => ['koperasikita_single', 'Show Featured Image', true],
-            'kk_single_author_box' => ['koperasikita_single', 'Show Author Box', true],
-            'kk_single_related' => ['koperasikita_single', 'Show Related News', true],
-            'kk_single_reading_time' => ['koperasikita_single', 'Show Reading Time', true],
-            'kk_single_show_share' => ['koperasikita_single', 'Show Share Buttons', true],
-            'kk_comments_enabled' => ['koperasikita_comments', 'Enable Comments', true],
-            'kk_comments_avatars' => ['koperasikita_comments', 'Show Comment Avatars', true],
-            'kk_images_lazy' => ['koperasikita_media', 'Lazy-Load Images', true],
-            'kk_images_srcset' => ['koperasikita_media', 'Enable Responsive Images', true],
-            'kk_breadcrumb_enabled' => ['koperasikita_breadcrumb', 'Show Breadcrumbs', true],
-            'kk_breadcrumb_home' => ['koperasikita_breadcrumb', 'Show Breadcrumbs on the Homepage', false],
-            'kk_breadcrumb_post' => ['koperasikita_breadcrumb', 'Show Breadcrumbs on Articles', true],
-            'kk_breadcrumb_page' => ['koperasikita_breadcrumb', 'Show Breadcrumbs on Pages', true],
-            'kk_breadcrumb_archive' => ['koperasikita_breadcrumb', 'Show Breadcrumbs on Archives', true],
-            'kk_breadcrumb_search' => ['koperasikita_breadcrumb', 'Show Breadcrumbs on Search Results', true],
-            'kk_breadcrumb_404' => ['koperasikita_breadcrumb', 'Show Breadcrumbs on 404 Pages', true],
-            'kk_topbar_enabled' => ['koperasikita_header', 'Show Top Bar', true],
-            'kk_topbar_date' => ['koperasikita_header', 'Show Date in Top Bar', true],
-            'kk_clock_enabled' => ['koperasikita_header', 'Show Live Clock in Top Bar', true],
-            'kk_clock_seconds' => ['koperasikita_header', 'Show Seconds on the Clock', false],
-            'kk_clock_24h' => ['koperasikita_header', 'Use the 24-Hour Clock', true],
-            'kk_sticky_header' => ['koperasikita_header', 'Sticky Header Navigation', true],
-            'kk_sidebar_sticky' => ['koperasikita_accessibility', 'Sticky Sidebar While Scrolling', false],
+            'kk_single_featured' => ['koperasikita_single', 'Show Featured Image', true, 10],
+            'kk_single_author_box' => ['koperasikita_single', 'Show Author Box', true, 10],
+            'kk_single_related' => ['koperasikita_single', 'Show Related News', true, 10],
+            'kk_single_reading_time' => ['koperasikita_single', 'Show Reading Time', true, 10],
+            'kk_single_show_share' => ['koperasikita_single', 'Show Share Buttons', true, 10],
+            'kk_comments_enabled' => ['koperasikita_comments', 'Enable Comments', true, 10],
+            'kk_comments_avatars' => ['koperasikita_comments', 'Show Comment Avatars', true, 10],
+            'kk_images_lazy' => ['koperasikita_media', 'Lazy-Load Images', true, 10],
+            'kk_images_srcset' => ['koperasikita_media', 'Enable Responsive Images', true, 10],
+            'kk_breadcrumb_enabled' => ['koperasikita_breadcrumb', 'Show Breadcrumbs', true, 10],
+            'kk_breadcrumb_home' => ['koperasikita_breadcrumb', 'Show Breadcrumbs on the Homepage', false, 10],
+            'kk_breadcrumb_post' => ['koperasikita_breadcrumb', 'Show Breadcrumbs on Articles', true, 10],
+            'kk_breadcrumb_page' => ['koperasikita_breadcrumb', 'Show Breadcrumbs on Pages', true, 10],
+            'kk_breadcrumb_archive' => ['koperasikita_breadcrumb', 'Show Breadcrumbs on Archives', true, 10],
+            'kk_breadcrumb_search' => ['koperasikita_breadcrumb', 'Show Breadcrumbs on Search Results', true, 10],
+            'kk_breadcrumb_404' => ['koperasikita_breadcrumb', 'Show Breadcrumbs on 404 Pages', true, 10],
+            'kk_topbar_enabled' => ['koperasikita_header', 'Show Top Bar', true, 30],
+            'kk_topbar_date' => ['koperasikita_header', 'Show Date in Top Bar', true, 31],
+            'kk_clock_enabled' => ['koperasikita_header', 'Show Live Clock in Top Bar', true, 33],
+            'kk_clock_seconds' => ['koperasikita_header', 'Show Seconds on the Clock', false, 34],
+            'kk_clock_24h' => ['koperasikita_header', 'Use the 24-Hour Clock', true, 35],
+            'kk_sticky_header' => ['koperasikita_header', 'Sticky Header Navigation', true, 39],
+            'kk_sidebar_sticky' => ['koperasikita_accessibility', 'Sticky Sidebar While Scrolling', false, 10],
         ];
 
-        foreach ($checkboxes as $id => [$section, $label, $default]) {
+        foreach ($checkboxes as $id => [$section, $label, $default, $priority]) {
             self::addSetting($wpCustomize, $id, $default, [self::class, 'sanitizeBool'], 'refresh');
             $wpCustomize->add_control($id, [
                 'label' => esc_html__($label, 'koperasikita'),
                 'section' => $section,
                 'type' => 'checkbox',
+                'priority' => $priority,
             ]);
         }
 
@@ -790,6 +824,8 @@ final class Customizer
             'description' => esc_html__('The label shown on the news ticker.', 'koperasikita'),
             'section' => 'koperasikita_header',
             'type' => 'text',
+            'active_callback' => [self::class, 'isTickerEnabled'],
+            'priority' => 11,
         ]);
 
         /* Breaking ribbon style: five label designs, all high
@@ -808,6 +844,8 @@ final class Customizer
             'description' => esc_html__('The design of the Breaking label on the news ticker.', 'koperasikita'),
             'section' => 'koperasikita_header',
             'type' => 'select',
+            'active_callback' => [self::class, 'isTickerEnabled'],
+            'priority' => 12,
             'choices' => [
                 'gold' => esc_html__('Gold (solid gold, black text)', 'koperasikita'),
                 'green' => esc_html__('Green (brand green, white text)', 'koperasikita'),
@@ -828,6 +866,8 @@ final class Customizer
             'label' => esc_html__('Breaking News Posts', 'koperasikita'),
             'section' => 'koperasikita_header',
             'type' => 'select',
+            'active_callback' => [self::class, 'isTickerEnabled'],
+            'priority' => 13,
             'choices' => [
                 'latest' => esc_html__('Latest posts', 'koperasikita'),
                 'category' => esc_html__('Selected categories', 'koperasikita'),
@@ -846,6 +886,8 @@ final class Customizer
             'label' => esc_html__('Ticker Categories', 'koperasikita'),
             'description' => esc_html__('Used when the source above is "Selected categories". Leave empty to fall back to the latest posts.', 'koperasikita'),
             'section' => 'koperasikita_header',
+            'active_callback' => [self::class, 'isTickerEnabled'],
+            'priority' => 14,
             'taxonomy' => 'category',
         ]));
 
@@ -860,6 +902,8 @@ final class Customizer
             'label' => esc_html__('Ticker Tags', 'koperasikita'),
             'description' => esc_html__('Used when the source above is "Selected tags". Leave empty to fall back to the latest posts.', 'koperasikita'),
             'section' => 'koperasikita_header',
+            'active_callback' => [self::class, 'isTickerEnabled'],
+            'priority' => 15,
             'taxonomy' => 'post_tag',
         ]));
 
@@ -874,6 +918,8 @@ final class Customizer
             'label' => esc_html__('Seconds Between Breaking News Headlines', 'koperasikita'),
             'section' => 'koperasikita_header',
             'type' => 'number',
+            'active_callback' => [self::class, 'isTickerEnabled'],
+            'priority' => 16,
             'input_attrs' => ['min' => 2, 'max' => 120],
         ]);
 
@@ -888,6 +934,8 @@ final class Customizer
             'label' => esc_html__('Breaking News Headlines', 'koperasikita'),
             'section' => 'koperasikita_header',
             'type' => 'number',
+            'active_callback' => [self::class, 'isTickerEnabled'],
+            'priority' => 17,
             'input_attrs' => ['min' => 1, 'max' => 10],
         ]);
 
@@ -902,6 +950,7 @@ final class Customizer
             'label' => esc_html__('Top Bar Date Format', 'koperasikita'),
             'section' => 'koperasikita_header',
             'type' => 'select',
+            'priority' => 32,
             'choices' => [
                 'l, j F Y' => esc_html__('Monday, 25 November 2026', 'koperasikita'),
                 'j F Y' => esc_html__('25 November 2026', 'koperasikita'),
@@ -921,6 +970,7 @@ final class Customizer
             'label' => esc_html__('Clock Time Zone', 'koperasikita'),
             'section' => 'koperasikita_header',
             'type' => 'select',
+            'priority' => 36,
             'choices' => [
                 'site' => esc_html__('Site time zone (Settings > General)', 'koperasikita'),
                 'device' => esc_html__('Visitor device time', 'koperasikita'),
@@ -939,6 +989,7 @@ final class Customizer
             'label' => esc_html__('Custom Time Zone', 'koperasikita'),
             'section' => 'koperasikita_header',
             'type' => 'select',
+            'priority' => 37,
             'choices' => self::timezoneChoices(),
         ]);
 
@@ -953,6 +1004,7 @@ final class Customizer
             'label' => esc_html__('Clock Separator', 'koperasikita'),
             'section' => 'koperasikita_header',
             'type' => 'select',
+            'priority' => 38,
             'choices' => [
                 'colon' => esc_html__('Colon (14:05:30)', 'koperasikita'),
                 'dot' => esc_html__('Dot (14.05.30)', 'koperasikita'),
@@ -1431,6 +1483,19 @@ final class Customizer
             'sanitize_callback' => $sanitize,
             'transport' => $transport,
         ]);
+    }
+
+    /* Feature-toggle active_callbacks: a feature's settings only
+     * show while its master toggle is on. WordPress calls these with
+     * the control; the return decides visibility. */
+    public static function isTickerEnabled(): bool
+    {
+        return (bool) get_theme_mod('kk_ticker_enabled', true);
+    }
+
+    public static function isWeatherEnabled(): bool
+    {
+        return (bool) get_theme_mod('kk_weather_enabled', true);
     }
 
     public static function sanitizeColor(mixed $value): string

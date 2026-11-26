@@ -72,7 +72,11 @@
 	box-shadow: 0 4px 16px rgb(0 0 0 / 0.15);
 }
 
-.kk-term-select-search {
+/* Same specificity fix as the multi-select search: WordPress admin
+ * input[type="search"] (0-1-1) beats a bare class (0-1-0), so the
+ * panel search needs the more specific selector or it inherits the
+ * WP border instead of the intended bottom-only rule. */
+.kk-term-select-panel .kk-term-select-search {
 	width: 100%;
 	min-height: 30px;
 	padding: 4px 8px;
@@ -82,7 +86,7 @@
 	font-size: 13px;
 }
 
-.kk-term-select-search:focus {
+.kk-term-select-panel .kk-term-select-search:focus {
 	outline: none;
 	box-shadow: inset 0 0 0 1px #0B6B3A;
 }
@@ -193,7 +197,12 @@
 	color: #fff;
 }
 
-.kk-term-multiselect-search {
+/* The input must carry NO border of its own — the box around it is
+ * the border. WordPress admin styles input[type="search"] with a
+ * border at specificity 0-1-1, which beats a bare class (0-1-0), so
+ * the selector has to be more specific or the WP border wins and an
+ * inner border appears inside the box. */
+.kk-term-multiselect-box .kk-term-multiselect-search {
 	flex: 1;
 	min-width: 80px;
 	min-height: 22px;
@@ -202,7 +211,7 @@
 	font-size: 13px;
 }
 
-.kk-term-multiselect-search:focus {
+.kk-term-multiselect-box .kk-term-multiselect-search:focus {
 	outline: none;
 	box-shadow: none;
 }

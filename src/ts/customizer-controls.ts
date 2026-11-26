@@ -559,22 +559,68 @@ function initTermMultiSelect(container: HTMLElement): void {
  * already parsed, and only wait for DOMContentLoaded while the
  * document is still loading.
  */
+/* Each control init is guarded so one bad control never blocks the
+ * rest: a throw inside one init used to abort the whole forEach and
+ * leave every later picker dead. Containers are marked once
+ * initialised, so re-running init (on Customizer ready / DOM
+ * mutations) is safe. */
 function initCustomizerControls(): void {
 	document
-		.querySelectorAll<HTMLElement>('[data-kk-term-select]')
-		.forEach(initTermSelect);
+		.querySelectorAll<HTMLElement>('[data-kk-term-select]:not([data-kk-init])')
+		.forEach((container) => {
+			container.dataset.kkInit = '1';
+			try {
+				initTermSelect(container);
+			} catch {
+				/* A single broken picker must not kill the rest. */
+			}
+		});
 	document
-		.querySelectorAll<HTMLElement>('[data-kk-term-multiselect]')
-		.forEach(initTermMultiSelect);
+		.querySelectorAll<HTMLElement>('[data-kk-term-multiselect]:not([data-kk-init])')
+		.forEach((container) => {
+			container.dataset.kkInit = '1';
+			try {
+				initTermMultiSelect(container);
+			} catch {
+				/* A single broken picker must not kill the rest. */
+			}
+		});
 	document
-		.querySelectorAll<HTMLElement>('[data-kk-multi-image]')
-		.forEach(initMultiImage);
+		.querySelectorAll<HTMLElement>('[data-kk-multi-image]:not([data-kk-init])')
+		.forEach((container) => {
+			container.dataset.kkInit = '1';
+			try {
+				initMultiImage(container);
+			} catch {
+				/* A single broken picker must not kill the rest. */
+			}
+		});
 }
 
 if (document.readyState === 'loading') {
 	document.addEventListener('DOMContentLoaded', initCustomizerControls);
 } else {
 	initCustomizerControls();
+}
+
+/* The Customizer builds its controls asynchronously: the pane's DOM
+ * is not necessarily complete when this deferred module first runs,
+ * so a single init pass can find nothing and every picker stays
+ * dead. Re-run init when the Customizer reports ready, and watch
+ * for controls added later (section expand / re-render). */
+declare const wp:
+	| { customize?: { bind?: (event: string, fn: () => void) => void } }
+	| undefined;
+
+if (typeof wp !== 'undefined' && wp.customize?.bind) {
+	wp.customize.bind('ready', initCustomizerControls);
+}
+
+if (typeof MutationObserver !== 'undefined' && document.body) {
+	const observer = new MutationObserver(() => {
+		initCustomizerControls();
+	});
+	observer.observe(document.body, { childList: true, subtree: true });
 }
 
 /**
