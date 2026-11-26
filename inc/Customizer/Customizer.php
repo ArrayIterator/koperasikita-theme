@@ -548,7 +548,56 @@ final class Customizer
                     'grid' => esc_html__('Grid', 'koperasikita'),
                     'list' => esc_html__('List', 'koperasikita'),
                     'featured' => esc_html__('Featured', 'koperasikita'),
+                    'featured-right' => esc_html__('Featured Right', 'koperasikita'),
+                    'list-columns' => esc_html__('List (Columns)', 'koperasikita'),
                 ],
+            ]);
+
+            /* List (Columns): how many columns the widget-like rows
+             * split into, how many rows each column shows, and
+             * whether the columns slide (prev/next + touch). Only
+             * shown while this slot's Display Style is List
+             * (Columns). */
+            self::addSetting(
+                $wpCustomize,
+                'kk_homepage_category_' . $slot . '_list_columns',
+                2,
+                static fn ($value) => self::clampInt($value, 1, 4),
+                'refresh'
+            );
+            $wpCustomize->add_control('kk_homepage_category_' . $slot . '_list_columns', [
+                'label' => sprintf(esc_html__('Category Block %d: List Columns', 'koperasikita'), $slot),
+                'section' => 'koperasikita_homepage',
+                'type' => 'number',
+                'input_attrs' => ['min' => 1, 'max' => 4],
+                'active_callback' => static fn () => self::isCategoryListColumns($slot),
+            ]);
+            self::addSetting(
+                $wpCustomize,
+                'kk_homepage_category_' . $slot . '_list_rows',
+                3,
+                static fn ($value) => self::clampInt($value, 1, 10),
+                'refresh'
+            );
+            $wpCustomize->add_control('kk_homepage_category_' . $slot . '_list_rows', [
+                'label' => sprintf(esc_html__('Category Block %d: List Rows (per column)', 'koperasikita'), $slot),
+                'section' => 'koperasikita_homepage',
+                'type' => 'number',
+                'input_attrs' => ['min' => 1, 'max' => 10],
+                'active_callback' => static fn () => self::isCategoryListColumns($slot),
+            ]);
+            self::addSetting(
+                $wpCustomize,
+                'kk_homepage_category_' . $slot . '_list_enable_slider',
+                false,
+                [self::class, 'sanitizeBool'],
+                'refresh'
+            );
+            $wpCustomize->add_control('kk_homepage_category_' . $slot . '_list_enable_slider', [
+                'label' => sprintf(esc_html__('Category Block %d: List Enable Slider', 'koperasikita'), $slot),
+                'section' => 'koperasikita_homepage',
+                'type' => 'checkbox',
+                'active_callback' => static fn () => self::isCategoryListColumns($slot),
             ]);
         }
 
@@ -2197,7 +2246,15 @@ final class Customizer
 
     public static function sanitizeLayout(mixed $value): string
     {
-        return in_array($value, ['grid', 'list', 'featured', 'newsletter'], true) ? (string) $value : 'grid';
+        return in_array($value, ['grid', 'list', 'featured', 'featured-right', 'list-columns', 'newsletter'], true) ? (string) $value : 'grid';
+    }
+
+    /* The List (Columns) sub-settings for a category block slot
+     * only show while that slot's Display Style is List
+     * (Columns). */
+    public static function isCategoryListColumns(int $slot): bool
+    {
+        return \KoperasiKita\Features\Homepage::categoryBlockLayout($slot) === 'list-columns';
     }
 
     /* Latest-news layout: Grid / List / Newsletter only. Featured

@@ -84,7 +84,25 @@ final class Homepage
     {
         $layout = (string) get_theme_mod('kk_homepage_category_' . $slot . '_layout', 'grid');
 
-        return in_array($layout, ['grid', 'list', 'featured'], true) ? $layout : 'grid';
+        return in_array($layout, ['grid', 'list', 'featured', 'featured-right', 'list-columns'], true) ? $layout : 'grid';
+    }
+
+    /**
+     * The List (Columns) settings for a category block slot:
+     * [columns (1–4), rows per column (1–10), enable slider].
+     *
+     * @return array{columns: int, rows: int, enable_slider: bool}
+     */
+    public static function categoryBlockListSettings(int $slot): array
+    {
+        $columns = (int) get_theme_mod('kk_homepage_category_' . $slot . '_list_columns', 2);
+        $rows = (int) get_theme_mod('kk_homepage_category_' . $slot . '_list_rows', 3);
+
+        return [
+            'columns' => max(1, min(4, $columns)),
+            'rows' => max(1, min(10, $rows)),
+            'enable_slider' => (bool) get_theme_mod('kk_homepage_category_' . $slot . '_list_enable_slider', false),
+        ];
     }
 
     /**

@@ -152,6 +152,112 @@
 	margin: 0;
 }
 
+/* --- Featured Right ------------------------------------------------------- */
+/* The same Featured grid, mirrored: the lead (first card) sits on
+ * the RIGHT and spans the full height, the descending rows sit on
+ * the left. The template outputs both kk-layout-featured and
+ * kk-layout-featured-right, so every Featured rule above applies
+ * and only the columns flip here. */
+.kk-category-block-items.kk-layout-featured-right {
+	grid-template-columns: 1fr 1.5fr;
+}
+
+.kk-layout-featured-right .kk-card:first-child {
+	grid-column: 2;
+}
+
+.kk-home .kk-layout-featured-right .kk-card:not(:first-child) {
+	grid-column: 1;
+}
+
+/* --- List (Columns) ------------------------------------------------------- */
+/* Widget-like rows split into columns (1–4). Each column is a stack
+ * of rows; the columns sit side by side with a gap. When List
+ * Enable Slider is on, the columns become a scroll-snap row with
+ * prev/next buttons (same as the sliders). */
+.kk-category-block-items.kk-layout-list-columns {
+	display: grid;
+	grid-auto-flow: column;
+	grid-auto-columns: 1fr;
+	align-items: start;
+	gap: 0.85rem 2rem;
+}
+
+.kk-category-block-items.kk-layout-list-columns.kk-category-block-list--slider {
+	display: flex;
+	align-items: flex-start;
+	overflow-x: auto;
+	scroll-snap-type: x mandatory;
+	scrollbar-width: none;
+	padding-bottom: 0.25rem;
+}
+
+.kk-category-block-items.kk-layout-list-columns.kk-category-block-list--slider::-webkit-scrollbar {
+	display: none;
+}
+
+.kk-category-block-list-column {
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+
+.kk-category-block-list--slider .kk-category-block-list-column {
+	flex: 0 0 22rem;
+	scroll-snap-align: start;
+}
+
+/* Compact row (List Columns): small thumbnail on the left, title +
+ * date on the right, top-aligned. Flat — no background, no shadow,
+ * a thin divider between rows. */
+.kk-category-row {
+	display: flex;
+	align-items: flex-start;
+	gap: 0.75rem;
+	padding: 0.75rem 0;
+	border-bottom: 1px solid var(--kk-border, #e5e5e0);
+}
+
+.kk-category-row:last-child {
+	border-bottom: 0;
+}
+
+.kk-category-row-thumb {
+	flex: 0 0 5rem;
+	width: 5rem;
+	display: block;
+}
+
+.kk-category-row-thumb img {
+	display: block;
+	width: 100%;
+	aspect-ratio: 4 / 3;
+	object-fit: cover;
+	border-radius: var(--kk-radius);
+}
+
+.kk-category-row-body {
+	flex: 1;
+	min-width: 0;
+}
+
+.kk-category-row-title {
+	font-size: 1rem;
+	font-weight: 600;
+	line-height: 1.35;
+	margin: 0 0 0.25rem;
+}
+
+.kk-category-row-title a {
+	color: var(--kk-ink);
+}
+
+.kk-category-row .kk-meta {
+	margin: 0;
+	font-size: 0.8125rem;
+	color: var(--kk-muted);
+}
+
 .kk-layout-switcher {
 	display: flex;
 	border: 1px solid var(--kk-border);

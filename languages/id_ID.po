@@ -2604,3 +2604,18 @@ msgstr "Baris Daftar (per kolom)"
 
 msgid "List Enable Slider"
 msgstr "Aktifkan Slider Daftar"
+
+msgid "Featured Right"
+msgstr "Featured Kanan"
+
+msgid "List (Columns)"
+msgstr "Daftar (Kolom)"
+
+msgid "Category Block %d: List Columns"
+msgstr "Blok Kategori %d: Kolom Daftar"
+
+msgid "Category Block %d: List Rows (per column)"
+msgstr "Blok Kategori %d: Baris Daftar (per kolom)"
+
+msgid "Category Block %d: List Enable Slider"
+msgstr "Blok Kategori %d: Aktifkan Slider Daftar"
