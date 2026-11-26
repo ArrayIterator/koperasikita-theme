@@ -578,8 +578,9 @@ html.kk-nav-open body {
 	width: 0;
 	min-width: 0;
 	/* Slim field: the base .search-field is 44px tall, too tall for
-	 * the sticky bar — 0.5rem padding + text + border is ~36px. No
-	 * outer shadow: the focus state uses an inner shadow instead. */
+	 * the sticky bar. No transition anywhere on this field — it
+	 * opens and closes instantly, never animated. No outer shadow:
+	 * the focus state uses an inner shadow instead. */
 	min-height: 0;
 	padding: 0.5rem 0;
 	border: 1px solid var(--kk-border);
@@ -588,16 +589,16 @@ html.kk-nav-open body {
 	opacity: 0;
 	visibility: hidden;
 	pointer-events: none;
-	transition: width 0.28s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.2s ease, padding 0.28s ease, visibility 0s linear 0.28s;
+	transition: none;
 }
 
 .kk-search-expand.is-open .kk-search-expand-input {
 	width: min(15rem, 55vw);
-	padding: 0.5rem 0.75rem;
+	padding: 0.25rem 0.75rem;
 	opacity: 1;
 	visibility: visible;
 	pointer-events: auto;
-	transition: width 0.28s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.2s ease, padding 0.28s ease, visibility 0s;
+	transition: none;
 }
 
 /* Focus: no outline, inner shadow (inset) — never an outer glow. */
@@ -608,18 +609,13 @@ html.kk-nav-open body {
 }
 
 @media (max-width: 767px) {
-	/* Mobile: the field spans the nav bar itself, from its left edge
-	 * to exactly the toggle's left edge — flush, no gap, no overlap.
-	 * The math (measured, all rem): the toggle is 48px wide below
-	 * 1024px (.kk-nav-inner .kk-icon-button, responsive.css) and its
-	 * right edge sits 16px inside the bar (.kk-shell padding), so
-	 * its left edge is 16 + 48 = 64px = 4rem from the bar's right
-	 * edge. The input is positioned against the bar's padding box,
-	 * so right: 4rem puts its right edge exactly on the toggle's
-	 * left edge. The old 6.5rem also reserved room for the dark
-	 * toggle, which is hidden below 1024px — a dead 40px strip;
-	 * 4.5rem still left 8px (the shell padding was missing from
-	 * the sum). */
+	/* Mobile: the field fits between the hamburger and the toggle —
+	 * width calc(100vw - 9rem) (hamburger + toggle + shell padding
+	 * + gaps), anchored to the toggle's left edge (right: 4rem: the
+	 * toggle is 48px wide below 1024px and its right edge sits 16px
+	 * inside the bar, so its left edge is 16 + 48 = 64px = 4rem from
+	 * the bar's right edge). Padding .35rem .75rem. No transition:
+	 * it opens instantly. */
 	.kk-nav-inner {
 		position: relative;
 	}
@@ -629,12 +625,12 @@ html.kk-nav-open body {
 	}
 
 	.kk-search-expand.is-open .kk-search-expand-input {
-		left: 0;
 		right: 4rem;
 		top: 50%;
 		transform: translateY(-50%);
-		width: auto;
-		transition: opacity 0.2s ease, visibility 0s;
+		width: calc(100vw - 9rem);
+		padding: 0.35rem 0.75rem;
+		transition: none;
 	}
 }
 
