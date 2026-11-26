@@ -10,16 +10,18 @@ use WP_Widget;
  * The widget header (title) style, shared by every Koperasi Kita
  * widget that renders a title.
  *
- * Four styles, picked per widget (classic form + block editor
- * InspectorControls):
- * - classic (default): the title with a rule extending to the right
- *   (the "editor's picks" header); the widget container carries the
- *   thick 2px top rule.
- * - classic-2: like classic (the rule to the right), but with no
- *   top border at all — neither the container's thick rule nor a
- *   border on the title itself.
- * - no-border ("Borderless Header"): the same title, without any
- *   border at all — no container rule, no title rule.
+ * Five styles, picked per widget (classic form + block editor
+ * InspectorControls). "Classic" is the title with a rule extending
+ * to the right (the "editor's picks" header); the variants only
+ * differ in where the thick 2px border sits:
+ * - classic-top (default): border on top only — the widget
+ *   container carries the thick 2px top rule.
+ * - classic-top-bottom: border on top AND bottom — the container
+ *   carries the top rule, the title carries a 2px bottom border.
+ * - classic-bottom: border on bottom only — the container's top
+ *   rule is removed, the title carries a 2px bottom border.
+ * - no-border ("Borderless"): the same title, without any border
+ *   at all — no container rule, no title rule.
  * - hide: no header at all.
  *
  * An empty title hides the header whatever the style says — an empty
@@ -27,8 +29,9 @@ use WP_Widget;
  */
 final class WidgetHeader
 {
-    public const CLASSIC = 'classic';
-    public const CLASSIC_2 = 'classic-2';
+    public const CLASSIC_TOP = 'classic-top';
+    public const CLASSIC_TOP_BOTTOM = 'classic-top-bottom';
+    public const CLASSIC_BOTTOM = 'classic-bottom';
     public const NO_BORDER = 'no-border';
     public const HIDE = 'hide';
 
@@ -38,18 +41,19 @@ final class WidgetHeader
     public static function options(): array
     {
         return [
-            ['value' => self::CLASSIC, 'label' => __('Classic', 'koperasikita')],
-            ['value' => self::CLASSIC_2, 'label' => __('Classic 2', 'koperasikita')],
-            ['value' => self::NO_BORDER, 'label' => __('Borderless Header', 'koperasikita')],
+            ['value' => self::CLASSIC_TOP, 'label' => __('Classic Top Border', 'koperasikita')],
+            ['value' => self::CLASSIC_TOP_BOTTOM, 'label' => __('Classic Top Bottom Border', 'koperasikita')],
+            ['value' => self::CLASSIC_BOTTOM, 'label' => __('Classic Bottom Border', 'koperasikita')],
+            ['value' => self::NO_BORDER, 'label' => __('Borderless', 'koperasikita')],
             ['value' => self::HIDE, 'label' => __('Hide', 'koperasikita')],
         ];
     }
 
     public static function sanitize(mixed $value): string
     {
-        return in_array($value, [self::CLASSIC, self::CLASSIC_2, self::NO_BORDER, self::HIDE], true)
+        return in_array($value, [self::CLASSIC_TOP, self::CLASSIC_TOP_BOTTOM, self::CLASSIC_BOTTOM, self::NO_BORDER, self::HIDE], true)
             ? (string) $value
-            : self::CLASSIC;
+            : self::CLASSIC_TOP;
     }
 
     /**
@@ -57,18 +61,18 @@ final class WidgetHeader
      */
     public static function style(array $instance): string
     {
-        return self::sanitize($instance['header_style'] ?? self::CLASSIC);
+        return self::sanitize($instance['header_style'] ?? self::CLASSIC_TOP);
     }
 
     /**
      * The widget container opening tag, with the no-border modifier
-     * when the header style is no-border or classic-2. The
-     * container's top rule (content.css: .kk-sidebar .widget /
-     * .kk-widget-area .widget) is part of the header style — "no
-     * border" must remove it too, or the style setting changes
-     * nothing visible (the title rule alone is 1px; the container
-     * rule is the thick 2px line). Classic-2 removes it as well:
-     * classic-2 has no top border at all.
+     * when the header style has no top border. The container's top
+     * rule (content.css: .kk-sidebar .widget / .kk-widget-area
+     * .widget) is part of the header style — a style with no top
+     * border must remove it too, or the setting changes nothing
+     * visible (the title rule alone is 1px; the container rule is
+     * the thick 2px line). Classic Bottom and Borderless have no
+     * top border; Classic Top and Classic Top Bottom keep it.
      *
      * @param array<string, mixed> $args Display arguments.
      */
@@ -76,7 +80,7 @@ final class WidgetHeader
     {
         $before = (string) ($args['before_widget'] ?? '');
 
-        if (in_array($style, [self::NO_BORDER, self::CLASSIC_2], true) && $before !== '') {
+        if (in_array($style, [self::CLASSIC_BOTTOM, self::NO_BORDER], true) && $before !== '') {
             $before = preg_replace('/class="([^"]*)"/', 'class="$1 kk-widget--no-border"', $before, 1) ?? $before;
         }
 
@@ -100,9 +104,12 @@ final class WidgetHeader
         if ($before !== '') {
             // Append the modifier to the title element's class list,
             // whatever the sidebar's before_title class is.
-            $modifier = $style === self::CLASSIC_2
-                ? 'kk-widget-title--classic-2'
-                : ($style === self::NO_BORDER ? 'kk-widget-title--no-border' : '');
+            $modifier = match ($style) {
+                self::CLASSIC_TOP_BOTTOM => 'kk-widget-title--classic-top-bottom',
+                self::CLASSIC_BOTTOM => 'kk-widget-title--classic-bottom',
+                self::NO_BORDER => 'kk-widget-title--no-border',
+                default => '',
+            };
 
             if ($modifier !== '') {
                 $before = preg_replace('/class="([^"]*)"/', 'class="$1 ' . $modifier . '"', $before, 1) ?? $before;

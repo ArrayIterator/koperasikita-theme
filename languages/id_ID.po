@@ -2360,11 +2360,17 @@ msgid "Show Breadcrumbs on 404 Pages"
 msgstr "Tampilkan Breadcrumb di Halaman 404"
 
 
-msgid "Classic 2"
-msgstr "Klasik 2"
+msgid "Classic Top Border"
+msgstr "Klasik Garis Atas"
 
-msgid "Borderless Header"
-msgstr "Header Tanpa Garis"
+msgid "Classic Top Bottom Border"
+msgstr "Klasik Garis Atas Bawah"
+
+msgid "Classic Bottom Border"
+msgstr "Klasik Garis Bawah"
+
+msgid "Borderless"
+msgstr "Tanpa Garis"
 
 msgid "Hide"
 msgstr "Sembunyikan"

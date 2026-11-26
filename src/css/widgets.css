@@ -30,23 +30,29 @@
 	display: none;
 }
 
-/* Classic 2: the classic rule extending to the right, but without
- * the thick top rule — neither the container's (removed by
- * WidgetHeader::beforeWidget) nor a border on the title itself.
- * Self-contained (flex + ::after + size) so it also works for
- * block-widget titles, which carry `widgettitle` instead of
- * `kk-widget-title`. */
-.kk-widget-title--classic-2,
-.kk-sidebar .widgettitle.kk-widget-title--classic-2 {
+/* Classic Top Bottom / Classic Bottom: the classic rule extending
+ * to the right, plus a 2px bottom border on the title itself (with
+ * padding so the line does not touch the text). Top Bottom keeps
+ * the container's top rule; Bottom removes it (see
+ * WidgetHeader::beforeWidget). Self-contained (flex + ::after +
+ * size) so they also work for block-widget titles, which carry
+ * `widgettitle` instead of `kk-widget-title`. */
+.kk-widget-title--classic-top-bottom,
+.kk-sidebar .widgettitle.kk-widget-title--classic-top-bottom,
+.kk-widget-title--classic-bottom,
+.kk-sidebar .widgettitle.kk-widget-title--classic-bottom {
 	display: flex;
 	align-items: baseline;
 	gap: 1rem;
+	border-bottom: 2px solid var(--kk-ink);
+	padding-bottom: 12px;
 	font-size: 1.625rem;
 	font-weight: 500;
 	line-height: 1.2;
 }
 
-.kk-widget-title--classic-2::after {
+.kk-widget-title--classic-top-bottom::after,
+.kk-widget-title--classic-bottom::after {
 	content: "";
 	flex: 1;
 	border-top: 1px solid var(--kk-ink);

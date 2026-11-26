@@ -16,6 +16,10 @@ final class Sidebars
                 esc_html__('Main Sidebar', 'koperasikita'),
                 esc_html__('Right column of the blog and archive pages, next to the post list.', 'koperasikita'),
             ],
+            'sidebar-news' => [
+                esc_html__('News Sidebar', 'koperasikita'),
+                esc_html__('Right column of the homepage, below the hero and next to the Latest News list.', 'koperasikita'),
+            ],
             'sidebar-single' => [
                 esc_html__('Article Sidebar', 'koperasikita'),
                 esc_html__('Right column of a single article page, next to the article body.', 'koperasikita'),
@@ -23,10 +27,6 @@ final class Sidebars
             'sidebar-page' => [
                 esc_html__('Page Sidebar', 'koperasikita'),
                 esc_html__('Right column of a single page (About, Contact, and other pages), next to the page content.', 'koperasikita'),
-            ],
-            'sidebar-news' => [
-                esc_html__('News Sidebar', 'koperasikita'),
-                esc_html__('Right column of the homepage, below the hero and next to the Latest News list.', 'koperasikita'),
             ],
             // Hero widget areas, shown by the Hero Presentation modes
             // that pair the hero with a widget (Grid/Slider + Widget).

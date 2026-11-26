@@ -86,7 +86,7 @@ final class Blocks
     {
         $storyAttributes = [
             'title' => ['type' => 'string', 'default' => ''],
-            'headerStyle' => ['type' => 'string', 'default' => 'classic'],
+            'headerStyle' => ['type' => 'string', 'default' => 'classic-top'],
             'count' => ['type' => 'number', 'default' => 5],
             'layout' => ['type' => 'string', 'default' => 'list'],
             'showThumbnail' => ['type' => 'boolean', 'default' => true],
@@ -151,7 +151,7 @@ final class Blocks
                 'description' => __('Current time in the timezones you list, one per line.', 'koperasikita'),
                 'attributes' => [
                     'title' => ['type' => 'string', 'default' => ''],
-                    'headerStyle' => ['type' => 'string', 'default' => 'classic'],
+                    'headerStyle' => ['type' => 'string', 'default' => 'classic-top'],
                     'timezones' => ['type' => 'string', 'default' => WorldClockWidget::DEFAULT_TIMEZONE],
                     'showDate' => ['type' => 'boolean', 'default' => true],
                 ],
@@ -169,7 +169,7 @@ final class Blocks
                 'description' => __('A list of page links, in menu order, by date or by title.', 'koperasikita'),
                 'attributes' => [
                     'title' => ['type' => 'string', 'default' => ''],
-                    'headerStyle' => ['type' => 'string', 'default' => 'classic'],
+                    'headerStyle' => ['type' => 'string', 'default' => 'classic-top'],
                     'count' => ['type' => 'number', 'default' => 5],
                     'sortOrder' => ['type' => 'string', 'default' => 'menu_order'],
                 ],
@@ -190,7 +190,7 @@ final class Blocks
                 'description' => __('Gold prices for five brands in an auto-scrolling slider.', 'koperasikita'),
                 'attributes' => [
                     'title' => ['type' => 'string', 'default' => ''],
-                    'headerStyle' => ['type' => 'string', 'default' => 'classic'],
+                    'headerStyle' => ['type' => 'string', 'default' => 'classic-top'],
                     'brands' => ['type' => 'array', 'default' => [], 'items' => ['type' => 'string']],
                 ],
                 'map' => [
@@ -206,7 +206,7 @@ final class Blocks
                 'description' => __('Gold, stock and crypto prices from the Markets providers.', 'koperasikita'),
                 'attributes' => [
                     'title' => ['type' => 'string', 'default' => ''],
-                    'headerStyle' => ['type' => 'string', 'default' => 'classic'],
+                    'headerStyle' => ['type' => 'string', 'default' => 'classic-top'],
                     'markets' => ['type' => 'array', 'default' => [], 'items' => ['type' => 'string']],
                     'showChange' => ['type' => 'boolean', 'default' => true],
                 ],
@@ -227,7 +227,7 @@ final class Blocks
                 'description' => __('Current weather for a city, with a location picker.', 'koperasikita'),
                 'attributes' => [
                     'title' => ['type' => 'string', 'default' => ''],
-                    'headerStyle' => ['type' => 'string', 'default' => 'classic'],
+                    'headerStyle' => ['type' => 'string', 'default' => 'classic-top'],
                     'defaultCity' => ['type' => 'string', 'default' => 'Padang'],
                     'showDetails' => ['type' => 'boolean', 'default' => false],
                 ],

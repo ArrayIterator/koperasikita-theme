@@ -329,7 +329,7 @@ function buildDefinitions(api: Wp): BlockDef[] {
 	const __ = (text: string): string => api.i18n.__(text, 'koperasikita');
 	const storyAttributes: Record<string, Record<string, unknown>> = {
 		title: { type: 'string', default: '' },
-		headerStyle: { type: 'string', default: 'classic' },
+		headerStyle: { type: 'string', default: 'classic-top' },
 		count: { type: 'number', default: 5 },
 		layout: { type: 'string', default: 'list' },
 		showThumbnail: { type: 'boolean', default: true },
@@ -339,9 +339,10 @@ function buildDefinitions(api: Wp): BlockDef[] {
 		kind: 'select',
 		label: __('Header Style'),
 		options: [
-			{ value: 'classic', label: __('Classic') },
-			{ value: 'classic-2', label: __('Classic 2') },
-			{ value: 'no-border', label: __('Borderless Header') },
+			{ value: 'classic-top', label: __('Classic Top Border') },
+			{ value: 'classic-top-bottom', label: __('Classic Top Bottom Border') },
+			{ value: 'classic-bottom', label: __('Classic Bottom Border') },
+			{ value: 'no-border', label: __('Borderless') },
 			{ value: 'hide', label: __('Hide') },
 		],
 	};
@@ -425,7 +426,7 @@ function buildDefinitions(api: Wp): BlockDef[] {
 			icon: 'clock',
 			attributes: {
 				title: { type: 'string', default: '' },
-				headerStyle: { type: 'string', default: 'classic' },
+				headerStyle: { type: 'string', default: 'classic-top' },
 				timezones: { type: 'string', default: 'Asia/Jakarta' },
 				showDate: { type: 'boolean', default: true },
 			},
@@ -448,7 +449,7 @@ function buildDefinitions(api: Wp): BlockDef[] {
 			icon: 'page',
 			attributes: {
 				title: { type: 'string', default: '' },
-				headerStyle: { type: 'string', default: 'classic' },
+				headerStyle: { type: 'string', default: 'classic-top' },
 				count: { type: 'number', default: 5 },
 				sortOrder: { type: 'string', default: 'menu_order' },
 			},
@@ -475,7 +476,7 @@ function buildDefinitions(api: Wp): BlockDef[] {
 			icon: 'star-filled',
 			attributes: {
 				title: { type: 'string', default: '' },
-				headerStyle: { type: 'string', default: 'classic' },
+				headerStyle: { type: 'string', default: 'classic-top' },
 				brands: { type: 'array', default: [], items: { type: 'string' } },
 			},
 			fields: [
@@ -496,7 +497,7 @@ function buildDefinitions(api: Wp): BlockDef[] {
 			icon: 'chart-line',
 			attributes: {
 				title: { type: 'string', default: '' },
-				headerStyle: { type: 'string', default: 'classic' },
+				headerStyle: { type: 'string', default: 'classic-top' },
 				markets: { type: 'array', default: [], items: { type: 'string' } },
 				showChange: { type: 'boolean', default: true },
 			},
@@ -519,7 +520,7 @@ function buildDefinitions(api: Wp): BlockDef[] {
 			icon: 'cloud',
 			attributes: {
 				title: { type: 'string', default: '' },
-				headerStyle: { type: 'string', default: 'classic' },
+				headerStyle: { type: 'string', default: 'classic-top' },
 				defaultCity: { type: 'string', default: 'Padang' },
 				showDetails: { type: 'boolean', default: false },
 			},
