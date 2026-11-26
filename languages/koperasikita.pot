@@ -2249,3 +2249,75 @@ msgstr ""
 #: inc/Customizer/Customizer.php
 msgid "The app logo used when installing the PWA (manifest icons and home-screen icon). Use a square image, at least 512×512. Leave empty to use the shipped logo."
 msgstr ""
+
+#: inc/Customizer/Customizer.php
+msgid "Default Colour Scheme"
+msgstr ""
+
+#: inc/Customizer/Customizer.php
+msgid "The colour scheme for visitors who have not picked one yet. System follows the device setting."
+msgstr ""
+
+#: inc/Customizer/Customizer.php
+msgid "System (follow device)"
+msgstr ""
+
+#: inc/Customizer/Customizer.php
+msgid "Light"
+msgstr ""
+
+#: inc/Customizer/Customizer.php
+msgid "Dark"
+msgstr ""
+
+#: inc/Customizer/Customizer.php
+msgid "Show Dark-Mode Switch"
+msgstr ""
+
+#: inc/Customizer/Customizer.php
+msgid "Weather Temperature Unit"
+msgstr ""
+
+#: inc/Customizer/Customizer.php
+msgid "Celsius (°C)"
+msgstr ""
+
+#: inc/Customizer/Customizer.php
+msgid "Fahrenheit (°F)"
+msgstr ""
+
+#: inc/Customizer/Customizer.php
+msgid "Mobile Menu Slide Side"
+msgstr ""
+
+#: inc/Customizer/Customizer.php
+msgid "Related News Posts"
+msgstr ""
+
+#: inc/Customizer/Customizer.php
+msgid "Default Thumbnail"
+msgstr ""
+
+#: inc/Customizer/Customizer.php
+msgid "The image shown for posts without a featured image, and used as the SEO/social image when a post has none. Leave it empty to use the built-in placeholder."
+msgstr ""
+
+#: inc/Customizer/Customizer.php
+msgid "Show Breadcrumbs on Articles"
+msgstr ""
+
+#: inc/Customizer/Customizer.php
+msgid "Show Breadcrumbs on Pages"
+msgstr ""
+
+#: inc/Customizer/Customizer.php
+msgid "Show Breadcrumbs on Archives"
+msgstr ""
+
+#: inc/Customizer/Customizer.php
+msgid "Show Breadcrumbs on Search Results"
+msgstr ""
+
+#: inc/Customizer/Customizer.php
+msgid "Show Breadcrumbs on 404 Pages"
+msgstr ""

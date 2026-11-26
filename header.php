@@ -9,16 +9,21 @@
 
 ?>
 <!doctype html>
-<html <?php language_attributes(); ?> data-color-scheme="system">
+<html <?php language_attributes(); ?> data-color-scheme="system" data-kk-default-scheme="<?php echo esc_attr( (string) get_theme_mod( 'kk_color_scheme', 'system' ) ); ?>">
 <head>
 	<script>
 	/* Colour scheme, resolved before first paint: read the stored
-	 * preference (or the OS scheme) and set data-color-scheme now, so
-	 * the page never flashes. main.ts keeps the same preference in
-	 * sync afterwards and follows OS changes while it is "system". */
+	 * preference (or the Customizer default scheme, or the OS scheme)
+	 * and set data-color-scheme now, so the page never flashes.
+	 * main.ts keeps the same preference in sync afterwards and
+	 * follows OS changes while it is "system". */
 	(function () {
 		try {
 			var stored = window.localStorage.getItem('kk-color-scheme');
+			var fallback = document.documentElement.getAttribute('data-kk-default-scheme') || 'system';
+			if (stored !== 'dark' && stored !== 'light' && stored !== 'system') {
+				stored = fallback;
+			}
 			var media = window.matchMedia('(prefers-color-scheme: dark)');
 			var resolved = (stored === 'dark' || stored === 'light') ? stored : (media.matches ? 'dark' : 'light');
 			document.documentElement.setAttribute('data-color-scheme', resolved);

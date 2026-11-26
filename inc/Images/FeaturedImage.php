@@ -196,6 +196,27 @@ final class FeaturedImage
             return $url;
         }
 
+        return self::defaultThumbnailUrl();
+    }
+
+    /**
+     * The admin-picked default thumbnail (Customizer -> Images &
+     * Performance -> Default Thumbnail), or the shipped placeholder
+     * when none is picked. Used for posts without a featured image
+     * and as the SEO/OG image fallback.
+     */
+    public static function defaultThumbnailUrl(): string
+    {
+        $attachmentId = (int) get_theme_mod('kk_default_thumbnail', 0);
+
+        if ($attachmentId > 0) {
+            $url = wp_get_attachment_image_url($attachmentId, 'full');
+
+            if (is_string($url) && $url !== '') {
+                return $url;
+            }
+        }
+
         return KK_URI . '/assets/img/placeholder.svg';
     }
 

@@ -73,6 +73,12 @@ function getStoredScheme(): ColorScheme {
 	if (stored === 'light' || stored === 'dark' || stored === 'system') {
 		return stored;
 	}
+	// No stored choice: the Customizer default scheme (set on <html>
+	// as data-kk-default-scheme by header.php) wins over "system".
+	const fallback = document.documentElement.getAttribute('data-kk-default-scheme');
+	if (fallback === 'light' || fallback === 'dark' || fallback === 'system') {
+		return fallback;
+	}
 	return 'system';
 }
 

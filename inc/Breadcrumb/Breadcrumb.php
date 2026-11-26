@@ -22,6 +22,29 @@ final class Breadcrumb
             return;
         }
 
+        /* Per-page-type visibility: the master switch stays on, but
+         * each type can be hidden on its own. The front page is
+         * covered by kk_breadcrumb_home above. */
+        if (is_single() && !(bool) get_theme_mod('kk_breadcrumb_post', true)) {
+            return;
+        }
+
+        if (is_page() && !(bool) get_theme_mod('kk_breadcrumb_page', true)) {
+            return;
+        }
+
+        if (is_archive() && !(bool) get_theme_mod('kk_breadcrumb_archive', true)) {
+            return;
+        }
+
+        if (is_search() && !(bool) get_theme_mod('kk_breadcrumb_search', true)) {
+            return;
+        }
+
+        if (is_404() && !(bool) get_theme_mod('kk_breadcrumb_404', true)) {
+            return;
+        }
+
         $separator = (string) get_theme_mod('kk_breadcrumb_separator', '›');
 
         // Each crumb is ['label' => string, 'url' => string|null].

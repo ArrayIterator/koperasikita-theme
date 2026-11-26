@@ -2309,3 +2309,75 @@ msgstr "Artikel dengan salah satu tag ini (atau salah satu kategori di atas). Ko
 #: inc/Customizer/Customizer.php
 msgid "The app logo used when installing the PWA (manifest icons and home-screen icon). Use a square image, at least 512×512. Leave empty to use the shipped logo."
 msgstr "Logo aplikasi yang dipakai saat menginstal PWA (ikon manifest dan ikon layar utama). Pakai gambar persegi, minimal 512×512. Kosongkan untuk memakai logo bawaan."
+
+#: inc/Customizer/Customizer.php
+msgid "Default Colour Scheme"
+msgstr "Skema Warna Default"
+
+#: inc/Customizer/Customizer.php
+msgid "The colour scheme for visitors who have not picked one yet. System follows the device setting."
+msgstr "Skema warna untuk pengunjung yang belum memilih. Sistem mengikuti pengaturan perangkat."
+
+#: inc/Customizer/Customizer.php
+msgid "System (follow device)"
+msgstr "Sistem (ikuti perangkat)"
+
+#: inc/Customizer/Customizer.php
+msgid "Light"
+msgstr "Terang"
+
+#: inc/Customizer/Customizer.php
+msgid "Dark"
+msgstr "Gelap"
+
+#: inc/Customizer/Customizer.php
+msgid "Show Dark-Mode Switch"
+msgstr "Tampilkan Saklar Mode Gelap"
+
+#: inc/Customizer/Customizer.php
+msgid "Weather Temperature Unit"
+msgstr "Satuan Suhu Cuaca"
+
+#: inc/Customizer/Customizer.php
+msgid "Celsius (°C)"
+msgstr "Celcius (°C)"
+
+#: inc/Customizer/Customizer.php
+msgid "Fahrenheit (°F)"
+msgstr "Fahrenheit (°F)"
+
+#: inc/Customizer/Customizer.php
+msgid "Mobile Menu Slide Side"
+msgstr "Sisi Geser Menu Seluler"
+
+#: inc/Customizer/Customizer.php
+msgid "Related News Posts"
+msgstr "Artikel Berita Terkait"
+
+#: inc/Customizer/Customizer.php
+msgid "Default Thumbnail"
+msgstr "Thumbnail Default"
+
+#: inc/Customizer/Customizer.php
+msgid "The image shown for posts without a featured image, and used as the SEO/social image when a post has none. Leave it empty to use the built-in placeholder."
+msgstr "Gambar yang ditampilkan untuk artikel tanpa gambar unggulan, dan dipakai sebagai gambar SEO/sosial saat artikel tidak punya. Kosongkan untuk memakai placeholder bawaan."
+
+#: inc/Customizer/Customizer.php
+msgid "Show Breadcrumbs on Articles"
+msgstr "Tampilkan Breadcrumb di Artikel"
+
+#: inc/Customizer/Customizer.php
+msgid "Show Breadcrumbs on Pages"
+msgstr "Tampilkan Breadcrumb di Halaman"
+
+#: inc/Customizer/Customizer.php
+msgid "Show Breadcrumbs on Archives"
+msgstr "Tampilkan Breadcrumb di Arsip"
+
+#: inc/Customizer/Customizer.php
+msgid "Show Breadcrumbs on Search Results"
+msgstr "Tampilkan Breadcrumb di Hasil Pencarian"
+
+#: inc/Customizer/Customizer.php
+msgid "Show Breadcrumbs on 404 Pages"
+msgstr "Tampilkan Breadcrumb di Halaman 404"

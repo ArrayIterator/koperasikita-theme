@@ -102,6 +102,15 @@ final class Seo
             }
         }
 
+        /* A post without a featured image falls back to the
+         * admin-picked default thumbnail (or the shipped placeholder
+         * when none is picked), so shared links still get an image. */
+        $default = \KoperasiKita\Images\FeaturedImage::defaultThumbnailUrl();
+
+        if ($default !== '') {
+            return $default;
+        }
+
         $logoId = get_theme_mod('custom_logo');
 
         if (is_numeric($logoId)) {

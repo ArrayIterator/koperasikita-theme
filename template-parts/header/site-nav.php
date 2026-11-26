@@ -27,7 +27,7 @@
 			<?php echo \KoperasiKita\Icons\Icon::svg( 'menu', 20 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 		</button>
 
-		<nav id="kk-primary-nav" class="kk-primary-nav" aria-label="<?php esc_attr_e( 'Primary', 'koperasikita' ); ?>">
+		<nav id="kk-primary-nav" class="kk-primary-nav<?php echo 'right' === get_theme_mod( 'kk_mobile_menu_side', 'left' ) ? ' kk-nav-right' : ''; ?>" aria-label="<?php esc_attr_e( 'Primary', 'koperasikita' ); ?>">
 			<div class="kk-drawer-head">
 				<span class="kk-drawer-brand">
 					<img class="kk-drawer-brand-logo" src="<?php echo esc_url( get_template_directory_uri() . '/assets/img/logo-k.svg' ); ?>" alt="" width="32" height="32" aria-hidden="true">
@@ -58,11 +58,13 @@
 			?>
 
 			<div class="kk-drawer-foot">
-				<button type="button" class="kk-drawer-scheme" id="kk-color-scheme-toggle-drawer" data-kk-scheme-toggle aria-label="<?php esc_attr_e( 'Toggle color scheme', 'koperasikita' ); ?>" aria-pressed="false">
-					<span class="kk-icon-sun"><?php echo \KoperasiKita\Icons\Icon::svg( 'sun', 18 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></span>
-					<span class="kk-icon-moon"><?php echo \KoperasiKita\Icons\Icon::svg( 'moon', 18 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></span>
-					<span class="kk-drawer-scheme-label"><?php esc_html_e( 'Appearance', 'koperasikita' ); ?></span>
-				</button>
+				<?php if ( get_theme_mod( 'kk_dark_mode_toggle', true ) ) : ?>
+					<button type="button" class="kk-drawer-scheme" id="kk-color-scheme-toggle-drawer" data-kk-scheme-toggle aria-label="<?php esc_attr_e( 'Toggle color scheme', 'koperasikita' ); ?>" aria-pressed="false">
+						<span class="kk-icon-sun"><?php echo \KoperasiKita\Icons\Icon::svg( 'sun', 18 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></span>
+						<span class="kk-icon-moon"><?php echo \KoperasiKita\Icons\Icon::svg( 'moon', 18 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></span>
+						<span class="kk-drawer-scheme-label"><?php esc_html_e( 'Appearance', 'koperasikita' ); ?></span>
+					</button>
+				<?php endif; ?>
 			</div>
 		</nav>
 
@@ -76,10 +78,12 @@
 				</button>
 			</form>
 
-			<button type="button" class="kk-icon-button kk-color-scheme-toggle" id="kk-color-scheme-toggle" data-kk-scheme-toggle aria-label="<?php esc_attr_e( 'Toggle color scheme', 'koperasikita' ); ?>" aria-pressed="false">
-				<span class="kk-icon-sun"><?php echo \KoperasiKita\Icons\Icon::svg( 'sun', 18 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></span>
-				<span class="kk-icon-moon"><?php echo \KoperasiKita\Icons\Icon::svg( 'moon', 18 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></span>
-			</button>
+			<?php if ( get_theme_mod( 'kk_dark_mode_toggle', true ) ) : ?>
+				<button type="button" class="kk-icon-button kk-color-scheme-toggle" id="kk-color-scheme-toggle" data-kk-scheme-toggle aria-label="<?php esc_attr_e( 'Toggle color scheme', 'koperasikita' ); ?>" aria-pressed="false">
+					<span class="kk-icon-sun"><?php echo \KoperasiKita\Icons\Icon::svg( 'sun', 18 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></span>
+					<span class="kk-icon-moon"><?php echo \KoperasiKita\Icons\Icon::svg( 'moon', 18 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></span>
+				</button>
+			<?php endif; ?>
 		</div>
 	</div>
 </div>

@@ -65,11 +65,28 @@ interface KkData {
 	// Minutes the browser may serve weather from localStorage before
 	// fetching fresh data (Customizer: kk_weather_cache_lifetime).
 	weatherCacheLifetimeMin?: number;
+	// Temperature unit (Customizer: kk_weather_unit). The API always
+	// returns Celsius; Fahrenheit converts on display.
+	weatherUnit?: string;
 }
 
 // No global augmentation here: src/ts/main.ts already declares
 // window.kkData, and a second declaration with a different shape breaks
 // the build. Read it through a narrow cast instead.
+
+/* Temperature unit: the API returns Celsius, and Fahrenheit is a
+ * display conversion (°F = °C × 9/5 + 32). */
+function isFahrenheit(): boolean {
+	const data = window.kkData as unknown as KkData | undefined;
+	return data?.weatherUnit === 'fahrenheit';
+}
+
+function formatTemp(celsius: number): string {
+	const value = isFahrenheit()
+		? Math.round((celsius * 9) / 5 + 32)
+		: Math.round(celsius);
+	return `${value}°${isFahrenheit() ? 'F' : 'C'}`;
+}
 
 interface Location {
 	name: string;
@@ -403,7 +420,7 @@ function renderTopbar(weather: WeatherData): void {
 	}
 	const temp = document.createElement('span');
 	temp.className = 'kk-topbar-weather-temp';
-	temp.textContent = `${Math.round(weather.temperature)}°`;
+	temp.textContent = formatTemp(weather.temperature);
 	const place = document.createElement('span');
 	place.className = 'kk-topbar-weather-place';
 	place.textContent = weather.name;
@@ -464,7 +481,7 @@ function renderWidgetBody(body: HTMLElement, weather: WeatherData, showDetails: 
 	body.textContent = '';
 	const temp = document.createElement('p');
 	temp.className = 'kk-weather-temp';
-	temp.textContent = `${Math.round(weather.temperature)}°C`;
+	temp.textContent = formatTemp(weather.temperature);
 	body.appendChild(temp);
 	const condition = document.createElement('p');
 	condition.className = 'kk-weather-condition';
@@ -476,10 +493,10 @@ function renderWidgetBody(body: HTMLElement, weather: WeatherData, showDetails: 
 	}
 	const rows: Array<[string, string]> = [];
 	if (weather.feels_like !== null) {
-		rows.push(['Feels like', `${Math.round(weather.feels_like)}°C`]);
+		rows.push(['Feels like', formatTemp(weather.feels_like)]);
 	}
 	if (weather.high !== null && weather.low !== null) {
-		rows.push(['High / Low', `${Math.round(weather.high)}° / ${Math.round(weather.low)}°C`]);
+		rows.push(['High / Low', `${formatTemp(weather.high)} / ${formatTemp(weather.low)}`]);
 	}
 	if (weather.humidity !== null) {
 		rows.push(['Humidity', `${weather.humidity}%`]);

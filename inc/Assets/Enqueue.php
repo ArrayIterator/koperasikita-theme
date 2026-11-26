@@ -103,6 +103,7 @@ final class Enqueue
             'isMarketsEnabled' => Features::isEnabled('markets'),
             'isWeatherEnabled' => Features::isEnabled('weather'),
             'weatherCacheLifetimeMin' => (int) get_theme_mod('kk_weather_cache_lifetime', 15),
+            'weatherUnit' => (string) get_theme_mod('kk_weather_unit', 'celsius'),
             'isPwaEnabled' => Features::isEnabled('pwa'),
             'pwaPromptDelayMs' => Pwa::promptDelayMs(),
             'themeUrl' => KK_URI,

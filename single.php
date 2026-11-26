@@ -48,12 +48,12 @@ get_header();
 				}
 			}
 
-			// Related posts: same category, 3 posts.
+			// Related posts: same category, kk_single_related_count posts.
 			if ( get_theme_mod( 'kk_single_related', true ) ) {
 				$related = new WP_Query(
 					array(
 						'post_type'           => 'post',
-						'posts_per_page'      => 3,
+						'posts_per_page'      => min( 6, max( 1, (int) get_theme_mod( 'kk_single_related_count', 4 ) ) ),
 						'post__not_in'        => array( get_the_ID() ),
 						'category__in'        => wp_get_post_categories( get_the_ID() ),
 						'ignore_sticky_posts' => true,

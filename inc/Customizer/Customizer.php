@@ -557,6 +557,45 @@ final class Customizer
             'type' => 'checkbox',
         ]);
 
+        /* Default colour scheme: the scheme a first-time visitor (or
+         * a visitor who never touched the toggle) sees. System follows
+         * the OS; Light/Dark pin it. A stored toggle choice always
+         * wins over this default. */
+        self::addSetting(
+            $wpCustomize,
+            'kk_color_scheme',
+            'system',
+            [self::class, 'sanitizeColorScheme'],
+            'refresh'
+        );
+        $wpCustomize->add_control('kk_color_scheme', [
+            'label' => esc_html__('Default Colour Scheme', 'koperasikita'),
+            'description' => esc_html__('The colour scheme for visitors who have not picked one yet. System follows the device setting.', 'koperasikita'),
+            'section' => 'koperasikita_accessibility',
+            'type' => 'select',
+            'choices' => [
+                'system' => esc_html__('System (follow device)', 'koperasikita'),
+                'light' => esc_html__('Light', 'koperasikita'),
+                'dark' => esc_html__('Dark', 'koperasikita'),
+            ],
+        ]);
+
+        /* Dark-mode switch visibility: hide both toggles (header on
+         * desktop, drawer footer on mobile) and the site stays on the
+         * default scheme. */
+        self::addSetting(
+            $wpCustomize,
+            'kk_dark_mode_toggle',
+            true,
+            [self::class, 'sanitizeBool'],
+            'refresh'
+        );
+        $wpCustomize->add_control('kk_dark_mode_toggle', [
+            'label' => esc_html__('Show Dark-Mode Switch', 'koperasikita'),
+            'section' => 'koperasikita_accessibility',
+            'type' => 'checkbox',
+        ]);
+
         /* Excerpt: how long the card/hero excerpt runs, and the
          * ending shown when it is cut short (default the 3 dots). */
         self::addSetting(
@@ -674,6 +713,46 @@ final class Customizer
             ],
         ]);
 
+        /* Weather temperature unit: the top bar and the weather
+         * widget show °C by default; Fahrenheit converts the
+         * Celsius values the API returns. */
+        self::addSetting(
+            $wpCustomize,
+            'kk_weather_unit',
+            'celsius',
+            [self::class, 'sanitizeWeatherUnit'],
+            'refresh'
+        );
+        $wpCustomize->add_control('kk_weather_unit', [
+            'label' => esc_html__('Weather Temperature Unit', 'koperasikita'),
+            'section' => 'koperasikita_header',
+            'type' => 'select',
+            'choices' => [
+                'celsius' => esc_html__('Celsius (°C)', 'koperasikita'),
+                'fahrenheit' => esc_html__('Fahrenheit (°F)', 'koperasikita'),
+            ],
+        ]);
+
+        /* Mobile menu slide side: the drawer slides in from the left
+         * by default; from the right when the hamburger sits on the
+         * right or the layout reads better that way. */
+        self::addSetting(
+            $wpCustomize,
+            'kk_mobile_menu_side',
+            'left',
+            [self::class, 'sanitizeMenuSide'],
+            'refresh'
+        );
+        $wpCustomize->add_control('kk_mobile_menu_side', [
+            'label' => esc_html__('Mobile Menu Slide Side', 'koperasikita'),
+            'section' => 'koperasikita_header',
+            'type' => 'select',
+            'choices' => [
+                'left' => esc_html__('Left', 'koperasikita'),
+                'right' => esc_html__('Right', 'koperasikita'),
+            ],
+        ]);
+
         $checkboxes = [
             'kk_single_featured' => ['koperasikita_single', 'Show Featured Image', true],
             'kk_single_author_box' => ['koperasikita_single', 'Show Author Box', true],
@@ -686,6 +765,11 @@ final class Customizer
             'kk_images_srcset' => ['koperasikita_media', 'Enable Responsive Images', true],
             'kk_breadcrumb_enabled' => ['koperasikita_breadcrumb', 'Show Breadcrumbs', true],
             'kk_breadcrumb_home' => ['koperasikita_breadcrumb', 'Show Breadcrumbs on the Homepage', false],
+            'kk_breadcrumb_post' => ['koperasikita_breadcrumb', 'Show Breadcrumbs on Articles', true],
+            'kk_breadcrumb_page' => ['koperasikita_breadcrumb', 'Show Breadcrumbs on Pages', true],
+            'kk_breadcrumb_archive' => ['koperasikita_breadcrumb', 'Show Breadcrumbs on Archives', true],
+            'kk_breadcrumb_search' => ['koperasikita_breadcrumb', 'Show Breadcrumbs on Search Results', true],
+            'kk_breadcrumb_404' => ['koperasikita_breadcrumb', 'Show Breadcrumbs on 404 Pages', true],
             'kk_topbar_enabled' => ['koperasikita_header', 'Show Top Bar', true],
             'kk_topbar_date' => ['koperasikita_header', 'Show Date in Top Bar', true],
             'kk_clock_enabled' => ['koperasikita_header', 'Show Live Clock in Top Bar', true],
@@ -703,6 +787,22 @@ final class Customizer
                 'type' => 'checkbox',
             ]);
         }
+
+        /* Related-post count: how many related stories the single
+         * post shows (was a hardcoded 3). */
+        self::addSetting(
+            $wpCustomize,
+            'kk_single_related_count',
+            4,
+            static fn ($value) => self::clampInt($value, 1, 6),
+            'refresh'
+        );
+        $wpCustomize->add_control('kk_single_related_count', [
+            'label' => esc_html__('Related News Posts', 'koperasikita'),
+            'section' => 'koperasikita_single',
+            'type' => 'number',
+            'input_attrs' => ['min' => 1, 'max' => 6],
+        ]);
 
         // Header: breaking-news title and source, top bar, live clock,
         // sticky header. The title is the label on the ticker itself.
@@ -1162,6 +1262,23 @@ final class Customizer
             'type' => 'checkbox',
         ]);
 
+        /* Default thumbnail: the fallback image for posts without a
+         * featured image (cards, hero, and the SEO/OG image). Leave
+         * it empty to keep the shipped placeholder. */
+        self::addSetting(
+            $wpCustomize,
+            'kk_default_thumbnail',
+            0,
+            'absint',
+            'refresh'
+        );
+        $wpCustomize->add_control(new WP_Customize_Media_Control($wpCustomize, 'kk_default_thumbnail', [
+            'label' => esc_html__('Default Thumbnail', 'koperasikita'),
+            'description' => esc_html__('The image shown for posts without a featured image, and used as the SEO/social image when a post has none. Leave it empty to use the built-in placeholder.', 'koperasikita'),
+            'section' => 'koperasikita_media',
+            'mime_type' => 'image',
+        ]));
+
         self::addSetting(
             $wpCustomize,
             'kk_images_quality',
@@ -1399,6 +1516,21 @@ final class Customizer
     public static function sanitizeHighlightsLayout(mixed $value): string
     {
         return in_array($value, ['grid', 'slider'], true) ? (string) $value : 'grid';
+    }
+
+    public static function sanitizeColorScheme(mixed $value): string
+    {
+        return in_array($value, ['system', 'light', 'dark'], true) ? (string) $value : 'system';
+    }
+
+    public static function sanitizeMenuSide(mixed $value): string
+    {
+        return in_array($value, ['left', 'right'], true) ? (string) $value : 'left';
+    }
+
+    public static function sanitizeWeatherUnit(mixed $value): string
+    {
+        return in_array($value, ['celsius', 'fahrenheit'], true) ? (string) $value : 'celsius';
     }
 
     /**
