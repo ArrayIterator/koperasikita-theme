@@ -1,0 +1,71 @@
+/* Koperasi Kita — admin styles.
+ *
+ * Select2-style term picker for widget forms (see admin.ts):
+ * a searchable multi-select that replaces the native <select>.
+ * The chips show picked terms; the list filters as you type.
+ */
+
+.kk-term-picker {
+	display: grid;
+	gap: 0.5rem;
+	margin-top: 0.25rem;
+}
+
+.kk-term-picker-chips {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.25rem;
+}
+
+.kk-term-picker-chips:empty {
+	display: none;
+}
+
+.kk-term-picker-chip {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.25rem;
+	padding: 0.15rem 0.5rem;
+	font-size: 0.8125rem;
+	line-height: 1.4;
+	color: var(--kk-ink, #1a1a1a);
+	background: var(--kk-surface, #f7f7f5);
+	border: 1px solid var(--kk-border, #ddd);
+	border-radius: 999px;
+	cursor: pointer;
+}
+
+.kk-term-picker-chip:hover {
+	border-color: var(--kk-green, #0b6b3a);
+}
+
+.kk-term-picker-list {
+	max-height: 10rem;
+	overflow: auto;
+	border: 1px solid var(--kk-border, #ddd);
+	border-radius: 3px;
+	background: #fff;
+}
+
+.kk-term-picker-option {
+	display: block;
+	width: 100%;
+	padding: 0.4rem 0.6rem;
+	font-size: 0.875rem;
+	text-align: left;
+	color: var(--kk-ink, #1a1a1a);
+	background: transparent;
+	border: 0;
+	cursor: pointer;
+}
+
+.kk-term-picker-option:hover,
+.kk-term-picker-option:focus-visible {
+	background: var(--kk-surface, #f7f7f5);
+	outline: none;
+}
+
+.kk-term-picker-list .description {
+	margin: 0;
+	padding: 0.4rem 0.6rem;
+}

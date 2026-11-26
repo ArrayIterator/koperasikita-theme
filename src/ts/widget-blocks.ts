@@ -6,12 +6,14 @@
  * registered server-side in inc/Widgets/Blocks.php). Each block gets an
  * edit UI built from a small field schema: the InspectorControls show
  * the widget's own fields (title, count, layout, thumbnails, and the
- * per-widget extras), while the canvas shows a placeholder — the real
- * markup is rendered on the server through the_widget().
+ * per-widget extras), while the canvas shows a live ServerSideRender
+ * preview — the real frontend markup, rendered on the server through
+ * the_widget().
  *
- * The category picker for the Category News block reads the category
- * list from the core store (wp.data), so it always matches the site's
- * categories without a page reload.
+ * The category/tag pickers are Select2-style token fields
+ * (FormTokenField): searchable, with one chip per picked term. The
+ * term lists come from the core store (wp.data), so they always
+ * match the site's categories and tags without a page reload.
  */
 
 export {};
@@ -91,6 +93,7 @@ interface Wp {
 		ToggleControl: unknown;
 		RangeControl: unknown;
 		CheckboxControl: unknown;
+		FormTokenField: unknown;
 		PanelBody: unknown;
 		Spinner: unknown;
 	};
@@ -100,6 +103,9 @@ interface Wp {
 	};
 	data: {
 		useSelect<T>(mapSelect: (select: WpDataSelect) => T, deps: unknown[]): T;
+	};
+	serverSideRender: {
+		ServerSideRender: unknown;
 	};
 	i18n: {
 		__(text: string, domain?: string): string;
@@ -193,60 +199,71 @@ function renderField(
 			);
 		}
 		case 'categories': {
+			/* Select2-style picker (FormTokenField): a searchable
+			 * token field, not a long checkbox list. The stored
+			 * value is term IDs; the tokens show term names. */
 			if (categories === null) {
 				return api.element.createElement(api.components.Spinner, { key });
 			}
 			const selected: number[] = Array.isArray(value)
 				? value.filter((item): item is number => typeof item === 'number')
 				: [];
-			const boxes = categories.map((category) =>
-				api.element.createElement(api.components.CheckboxControl, {
-					key: String(category.id),
-					label: `${category.name} (${category.count})`,
-					checked: selected.includes(category.id),
-					onChange: (next: boolean) => {
-						const nextSelected = next
-							? [...selected, category.id]
-							: selected.filter((id) => id !== category.id);
-						set(key, nextSelected);
-					},
-				}),
-			);
+			const byId = new Map(categories.map((c) => [c.id, c.name]));
+			const byName = new Map(categories.map((c) => [c.name, c.id]));
+			const tokens = selected
+				.map((id) => byId.get(id))
+				.filter((name): name is string => typeof name === 'string');
+			const suggestions = categories.map((c) => c.name);
 			return api.element.createElement(
 				'div',
 				{ key },
-				api.element.createElement('p', null, field.label),
-				...boxes,
+				api.element.createElement(api.components.FormTokenField, {
+					label: field.label,
+					value: tokens,
+					suggestions,
+					onChange: (nextTokens: string[]) => {
+						const nextIds = nextTokens
+							.map((name) => byName.get(name))
+							.filter((id): id is number => typeof id === 'number');
+						set(key, nextIds);
+					},
+					__experimentalShowHowTo: false,
+				}),
 				field.help !== undefined
 					? api.element.createElement('p', { className: 'components-base-control__help' }, field.help)
 					: null,
 			);
 		}
 		case 'tags': {
+			/* Select2-style picker (FormTokenField), same as
+			 * categories but for post tags. */
 			if (tags === null) {
 				return api.element.createElement(api.components.Spinner, { key });
 			}
 			const selected: number[] = Array.isArray(value)
 				? value.filter((item): item is number => typeof item === 'number')
 				: [];
-			const boxes = tags.map((tag) =>
-				api.element.createElement(api.components.CheckboxControl, {
-					key: String(tag.id),
-					label: `${tag.name} (${tag.count})`,
-					checked: selected.includes(tag.id),
-					onChange: (next: boolean) => {
-						const nextSelected = next
-							? [...selected, tag.id]
-							: selected.filter((id) => id !== tag.id);
-						set(key, nextSelected);
-					},
-				}),
-			);
+			const byId = new Map(tags.map((t) => [t.id, t.name]));
+			const byName = new Map(tags.map((t) => [t.name, t.id]));
+			const tokens = selected
+				.map((id) => byId.get(id))
+				.filter((name): name is string => typeof name === 'string');
+			const suggestions = tags.map((t) => t.name);
 			return api.element.createElement(
 				'div',
 				{ key },
-				api.element.createElement('p', null, field.label),
-				...boxes,
+				api.element.createElement(api.components.FormTokenField, {
+					label: field.label,
+					value: tokens,
+					suggestions,
+					onChange: (nextTokens: string[]) => {
+						const nextIds = nextTokens
+							.map((name) => byName.get(name))
+							.filter((id): id is number => typeof id === 'number');
+						set(key, nextIds);
+					},
+					__experimentalShowHowTo: false,
+				}),
 				field.help !== undefined
 					? api.element.createElement('p', { className: 'components-base-control__help' }, field.help)
 					: null,
@@ -284,20 +301,29 @@ function createEdit(def: BlockDef, api: Wp): (props: BlockEditProps) => unknown 
 				...controls,
 			),
 		);
+		/* Live preview: ServerSideRender asks the server for the
+		 * block's real frontend output (the widget rendered through
+		 * the_widget()), so the editor shows exactly what the site
+		 * will show — not a title/description placeholder. */
 		const preview = api.element.createElement(
 			'div',
 			blockProps,
-			api.element.createElement(
-				'div',
-				{ className: 'kk-widget-block-preview' },
-				api.element.createElement('strong', null, def.title),
-				api.element.createElement('p', null, def.description),
-				api.element.createElement(
-					'p',
-					null,
-					api.i18n.__('Configure this widget in the block settings.', 'koperasikita'),
-				),
-			),
+			api.serverSideRender !== undefined
+				? api.element.createElement(api.serverSideRender.ServerSideRender, {
+						block: `koperasi-kita/${def.slug}`,
+						attributes,
+					})
+				: api.element.createElement(
+						'div',
+						{ className: 'kk-widget-block-preview' },
+						api.element.createElement('strong', null, def.title),
+						api.element.createElement('p', null, def.description),
+						api.element.createElement(
+							'p',
+							null,
+							api.i18n.__('Configure this widget in the block settings.', 'koperasikita'),
+						),
+					),
 		);
 		return api.element.createElement(api.element.Fragment, null, inspector, preview);
 	};
@@ -362,25 +388,6 @@ function buildDefinitions(api: Wp): BlockDef[] {
 			icon: 'networking',
 			attributes: storyAttributes,
 			fields: storyFields,
-		},
-		{
-			slug: 'taxonomy-posts',
-			title: __('Category News'),
-			description: __('Posts from the categories you pick, newest first.'),
-			icon: 'tag',
-			attributes: {
-				...storyAttributes,
-				categoryIds: { type: 'array', default: [], items: { type: 'number' } },
-			},
-			fields: [
-				...storyFields,
-				{
-					key: 'categoryIds',
-					kind: 'categories',
-					label: __('Categories'),
-					help: __('Leave all unchecked to show posts from every category.'),
-				},
-			],
 		},
 		{
 			slug: 'editors-picks',

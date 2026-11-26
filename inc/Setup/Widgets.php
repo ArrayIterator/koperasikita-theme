@@ -12,7 +12,6 @@ use KoperasiKita\Widgets\PagesWidget;
 use KoperasiKita\Widgets\PopularPostsWidget;
 use KoperasiKita\Widgets\RecentPostsWidget;
 use KoperasiKita\Widgets\RelatedPostsWidget;
-use KoperasiKita\Widgets\TaxonomyPostsWidget;
 use KoperasiKita\Widgets\WeatherWidget;
 use KoperasiKita\Widgets\WorldClockWidget;
 
@@ -25,7 +24,6 @@ final class Widgets
         register_widget(RecentPostsWidget::class);
         register_widget(PopularPostsWidget::class);
         register_widget(RelatedPostsWidget::class);
-        register_widget(TaxonomyPostsWidget::class);
         register_widget(EditorsPicksWidget::class);
         register_widget(WorldClockWidget::class);
         register_widget(PagesWidget::class);

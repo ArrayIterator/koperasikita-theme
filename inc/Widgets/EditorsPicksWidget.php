@@ -172,46 +172,53 @@ final class EditorsPicksWidget extends AbstractStoryWidget
         $categories = get_categories(['hide_empty' => false]);
         $tags = get_tags(['hide_empty' => false]);
         ?>
-        <p><?php esc_html_e('Categories:', 'koperasikita'); ?></p>
-        <?php if (is_array($categories) && $categories !== []) : ?>
-            <?php foreach ($categories as $category) : ?>
-                <p>
-                    <input
-                        type="checkbox"
-                        id="<?php echo esc_attr($this->get_field_id('category_ids-' . $category->term_id)); ?>"
-                        name="<?php echo esc_attr($this->get_field_name('category_ids')); ?>[]"
-                        value="<?php echo esc_attr((string) $category->term_id); ?>"
-                        <?php checked(in_array((int) $category->term_id, $selected_categories, true)); ?>
-                    >
-                    <label for="<?php echo esc_attr($this->get_field_id('category_ids-' . $category->term_id)); ?>">
-                        <?php echo esc_html($category->name); ?>
-                    </label>
-                </p>
-            <?php endforeach; ?>
-        <?php else : ?>
-            <p class="description"><?php esc_html_e('No categories yet.', 'koperasikita'); ?></p>
-        <?php endif; ?>
-        <p><?php esc_html_e('Tags:', 'koperasikita'); ?></p>
-        <?php if (is_array($tags) && $tags !== []) : ?>
-            <?php foreach ($tags as $tag) : ?>
-                <p>
-                    <input
-                        type="checkbox"
-                        id="<?php echo esc_attr($this->get_field_id('tag_ids-' . $tag->term_id)); ?>"
-                        name="<?php echo esc_attr($this->get_field_name('tag_ids')); ?>[]"
-                        value="<?php echo esc_attr((string) $tag->term_id); ?>"
-                        <?php checked(in_array((int) $tag->term_id, $selected_tags, true)); ?>
-                    >
-                    <label for="<?php echo esc_attr($this->get_field_id('tag_ids-' . $tag->term_id)); ?>">
-                        <?php echo esc_html($tag->name); ?>
-                    </label>
-                </p>
-            <?php endforeach; ?>
-        <?php else : ?>
-            <p class="description"><?php esc_html_e('No tags yet.', 'koperasikita'); ?></p>
-        <?php endif; ?>
+        <p>
+            <label for="<?php echo esc_attr($this->get_field_id('category_ids')); ?>">
+                <?php esc_html_e('Categories:', 'koperasikita'); ?>
+            </label>
+            <?php /* Select2-style picker (see admin.ts): a searchable multi-select, not a checkbox list. */ ?>
+            <select
+                multiple
+                class="widefat"
+                data-kk-term-picker
+                id="<?php echo esc_attr($this->get_field_id('category_ids')); ?>"
+                name="<?php echo esc_attr($this->get_field_name('category_ids')); ?>[]"
+                style="min-height: 120px;"
+            >
+                <?php if (is_array($categories)) : ?>
+                    <?php foreach ($categories as $category) : ?>
+                        <option
+                            value="<?php echo esc_attr((string) $category->term_id); ?>"
+                            <?php selected(in_array((int) $category->term_id, $selected_categories, true)); ?>
+                        ><?php echo esc_html($category->name); ?></option>
+                    <?php endforeach; ?>
+                <?php endif; ?>
+            </select>
+        </p>
+        <p>
+            <label for="<?php echo esc_attr($this->get_field_id('tag_ids')); ?>">
+                <?php esc_html_e('Tags:', 'koperasikita'); ?>
+            </label>
+            <select
+                multiple
+                class="widefat"
+                data-kk-term-picker
+                id="<?php echo esc_attr($this->get_field_id('tag_ids')); ?>"
+                name="<?php echo esc_attr($this->get_field_name('tag_ids')); ?>[]"
+                style="min-height: 120px;"
+            >
+                <?php if (is_array($tags)) : ?>
+                    <?php foreach ($tags as $tag) : ?>
+                        <option
+                            value="<?php echo esc_attr((string) $tag->term_id); ?>"
+                            <?php selected(in_array((int) $tag->term_id, $selected_tags, true)); ?>
+                        ><?php echo esc_html($tag->name); ?></option>
+                    <?php endforeach; ?>
+                <?php endif; ?>
+            </select>
+        </p>
         <p class="description">
-            <?php esc_html_e('Leave all unchecked to show the latest posts from every category and tag.', 'koperasikita'); ?>
+            <?php esc_html_e('Leave all unselected to show the latest posts from every category and tag.', 'koperasikita'); ?>
         </p>
         <p>
             <input

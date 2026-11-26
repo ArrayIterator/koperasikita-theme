@@ -2556,3 +2556,24 @@ msgstr "Garis Bawah"
 
 msgid "Double"
 msgstr "Ganda"
+
+msgid "Leave all unselected to show the latest posts from every category and tag."
+msgstr "Biarkan semua tidak dipilih untuk menampilkan posting terbaru dari semua kategori dan tag."
+
+msgid "Right column of the blog and archive pages, next to the post list."
+msgstr "Kolom kanan halaman blog dan arsip, di samping daftar posting."
+
+msgid "Right column of a single article page, next to the article body."
+msgstr "Kolom kanan halaman artikel, di samping isi artikel."
+
+msgid "Right column of a single page (About, Contact, and other pages), next to the page content."
+msgstr "Kolom kanan halaman tunggal (Tentang, Kontak, dan halaman lain), di samping isi halaman."
+
+msgid "Right column of the homepage, below the hero and next to the Latest News list."
+msgstr "Kolom kanan beranda, di bawah hero dan di samping daftar Berita Terbaru."
+
+msgid "Left column of the homepage hero, next to the lead story. Only shown when the Hero Presentation pairs the hero with a left widget."
+msgstr "Kolom kiri hero beranda, di samping berita utama. Hanya tampil saat Tampilan Hero memasangkan hero dengan widget kiri."
+
+msgid "Right column of the homepage hero, next to the lead story. Only shown when the Hero Presentation pairs the hero with a right widget."
+msgstr "Kolom kanan hero beranda, di samping berita utama. Hanya tampil saat Tampilan Hero memasangkan hero dengan widget kanan."

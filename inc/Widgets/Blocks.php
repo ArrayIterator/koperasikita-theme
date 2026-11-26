@@ -63,11 +63,14 @@ final class Blocks
             }
         }
 
-        $categories[] = [
+        // First in the inserter, not last: the theme blocks are the
+        // ones the editor reaches for most, so the Koperasi Kita
+        // category sits at the very top of the block list.
+        array_unshift($categories, [
             'slug' => self::CATEGORY_SLUG,
             'title' => __('Koperasi Kita', 'koperasikita'),
-            'icon' => null,
-        ];
+            'icon' => 'admin-customizer',
+        ]);
 
         return $categories;
     }
@@ -120,16 +123,6 @@ final class Blocks
                 'description' => __('Posts related to the one being read, or the latest posts elsewhere.', 'koperasikita'),
                 'attributes' => $storyAttributes,
                 'map' => $storyMap,
-            ],
-            'taxonomy-posts' => [
-                'class' => TaxonomyPostsWidget::class,
-                'icon' => 'tag',
-                'title' => __('Category News', 'koperasikita'),
-                'description' => __('Posts from the categories you pick, newest first.', 'koperasikita'),
-                'attributes' => array_merge($storyAttributes, [
-                    'categoryIds' => ['type' => 'array', 'default' => [], 'items' => ['type' => 'number']],
-                ]),
-                'map' => array_merge($storyMap, ['categoryIds' => 'category_ids']),
             ],
             'editors-picks' => [
                 'class' => EditorsPicksWidget::class,
@@ -258,7 +251,7 @@ final class Blocks
             wp_register_script(
                 'kk-widget-blocks',
                 $js,
-                ['wp-blocks', 'wp-element', 'wp-components', 'wp-block-editor', 'wp-data', 'wp-i18n'],
+                ['wp-blocks', 'wp-element', 'wp-components', 'wp-block-editor', 'wp-data', 'wp-i18n', 'wp-server-side-render'],
                 KK_VERSION,
                 true
             );

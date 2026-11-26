@@ -23,6 +23,7 @@
  */
 
 import { postAjax } from './api';
+import '../css/admin.css';
 
 interface AdminStrings {
 	ready: string;
@@ -266,6 +267,8 @@ function watchFontSettings(container: HTMLElement): void {
 }
 
 function initAdmin(): void {
+	initTermPickers();
+
 	if (!adminData()) {
 		return;
 	}
@@ -277,6 +280,130 @@ function initAdmin(): void {
 
 	bindFontsControls(container);
 	watchFontSettings(container);
+}
+
+/**
+ * Select2-style term pickers for widget forms.
+ *
+ * A `<select multiple data-kk-term-picker>` (rendered by the
+ * widget form with every term as an option) becomes a searchable
+ * picker: a search box filters the option list, picked terms show
+ * as removable chips, and the underlying select stays in sync so
+ * the widget form submits the picked term IDs. The select keeps
+ * working without JS (a plain multi-select), so the picker is
+ * progressive enhancement, not a requirement.
+ *
+ * Widget forms are added dynamically (Customizer, Legacy Widget
+ * block), so a MutationObserver picks up selects that appear
+ * after the first pass.
+ */
+function initTermPickers(): void {
+	const initOne = (select: HTMLSelectElement): void => {
+		if (select.dataset.kkPickerInit === '1') {
+			return;
+		}
+		select.dataset.kkPickerInit = '1';
+
+		const wrapper = document.createElement('div');
+		wrapper.className = 'kk-term-picker';
+		select.after(wrapper);
+		// Hide the native select but keep it in the form so its
+		// selected options submit with the widget.
+		select.style.display = 'none';
+
+		const chips = document.createElement('div');
+		chips.className = 'kk-term-picker-chips';
+		const search = document.createElement('input');
+		search.type = 'search';
+		search.className = 'kk-term-picker-search widefat';
+		search.placeholder = 'Search…';
+		search.setAttribute('aria-label', 'Search terms');
+		const list = document.createElement('div');
+		list.className = 'kk-term-picker-list';
+		wrapper.append(chips, search, list);
+
+		const options = Array.from(select.options).map((option) => ({
+			value: option.value,
+			label: option.text,
+		}));
+
+		const render = (): void => {
+			const query = search.value.trim().toLowerCase();
+			const selected = new Set(
+				Array.from(select.selectedOptions).map((o) => o.value),
+			);
+			chips.innerHTML = '';
+			for (const option of options) {
+				if (!selected.has(option.value)) {
+					continue;
+				}
+				const chip = document.createElement('button');
+				chip.type = 'button';
+				chip.className = 'kk-term-picker-chip';
+				chip.textContent = option.label + ' ×';
+				chip.addEventListener('click', () => {
+					setSelected(option.value, false);
+				});
+				chips.append(chip);
+			}
+			list.innerHTML = '';
+			for (const option of options) {
+				if (selected.has(option.value)) {
+					continue;
+				}
+				if (query !== '' && !option.label.toLowerCase().includes(query)) {
+					continue;
+				}
+				const row = document.createElement('button');
+				row.type = 'button';
+				row.className = 'kk-term-picker-option';
+				row.textContent = option.label;
+				row.addEventListener('click', () => {
+					setSelected(option.value, true);
+					search.value = '';
+					search.focus();
+					render();
+				});
+				list.append(row);
+			}
+			if (list.childElementCount === 0) {
+				const empty = document.createElement('p');
+				empty.className = 'description';
+				empty.textContent = query === '' ? 'No terms.' : 'No matching terms.';
+				list.append(empty);
+			}
+		};
+
+		const setSelected = (value: string, next: boolean): void => {
+			for (const option of Array.from(select.options)) {
+				if (option.value === value) {
+					option.selected = next;
+				}
+			}
+			render();
+		};
+
+		search.addEventListener('input', render);
+		render();
+	};
+
+	const scan = (root: ParentNode): void => {
+		root
+			.querySelectorAll<HTMLSelectElement>('select[data-kk-term-picker]')
+			.forEach(initOne);
+	};
+	scan(document);
+
+	const observer = new MutationObserver((mutations) => {
+		for (const mutation of Array.from(mutations)) {
+			for (const node of Array.from(mutation.addedNodes)) {
+				if (node instanceof HTMLElement) {
+					scan(node);
+				}
+			}
+		}
+	});
+	observer.observe(document.body, { childList: true, subtree: true });
 }
 
 if (document.readyState === 'loading') {

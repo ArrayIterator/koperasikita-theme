@@ -9,9 +9,9 @@ use WP_Widget;
 
 /**
  * Shared base for the post-list widgets (Recent, Popular, Related and
- * Category News).
+ * Editor's Picks).
  *
- * The four widgets differ only in which posts they fetch — each subclass
+ * The widgets differ only in which posts they fetch — each subclass
  * implements getPosts() — while the title, count, layout and thumbnail
  * handling is identical. The list is a plain <ul> of post links with an
  * optional thumbnail and date, so it stays readable in any sidebar.
