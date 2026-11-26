@@ -697,7 +697,12 @@
 .kk-card-grid.kk-layout-list .kk-card {
 	display: grid;
 	grid-template-columns: var(--kk-list-thumb-size, 180px) 1fr auto;
-	grid-template-areas: "media body bookmark";
+	/* The excerpt spans the full width below the thumbnail +
+	 * title row, so the text is even instead of cramped in the
+	 * narrow body column. */
+	grid-template-areas:
+		"media body bookmark"
+		"excerpt excerpt excerpt";
 	gap: 16px;
 }
 

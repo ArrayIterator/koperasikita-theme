@@ -86,10 +86,6 @@ if ( $show_title ) {
 			<?php echo $title_html; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 		<?php endif; ?>
 
-		<?php if ( $show_excerpt ) : ?>
-			<p class="kk-card-excerpt"><?php echo esc_html( get_the_excerpt() ); ?></p>
-		<?php endif; ?>
-
 		<?php if ( (bool) get_theme_mod( 'kk_card_show_comments', false ) ) : ?>
 			<p class="kk-meta">
 				<a href="<?php the_permalink(); ?>#comments">
@@ -119,6 +115,18 @@ if ( $show_title ) {
 			</button>
 		<?php endif; ?>
 	</div>
+
+	<?php
+	// The excerpt is a direct child of the card (not inside the body):
+	// in grid layouts it sits below the body, and in list rows it
+	// spans the full width below the thumbnail + title row, so the
+	// text is even instead of cramped in the narrow body column.
+	if ( $show_excerpt ) :
+		?>
+		<p class="kk-card-excerpt"><?php echo esc_html( get_the_excerpt() ); ?></p>
+		<?php
+	endif;
+	?>
 
 	<?php if ( $bookmarks_enabled && $thumb_url ) : ?>
 		<button

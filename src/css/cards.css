@@ -17,9 +17,11 @@
 .kk-card {
 	/* A grid so the bookmark can share the media area (overlaying the
 	 * thumbnail) in grid layouts and take its own column in list rows
-	 * — without absolute positioning or padding maths. */
+	 * — without absolute positioning or padding maths. The excerpt
+	 * is a direct child in its own row below the body, so list rows
+	 * can stretch it full-width under the thumbnail + title row. */
 	display: grid;
-	grid-template-areas: "media" "body";
+	grid-template-areas: "media" "body" "excerpt";
 	border-top: 1px solid var(--kk-border);
 	padding-top: 16px;
 }
@@ -50,7 +52,7 @@
 /* Title Above: the title is a direct child before the media, so it
  * gets its own grid row on top. */
 .kk-card--title-above {
-	grid-template-areas: "title" "media" "body";
+	grid-template-areas: "title" "media" "body" "excerpt";
 }
 
 .kk-card--title-above > .kk-card-title {
@@ -119,6 +121,7 @@
 }
 
 .kk-card-excerpt {
+	grid-area: excerpt;
 	font-size: var(--kk-excerpt-size);
 	color: var(--kk-muted);
 	margin-bottom: 10px;
@@ -223,11 +226,14 @@
 
 /* List rows: the bookmark takes its own column at the right edge of
  * the row, pinned to the top corner (level with the date) — centred
- * vertically it floats oddly in the middle of a tall row. */
+ * vertically it floats oddly in the middle of a tall row. The row is
+ * flat on a light background, so the white glyph (meant for over a
+ * thumbnail) is invisible here — ink, so the icon reads. */
 .kk-layout-list .kk-card .kk-bookmark-button {
 	grid-area: bookmark;
 	align-self: start;
 	margin: 0;
+	color: var(--kk-ink);
 }
 
 /* Desktop: the bookmark is a hover reveal — it appears only while the

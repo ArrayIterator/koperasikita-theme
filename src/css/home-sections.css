@@ -35,9 +35,13 @@
 .kk-home .kk-category-block-items.kk-layout-list .kk-card {
 	display: grid;
 	/* Thumbnail width is the Article List Thumbnail Size setting
-	 * (--kk-list-thumb-size, default 180px). */
+	 * (--kk-list-thumb-size, default 180px). The excerpt spans the
+	 * full width below the thumbnail + title row, so the text is
+	 * even instead of cramped in the narrow body column. */
 	grid-template-columns: var(--kk-list-thumb-size, 180px) 1fr auto;
-	grid-template-areas: "media body bookmark";
+	grid-template-areas:
+		"media body bookmark"
+		"excerpt excerpt excerpt";
 	gap: 1rem;
 	background: transparent;
 	border: 0;
@@ -158,6 +162,9 @@
 	grid-area: bookmark;
 	align-self: start;
 	margin: 0;
+	/* Own column on a light background: ink, not the white glyph
+	 * meant for over a thumbnail (invisible here). */
+	color: var(--kk-ink);
 }
 
 /* --- Featured Right ------------------------------------------------------- */
@@ -265,6 +272,9 @@
 	grid-area: bookmark;
 	align-self: start;
 	margin: 0;
+	/* Own column on a light background: ink, not the white glyph
+	 * meant for over a thumbnail (invisible here). */
+	color: var(--kk-ink);
 }
 
 .kk-layout-switcher {
