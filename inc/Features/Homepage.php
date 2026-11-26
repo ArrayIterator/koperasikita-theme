@@ -161,7 +161,7 @@ final class Homepage
      */
     public static function heroPosts(): array
     {
-        $count = min(8, max(1, (int) get_theme_mod('kk_hero_count', 5)));
+        $count = min(20, max(1, (int) get_theme_mod('kk_hero_count', 5)));
         $source = (string) get_theme_mod('kk_hero_source', 'latest');
         $source = in_array($source, ['latest', 'category', 'tag'], true) ? $source : 'latest';
 

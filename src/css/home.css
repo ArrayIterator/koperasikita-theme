@@ -128,6 +128,10 @@
 	font-size: var(--kk-excerpt-size);
 	color: var(--kk-muted);
 	margin-bottom: 10px;
+	display: -webkit-box;
+	-webkit-line-clamp: 2;
+	-webkit-box-orient: vertical;
+	overflow: hidden;
 }
 
 .kk-hero-grid {

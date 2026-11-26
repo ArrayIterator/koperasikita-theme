@@ -181,14 +181,14 @@ final class Customizer
             $wpCustomize,
             'kk_hero_count',
             5,
-            static fn ($value) => self::clampInt($value, 3, 8),
+            static fn ($value) => self::clampInt($value, 3, 20),
             'refresh'
         );
         $wpCustomize->add_control('kk_hero_count', [
             'label' => esc_html__('Hero Posts', 'koperasikita'),
             'section' => 'koperasikita_homepage',
             'type' => 'number',
-            'input_attrs' => ['min' => 3, 'max' => 8],
+            'input_attrs' => ['min' => 3, 'max' => 20],
         ]);
 
         /* Hero header + source: a Hero Presentation switch (12 modes:
