@@ -557,4 +557,31 @@ final class Enqueue
             ]);
         }
     }
+
+    /**
+     * Block editor (widgets.php, Customizer widget panel, post
+     * editor): the widget blocks render via ServerSideRender, so
+     * the preview HTML is the real frontend markup — but the
+     * frontend styles are never loaded in the editor canvas, so
+     * the widget title (top border, :after rule) renders plain.
+     * Load just the tokens (CSS variables, e.g. --kk-ink) and the
+     * widget stylesheet so the preview shows the same title
+     * styles as the live site. Scoped selectors
+     * (.kk-widget-title--*, .kk-widget) only match the preview
+     * markup, not the editor chrome.
+     */
+    public static function registerBlockEditor(): void
+    {
+        $tokens = ViteLoader::css('src/css/tokens.css');
+
+        if ($tokens !== '') {
+            wp_enqueue_style('kk-tokens-editor', $tokens, [], KK_VERSION);
+        }
+
+        $widgets = ViteLoader::css('src/css/widgets.css');
+
+        if ($widgets !== '') {
+            wp_enqueue_style('kk-widgets-editor', $widgets, ['kk-tokens-editor'], KK_VERSION);
+        }
+    }
 }

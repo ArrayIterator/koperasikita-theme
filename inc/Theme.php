@@ -59,6 +59,7 @@ final class Theme
         add_action('wp_enqueue_scripts', [Enqueue::class, 'register']);
         add_action('admin_enqueue_scripts', [Enqueue::class, 'registerAdmin']);
         add_action('customize_preview_init', [Enqueue::class, 'registerCustomizerPreview']);
+        add_action('enqueue_block_editor_assets', [Enqueue::class, 'registerBlockEditor']);
         add_action('wp_enqueue_scripts', [Customizer::class, 'outputPaletteOverrides'], 20);
         add_action('wp_enqueue_scripts', [Customizer::class, 'outputTypographySizeOverrides'], 20);
         add_action('wp_enqueue_scripts', [Customizer::class, 'outputClampOverrides'], 20);
