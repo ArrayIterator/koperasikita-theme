@@ -8,9 +8,8 @@ use KoperasiKita\Icons\Icon;
 
 /**
  * Menu item icons: a "Choose icon" button on Appearance -> Menus that
- * opens a popup with a searchable grid of the theme's icons (the
- * built-in set + the Material Icons sprite), plus a preview of the
- * menu item with the chosen icon.
+ * opens a popup with a searchable grid of the theme's Feather icons
+ * (290), plus a preview of the menu item with the chosen icon.
  *
  * The choice is saved as post meta on the menu item. On the frontend
  * the icon is prepended to the item title via the nav_menu_item_title
@@ -34,7 +33,7 @@ final class MenuIcons
     {
         $icon = get_post_meta($itemId, self::META_KEY, true);
 
-        if (!is_string($icon) || !Icon::isAvailable($icon)) {
+        if (!is_string($icon) || !Icon::exists($icon)) {
             return '';
         }
 
@@ -50,7 +49,7 @@ final class MenuIcons
             return $title;
         }
 
-        return '<span class="kk-menu-icon" aria-hidden="true">' . Icon::render($icon, 18) . '</span>' . $title;
+        return '<span class="kk-menu-icon" aria-hidden="true">' . Icon::svg($icon, 18) . '</span>' . $title;
     }
 
     /** The icon field inside each menu item's settings on Appearance -> Menus. */
@@ -80,7 +79,7 @@ final class MenuIcons
             return '<span class="kk-menu-icon-preview-empty">' . esc_html__('No icon', 'koperasikita') . '</span>';
         }
 
-        return Icon::render($icon, 18) . '<span>' . esc_html($item->title) . '</span>';
+        return Icon::svg($icon, 18) . '<span>' . esc_html($item->title) . '</span>';
     }
 
     /** The shared icon picker popup (one per page, reused by every menu item). */
@@ -117,7 +116,7 @@ final class MenuIcons
 
         $icon = sanitize_text_field(wp_unslash($_POST['kk-menu-icon'][$itemId]));
 
-        if ('' === $icon || !Icon::isAvailable($icon)) {
+        if ('' === $icon || !Icon::exists($icon)) {
             delete_post_meta($itemId, self::META_KEY);
             return;
         }

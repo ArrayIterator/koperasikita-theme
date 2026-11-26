@@ -448,8 +448,6 @@ final class Enqueue
                     'nonce' => wp_create_nonce('koperasikita_nonce'),
                     'menuIcons' => [
                         'builtIn' => \KoperasiKita\Icons\Icon::builtInSvgs(20),
-                        'material' => \KoperasiKita\Icons\Icon::materialNames(),
-                        'spriteUrl' => \KoperasiKita\Icons\Icon::materialSpriteUrl(),
                         'noIcon' => __('No icon', 'koperasikita'),
                     ],
                 ]);

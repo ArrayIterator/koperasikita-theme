@@ -42,8 +42,6 @@ interface AdminData {
 
 interface MenuIconData {
 	builtIn: Record<string, string>;
-	material: string[];
-	spriteUrl: string;
 	noIcon: string;
 }
 
@@ -408,12 +406,12 @@ function initProviderPickers(): void {
  *
  * Each menu item has a "Choose icon" button and a preview (icon +
  * title). The button opens one shared centered popup (blurred
- * backdrop) with a search box and a grid of the theme's icons
- * (built-in + the Material Icons sprite). Picking an icon writes it
- * to the item's hidden input and refreshes the preview; "Remove
- * icon" clears it. Close on Close, backdrop click, or Escape.
- * The grid is built lazily on first open (2,000+ icons). Without
- * JS the button does nothing and the saved icon (if any) stays.
+ * backdrop) with a search box and a grid of the theme's Feather
+ * icons (290). Picking an icon writes it to the item's hidden input
+ * and refreshes the preview; "Remove icon" clears it. Close on
+ * Close, backdrop click, or Escape. The grid is built lazily on
+ * first open. Without JS the button does nothing and the saved icon
+ * (if any) stays.
  */
 function initMenuIconPickers(): void {
 	const popup = document.getElementById('kk-menu-icon-popup');
@@ -437,12 +435,7 @@ function initMenuIconPickers(): void {
 	let opener: HTMLButtonElement | null = null;
 	let gridBuilt = false;
 
-	const iconSvg = (name: string): string => {
-		if (name.startsWith('material:')) {
-			return `<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" focusable="false"><use href="${data.spriteUrl}#material-${name.slice(9)}"></use></svg>`;
-		}
-		return data.builtIn[name] ?? '';
-	};
+	const iconSvg = (name: string): string => data.builtIn[name] ?? '';
 
 	const buildGrid = (): void => {
 		if (gridBuilt) {
@@ -463,7 +456,6 @@ function initMenuIconPickers(): void {
 		Object.keys(data.builtIn)
 			.sort()
 			.forEach(addButton);
-		data.material.forEach((name) => addButton(`material:${name}`));
 		grid.appendChild(fragment);
 	};
 

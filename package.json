@@ -1,6 +1,5 @@
 {
   "devDependencies": {
-    "@material-design-icons/svg": "^0.14.15",
     "typescript": "^5.9.3",
     "vite": "^6.4.6"
   },
@@ -9,7 +8,6 @@
   "scripts": {
     "build": "vite build",
     "dev": "vite --host 0.0.0.0",
-    "icons:generate": "bun scripts/generate-material-icons.mjs",
     "release": "node release-theme.js",
     "typecheck": "tsc --noEmit"
   },
