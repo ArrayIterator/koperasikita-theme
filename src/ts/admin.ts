@@ -336,18 +336,22 @@ function initAdmin(): void {
 /**
  * Manual gold sync on Settings -> Gold Prices, with real progress.
  *
- * One AJAX call per source, in step order (galeri24, pegadaian,
- * hargaemas-net): the first call carries no source, each step
- * returns `next` (the following source, or null when done) plus
- * `step`/`total` for the progress bar. While a sync runs the Sync
- * now button is disabled (aria-busy), the progress bar + status
- * line show which source is syncing ("Syncing galeri24… 1/3"), each
- * finished source gets its own line in the step list, and the
- * automatic-sync form is disabled with a note saying it is paused.
- * A per-source failure is reported as its own line and does not
- * stop the remaining sources. At the end the page reloads so the
- * status, history list and chart show the new rows. Without the
- * button (any other admin screen) this does nothing.
+ * One AJAX call per enabled source, in run order (the default
+ * source first, then the rest — see
+ * LogamMuliaApiProvider::enabledSyncSources()): the first call
+ * carries no source, each step returns `next` (the following
+ * source, or null when done) plus `step`/`total` for the progress
+ * bar. While a sync runs the Sync now button is disabled
+ * (aria-busy), the progress bar + status line show which source
+ * is syncing ("Syncing galeri24… 1/3"), each finished source gets
+ * its own line in the step list, and the automatic-sync form is
+ * disabled with a note saying it is paused. A per-source failure
+ * is reported as its own line and does not stop the remaining
+ * sources. At the end the page reloads so the status, history
+ * list and chart show the new rows. Without the button (any other
+ * admin screen) this does nothing. With no source enabled the
+ * button is disabled server-side, and a step that reports no
+ * source shows the server's error instead of reloading.
  */
 function initGoldSync(): void {
 	const config = adminData();
@@ -420,6 +424,24 @@ function initGoldSync(): void {
 				}
 
 				const data: GoldSyncStep = await postAjax<GoldSyncStep>(config, 'kk_logam_mulia_sync', params);
+
+				/* No source in the step: either nothing is enabled
+				 * at all (total 0 — show the server's honest error
+				 * and stop, never reload as if a sync had run), or
+				 * the remaining sources were disabled mid-run
+				 * (total > 0 — finish with what already synced). */
+				if (!data.source) {
+					if (data.total === 0) {
+						if (data.error) {
+							line.textContent = formatTemplate(strings.failed, data.error);
+							result.textContent = data.error;
+						}
+						setRunning(false);
+						return;
+					}
+					break;
+				}
+
 				totalInserted += data.inserted;
 				totalSkipped += data.skipped;
 

@@ -3777,8 +3777,9 @@ msgstr "Sehari sekali"
 msgid "Every %d hours"
 msgstr "Setiap %d jam"
 
-msgid "Daily gold prices from the Logam Mulia API price history (backup/prices CSV on GitHub). The sync runs automatically via WP-Cron on the schedule below and only inserts rows that are not in the database yet — one row per brand per day. Use the button below to sync on demand."
-msgstr "Harga emas harian dari riwayat harga Logam Mulia API (CSV backup/prices di GitHub). Sinkronisasi berjalan otomatis lewat WP-Cron sesuai jadwal di bawah dan hanya menyisipkan baris yang belum ada di database — satu baris per brand per hari. Gunakan tombol di bawah untuk sinkronisasi manual."
+#: inc/Admin/GoldPricesPage.php
+msgid "Daily gold prices from the Logam Mulia API price history (backup/prices CSV on GitHub). The sync runs automatically via WP-Cron on the schedule in Settings and only inserts rows that are not in the database yet — one row per brand per day. Use the button below to sync on demand."
+msgstr "Harga emas harian dari riwayat harga Logam Mulia API (CSV backup/prices di GitHub). Sinkronisasi berjalan otomatis lewat WP-Cron sesuai jadwal di Pengaturan dan hanya menyisipkan baris yang belum ada di database — satu baris per brand per hari. Gunakan tombol di bawah untuk sinkronisasi manual."
 
 #: inc/Admin/GoldPricesPage.php
 msgid "Gold price providers"
@@ -3839,3 +3840,39 @@ msgstr " (terbaru %s)"
 #: inc/Admin/GoldPricesPage.php
 msgid "Done — inserted %s, skipped %s (already in database). Reloading…"
 msgstr "Selesai — dimasukkan %s, dilewati %s (sudah ada di database). Memuat ulang…"
+
+#: inc/Admin/GoldPricesPage.php
+msgid "Sync sources"
+msgstr "Sumber sinkronisasi"
+
+#: inc/Admin/GoldPricesPage.php
+msgid "Choose which Logam Mulia sources the sync imports. Only enabled sources are synced, manually and automatically. The default source is synced first."
+msgstr "Pilih sumber Logam Mulia mana yang diimpor sinkronisasi. Hanya sumber yang diaktifkan yang disinkronkan, manual maupun otomatis. Sumber default disinkronkan pertama."
+
+#: inc/Admin/GoldPricesPage.php
+msgid "Imports"
+msgstr "Mengimpor"
+
+#: inc/Admin/GoldPricesPage.php
+msgid "Sync %s"
+msgstr "Sinkronkan %s"
+
+#: inc/Admin/GoldPricesPage.php
+msgid "Default source: %s"
+msgstr "Sumber default: %s"
+
+#: inc/Admin/GoldPricesPage.php
+msgid "No sync source is enabled. Enable one in Settings."
+msgstr "Tidak ada sumber sinkronisasi yang diaktifkan. Aktifkan satu di Pengaturan."
+
+#: inc/Providers/LogamMuliaApiProvider.php
+msgid "Galeri 24, UBS, Antam and Lotus Archi 1-gram prices."
+msgstr "Harga 1 gram Galeri 24, UBS, Antam, dan Lotus Archi."
+
+#: inc/Providers/LogamMuliaApiProvider.php
+msgid "Pegadaian 0.01-gram price, scaled to 1 gram."
+msgstr "Harga Pegadaian 0,01 gram, dikonversi ke 1 gram."
+
+#: inc/Providers/LogamMuliaApiProvider.php
+msgid "Antam 1-gram price (fallback when Galeri 24 has no Antam price)."
+msgstr "Harga Antam 1 gram (cadangan bila Galeri 24 tidak punya harga Antam)."

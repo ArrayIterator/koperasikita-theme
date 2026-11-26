@@ -11,20 +11,24 @@ use KoperasiKita\Providers\LogamMuliaApiProvider;
 
 /**
  * Settings -> Gold Prices: the management page for the Logam Mulia
- * gold price sync, with three tabs.
+ * gold price sync, with four tabs.
  *
  * "Prices" shows the sync status (last sync, latest recorded date,
  * which symbols are stored, the failure backlog), a manual sync
- * button that steps through the sources one at a time via AJAX with
- * a real progress bar, and the per-brand provider table: one row per
- * gold brand (plus spot), each with its own provider and fallback
- * provider — only providers that can actually supply that brand are
- * listed. "Enabled Gold Brands" is the master switch for which gold
- * brands the site shows — a disabled brand is hidden from the Gold
- * widget and from the widget's Brands to show picker. "History" shows
- * the stored price history as both a list (table) and a dependency-free
- * inline SVG line chart (one line per brand). Uses WP admin styles
- * only — no heavy custom CSS.
+ * button that steps through the enabled sources one at a time via
+ * AJAX with a real progress bar, and the per-brand provider table:
+ * one row per gold brand (plus spot), each with its own provider
+ * and fallback provider — only providers that can actually supply
+ * that brand are listed. "Settings" holds the automatic sync
+ * schedule (how often, days per run, timeout) and the sync source
+ * list: which Logam Mulia CSV sources the sync imports, with a
+ * default source that runs first — manual and automatic sync both
+ * follow it. "Enabled Gold Brands" is the master switch for which
+ * gold brands the site shows — a disabled brand is hidden from the
+ * Gold widget and from the widget's Brands to show picker.
+ * "History" shows the stored price history as both a list (table)
+ * and a dependency-free inline SVG line chart (one line per
+ * brand). Uses WP admin styles only — no heavy custom CSS.
  */
 final class GoldPricesPage
 {
@@ -70,7 +74,7 @@ final class GoldPricesPage
 
         // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- tab is display-only.
         $tab = isset($_GET['tab']) ? sanitize_key((string) wp_unslash($_GET['tab'])) : 'prices';
-        $tab = in_array($tab, ['prices', 'brands', 'history'], true) ? $tab : 'prices';
+        $tab = in_array($tab, ['prices', 'brands', 'history', 'settings'], true) ? $tab : 'prices';
         $brands = Gold::brands();
         $pageUrl = admin_url('admin.php?page=' . self::PAGE_SLUG);
         ?>
@@ -78,6 +82,7 @@ final class GoldPricesPage
             <h1><?php esc_html_e('Gold Prices', 'koperasikita'); ?></h1>
             <h2 class="nav-tab-wrapper">
                 <a href="<?php echo esc_url(add_query_arg('tab', 'prices', $pageUrl)); ?>" class="nav-tab<?php echo $tab === 'prices' ? ' nav-tab-active' : ''; ?>"><?php esc_html_e('Prices', 'koperasikita'); ?></a>
+                <a href="<?php echo esc_url(add_query_arg('tab', 'settings', $pageUrl)); ?>" class="nav-tab<?php echo $tab === 'settings' ? ' nav-tab-active' : ''; ?>"><?php esc_html_e('Settings', 'koperasikita'); ?></a>
                 <a href="<?php echo esc_url(add_query_arg('tab', 'brands', $pageUrl)); ?>" class="nav-tab<?php echo $tab === 'brands' ? ' nav-tab-active' : ''; ?>"><?php esc_html_e('Enabled Gold Brands', 'koperasikita'); ?></a>
                 <a href="<?php echo esc_url(add_query_arg('tab', 'history', $pageUrl)); ?>" class="nav-tab<?php echo $tab === 'history' ? ' nav-tab-active' : ''; ?>"><?php esc_html_e('History', 'koperasikita'); ?></a>
             </h2>
@@ -85,6 +90,8 @@ final class GoldPricesPage
                 <?php self::renderBrandsTab($brands); ?>
             <?php elseif ($tab === 'history') : ?>
                 <?php self::renderHistoryTab($brands); ?>
+            <?php elseif ($tab === 'settings') : ?>
+                <?php self::renderSettingsTab(); ?>
             <?php else : ?>
                 <?php self::renderPricesTab($brands); ?>
             <?php endif; ?>
@@ -172,10 +179,12 @@ final class GoldPricesPage
     }
 
     /**
-     * Save the automatic sync settings form (Prices tab): nonce +
+     * Save the sync settings form (Settings tab): nonce +
      * capability checked, then redirect back with a saved flag so
      * a refresh never resubmits the form. Saving reschedules the
-     * WP-Cron event to match (see LogamMuliaApiProvider).
+     * WP-Cron event to match (see LogamMuliaApiProvider). The
+     * source checkboxes submit only when ticked, so an absent
+     * list means "none enabled" on purpose, not "unchanged".
      */
     private static function handleSyncSettingsSave(): void
     {
@@ -192,15 +201,26 @@ final class GoldPricesPage
         // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- sanitised below.
         $raw = wp_unslash($_POST);
 
+        // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- sanitised below.
+        $rawSources = isset($raw['kk_sync_sources']) && is_array($raw['kk_sync_sources'])
+            ? $raw['kk_sync_sources']
+            : [];
+        $syncSources = array_values(array_map(
+            'sanitize_key',
+            array_map('strval', $rawSources)
+        ));
+
         LogamMuliaApiProvider::saveSyncSettings([
             'enabled' => isset($raw['kk_sync_enabled']),
             'interval_hours' => isset($raw['kk_sync_interval']) ? (int) $raw['kk_sync_interval'] : 24,
             'batch_days' => isset($raw['kk_sync_batch']) ? (int) $raw['kk_sync_batch'] : 7,
             'timeout' => isset($raw['kk_sync_timeout']) ? (int) $raw['kk_sync_timeout'] : 8,
+            'sync_sources' => $syncSources,
+            'default_source' => isset($raw['kk_sync_default']) ? (string) $raw['kk_sync_default'] : '',
         ]);
 
         wp_safe_redirect(add_query_arg(
-            ['tab' => 'prices', 'sync_settings_saved' => '1'],
+            ['tab' => 'settings', 'sync_settings_saved' => '1'],
             admin_url('admin.php?page=' . self::PAGE_SLUG)
         ));
         exit;
@@ -247,9 +267,10 @@ final class GoldPricesPage
     }
 
     /**
-     * Prices tab: the sync status, manual sync with progress, and the
-     * per-brand provider table. The price history lives on its own
-     * History tab.
+     * Prices tab: the sync status, manual sync with progress, and
+     * the per-brand provider table. The automatic sync schedule
+     * and the sync source list live on their own Settings
+     * tab. The price history lives on its own History tab.
      *
      * @param array<string, string> $brands Slug => label.
      */
@@ -257,38 +278,112 @@ final class GoldPricesPage
     {
         $status = LogamMuliaApiProvider::status();
         ?>
-        <p><?php esc_html_e('Daily gold prices from the Logam Mulia API price history (backup/prices CSV on GitHub). The sync runs automatically via WP-Cron on the schedule below and only inserts rows that are not in the database yet — one row per brand per day. Use the button below to sync on demand.', 'koperasikita'); ?></p>
+        <p><?php esc_html_e('Daily gold prices from the Logam Mulia API price history (backup/prices CSV on GitHub). The sync runs automatically via WP-Cron on the schedule in Settings and only inserts rows that are not in the database yet — one row per brand per day. Use the button below to sync on demand.', 'koperasikita'); ?></p>
 
         <h2><?php esc_html_e('Sync status', 'koperasikita'); ?></h2>
         <?php self::renderStatus($status); ?>
 
         <h2><?php esc_html_e('Manual sync', 'koperasikita'); ?></h2>
+        <?php self::renderManualSync(); ?>
+
+        <h2><?php esc_html_e('Gold price providers', 'koperasikita'); ?></h2>
+        <?php self::renderBrandProvidersTable(); ?>
+        <?php
+    }
+
+    /**
+     * The manual sync block, shared by the Prices tab and the
+     * Settings tab (only one tab renders per page load, so
+     * there is ever one button on the page). The button syncs
+     * ONLY the enabled sources, default first — see
+     * LogamMuliaApiProvider::enabledSyncSources(). With no source
+     * enabled the button is disabled with an honest note, so it
+     * can never be clicked to no effect. The progress bar + step
+     * list are filled by admin.ts (initGoldSync) as each source
+     * finishes; a failed source is reported on its own line and
+     * does not stop the rest.
+     */
+    private static function renderManualSync(): void
+    {
+        $enabled = LogamMuliaApiProvider::enabledSyncSources();
+        ?>
         <p>
-            <button type="button" class="button button-primary" data-kk-gold-sync><?php esc_html_e('Sync now', 'koperasikita'); ?></button>
+            <button type="button" class="button button-primary" data-kk-gold-sync <?php disabled(empty($enabled)); ?>><?php esc_html_e('Sync now', 'koperasikita'); ?></button>
         </p>
+        <?php if ($enabled === []) : ?>
+            <p><?php esc_html_e('No sync source is enabled. Enable one in Settings.', 'koperasikita'); ?></p>
+        <?php endif; ?>
         <div data-kk-gold-sync-progress hidden>
             <p><progress data-kk-gold-sync-bar max="100" value="0" style="width: 100%; max-width: 30rem;"></progress></p>
             <p data-kk-gold-sync-status role="status" aria-live="polite"></p>
             <ul data-kk-gold-sync-steps></ul>
         </div>
         <div data-kk-gold-sync-result role="status" aria-live="polite"></div>
-
-        <h2><?php esc_html_e('Gold price providers', 'koperasikita'); ?></h2>
-        <?php self::renderBrandProvidersTable(); ?>
-
-        <h2><?php esc_html_e('Automatic sync', 'koperasikita'); ?></h2>
         <?php
+    }
+
+    /**
+     * Settings tab: the sync source list (which Logam Mulia
+     * CSV sources the sync imports, and which one runs first) and
+     * the automatic sync schedule — one form, one save. Manual
+     * and automatic sync both follow the same enabled list.
+     */
+    private static function renderSettingsTab(): void
+    {
+        $sync = LogamMuliaApiProvider::syncSettings();
+        $status = LogamMuliaApiProvider::status();
+        $nextRun = wp_next_scheduled(LogamMuliaApiProvider::CRON_HOOK);
+        $labels = LogamMuliaApiProvider::sourceLabels();
+        $descriptions = LogamMuliaApiProvider::sourceDescriptions();
         // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- saved flag is display-only.
         $syncSettingsSaved = isset($_GET['sync_settings_saved']) && $_GET['sync_settings_saved'] === '1';
-        $sync = LogamMuliaApiProvider::syncSettings();
-        $nextRun = wp_next_scheduled(LogamMuliaApiProvider::CRON_HOOK);
-        if ($syncSettingsSaved) :
-            ?>
+        ?>
+        <p><?php esc_html_e('Choose which Logam Mulia sources the sync imports. Only enabled sources are synced, manually and automatically. The default source is synced first.', 'koperasikita'); ?></p>
+
+        <h2><?php esc_html_e('Manual sync', 'koperasikita'); ?></h2>
+        <?php self::renderManualSync(); ?>
+
+        <h2><?php esc_html_e('Sync sources', 'koperasikita'); ?></h2>
+        <?php if ($syncSettingsSaved) : ?>
             <div class="notice notice-success inline"><p><?php esc_html_e('Automatic sync settings saved.', 'koperasikita'); ?></p></div>
         <?php endif; ?>
         <p data-kk-gold-sync-running hidden><em><?php esc_html_e('A manual sync is running. Automatic sync settings are paused until it finishes.', 'koperasikita'); ?></em></p>
-        <form method="post" data-kk-gold-sync-settings action="<?php echo esc_url(admin_url('admin.php?page=' . self::PAGE_SLUG . '&tab=prices')); ?>">
+        <form method="post" data-kk-gold-sync-settings action="<?php echo esc_url(admin_url('admin.php?page=' . self::PAGE_SLUG . '&tab=settings')); ?>">
             <?php wp_nonce_field('kk_gold_sync_settings', 'kk_gold_sync_settings_nonce'); ?>
+            <table class="widefat striped">
+                <thead>
+                    <tr>
+                        <th><?php esc_html_e('Source', 'koperasikita'); ?></th>
+                        <th><?php esc_html_e('Imports', 'koperasikita'); ?></th>
+                        <th><?php esc_html_e('Enabled', 'koperasikita'); ?></th>
+                        <th><?php esc_html_e('Default', 'koperasikita'); ?></th>
+                        <th><?php esc_html_e('Last sync', 'koperasikita'); ?></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php foreach (LogamMuliaApiProvider::SOURCES as $source) : ?>
+                        <?php
+                        $sourceStatus = $status['sources'][$source] ?? [];
+                        $lastSync = isset($sourceStatus['synced_at']) && $sourceStatus['synced_at'] !== null
+                            ? date_i18n(get_option('date_format', 'Y-m-d') . ' ' . get_option('time_format', 'H:i'), (int) $sourceStatus['synced_at'])
+                            : __('Never', 'koperasikita');
+                        ?>
+                        <tr>
+                            <td><strong><?php echo esc_html($labels[$source] ?? $source); ?></strong></td>
+                            <td><?php echo esc_html($descriptions[$source] ?? ''); ?></td>
+                            <td>
+                                <input type="checkbox" name="kk_sync_sources[]" value="<?php echo esc_attr($source); ?>" <?php checked(in_array($source, $sync['sync_sources'], true)); ?> aria-label="<?php echo esc_attr(sprintf(__('Sync %s', 'koperasikita'), $labels[$source] ?? $source)); ?>">
+                            </td>
+                            <td>
+                                <input type="radio" name="kk_sync_default" value="<?php echo esc_attr($source); ?>" <?php checked($sync['default_source'], $source); ?> aria-label="<?php echo esc_attr(sprintf(__('Default source: %s', 'koperasikita'), $labels[$source] ?? $source)); ?>">
+                            </td>
+                            <td><?php echo esc_html($lastSync); ?></td>
+                        </tr>
+                    <?php endforeach; ?>
+                </tbody>
+            </table>
+
+            <h2><?php esc_html_e('Automatic sync', 'koperasikita'); ?></h2>
             <table class="form-table" role="presentation">
                 <tbody>
                     <tr>

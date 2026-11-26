@@ -85,6 +85,38 @@ final class LogamMuliaApiProvider extends AbstractLiveProvider
     /** Sources synced, in step order. */
     public const SOURCES = ['galeri24', 'pegadaian', 'hargaemas-net'];
 
+    /** Default sync source when nothing is saved yet. */
+    public const DEFAULT_SYNC_SOURCE = 'galeri24';
+
+    /**
+     * Human labels for the sync sources (proper nouns, not
+     * translated — same rule as the gold brand labels).
+     *
+     * @return array<string, string>
+     */
+    public static function sourceLabels(): array
+    {
+        return [
+            'galeri24' => 'Galeri 24',
+            'pegadaian' => 'Pegadaian',
+            'hargaemas-net' => 'Harga Emas.net',
+        ];
+    }
+
+    /**
+     * What each sync source imports, for the Settings tab.
+     *
+     * @return array<string, string>
+     */
+    public static function sourceDescriptions(): array
+    {
+        return [
+            'galeri24' => __('Galeri 24, UBS, Antam and Lotus Archi 1-gram prices.', 'koperasikita'),
+            'pegadaian' => __('Pegadaian 0.01-gram price, scaled to 1 gram.', 'koperasikita'),
+            'hargaemas-net' => __('Antam 1-gram price (fallback when Galeri 24 has no Antam price).', 'koperasikita'),
+        ];
+    }
+
     /** Consecutive failures before a source drops to lowest priority. */
     private const DEPRIORITISE_AFTER = 3;
 
@@ -181,7 +213,7 @@ final class LogamMuliaApiProvider extends AbstractLiveProvider
     }
 
     /**
-     * The live market fetch (all three CSVs, merged). Kept to
+     * The live market fetch (the enabled CSVs, merged). Kept to
      * satisfy the abstract contract; the sync uses fetchSource()
      * per source instead, so one step never handles more than one
      * file. Not called by prices().
@@ -193,7 +225,7 @@ final class LogamMuliaApiProvider extends AbstractLiveProvider
         $now = time();
         $merged = [];
 
-        foreach (self::SOURCES as $source) {
+        foreach (self::enabledSyncSources() as $source) {
             $byDate = $this->fetchSource($source, $now, 1);
 
             if ($byDate === []) {
@@ -348,8 +380,10 @@ final class LogamMuliaApiProvider extends AbstractLiveProvider
     }
 
     /**
-     * Sync ALL sources, one at a time, each step isolated: a source
-     * that fails does not stop the others. Used by the daily cron.
+     * Sync ALL enabled sources, one at a time, each step isolated:
+     * a source that fails does not stop the others. Disabled
+     * sources (see enabledSyncSources()) are never fetched, by
+     * the daily cron or by a manual sync. Used by the daily cron.
      * A source that failed 3+ times is deprioritised and only
      * retried once its backoff has elapsed (once a week) — the
      * daily run skips it instead of hammering the upstream.
@@ -363,7 +397,7 @@ final class LogamMuliaApiProvider extends AbstractLiveProvider
         $now = time();
         $total = ['inserted' => 0, 'skipped' => 0, 'sources' => []];
 
-        foreach (self::SOURCES as $source) {
+        foreach (self::enabledSyncSources() as $source) {
             if (!$this->isDue($source, $now)) {
                 // Deprioritised and its weekly retry is not due
                 // yet: skip it without touching the upstream.
@@ -590,9 +624,12 @@ final class LogamMuliaApiProvider extends AbstractLiveProvider
     /**
      * The automatic sync settings, sanitized with the defaults
      * applied. Never saved = the defaults: auto-sync on, once a
-     * day, 7 days per run, 8-second fetch timeout.
+     * day, 7 days per run, 8-second fetch timeout, ALL sources
+     * enabled with galeri24 as the default — exactly today's
+     * behaviour, so the migration changes nothing until the admin
+     * edits the Settings tab.
      *
-     * @return array{enabled: bool, interval_hours: int, batch_days: int, timeout: int}
+     * @return array{enabled: bool, interval_hours: int, batch_days: int, timeout: int, sync_sources: array<int, string>, default_source: string}
      */
     public static function syncSettings(): array
     {
@@ -603,12 +640,60 @@ final class LogamMuliaApiProvider extends AbstractLiveProvider
         $batch = isset($stored['batch_days']) ? (int) $stored['batch_days'] : 7;
         $timeout = isset($stored['timeout']) ? (int) $stored['timeout'] : 8;
 
+        // Enabled sources: the saved list, intersected with the
+        // known sources (an unknown id never syncs). Absent means
+        // never saved, so all sources stay enabled.
+        $syncSources = isset($stored['sync_sources']) && is_array($stored['sync_sources'])
+            ? array_values(array_intersect(
+                self::SOURCES,
+                array_map('sanitize_key', array_map('strval', $stored['sync_sources']))
+            ))
+            : self::SOURCES;
+
+        $default = isset($stored['default_source']) ? sanitize_key((string) $stored['default_source']) : self::DEFAULT_SYNC_SOURCE;
+        if (!in_array($default, self::SOURCES, true)) {
+            $default = self::DEFAULT_SYNC_SOURCE;
+        }
+
         return [
             'enabled' => !isset($stored['enabled']) || (bool) $stored['enabled'],
             'interval_hours' => in_array($interval, self::INTERVAL_HOURS, true) ? $interval : 24,
             'batch_days' => max(1, min(30, $batch)),
             'timeout' => max(5, min(60, $timeout)),
+            'sync_sources' => $syncSources,
+            'default_source' => $default,
         ];
+    }
+
+    /**
+     * The sources a sync run actually fetches, in run order: the
+     * default source first, then the remaining enabled sources in
+     * SOURCES order. A disabled source is never fetched — by the
+     * cron, by manual sync, or by fetch(). When the default source
+     * itself is disabled it is simply skipped (the first enabled
+     * source in SOURCES order runs first instead); the stored
+     * default is kept, so re-enabling it restores it as first.
+     *
+     * @return array<int, string>
+     */
+    public static function enabledSyncSources(): array
+    {
+        $settings = self::syncSettings();
+        $enabled = $settings['sync_sources'];
+        $default = $settings['default_source'];
+
+        $ordered = [];
+        if (in_array($default, $enabled, true)) {
+            $ordered[] = $default;
+        }
+
+        foreach (self::SOURCES as $source) {
+            if ($source !== $default && in_array($source, $enabled, true)) {
+                $ordered[] = $source;
+            }
+        }
+
+        return $ordered;
     }
 
     /**
@@ -633,19 +718,42 @@ final class LogamMuliaApiProvider extends AbstractLiveProvider
     }
 
     /**
-     * Save the automatic sync settings (from the Gold Prices page),
-     * then reschedule the cron to match. Returns the saved settings.
+     * Save the automatic sync settings (from the Settings
+     * tab), then reschedule the cron to match. Returns the saved
+     * settings. The source list is stored as the enabled ids in
+     * SOURCES order (an empty list means no source syncs at all,
+     * on purpose); the default must be a known source. When the
+     * caller omits a key (older callers), the current value is
+     * kept instead of resetting to the default.
      *
      * @param array<string, mixed> $data
-     * @return array{enabled: bool, interval_hours: int, batch_days: int, timeout: int}
+     * @return array{enabled: bool, interval_hours: int, batch_days: int, timeout: int, sync_sources: array<int, string>, default_source: string}
      */
     public static function saveSyncSettings(array $data): array
     {
+        $current = self::syncSettings();
+
+        if (array_key_exists('sync_sources', $data) && is_array($data['sync_sources'])) {
+            $syncSources = array_values(array_intersect(
+                self::SOURCES,
+                array_map('sanitize_key', array_map('strval', $data['sync_sources']))
+            ));
+        } else {
+            $syncSources = $current['sync_sources'];
+        }
+
+        $default = isset($data['default_source']) ? sanitize_key((string) $data['default_source']) : $current['default_source'];
+        if (!in_array($default, self::SOURCES, true)) {
+            $default = self::DEFAULT_SYNC_SOURCE;
+        }
+
         $settings = [
             'enabled' => !empty($data['enabled']),
             'interval_hours' => isset($data['interval_hours']) ? (int) $data['interval_hours'] : 24,
             'batch_days' => isset($data['batch_days']) ? (int) $data['batch_days'] : 7,
             'timeout' => isset($data['timeout']) ? (int) $data['timeout'] : 8,
+            'sync_sources' => $syncSources,
+            'default_source' => $default,
         ];
 
         // Sanitize through the same defaults as the reader, so the
@@ -748,18 +856,63 @@ final class LogamMuliaApiProvider extends AbstractLiveProvider
             $source = isset($_POST['source']) ? sanitize_key(wp_unslash((string) $_POST['source'])) : '';
 
             $provider = new self();
+            $enabled = self::enabledSyncSources();
+
+            // No source given means "start from the first enabled
+            // source" (the default first — see
+            // enabledSyncSources()). No enabled source at all:
+            // return an honest error step with no next, so the
+            // admin page shows the note instead of syncing
+            // nothing and reloading as if it had worked.
+            if ($source === '') {
+                $source = $enabled[0] ?? '';
+            }
 
             if ($source === '') {
-                $source = self::SOURCES[0] ?? '';
+                return [
+                    'source' => '',
+                    'inserted' => 0,
+                    'skipped' => 0,
+                    'latest_date' => null,
+                    'error' => __('No sync source is enabled. Enable one in Settings.', 'koperasikita'),
+                    'deferred' => false,
+                    'next' => null,
+                    'total' => 0,
+                    'step' => 0,
+                ];
+            }
+
+            // A disabled (or unknown) source was requested — a
+            // stale page, or the admin disabled it mid-run. Jump
+            // to the next enabled source after it instead of
+            // fetching a source the admin turned off.
+            if (!in_array($source, $enabled, true)) {
+                $next = $provider->nextSourceAfter($source);
+                if ($next === null) {
+                    return [
+                        'source' => '',
+                        'inserted' => 0,
+                        'skipped' => 0,
+                        'latest_date' => null,
+                        'error' => null,
+                        'deferred' => false,
+                        'next' => null,
+                        'total' => count($enabled),
+                        'step' => count($enabled),
+                    ];
+                }
+
+                $source = $next;
             }
 
             $step = $provider->syncSource($source);
             $step['next'] = $provider->nextSourceAfter($source);
             // Progress bookkeeping for the admin page: how many
-            // sources there are in total and which step this is
-            // (1-based), so the progress bar is real, not estimated.
-            $stepIndex = array_search($source, self::SOURCES, true);
-            $step['total'] = count(self::SOURCES);
+            // enabled sources there are in total and which step
+            // this is (1-based), so the progress bar is real, not
+            // estimated.
+            $stepIndex = array_search($source, $enabled, true);
+            $step['total'] = count($enabled);
             $step['step'] = $stepIndex !== false ? (int) $stepIndex + 1 : 1;
 
             return $step;
@@ -767,18 +920,35 @@ final class LogamMuliaApiProvider extends AbstractLiveProvider
     }
 
     /**
-     * The source after this one in step order, or null when it is
-     * the last. Used by the manual sync AJAX endpoint so the admin
-     * page can chain one source per call.
+     * The enabled source after this one in run order, or null
+     * when it is the last. Used by the manual sync AJAX endpoint
+     * so the admin page can chain one source per call. A disabled
+     * or unknown source resolves to the next enabled source after
+     * its position in SOURCES order (or the first enabled one for
+     * an unknown id), so a stale `next` never fetches a source
+     * the admin turned off.
      */
     public function nextSourceAfter(string $source): ?string
     {
-        $index = array_search($source, self::SOURCES, true);
-        if ($index === false) {
-            return self::SOURCES[0] ?? null;
+        $enabled = self::enabledSyncSources();
+        $index = array_search($source, $enabled, true);
+
+        if ($index !== false) {
+            return $enabled[$index + 1] ?? null;
         }
 
-        return self::SOURCES[$index + 1] ?? null;
+        $pos = array_search($source, self::SOURCES, true);
+        if ($pos === false) {
+            return $enabled[0] ?? null;
+        }
+
+        foreach (self::SOURCES as $i => $candidate) {
+            if ($i > $pos && in_array($candidate, $enabled, true)) {
+                return $candidate;
+            }
+        }
+
+        return null;
     }
 
     /**
