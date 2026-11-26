@@ -254,6 +254,109 @@ final class Customizer
             ],
         ]);
 
+        /* Slider style: Classic (image on top, title + meta + excerpt
+         * below) or Inner (title + meta + excerpt inside the image,
+         * overlaid with a gradient). Plus which parts show, and
+         * auto-slide with an interval. These only show while the
+         * Hero Presentation is a slider mode. */
+        self::addSetting(
+            $wpCustomize,
+            'kk_hero_slider_style',
+            'classic',
+            [self::class, 'sanitizeHeroSliderStyle'],
+            'refresh'
+        );
+        $wpCustomize->add_control('kk_hero_slider_style', [
+            'label' => esc_html__('Slider Style', 'koperasikita'),
+            'section' => 'koperasikita_homepage',
+            'type' => 'select',
+            'choices' => [
+                'classic' => esc_html__('Classic', 'koperasikita'),
+                'inner' => esc_html__('Inner (Title Inside Image)', 'koperasikita'),
+            ],
+            'active_callback' => [self::class, 'isHeroSlider'],
+        ]);
+
+        $hero_slider_toggles = [
+            'kk_hero_slider_show_category' => ['Show Category', true],
+            'kk_hero_slider_show_date' => ['Show Date', true],
+            'kk_hero_slider_show_excerpt' => ['Show Excerpt', true],
+        ];
+        foreach ($hero_slider_toggles as $id => [$label, $default]) {
+            self::addSetting($wpCustomize, $id, $default, [self::class, 'sanitizeBool'], 'refresh');
+            $wpCustomize->add_control($id, [
+                'label' => esc_html__($label, 'koperasikita'),
+                'section' => 'koperasikita_homepage',
+                'type' => 'checkbox',
+                'active_callback' => [self::class, 'isHeroSlider'],
+            ]);
+        }
+
+        self::addSetting(
+            $wpCustomize,
+            'kk_hero_slider_auto',
+            false,
+            [self::class, 'sanitizeBool'],
+            'refresh'
+        );
+        $wpCustomize->add_control('kk_hero_slider_auto', [
+            'label' => esc_html__('Auto Slide', 'koperasikita'),
+            'section' => 'koperasikita_homepage',
+            'type' => 'checkbox',
+            'active_callback' => [self::class, 'isHeroSlider'],
+        ]);
+
+        self::addSetting(
+            $wpCustomize,
+            'kk_hero_slider_interval',
+            5,
+            static fn ($value) => self::clampInt($value, 2, 30),
+            'refresh'
+        );
+        $wpCustomize->add_control('kk_hero_slider_interval', [
+            'label' => esc_html__('Auto Slide Interval (seconds)', 'koperasikita'),
+            'section' => 'koperasikita_homepage',
+            'type' => 'number',
+            'input_attrs' => ['min' => 2, 'max' => 30],
+            'active_callback' => [self::class, 'isHeroSlider'],
+        ]);
+
+        /* Lead options (grid modes): whether the lead title sits
+         * inside the featured image or below it, and which parts
+         * show. Only shown while the Hero Presentation is a grid. */
+        self::addSetting(
+            $wpCustomize,
+            'kk_hero_lead_title_position',
+            'below',
+            [self::class, 'sanitizeHeroLeadTitlePosition'],
+            'refresh'
+        );
+        $wpCustomize->add_control('kk_hero_lead_title_position', [
+            'label' => esc_html__('Lead Title Position', 'koperasikita'),
+            'section' => 'koperasikita_homepage',
+            'type' => 'select',
+            'choices' => [
+                'below' => esc_html__('Title Below', 'koperasikita'),
+                'inside' => esc_html__('Title Inside Featured Image', 'koperasikita'),
+            ],
+            'active_callback' => [self::class, 'isHeroGrid'],
+        ]);
+
+        $hero_lead_toggles = [
+            'kk_hero_lead_show_category' => ['Show Category', true],
+            'kk_hero_lead_show_date' => ['Show Date', true],
+            'kk_hero_lead_show_excerpt' => ['Show Excerpt', true],
+        ];
+        foreach ($hero_lead_toggles as $id => [$label, $default]) {
+            self::addSetting($wpCustomize, $id, $default, [self::class, 'sanitizeBool'], 'refresh');
+            $wpCustomize->add_control($id, [
+                'label' => esc_html__($label, 'koperasikita'),
+                'section' => 'koperasikita_homepage',
+                'type' => 'checkbox',
+                'active_callback' => [self::class, 'isHeroGrid'],
+            ]);
+        }
+
         self::addSetting(
             $wpCustomize,
             'kk_hero_category_ids',
@@ -1651,6 +1754,34 @@ final class Customizer
     public static function isWeatherEnabled(): bool
     {
         return (bool) get_theme_mod('kk_weather_enabled', true);
+    }
+
+    /* The slider settings only show while the Hero Presentation is
+     * a slider mode (Slider One / Slider Full / Slider Center /
+     * Slider + Widget). */
+    public static function isHeroSlider(): bool
+    {
+        return \KoperasiKita\Features\Hero::isSlider(
+            \KoperasiKita\Features\Hero::sanitize( get_theme_mod( 'kk_hero_mode', \KoperasiKita\Features\Hero::GRID_LEFT ) )
+        );
+    }
+
+    /* The lead settings only show while the Hero Presentation is a
+     * grid mode (Grid Left / Right / Center / Grid + Widget /
+     * Leads + Widgets). */
+    public static function isHeroGrid(): bool
+    {
+        return ! self::isHeroSlider();
+    }
+
+    public static function sanitizeHeroSliderStyle(mixed $value): string
+    {
+        return in_array($value, ['classic', 'inner'], true) ? (string) $value : 'classic';
+    }
+
+    public static function sanitizeHeroLeadTitlePosition(mixed $value): string
+    {
+        return in_array($value, ['below', 'inside'], true) ? (string) $value : 'below';
     }
 
     public static function sanitizeColor(mixed $value): string

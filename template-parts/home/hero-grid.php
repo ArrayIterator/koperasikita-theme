@@ -56,6 +56,39 @@ if ( Hero::GRID_CENTER === $hero_mode && ! empty( $rest ) ) {
 	$rest_left  = array_slice( $rest, 0, $half );
 	$rest_right = array_slice( $rest, $half );
 }
+// Slider settings: style (Classic / Inner), which parts show, and
+// auto-slide with an interval. Only used when the mode is a slider.
+$slider_style = 'classic';
+$slider_show_category = true;
+$slider_show_date = true;
+$slider_show_excerpt = true;
+$slider_auto = false;
+$slider_interval_ms = 5000;
+if ( $is_slider ) {
+	$slider_style = (string) get_theme_mod( 'kk_hero_slider_style', 'classic' );
+	$slider_style = in_array( $slider_style, ['classic', 'inner'], true ) ? $slider_style : 'classic';
+	$slider_show_category = (bool) get_theme_mod( 'kk_hero_slider_show_category', true );
+	$slider_show_date = (bool) get_theme_mod( 'kk_hero_slider_show_date', true );
+	$slider_show_excerpt = (bool) get_theme_mod( 'kk_hero_slider_show_excerpt', true );
+	$slider_auto = (bool) get_theme_mod( 'kk_hero_slider_auto', false );
+	$slider_interval_ms = min( 30000, max( 2000, (int) get_theme_mod( 'kk_hero_slider_interval', 5 ) * 1000 ) );
+	if ( 'inner' === $slider_style ) {
+		$section_class .= ' kk-hero--slider-inner';
+	}
+}
+// Lead settings (grid modes): title inside the image or below it,
+// and which parts show.
+$lead_title_position = 'below';
+$lead_show_category = true;
+$lead_show_date = true;
+$lead_show_excerpt = true;
+if ( ! $is_slider ) {
+	$lead_title_position = (string) get_theme_mod( 'kk_hero_lead_title_position', 'below' );
+	$lead_title_position = in_array( $lead_title_position, ['below', 'inside'], true ) ? $lead_title_position : 'below';
+	$lead_show_category = (bool) get_theme_mod( 'kk_hero_lead_show_category', true );
+	$lead_show_date = (bool) get_theme_mod( 'kk_hero_lead_show_date', true );
+	$lead_show_excerpt = (bool) get_theme_mod( 'kk_hero_lead_show_excerpt', true );
+}
 ?>
 
 <section class="<?php echo esc_attr( $section_class ); ?>" aria-label="<?php esc_attr_e( 'Top stories', 'koperasikita' ); ?>">
@@ -73,7 +106,7 @@ if ( Hero::GRID_CENTER === $hero_mode && ! empty( $rest ) ) {
 					<button type="button" class="kk-icon-button kk-slider-next" aria-label="<?php esc_attr_e( 'Next story', 'koperasikita' ); ?>"><?php echo \KoperasiKita\Icons\Icon::svg( 'next', 16 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></button>
 				</div>
 			</div>
-			<div class="kk-hero-slider" data-kk-slider>
+			<div class="kk-hero-slider" data-kk-slider<?php echo $slider_auto ? ' data-kk-auto-slide="' . esc_attr( (string) $slider_interval_ms ) . '"' : ''; ?>>
 				<?php
 				// The lead is the first slide; the rest follow in order.
 				array_unshift( $hero_posts, $lead );
@@ -87,17 +120,21 @@ if ( Hero::GRID_CENTER === $hero_mode && ! empty( $rest ) ) {
 						<div class="kk-hero-slide-body">
 							<?php
 							$categories = get_the_category();
-							if ( ! empty( $categories ) ) {
+							if ( $slider_show_category && ! empty( $categories ) ) {
 								?>
 								<p class="kk-eyebrow"><a href="<?php echo esc_url( get_category_link( $categories[0] ) ); ?>"><?php echo esc_html( $categories[0]->name ); ?></a></p>
 								<?php
 							}
 							?>
 							<h2 class="kk-hero-title"><a href="<?php the_permalink(); ?>"><?php the_title(); ?></a></h2>
-							<p class="kk-hero-excerpt"><?php echo esc_html( get_the_excerpt() ); ?></p>
-							<p class="kk-meta">
-								<time datetime="<?php echo esc_attr( get_the_date( 'c' ) ); ?>"><?php echo esc_html( get_the_date() ); ?></time>
-							</p>
+							<?php if ( $slider_show_excerpt ) : ?>
+								<p class="kk-hero-excerpt"><?php echo esc_html( get_the_excerpt() ); ?></p>
+							<?php endif; ?>
+							<?php if ( $slider_show_date ) : ?>
+								<p class="kk-meta">
+									<time datetime="<?php echo esc_attr( get_the_date( 'c' ) ); ?>"><?php echo esc_html( get_the_date() ); ?></time>
+								</p>
+							<?php endif; ?>
 						</div>
 					</article>
 				<?php endforeach; ?>
@@ -119,24 +156,28 @@ if ( Hero::GRID_CENTER === $hero_mode && ! empty( $rest ) ) {
 			$post = $lead;
 			setup_postdata( $post );
 			?>
-			<article class="kk-hero-lead">
+			<article class="kk-hero-lead<?php echo 'inside' === $lead_title_position ? ' kk-hero-lead--title-inside' : ''; ?>">
 				<a class="kk-hero-lead-media" href="<?php the_permalink(); ?>" tabindex="-1" aria-hidden="true">
 					<img src="<?php echo esc_url( \KoperasiKita\Images\FeaturedImage::url( get_the_ID(), 'large' ) ); ?>" alt="" loading="eager" fetchpriority="high">
 				</a>
 				<div class="kk-hero-lead-body">
 					<?php
 					$categories = get_the_category();
-					if ( ! empty( $categories ) ) {
+					if ( $lead_show_category && ! empty( $categories ) ) {
 						?>
 						<p class="kk-eyebrow"><a href="<?php echo esc_url( get_category_link( $categories[0] ) ); ?>"><?php echo esc_html( $categories[0]->name ); ?></a></p>
 						<?php
 					}
 					?>
 					<h2 class="kk-hero-title"><a href="<?php the_permalink(); ?>"><?php the_title(); ?></a></h2>
-					<p class="kk-hero-excerpt"><?php echo esc_html( get_the_excerpt() ); ?></p>
-					<p class="kk-meta">
-						<time datetime="<?php echo esc_attr( get_the_date( 'c' ) ); ?>"><?php echo esc_html( get_the_date() ); ?></time>
-					</p>
+					<?php if ( $lead_show_excerpt ) : ?>
+						<p class="kk-hero-excerpt"><?php echo esc_html( get_the_excerpt() ); ?></p>
+					<?php endif; ?>
+					<?php if ( $lead_show_date ) : ?>
+						<p class="kk-meta">
+							<time datetime="<?php echo esc_attr( get_the_date( 'c' ) ); ?>"><?php echo esc_html( get_the_date() ); ?></time>
+						</p>
+					<?php endif; ?>
 				</div>
 			</article>
 

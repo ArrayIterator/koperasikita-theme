@@ -39,6 +39,46 @@
 	padding-top: 16px;
 }
 
+/* --- Lead Title Inside (grid modes) --------------------------------------- */
+/* The lead title + meta + excerpt inside the featured image: the
+ * body overlays the bottom of the lead image with a gradient,
+ * white text. */
+.kk-hero-lead--title-inside {
+	position: relative;
+	overflow: hidden;
+	border-radius: var(--kk-radius);
+}
+
+/* Block media: an inline link leaves a descender gap under the
+ * image, so the overlaid body would sit a few px below it. */
+.kk-hero-lead--title-inside .kk-hero-lead-media,
+.kk-hero-lead--title-inside .kk-hero-lead-media img {
+	display: block;
+}
+
+.kk-hero-lead--title-inside .kk-hero-lead-body {
+	position: absolute;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	padding: 3rem 1.25rem 1.25rem;
+	background: linear-gradient(to top, rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0));
+	color: #fff;
+}
+
+.kk-hero-lead--title-inside .kk-hero-lead-body .kk-hero-title a,
+.kk-hero-lead--title-inside .kk-hero-lead-body .kk-eyebrow a,
+.kk-hero-lead--title-inside .kk-hero-lead-body .kk-hero-excerpt,
+.kk-hero-lead--title-inside .kk-hero-lead-body .kk-meta {
+	color: #fff;
+}
+
+.kk-hero-lead--title-inside .kk-hero-lead-body .kk-hero-title a:hover,
+.kk-hero-lead--title-inside .kk-hero-lead-body .kk-eyebrow a:hover {
+	color: #fff;
+	text-decoration: underline;
+}
+
 .kk-hero-title {
 	font-size: 30px;
 	margin: 8px 0 10px;
@@ -298,4 +338,47 @@
 
 .kk-hero-slide-body {
 	padding-top: 1rem;
+}
+
+/* --- Slider Style: Inner -------------------------------------------------- */
+/* Title + meta + excerpt inside the image: the body overlays the
+ * bottom of the slide image with a gradient, white text. */
+.kk-hero--slider-inner .kk-hero-slide {
+	position: relative;
+	overflow: hidden;
+	border-radius: var(--kk-radius);
+}
+
+/* Block media: an inline link leaves a descender gap under the
+ * image, so the overlaid body would sit a few px below it. */
+.kk-hero--slider-inner .kk-hero-slide-media,
+.kk-hero--slider-inner .kk-hero-slide-media img {
+	display: block;
+}
+
+.kk-hero--slider-inner .kk-hero-slide-media img {
+	aspect-ratio: 16 / 10;
+}
+
+.kk-hero--slider-inner .kk-hero-slide-body {
+	position: absolute;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	padding: 3rem 1.25rem 1.25rem;
+	background: linear-gradient(to top, rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0));
+	color: #fff;
+}
+
+.kk-hero--slider-inner .kk-hero-slide-body .kk-hero-title a,
+.kk-hero--slider-inner .kk-hero-slide-body .kk-eyebrow a,
+.kk-hero--slider-inner .kk-hero-slide-body .kk-hero-excerpt,
+.kk-hero--slider-inner .kk-hero-slide-body .kk-meta {
+	color: #fff;
+}
+
+.kk-hero--slider-inner .kk-hero-slide-body .kk-hero-title a:hover,
+.kk-hero--slider-inner .kk-hero-slide-body .kk-eyebrow a:hover {
+	color: #fff;
+	text-decoration: underline;
 }
