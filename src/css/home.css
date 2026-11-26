@@ -115,6 +115,66 @@
 	align-items: start;
 }
 
+/* Grid Center sides: a descending list (kiri menurun, kanan
+ * menurun), not grid cards. Compact rows — small thumbnail on the
+ * left, eyebrow + title + date on the right — stacked top to
+ * bottom with a divider, so the middle lead carries the hero. */
+.kk-hero-side-list {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+	display: grid;
+	gap: 0;
+	align-content: start;
+}
+
+.kk-hero-side-item {
+	display: grid;
+	grid-template-columns: 80px 1fr;
+	gap: 12px;
+	align-items: start;
+	padding: 12px 0;
+	border-bottom: 1px solid var(--kk-border);
+}
+
+.kk-hero-side-item:first-child {
+	padding-top: 0;
+}
+
+.kk-hero-side-thumb {
+	display: block;
+}
+
+.kk-hero-side-thumb img {
+	display: block;
+	width: 80px;
+	height: 60px;
+	object-fit: cover;
+	border-radius: var(--kk-radius);
+}
+
+.kk-hero-side-item:not(:has(.kk-hero-side-thumb)) {
+	grid-template-columns: 1fr;
+}
+
+.kk-hero-side-title {
+	font-size: 1rem;
+	line-height: 1.35;
+	margin: 4px 0;
+}
+
+.kk-hero-side-title a {
+	color: var(--kk-ink);
+}
+
+.kk-hero-side-title a:hover {
+	color: var(--kk-green, #0B6B3A);
+}
+
+.kk-hero-side-body .kk-meta {
+	margin: 0;
+}
+
 /* Widget pairings: hero + widget area(s). */
 .kk-hero--grid-left-widget,
 .kk-hero--slider-right-widget {

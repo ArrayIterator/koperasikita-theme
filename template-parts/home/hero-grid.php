@@ -104,14 +104,14 @@ if ( Hero::GRID_CENTER === $hero_mode && ! empty( $rest ) ) {
 			</div>
 		<?php else : ?>
 			<?php if ( Hero::GRID_CENTER === $hero_mode && ! empty( $rest_left ) ) : ?>
-				<div class="kk-hero-grid">
+				<ul class="kk-hero-side-list">
 					<?php
 					foreach ( $rest_left as $post ) :
 						setup_postdata( $post );
-						get_template_part( 'template-parts/content/card-news', null, ['hero_card' => true] );
+						get_template_part( 'template-parts/content/hero-side-item' );
 					endforeach;
 					?>
-				</div>
+				</ul>
 			<?php endif; ?>
 
 			<?php
@@ -142,14 +142,14 @@ if ( Hero::GRID_CENTER === $hero_mode && ! empty( $rest ) ) {
 
 			<?php if ( Hero::GRID_CENTER === $hero_mode ) : ?>
 				<?php if ( ! empty( $rest_right ) ) : ?>
-					<div class="kk-hero-grid">
+					<ul class="kk-hero-side-list">
 						<?php
 						foreach ( $rest_right as $post ) :
 							setup_postdata( $post );
-							get_template_part( 'template-parts/content/card-news', null, ['hero_card' => true] );
+							get_template_part( 'template-parts/content/hero-side-item' );
 						endforeach;
 						?>
-					</div>
+					</ul>
 				<?php endif; ?>
 			<?php elseif ( ! empty( $rest ) ) : ?>
 				<div class="kk-hero-grid">
