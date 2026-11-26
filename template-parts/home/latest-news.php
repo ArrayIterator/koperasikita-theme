@@ -7,6 +7,16 @@
 
 $latest_count = (int) get_theme_mod( 'kk_latest_count', 10 );
 $latest_count = max( 1, $latest_count );
+
+/* The homepage is a static front page, so the current page lives
+ * in the `page` query var (not `paged`, which is for the posts
+ * page and archives). Fall back to `paged` so the same template
+ * also paginates if it ever renders on a posts page. */
+$paged = (int) get_query_var( 'page' );
+if ( $paged < 1 ) {
+	$paged = (int) get_query_var( 'paged' );
+}
+$paged = max( 1, $paged );
 /* The visitor's saved layout wins over the Customizer default:
  * the switcher stores the choice in a `kk_layout` cookie (and in
  * localStorage), and the server reads the cookie so the list renders
@@ -24,6 +34,7 @@ $latest = new WP_Query(
 	array(
 		'post_type'           => 'post',
 		'posts_per_page'      => $latest_count,
+		'paged'               => $paged,
 		'ignore_sticky_posts' => true,
 	)
 );
@@ -64,6 +75,19 @@ $latest_eyebrow = trim( $latest_eyebrow );
 		<?php get_template_part( 'template-parts/home/newsletter-subscribe', null, array( 'hidden' => true ) ); ?>
 	</div>
 	<?php endif; ?>
+
+	<?php
+	// Homepage pagination: the latest news is a custom query, so it
+	// gets its own pagination here (the archive pagination only
+	// covers the main query). Load-more falls back to numbered
+	// pagination in the newsletter layout, which has no grid for the
+	// loader to append cards to.
+	$pagination_mode = \KoperasiKita\Features\Pagination::mode();
+	if ( 'load-more' === $pagination_mode && 'newsletter' === $layout ) {
+		$pagination_mode = 'pagination';
+	}
+	get_template_part( 'template-parts/content/pagination', null, array( 'query' => $latest, 'mode' => $pagination_mode ) );
+	?>
 </section>
 
 <?php

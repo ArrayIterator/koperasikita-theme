@@ -117,9 +117,10 @@ final class Pagination
     /**
      * The load-more button plus the status region. The loader script
      * reads everything from these data attributes; there is no inline
-     * script.
+     * script. Pass a query to load more of that query (the homepage
+     * latest news); omit it to load more of the main query.
      */
-    public static function renderLoader(): void
+    public static function renderLoader(?\WP_Query $query = null): void
     {
         $mode = self::mode();
 
@@ -127,14 +128,14 @@ final class Pagination
             return;
         }
 
-        $max_pages = self::maxPages();
+        $max_pages = self::maxPages($query);
 
         if ($max_pages < 2) {
             return;
         }
 
-        $query = self::queryVars();
-        $query['post_type'] = $query['post_type'] ?? 'post';
+        $queryVars = self::queryVars($query);
+        $queryVars['post_type'] = $queryVars['post_type'] ?? 'post';
         $endpoint = esc_url_raw(rest_url(Api::REST_NAMESPACE . '/posts'));
         ?>
         <div
@@ -142,10 +143,10 @@ final class Pagination
             data-kk-pagination
             data-mode="<?php echo esc_attr($mode); ?>"
             data-endpoint="<?php echo esc_attr($endpoint); ?>"
-            data-query="<?php echo esc_attr((string) wp_json_encode($query)); ?>"
+            data-query="<?php echo esc_attr((string) wp_json_encode($queryVars)); ?>"
             data-page="1"
             data-max-pages="<?php echo esc_attr((string) $max_pages); ?>"
-            data-per-page="<?php echo esc_attr((string) self::perPage()); ?>"
+            data-per-page="<?php echo esc_attr((string) self::perPage($query)); ?>"
         >
             <button type="button" class="kk-load-more" data-kk-load-more>
                 <?php esc_html_e('Load more', 'koperasikita'); ?>

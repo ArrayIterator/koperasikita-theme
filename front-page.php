@@ -70,11 +70,36 @@ get_header();
 			<?php get_template_part( 'template-parts/home/latest-news' ); ?>
 
 			<?php
+			// After Latest News widget area: full-width strip directly
+			// after the Latest News section. Renders nothing when empty.
+			if ( is_active_sidebar( 'kk-after-latest' ) ) :
+				?>
+				<div class="kk-widget-area kk-widget-area--after-latest">
+					<?php dynamic_sidebar( 'kk-after-latest' ); ?>
+				</div>
+				<?php
+			endif;
+			?>
+
+			<?php
 			// Category blocks: the three Customizer slots, in order.
+			// Each block is followed by its own After Category Block
+			// widget area — but only when that block is active. The
+			// loop only visits active blocks, so an inactive block's
+			// strip never renders.
 			foreach ( \KoperasiKita\Features\Homepage::categoryBlocks() as $block ) {
 				set_query_var( 'kk_category_block', $block['term'] );
 				set_query_var( 'kk_category_block_slot', $block['slot'] );
 				get_template_part( 'template-parts/home/category-block' );
+
+				$after_block_area = 'kk-after-category-block-' . $block['slot'];
+				if ( is_active_sidebar( $after_block_area ) ) :
+					?>
+					<div class="kk-widget-area kk-widget-area--after-category-block-<?php echo esc_attr( (string) $block['slot'] ); ?>">
+						<?php dynamic_sidebar( $after_block_area ); ?>
+					</div>
+					<?php
+				endif;
 			}
 			?>
 

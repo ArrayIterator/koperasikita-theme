@@ -3009,3 +3009,33 @@ msgstr "Posisi Logo Header (Mobile)"
 #: inc/Customizer/Customizer.php:2198
 msgid "Centered"
 msgstr "Tengah"
+
+msgid "After Latest News"
+msgstr "Setelah Berita Terbaru"
+
+msgid "Homepage, full-width strip directly after the Latest News section."
+msgstr "Beranda, strip lebar penuh tepat setelah bagian Berita Terbaru."
+
+msgid "After Category Block 1"
+msgstr "Setelah Blok Kategori 1"
+
+msgid "Homepage, full-width strip directly after Category Block 1. Hidden when Category Block 1 is not active."
+msgstr "Beranda, strip lebar penuh tepat setelah Blok Kategori 1. Tersembunyi saat Blok Kategori 1 tidak aktif."
+
+msgid "After Category Block 2"
+msgstr "Setelah Blok Kategori 2"
+
+msgid "Homepage, full-width strip directly after Category Block 2. Hidden when Category Block 2 is not active."
+msgstr "Beranda, strip lebar penuh tepat setelah Blok Kategori 2. Tersembunyi saat Blok Kategori 2 tidak aktif."
+
+msgid "After Category Block 3"
+msgstr "Setelah Blok Kategori 3"
+
+msgid "Homepage, full-width strip directly after Category Block 3. Hidden when Category Block 3 is not active."
+msgstr "Beranda, strip lebar penuh tepat setelah Blok Kategori 3. Tersembunyi saat Blok Kategori 3 tidak aktif."
+
+msgid "After Pagination"
+msgstr "Setelah Pagination"
+
+msgid "Full-width strip directly after the pagination, on every page that shows a post list (homepage, archives, categories, search)."
+msgstr "Strip lebar penuh tepat setelah pagination, di setiap halaman yang menampilkan daftar posting (beranda, arsip, kategori, pencarian)."

@@ -34,9 +34,15 @@ function initPagination(): void {
 	if (endpoint === '') {
 		return;
 	}
+	// The grid the loader appends to: the archive card grid, or the
+	// homepage latest-news items (the homepage loader lives inside
+	// .kk-home-primary and appends to .kk-latest-items).
 	const grid = loader
 		.closest('.kk-content-area')
-		?.querySelector<HTMLElement>('.kk-card-grid');
+		?.querySelector<HTMLElement>('.kk-card-grid')
+		?? loader
+			.closest('.kk-home-primary')
+			?.querySelector<HTMLElement>('.kk-latest-items');
 	if (!grid) {
 		return;
 	}
