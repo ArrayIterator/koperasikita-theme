@@ -91,7 +91,9 @@ final class MenuIcons
                 <span class="kk-menu-icon-preview<?php echo '' === $current ? ' is-empty' : ''; ?>" data-kk-menu-icon-preview="<?php echo (int) $itemId; ?>"<?php echo '' !== $color ? ' style="color: ' . esc_attr($color) . ';"' : ''; ?>>
                     <?php echo self::previewInner($current); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
                 </span>
-                <input type="color" class="kk-menu-icon-color" value="<?php echo esc_attr('' !== $color ? $color : self::DEFAULT_COLOR); ?>" data-kk-menu-icon-color="<?php echo (int) $itemId; ?>" aria-label="<?php esc_attr_e('Icon color', 'koperasikita'); ?>">
+                <span class="kk-menu-icon-color-wrap<?php echo '' === $color ? ' is-empty' : ''; ?>" data-kk-menu-icon-color-wrap="<?php echo (int) $itemId; ?>">
+                    <input type="color" class="kk-menu-icon-color" value="<?php echo esc_attr('' !== $color ? $color : self::DEFAULT_COLOR); ?>" data-kk-menu-icon-color="<?php echo (int) $itemId; ?>" aria-label="<?php esc_attr_e('Icon color', 'koperasikita'); ?>">
+                </span>
                 <button type="button" class="kk-menu-icon-color-clear" data-kk-menu-icon-color-clear="<?php echo (int) $itemId; ?>" title="<?php esc_attr_e('Clear color', 'koperasikita'); ?>"<?php echo '' === $color ? ' hidden' : ''; ?>>&times;</button>
             </span>
             <span class="kk-menu-icon-name" data-kk-menu-icon-name="<?php echo (int) $itemId; ?>"><?php echo esc_html(self::iconCaption($current, $color)); ?></span>

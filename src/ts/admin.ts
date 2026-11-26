@@ -532,6 +532,15 @@ function initMenuIconPickers(): void {
 		if (clear) {
 			clear.hidden = color === '';
 		}
+		// The swatch shows the transparency checkerboard while no colour
+		// is saved; the native input keeps the default green as the
+		// dialog's starting value (it is never the saved state).
+		const wrap = document.querySelector<HTMLElement>(
+			`[data-kk-menu-icon-color-wrap="${CSS.escape(itemId)}"]`,
+		);
+		if (wrap) {
+			wrap.classList.toggle('is-empty', color === '');
+		}
 		const input = document.querySelector<HTMLInputElement>(
 			`[data-kk-menu-icon-input="${CSS.escape(itemId)}"]`,
 		);

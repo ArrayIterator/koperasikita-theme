@@ -171,10 +171,30 @@
 	display: block;
 }
 
-.kk-menu-icon-color {
-	box-sizing: border-box;
+.kk-menu-icon-color-wrap {
+	position: relative;
+	flex: 0 0 auto;
 	width: 2.25rem;
 	height: 2.25rem;
+	border-radius: 3px;
+}
+
+/* No colour saved: the native input always holds a colour (the dialog
+ * needs a starting value), so the wrapper paints the transparency
+ * checkerboard over it — the swatch reads as "no colour", not green. */
+.kk-menu-icon-color-wrap.is-empty::after {
+	content: '';
+	position: absolute;
+	inset: 0;
+	border-radius: 3px;
+	background: repeating-conic-gradient(#dcdcde 0% 25%, #fff 0% 50%) 0 0 / 12px 12px;
+	pointer-events: none;
+}
+
+.kk-menu-icon-color {
+	box-sizing: border-box;
+	width: 100%;
+	height: 100%;
 	padding: 2px;
 	border: 1px solid #dcdcde;
 	border-radius: 3px;
@@ -184,8 +204,9 @@
 
 /* WP core nav-menus.css sets .menu-item-settings input { width: 100%; }
  * under max-width: 782px (specificity 0,1,1) — without this the colour
- * swatch stretches full-width on its own line on mobile. */
-.menu-item-settings .kk-menu-icon-color {
+ * swatch stretches full-width on its own line on mobile. The wrap (a
+ * span, not an input) is what holds the fixed size now. */
+.menu-item-settings .kk-menu-icon-color-wrap {
 	flex: 0 0 auto;
 	width: 2.25rem;
 	min-width: 2.25rem;
@@ -296,6 +317,14 @@
 	color: #1d2327;
 	background: #fff;
 	cursor: pointer;
+}
+
+/* The search hides non-matching items with the `hidden` attribute, but
+ * the `display: flex` above beats the user-agent [hidden] rule, so the
+ * filtered-out icons stayed visible (search looked broken). Same gotcha
+ * as the PWA styles: an explicit [hidden] rule is required. */
+.kk-menu-icon-grid-item[hidden] {
+	display: none;
 }
 
 .kk-menu-icon-grid-item:hover {
