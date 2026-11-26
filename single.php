@@ -78,7 +78,7 @@ get_header();
 				endif;
 			}
 
-			if ( get_theme_mod( 'kk_comments_enabled', true ) && ( comments_open() || get_comments_number() ) ) {
+			if ( \KoperasiKita\Features\Comments::shouldShow( get_the_ID() ) ) {
 				comments_template();
 			}
 		endwhile;

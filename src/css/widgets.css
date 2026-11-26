@@ -4,6 +4,33 @@
    clock and the pages list. Spacing in rem; 1px hairlines stay px.
    ========================================================================== */
 
+/* --- Widget header (title) ------------------------------------------------ */
+/* Classic (default): the section-title look — lowercase title with a
+ * rule extending to the right (the "editor's picks" header). No Border
+ * drops the rule; Hide renders no title at all (and an empty title is
+ * never rendered, whatever the style). */
+
+.kk-widget-title {
+	display: flex;
+	align-items: baseline;
+	gap: 1rem;
+	margin-bottom: 1rem;
+	font-size: 1.625rem;
+	font-weight: 500;
+	line-height: 1.2;
+	text-transform: lowercase;
+}
+
+.kk-widget-title::after {
+	content: "";
+	flex: 1;
+	border-top: 1px solid var(--kk-ink);
+}
+
+.kk-widget-title--no-border::after {
+	display: none;
+}
+
 /* --- Story lists ---------------------------------------------------------- */
 
 .kk-widget-stories {

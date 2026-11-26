@@ -83,12 +83,14 @@ final class Blocks
     {
         $storyAttributes = [
             'title' => ['type' => 'string', 'default' => ''],
+            'headerStyle' => ['type' => 'string', 'default' => 'classic'],
             'count' => ['type' => 'number', 'default' => 5],
             'layout' => ['type' => 'string', 'default' => 'list'],
             'showThumbnail' => ['type' => 'boolean', 'default' => true],
         ];
         $storyMap = [
             'title' => 'title',
+            'headerStyle' => 'header_style',
             'count' => 'count',
             'layout' => 'layout',
             'showThumbnail' => 'show_thumbnail',
@@ -136,11 +138,13 @@ final class Blocks
                 'description' => __('Current time in the timezones you list, one per line.', 'koperasikita'),
                 'attributes' => [
                     'title' => ['type' => 'string', 'default' => ''],
+                    'headerStyle' => ['type' => 'string', 'default' => 'classic'],
                     'timezones' => ['type' => 'string', 'default' => WorldClockWidget::DEFAULT_TIMEZONE],
                     'showDate' => ['type' => 'boolean', 'default' => true],
                 ],
                 'map' => [
                     'title' => 'title',
+                    'headerStyle' => 'header_style',
                     'timezones' => 'timezones',
                     'showDate' => 'show_date',
                 ],
@@ -152,11 +156,13 @@ final class Blocks
                 'description' => __('A list of page links, in menu order, by date or by title.', 'koperasikita'),
                 'attributes' => [
                     'title' => ['type' => 'string', 'default' => ''],
+                    'headerStyle' => ['type' => 'string', 'default' => 'classic'],
                     'count' => ['type' => 'number', 'default' => 5],
                     'sortOrder' => ['type' => 'string', 'default' => 'menu_order'],
                 ],
                 'map' => [
                     'title' => 'title',
+                    'headerStyle' => 'header_style',
                     'count' => 'count',
                     'sortOrder' => 'sort_order',
                 ],
@@ -171,10 +177,12 @@ final class Blocks
                 'description' => __('Gold prices for five brands in an auto-scrolling slider.', 'koperasikita'),
                 'attributes' => [
                     'title' => ['type' => 'string', 'default' => ''],
+                    'headerStyle' => ['type' => 'string', 'default' => 'classic'],
                     'brands' => ['type' => 'array', 'default' => [], 'items' => ['type' => 'string']],
                 ],
                 'map' => [
                     'title' => 'title',
+                    'headerStyle' => 'header_style',
                     'brands' => 'brands',
                 ],
             ];
@@ -185,11 +193,13 @@ final class Blocks
                 'description' => __('Gold, stock and crypto prices from the Markets providers.', 'koperasikita'),
                 'attributes' => [
                     'title' => ['type' => 'string', 'default' => ''],
+                    'headerStyle' => ['type' => 'string', 'default' => 'classic'],
                     'markets' => ['type' => 'array', 'default' => [], 'items' => ['type' => 'string']],
                     'showChange' => ['type' => 'boolean', 'default' => true],
                 ],
                 'map' => [
                     'title' => 'title',
+                    'headerStyle' => 'header_style',
                     'markets' => 'markets',
                     'showChange' => 'show_change',
                 ],
@@ -204,11 +214,13 @@ final class Blocks
                 'description' => __('Current weather for a city, with a location picker.', 'koperasikita'),
                 'attributes' => [
                     'title' => ['type' => 'string', 'default' => ''],
+                    'headerStyle' => ['type' => 'string', 'default' => 'classic'],
                     'defaultCity' => ['type' => 'string', 'default' => 'Padang'],
                     'showDetails' => ['type' => 'boolean', 'default' => false],
                 ],
                 'map' => [
                     'title' => 'title',
+                    'headerStyle' => 'header_style',
                     'defaultCity' => 'default_city',
                     'showDetails' => 'show_details',
                 ],

@@ -55,9 +55,7 @@ final class MarketsWidget extends WP_Widget
 
         echo $args['before_widget'] ?? '';
 
-        if ($title !== '') {
-            echo ($args['before_title'] ?? '') . esc_html($title) . ($args['after_title'] ?? '');
-        }
+        WidgetHeader::render($args, $title, WidgetHeader::style($instance));
 
         get_template_part('template-parts/markets/strip', null, [
             'markets' => $markets,
@@ -88,6 +86,7 @@ final class MarketsWidget extends WP_Widget
                 value="<?php echo esc_attr($title); ?>"
             >
         </p>
+        <?php WidgetHeader::field($this, $instance); ?>
         <p><?php esc_html_e('Markets to show:', 'koperasikita'); ?></p>
         <?php foreach (Markets::labels() as $market => $label) : ?>
             <p>
@@ -144,6 +143,7 @@ final class MarketsWidget extends WP_Widget
 
         // An unchecked checkbox is not submitted at all, so "absent" means off.
         $instance['show_change'] = isset($new['show_change']) && (bool) $new['show_change'];
+        $instance['header_style'] = WidgetHeader::sanitize($new['header_style'] ?? WidgetHeader::CLASSIC);
 
         return $instance;
     }

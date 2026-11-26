@@ -189,7 +189,7 @@ final class Enqueue
      */
     public static function isCombinedCss(): bool
     {
-        return (bool) get_theme_mod('kk_combine_css', false);
+        return (bool) get_theme_mod('kk_combine_css', true);
     }
 
     /**

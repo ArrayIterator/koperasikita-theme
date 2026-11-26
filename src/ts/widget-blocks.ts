@@ -270,12 +270,24 @@ function buildDefinitions(api: Wp): BlockDef[] {
 	const __ = (text: string): string => api.i18n.__(text, 'koperasikita');
 	const storyAttributes: Record<string, Record<string, unknown>> = {
 		title: { type: 'string', default: '' },
+		headerStyle: { type: 'string', default: 'classic' },
 		count: { type: 'number', default: 5 },
 		layout: { type: 'string', default: 'list' },
 		showThumbnail: { type: 'boolean', default: true },
 	};
+	const headerStyleField: FieldDef = {
+		key: 'headerStyle',
+		kind: 'select',
+		label: __('Header Style'),
+		options: [
+			{ value: 'classic', label: __('Use classic Header Style') },
+			{ value: 'no-border', label: __('Use No Border Header Style') },
+			{ value: 'hide', label: __('Hide') },
+		],
+	};
 	const storyFields: FieldDef[] = [
 		{ key: 'title', kind: 'text', label: __('Title') },
+		headerStyleField,
 		{ key: 'count', kind: 'number', label: __('Number of items'), min: 1, max: 10 },
 		{
 			key: 'layout',
@@ -340,11 +352,13 @@ function buildDefinitions(api: Wp): BlockDef[] {
 			icon: 'clock',
 			attributes: {
 				title: { type: 'string', default: '' },
+				headerStyle: { type: 'string', default: 'classic' },
 				timezones: { type: 'string', default: 'Asia/Jakarta' },
 				showDate: { type: 'boolean', default: true },
 			},
 			fields: [
 				{ key: 'title', kind: 'text', label: __('Title') },
+				headerStyleField,
 				{
 					key: 'timezones',
 					kind: 'textarea',
@@ -361,11 +375,13 @@ function buildDefinitions(api: Wp): BlockDef[] {
 			icon: 'page',
 			attributes: {
 				title: { type: 'string', default: '' },
+				headerStyle: { type: 'string', default: 'classic' },
 				count: { type: 'number', default: 5 },
 				sortOrder: { type: 'string', default: 'menu_order' },
 			},
 			fields: [
 				{ key: 'title', kind: 'text', label: __('Title') },
+				headerStyleField,
 				{ key: 'count', kind: 'number', label: __('Number of items'), min: 1, max: 10 },
 				{
 					key: 'sortOrder',
@@ -386,10 +402,12 @@ function buildDefinitions(api: Wp): BlockDef[] {
 			icon: 'star-filled',
 			attributes: {
 				title: { type: 'string', default: '' },
+				headerStyle: { type: 'string', default: 'classic' },
 				brands: { type: 'array', default: [], items: { type: 'string' } },
 			},
 			fields: [
 				{ key: 'title', kind: 'text', label: __('Title') },
+				headerStyleField,
 				{
 					key: 'brands',
 					kind: 'checkboxes',
@@ -405,11 +423,13 @@ function buildDefinitions(api: Wp): BlockDef[] {
 			icon: 'chart-line',
 			attributes: {
 				title: { type: 'string', default: '' },
+				headerStyle: { type: 'string', default: 'classic' },
 				markets: { type: 'array', default: [], items: { type: 'string' } },
 				showChange: { type: 'boolean', default: true },
 			},
 			fields: [
 				{ key: 'title', kind: 'text', label: __('Title') },
+				headerStyleField,
 				{
 					key: 'markets',
 					kind: 'checkboxes',
@@ -426,11 +446,13 @@ function buildDefinitions(api: Wp): BlockDef[] {
 			icon: 'cloud',
 			attributes: {
 				title: { type: 'string', default: '' },
+				headerStyle: { type: 'string', default: 'classic' },
 				defaultCity: { type: 'string', default: 'Padang' },
 				showDetails: { type: 'boolean', default: false },
 			},
 			fields: [
 				{ key: 'title', kind: 'text', label: __('Title') },
+				headerStyleField,
 				{ key: 'defaultCity', kind: 'text', label: __('Default city') },
 				{
 					key: 'showDetails',

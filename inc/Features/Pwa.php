@@ -69,6 +69,58 @@ final class Pwa
         add_action('wp_enqueue_scripts', [self::class, 'enqueueAssets']);
         add_action('wp_footer', [self::class, 'printInstallPrompt']);
         add_action('after_switch_theme', 'flush_rewrite_rules');
+        add_action('after_switch_theme', [self::class, 'ensureDefaultIcon']);
+        add_action('customize_register', [self::class, 'ensureDefaultIcon']);
+    }
+
+    /**
+     * The default app icon is the Koperasi Kita logo: when no icon
+     * has been picked yet, copy the shipped logo into the media
+     * library and set it as the icon, so the Customizer picker shows
+     * the logo by default instead of an empty slot. Runs only while
+     * the setting is empty (admin: theme switch + Customizer open);
+     * the manifest/icon fallbacks still use the shipped file when
+     * the library copy is ever deleted.
+     */
+    public static function ensureDefaultIcon(): void
+    {
+        if (absint(get_theme_mod('kk_pwa_icon', 0)) > 0) {
+            return;
+        }
+
+        $logo = get_template_directory() . '/assets/img/logo-512.png';
+
+        if (!is_file($logo)) {
+            return;
+        }
+
+        $contents = file_get_contents($logo);
+
+        if ($contents === false) {
+            return;
+        }
+
+        $bits = wp_upload_bits('koperasi-kita-logo-512.png', null, $contents);
+
+        if (!empty($bits['error']) || empty($bits['file'])) {
+            return;
+        }
+
+        $id = wp_insert_attachment([
+            'post_mime_type' => 'image/png',
+            'post_title' => 'Koperasi Kita',
+            'post_content' => '',
+            'post_status' => 'inherit',
+        ], $bits['file']);
+
+        if (is_wp_error($id) || $id <= 0) {
+            return;
+        }
+
+        require_once ABSPATH . 'wp-admin/includes/image.php';
+        $meta = wp_generate_attachment_metadata($id, $bits['file']);
+        wp_update_attachment_metadata($id, $meta);
+        set_theme_mod('kk_pwa_icon', (int) $id);
     }
 
     /**

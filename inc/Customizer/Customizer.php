@@ -764,7 +764,6 @@ final class Customizer
             'kk_single_related' => ['koperasikita_single', 'Show Related News', true, 10],
             'kk_single_reading_time' => ['koperasikita_single', 'Show Reading Time', true, 10],
             'kk_single_show_share' => ['koperasikita_single', 'Show Share Buttons', true, 10],
-            'kk_comments_enabled' => ['koperasikita_comments', 'Enable Comments', true, 10],
             'kk_comments_avatars' => ['koperasikita_comments', 'Show Comment Avatars', true, 10],
             'kk_images_lazy' => ['koperasikita_media', 'Lazy-Load Images', true, 10],
             'kk_images_srcset' => ['koperasikita_media', 'Enable Responsive Images', true, 10],
@@ -782,6 +781,8 @@ final class Customizer
             'kk_clock_24h' => ['koperasikita_header', 'Use the 24-Hour Clock', true, 35],
             'kk_sticky_header' => ['koperasikita_header', 'Sticky Header Navigation', true, 39],
             'kk_sidebar_sticky' => ['koperasikita_accessibility', 'Sticky Sidebar While Scrolling', false, 10],
+            'kk_list_show_time' => ['koperasikita_accessibility', 'Show Time on Article List & Archive', false, 10],
+            'kk_single_show_time' => ['koperasikita_accessibility', 'Show Time on Single Post & Page', false, 10],
         ];
 
         foreach ($checkboxes as $id => [$section, $label, $default, $priority]) {
@@ -1060,7 +1061,7 @@ final class Customizer
 
         $wpCustomize->add_control(new WP_Customize_Media_Control($wpCustomize, 'kk_pwa_icon', [
             'label' => esc_html__('App Icon', 'koperasikita'),
-            'description' => esc_html__('The app logo used when installing the PWA (manifest icons and home-screen icon). Use a square image, at least 512×512. Leave empty to use the shipped logo.', 'koperasikita'),
+            'description' => esc_html__('The app logo used when installing the PWA (manifest icons and home-screen icon). Defaults to the Koperasi Kita logo. Use a square image, at least 512×512, to replace it.', 'koperasikita'),
             'section' => 'koperasikita_pwa',
             'settings' => 'kk_pwa_icon',
             'mime_type' => 'image',
@@ -1238,21 +1239,62 @@ final class Customizer
          * blocking request chained on the previous one, so the chain
          * delays first paint; the combined file is built once per
          * theme build (same cascade order, same conditionals) and
-         * served as a single request. Off by default: the split files
-         * are easier to debug and let the browser cache each file
-         * independently. */
+         * served as a single request. On by default: one request
+         * instead of ~13. Turn it off to debug the split files
+         * (each file cached independently). */
         self::addSetting(
             $wpCustomize,
             'kk_combine_css',
-            false,
+            true,
             [self::class, 'sanitizeBool'],
             'refresh'
         );
         $wpCustomize->add_control('kk_combine_css', [
-            'label' => esc_html__('Serve Combined CSS (one file)', 'koperasikita'),
+            'label' => esc_html__('Use Combined CSS (one file)', 'koperasikita'),
             'description' => esc_html__('Combine all theme stylesheets into a single CSS file (one render-blocking request instead of ~13 chained ones). The file is rebuilt automatically when the theme is updated.', 'koperasikita'),
-            'section' => 'koperasikita_advanced',
+            'section' => 'koperasikita_accessibility',
             'type' => 'checkbox',
+        ]);
+
+        /* Comments mode: Follow The Post (default) keeps each post /
+         * page's own comment setting; Disable Comments closes
+         * comments site-wide. */
+        self::addSetting(
+            $wpCustomize,
+            'kk_comments_mode',
+            'follow',
+            [self::class, 'sanitizeCommentsMode'],
+            'refresh'
+        );
+        $wpCustomize->add_control('kk_comments_mode', [
+            'label' => esc_html__('Comments', 'koperasikita'),
+            'section' => 'koperasikita_comments',
+            'type' => 'select',
+            'choices' => [
+                'follow' => esc_html__('Enable (Follow The Post)', 'koperasikita'),
+                'disabled' => esc_html__('Disable Comments', 'koperasikita'),
+            ],
+        ]);
+
+        /* When the comments block hides: by the post/page's own
+         * setting (default), when comments are disabled at all, or
+         * always. */
+        self::addSetting(
+            $wpCustomize,
+            'kk_comments_hide',
+            'post',
+            [self::class, 'sanitizeCommentsHide'],
+            'refresh'
+        );
+        $wpCustomize->add_control('kk_comments_hide', [
+            'label' => esc_html__('Hide Comments', 'koperasikita'),
+            'section' => 'koperasikita_comments',
+            'type' => 'select',
+            'choices' => [
+                'disabled' => esc_html__('Hide If comment disabled', 'koperasikita'),
+                'post' => esc_html__('Hide If Comment disabled By the post / page', 'koperasikita'),
+                'all' => esc_html__('Hide All', 'koperasikita'),
+            ],
         ]);
 
         self::addSetting(
@@ -1691,6 +1733,16 @@ final class Customizer
     public static function sanitizeAlignment(mixed $value): string
     {
         return in_array($value, ['left', 'center', 'right'], true) ? (string) $value : 'left';
+    }
+
+    public static function sanitizeCommentsMode(mixed $value): string
+    {
+        return in_array($value, ['follow', 'disabled'], true) ? (string) $value : 'follow';
+    }
+
+    public static function sanitizeCommentsHide(mixed $value): string
+    {
+        return in_array($value, ['disabled', 'post', 'all'], true) ? (string) $value : 'post';
     }
 
     public static function sanitizeOrder(mixed $value): string

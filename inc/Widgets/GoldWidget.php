@@ -48,9 +48,7 @@ final class GoldWidget extends WP_Widget
 
         echo $args['before_widget'] ?? '';
 
-        if ($title !== '') {
-            echo ($args['before_title'] ?? '') . esc_html($title) . ($args['after_title'] ?? '');
-        }
+        WidgetHeader::render($args, $title, WidgetHeader::style($instance));
 
         get_template_part('template-parts/gold/slider', null, [
             'brands' => $prices,
@@ -79,6 +77,7 @@ final class GoldWidget extends WP_Widget
                 value="<?php echo esc_attr($title); ?>"
             >
         </p>
+        <?php WidgetHeader::field($this, $instance); ?>
         <p><?php esc_html_e('Brands to show:', 'koperasikita'); ?></p>
         <?php foreach (Gold::brands() as $slug => $label) : ?>
             <p>
@@ -120,6 +119,7 @@ final class GoldWidget extends WP_Widget
             ? array_values(array_intersect($new['brands'], array_keys(Gold::brands())))
             : [];
         $instance['brands'] = $brands !== [] ? $brands : array_keys(Gold::brands());
+        $instance['header_style'] = WidgetHeader::sanitize($new['header_style'] ?? WidgetHeader::CLASSIC);
 
         return $instance;
     }

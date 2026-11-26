@@ -34,7 +34,7 @@ $font_size = \KoperasiKita\Features\ArticleFontSize::currentSize();
 				?>
 			</span>
 			<span class="kk-meta-sep" aria-hidden="true">&middot;</span>
-			<time datetime="<?php echo esc_attr( get_the_date( 'c' ) ); ?>"><?php echo esc_html( get_the_date() ); ?></time>
+			<time datetime="<?php echo esc_attr( get_the_date( 'c' ) ); ?>"><?php echo esc_html( get_the_date() . ( get_theme_mod( 'kk_single_show_time', false ) ? ' - ' . get_the_time() : '' ) ); ?></time>
 			<?php if ( get_theme_mod( 'kk_single_reading_time', true ) ) : ?>
 				<span class="kk-meta-sep" aria-hidden="true">&middot;</span>
 				<span class="kk-reading-time">

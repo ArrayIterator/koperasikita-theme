@@ -48,9 +48,7 @@ final class WeatherWidget extends WP_Widget
 
         echo $args['before_widget'] ?? ''; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 
-        if ($title !== '') {
-            echo ($args['before_title'] ?? '') . esc_html($title) . ($args['after_title'] ?? ''); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-        }
+        WidgetHeader::render($args, $title, WidgetHeader::style($instance));
 
         ?>
         <div class="kk-weather-widget" data-kk-weather-widget
@@ -96,6 +94,7 @@ final class WeatherWidget extends WP_Widget
                 name="<?php echo esc_attr($this->get_field_name('title')); ?>" type="text"
                 value="<?php echo esc_attr($title); ?>">
         </p>
+        <?php WidgetHeader::field($this, $instance); ?>
         <p>
             <label for="<?php echo esc_attr($this->get_field_id('default_city')); ?>">
                 <?php esc_html_e('Default city', 'koperasikita'); ?>
@@ -136,6 +135,7 @@ final class WeatherWidget extends WP_Widget
             : Weather::DEFAULT_CITY;
 
         $instance['show_details'] = !empty($newInstance['show_details']) ? 1 : 0;
+        $instance['header_style'] = WidgetHeader::sanitize($newInstance['header_style'] ?? WidgetHeader::CLASSIC);
 
         return $instance;
     }

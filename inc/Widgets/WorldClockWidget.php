@@ -73,9 +73,7 @@ final class WorldClockWidget extends WP_Widget
 
         echo $args['before_widget'] ?? '';
 
-        if ($title !== '') {
-            echo ($args['before_title'] ?? '') . esc_html($title) . ($args['after_title'] ?? '');
-        }
+        WidgetHeader::render($args, $title, WidgetHeader::style($instance));
 
         ?>
         <ul class="kk-widget-clock">
@@ -121,6 +119,7 @@ final class WorldClockWidget extends WP_Widget
                 value="<?php echo esc_attr($title); ?>"
             >
         </p>
+        <?php WidgetHeader::field($this, $instance); ?>
         <p>
             <label for="<?php echo esc_attr($this->get_field_id('timezones')); ?>">
                 <?php esc_html_e('Timezones', 'koperasikita'); ?>
@@ -162,6 +161,7 @@ final class WorldClockWidget extends WP_Widget
         $instance['title'] = isset($new['title']) ? sanitize_text_field((string) $new['title']) : '';
         $instance['timezones'] = self::cleanTimezones($new['timezones'] ?? []);
         $instance['show_date'] = !empty($new['show_date']) ? 1 : 0;
+        $instance['header_style'] = WidgetHeader::sanitize($new['header_style'] ?? WidgetHeader::CLASSIC);
 
         return $instance;
     }

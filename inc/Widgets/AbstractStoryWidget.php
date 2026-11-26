@@ -64,7 +64,7 @@ abstract class AbstractStoryWidget extends WP_Widget
     }
 
     /**
-     * @return array{title: string, count: int, layout: string, show_thumbnail: bool}
+     * @return array{title: string, count: int, layout: string, show_thumbnail: bool, header_style: string}
      */
     protected function settings(array $instance): array
     {
@@ -73,6 +73,7 @@ abstract class AbstractStoryWidget extends WP_Widget
             'count' => isset($instance['count']) ? max(1, min(self::MAX_COUNT, (int) $instance['count'])) : self::DEFAULT_COUNT,
             'layout' => isset($instance['layout']) && in_array($instance['layout'], ['list', 'grid'], true) ? (string) $instance['layout'] : 'list',
             'show_thumbnail' => !empty($instance['show_thumbnail']),
+            'header_style' => WidgetHeader::style($instance),
         ];
 
         return array_merge($settings, $this->extraSettings($instance));
@@ -94,9 +95,7 @@ abstract class AbstractStoryWidget extends WP_Widget
 
             echo $args['before_widget'] ?? '';
 
-            if ($settings['title'] !== '') {
-                echo ($args['before_title'] ?? '') . esc_html($settings['title']) . ($args['after_title'] ?? '');
-            }
+            WidgetHeader::render($args, $settings['title'], $settings['header_style']);
 
             ?>
             <p class="kk-widget-empty"><?php esc_html_e('No posts to show yet.', 'koperasikita'); ?></p>
@@ -109,9 +108,7 @@ abstract class AbstractStoryWidget extends WP_Widget
 
         echo $args['before_widget'] ?? '';
 
-        if ($settings['title'] !== '') {
-            echo ($args['before_title'] ?? '') . esc_html($settings['title']) . ($args['after_title'] ?? '');
-        }
+        WidgetHeader::render($args, $settings['title'], $settings['header_style']);
 
         ?>
         <ul class="kk-widget-stories kk-widget-stories--<?php echo esc_attr($settings['layout']); ?>">
@@ -153,6 +150,7 @@ abstract class AbstractStoryWidget extends WP_Widget
                 value="<?php echo esc_attr($settings['title']); ?>"
             >
         </p>
+        <?php WidgetHeader::field($this, $instance); ?>
         <p>
             <label for="<?php echo esc_attr($this->get_field_id('count')); ?>">
                 <?php esc_html_e('Number of items', 'koperasikita'); ?>
@@ -219,6 +217,7 @@ abstract class AbstractStoryWidget extends WP_Widget
             ? (string) $new['layout']
             : 'list';
         $instance['show_thumbnail'] = !empty($new['show_thumbnail']) ? 1 : 0;
+        $instance['header_style'] = WidgetHeader::sanitize($new['header_style'] ?? WidgetHeader::CLASSIC);
 
         return $this->sanitizeExtra($new, $instance);
     }

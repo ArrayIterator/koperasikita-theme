@@ -67,9 +67,7 @@ final class PagesWidget extends WP_Widget
 
             echo $args['before_widget'] ?? '';
 
-            if ($title !== '') {
-                echo ($args['before_title'] ?? '') . esc_html($title) . ($args['after_title'] ?? '');
-            }
+            WidgetHeader::render($args, $title, WidgetHeader::style($instance));
 
             ?>
             <p class="kk-widget-empty"><?php esc_html_e('No pages to show yet.', 'koperasikita'); ?></p>
@@ -82,9 +80,7 @@ final class PagesWidget extends WP_Widget
 
         echo $args['before_widget'] ?? '';
 
-        if ($title !== '') {
-            echo ($args['before_title'] ?? '') . esc_html($title) . ($args['after_title'] ?? '');
-        }
+        WidgetHeader::render($args, $title, WidgetHeader::style($instance));
 
         ?>
         <ul class="kk-widget-pages">
@@ -122,6 +118,7 @@ final class PagesWidget extends WP_Widget
                 value="<?php echo esc_attr($title); ?>"
             >
         </p>
+        <?php WidgetHeader::field($this, $instance); ?>
         <p>
             <label for="<?php echo esc_attr($this->get_field_id('count')); ?>">
                 <?php esc_html_e('Number of items', 'koperasikita'); ?>
@@ -171,6 +168,7 @@ final class PagesWidget extends WP_Widget
         $instance['sort_order'] = isset($new['sort_order']) && array_key_exists((string) $new['sort_order'], self::sortOptions())
             ? (string) $new['sort_order']
             : 'menu_order';
+        $instance['header_style'] = WidgetHeader::sanitize($new['header_style'] ?? WidgetHeader::CLASSIC);
 
         return $instance;
     }

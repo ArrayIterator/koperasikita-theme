@@ -25,7 +25,7 @@ $bookmarks_enabled = \KoperasiKita\Features\Features::isEnabled( 'bookmarks' );
 	<?php endif; ?>
 
 	<div class="kk-card-body">
-		<p class="kk-card-date"><time datetime="<?php echo esc_attr( get_the_date( 'c' ) ); ?>"><?php echo esc_html( get_the_date() . ' - ' . get_the_time() ); ?></time></p>
+		<p class="kk-card-date"><time datetime="<?php echo esc_attr( get_the_date( 'c' ) ); ?>"><?php echo esc_html( get_the_date() . ( get_theme_mod( 'kk_list_show_time', false ) ? ' - ' . get_the_time() : '' ) ); ?></time></p>
 
 		<?php if ( ! empty( $categories ) ) : ?>
 			<p class="kk-eyebrow"><a href="<?php echo esc_url( get_category_link( $categories[0] ) ); ?>"><?php echo esc_html( $categories[0]->name ); ?></a></p>

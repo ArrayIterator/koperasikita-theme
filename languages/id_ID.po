@@ -2358,3 +2358,45 @@ msgstr "Tampilkan Breadcrumb di Hasil Pencarian"
 msgid "Show Breadcrumbs on 404 Pages"
 msgstr "Tampilkan Breadcrumb di Halaman 404"
 
+
+msgid "Use classic Header Style"
+msgstr "Pakai Gaya Header Klasik"
+
+msgid "Use No Border Header Style"
+msgstr "Pakai Gaya Header Tanpa Garis"
+
+msgid "Hide"
+msgstr "Sembunyikan"
+
+msgid "Header Style"
+msgstr "Gaya Header"
+
+msgid "Show Time on Article List & Archive"
+msgstr "Tampilkan Jam di Daftar Artikel & Arsip"
+
+msgid "Show Time on Single Post & Page"
+msgstr "Tampilkan Jam di Artikel & Halaman Tunggal"
+
+msgid "Enable (Follow The Post)"
+msgstr "Aktifkan (Ikuti Artikel)"
+
+msgid "Disable Comments"
+msgstr "Nonaktifkan Komentar"
+
+msgid "Hide Comments"
+msgstr "Sembunyikan Komentar"
+
+msgid "Hide If comment disabled"
+msgstr "Sembunyikan Jika komentar dinonaktifkan"
+
+msgid "Hide If Comment disabled By the post / page"
+msgstr "Sembunyikan Jika Komentar dinonaktifkan oleh artikel / halaman"
+
+msgid "Hide All"
+msgstr "Sembunyikan Semua"
+
+msgid "Use Combined CSS (one file)"
+msgstr "Pakai CSS Gabungan (satu file)"
+
+msgid "The app logo used when installing the PWA (manifest icons and home-screen icon). Defaults to the Koperasi Kita logo. Use a square image, at least 512×512, to replace it."
+msgstr "Logo aplikasi yang dipakai saat menginstal PWA (ikon manifest dan ikon layar utama). Bawaan: logo Koperasi Kita. Pakai gambar persegi, minimal 512×512, untuk menggantinya."
