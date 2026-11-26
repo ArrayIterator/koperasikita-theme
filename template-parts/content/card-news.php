@@ -29,6 +29,7 @@ $bookmarks_enabled = \KoperasiKita\Features\Features::isEnabled( 'bookmarks' );
 
 $is_hero_card = ! empty( $args['hero_card'] );
 $is_highlights_card = ! empty( $args['highlights_card'] );
+$is_category_block = ! empty( $args['category_block'] );
 $show_title = true;
 $show_category = true;
 $show_date = true;
@@ -45,6 +46,9 @@ if ( $is_hero_card ) {
 	$show_category = (bool) get_theme_mod( 'kk_highlights_show_category', true );
 	$show_date = (bool) get_theme_mod( 'kk_highlights_show_date', true );
 	$show_excerpt = (bool) get_theme_mod( 'kk_highlights_show_excerpt', false );
+} elseif ( $is_category_block ) {
+	$show_category = (bool) get_theme_mod( 'kk_category_block_show_category', true );
+	$show_date = (bool) get_theme_mod( 'kk_category_block_show_date', true );
 }
 
 $title_html = '';

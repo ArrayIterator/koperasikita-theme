@@ -421,200 +421,6 @@ final class Customizer
             'taxonomy' => 'post_tag',
         ]));
 
-        self::addSetting(
-            $wpCustomize,
-            'kk_latest_count',
-            10,
-            static fn ($value) => self::clampInt($value, 5, 20),
-            'refresh'
-        );
-        $wpCustomize->add_control('kk_latest_count', [
-            'label' => esc_html__('Latest Posts', 'koperasikita'),
-            'section' => 'koperasikita_homepage',
-            'type' => 'number',
-            'input_attrs' => ['min' => 5, 'max' => 20],
-        ]);
-
-        /* Latest-news heading: an editable title and eyebrow for the
-         * Latest News section (was a hardcoded "Latest News"). */
-        self::addSetting(
-            $wpCustomize,
-            'kk_latest_title',
-            __('Latest News', 'koperasikita'),
-            'sanitize_text_field',
-            'refresh'
-        );
-        $wpCustomize->add_control('kk_latest_title', [
-            'label' => esc_html__('Latest News Title', 'koperasikita'),
-            'description' => esc_html__('The heading of the latest-news section. Leave it empty to hide the heading.', 'koperasikita'),
-            'section' => 'koperasikita_homepage',
-            'type' => 'text',
-        ]);
-
-        self::addSetting(
-            $wpCustomize,
-            'kk_latest_eyebrow',
-            '',
-            'sanitize_text_field',
-            'refresh'
-        );
-        $wpCustomize->add_control('kk_latest_eyebrow', [
-            'label' => esc_html__('Latest News Eyebrow', 'koperasikita'),
-            'description' => esc_html__('The small line above the latest-news title. Leave it empty to hide it.', 'koperasikita'),
-            'section' => 'koperasikita_homepage',
-            'type' => 'text',
-        ]);
-
-        self::addSetting(
-            $wpCustomize,
-            'kk_homepage_layout',
-            'grid',
-            [self::class, 'sanitizeLatestLayout'],
-            'postMessage'
-        );
-        $wpCustomize->add_control('kk_homepage_layout', [
-            'label' => esc_html__('Homepage Layout', 'koperasikita'),
-            'section' => 'koperasikita_homepage',
-            'type' => 'select',
-            'choices' => [
-                'grid' => esc_html__('Grid', 'koperasikita'),
-                'list' => esc_html__('List', 'koperasikita'),
-                'newsletter' => esc_html__('Newsletter', 'koperasikita'),
-            ],
-        ]);
-
-        // Comment count on news cards: off by default, so a card never
-        // shows a bare "0 comments" line. Turn it on when the site has
-        // real discussion to show.
-        self::addSetting(
-            $wpCustomize,
-            'kk_card_show_comments',
-            false,
-            [self::class, 'sanitizeBool'],
-            'refresh'
-        );
-        $wpCustomize->add_control('kk_card_show_comments', [
-            'label' => esc_html__('Show Comment Count on Cards', 'koperasikita'),
-            'section' => 'koperasikita_homepage',
-            'type' => 'checkbox',
-            'description' => esc_html__('Shows the "N comments" line on news cards.', 'koperasikita'),
-        ]);
-
-        // Homepage category blocks: three slots, each either a chosen
-        // category or automatic (most posts), with its own on/off
-        // switch, its own post count and its own display style (Grid /
-        // List / Featured). Slot order is the display order on the
-        // front page.
-        for ($slot = 1; $slot <= 3; $slot++) {
-            self::addSetting(
-                $wpCustomize,
-                'kk_homepage_category_' . $slot . '_enabled',
-                true,
-                [self::class, 'sanitizeBool'],
-                'refresh'
-            );
-            $wpCustomize->add_control('kk_homepage_category_' . $slot . '_enabled', [
-                'label' => sprintf(esc_html__('Show Category Block %d', 'koperasikita'), $slot),
-                'section' => 'koperasikita_homepage',
-                'type' => 'checkbox',
-            ]);
-
-            self::addSetting(
-                $wpCustomize,
-                'kk_homepage_category_' . $slot,
-                0,
-                [self::class, 'sanitizeCategoryChoice'],
-                'refresh'
-            );
-            $wpCustomize->add_control(new TermSelectControl($wpCustomize, 'kk_homepage_category_' . $slot, [
-                'label' => sprintf(esc_html__('Category Block %d', 'koperasikita'), $slot),
-                'section' => 'koperasikita_homepage',
-                'taxonomy' => 'category',
-                'static_choices' => [0 => esc_html__('Automatic (most posts)', 'koperasikita')],
-            ]));
-
-            self::addSetting(
-                $wpCustomize,
-                'kk_homepage_category_' . $slot . '_count',
-                4,
-                static fn ($value) => self::clampInt($value, 1, 8),
-                'refresh'
-            );
-            $wpCustomize->add_control('kk_homepage_category_' . $slot . '_count', [
-                'label' => sprintf(esc_html__('Category Block %d: Posts', 'koperasikita'), $slot),
-                'section' => 'koperasikita_homepage',
-                'type' => 'number',
-                'input_attrs' => ['min' => 1, 'max' => 8],
-            ]);
-
-            self::addSetting(
-                $wpCustomize,
-                'kk_homepage_category_' . $slot . '_layout',
-                'grid',
-                [self::class, 'sanitizeLayout'],
-                'refresh'
-            );
-            $wpCustomize->add_control('kk_homepage_category_' . $slot . '_layout', [
-                'label' => sprintf(esc_html__('Category Block %d: Display Style', 'koperasikita'), $slot),
-                'section' => 'koperasikita_homepage',
-                'type' => 'select',
-                'choices' => [
-                    'grid' => esc_html__('Grid', 'koperasikita'),
-                    'list' => esc_html__('List', 'koperasikita'),
-                    'featured' => esc_html__('Featured', 'koperasikita'),
-                    'featured-right' => esc_html__('Featured Right', 'koperasikita'),
-                    'list-columns' => esc_html__('List (Columns)', 'koperasikita'),
-                ],
-            ]);
-
-            /* List (Columns): how many columns the widget-like rows
-             * split into, how many rows each column shows, and
-             * whether the columns slide (prev/next + touch). Only
-             * shown while this slot's Display Style is List
-             * (Columns). */
-            self::addSetting(
-                $wpCustomize,
-                'kk_homepage_category_' . $slot . '_list_columns',
-                2,
-                static fn ($value) => self::clampInt($value, 1, 4),
-                'refresh'
-            );
-            $wpCustomize->add_control('kk_homepage_category_' . $slot . '_list_columns', [
-                'label' => sprintf(esc_html__('Category Block %d: List Columns', 'koperasikita'), $slot),
-                'section' => 'koperasikita_homepage',
-                'type' => 'number',
-                'input_attrs' => ['min' => 1, 'max' => 4],
-                'active_callback' => static fn () => self::isCategoryListColumns($slot),
-            ]);
-            self::addSetting(
-                $wpCustomize,
-                'kk_homepage_category_' . $slot . '_list_rows',
-                3,
-                static fn ($value) => self::clampInt($value, 1, 10),
-                'refresh'
-            );
-            $wpCustomize->add_control('kk_homepage_category_' . $slot . '_list_rows', [
-                'label' => sprintf(esc_html__('Category Block %d: List Rows (per column)', 'koperasikita'), $slot),
-                'section' => 'koperasikita_homepage',
-                'type' => 'number',
-                'input_attrs' => ['min' => 1, 'max' => 10],
-                'active_callback' => static fn () => self::isCategoryListColumns($slot),
-            ]);
-            self::addSetting(
-                $wpCustomize,
-                'kk_homepage_category_' . $slot . '_list_enable_slider',
-                false,
-                [self::class, 'sanitizeBool'],
-                'refresh'
-            );
-            $wpCustomize->add_control('kk_homepage_category_' . $slot . '_list_enable_slider', [
-                'label' => sprintf(esc_html__('Category Block %d: List Enable Slider', 'koperasikita'), $slot),
-                'section' => 'koperasikita_homepage',
-                'type' => 'checkbox',
-                'active_callback' => static fn () => self::isCategoryListColumns($slot),
-            ]);
-        }
-
         // Highlights ("Sorotan"): editor-picked posts filtered by
         // category and/or tag, with a custom title, a post count and
         // a Grid/Slider layout. Empty filters = the latest posts, so
@@ -884,6 +690,216 @@ final class Customizer
             'section' => 'koperasikita_homepage',
             'taxonomy' => 'post_tag',
         ]));
+
+        self::addSetting(
+            $wpCustomize,
+            'kk_latest_count',
+            10,
+            static fn ($value) => self::clampInt($value, 5, 20),
+            'refresh'
+        );
+        $wpCustomize->add_control('kk_latest_count', [
+            'label' => esc_html__('Latest Posts', 'koperasikita'),
+            'section' => 'koperasikita_homepage',
+            'type' => 'number',
+            'input_attrs' => ['min' => 5, 'max' => 20],
+        ]);
+
+        /* Latest-news heading: an editable title and eyebrow for the
+         * Latest News section (was a hardcoded "Latest News"). */
+        self::addSetting(
+            $wpCustomize,
+            'kk_latest_title',
+            __('Latest News', 'koperasikita'),
+            'sanitize_text_field',
+            'refresh'
+        );
+        $wpCustomize->add_control('kk_latest_title', [
+            'label' => esc_html__('Latest News Title', 'koperasikita'),
+            'description' => esc_html__('The heading of the latest-news section. Leave it empty to hide the heading.', 'koperasikita'),
+            'section' => 'koperasikita_homepage',
+            'type' => 'text',
+        ]);
+
+        self::addSetting(
+            $wpCustomize,
+            'kk_latest_eyebrow',
+            '',
+            'sanitize_text_field',
+            'refresh'
+        );
+        $wpCustomize->add_control('kk_latest_eyebrow', [
+            'label' => esc_html__('Latest News Eyebrow', 'koperasikita'),
+            'description' => esc_html__('The small line above the latest-news title. Leave it empty to hide it.', 'koperasikita'),
+            'section' => 'koperasikita_homepage',
+            'type' => 'text',
+        ]);
+
+        self::addSetting(
+            $wpCustomize,
+            'kk_homepage_layout',
+            'grid',
+            [self::class, 'sanitizeLatestLayout'],
+            'postMessage'
+        );
+        $wpCustomize->add_control('kk_homepage_layout', [
+            'label' => esc_html__('Homepage Layout', 'koperasikita'),
+            'section' => 'koperasikita_homepage',
+            'type' => 'select',
+            'choices' => [
+                'grid' => esc_html__('Grid', 'koperasikita'),
+                'list' => esc_html__('List', 'koperasikita'),
+                'newsletter' => esc_html__('Newsletter', 'koperasikita'),
+            ],
+        ]);
+
+        // Comment count on news cards: off by default, so a card never
+        // shows a bare "0 comments" line. Turn it on when the site has
+        // real discussion to show.
+        self::addSetting(
+            $wpCustomize,
+            'kk_card_show_comments',
+            false,
+            [self::class, 'sanitizeBool'],
+            'refresh'
+        );
+        $wpCustomize->add_control('kk_card_show_comments', [
+            'label' => esc_html__('Show Comment Count on Cards', 'koperasikita'),
+            'section' => 'koperasikita_homepage',
+            'type' => 'checkbox',
+            'description' => esc_html__('Shows the "N comments" line on news cards.', 'koperasikita'),
+        ]);
+
+        // Homepage category blocks: three slots, each either a chosen
+        // category or automatic (most posts), with its own on/off
+        // switch, its own post count and its own display style (Grid /
+        // List / Featured). Slot order is the display order on the
+        // front page.
+        // The card parts below are global for ALL category blocks
+        // (same pattern as the Hero card toggles): whether each
+        // category-block card shows its category eyebrow and its date.
+        $category_block_toggles = [
+            'kk_category_block_show_category' => ['Show Category', true],
+            'kk_category_block_show_date' => ['Show Date', true],
+        ];
+        foreach ($category_block_toggles as $id => [$label, $default]) {
+            self::addSetting($wpCustomize, $id, $default, [self::class, 'sanitizeBool'], 'refresh');
+            $wpCustomize->add_control($id, [
+                'label' => esc_html__($label, 'koperasikita'),
+                'section' => 'koperasikita_homepage',
+                'type' => 'checkbox',
+            ]);
+        }
+
+        for ($slot = 1; $slot <= 3; $slot++) {
+            self::addSetting(
+                $wpCustomize,
+                'kk_homepage_category_' . $slot . '_enabled',
+                true,
+                [self::class, 'sanitizeBool'],
+                'refresh'
+            );
+            $wpCustomize->add_control('kk_homepage_category_' . $slot . '_enabled', [
+                'label' => sprintf(esc_html__('Show Category Block %d', 'koperasikita'), $slot),
+                'section' => 'koperasikita_homepage',
+                'type' => 'checkbox',
+            ]);
+
+            self::addSetting(
+                $wpCustomize,
+                'kk_homepage_category_' . $slot,
+                0,
+                [self::class, 'sanitizeCategoryChoice'],
+                'refresh'
+            );
+            $wpCustomize->add_control(new TermSelectControl($wpCustomize, 'kk_homepage_category_' . $slot, [
+                'label' => sprintf(esc_html__('Category Block %d', 'koperasikita'), $slot),
+                'section' => 'koperasikita_homepage',
+                'taxonomy' => 'category',
+                'static_choices' => [0 => esc_html__('Automatic (most posts)', 'koperasikita')],
+            ]));
+
+            self::addSetting(
+                $wpCustomize,
+                'kk_homepage_category_' . $slot . '_count',
+                4,
+                static fn ($value) => self::clampInt($value, 1, 8),
+                'refresh'
+            );
+            $wpCustomize->add_control('kk_homepage_category_' . $slot . '_count', [
+                'label' => sprintf(esc_html__('Category Block %d: Posts', 'koperasikita'), $slot),
+                'section' => 'koperasikita_homepage',
+                'type' => 'number',
+                'input_attrs' => ['min' => 1, 'max' => 8],
+            ]);
+
+            self::addSetting(
+                $wpCustomize,
+                'kk_homepage_category_' . $slot . '_layout',
+                'grid',
+                [self::class, 'sanitizeLayout'],
+                'refresh'
+            );
+            $wpCustomize->add_control('kk_homepage_category_' . $slot . '_layout', [
+                'label' => sprintf(esc_html__('Category Block %d: Display Style', 'koperasikita'), $slot),
+                'section' => 'koperasikita_homepage',
+                'type' => 'select',
+                'choices' => [
+                    'grid' => esc_html__('Grid', 'koperasikita'),
+                    'list' => esc_html__('List', 'koperasikita'),
+                    'featured' => esc_html__('Featured', 'koperasikita'),
+                    'featured-right' => esc_html__('Featured Right', 'koperasikita'),
+                    'list-columns' => esc_html__('List (Columns)', 'koperasikita'),
+                ],
+            ]);
+
+            /* List (Columns): how many columns the widget-like rows
+             * split into, how many rows each column shows, and
+             * whether the columns slide (prev/next + touch). Only
+             * shown while this slot's Display Style is List
+             * (Columns). */
+            self::addSetting(
+                $wpCustomize,
+                'kk_homepage_category_' . $slot . '_list_columns',
+                2,
+                static fn ($value) => self::clampInt($value, 1, 4),
+                'refresh'
+            );
+            $wpCustomize->add_control('kk_homepage_category_' . $slot . '_list_columns', [
+                'label' => sprintf(esc_html__('Category Block %d: List Columns', 'koperasikita'), $slot),
+                'section' => 'koperasikita_homepage',
+                'type' => 'number',
+                'input_attrs' => ['min' => 1, 'max' => 4],
+                'active_callback' => static fn () => self::isCategoryListColumns($slot),
+            ]);
+            self::addSetting(
+                $wpCustomize,
+                'kk_homepage_category_' . $slot . '_list_rows',
+                3,
+                static fn ($value) => self::clampInt($value, 1, 10),
+                'refresh'
+            );
+            $wpCustomize->add_control('kk_homepage_category_' . $slot . '_list_rows', [
+                'label' => sprintf(esc_html__('Category Block %d: List Rows (per column)', 'koperasikita'), $slot),
+                'section' => 'koperasikita_homepage',
+                'type' => 'number',
+                'input_attrs' => ['min' => 1, 'max' => 10],
+                'active_callback' => static fn () => self::isCategoryListColumns($slot),
+            ]);
+            self::addSetting(
+                $wpCustomize,
+                'kk_homepage_category_' . $slot . '_list_enable_slider',
+                false,
+                [self::class, 'sanitizeBool'],
+                'refresh'
+            );
+            $wpCustomize->add_control('kk_homepage_category_' . $slot . '_list_enable_slider', [
+                'label' => sprintf(esc_html__('Category Block %d: List Enable Slider', 'koperasikita'), $slot),
+                'section' => 'koperasikita_homepage',
+                'type' => 'checkbox',
+                'active_callback' => static fn () => self::isCategoryListColumns($slot),
+            ]);
+        }
 
         // Market strip on the homepage: gold spot, stocks and crypto above
         // the latest news. On by default so prices are visible on a fresh

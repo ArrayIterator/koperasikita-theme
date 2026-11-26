@@ -105,7 +105,7 @@ if ( 'list-columns' === $block_layout ) {
 							<?php
 							foreach ( $column_posts as $post ) :
 								setup_postdata( $post );
-								get_template_part( 'template-parts/content/card-news' );
+								get_template_part( 'template-parts/content/card-news', null, ['category_block' => true] );
 							endforeach;
 							?>
 						</div>
@@ -118,7 +118,7 @@ if ( 'list-columns' === $block_layout ) {
 			<?php
 			while ( $block_query->have_posts() ) :
 				$block_query->the_post();
-				get_template_part( 'template-parts/content/card-news' );
+				get_template_part( 'template-parts/content/card-news', null, ['category_block' => true] );
 			endwhile;
 			?>
 		</div>
