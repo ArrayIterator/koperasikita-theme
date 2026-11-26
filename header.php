@@ -27,6 +27,10 @@
 			var media = window.matchMedia('(prefers-color-scheme: dark)');
 			var resolved = (stored === 'dark' || stored === 'light') ? stored : (media.matches ? 'dark' : 'light');
 			document.documentElement.setAttribute('data-color-scheme', resolved);
+			/* The stored preference itself, for the toggle icon: while
+			 * it is "system" the toggle shows a monitor (the resolved
+			 * scheme alone cannot tell system from a pinned mode). */
+			document.documentElement.setAttribute('data-kk-scheme', stored);
 		} catch (e) { /* private mode / no storage: keep the "system" default */ }
 	})();
 	</script>

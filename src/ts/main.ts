@@ -98,6 +98,10 @@ function applyScheme(scheme: ColorScheme): void {
 	// never the literal "system" — that is what the header script set
 	// before paint, and what the CSS reads.
 	document.documentElement.setAttribute('data-color-scheme', resolveScheme(scheme));
+	// The stored preference itself, for the toggle icon (a monitor
+	// while it is "system"); the header script sets this too, before
+	// first paint, so the icon never flashes the wrong glyph.
+	document.documentElement.setAttribute('data-kk-scheme', scheme);
 	// Follow the OS while the preference is "system"; stop when the
 	// user pins light or dark.
 	if (scheme === 'system') {

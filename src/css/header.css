@@ -70,16 +70,33 @@
 	opacity: 0.55;
 }
 
-/* Colour-scheme toggle: show the icon for the mode you will switch to. */
+/* Colour-scheme toggle: the icon shows the current preference — sun
+ * for a pinned light mode, moon for a pinned dark mode, and a monitor
+ * while the page follows the OS ("system"). The resolved scheme alone
+ * cannot tell system from a pinned mode, so the monitor rules read
+ * data-kk-scheme (set before paint by the header script, kept in sync
+ * by main.ts) and sit after the resolved rules: same specificity, so
+ * they win while the preference is system. */
 html[data-color-scheme="dark"] .kk-icon-sun,
-html[data-color-scheme="light"] .kk-icon-moon,
-html[data-color-scheme="system"] .kk-icon-moon {
+html[data-color-scheme="light"] .kk-icon-moon {
 	display: none;
 }
 
 html[data-color-scheme="dark"] .kk-icon-moon,
-html[data-color-scheme="light"] .kk-icon-sun,
-html[data-color-scheme="system"] .kk-icon-sun {
+html[data-color-scheme="light"] .kk-icon-sun {
+	display: block;
+}
+
+.kk-icon-monitor {
+	display: none;
+}
+
+html[data-kk-scheme="system"] .kk-icon-sun,
+html[data-kk-scheme="system"] .kk-icon-moon {
+	display: none;
+}
+
+html[data-kk-scheme="system"] .kk-icon-monitor {
 	display: block;
 }
 
@@ -421,19 +438,18 @@ html.kk-nav-open body {
 	padding: 8px 16px 16px;
 }
 
+/* Icon-only switcher, pinned to the right end of the drawer foot
+ * (no label — the aria-label names it for screen readers). */
 .kk-drawer-scheme {
 	display: flex;
 	align-items: center;
-	gap: 10px;
+	justify-content: flex-end;
 	width: 100%;
 	padding: 12px 4px;
-	font-weight: 600;
-	font-size: 15px;
 	color: var(--kk-ink);
 	background: none;
 	border: 0;
 	cursor: pointer;
-	text-align: left;
 }
 
 /* Header actions in the sticky bar: search + colour-scheme toggle. */
@@ -495,12 +511,15 @@ html.kk-nav-open body {
 
 @media (max-width: 767px) {
 	/* Mobile: the field spans the nav bar itself, from its left edge
-	 * to just before the toggles — instead of growing left out of the
+	 * to just before the toggle — instead of growing left out of the
 	 * toggle by a fixed viewport width, which overflows the left
 	 * edge ("kebablasan") whenever the toggle sits further right
 	 * than assumed. The form goes static so the input positions
 	 * against .kk-nav-inner (made the containing block here), and
-	 * the width is left/right, not a vw guess. */
+	 * the width is left/right, not a vw guess. The right offset is
+	 * one toggle wide (44px) + a 0.5rem gap: the dark toggle is
+	 * hidden below 1024px, so reserving room for it (the old 6.5rem)
+	 * left a dead 40px strip between the field and its close button. */
 	.kk-nav-inner {
 		position: relative;
 	}
@@ -511,7 +530,7 @@ html.kk-nav-open body {
 
 	.kk-search-expand.is-open .kk-search-expand-input {
 		left: 0;
-		right: 6.5rem;
+		right: 4.5rem;
 		top: 50%;
 		transform: translateY(-50%);
 		width: auto;

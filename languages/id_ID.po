@@ -1987,10 +1987,6 @@ msgstr "Deskripsi Banner & Mengambang"
 msgid "Read more"
 msgstr "Baca selengkapnya"
 
-#: template-parts/header/site-nav.php:64
-msgid "Appearance"
-msgstr "Tampilan"
-
 #: inc/Customizer/Customizer.php:222
 msgid "Show Comment Count on Cards"
 msgstr "Tampilkan Jumlah Komentar di Kartu"

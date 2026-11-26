@@ -241,9 +241,14 @@ select:focus-visible {
 	border-radius: var(--kk-radius);
 }
 
-.kk-icon-button:hover {
-	background: var(--kk-surface);
-	color: var(--kk-green, #0B6B3A);
+/* Hover feedback only where hovering exists: on touch a tap leaves
+ * :hover stuck until the next tap, so an icon button tapped once
+ * would keep its grey background (and green icon) indefinitely. */
+@media (hover: hover) {
+	.kk-icon-button:hover {
+		background: var(--kk-surface);
+		color: var(--kk-green, #0B6B3A);
+	}
 }
 
 .kk-icon-button svg {

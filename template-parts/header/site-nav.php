@@ -59,7 +59,7 @@
 					<button type="button" class="kk-drawer-scheme" id="kk-color-scheme-toggle-drawer" data-kk-scheme-toggle aria-label="<?php esc_attr_e( 'Toggle color scheme', 'koperasikita' ); ?>" aria-pressed="false">
 						<span class="kk-icon-sun"><?php echo \KoperasiKita\Icons\Icon::svg( 'sun', 18 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></span>
 						<span class="kk-icon-moon"><?php echo \KoperasiKita\Icons\Icon::svg( 'moon', 18 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></span>
-						<span class="kk-drawer-scheme-label"><?php esc_html_e( 'Appearance', 'koperasikita' ); ?></span>
+						<span class="kk-icon-monitor"><?php echo \KoperasiKita\Icons\Icon::svg( 'monitor', 18 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></span>
 					</button>
 				<?php endif; ?>
 			</div>
@@ -79,6 +79,7 @@
 				<button type="button" class="kk-icon-button kk-color-scheme-toggle" id="kk-color-scheme-toggle" data-kk-scheme-toggle aria-label="<?php esc_attr_e( 'Toggle color scheme', 'koperasikita' ); ?>" aria-pressed="false">
 					<span class="kk-icon-sun"><?php echo \KoperasiKita\Icons\Icon::svg( 'sun', 18 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></span>
 					<span class="kk-icon-moon"><?php echo \KoperasiKita\Icons\Icon::svg( 'moon', 18 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></span>
+					<span class="kk-icon-monitor"><?php echo \KoperasiKita\Icons\Icon::svg( 'monitor', 18 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></span>
 				</button>
 			<?php endif; ?>
 		</div>
