@@ -217,7 +217,17 @@ final class FeaturedImage
             }
         }
 
-        return KK_URI . '/assets/img/placeholder.svg';
+        /* Cache-bust the shipped placeholder: the server sends it with
+         * a 10-year max-age, so a browser that cached the old artwork
+         * would keep showing it for years after a redesign (the user
+         * saw exactly this — "teteep" — after the #97 redesign). The
+         * file's mtime as the query version makes every future edit
+         * a new URL automatically, so browsers always fetch the
+         * current artwork. */
+        $path = get_template_directory() . '/assets/img/placeholder.svg';
+        $version = is_readable( $path ) ? (string) filemtime( $path ) : KK_VERSION;
+
+        return KK_URI . '/assets/img/placeholder.svg?v=' . $version;
     }
 
     public static function srcset(int $postId, string $size = 'kk-card'): string
