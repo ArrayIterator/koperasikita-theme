@@ -50,7 +50,16 @@ const THEME_DIR = resolve(import.meta.dirname);
 const THEME_SLUG = 'koperasikita';
 
 /** Tracked files that never ship, even though they live in the repo. */
-const EXCLUDED_DIRS = ['src/', '.github/', 'docs/', 'releases/'];
+const EXCLUDED_DIRS = [
+  'src/',
+  '.github/',
+  'docs/',
+  'releases/',
+  // The gold-prices scraper is a GitHub Actions tool, not theme code:
+  // it runs in the workflow and publishes prices.json, it is never
+  // part of a WordPress install.
+  'scraper/',
+];
 const EXCLUDED_FILES = new Set([
   '.gitignore',
   'bun.lock',
