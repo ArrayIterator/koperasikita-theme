@@ -620,6 +620,26 @@ function buildDefinitions(api: Wp): BlockDef[] {
 				},
 			],
 		},
+		{
+			slug: 'agenda',
+			title: __('KK Agenda'),
+			description: __('Upcoming cooperative events as a dark card, with a status ribbon per event.'),
+			icon: 'calendar',
+			attributes: {
+				title: { type: 'string', default: '' },
+				count: { type: 'number', default: 5 },
+				showPast: { type: 'boolean', default: true },
+			},
+			fields: [
+				{ key: 'title', kind: 'text', label: __('Title') },
+				{ key: 'count', kind: 'number', label: __('Number of items'), min: 1, max: 10 },
+				{
+					key: 'showPast',
+					kind: 'toggle',
+					label: __('Show past events'),
+				},
+			],
+		},
 	];
 }
 

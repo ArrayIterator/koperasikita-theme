@@ -262,6 +262,25 @@ final class Blocks
             ];
         }
 
+        if (Features::isEnabled('agenda')) {
+            $definitions['agenda'] = [
+                'class' => AgendaWidget::class,
+                'icon' => 'calendar',
+                'title' => __('KK Agenda', 'koperasikita'),
+                'description' => __('Upcoming cooperative events as a dark card, with a status ribbon per event.', 'koperasikita'),
+                'attributes' => [
+                    'title' => ['type' => 'string', 'default' => ''],
+                    'count' => ['type' => 'number', 'default' => 5],
+                    'showPast' => ['type' => 'boolean', 'default' => true],
+                ],
+                'map' => [
+                    'title' => 'title',
+                    'count' => 'count',
+                    'showPast' => 'show_past',
+                ],
+            ];
+        }
+
         return $definitions;
     }
 

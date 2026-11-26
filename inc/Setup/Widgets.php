@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace KoperasiKita\Setup;
 
 use KoperasiKita\Features\Features;
+use KoperasiKita\Widgets\AgendaWidget;
 use KoperasiKita\Widgets\EditorsPicksWidget;
 use KoperasiKita\Widgets\GoldDataDeskWidget;
 use KoperasiKita\Widgets\GoldWidget;
@@ -40,6 +41,10 @@ final class Widgets
 
         if (Features::isEnabled('weather')) {
             register_widget(WeatherWidget::class);
+        }
+
+        if (Features::isEnabled('agenda')) {
+            register_widget(AgendaWidget::class);
         }
     }
 }
