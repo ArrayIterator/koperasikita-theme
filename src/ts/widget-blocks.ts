@@ -944,10 +944,10 @@ function buildDefinitions(api: Wp): BlockDef[] {
 		{
 			slug: 'agenda',
 			title: __('KK Agenda'),
-			description: __('Upcoming cooperative events as a dark card, with a status ribbon per event.'),
+			description: __('Upcoming cooperative events as a dark card; live events get a green dot, finished events are dimmed.'),
 			icon: 'calendar',
 			attributes: {
-				title: { type: 'string', default: '' },
+				title: { type: 'string', default: __('Agenda Koperasi') },
 				count: { type: 'number', default: 5 },
 				showPast: { type: 'boolean', default: true },
 			},

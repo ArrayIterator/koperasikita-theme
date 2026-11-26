@@ -11,12 +11,14 @@ use WP_Widget;
 /**
  * Agenda widget: upcoming cooperative events as a dark card, matching
  * the "AGENDA KOPERASI" design — a date badge (day + month) on the
- * left, the title and a pin + location on the right. Each item carries
- * a ribbon naming its state: "Akan Datang" (upcoming), "Berlangsung"
- * (happening now) or "Selesai" (finished). Upcoming items come first,
- * soonest first; when "Show past events" is on, finished items fill
- * the remaining slots, most recent first. Items without a date are
- * never shown — the badge has nothing to print.
+ * left, the title and a pin + location on the right. Status stays
+ * subtle: a live event gets a green dot on its date badge, a
+ * finished event is dimmed, upcoming events are plain. Upcoming items
+ * come first, soonest first; when "Show past events" is on, finished
+ * items fill the remaining slots, most recent first. Items without a
+ * date are never shown — the badge has nothing to print. The header
+ * always renders: an empty title falls back to "Agenda Koperasi", so
+ * the card (and its block-editor preview) never loses its header.
  */
 final class AgendaWidget extends WP_Widget
 {
@@ -29,7 +31,7 @@ final class AgendaWidget extends WP_Widget
             'kk_agenda',
             __('Koperasi Kita Agenda', 'koperasikita'),
             [
-                'description' => __('Upcoming cooperative events as a dark card, with a status ribbon per event.', 'koperasikita'),
+                'description' => __('Upcoming cooperative events as a dark card; live events get a green dot, finished events are dimmed.', 'koperasikita'),
                 'classname' => 'kk-agenda-widget',
                 'customize_selective_refresh' => true,
             ]
@@ -44,6 +46,11 @@ final class AgendaWidget extends WP_Widget
         }
 
         $title = isset($instance['title']) ? (string) $instance['title'] : '';
+
+        if ($title === '') {
+            $title = __('Agenda Koperasi', 'koperasikita');
+        }
+
         $count = isset($instance['count']) ? max(1, min(self::MAX_COUNT, (int) $instance['count'])) : self::DEFAULT_COUNT;
         $showPast = isset($instance['show_past']) ? (bool) $instance['show_past'] : true;
 
@@ -51,17 +58,10 @@ final class AgendaWidget extends WP_Widget
 
         echo $args['before_widget'] ?? '';
 
-        if ($items === []) {
-            ?>
-            <p class="kk-widget-empty"><?php esc_html_e('No agenda items yet.', 'koperasikita'); ?></p>
-            <?php
-            echo $args['after_widget'] ?? '';
-
-            return;
-        }
-
         // The title lives inside the dark card (icon + "AGENDA KOPERASI"),
-        // so this widget deliberately skips WidgetHeader::render().
+        // so this widget deliberately skips WidgetHeader::render(). The
+        // template renders the card even with no items — the empty state
+        // is an honest line inside the same card, never fake events.
         get_template_part('template-parts/agenda/widget', null, [
             'title' => $title,
             'items' => $items,
@@ -150,8 +150,8 @@ final class AgendaWidget extends WP_Widget
     }
 
     /**
-     * One item for the template. The status ribbon: "done" when the
-     * end time (if any) has passed, "live" while the event is running,
+     * One item for the template. The status: "done" when the end time
+     * (if any) has passed, "live" while the event is running,
      * "upcoming" before it starts. A dateless item returns null — the
      * caller filters it out.
      *
