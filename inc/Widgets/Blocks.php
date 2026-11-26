@@ -548,9 +548,27 @@ final class Blocks
         $widget = new $definition['class']();
         $instance = $widget->update($instance, []);
 
-        ob_start();
-        the_widget($definition['class'], $instance);
-        $html = ob_get_clean();
+        // Renders served over REST are the block editor (canvas and
+        // inserter preview): run them in preview mode, so the price
+        // providers serve their cached / last-good value and never
+        // burn an upstream timeout on a cold transient. A frontend
+        // page render is never a REST request, so it still refreshes
+        // live. The flag is reset even when the widget fatals.
+        $preview = defined('REST_REQUEST') && REST_REQUEST;
+
+        if ($preview) {
+            Markets::setPreviewMode(true);
+        }
+
+        try {
+            ob_start();
+            the_widget($definition['class'], $instance);
+            $html = ob_get_clean();
+        } finally {
+            if ($preview) {
+                Markets::setPreviewMode(false);
+            }
+        }
 
         return is_string($html) ? $html : '';
     }

@@ -427,6 +427,13 @@
 	--dd-axis: rgb(255 255 255 / 0.35);
 	--dd-divider: rgb(255 255 255 / 0.16);
 	--dd-border: transparent;
+	/* Change arrows inside the panel need their own light colours
+	 * on the dark palettes: the global --kk-success green (#0B6B3A)
+	 * and --kk-error red (#B3261E) are ~1.9:1 on dark green —
+	 * invisible. The light values are 8.3:1 / 6.7:1 on dark green
+	 * and 11.7:1 / 9.4:1 on the dark palette. */
+	--dd-up: #8ce99a;
+	--dd-down: #ffa8a8;
 	padding: 24px;
 	background: var(--dd-bg);
 	color: var(--dd-ink);
@@ -443,6 +450,8 @@
 	--dd-axis: rgb(255 255 255 / 0.35);
 	--dd-divider: rgb(255 255 255 / 0.16);
 	--dd-border: transparent;
+	--dd-up: #8ce99a;
+	--dd-down: #ffa8a8;
 }
 
 .kk-data-desk-panel--dark {
@@ -454,6 +463,8 @@
 	--dd-axis: rgb(255 255 255 / 0.3);
 	--dd-divider: rgb(255 255 255 / 0.14);
 	--dd-border: transparent;
+	--dd-up: #8ce99a;
+	--dd-down: #ffa8a8;
 }
 
 .kk-data-desk-panel--light {
@@ -465,6 +476,10 @@
 	--dd-axis: var(--kk-border, #E6E3DE);
 	--dd-divider: var(--kk-border, #E6E3DE);
 	--dd-border: var(--kk-border, #E6E3DE);
+	/* The global change colours read fine on the pale background,
+	 * so the light palette keeps them. */
+	--dd-up: var(--kk-success, #0b6b3a);
+	--dd-down: var(--kk-error, #b3261e);
 }
 
 /* Preview badge: preview renders (templates page, widget forms)
@@ -600,6 +615,20 @@
 	margin: 4px 0 0;
 	font-size: 13px;
 	color: var(--dd-muted);
+}
+
+/* Day-change arrows inside the panel use the palette's own light
+ * up/down colours (see --dd-up / --dd-down above), never the
+ * global --kk-success / --kk-error: those are ~1.9:1 on the dark
+ * palettes and the change amount was unreadable there. Scoped to
+ * the panel, so the strip, slider and table keep the global
+ * colours on their light backgrounds. */
+.kk-data-desk-panel .kk-market-change-up {
+	color: var(--dd-up);
+}
+
+.kk-data-desk-panel .kk-market-change-down {
+	color: var(--dd-down);
 }
 
 @media (max-width: 767px) {
