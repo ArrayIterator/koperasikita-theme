@@ -30,7 +30,7 @@ $single = count($brands) === 1;
 		<ul class="kk-gold-slides">
 			<?php $index = 0; ?>
 			<?php foreach ($brands as $slug => $price) : ?>
-				<li class="kk-gold-slide<?php echo $index === 0 ? ' is-active' : ''; ?>" data-kk-gold-slide>
+				<li class="kk-gold-slide<?php echo $index === 0 ? ' is-active' : ''; ?>" data-kk-gold-slide<?php echo $price->provider !== '' ? ' data-kk-provider="' . esc_attr($price->provider) . '" title="' . esc_attr(sprintf(__('Source: %s', 'koperasikita'), \KoperasiKita\Features\Gold::providerLabel($price->provider))) . '"' : ''; ?>>
 					<p class="kk-gold-brand"><?php echo esc_html($price->label); ?></p>
 					<p class="kk-gold-price"><?php echo esc_html(Markets::formatPrice((float) $price->price, $price->currency)); ?></p>
 					<p class="kk-gold-meta">

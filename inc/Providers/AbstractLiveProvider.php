@@ -31,6 +31,26 @@ abstract class AbstractLiveProvider implements MarketPriceProvider
 
     abstract protected function lastGoodOption(): string;
 
+    /**
+     * How long a failed fetch stays "recently failed" (seconds).
+     * While the backoff transient is set, prices() serves the last
+     * good value (or nothing) without touching the upstream again —
+     * a down provider must not burn a full timeout on every render.
+     */
+    protected function failedBackoffSeconds(): int
+    {
+        return 60;
+    }
+
+    /** Transient key marking this provider as recently failed. */
+    protected function failedKey(): string
+    {
+        return $this->transientKey() . '__failed';
+    }
+
+    /** Provider ids already fetched (or attempted) in this request. */
+    private static array $attemptedThisRequest = [];
+
     protected function cacheSeconds(): int
     {
         return 900; // 15 minutes.
@@ -70,13 +90,29 @@ abstract class AbstractLiveProvider implements MarketPriceProvider
             return $this->toMarketPrices($market, $cached);
         }
 
-        // 2. Live fetch.
-        $fetched = $this->fetch($market);
-        if (is_array($fetched) && $fetched !== []) {
-            set_transient($this->transientKey(), $fetched, $this->cacheSeconds());
-            update_option($this->lastGoodOption(), $fetched, false);
+        // 2. Live fetch — at most once per request for this provider,
+        // and never while the 60-second failure backoff is set. A
+        // provider that just failed answers from its last good value
+        // (or nothing) instead of burning another timeout.
+        $key = $this->transientKey();
 
-            return $this->toMarketPrices($market, $fetched);
+        if (!isset(self::$attemptedThisRequest[$key]) && get_transient($this->failedKey()) === false) {
+            self::$attemptedThisRequest[$key] = true;
+            $fetched = $this->fetch($market);
+
+            if (is_array($fetched) && $fetched !== []) {
+                set_transient($this->transientKey(), $fetched, $this->cacheSeconds());
+                update_option($this->lastGoodOption(), $fetched, false);
+                delete_transient($this->failedKey());
+
+                return $this->toMarketPrices($market, $fetched);
+            }
+
+            // The fetch failed: mark the provider as recently failed
+            // so the next render inside the backoff window does not
+            // retry the upstream. The last-good value below is still
+            // served, with its real timestamp.
+            set_transient($this->failedKey(), 1, $this->failedBackoffSeconds());
         }
 
         // 3. Stale fallback: the last good value, with its real

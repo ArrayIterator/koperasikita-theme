@@ -1,3 +1,4 @@
+#: template-parts/home/featured-sidebar.php
 # Copyright (C) 2026 Koperasi Kita
 # This file is distributed under the GNU General Public License v2 or later.
 msgid ""
@@ -1247,8 +1248,6 @@ msgstr "Lainnya di %s"
 msgid "Section"
 msgstr "Bagian"
 
-#: template-parts/home/featured-sidebar.php
-
 #: template-parts/home/hero-grid.php
 msgid "Top stories"
 msgstr "Berita Utama"
@@ -2472,7 +2471,6 @@ msgstr "Tampilkan Breadcrumb di Hasil Pencarian"
 msgid "Show Breadcrumbs on 404 Pages"
 msgstr "Tampilkan Breadcrumb di Halaman 404"
 
-
 msgid "Classic Top Border"
 msgstr "Klasik Garis Atas"
 
@@ -2808,6 +2806,8 @@ msgid "Map"
 msgstr "Peta"
 
 #: inc/Features/Agenda.php
+#: template-parts/agenda/form-submit.php
+#: inc/Admin/AgendaLocationsSettings.php
 msgid "Search for a place…"
 msgstr "Cari tempat…"
 
@@ -3814,8 +3814,102 @@ msgstr "Ketik untuk mencari lokasi tersimpan dan tempat. Memilih salah satunya a
 msgid "Places"
 msgstr "Tempat"
 
-#: inc/Features/Agenda.php
-#: template-parts/agenda/form-submit.php
-#: inc/Admin/AgendaLocationsSettings.php
-msgid "Search for a place…"
-msgstr "Cari tempat…"
+#: inc/Admin/GoldPricesPage.php
+msgid "Daily gold prices from the Logam Mulia API price history (backup/prices CSV on GitHub). The sync runs automatically via WP-Cron on the schedule in Settings and only inserts rows that are not in the database yet — one row per brand per day. Use the button below to sync on demand."
+msgstr "Harga emas harian dari riwayat harga Logam Mulia API (CSV backup/prices di GitHub). Sinkronisasi berjalan otomatis lewat WP-Cron sesuai jadwal di Pengaturan dan hanya menyisipkan baris yang belum ada di database — satu baris per brand per hari. Gunakan tombol di bawah untuk sinkronisasi manual."
+
+#: inc/Admin/GoldPricesPage.php
+msgid "Gold price providers"
+msgstr "Penyedia harga emas"
+
+#: inc/Admin/GoldPricesPage.php
+msgid "Brand providers saved."
+msgstr "Penyedia tiap merek disimpan."
+
+#: inc/Admin/GoldPricesPage.php
+msgid "Save brand providers"
+msgstr "Simpan penyedia tiap merek"
+
+#: inc/Admin/GoldPricesPage.php
+msgid "Current price"
+msgstr "Harga saat ini"
+
+#: inc/Admin/GoldPricesPage.php
+msgid "Fallback"
+msgstr "Cadangan"
+
+#: inc/Admin/GoldPricesPage.php
+msgid "Supplied by"
+msgstr "Dipasok oleh"
+
+#: inc/Admin/GoldPricesPage.php
+msgid "Provider for %s"
+msgstr "Penyedia untuk %s"
+
+#: inc/Admin/GoldPricesPage.php
+msgid "Fallback provider for %s"
+msgstr "Penyedia cadangan untuk %s"
+
+#: inc/Admin/GoldPricesPage.php
+msgid "Source: %s"
+msgstr "Sumber: %s"
+
+#: inc/Admin/GoldPricesPage.php
+msgid "A manual sync is running. Automatic sync settings are paused until it finishes."
+msgstr "Sinkronisasi manual sedang berjalan. Pengaturan sinkronisasi otomatis dijeda sampai selesai."
+
+#: inc/Admin/GoldPricesPage.php
+msgid "Choose which provider supplies the price for each brand. Only providers that can actually supply that brand are listed. When the primary provider has no price for a brand, its fallback provider is tried automatically. A brand neither provider can price shows no price on the site."
+msgstr "Pilih penyedia yang memasok harga untuk tiap merek. Hanya penyedia yang memang bisa memasok merek itu yang ditampilkan. Bila penyedia utama tidak punya harga untuk suatu merek, penyedia cadangannya dicoba otomatis. Merek yang tidak bisa dipasok kedua penyedia tidak menampilkan harga di situs."
+
+#: inc/Admin/GoldPricesPage.php
+msgid "Syncing %s…"
+msgstr "Menyinkronkan %s…"
+
+#: inc/Admin/GoldPricesPage.php
+msgid "%s: inserted %s, skipped %s"
+msgstr "%s: dimasukkan %s, dilewati %s"
+
+#: inc/Admin/GoldPricesPage.php
+msgid " (latest %s)"
+msgstr " (terbaru %s)"
+
+#: inc/Admin/GoldPricesPage.php
+msgid "Done — inserted %s, skipped %s (already in database). Reloading…"
+msgstr "Selesai — dimasukkan %s, dilewati %s (sudah ada di database). Memuat ulang…"
+
+#: inc/Admin/GoldPricesPage.php
+msgid "Sync sources"
+msgstr "Sumber sinkronisasi"
+
+#: inc/Admin/GoldPricesPage.php
+msgid "Choose which Logam Mulia sources the sync imports. Only enabled sources are synced, manually and automatically. The default source is synced first."
+msgstr "Pilih sumber Logam Mulia mana yang diimpor sinkronisasi. Hanya sumber yang diaktifkan yang disinkronkan, manual maupun otomatis. Sumber default disinkronkan pertama."
+
+#: inc/Admin/GoldPricesPage.php
+msgid "Imports"
+msgstr "Mengimpor"
+
+#: inc/Admin/GoldPricesPage.php
+msgid "Sync %s"
+msgstr "Sinkronkan %s"
+
+#: inc/Admin/GoldPricesPage.php
+msgid "Default source: %s"
+msgstr "Sumber default: %s"
+
+#: inc/Admin/GoldPricesPage.php
+msgid "No sync source is enabled. Enable one in Settings."
+msgstr "Tidak ada sumber sinkronisasi yang diaktifkan. Aktifkan satu di Pengaturan."
+
+#: inc/Providers/LogamMuliaApiProvider.php
+msgid "Galeri 24, UBS, Antam and Lotus Archi 1-gram prices."
+msgstr "Harga 1 gram Galeri 24, UBS, Antam, dan Lotus Archi."
+
+#: inc/Providers/LogamMuliaApiProvider.php
+msgid "Pegadaian 0.01-gram price, scaled to 1 gram."
+msgstr "Harga Pegadaian 0,01 gram, dikonversi ke 1 gram."
+
+#: inc/Providers/LogamMuliaApiProvider.php
+msgid "Antam 1-gram price (fallback when Galeri 24 has no Antam price)."
+msgstr "Harga Antam 1 gram (cadangan bila Galeri 24 tidak punya harga Antam)."

@@ -31,6 +31,12 @@ final class Gold
     /** Option holding the enabled gold brand slugs (array of strings). */
     public const ENABLED_OPTION = 'kk_enabled_gold_brands';
 
+    /** Option holding the provider per gold symbol (symbol => provider id). */
+    public const PROVIDERS_OPTION = 'kk_gold_brand_providers';
+
+    /** Option holding the fallback provider per gold symbol (symbol => provider id or ''). */
+    public const FALLBACKS_OPTION = 'kk_gold_brand_fallback_providers';
+
     /** @return array<string, string> Brand slug => display name. */
     public static function brands(): array
     {
@@ -103,6 +109,186 @@ final class Gold
     public static function isEnabled(): bool
     {
         return Markets::isEnabled();
+    }
+
+    /**
+     * Every gold symbol the site can price: the spot row first, then
+     * the brands in registry order. The Gold Prices page lists exactly
+     * these rows, one provider choice per row.
+     *
+     * @return array<string, string> Symbol slug => display name.
+     */
+    public static function goldSymbols(): array
+    {
+        return array_merge(['spot' => __('Gold spot', 'koperasikita')], self::brands());
+    }
+
+    /**
+     * Providers that can actually supply one gold symbol, id => label,
+     * derived from each provider's own supplies() — never a hardcoded
+     * list in the template. Manual can supply everything; Xaus only
+     * spot; Scraped covers spot + five brands; Logam Mulia API covers
+     * five brands, no spot; Hartadinata, King Halim and EmasKita have
+     * no live source, so Manual is their only choice.
+     *
+     * @return array<string, string>
+     */
+    public static function providerChoicesForBrand(string $symbol): array
+    {
+        $symbol = sanitize_key($symbol);
+        $choices = [];
+
+        foreach (Markets::providers() as $id => $provider) {
+            if (!$provider->supports('gold')) {
+                continue;
+            }
+
+            $supplies = $provider->supplies('gold');
+
+            if (isset($supplies[$symbol])) {
+                $choices[$id] = $provider->label();
+            }
+        }
+
+        // Manual is always available (it supplies every symbol), so a
+        // brand with no live source still has exactly one choice.
+        if (!isset($choices['manual'])) {
+            $choices = ['manual' => __('Manual', 'koperasikita')] + $choices;
+        }
+
+        return $choices;
+    }
+
+    /**
+     * Fallback choices for one brand: the providers that can supply
+     * it, minus the primary, plus "None". The fallback is only tried
+     * when the primary returns no price for the brand.
+     *
+     * @return array<string, string> Provider id ('' = none) => label.
+     */
+    public static function fallbackChoicesForBrand(string $symbol, string $primary): array
+    {
+        $choices = ['' => __('None', 'koperasikita')];
+
+        foreach (self::providerChoicesForBrand($symbol) as $id => $label) {
+            if ($id !== $primary) {
+                $choices[$id] = $label;
+            }
+        }
+
+        return $choices;
+    }
+
+    /** The display label of one provider id (the id itself when unknown). */
+    public static function providerLabel(string $providerId): string
+    {
+        $providers = Markets::providers();
+
+        return isset($providers[$providerId]) ? $providers[$providerId]->label() : $providerId;
+    }
+
+    /**
+     * The provider per gold symbol (symbol => provider id).
+     *
+     * The admin picks one per brand on the Gold Prices page; a symbol
+     * with no saved choice migrates from the old single global gold
+     * provider (kk_markets_settings providers.gold) when that provider
+     * can supply it, and falls back to Manual otherwise. Nothing is
+     * written on read — the migration is computed, so a fresh install
+     * and an upgraded install behave the same without a data migration.
+     *
+     * @return array<string, string>
+     */
+    public static function brandProviders(): array
+    {
+        $symbols = array_keys(self::goldSymbols());
+        $stored = get_option(self::PROVIDERS_OPTION, []);
+        $stored = is_array($stored) ? $stored : [];
+        $legacy = Markets::settings()['providers']['gold'] ?? 'manual';
+
+        $map = [];
+
+        foreach ($symbols as $symbol) {
+            $chosen = isset($stored[$symbol]) ? sanitize_key((string) $stored[$symbol]) : '';
+            $choices = self::providerChoicesForBrand($symbol);
+
+            if ($chosen !== '' && isset($choices[$chosen])) {
+                $map[$symbol] = $chosen;
+                continue;
+            }
+
+            $map[$symbol] = isset($choices[$legacy]) ? $legacy : 'manual';
+        }
+
+        return $map;
+    }
+
+    /** The provider supplying one gold symbol (primary choice). */
+    public static function brandProvider(string $symbol): string
+    {
+        $map = self::brandProviders();
+
+        return $map[sanitize_key($symbol)] ?? 'manual';
+    }
+
+    /**
+     * The fallback provider per gold symbol (symbol => provider id,
+     * '' = none). A saved fallback that cannot supply the symbol, or
+     * that equals the primary, is dropped on read.
+     *
+     * @return array<string, string>
+     */
+    public static function brandFallbackProviders(): array
+    {
+        $stored = get_option(self::FALLBACKS_OPTION, []);
+        $stored = is_array($stored) ? $stored : [];
+        $primaries = self::brandProviders();
+
+        $map = [];
+
+        foreach (array_keys(self::goldSymbols()) as $symbol) {
+            $fallback = isset($stored[$symbol]) ? sanitize_key((string) $stored[$symbol]) : '';
+            $choices = self::fallbackChoicesForBrand($symbol, $primaries[$symbol] ?? 'manual');
+            $map[$symbol] = isset($choices[$fallback]) && $fallback !== '' ? $fallback : '';
+        }
+
+        return $map;
+    }
+
+    /** The fallback provider for one gold symbol ('' = none). */
+    public static function brandFallbackProvider(string $symbol): string
+    {
+        $map = self::brandFallbackProviders();
+
+        return $map[sanitize_key($symbol)] ?? '';
+    }
+
+    /**
+     * Save the per-brand provider + fallback maps. Unknown symbols
+     * are dropped, a provider that cannot supply its brand falls back
+     * to Manual, and a fallback that cannot supply the brand — or
+     * that equals the primary — becomes "none".
+     *
+     * @param array<string, string> $providers Symbol => provider id.
+     * @param array<string, string> $fallbacks Symbol => provider id or ''.
+     */
+    public static function setBrandProviders(array $providers, array $fallbacks): void
+    {
+        $cleanProviders = [];
+        $cleanFallbacks = [];
+
+        foreach (array_keys(self::goldSymbols()) as $symbol) {
+            $choices = self::providerChoicesForBrand($symbol);
+            $chosen = isset($providers[$symbol]) ? sanitize_key((string) $providers[$symbol]) : '';
+            $cleanProviders[$symbol] = isset($choices[$chosen]) ? $chosen : 'manual';
+
+            $fallbackChoices = self::fallbackChoicesForBrand($symbol, $cleanProviders[$symbol]);
+            $fallback = isset($fallbacks[$symbol]) ? sanitize_key((string) $fallbacks[$symbol]) : '';
+            $cleanFallbacks[$symbol] = isset($fallbackChoices[$fallback]) && $fallback !== '' ? $fallback : '';
+        }
+
+        update_option(self::PROVIDERS_OPTION, $cleanProviders);
+        update_option(self::FALLBACKS_OPTION, $cleanFallbacks);
     }
 
     /**

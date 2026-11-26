@@ -478,9 +478,23 @@ final class Enqueue
             if ($js !== '') {
                 wp_enqueue_script('kk-admin', $js, [], KK_VERSION, true);
 
+                // The manual gold sync progress strings (admin.ts
+                // initGoldSync) and the shared admin strings, so the
+                // progress lines are translated in the admin language.
                 wp_localize_script('kk-admin', 'kkAdminData', [
                     'ajaxUrl' => admin_url('admin-ajax.php'),
                     'nonce' => wp_create_nonce('koperasikita_nonce'),
+                    'strings' => [
+                        'ready' => __('Ready', 'koperasikita'),
+                        'failed' => __('Failed: %s', 'koperasikita'),
+                        'notDownloaded' => __('Not downloaded yet', 'koperasikita'),
+                        'downloadFailed' => __('Download failed.', 'koperasikita'),
+                        'adminDataMissing' => __('Admin data is not available.', 'koperasikita'),
+                        'syncingSource' => __('Syncing %s…', 'koperasikita'),
+                        'syncStepDone' => __('%s: inserted %s, skipped %s', 'koperasikita'),
+                        'syncStepLatest' => __(' (latest %s)', 'koperasikita'),
+                        'syncDone' => __('Done — inserted %s, skipped %s (already in database). Reloading…', 'koperasikita'),
+                    ],
                 ]);
             }
 

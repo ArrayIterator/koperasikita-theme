@@ -11,18 +11,24 @@ use KoperasiKita\Providers\LogamMuliaApiProvider;
 
 /**
  * Settings -> Gold Prices: the management page for the Logam Mulia
- * gold price sync, with three tabs.
+ * gold price sync, with four tabs.
  *
  * "Prices" shows the sync status (last sync, latest recorded date,
  * which symbols are stored, the failure backlog), a manual sync
- * button that steps through the sources one at a time via AJAX,
- * and which provider is active for gold. "Enabled Gold Brands" is
- * the master switch for which gold brands the site shows — a
- * disabled brand is hidden from the Gold widget and from the
- * widget's Brands to show picker. "History" shows the stored price
- * history as both a list (table) and a dependency-free inline SVG
- * line chart (one line per brand). Uses WP admin styles only — no
- * heavy custom CSS.
+ * button that steps through the enabled sources one at a time via
+ * AJAX with a real progress bar, and the per-brand provider table:
+ * one row per gold brand (plus spot), each with its own provider
+ * and fallback provider — only providers that can actually supply
+ * that brand are listed. "Settings" holds the automatic sync
+ * schedule (how often, days per run, timeout) and the sync source
+ * list: which Logam Mulia CSV sources the sync imports, with a
+ * default source that runs first — manual and automatic sync both
+ * follow it. "Enabled Gold Brands" is the master switch for which
+ * gold brands the site shows — a disabled brand is hidden from the
+ * Gold widget and from the widget's Brands to show picker.
+ * "History" shows the stored price history as both a list (table)
+ * and a dependency-free inline SVG line chart (one line per
+ * brand). Uses WP admin styles only — no heavy custom CSS.
  */
 final class GoldPricesPage
 {
@@ -63,12 +69,12 @@ final class GoldPricesPage
         }
 
         self::handleBrandsSave();
-        self::handleProviderSave();
+        self::handleBrandProvidersSave();
         self::handleSyncSettingsSave();
 
         // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- tab is display-only.
         $tab = isset($_GET['tab']) ? sanitize_key((string) wp_unslash($_GET['tab'])) : 'prices';
-        $tab = in_array($tab, ['prices', 'brands', 'history'], true) ? $tab : 'prices';
+        $tab = in_array($tab, ['prices', 'brands', 'history', 'settings'], true) ? $tab : 'prices';
         $brands = Gold::brands();
         $pageUrl = admin_url('admin.php?page=' . self::PAGE_SLUG);
         ?>
@@ -76,6 +82,7 @@ final class GoldPricesPage
             <h1><?php esc_html_e('Gold Prices', 'koperasikita'); ?></h1>
             <h2 class="nav-tab-wrapper">
                 <a href="<?php echo esc_url(add_query_arg('tab', 'prices', $pageUrl)); ?>" class="nav-tab<?php echo $tab === 'prices' ? ' nav-tab-active' : ''; ?>"><?php esc_html_e('Prices', 'koperasikita'); ?></a>
+                <a href="<?php echo esc_url(add_query_arg('tab', 'settings', $pageUrl)); ?>" class="nav-tab<?php echo $tab === 'settings' ? ' nav-tab-active' : ''; ?>"><?php esc_html_e('Settings', 'koperasikita'); ?></a>
                 <a href="<?php echo esc_url(add_query_arg('tab', 'brands', $pageUrl)); ?>" class="nav-tab<?php echo $tab === 'brands' ? ' nav-tab-active' : ''; ?>"><?php esc_html_e('Enabled Gold Brands', 'koperasikita'); ?></a>
                 <a href="<?php echo esc_url(add_query_arg('tab', 'history', $pageUrl)); ?>" class="nav-tab<?php echo $tab === 'history' ? ' nav-tab-active' : ''; ?>"><?php esc_html_e('History', 'koperasikita'); ?></a>
             </h2>
@@ -83,6 +90,8 @@ final class GoldPricesPage
                 <?php self::renderBrandsTab($brands); ?>
             <?php elseif ($tab === 'history') : ?>
                 <?php self::renderHistoryTab($brands); ?>
+            <?php elseif ($tab === 'settings') : ?>
+                <?php self::renderSettingsTab(); ?>
             <?php else : ?>
                 <?php self::renderPricesTab($brands); ?>
             <?php endif; ?>
@@ -123,13 +132,15 @@ final class GoldPricesPage
     }
 
     /**
-     * Save the gold provider form (Prices tab): nonce + capability
+     * Save the per-brand provider form (Prices tab): nonce + capability
      * checked, then redirect back with a saved flag so a refresh
-     * never resubmits the form.
+     * never resubmits the form. Validation lives in
+     * Gold::setBrandProviders() — a provider that cannot supply its
+     * brand is dropped to Manual there.
      */
-    private static function handleProviderSave(): void
+    private static function handleBrandProvidersSave(): void
     {
-        if (!isset($_POST['kk_gold_provider_nonce'])) {
+        if (!isset($_POST['kk_gold_brand_providers_nonce'])) {
             return;
         }
 
@@ -137,24 +148,43 @@ final class GoldPricesPage
             wp_die(esc_html__('You do not have permission to access this page.', 'koperasikita'));
         }
 
-        check_admin_referer('kk_gold_provider', 'kk_gold_provider_nonce');
+        check_admin_referer('kk_gold_brand_providers', 'kk_gold_brand_providers_nonce');
 
         // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- sanitised below.
-        $provider = isset($_POST['kk_gold_provider']) ? sanitize_key((string) wp_unslash($_POST['kk_gold_provider'])) : 'manual';
-        Markets::setProvider('gold', $provider);
+        $rawProviders = isset($_POST['kk_brand_provider']) && is_array($_POST['kk_brand_provider'])
+            ? wp_unslash($_POST['kk_brand_provider'])
+            : [];
+        // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- sanitised below.
+        $rawFallbacks = isset($_POST['kk_brand_fallback']) && is_array($_POST['kk_brand_fallback'])
+            ? wp_unslash($_POST['kk_brand_fallback'])
+            : [];
+
+        $providers = [];
+        foreach ($rawProviders as $symbol => $provider) {
+            $providers[sanitize_key((string) $symbol)] = sanitize_key((string) $provider);
+        }
+
+        $fallbacks = [];
+        foreach ($rawFallbacks as $symbol => $provider) {
+            $fallbacks[sanitize_key((string) $symbol)] = sanitize_key((string) $provider);
+        }
+
+        Gold::setBrandProviders($providers, $fallbacks);
 
         wp_safe_redirect(add_query_arg(
-            ['tab' => 'prices', 'provider_saved' => '1'],
+            ['tab' => 'prices', 'brand_providers_saved' => '1'],
             admin_url('admin.php?page=' . self::PAGE_SLUG)
         ));
         exit;
     }
 
     /**
-     * Save the automatic sync settings form (Prices tab): nonce +
+     * Save the sync settings form (Settings tab): nonce +
      * capability checked, then redirect back with a saved flag so
      * a refresh never resubmits the form. Saving reschedules the
-     * WP-Cron event to match (see LogamMuliaApiProvider).
+     * WP-Cron event to match (see LogamMuliaApiProvider). The
+     * source checkboxes submit only when ticked, so an absent
+     * list means "none enabled" on purpose, not "unchanged".
      */
     private static function handleSyncSettingsSave(): void
     {
@@ -171,15 +201,26 @@ final class GoldPricesPage
         // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- sanitised below.
         $raw = wp_unslash($_POST);
 
+        // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- sanitised below.
+        $rawSources = isset($raw['kk_sync_sources']) && is_array($raw['kk_sync_sources'])
+            ? $raw['kk_sync_sources']
+            : [];
+        $syncSources = array_values(array_map(
+            'sanitize_key',
+            array_map('strval', $rawSources)
+        ));
+
         LogamMuliaApiProvider::saveSyncSettings([
             'enabled' => isset($raw['kk_sync_enabled']),
             'interval_hours' => isset($raw['kk_sync_interval']) ? (int) $raw['kk_sync_interval'] : 24,
             'batch_days' => isset($raw['kk_sync_batch']) ? (int) $raw['kk_sync_batch'] : 7,
             'timeout' => isset($raw['kk_sync_timeout']) ? (int) $raw['kk_sync_timeout'] : 8,
+            'sync_sources' => $syncSources,
+            'default_source' => isset($raw['kk_sync_default']) ? (string) $raw['kk_sync_default'] : '',
         ]);
 
         wp_safe_redirect(add_query_arg(
-            ['tab' => 'prices', 'sync_settings_saved' => '1'],
+            ['tab' => 'settings', 'sync_settings_saved' => '1'],
             admin_url('admin.php?page=' . self::PAGE_SLUG)
         ));
         exit;
@@ -226,72 +267,123 @@ final class GoldPricesPage
     }
 
     /**
-     * Prices tab: the sync status, manual sync and active provider.
-     * The price history lives on its own History tab.
+     * Prices tab: the sync status, manual sync with progress, and
+     * the per-brand provider table. The automatic sync schedule
+     * and the sync source list live on their own Settings
+     * tab. The price history lives on its own History tab.
      *
      * @param array<string, string> $brands Slug => label.
      */
     private static function renderPricesTab(array $brands): void
     {
         $status = LogamMuliaApiProvider::status();
-        $active = Markets::providerFor('gold');
         ?>
-        <p><?php esc_html_e('Daily gold prices from the Logam Mulia API price history (backup/prices CSV on GitHub). The sync runs automatically via WP-Cron on the schedule below and only inserts rows that are not in the database yet — one row per brand per day. Use the button below to sync on demand.', 'koperasikita'); ?></p>
+        <p><?php esc_html_e('Daily gold prices from the Logam Mulia API price history (backup/prices CSV on GitHub). The sync runs automatically via WP-Cron on the schedule in Settings and only inserts rows that are not in the database yet — one row per brand per day. Use the button below to sync on demand.', 'koperasikita'); ?></p>
 
         <h2><?php esc_html_e('Sync status', 'koperasikita'); ?></h2>
         <?php self::renderStatus($status); ?>
 
         <h2><?php esc_html_e('Manual sync', 'koperasikita'); ?></h2>
+        <?php self::renderManualSync(); ?>
+
+        <h2><?php esc_html_e('Gold price providers', 'koperasikita'); ?></h2>
+        <?php self::renderBrandProvidersTable(); ?>
+        <?php
+    }
+
+    /**
+     * The manual sync block, shared by the Prices tab and the
+     * Settings tab (only one tab renders per page load, so
+     * there is ever one button on the page). The button syncs
+     * ONLY the enabled sources, default first — see
+     * LogamMuliaApiProvider::enabledSyncSources(). With no source
+     * enabled the button is disabled with an honest note, so it
+     * can never be clicked to no effect. The progress bar + step
+     * list are filled by admin.ts (initGoldSync) as each source
+     * finishes; a failed source is reported on its own line and
+     * does not stop the rest.
+     */
+    private static function renderManualSync(): void
+    {
+        $enabled = LogamMuliaApiProvider::enabledSyncSources();
+        ?>
         <p>
-            <button type="button" class="button button-primary" data-kk-gold-sync><?php esc_html_e('Sync now', 'koperasikita'); ?></button>
+            <button type="button" class="button button-primary" data-kk-gold-sync <?php disabled(empty($enabled)); ?>><?php esc_html_e('Sync now', 'koperasikita'); ?></button>
         </p>
-        <div data-kk-gold-sync-result role="status" aria-live="polite"></div>
-
-        <h2><?php esc_html_e('Gold price provider', 'koperasikita'); ?></h2>
-        <?php
-        // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- saved flag is display-only.
-        $providerSaved = isset($_GET['provider_saved']) && $_GET['provider_saved'] === '1';
-        $currentProvider = Markets::settings()['providers']['gold'] ?? 'manual';
-        if ($providerSaved) :
-            ?>
-            <div class="notice notice-success inline"><p><?php esc_html_e('Gold provider saved.', 'koperasikita'); ?></p></div>
+        <?php if ($enabled === []) : ?>
+            <p><?php esc_html_e('No sync source is enabled. Enable one in Settings.', 'koperasikita'); ?></p>
         <?php endif; ?>
-        <form method="post" action="<?php echo esc_url(admin_url('admin.php?page=' . self::PAGE_SLUG . '&tab=prices')); ?>">
-            <?php wp_nonce_field('kk_gold_provider', 'kk_gold_provider_nonce'); ?>
-            <p>
-                <label for="kk-gold-provider"><?php esc_html_e('Source for gold prices in the widget and market strip.', 'koperasikita'); ?></label><br>
-                <select id="kk-gold-provider" name="kk_gold_provider">
-                    <?php foreach (Markets::providerChoices('gold') as $id => $label) : ?>
-                        <option value="<?php echo esc_attr($id); ?>" <?php selected($currentProvider, $id); ?>>
-                            <?php echo esc_html($label); ?>
-                        </option>
-                    <?php endforeach; ?>
-                </select>
-                <?php submit_button(__('Save provider', 'koperasikita'), 'secondary', 'submit', false); ?>
-            </p>
-            <p class="description">
-                <?php
-                printf(
-                    /* translators: %s: provider label. */
-                    esc_html__('Gold prices on the site currently come from: %s.', 'koperasikita'),
-                    '<strong>' . esc_html($active->label()) . '</strong>'
-                );
-                ?>
-            </p>
-        </form>
-
-        <h2><?php esc_html_e('Automatic sync', 'koperasikita'); ?></h2>
+        <div data-kk-gold-sync-progress hidden>
+            <p><progress data-kk-gold-sync-bar max="100" value="0" style="width: 100%; max-width: 30rem;"></progress></p>
+            <p data-kk-gold-sync-status role="status" aria-live="polite"></p>
+            <ul data-kk-gold-sync-steps></ul>
+        </div>
+        <div data-kk-gold-sync-result role="status" aria-live="polite"></div>
         <?php
+    }
+
+    /**
+     * Settings tab: the sync source list (which Logam Mulia
+     * CSV sources the sync imports, and which one runs first) and
+     * the automatic sync schedule — one form, one save. Manual
+     * and automatic sync both follow the same enabled list.
+     */
+    private static function renderSettingsTab(): void
+    {
+        $sync = LogamMuliaApiProvider::syncSettings();
+        $status = LogamMuliaApiProvider::status();
+        $nextRun = wp_next_scheduled(LogamMuliaApiProvider::CRON_HOOK);
+        $labels = LogamMuliaApiProvider::sourceLabels();
+        $descriptions = LogamMuliaApiProvider::sourceDescriptions();
         // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- saved flag is display-only.
         $syncSettingsSaved = isset($_GET['sync_settings_saved']) && $_GET['sync_settings_saved'] === '1';
-        $sync = LogamMuliaApiProvider::syncSettings();
-        $nextRun = wp_next_scheduled(LogamMuliaApiProvider::CRON_HOOK);
-        if ($syncSettingsSaved) :
-            ?>
+        ?>
+        <p><?php esc_html_e('Choose which Logam Mulia sources the sync imports. Only enabled sources are synced, manually and automatically. The default source is synced first.', 'koperasikita'); ?></p>
+
+        <h2><?php esc_html_e('Manual sync', 'koperasikita'); ?></h2>
+        <?php self::renderManualSync(); ?>
+
+        <h2><?php esc_html_e('Sync sources', 'koperasikita'); ?></h2>
+        <?php if ($syncSettingsSaved) : ?>
             <div class="notice notice-success inline"><p><?php esc_html_e('Automatic sync settings saved.', 'koperasikita'); ?></p></div>
         <?php endif; ?>
-        <form method="post" action="<?php echo esc_url(admin_url('admin.php?page=' . self::PAGE_SLUG . '&tab=prices')); ?>">
+        <p data-kk-gold-sync-running hidden><em><?php esc_html_e('A manual sync is running. Automatic sync settings are paused until it finishes.', 'koperasikita'); ?></em></p>
+        <form method="post" data-kk-gold-sync-settings action="<?php echo esc_url(admin_url('admin.php?page=' . self::PAGE_SLUG . '&tab=settings')); ?>">
             <?php wp_nonce_field('kk_gold_sync_settings', 'kk_gold_sync_settings_nonce'); ?>
+            <table class="widefat striped">
+                <thead>
+                    <tr>
+                        <th><?php esc_html_e('Source', 'koperasikita'); ?></th>
+                        <th><?php esc_html_e('Imports', 'koperasikita'); ?></th>
+                        <th><?php esc_html_e('Enabled', 'koperasikita'); ?></th>
+                        <th><?php esc_html_e('Default', 'koperasikita'); ?></th>
+                        <th><?php esc_html_e('Last sync', 'koperasikita'); ?></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php foreach (LogamMuliaApiProvider::SOURCES as $source) : ?>
+                        <?php
+                        $sourceStatus = $status['sources'][$source] ?? [];
+                        $lastSync = isset($sourceStatus['synced_at']) && $sourceStatus['synced_at'] !== null
+                            ? date_i18n(get_option('date_format', 'Y-m-d') . ' ' . get_option('time_format', 'H:i'), (int) $sourceStatus['synced_at'])
+                            : __('Never', 'koperasikita');
+                        ?>
+                        <tr>
+                            <td><strong><?php echo esc_html($labels[$source] ?? $source); ?></strong></td>
+                            <td><?php echo esc_html($descriptions[$source] ?? ''); ?></td>
+                            <td>
+                                <input type="checkbox" name="kk_sync_sources[]" value="<?php echo esc_attr($source); ?>" <?php checked(in_array($source, $sync['sync_sources'], true)); ?> aria-label="<?php echo esc_attr(sprintf(__('Sync %s', 'koperasikita'), $labels[$source] ?? $source)); ?>">
+                            </td>
+                            <td>
+                                <input type="radio" name="kk_sync_default" value="<?php echo esc_attr($source); ?>" <?php checked($sync['default_source'], $source); ?> aria-label="<?php echo esc_attr(sprintf(__('Default source: %s', 'koperasikita'), $labels[$source] ?? $source)); ?>">
+                            </td>
+                            <td><?php echo esc_html($lastSync); ?></td>
+                        </tr>
+                    <?php endforeach; ?>
+                </tbody>
+            </table>
+
+            <h2><?php esc_html_e('Automatic sync', 'koperasikita'); ?></h2>
             <table class="form-table" role="presentation">
                 <tbody>
                     <tr>
@@ -347,6 +439,101 @@ final class GoldPricesPage
                 </tbody>
             </table>
             <?php submit_button(__('Save sync settings', 'koperasikita'), 'secondary'); ?>
+        </form>
+        <?php
+    }
+
+    /**
+     * Per-brand provider table: one row per gold symbol (spot first,
+     * then the brands in registry order). Each row shows the current
+     * price + when it was updated, which provider actually supplied
+     * it, and two selects: the provider and the fallback provider.
+     * A select only lists providers that can actually supply that
+     * brand — a brand with no live source (Hartadinata, King Halim,
+     * EmasKita) offers Manual only. When the primary has no price,
+     * the fallback is tried automatically.
+     */
+    private static function renderBrandProvidersTable(): void
+    {
+        // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- saved flag is display-only.
+        $saved = isset($_GET['brand_providers_saved']) && $_GET['brand_providers_saved'] === '1';
+        $symbols = Gold::goldSymbols();
+        $primaries = Gold::brandProviders();
+        $fallbacks = Gold::brandFallbackProviders();
+        $prices = Markets::prices('gold');
+        ?>
+        <?php if ($saved) : ?>
+            <div class="notice notice-success inline"><p><?php esc_html_e('Brand providers saved.', 'koperasikita'); ?></p></div>
+        <?php endif; ?>
+        <p><?php esc_html_e('Choose which provider supplies the price for each brand. Only providers that can actually supply that brand are listed. When the primary provider has no price for a brand, its fallback provider is tried automatically. A brand neither provider can price shows no price on the site.', 'koperasikita'); ?></p>
+        <form method="post" action="<?php echo esc_url(admin_url('admin.php?page=' . self::PAGE_SLUG . '&tab=prices')); ?>">
+            <?php wp_nonce_field('kk_gold_brand_providers', 'kk_gold_brand_providers_nonce'); ?>
+            <div class="kk-gold-brand-providers-wrap">
+            <table class="widefat striped kk-gold-brand-providers">
+                <thead>
+                    <tr>
+                        <th><?php esc_html_e('Brand', 'koperasikita'); ?></th>
+                        <th><?php esc_html_e('Current price', 'koperasikita'); ?></th>
+                        <th><?php esc_html_e('Updated', 'koperasikita'); ?></th>
+                        <th><?php esc_html_e('Provider', 'koperasikita'); ?></th>
+                        <th><?php esc_html_e('Fallback', 'koperasikita'); ?></th>
+                        <th><?php esc_html_e('Supplied by', 'koperasikita'); ?></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php foreach ($symbols as $symbol => $label) : ?>
+                        <?php
+                        $price = $prices[$symbol] ?? null;
+                        $primary = $primaries[$symbol] ?? 'manual';
+                        $fallback = $fallbacks[$symbol] ?? '';
+                        ?>
+                        <tr>
+                            <td><strong><?php echo esc_html($label); ?></strong></td>
+                            <td>
+                                <?php if ($price !== null && $price->hasData()) : ?>
+                                    <?php echo esc_html(Markets::formatPrice((float) $price->price, $price->currency)); ?>
+                                <?php else : ?>
+                                    <?php esc_html_e('No data', 'koperasikita'); ?>
+                                <?php endif; ?>
+                            </td>
+                            <td>
+                                <?php if ($price !== null && $price->hasData() && $price->updated > 0) : ?>
+                                    <?php echo esc_html(date_i18n(get_option('date_format', 'Y-m-d') . ' ' . get_option('time_format', 'H:i'), $price->updated)); ?>
+                                <?php else : ?>
+                                    —
+                                <?php endif; ?>
+                            </td>
+                            <td>
+                                <select name="kk_brand_provider[<?php echo esc_attr($symbol); ?>]" aria-label="<?php echo esc_attr(sprintf(__('Provider for %s', 'koperasikita'), $label)); ?>">
+                                    <?php foreach (Gold::providerChoicesForBrand($symbol) as $id => $choiceLabel) : ?>
+                                        <option value="<?php echo esc_attr($id); ?>" <?php selected($primary, $id); ?>>
+                                            <?php echo esc_html($choiceLabel); ?>
+                                        </option>
+                                    <?php endforeach; ?>
+                                </select>
+                            </td>
+                            <td>
+                                <select name="kk_brand_fallback[<?php echo esc_attr($symbol); ?>]" aria-label="<?php echo esc_attr(sprintf(__('Fallback provider for %s', 'koperasikita'), $label)); ?>">
+                                    <?php foreach (Gold::fallbackChoicesForBrand($symbol, $primary) as $id => $choiceLabel) : ?>
+                                        <option value="<?php echo esc_attr($id); ?>" <?php selected($fallback, $id); ?>>
+                                            <?php echo esc_html($choiceLabel); ?>
+                                        </option>
+                                    <?php endforeach; ?>
+                                </select>
+                            </td>
+                            <td>
+                                <?php if ($price !== null && $price->hasData() && $price->provider !== '') : ?>
+                                    <?php echo esc_html(Gold::providerLabel($price->provider)); ?>
+                                <?php else : ?>
+                                    —
+                                <?php endif; ?>
+                            </td>
+                        </tr>
+                    <?php endforeach; ?>
+                </tbody>
+            </table>
+            </div>
+            <?php submit_button(__('Save brand providers', 'koperasikita'), 'secondary'); ?>
         </form>
         <?php
     }
