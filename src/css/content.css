@@ -239,7 +239,7 @@
 }
 
 .kk-article-title {
-	font-size: var(--kk-title-size);
+	font-size: var(--kk-single-title-size);
 	margin: 8px 0 12px;
 }
 

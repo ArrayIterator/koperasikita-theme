@@ -34,10 +34,14 @@ final class Customizer
      * of their sanitize callbacks. The article-list thumbnail size lives
      * here too (same mechanism, different section: Appearance &
      * Accessibility, not Typography). So do the mobile bottom-nav sizes
-     * (Mobile Menu section, not Typography).
+     * (Mobile Menu section, not Typography) and the single-post title
+     * size (Single Post section, not Typography — it is its own
+     * setting because the article title must be sized independently
+     * of the page/archive title).
      */
     private const SIZE_SETTINGS = [
         'kk_title_size' => ['--kk-title-size', 40, 24, 72],
+        'kk_single_title_size' => ['--kk-single-title-size', 40, 24, 72],
         'kk_card_title_size' => ['--kk-card-title-size', 20, 14, 32],
         'kk_excerpt_size' => ['--kk-excerpt-size', 14, 12, 20],
         'kk_list_thumbnail_size' => ['--kk-list-thumb-size', 180, 80, 200],
@@ -1311,6 +1315,24 @@ final class Customizer
             'section' => 'koperasikita_accessibility',
             'type' => 'number',
             'input_attrs' => ['min' => 80, 'max' => 200],
+        ]);
+
+        /* Single-post title size: the article title (single.php and
+         * single-agenda.php) has its own setting in the Single Post
+         * section. It used to share --kk-title-size with the
+         * page/archive title, so the two could never be sized apart. */
+        self::addSetting(
+            $wpCustomize,
+            'kk_single_title_size',
+            40,
+            static fn ($value) => self::clampInt($value, 24, 72),
+            'postMessage'
+        );
+        $wpCustomize->add_control('kk_single_title_size', [
+            'label' => esc_html__('Single Post Title Size', 'koperasikita'),
+            'section' => 'koperasikita_single',
+            'type' => 'number',
+            'input_attrs' => ['min' => 24, 'max' => 72],
         ]);
 
         /* Related-post count: how many related stories the single

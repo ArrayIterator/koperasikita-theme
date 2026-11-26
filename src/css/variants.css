@@ -156,6 +156,7 @@ html[data-color-scheme="dark"] .kk-logo--dark {
 
 body.kk-variant-compact {
 	--kk-title-size: 32px;
+	--kk-single-title-size: 32px;
 	--kk-card-title-size: 17px;
 	--kk-excerpt-size: 13px;
 	line-height: 1.45;
@@ -385,6 +386,7 @@ body.kk-variant-compact .kk-button {
 
 body.kk-variant-bold {
 	--kk-title-size: 48px;
+	--kk-single-title-size: 48px;
 	--kk-card-title-size: 24px;
 	--kk-excerpt-size: 15px;
 }

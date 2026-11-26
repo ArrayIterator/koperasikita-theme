@@ -2992,3 +2992,7 @@ msgstr "File SVG ini tidak bisa dibaca."
 #: inc/Features/Logo.php:179
 msgid "This SVG file contains active content and cannot be uploaded. Use a plain image SVG."
 msgstr "File SVG ini mengandung konten aktif dan tidak bisa diunggah. Gunakan SVG gambar biasa."
+
+#: inc/Customizer/Customizer.php:1332
+msgid "Single Post Title Size"
+msgstr "Ukuran Judul Single Post"
