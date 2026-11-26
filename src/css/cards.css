@@ -92,13 +92,13 @@
 	margin: 6px 0 8px;
 	/* A single unbroken word (e.g. the 85-letter Maori place name on
 	 * the Theme Unit Test post) must break across lines instead of
-	 * overflowing the card — the line-clamp still caps it at 3. */
+	 * overflowing the card — the line-clamp still caps it at 2. */
 	overflow-wrap: break-word;
 	word-break: break-word;
-	/* Long titles wrap to 4+ lines and make rows uneven; clamp to 3
+	/* Long titles wrap to 3+ lines and make rows uneven; clamp to 2
 	 * with an ellipsis so every card stays the same height. */
 	display: -webkit-box;
-	-webkit-line-clamp: 3;
+	-webkit-line-clamp: 2;
 	-webkit-box-orient: vertical;
 	overflow: hidden;
 }
@@ -126,7 +126,7 @@
 	color: var(--kk-muted);
 	margin-bottom: 10px;
 	display: -webkit-box;
-	-webkit-line-clamp: 3;
+	-webkit-line-clamp: 2;
 	-webkit-box-orient: vertical;
 	overflow: hidden;
 }

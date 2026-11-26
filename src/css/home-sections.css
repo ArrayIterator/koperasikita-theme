@@ -422,9 +422,9 @@
 	font-size: 22px;
 }
 
-/* Longer excerpts: the excerpt fills most of the card, like the shot. */
+/* Home card excerpts clamp to 2 like every other card/list excerpt. */
 .kk-home .kk-card-excerpt {
-	-webkit-line-clamp: 6;
+	-webkit-line-clamp: 2;
 }
 
 /* --- Highlights ("Sorotan") ------------------------------------------------ */
