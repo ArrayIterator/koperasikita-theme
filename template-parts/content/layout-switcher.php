@@ -6,7 +6,7 @@
  */
 
 $current_layout = get_theme_mod( 'kk_homepage_layout', 'grid' );
-$current_layout = in_array( $current_layout, array( 'grid', 'list', 'newsletter' ), true ) ? $current_layout : 'grid';
+$current_layout = in_array( $current_layout, array( 'grid', 'list', 'featured', 'newsletter' ), true ) ? $current_layout : 'grid';
 ?>
 
 <div class="kk-layout-switcher" role="group" aria-label="<?php esc_attr_e( 'Layout', 'koperasikita' ); ?>">
@@ -17,6 +17,10 @@ $current_layout = in_array( $current_layout, array( 'grid', 'list', 'newsletter'
 	<button type="button" class="kk-layout-button<?php echo 'list' === $current_layout ? ' is-active' : ''; ?>" data-kk-layout="list" aria-pressed="<?php echo 'list' === $current_layout ? 'true' : 'false'; ?>">
 		<?php echo \KoperasiKita\Icons\Icon::svg( 'list', 16 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 		<span><?php esc_html_e( 'List', 'koperasikita' ); ?></span>
+	</button>
+	<button type="button" class="kk-layout-button<?php echo 'featured' === $current_layout ? ' is-active' : ''; ?>" data-kk-layout="featured" aria-pressed="<?php echo 'featured' === $current_layout ? 'true' : 'false'; ?>">
+		<?php echo \KoperasiKita\Icons\Icon::svg( 'star', 16 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+		<span><?php esc_html_e( 'Featured', 'koperasikita' ); ?></span>
 	</button>
 	<button type="button" class="kk-layout-button<?php echo 'newsletter' === $current_layout ? ' is-active' : ''; ?>" data-kk-layout="newsletter" aria-pressed="<?php echo 'newsletter' === $current_layout ? 'true' : 'false'; ?>">
 		<?php echo \KoperasiKita\Icons\Icon::svg( 'mail', 16 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>

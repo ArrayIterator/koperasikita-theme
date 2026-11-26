@@ -1,0 +1,141 @@
+/* ==========================================================================
+   Koperasi Kita — customizer-controls.css — Customizer controls pane
+   Styles for the Customizer-only controls: the searchable term select
+   (Select2-style, no jQuery) and the term checkbox filter. These run
+   only in the Customizer controls pane, never on the frontend.
+   ========================================================================== */
+
+/* --- Searchable term select ------------------------------------------------ */
+/* A trigger button (looks like a native select) + an absolutely
+ * positioned panel with a search field and a scrollable option list. */
+
+.kk-term-select {
+	position: relative;
+}
+
+.kk-term-select-trigger {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 8px;
+	width: 100%;
+	min-height: 30px;
+	padding: 4px 8px;
+	border: 1px solid #8c8f94;
+	border-radius: 3px;
+	background: #fff;
+	color: #2c3338;
+	font-size: 13px;
+	text-align: left;
+	cursor: pointer;
+}
+
+.kk-term-select-trigger:hover {
+	border-color: #0B6B3A;
+}
+
+.kk-term-select-trigger:focus-visible {
+	outline: 2px solid #0B6B3A;
+	outline-offset: 1px;
+}
+
+.kk-term-select-value {
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+/* Chevron: a small down caret drawn with borders. */
+.kk-term-select-chevron {
+	flex: 0 0 auto;
+	width: 0;
+	height: 0;
+	border-left: 4px solid transparent;
+	border-right: 4px solid transparent;
+	border-top: 5px solid #50575e;
+}
+
+.kk-term-select.is-open .kk-term-select-chevron {
+	border-top: 0;
+	border-bottom: 5px solid #50575e;
+}
+
+.kk-term-select-panel {
+	position: absolute;
+	z-index: 10;
+	top: calc(100% + 4px);
+	left: 0;
+	right: 0;
+	border: 1px solid #8c8f94;
+	border-radius: 3px;
+	background: #fff;
+	box-shadow: 0 4px 16px rgb(0 0 0 / 0.15);
+}
+
+.kk-term-select-search {
+	width: 100%;
+	min-height: 30px;
+	padding: 4px 8px;
+	border: 0;
+	border-bottom: 1px solid #dcdcde;
+	border-radius: 3px 3px 0 0;
+	font-size: 13px;
+}
+
+.kk-term-select-search:focus {
+	outline: none;
+	box-shadow: inset 0 0 0 1px #0B6B3A;
+}
+
+.kk-term-select-list {
+	max-height: 180px;
+	margin: 0;
+	padding: 4px 0;
+	overflow-y: auto;
+	list-style: none;
+}
+
+.kk-term-select-option {
+	padding: 6px 10px;
+	font-size: 13px;
+	color: #2c3338;
+	cursor: pointer;
+}
+
+.kk-term-select-option:hover,
+.kk-term-select-option.is-highlighted {
+	background: #f0f6fc;
+}
+
+.kk-term-select-option.is-selected {
+	font-weight: 600;
+	color: #0B6B3A;
+}
+
+.kk-term-select-empty {
+	margin: 0;
+	padding: 10px;
+	font-size: 13px;
+	color: #646970;
+}
+
+/* --- Term checkbox filter -------------------------------------------------- */
+/* A search field above a TermCheckboxControl list: typing hides the
+ * labels that do not match, so a long term list stays navigable. */
+
+.kk-term-checkbox-filter {
+	width: 100%;
+	min-height: 30px;
+	margin-bottom: 6px;
+	padding: 4px 8px;
+	border: 1px solid #8c8f94;
+	border-radius: 3px;
+	background: #fff;
+	font-size: 13px;
+}
+
+.kk-term-checkbox-filter:focus {
+	outline: none;
+	border-color: #0B6B3A;
+	box-shadow: 0 0 0 1px #0B6B3A;
+}

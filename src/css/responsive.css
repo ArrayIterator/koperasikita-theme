@@ -242,6 +242,33 @@
 	.kk-back-to-top {
 		bottom: 84px;
 	}
+
+	/* Featured stacks: the large card on top (16:9 image again — it
+	 * no longer spans the right column), then the rows below it. */
+	.kk-latest-items.kk-layout-featured {
+		grid-template-columns: 1fr;
+	}
+
+	.kk-layout-featured .kk-card:first-child {
+		grid-column: auto;
+		grid-row: auto;
+		/* The container has no row-gap (see home-sections.css), so the
+		 * stacked featured card needs its own bottom margin. */
+		margin-bottom: 24px;
+	}
+
+	.kk-layout-featured .kk-card:first-child .kk-card-media {
+		flex: none;
+	}
+
+	.kk-layout-featured .kk-card:first-child .kk-card-media img {
+		aspect-ratio: 16 / 9;
+		height: auto;
+	}
+
+	.kk-layout-featured .kk-card:not(:first-child) {
+		grid-column: auto;
+	}
 }
 
 /* --- Reduced motion ------------------------------------------------------- */

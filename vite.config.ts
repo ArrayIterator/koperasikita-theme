@@ -34,6 +34,7 @@ export default defineConfig({
         admin: 'src/ts/admin.ts',
         'customizer-preview': 'src/ts/customizer-preview.ts',
         'customizer-controls': 'src/ts/customizer-controls.ts',
+        'customizer-controls-css': 'src/css/customizer-controls.css',
         app: 'src/css/app.css',
         'tokens-css': 'src/css/tokens.css',
         'base-css': 'src/css/base.css',

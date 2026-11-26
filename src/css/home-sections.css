@@ -31,6 +31,87 @@
 	aspect-ratio: 4 / 3;
 }
 
+/* --- Featured layout ------------------------------------------------------ */
+/* First post large (grid-style) on the left, the rest as a descending
+ * list of compact rows on the right. The first card spans the full
+ * height of the right column and its image flexes to fill the space,
+ * so the card never has a hollow body. The rows are list rows: a
+ * small thumb, title + meta, no excerpt, bookmark in its own column. */
+.kk-latest-items.kk-layout-featured {
+	display: grid;
+	grid-template-columns: 1.5fr 1fr;
+	column-gap: 24px;
+	/* No row-gap: the first card spans a large number of rows (see
+	 * below) and a row-gap would charge 24px for every empty spanned
+	 * row, inflating the section. The rows carry their own bottom
+	 * margin instead, so only rows with a card in them take space. */
+	row-gap: 0;
+}
+
+.kk-layout-featured .kk-card:first-child {
+	position: relative;
+	grid-column: 1;
+	/* Span every row the right column creates. `1 / -1` does not do
+	 * this for an implicit grid (it resolves against the empty
+	 * explicit grid, so the card lands in row 1 only and the first
+	 * right-column row stretches to its height); a large span does. */
+	grid-row: 1 / span 100;
+	display: flex;
+	flex-direction: column;
+}
+
+.kk-layout-featured .kk-card:first-child .kk-card-media {
+	flex: 1;
+	min-height: 0;
+}
+
+.kk-layout-featured .kk-card:first-child .kk-card-media img {
+	height: 100%;
+	aspect-ratio: auto;
+}
+
+/* The bookmark overlays the featured image: flex drops the grid-area
+ * positioning, so it is pinned absolutely instead. */
+.kk-layout-featured .kk-card:first-child .kk-bookmark-button {
+	position: absolute;
+	top: 10px;
+	right: 10px;
+	margin: 0;
+}
+
+.kk-layout-featured .kk-card:not(:first-child) {
+	grid-column: 2;
+	display: grid;
+	grid-template-columns: 96px 1fr auto;
+	grid-template-areas: "media body bookmark";
+	gap: 16px;
+	align-items: start;
+	padding: 12px;
+	margin-bottom: 24px;
+}
+
+.kk-layout-featured .kk-card:not(:first-child):last-child {
+	margin-bottom: 0;
+}
+
+.kk-layout-featured .kk-card:not(:first-child) .kk-card-media img {
+	aspect-ratio: 4 / 3;
+}
+
+.kk-layout-featured .kk-card:not(:first-child) .kk-card-body {
+	padding-top: 0;
+}
+
+.kk-layout-featured .kk-card:not(:first-child) .kk-card-excerpt {
+	display: none;
+}
+
+.kk-layout-featured .kk-card:not(:first-child) .kk-bookmark-button {
+	grid-area: bookmark;
+	align-self: start;
+	margin: 0;
+}
+
 .kk-layout-switcher {
 	display: flex;
 	border: 1px solid var(--kk-border);

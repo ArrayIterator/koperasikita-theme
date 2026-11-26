@@ -260,6 +260,28 @@ msgstr "Grid"
 msgid "List"
 msgstr "Daftar"
 
+#: inc/Customizer/Customizer.php
+#: template-parts/content/layout-switcher.php
+msgid "Featured"
+msgstr "Unggulan"
+
+#: inc/Customizer/TermSelectControl.php
+msgid "Search…"
+msgstr "Cari…"
+
+#: inc/Customizer/TermSelectControl.php
+#: inc/Customizer/TermCheckboxControl.php
+msgid "Search terms"
+msgstr "Cari istilah"
+
+#: inc/Customizer/TermCheckboxControl.php
+msgid "Search terms…"
+msgstr "Cari istilah…"
+
+#: inc/Customizer/TermSelectControl.php
+msgid "No terms match your search."
+msgstr "Tidak ada istilah yang cocok dengan pencarian Anda."
+
 #: inc/Breadcrumb/Breadcrumb.php
 msgid "Home"
 msgstr "Beranda"

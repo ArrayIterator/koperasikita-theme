@@ -205,6 +205,7 @@ final class Customizer
             'choices' => [
                 'grid' => esc_html__('Grid', 'koperasikita'),
                 'list' => esc_html__('List', 'koperasikita'),
+                'featured' => esc_html__('Featured', 'koperasikita'),
                 'newsletter' => esc_html__('Newsletter', 'koperasikita'),
             ],
         ]);
@@ -252,12 +253,11 @@ final class Customizer
                 [self::class, 'sanitizeCategoryChoice'],
                 'refresh'
             );
-            $wpCustomize->add_control('kk_homepage_category_' . $slot, [
+            $wpCustomize->add_control(new TermSelectControl($wpCustomize, 'kk_homepage_category_' . $slot, [
                 'label' => sprintf(esc_html__('Category Block %d', 'koperasikita'), $slot),
                 'section' => 'koperasikita_homepage',
-                'type' => 'select',
                 'choices' => $category_choices,
-            ]);
+            ]));
         }
 
         self::addSetting(
@@ -1130,7 +1130,7 @@ final class Customizer
 
     public static function sanitizeLayout(mixed $value): string
     {
-        return in_array($value, ['grid', 'list', 'newsletter'], true) ? (string) $value : 'grid';
+        return in_array($value, ['grid', 'list', 'featured', 'newsletter'], true) ? (string) $value : 'grid';
     }
 
     public static function sanitizeAlignment(mixed $value): string

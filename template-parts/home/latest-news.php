@@ -8,7 +8,7 @@
 $latest_count = (int) get_theme_mod( 'kk_latest_count', 10 );
 $latest_count = max( 1, $latest_count );
 $layout       = get_theme_mod( 'kk_homepage_layout', 'grid' );
-$layout       = in_array( $layout, array( 'grid', 'list', 'newsletter' ), true ) ? $layout : 'grid';
+$layout       = in_array( $layout, array( 'grid', 'list', 'featured', 'newsletter' ), true ) ? $layout : 'grid';
 
 $latest = new WP_Query(
 	array(

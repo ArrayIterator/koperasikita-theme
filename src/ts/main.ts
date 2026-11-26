@@ -521,7 +521,7 @@ function initClock(): void {
 }
 
 /* ------------------------------------------------------------------ */
-/* Layout switcher (grid / list / newsletter)                           */
+/* Layout switcher (grid / list / featured / newsletter)                 */
 /* ------------------------------------------------------------------ */
 
 function initLayoutSwitcher(): void {
@@ -531,7 +531,7 @@ function initLayoutSwitcher(): void {
 	}
 	const items = container;
 	function applyLayout(layout: string): void {
-		items.classList.remove('kk-layout-grid', 'kk-layout-list', 'kk-layout-newsletter');
+		items.classList.remove('kk-layout-grid', 'kk-layout-list', 'kk-layout-featured', 'kk-layout-newsletter');
 		items.classList.add(`kk-layout-${layout}`);
 		// The newsletter subscribe block is rendered hidden inside the
 		// container for grid/list markup; reveal it only for newsletter.
@@ -545,13 +545,13 @@ function initLayoutSwitcher(): void {
 		});
 	}
 	const stored = window.localStorage.getItem(LAYOUT_KEY);
-	if (stored === 'grid' || stored === 'list' || stored === 'newsletter') {
+	if (stored === 'grid' || stored === 'list' || stored === 'featured' || stored === 'newsletter') {
 		applyLayout(stored);
 	}
 	$all<HTMLButtonElement>('[data-kk-layout]').forEach((button) => {
 		button.addEventListener('click', () => {
 			const layout = button.dataset.kkLayout;
-			if (layout !== 'grid' && layout !== 'list' && layout !== 'newsletter') {
+			if (layout !== 'grid' && layout !== 'list' && layout !== 'featured' && layout !== 'newsletter') {
 				return;
 			}
 			window.localStorage.setItem(LAYOUT_KEY, layout);

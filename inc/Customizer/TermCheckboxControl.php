@@ -73,6 +73,7 @@ final class TermCheckboxControl extends WP_Customize_Control
             <p><?php esc_html_e('No terms found.', 'koperasikita'); ?></p>
         <?php else : ?>
             <?php $selected = $this->selectedIds(); ?>
+            <input type="search" class="kk-term-checkbox-filter" placeholder="<?php esc_attr_e('Search terms…', 'koperasikita'); ?>" aria-label="<?php esc_attr_e('Search terms', 'koperasikita'); ?>" autocomplete="off">
             <div data-kk-term-checkboxes style="max-height: 180px; overflow-y: auto; border: 1px solid #dcdcde; background: #fff; padding: 6px 8px;">
                 <?php foreach ($terms as $term) : ?>
                     <label style="display: block; padding: 3px 0; font-weight: 400;">
