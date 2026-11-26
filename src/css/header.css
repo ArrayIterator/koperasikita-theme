@@ -614,8 +614,9 @@ html.kk-nav-open body {
 	 * + gaps), anchored to the toggle's left edge (right: 4rem: the
 	 * toggle is 48px wide below 1024px and its right edge sits 16px
 	 * inside the bar, so its left edge is 16 + 48 = 64px = 4rem from
-	 * the bar's right edge). Padding .35rem .75rem. No transition:
-	 * it opens instantly. */
+	 * the bar's right edge). Its box matches the close button beside
+	 * it (same 48px height, 8px vertical padding, inline-flex) — see
+	 * the rule below. No transition: it opens instantly. */
 	.kk-nav-inner {
 		position: relative;
 	}
@@ -629,7 +630,15 @@ html.kk-nav-open body {
 		top: 50%;
 		transform: translateY(-50%);
 		width: calc(100vw - 9rem);
-		padding: 0.35rem 0.75rem;
+		/* Same box as the close button beside it: inline-flex with
+		 * centred content, 8px vertical padding (the button's
+		 * padding), and the same 48px height (the nav button's
+		 * min-height below 1024px) — so the field and the button
+		 * read as one matched pair, not two mismatched heights. */
+		display: inline-flex;
+		align-items: center;
+		min-height: 3rem;
+		padding: 0.5rem 0.75rem;
 		transition: none;
 	}
 }
