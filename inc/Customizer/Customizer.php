@@ -1008,6 +1008,102 @@ final class Customizer
             ],
         ]);
 
+        /* Which icon the Prev / Next links use when the style above
+         * is Icons. A plain select (not the menu icon picker) is the
+         * Customizer-friendly shape; the defaults are already set so
+         * the icons work out of the box. */
+        $nav_icons = [
+            'chevrons-left' => esc_html__('Double chevron left', 'koperasikita'),
+            'chevron-left' => esc_html__('Chevron left', 'koperasikita'),
+            'arrow-left' => esc_html__('Arrow left', 'koperasikita'),
+            'arrow-left-circle' => esc_html__('Arrow left (circle)', 'koperasikita'),
+            'prev' => esc_html__('Skip back', 'koperasikita'),
+        ];
+        self::addSetting(
+            $wpCustomize,
+            'kk_pagination_prev_icon',
+            'chevrons-left',
+            [self::class, 'sanitizePaginationIcon'],
+            'refresh'
+        );
+        $wpCustomize->add_control('kk_pagination_prev_icon', [
+            'label' => esc_html__('Pagination Prev Icon', 'koperasikita'),
+            'section' => 'koperasikita_accessibility',
+            'type' => 'select',
+            'choices' => $nav_icons,
+            'active_callback' => [self::class, 'isPaginationNavIcons'],
+        ]);
+        self::addSetting(
+            $wpCustomize,
+            'kk_pagination_next_icon',
+            'chevrons-right',
+            [self::class, 'sanitizePaginationIcon'],
+            'refresh'
+        );
+        $wpCustomize->add_control('kk_pagination_next_icon', [
+            'label' => esc_html__('Pagination Next Icon', 'koperasikita'),
+            'section' => 'koperasikita_accessibility',
+            'type' => 'select',
+            'choices' => [
+                'chevrons-right' => esc_html__('Double chevron right', 'koperasikita'),
+                'chevron-right' => esc_html__('Chevron right', 'koperasikita'),
+                'arrow-right' => esc_html__('Arrow right', 'koperasikita'),
+                'arrow-right-circle' => esc_html__('Arrow right (circle)', 'koperasikita'),
+                'next' => esc_html__('Skip forward', 'koperasikita'),
+            ],
+            'active_callback' => [self::class, 'isPaginationNavIcons'],
+        ]);
+
+        /* Load More: the button text, what shows while loading, and
+         * how many pages load-more may fetch before the normal
+         * numbered navigation takes over. Max 0 means unlimited. */
+        self::addSetting(
+            $wpCustomize,
+            'kk_load_more_text',
+            'Load more',
+            'sanitize_text_field',
+            'refresh'
+        );
+        $wpCustomize->add_control('kk_load_more_text', [
+            'label' => esc_html__('Load More Button Text', 'koperasikita'),
+            'section' => 'koperasikita_accessibility',
+            'type' => 'text',
+            'active_callback' => [self::class, 'isLoadMoreMode'],
+        ]);
+        self::addSetting(
+            $wpCustomize,
+            'kk_load_more_loading_style',
+            'icon-text',
+            [self::class, 'sanitizeLoadMoreLoadingStyle'],
+            'refresh'
+        );
+        $wpCustomize->add_control('kk_load_more_loading_style', [
+            'label' => esc_html__('Load More Loading Display', 'koperasikita'),
+            'section' => 'koperasikita_accessibility',
+            'type' => 'select',
+            'choices' => [
+                'icon-text' => esc_html__('Icon + Text', 'koperasikita'),
+                'icon' => esc_html__('Icon Only', 'koperasikita'),
+                'text' => esc_html__('Text "Loading"', 'koperasikita'),
+            ],
+            'active_callback' => [self::class, 'isLoadMoreMode'],
+        ]);
+        self::addSetting(
+            $wpCustomize,
+            'kk_load_more_max_pages',
+            3,
+            static fn ($value) => self::clampInt($value, 0, 10),
+            'refresh'
+        );
+        $wpCustomize->add_control('kk_load_more_max_pages', [
+            'label' => esc_html__('Load More Max Pages', 'koperasikita'),
+            'description' => esc_html__('How many pages Load More may fetch. After that the normal numbered navigation appears. 0 means unlimited.', 'koperasikita'),
+            'section' => 'koperasikita_accessibility',
+            'type' => 'number',
+            'input_attrs' => ['min' => 0, 'max' => 10],
+            'active_callback' => [self::class, 'isLoadMoreMode'],
+        ]);
+
         /* Title / excerpt line clamps: how many lines a post title or
          * excerpt may wrap to in cards and lists before the ellipsis
          * cuts it. Long titles that overflow on small phones (the
@@ -2517,6 +2613,31 @@ final class Customizer
     public static function sanitizePaginationNavStyle(mixed $value): string
     {
         return in_array($value, ['text', 'icons'], true) ? (string) $value : 'text';
+    }
+
+    public static function sanitizePaginationIcon(mixed $value): string
+    {
+        $allowed = ['chevrons-left', 'chevron-left', 'arrow-left', 'arrow-left-circle', 'prev', 'chevrons-right', 'chevron-right', 'arrow-right', 'arrow-right-circle', 'next'];
+
+        return in_array($value, $allowed, true) ? (string) $value : 'chevrons-left';
+    }
+
+    public static function sanitizeLoadMoreLoadingStyle(mixed $value): string
+    {
+        return in_array($value, ['icon-text', 'icon', 'text'], true) ? (string) $value : 'icon-text';
+    }
+
+    /* The Prev/Next icon pickers only show while the nav style is
+     * Icons; the Load More settings only show while the pagination
+     * mode is Load More. */
+    public static function isPaginationNavIcons(): bool
+    {
+        return (string) get_theme_mod('kk_pagination_nav_style', 'text') === 'icons';
+    }
+
+    public static function isLoadMoreMode(): bool
+    {
+        return (string) get_theme_mod('kk_pagination_mode', 'pagination') === 'load-more';
     }
 
     public static function sanitizeBreakingSource(mixed $value): string

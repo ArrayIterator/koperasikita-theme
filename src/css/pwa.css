@@ -80,6 +80,16 @@
 
 .kk-pwa-inline {
 	display: inline-flex;
+	animation: kk-pwa-fade-in 0.3s ease;
+}
+
+@keyframes kk-pwa-fade-in {
+	from {
+		opacity: 0;
+	}
+	to {
+		opacity: 1;
+	}
 }
 
 .kk-pwa-inline-btn {
@@ -111,6 +121,20 @@
 	border: 1px solid var(--kk-border);
 	border-radius: 12px;
 	box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+	/* Boom from below: pops up when it appears (after the first
+	 * interaction — see main.ts). */
+	animation: kk-pwa-pop-up 0.35s ease;
+}
+
+@keyframes kk-pwa-pop-up {
+	from {
+		opacity: 0;
+		transform: translateY(24px) scale(0.96);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0) scale(1);
+	}
 }
 
 .kk-pwa-float--float-bottom-right {
@@ -134,6 +158,20 @@ html.kk-nav-open .kk-pwa-float {
 	left: 50%;
 	transform: translateX(-50%);
 	bottom: 80px;
+	/* Keep the centring through the pop-up: the plain pop-up
+	 * keyframe would drop translateX(-50%) while it runs. */
+	animation-name: kk-pwa-pop-up-center;
+}
+
+@keyframes kk-pwa-pop-up-center {
+	from {
+		opacity: 0;
+		transform: translateX(-50%) translateY(24px) scale(0.96);
+	}
+	to {
+		opacity: 1;
+		transform: translateX(-50%) translateY(0) scale(1);
+	}
 }
 
 .kk-pwa-float--float-bottom {
@@ -211,5 +249,15 @@ html.kk-nav-open .kk-pwa-float {
 
 	.kk-pwa-float--float-bottom {
 		bottom: 0;
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	/* No entrance motion: the banner and floats just appear. */
+	.kk-pwa-banner,
+	.kk-pwa-float,
+	.kk-pwa-float--float-bottom-center,
+	.kk-pwa-inline {
+		animation: none;
 	}
 }

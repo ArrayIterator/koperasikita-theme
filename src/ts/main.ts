@@ -938,10 +938,18 @@ function initPwa(): void {
 	const installWrap = document.querySelector('[data-kk-pwa-button]') as HTMLElement | null;
 	const promptModal = $('#kk-install-prompt');
 	let deferredPrompt: BeforeInstallPromptEvent | null = null;
+	let installShown = false;
+	let interacted = false;
 
-	window.addEventListener('beforeinstallprompt', (event) => {
-		event.preventDefault();
-		deferredPrompt = event as BeforeInstallPromptEvent;
+	/* The install banner only appears once the reader has interacted
+	 * with the page (scroll, hover, click, tap, key) — never on load.
+	 * beforeinstallprompt may fire before or after that first
+	 * interaction, so track both and show when both have happened. */
+	function showInstall(): void {
+		if (installShown) {
+			return;
+		}
+		installShown = true;
 		if (installButton) {
 			installButton.hidden = false;
 		}
@@ -953,6 +961,28 @@ function initPwa(): void {
 			// seconds); 1500ms is the shipped default when it is missing.
 			const delay = Math.min(60000, Math.max(0, data.pwaPromptDelayMs ?? 1500));
 			window.setTimeout(() => openModal(promptModal), delay);
+		}
+	}
+
+	function onFirstInteraction(): void {
+		interacted = true;
+		if (deferredPrompt) {
+			showInstall();
+		}
+	}
+
+	/* Any interaction counts: scroll, hover, click, tap, key. Once
+	 * only — after the first one the banner is either shown or armed. */
+	const interactionEvents = ['scroll', 'pointerover', 'click', 'touchstart', 'keydown', 'pointerdown'];
+	interactionEvents.forEach((name) => {
+		window.addEventListener(name, onFirstInteraction, { once: true, passive: true });
+	});
+
+	window.addEventListener('beforeinstallprompt', (event) => {
+		event.preventDefault();
+		deferredPrompt = event as BeforeInstallPromptEvent;
+		if (interacted) {
+			showInstall();
 		}
 	});
 

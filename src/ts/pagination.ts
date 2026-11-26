@@ -57,6 +57,8 @@ function initPagination(): void {
 		query = {};
 	}
 	const maxPages = Math.max(1, Number(loader.getAttribute('data-max-pages') ?? '1') || 1);
+	const loadMoreMax = Math.max(0, Number(loader.getAttribute('data-load-more-max') ?? '0') || 0);
+	const loadingStyle = loader.getAttribute('data-loading-style') ?? 'icon-text';
 	const perPage = Math.min(20, Math.max(1, Number(loader.getAttribute('data-per-page') ?? '10') || 10));
 	let page = Math.max(1, Number(loader.getAttribute('data-page') ?? '1') || 1);
 	let loading = false;
@@ -64,6 +66,42 @@ function initPagination(): void {
 	const status = loader.querySelector<HTMLElement>('[data-kk-pagination-status]');
 	const end = loader.querySelector<HTMLElement>('[data-kk-pagination-end]');
 	const button = loader.querySelector<HTMLButtonElement>('[data-kk-load-more]');
+	const fallback = loader.querySelector<HTMLElement>('[data-kk-pagination-fallback]');
+	const icon = button?.querySelector<HTMLElement>('.kk-load-more-icon') ?? null;
+	const label = button?.querySelector<HTMLElement>('.kk-load-more-label') ?? null;
+	const idleLabel = label?.textContent ?? '';
+
+	/* While loading the button shows the spinner icon and/or the
+	 * "Loading…" text, per the Customizer loading style. Restored
+	 * to the idle label (the custom button text) when done. */
+	const setLoading = (active: boolean): void => {
+		if (!button || !label) {
+			return;
+		}
+		if (!active) {
+			if (icon) {
+				icon.hidden = true;
+			}
+			label.textContent = idleLabel;
+			return;
+		}
+		if (loadingStyle === 'icon') {
+			if (icon) {
+				icon.hidden = false;
+			}
+			label.textContent = '';
+		} else if (loadingStyle === 'text') {
+			if (icon) {
+				icon.hidden = true;
+			}
+			label.textContent = 'Loading…';
+		} else {
+			if (icon) {
+				icon.hidden = false;
+			}
+			label.textContent = 'Loading…';
+		}
+	};
 
 	const setStatus = (text: string): void => {
 		if (status) {
@@ -80,15 +118,34 @@ function initPagination(): void {
 		}
 	};
 
+	/* The Load More cap is reached: hide the button and hand over
+	 * to the normal numbered navigation (rendered hidden by the
+	 * server, current page already set to the cap). */
+	const showFallbackNav = (): void => {
+		if (button) {
+			button.hidden = true;
+		}
+		if (fallback) {
+			fallback.hidden = false;
+		}
+	};
+
 	const loadNext = async (): Promise<void> => {
 		if (loading || page >= maxPages) {
+			return;
+		}
+		/* The cap stops Load More even when more pages exist: the
+		 * numbered navigation takes over from here. */
+		if (loadMoreMax > 0 && page >= loadMoreMax) {
+			showFallbackNav();
 			return;
 		}
 		loading = true;
 		if (button) {
 			button.disabled = true;
 		}
-		setStatus('Loading…');
+		setLoading(true);
+		setStatus('');
 		try {
 			const params = new URLSearchParams();
 			Object.entries(query).forEach(([key, value]) => {
@@ -111,12 +168,15 @@ function initPagination(): void {
 			setStatus('');
 			if (!data.hasMore || page >= maxPages) {
 				finish();
+			} else if (loadMoreMax > 0 && page >= loadMoreMax) {
+				showFallbackNav();
 			}
 		} catch {
 			setStatus('Could not load more posts. Please try again.');
 		} finally {
 			loading = false;
-			if (button && page < maxPages) {
+			setLoading(false);
+			if (button && page < maxPages && !(loadMoreMax > 0 && page >= loadMoreMax)) {
 				button.disabled = false;
 			}
 		}

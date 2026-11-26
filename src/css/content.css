@@ -751,6 +751,39 @@
 	cursor: wait;
 }
 
+/* Loading spinner inside the Load More button: the Feather loader
+ * icon, spinning. Shown only while a page is being fetched. */
+.kk-load-more-icon {
+	display: inline-flex;
+}
+
+.kk-load-more-icon[hidden] {
+	display: none;
+}
+
+.kk-load-more-icon svg {
+	display: block;
+	animation: kk-spin 1s linear infinite;
+}
+
+@keyframes kk-spin {
+	to {
+		transform: rotate(360deg);
+	}
+}
+
+/* The numbered navigation that takes over once the Load More cap
+ * is reached. */
+.kk-pagination-fallback {
+	margin-top: 16px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.kk-load-more-icon svg {
+		animation: none;
+	}
+}
+
 .kk-pagination-status,
 .kk-pagination-end {
 	color: var(--kk-muted, #5B6470);

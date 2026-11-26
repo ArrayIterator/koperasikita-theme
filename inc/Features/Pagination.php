@@ -46,14 +46,14 @@ final class Pagination
 
     /**
      * Previous-link label for paginate_links / the_posts_pagination.
-     * Icons mode returns the double-chevron SVG (aria-hidden) plus a
+     * Icons mode returns the chosen icon SVG (aria-hidden) plus a
      * screen-reader word, so the link stays understandable without
      * visible text.
      */
     public static function prevText(): string
     {
         if (self::navStyle() === 'icons') {
-            return '<span aria-hidden="true">' . \KoperasiKita\Icons\Icon::svg('chevrons-left', 18) . '</span><span class="screen-reader-text">' . __('Newer', 'koperasikita') . '</span>';
+            return '<span aria-hidden="true">' . \KoperasiKita\Icons\Icon::svg(self::prevIcon(), 18) . '</span><span class="screen-reader-text">' . __('Newer', 'koperasikita') . '</span>';
         }
 
         return __('&larr; Newer', 'koperasikita');
@@ -62,10 +62,51 @@ final class Pagination
     public static function nextText(): string
     {
         if (self::navStyle() === 'icons') {
-            return '<span aria-hidden="true">' . \KoperasiKita\Icons\Icon::svg('chevrons-right', 18) . '</span><span class="screen-reader-text">' . __('Older', 'koperasikita') . '</span>';
+            return '<span aria-hidden="true">' . \KoperasiKita\Icons\Icon::svg(self::nextIcon(), 18) . '</span><span class="screen-reader-text">' . __('Older', 'koperasikita') . '</span>';
         }
 
         return __('Older &rarr;', 'koperasikita');
+    }
+
+    /** Icon name for the Prev link (Customizer pick, default «). */
+    public static function prevIcon(): string
+    {
+        $icon = (string) get_theme_mod('kk_pagination_prev_icon', 'chevrons-left');
+
+        return \KoperasiKita\Icons\Icon::exists($icon) ? $icon : 'chevrons-left';
+    }
+
+    /** Icon name for the Next link (Customizer pick, default »). */
+    public static function nextIcon(): string
+    {
+        $icon = (string) get_theme_mod('kk_pagination_next_icon', 'chevrons-right');
+
+        return \KoperasiKita\Icons\Icon::exists($icon) ? $icon : 'chevrons-right';
+    }
+
+    /** Load More button text (Customizer, default "Load more"). */
+    public static function loadMoreText(): string
+    {
+        $text = (string) get_theme_mod('kk_load_more_text', 'Load more');
+
+        return $text !== '' ? $text : __('Load more', 'koperasikita');
+    }
+
+    /** What the Load More button shows while loading. */
+    public static function loadingStyle(): string
+    {
+        $style = (string) get_theme_mod('kk_load_more_loading_style', 'icon-text');
+
+        return in_array($style, ['icon-text', 'icon', 'text'], true) ? $style : 'icon-text';
+    }
+
+    /**
+     * How many pages Load More may fetch before the normal numbered
+     * navigation takes over. 0 means unlimited.
+     */
+    public static function loadMoreMaxPages(): int
+    {
+        return max(0, min(10, (int) get_theme_mod('kk_load_more_max_pages', 3)));
     }
 
     public static function archiveLayout(): string
@@ -172,6 +213,10 @@ final class Pagination
         $queryVars = self::queryVars($query);
         $queryVars['post_type'] = $queryVars['post_type'] ?? 'post';
         $endpoint = esc_url_raw(rest_url(Api::REST_NAMESPACE . '/posts'));
+        $load_more_max = self::loadMoreMaxPages();
+        // The cap only matters when it stops before the last page;
+        // 0 means unlimited, so no fallback nav is needed.
+        $has_cap = $load_more_max > 0 && $load_more_max < $max_pages;
         ?>
         <div
             class="kk-pagination kk-pagination-loader"
@@ -181,14 +226,56 @@ final class Pagination
             data-query="<?php echo esc_attr((string) wp_json_encode($queryVars)); ?>"
             data-page="1"
             data-max-pages="<?php echo esc_attr((string) $max_pages); ?>"
+            data-load-more-max="<?php echo esc_attr((string) $load_more_max); ?>"
+            data-loading-style="<?php echo esc_attr(self::loadingStyle()); ?>"
             data-per-page="<?php echo esc_attr((string) self::perPage($query)); ?>"
         >
             <button type="button" class="kk-load-more" data-kk-load-more>
-                <?php esc_html_e('Load more', 'koperasikita'); ?>
+                <span class="kk-load-more-icon" aria-hidden="true" hidden><?php echo \KoperasiKita\Icons\Icon::svg('loader', 18); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></span>
+                <span class="kk-load-more-label"><?php echo esc_html(self::loadMoreText()); ?></span>
             </button>
             <p class="kk-pagination-status" data-kk-pagination-status aria-live="polite"></p>
             <p class="kk-pagination-end" data-kk-pagination-end hidden><?php esc_html_e('No more posts.', 'koperasikita'); ?></p>
+            <?php if ($has_cap) : ?>
+                <div class="kk-pagination-fallback" data-kk-pagination-fallback hidden>
+                    <?php echo self::numberedNavHtml($query, $load_more_max); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+                </div>
+            <?php endif; ?>
         </div>
         <?php
+    }
+
+    /**
+     * The numbered pagination HTML for the fallback nav: shown when
+     * the Load More cap is reached and there are still pages left.
+     * The current page is the cap itself — when the nav is revealed
+     * the reader has loaded exactly that many pages — so the marker
+     * is right without any client-side fix-up.
+     */
+    public static function numberedNavHtml(?\WP_Query $query = null, int $current = 1): string
+    {
+        $max_pages = self::maxPages($query);
+        $current = max(1, min($max_pages, $current));
+
+        if ($max_pages < 2) {
+            return '';
+        }
+
+        $links = paginate_links([
+            'base' => str_replace(999999999, '%#%', esc_url(get_pagenum_link(999999999))),
+            'format' => '?paged=%#%',
+            'current' => $current,
+            'total' => $max_pages,
+            'mid_size' => 2,
+            'prev_text' => self::prevText(),
+            'next_text' => self::nextText(),
+            'type' => 'plain',
+        ]);
+
+        if (!$links) {
+            return '';
+        }
+
+        return '<nav class="navigation pagination kk-pagination" aria-label="' . esc_attr__('Posts navigation', 'koperasikita') . '"><h2 class="screen-reader-text">' . esc_html__('Posts navigation', 'koperasikita') . '</h2><div class="nav-links">' . $links . '</div></nav>';
     }
 }

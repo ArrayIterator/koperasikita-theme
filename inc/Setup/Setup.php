@@ -202,6 +202,12 @@ final class Setup
         echo '<a class="kk-setup-link" href="' . esc_url(admin_url('widgets.php')) . '">';
         echo '<span class="kk-setup-link-title">' . esc_html__('Widgets', 'koperasikita') . '</span>';
         echo '<span class="kk-setup-link-desc">' . esc_html__('Gold, markets and weather widgets for the sidebars.', 'koperasikita') . '</span></a>';
+        echo '<a class="kk-setup-link" href="' . esc_url(admin_url('admin.php?page=' . \KoperasiKita\Admin\SidebarSettings::PAGE_SLUG)) . '">';
+        echo '<span class="kk-setup-link-title">' . esc_html__('Sidebar Settings', 'koperasikita') . '</span>';
+        echo '<span class="kk-setup-link-desc">' . esc_html__('Sticky sidebars and which sidebar shows where.', 'koperasikita') . '</span></a>';
+        echo '<a class="kk-setup-link" href="' . esc_url(admin_url('admin.php?page=' . \KoperasiKita\Features\Agenda::LOCATIONS_PAGE_SLUG)) . '">';
+        echo '<span class="kk-setup-link-title">' . esc_html__('Locations', 'koperasikita') . '</span>';
+        echo '<span class="kk-setup-link-desc">' . esc_html__('Agenda locations with map coordinates.', 'koperasikita') . '</span></a>';
         echo '</div></div></section>';
 
         echo '<p class="kk-setup-footnote">' . esc_html__('Koperasi Kita theme', 'koperasikita')

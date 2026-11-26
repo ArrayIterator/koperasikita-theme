@@ -3253,3 +3253,66 @@ msgstr "Koperasi Kita Yahoo Finance"
 
 msgid "Yahoo Finance"
 msgstr "Yahoo Finance"
+
+msgid "Pagination Prev Icon"
+msgstr "Ikon Prev Pagination"
+
+msgid "Pagination Next Icon"
+msgstr "Ikon Next Pagination"
+
+msgid "Double chevron left"
+msgstr "Chevron ganda kiri"
+
+msgid "Chevron left"
+msgstr "Chevron kiri"
+
+msgid "Arrow left"
+msgstr "Panah kiri"
+
+msgid "Arrow left (circle)"
+msgstr "Panah kiri (lingkaran)"
+
+msgid "Skip back"
+msgstr "Lompati ke belakang"
+
+msgid "Double chevron right"
+msgstr "Chevron ganda kanan"
+
+msgid "Chevron right"
+msgstr "Chevron kanan"
+
+msgid "Arrow right"
+msgstr "Panah kanan"
+
+msgid "Arrow right (circle)"
+msgstr "Panah kanan (lingkaran)"
+
+msgid "Skip forward"
+msgstr "Lompati ke depan"
+
+msgid "Load More Button Text"
+msgstr "Teks Tombol Load More"
+
+msgid "Load More Loading Display"
+msgstr "Tampilan Loading Load More"
+
+msgid "Icon + Text"
+msgstr "Ikon + Teks"
+
+msgid "Icon Only"
+msgstr "Ikon Saja"
+
+msgid "Text \"Loading\""
+msgstr "Teks \"Loading\""
+
+msgid "Load More Max Pages"
+msgstr "Maks. Halaman Load More"
+
+msgid "How many pages Load More may fetch. After that the normal numbered navigation appears. 0 means unlimited."
+msgstr "Berapa halaman yang boleh dimuat Load More. Setelah itu navigasi bernomor biasa muncul. 0 berarti tanpa batas."
+
+msgid "Sticky sidebars and which sidebar shows where."
+msgstr "Sidebar lengket dan sidebar mana yang tampil di mana."
+
+msgid "Agenda locations with map coordinates."
+msgstr "Lokasi agenda dengan koordinat peta."
