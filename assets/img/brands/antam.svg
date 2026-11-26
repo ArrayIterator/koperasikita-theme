@@ -1,0 +1,7 @@
+<!-- Generic initials mark for Antam (NOT the official Antam logo:
+no official Antam logo exists on Wikimedia Commons / Wikipedia).
+Drawn for Koperasi Kita: theme green + gold, plain "A". -->
+<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64" role="img" aria-label="Antam">
+  <rect x="2" y="2" width="60" height="60" rx="14" fill="#0B6B3A" stroke="#C9962E" stroke-width="2"/>
+  <text x="32" y="42" font-family="Arial, Helvetica, sans-serif" font-size="32" font-weight="700" fill="#FFFFFF" text-anchor="middle">A</text>
+</svg>

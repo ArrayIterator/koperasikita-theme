@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace KoperasiKita\Features;
 
+use KoperasiKita\Admin\GoldPricesPage;
 use KoperasiKita\Admin\MarketsSettings;
 use KoperasiKita\Api\Ajax;
 use KoperasiKita\Api\ApiException;
@@ -388,6 +389,16 @@ final class Markets
                 'prices' => $prices,
             ];
         }, true);
+
+        // Logam Mulia daily sync (WP-Cron) + the manual sync AJAX
+        // endpoint (one source per call). Only when the Markets
+        // feature is enabled; the provider itself stays Manual
+        // until the admin picks it.
+        LogamMuliaApiProvider::registerSync();
+
+        // Settings -> Gold Prices: the sync management page
+        // (status, manual sync, history list + chart).
+        GoldPricesPage::register();
 
         MarketsSettings::register();
     }

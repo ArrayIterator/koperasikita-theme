@@ -457,6 +457,31 @@ final class Enqueue
             return;
         }
 
+        /* Gold Prices page (Settings -> Gold Prices): the manual
+         * sync button (admin.ts initGoldSync) needs the admin
+         * script + ajaxUrl/nonce. Runs before the widgets/
+         * customizer early return below, which would drop it. */
+        if ($hookSuffix === 'settings_page_' . \KoperasiKita\Admin\GoldPricesPage::PAGE_SLUG) {
+            $css = ViteLoader::css('src/ts/admin.ts');
+
+            if ($css !== '') {
+                wp_enqueue_style('kk-admin', $css, [], KK_VERSION);
+            }
+
+            $js = ViteLoader::js('src/ts/admin.ts');
+
+            if ($js !== '') {
+                wp_enqueue_script('kk-admin', $js, [], KK_VERSION, true);
+
+                wp_localize_script('kk-admin', 'kkAdminData', [
+                    'ajaxUrl' => admin_url('admin-ajax.php'),
+                    'nonce' => wp_create_nonce('koperasikita_nonce'),
+                ]);
+            }
+
+            return;
+        }
+
         /* Agenda editor and Locations page: the Pick Location popup
          * (agenda.ts + agenda.css). The branch runs before the
          * widgets/customizer early return below, which would drop it. */

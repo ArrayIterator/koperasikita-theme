@@ -1,0 +1,372 @@
+<?php
+
+declare(strict_types=1);
+
+namespace KoperasiKita\Admin;
+
+use KoperasiKita\Features\Gold;
+use KoperasiKita\Features\Markets;
+use KoperasiKita\Providers\GoldPricesTable;
+use KoperasiKita\Providers\LogamMuliaApiProvider;
+
+/**
+ * Settings -> Gold Prices: the management page for the Logam Mulia
+ * gold price sync.
+ *
+ * Shows the sync status (last sync, latest recorded date, which
+ * symbols are stored, the failure backlog), a manual sync button
+ * that steps through the sources one at a time via AJAX, which
+ * provider is active for gold, and the stored price history as
+ * both a list (table) and a dependency-free inline SVG line chart
+ * (one line per brand). Uses WP admin styles only — no heavy
+ * custom CSS.
+ */
+final class GoldPricesPage
+{
+    public const PAGE_SLUG = 'kk-gold-prices';
+
+    /** Rows shown in the history list. */
+    private const HISTORY_ROWS = 60;
+
+    /** Chart geometry (viewBox units, scales to the container). */
+    private const CHART_WIDTH = 720;
+    private const CHART_HEIGHT = 260;
+    private const CHART_PAD_LEFT = 84;
+    private const CHART_PAD_RIGHT = 16;
+    private const CHART_PAD_TOP = 16;
+    private const CHART_PAD_BOTTOM = 32;
+
+    /**
+     * Line colours per brand (theme green/gold first, then
+     * distinct hues so the lines stay apart).
+     *
+     * @var array<string, string>
+     */
+    private const CHART_COLORS = [
+        'antam' => '#0B6B3A',
+        'ubs' => '#C9962E',
+        'galeri-24' => '#2fa36b',
+        'pegadaian' => '#8A6D1B',
+        'emaskita' => '#6b7280',
+    ];
+
+    public static function register(): void
+    {
+        add_action('admin_menu', [self::class, 'registerPage']);
+    }
+
+    public static function registerPage(): void
+    {
+        add_options_page(
+            esc_html__('Gold Prices', 'koperasikita'),
+            esc_html__('Gold Prices', 'koperasikita'),
+            'manage_options',
+            self::PAGE_SLUG,
+            [self::class, 'render']
+        );
+    }
+
+    public static function render(): void
+    {
+        if (!current_user_can('manage_options')) {
+            wp_die(esc_html__('You do not have permission to access this page.', 'koperasikita'));
+        }
+
+        $status = LogamMuliaApiProvider::status();
+        $history = GoldPricesTable::history(LogamMuliaApiProvider::PROVIDER_ID, 200);
+        $active = Markets::providerFor('gold');
+        $brands = Gold::brands();
+        ?>
+        <div class="wrap" data-kk-gold-prices-page>
+            <h1><?php esc_html_e('Gold Prices', 'koperasikita'); ?></h1>
+            <p><?php esc_html_e('Daily gold prices from the Logam Mulia API price history (backup/prices CSV on GitHub). The sync runs once a day via WP-Cron and only inserts rows that are not in the database yet — one row per brand per day. Use the button below to sync on demand.', 'koperasikita'); ?></p>
+
+            <h2><?php esc_html_e('Sync status', 'koperasikita'); ?></h2>
+            <?php self::renderStatus($status); ?>
+
+            <h2><?php esc_html_e('Manual sync', 'koperasikita'); ?></h2>
+            <p>
+                <button type="button" class="button button-primary" data-kk-gold-sync><?php esc_html_e('Sync now', 'koperasikita'); ?></button>
+            </p>
+            <div data-kk-gold-sync-result role="status" aria-live="polite"></div>
+
+            <h2><?php esc_html_e('Active provider', 'koperasikita'); ?></h2>
+            <p>
+                <?php
+                printf(
+                    /* translators: %s: provider label. */
+                    esc_html__('Gold prices on the site currently come from: %s.', 'koperasikita'),
+                    '<strong>' . esc_html($active->label()) . '</strong>'
+                );
+                ?>
+                <a href="<?php echo esc_url(admin_url('customize.php?autofocus[section]=koperasikita_homepage')); ?>"><?php esc_html_e('Change in the Customizer', 'koperasikita'); ?></a>
+            </p>
+
+            <h2><?php esc_html_e('Price history', 'koperasikita'); ?></h2>
+            <?php self::renderChart($history, $brands); ?>
+            <?php self::renderHistoryTable($history, $brands); ?>
+        </div>
+        <?php
+    }
+
+    /**
+     * Status block: last sync, latest recorded date, symbols
+     * present, inserted vs skipped, last error, and the per-source
+     * table (with the failure backlog / lowest-priority note).
+     *
+     * @param array{synced_at: int|null, latest_date: string|null, symbols: array<int, string>, inserted: int, skipped: int, error: string|null, sources: array<string, array{synced_at: int|null, inserted: int, skipped: int, latest_date: string|null, error: string|null, failures: int, next_retry: int|null, deprioritised: bool}>, backlog: array<string, array{failures: int, last_error: string|null, last_attempt: int|null, next_retry: int|null, deprioritised: bool}>} $status
+     */
+    private static function renderStatus(array $status): void
+    {
+        $lastSync = $status['synced_at'] !== null
+            ? date_i18n(get_option('date_format', 'Y-m-d') . ' ' . get_option('time_format', 'H:i'), (int) $status['synced_at'])
+            : __('Never', 'koperasikita');
+        $symbols = $status['symbols'] !== [] ? implode(', ', $status['symbols']) : __('None yet', 'koperasikita');
+        ?>
+        <table class="form-table" role="presentation">
+            <tbody>
+                <tr>
+                    <th scope="row"><?php esc_html_e('Last sync', 'koperasikita'); ?></th>
+                    <td><?php echo esc_html($lastSync); ?></td>
+                </tr>
+                <tr>
+                    <th scope="row"><?php esc_html_e('Latest price date', 'koperasikita'); ?></th>
+                    <td><?php echo esc_html($status['latest_date'] ?? __('None yet', 'koperasikita')); ?></td>
+                </tr>
+                <tr>
+                    <th scope="row"><?php esc_html_e('Symbols stored', 'koperasikita'); ?></th>
+                    <td><?php echo esc_html($symbols); ?></td>
+                </tr>
+                <tr>
+                    <th scope="row"><?php esc_html_e('Last run', 'koperasikita'); ?></th>
+                    <td>
+                        <?php
+                        printf(
+                            /* translators: %1$d: rows inserted, %2$d: rows skipped (already in DB). */
+                            esc_html__('Inserted %1$d, skipped %2$d (already in database).', 'koperasikita'),
+                            (int) $status['inserted'],
+                            (int) $status['skipped']
+                        );
+                        ?>
+                    </td>
+                </tr>
+                <?php if ($status['error'] !== null) : ?>
+                    <tr>
+                        <th scope="row"><?php esc_html_e('Last error', 'koperasikita'); ?></th>
+                        <td><?php echo esc_html($status['error']); ?></td>
+                    </tr>
+                <?php endif; ?>
+            </tbody>
+        </table>
+        <?php
+        self::renderSourceTable($status);
+    }
+
+    /**
+     * Per-source table: latest date, inserted/skipped, and the
+     * backlog note (a failed source stays in the backlog and is
+     * retried later; after 3 failures it drops to lowest
+     * priority — weekly retry only).
+     *
+     * @param array{sources: array<string, array{synced_at: int|null, inserted: int, skipped: int, latest_date: string|null, error: string|null, failures: int, next_retry: int|null, deprioritised: bool}>} $status
+     */
+    private static function renderSourceTable(array $status): void
+    {
+        $rows = '';
+        foreach (LogamMuliaApiProvider::SOURCES as $source) {
+            $s = $status['sources'][$source] ?? [];
+            $failures = (int) ($s['failures'] ?? 0);
+            $deprioritised = !empty($s['deprioritised']);
+            $nextRetry = isset($s['next_retry']) ? (int) $s['next_retry'] : null;
+
+            if ($deprioritised && $nextRetry !== null) {
+                /* translators: %1$d: failure count, %2$s: next retry date. */
+                $note = sprintf(
+                    __('Lowest priority — failed %1$d×, next retry %2$s.', 'koperasikita'),
+                    $failures,
+                    date_i18n(get_option('date_format', 'Y-m-d'), $nextRetry)
+                );
+            } elseif ($failures > 0 && $nextRetry !== null) {
+                /* translators: %1$d: failure count, %2$s: next retry date. */
+                $note = sprintf(
+                    __('In backlog — failed %1$d×, next retry %2$s.', 'koperasikita'),
+                    $failures,
+                    date_i18n(get_option('date_format', 'Y-m-d'), $nextRetry)
+                );
+            } elseif (!empty($s['error'])) {
+                $note = (string) $s['error'];
+            } else {
+                $note = '—';
+            }
+
+            $rows .= '<tr>'
+                . '<td><strong>' . esc_html($source) . '</strong></td>'
+                . '<td>' . esc_html($s['latest_date'] ?? '—') . '</td>'
+                . '<td>' . esc_html((string) ($s['inserted'] ?? 0)) . '</td>'
+                . '<td>' . esc_html((string) ($s['skipped'] ?? 0)) . '</td>'
+                . '<td>' . esc_html($note) . '</td>'
+                . '</tr>';
+        }
+        ?>
+        <table class="widefat striped">
+            <thead>
+                <tr>
+                    <th><?php esc_html_e('Source', 'koperasikita'); ?></th>
+                    <th><?php esc_html_e('Latest date', 'koperasikita'); ?></th>
+                    <th><?php esc_html_e('Inserted', 'koperasikita'); ?></th>
+                    <th><?php esc_html_e('Skipped', 'koperasikita'); ?></th>
+                    <th><?php esc_html_e('Status / backlog', 'koperasikita'); ?></th>
+                </tr>
+            </thead>
+            <tbody><?php echo $rows; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- rows are escaped above. ?></tbody>
+        </table>
+        <?php
+    }
+
+    /**
+     * Dependency-free inline SVG line chart: one line per brand,
+     * sell price (per gram, IDR) over recorded date. Empty history
+     * renders a short note instead of an empty chart.
+     *
+     * @param array<int, array{symbol: string, sell_price: float, buyback_price: float|null, currency: string, recorded_date: string|null, fetched_at: int}> $history
+     * @param array<string, string> $brands Slug => label.
+     */
+    private static function renderChart(array $history, array $brands): void
+    {
+        // Group by symbol, oldest first, keeping only rows with a
+        // date and a positive price.
+        $series = [];
+        foreach ($history as $row) {
+            $symbol = (string) ($row['symbol'] ?? '');
+            $date = (string) ($row['recorded_date'] ?? '');
+            $price = (float) ($row['sell_price'] ?? 0);
+
+            if ($symbol === '' || $date === '' || $price <= 0) {
+                continue;
+            }
+
+            $series[$symbol][] = ['date' => $date, 'price' => $price];
+        }
+
+        foreach ($series as $symbol => $points) {
+            usort($points, static fn(array $a, array $b): int => strcmp($a['date'], $b['date']));
+            $series[$symbol] = $points;
+        }
+
+        if ($series === []) {
+            echo '<p>' . esc_html__('No prices stored yet. Run a sync to fill the chart.', 'koperasikita') . '</p>';
+
+            return;
+        }
+
+        $allDates = [];
+        $min = null;
+        $max = null;
+        foreach ($series as $points) {
+            foreach ($points as $point) {
+                $allDates[] = $point['date'];
+                $min = $min === null ? $point['price'] : min($min, $point['price']);
+                $max = $max === null ? $point['price'] : max($max, $point['price']);
+            }
+        }
+
+        $allDates = array_values(array_unique($allDates));
+        sort($allDates);
+        $firstDate = $allDates[0];
+        $lastDate = $allDates[count($allDates) - 1];
+
+        // Pad the price range so the lines never sit on the edge.
+        $span = (float) ($max - $min);
+        $pad = $span > 0 ? $span * 0.1 : (float) $max * 0.05;
+        $min -= $pad;
+        $max += $pad;
+
+        $plotW = self::CHART_WIDTH - self::CHART_PAD_LEFT - self::CHART_PAD_RIGHT;
+        $plotH = self::CHART_HEIGHT - self::CHART_PAD_TOP - self::CHART_PAD_BOTTOM;
+        $start = strtotime($firstDate . ' 00:00:00');
+        $end = strtotime($lastDate . ' 00:00:00');
+        $timeSpan = max(1, $end - $start);
+
+        $x = static fn(string $date): float => self::CHART_PAD_LEFT + ((strtotime($date . ' 00:00:00') - $start) / $timeSpan) * $plotW;
+        $y = static fn(float $price): float => self::CHART_PAD_TOP + (1 - ($price - $min) / max(1.0, $max - $min)) * $plotH;
+
+        $lines = '';
+        $legend = '';
+        foreach ($series as $symbol => $points) {
+            $color = self::CHART_COLORS[$symbol] ?? '#374151';
+            $coords = [];
+            foreach ($points as $point) {
+                $coords[] = number_format($x($point['date']), 1, '.', '') . ',' . number_format($y($point['price']), 1, '.', '');
+            }
+
+            $lines .= '<polyline fill="none" stroke="' . esc_attr($color) . '" stroke-width="2" points="' . esc_attr(implode(' ', $coords)) . '" />';
+
+            $label = $brands[$symbol] ?? $symbol;
+            $legend .= '<span style="display:inline-block;margin-right:1rem">'
+                . '<span style="display:inline-block;width:0.75rem;height:0.75rem;background:' . esc_attr($color) . ';border-radius:2px;margin-right:0.25rem"></span>'
+                . esc_html($label)
+                . '</span>';
+        }
+        ?>
+        <figure style="margin:0 0 1rem">
+            <svg viewBox="0 0 <?php echo (int) self::CHART_WIDTH; ?> <?php echo (int) self::CHART_HEIGHT; ?>" width="100%" role="img" aria-label="<?php esc_attr_e('Gold price history per brand', 'koperasikita'); ?>">
+                <line x1="<?php echo (int) self::CHART_PAD_LEFT; ?>" y1="<?php echo (int) self::CHART_PAD_TOP; ?>" x2="<?php echo (int) self::CHART_PAD_LEFT; ?>" y2="<?php echo (int) (self::CHART_HEIGHT - self::CHART_PAD_BOTTOM); ?>" stroke="#d1d5db" />
+                <line x1="<?php echo (int) self::CHART_PAD_LEFT; ?>" y1="<?php echo (int) (self::CHART_HEIGHT - self::CHART_PAD_BOTTOM); ?>" x2="<?php echo (int) (self::CHART_WIDTH - self::CHART_PAD_RIGHT); ?>" y2="<?php echo (int) (self::CHART_HEIGHT - self::CHART_PAD_BOTTOM); ?>" stroke="#d1d5db" />
+                <text x="<?php echo (int) (self::CHART_PAD_LEFT - 8); ?>" y="<?php echo (int) (self::CHART_PAD_TOP + 4); ?>" text-anchor="end" font-size="11" fill="#6b7280"><?php echo esc_html(number_format_i18n((int) round($max))); ?></text>
+                <text x="<?php echo (int) (self::CHART_PAD_LEFT - 8); ?>" y="<?php echo (int) (self::CHART_HEIGHT - self::CHART_PAD_BOTTOM); ?>" text-anchor="end" font-size="11" fill="#6b7280"><?php echo esc_html(number_format_i18n((int) round($min))); ?></text>
+                <text x="<?php echo (int) self::CHART_PAD_LEFT; ?>" y="<?php echo (int) (self::CHART_HEIGHT - 8); ?>" font-size="11" fill="#6b7280"><?php echo esc_html($firstDate); ?></text>
+                <text x="<?php echo (int) (self::CHART_WIDTH - self::CHART_PAD_RIGHT); ?>" y="<?php echo (int) (self::CHART_HEIGHT - 8); ?>" text-anchor="end" font-size="11" fill="#6b7280"><?php echo esc_html($lastDate); ?></text>
+                <?php echo $lines; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- coordinates and colours are escaped above. ?>
+            </svg>
+            <figcaption><?php echo $legend; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- labels and colours are escaped above. ?></figcaption>
+        </figure>
+        <?php
+    }
+
+    /**
+     * History list: latest per brand first (the table order is
+     * recorded_date DESC), with date, brand, sell and buyback
+     * price per gram in IDR.
+     *
+     * @param array<int, array{symbol: string, sell_price: float, buyback_price: float|null, currency: string, recorded_date: string|null, fetched_at: int}> $history
+     * @param array<string, string> $brands Slug => label.
+     */
+    private static function renderHistoryTable(array $history, array $brands): void
+    {
+        if ($history === []) {
+            echo '<p>' . esc_html__('No prices stored yet. Run a sync to fill the table.', 'koperasikita') . '</p>';
+
+            return;
+        }
+
+        $rows = '';
+        foreach (array_slice($history, 0, self::HISTORY_ROWS) as $row) {
+            $symbol = (string) ($row['symbol'] ?? '');
+            $label = $brands[$symbol] ?? $symbol;
+            $sell = number_format_i18n((float) ($row['sell_price'] ?? 0), 0);
+            $buyback = isset($row['buyback_price']) && $row['buyback_price'] !== null
+                ? number_format_i18n((float) $row['buyback_price'], 0)
+                : '—';
+
+            $rows .= '<tr>'
+                . '<td>' . esc_html((string) ($row['recorded_date'] ?? '—')) . '</td>'
+                . '<td><strong>' . esc_html($label) . '</strong></td>'
+                . '<td>' . esc_html($sell) . '</td>'
+                . '<td>' . esc_html($buyback) . '</td>'
+                . '</tr>';
+        }
+        ?>
+        <table class="widefat striped">
+            <thead>
+                <tr>
+                    <th><?php esc_html_e('Date', 'koperasikita'); ?></th>
+                    <th><?php esc_html_e('Brand', 'koperasikita'); ?></th>
+                    <th><?php esc_html_e('Sell (per gram)', 'koperasikita'); ?></th>
+                    <th><?php esc_html_e('Buyback (per gram)', 'koperasikita'); ?></th>
+                </tr>
+            </thead>
+            <tbody><?php echo $rows; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- rows are escaped above. ?></tbody>
+        </table>
+        <?php
+    }
+}

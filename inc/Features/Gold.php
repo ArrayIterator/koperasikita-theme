@@ -83,4 +83,42 @@ final class Gold
 
         return $spot !== null && $spot->hasData() ? $spot : null;
     }
+
+    /**
+     * Brand logo URLs (slug => theme asset URL), for the Gold widget.
+     *
+     * Pegadaian uses its official logo from Wikimedia Commons
+     * (https://commons.wikimedia.org/wiki/File:Pegadaian_logo_(2013).svg,
+     * stored at assets/img/brands/pegadaian.svg). Antam, UBS and
+     * Galeri 24 have no official logo on Commons / Wikipedia, so they
+     * use a generic initials mark drawn for the theme (assets/img/brands/*.svg)
+     * — never a fabricated official logo. EmasKita is KK-specific and
+     * uses an initials mark too. A brand with no file returns ''.
+     *
+     * @return array<string, string>
+     */
+    public static function logos(): array
+    {
+        $logos = [];
+
+        foreach (self::brands() as $slug => $label) {
+            $logos[$slug] = self::logo($slug);
+        }
+
+        return $logos;
+    }
+
+    public static function logo(string $slug): string
+    {
+        $slug = sanitize_key($slug);
+        $relative = 'assets/img/brands/' . $slug . '.svg';
+
+        if (!is_readable(get_theme_file_path($relative))) {
+            return '';
+        }
+
+        $url = get_theme_file_uri($relative);
+
+        return is_string($url) ? $url : '';
+    }
 }

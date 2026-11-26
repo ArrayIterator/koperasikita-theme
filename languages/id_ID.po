@@ -3066,3 +3066,99 @@ msgstr "Sumber harga emas di widget dan strip pasar. Logam Mulia API live dan gr
 
 msgid "Manual"
 msgstr "Manual"
+
+msgid "Active provider"
+msgstr "Penyedia aktif"
+
+msgid "Brand"
+msgstr "Merek"
+
+msgid "Buyback (per gram)"
+msgstr "Buyback (per gram)"
+
+msgid "Change in the Customizer"
+msgstr "Ubah di Customizer"
+
+msgid "Could not download the price file."
+msgstr "Tidak dapat mengunduh berkas harga."
+
+msgid "Daily gold prices from the Logam Mulia API price history (backup/prices CSV on GitHub). The sync runs once a day via WP-Cron and only inserts rows that are not in the database yet — one row per brand per day. Use the button below to sync on demand."
+msgstr "Harga emas harian dari riwayat harga Logam Mulia API (CSV backup/prices di GitHub). Sinkronisasi berjalan sekali sehari lewat WP-Cron dan hanya memasukkan baris yang belum ada di database — satu baris per merek per hari. Gunakan tombol di bawah untuk sinkronisasi manual."
+
+msgid "Gold price history per brand"
+msgstr "Riwayat harga emas per merek"
+
+msgid "Gold prices on the site currently come from: %s."
+msgstr "Harga emas di situs saat ini berasal dari: %s."
+
+msgid "In backlog — failed %1$d×, next retry %2$s."
+msgstr "Dalam antrean — gagal %1$d×, coba lagi %2$s."
+
+msgid "Inserted"
+msgstr "Dimasukkan"
+
+msgid "Inserted %1$d, skipped %2$d (already in database)."
+msgstr "Dimasukkan %1$d, dilewati %2$d (sudah ada di database)."
+
+msgid "Last error"
+msgstr "Kesalahan terakhir"
+
+msgid "Last run"
+msgstr "Jalan terakhir"
+
+msgid "Last sync"
+msgstr "Sinkronisasi terakhir"
+
+msgid "Latest date"
+msgstr "Tanggal terbaru"
+
+msgid "Latest price date"
+msgstr "Tanggal harga terbaru"
+
+msgid "Lowest priority — failed %1$d×, next retry %2$s."
+msgstr "Prioritas terendah — gagal %1$d×, coba lagi %2$s."
+
+msgid "Manual sync"
+msgstr "Sinkronisasi manual"
+
+msgid "Never"
+msgstr "Belum pernah"
+
+msgid "No prices stored yet. Run a sync to fill the chart."
+msgstr "Belum ada harga tersimpan. Jalankan sinkronisasi untuk mengisi grafik."
+
+msgid "No prices stored yet. Run a sync to fill the table."
+msgstr "Belum ada harga tersimpan. Jalankan sinkronisasi untuk mengisi tabel."
+
+msgid "None yet"
+msgstr "Belum ada"
+
+msgid "Price history"
+msgstr "Riwayat harga"
+
+msgid "Sell (per gram)"
+msgstr "Jual (per gram)"
+
+msgid "Skipped"
+msgstr "Dilewati"
+
+msgid "Source"
+msgstr "Sumber"
+
+msgid "Status / backlog"
+msgstr "Status / antrean"
+
+msgid "Symbols stored"
+msgstr "Simbol tersimpan"
+
+msgid "Sync now"
+msgstr "Sinkronkan sekarang"
+
+msgid "Sync status"
+msgstr "Status sinkronisasi"
+
+msgid "The price file has no usable 1-gram rows."
+msgstr "Berkas harga tidak memiliki baris 1-gram yang dapat dipakai."
+
+msgid "Unknown source."
+msgstr "Sumber tidak dikenal."

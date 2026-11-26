@@ -8,6 +8,11 @@
  * is never reloaded. On any other admin screen the container does not
  * exist and this file does nothing.
  *
+ * Also wires the manual gold sync on Settings -> Gold Prices
+ * ([data-kk-gold-sync]): one AJAX call per source, in order, with a
+ * progress line per step and a page reload at the end so the status,
+ * history list and chart refresh.
+ *
  * The control renders one status row per selected Google font, in the
  * same order as the space-separated ids in the download button's
  * data-kk-fonts attribute, so rows are matched to fonts by position.
@@ -44,6 +49,18 @@ interface MenuIconData {
 	builtIn: Record<string, string>;
 	noIcon: string;
 	defaultColor: string;
+}
+
+/* One step of the manual gold sync (kk_logam_mulia_sync): the source
+ * just synced, rows inserted vs skipped, its latest date, an error
+ * (null on success), and the next source to sync (null when done). */
+interface GoldSyncStep {
+	source: string;
+	inserted: number;
+	skipped: number;
+	latest_date: string | null;
+	error: string | null;
+	next: string | null;
 }
 
 interface CustomizeValue {
@@ -277,6 +294,7 @@ function initAdmin(): void {
 	initTermPickers();
 	initProviderPickers();
 	initMenuIconPickers();
+	initGoldSync();
 
 	if (!adminData()) {
 		return;
@@ -289,6 +307,74 @@ function initAdmin(): void {
 
 	bindFontsControls(container);
 	watchFontSettings(container);
+}
+
+/**
+ * Manual gold sync on Settings -> Gold Prices.
+ *
+ * One AJAX call per source, in step order (galeri24, pegadaian,
+ * hargaemas-net): the first call carries no source, each step
+ * returns `next` (the following source, or null when done), and
+ * the button chains the calls. A per-source failure is reported
+ * as its own line and does not stop the remaining sources. At the
+ * end the page reloads so the status, history list and chart show
+ * the new rows. Without the button (any other admin screen) this
+ * does nothing.
+ */
+function initGoldSync(): void {
+	const config = adminData();
+	if (!config) {
+		return;
+	}
+
+	const button = document.querySelector<HTMLButtonElement>('[data-kk-gold-sync]');
+	const result = document.querySelector<HTMLElement>('[data-kk-gold-sync-result]');
+	if (!button || !result) {
+		return;
+	}
+
+	button.addEventListener('click', async () => {
+		button.disabled = true;
+		result.textContent = '';
+
+		let totalInserted = 0;
+		let totalSkipped = 0;
+		/* null = first call, no source (starts from the first one). */
+		let source: string | null = null;
+
+		try {
+			/* At most one call per source; the cap is a guard against
+			 * a server that ever returns a cycle in `next`. */
+			for (let step = 0; step < 10; step += 1) {
+				const params: Record<string, string> = source === null ? {} : { source };
+				const data: GoldSyncStep = await postAjax<GoldSyncStep>(config, 'kk_logam_mulia_sync', params);
+				totalInserted += data.inserted;
+				totalSkipped += data.skipped;
+
+				const line = document.createElement('div');
+				line.textContent = data.error
+					? `${data.source}: ${data.error}`
+					: `${data.source}: inserted ${data.inserted}, skipped ${data.skipped}${data.latest_date ? ` (latest ${data.latest_date})` : ''}`;
+				result.appendChild(line);
+
+				if (data.next === null) {
+					break;
+				}
+				source = data.next;
+			}
+
+			const summary = document.createElement('div');
+			summary.textContent = `Done — inserted ${totalInserted}, skipped ${totalSkipped} (already in database). Reloading…`;
+			result.appendChild(summary);
+			window.setTimeout(() => window.location.reload(), 1500);
+		} catch (error) {
+			const line = document.createElement('div');
+			line.textContent = errorMessage(error);
+			result.appendChild(line);
+		} finally {
+			button.disabled = false;
+		}
+	});
 }
 
 /**

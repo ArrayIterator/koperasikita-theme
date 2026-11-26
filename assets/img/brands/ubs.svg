@@ -1,0 +1,8 @@
+<!-- Generic initials mark for UBS gold (NOT the official UBS logo:
+no official logo for the Indonesian gold brand exists on Wikimedia
+Commons / Wikipedia). Drawn for Koperasi Kita: theme green + gold,
+plain "UBS". -->
+<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64" role="img" aria-label="UBS">
+  <rect x="2" y="2" width="60" height="60" rx="14" fill="#0B6B3A" stroke="#C9962E" stroke-width="2"/>
+  <text x="32" y="40" font-family="Arial, Helvetica, sans-serif" font-size="19" font-weight="700" fill="#FFFFFF" text-anchor="middle">UBS</text>
+</svg>
