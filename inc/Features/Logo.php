@@ -92,10 +92,10 @@ final class Logo
         return in_array($position, $allowed, true) ? (string) $position : 'left';
     }
 
-    /** Header logo position on mobile: left, centered, right, hide. */
+    /** Header logo position on mobile: left, centered, right, hide, centered-bar. */
     public static function positionMobile(): string
     {
-        $allowed = ['left', 'centered', 'right', 'hide'];
+        $allowed = ['left', 'centered', 'right', 'hide', 'centered-bar'];
         $position = get_theme_mod('kk_logo_position_mobile', 'left');
 
         return in_array($position, $allowed, true) ? (string) $position : 'left';

@@ -263,6 +263,16 @@ html[data-kk-scheme="system"] .kk-icon-monitor {
 		display: none;
 	}
 
+	/* Centered Bar: the brand stacks (logo above, title below) and
+	 * centres as a full-width bar, instead of the horizontal
+	 * logo + title row that Centered keeps. */
+	.kk-brand--pos-mobile-centered-bar {
+		flex-direction: column;
+		align-items: center;
+		text-align: center;
+		margin-inline: auto;
+	}
+
 	.kk-masthead--hide-brand-mobile {
 		display: none;
 	}

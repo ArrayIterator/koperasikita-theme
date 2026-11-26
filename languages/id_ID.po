@@ -2994,6 +2994,10 @@ msgstr "Posisi Logo Header (Mobile)"
 msgid "Centered"
 msgstr "Tengah"
 
+#: inc/Customizer/Customizer.php
+msgid "Centered Bar"
+msgstr "Bar Tengah"
+
 msgid "After Latest News"
 msgstr "Setelah Berita Terbaru"
 

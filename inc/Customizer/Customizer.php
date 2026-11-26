@@ -2436,6 +2436,7 @@ final class Customizer
                 'centered' => esc_html__('Centered', 'koperasikita'),
                 'right' => esc_html__('Right', 'koperasikita'),
                 'hide' => esc_html__('Hidden', 'koperasikita'),
+                'centered-bar' => esc_html__('Centered Bar', 'koperasikita'),
             ],
             'priority' => 75,
         ]);
@@ -2581,7 +2582,7 @@ final class Customizer
 
     public static function sanitizeLogoPosition(mixed $value): string
     {
-        $allowed = ['left', 'centered', 'right', 'hide'];
+        $allowed = ['left', 'centered', 'right', 'hide', 'centered-bar'];
 
         return in_array($value, $allowed, true) ? (string) $value : 'left';
     }
