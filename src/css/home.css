@@ -15,6 +15,15 @@
 	margin-top: 32px;
 }
 
+/* Grid items default to min-width: auto, so a wide child (a slider
+ * row of cards) forces the column wider instead of letting the
+ * slider overflow and scroll. min-width: 0 lets the column shrink
+ * to the grid track, so the slider scrolls — including by touch. */
+.kk-home-primary,
+.kk-home-secondary {
+	min-width: 0;
+}
+
 .kk-home-secondary {
 	display: grid;
 	gap: 32px;

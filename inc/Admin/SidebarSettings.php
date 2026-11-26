@@ -20,6 +20,8 @@ final class SidebarSettings
 {
     public const OPTION = 'kk_sidebar_settings';
 
+    public const PAGE_SLUG = 'kk-sidebar-settings';
+
     /**
      * Sidebar areas that may stick. id => [name, description].
      * Content strips and hero areas are deliberately absent.
@@ -58,19 +60,10 @@ final class SidebarSettings
 
     public static function register(): void
     {
-        add_action('admin_menu', [self::class, 'registerSettingsPage']);
+        // The page itself lives under the single "Koperasi Kita"
+        // top-level menu (AdminMenu); only the settings
+        // registration stays here.
         add_action('admin_init', [self::class, 'registerSettings']);
-    }
-
-    public static function registerSettingsPage(): void
-    {
-        add_theme_page(
-            esc_html__('Sidebar Settings', 'koperasikita'),
-            esc_html__('Sidebar Settings', 'koperasikita'),
-            'manage_options',
-            'kk-sidebar-settings',
-            [self::class, 'renderSettingsPage']
-        );
     }
 
     public static function registerSettings(): void

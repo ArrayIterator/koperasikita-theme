@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace KoperasiKita\Widgets;
 
+use KoperasiKita\Images\FeaturedImage;
 use WP_Post;
 use WP_Widget;
 
@@ -93,7 +94,7 @@ abstract class AbstractStoryWidget extends WP_Widget
                 return;
             }
 
-            echo $args['before_widget'] ?? '';
+            echo WidgetHeader::beforeWidget($args, $settings['header_style']);
 
             WidgetHeader::render($args, $settings['title'], $settings['header_style']);
 
@@ -106,7 +107,7 @@ abstract class AbstractStoryWidget extends WP_Widget
             return;
         }
 
-        echo $args['before_widget'] ?? '';
+        echo WidgetHeader::beforeWidget($args, $settings['header_style']);
 
         WidgetHeader::render($args, $settings['title'], $settings['header_style']);
 
@@ -115,8 +116,14 @@ abstract class AbstractStoryWidget extends WP_Widget
             <?php foreach ($posts as $post) : ?>
                 <li class="kk-widget-story">
                     <a class="kk-widget-story-link" href="<?php echo esc_url(get_permalink($post)); ?>">
-                        <?php if ($settings['show_thumbnail'] && has_post_thumbnail($post)) : ?>
-                            <span class="kk-widget-story-thumb"><?php echo get_the_post_thumbnail($post, 'thumbnail'); ?></span>
+                        <?php if ($settings['show_thumbnail']) : ?>
+                            <span class="kk-widget-story-thumb">
+                                <?php if (has_post_thumbnail($post)) : ?>
+                                    <?php echo get_the_post_thumbnail($post, 'thumbnail'); ?>
+                                <?php else : ?>
+                                    <img src="<?php echo esc_url(FeaturedImage::defaultThumbnailUrl()); ?>" alt="" loading="lazy">
+                                <?php endif; ?>
+                            </span>
                         <?php endif; ?>
                         <span class="kk-widget-story-text">
                             <span class="kk-widget-story-title"><?php echo esc_html(get_the_title($post)); ?></span>

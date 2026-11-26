@@ -50,22 +50,6 @@ final class GoldPricesPage
         'emaskita' => '#6b7280',
     ];
 
-    public static function register(): void
-    {
-        add_action('admin_menu', [self::class, 'registerPage']);
-    }
-
-    public static function registerPage(): void
-    {
-        add_options_page(
-            esc_html__('Gold Prices', 'koperasikita'),
-            esc_html__('Gold Prices', 'koperasikita'),
-            'manage_options',
-            self::PAGE_SLUG,
-            [self::class, 'render']
-        );
-    }
-
     public static function render(): void
     {
         if (!current_user_can('manage_options')) {

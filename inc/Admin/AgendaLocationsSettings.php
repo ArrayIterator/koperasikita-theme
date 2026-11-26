@@ -19,20 +19,10 @@ final class AgendaLocationsSettings
 {
     public static function register(): void
     {
-        add_action('admin_menu', [self::class, 'registerSettingsPage']);
+        // The page itself lives under the single "Koperasi Kita"
+        // top-level menu (AdminMenu); only the settings
+        // registration stays here.
         add_action('admin_init', [self::class, 'registerSettings']);
-    }
-
-    public static function registerSettingsPage(): void
-    {
-        add_submenu_page(
-            'edit.php?post_type=' . Agenda::POST_TYPE,
-            esc_html__('Locations', 'koperasikita'),
-            esc_html__('Locations', 'koperasikita'),
-            'manage_options',
-            Agenda::LOCATIONS_PAGE_SLUG,
-            [self::class, 'renderSettingsPage']
-        );
     }
 
     public static function registerSettings(): void

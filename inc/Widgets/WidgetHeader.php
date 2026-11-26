@@ -54,6 +54,27 @@ final class WidgetHeader
     }
 
     /**
+     * The widget container opening tag, with the no-border modifier
+     * when the header style is no-border. The container's top rule
+     * (content.css: .kk-sidebar .widget / .kk-widget-area .widget)
+     * is part of the header style — "no border" must remove it too,
+     * or the style setting changes nothing visible (the title rule
+     * alone is 1px; the container rule is the thick 2px line).
+     *
+     * @param array<string, mixed> $args Display arguments.
+     */
+    public static function beforeWidget(array $args, string $style): string
+    {
+        $before = (string) ($args['before_widget'] ?? '');
+
+        if ($style === self::NO_BORDER && $before !== '') {
+            $before = preg_replace('/class="([^"]*)"/', 'class="$1 kk-widget--no-border"', $before, 1) ?? $before;
+        }
+
+        return $before;
+    }
+
+    /**
      * Render the widget title (or nothing). An empty title is always
      * hidden; `hide` hides it whatever the title is.
      *

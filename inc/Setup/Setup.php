@@ -16,7 +16,7 @@ namespace KoperasiKita\Setup;
  */
 final class Setup
 {
-    public const PAGE_SLUG = 'koperasikita-setup';
+    public const PAGE_SLUG = 'koperasikita';
 
     public const PLUGIN_FILE = 'traydigita-stack/traydigita-stack.php';
 
@@ -48,20 +48,9 @@ final class Setup
         'activate_failed',
     ];
 
-    public static function register(): void
-    {
-        add_theme_page(
-            __('Koperasi Kita Setup', 'koperasikita'),
-            __('Koperasi Kita Setup', 'koperasikita'),
-            'install_plugins',
-            self::PAGE_SLUG,
-            [self::class, 'render']
-        );
-    }
-
     public static function pageUrl(): string
     {
-        return admin_url('themes.php?page=' . self::PAGE_SLUG);
+        return admin_url('admin.php?page=' . self::PAGE_SLUG);
     }
 
     /**
@@ -82,7 +71,7 @@ final class Setup
         if (function_exists('get_current_screen')) {
             $screen = get_current_screen();
 
-            if ($screen !== null && $screen->id === 'appearance_page_' . self::PAGE_SLUG) {
+            if ($screen !== null && $screen->id === 'toplevel_page_' . self::PAGE_SLUG) {
                 return;
             }
         }

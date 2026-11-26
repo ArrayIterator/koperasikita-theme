@@ -418,7 +418,7 @@ final class Enqueue
 
         $isWidgets = str_contains($hookSuffix, 'widgets');
         $isCustomizer = str_contains($hookSuffix, 'customize');
-        $isSetup = $hookSuffix === 'appearance_page_' . Setup::PAGE_SLUG;
+        $isSetup = $hookSuffix === 'toplevel_page_' . Setup::PAGE_SLUG;
 
         if ($isSetup) {
             $setupCss = ViteLoader::css('src/css/setup.css');
@@ -461,7 +461,7 @@ final class Enqueue
          * sync button (admin.ts initGoldSync) needs the admin
          * script + ajaxUrl/nonce. Runs before the widgets/
          * customizer early return below, which would drop it. */
-        if ($hookSuffix === 'settings_page_' . \KoperasiKita\Admin\GoldPricesPage::PAGE_SLUG) {
+        if ($hookSuffix === 'koperasikita_page_' . \KoperasiKita\Admin\GoldPricesPage::PAGE_SLUG) {
             $css = ViteLoader::css('src/ts/admin.ts');
 
             if ($css !== '') {
@@ -490,7 +490,7 @@ final class Enqueue
             $isAgendaEditor = $screen instanceof \WP_Screen
                 && $screen->post_type === \KoperasiKita\Features\Agenda::POST_TYPE
                 && in_array($screen->base, ['post', 'post-new'], true);
-            $isAgendaLocations = $hookSuffix === 'agenda_page_' . \KoperasiKita\Features\Agenda::LOCATIONS_PAGE_SLUG;
+            $isAgendaLocations = $hookSuffix === 'koperasikita_page_' . \KoperasiKita\Features\Agenda::LOCATIONS_PAGE_SLUG;
 
             if ($isAgendaEditor || $isAgendaLocations) {
                 $agendaCss = ViteLoader::css('src/css/agenda.css');

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace KoperasiKita;
 
+use KoperasiKita\Admin\AdminMenu;
 use KoperasiKita\Admin\SidebarSettings;
 use KoperasiKita\Api\Api;
 use KoperasiKita\Assets\Enqueue;
@@ -78,7 +79,7 @@ final class Theme
         add_action('init', [Menus::class, 'register']);
         add_action('init', [Logo::class, 'register']);
 
-        add_action('admin_menu', [Setup::class, 'register']);
+        add_action('init', [AdminMenu::class, 'register']);
         add_action('admin_notices', [Setup::class, 'adminNotice']);
         add_action('admin_post_kk_setup_install', [Setup::class, 'handleInstall']);
         add_action('admin_post_kk_setup_upload', [Setup::class, 'handleUpload']);

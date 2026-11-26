@@ -66,6 +66,16 @@
 	padding-top: 12px;
 }
 
+/* No-border header style: the widget container's thick top rule is
+ * part of the header style, so "no border" removes it too — the
+ * class is added to the container by WidgetHeader::beforeWidget().
+ * Without this the border/no-border setting changed nothing visible. */
+.kk-widget-area .widget.kk-widget--no-border,
+.kk-sidebar .widget.kk-widget--no-border {
+	border-top: 0;
+	padding-top: 0;
+}
+
 /* --- Sidebar / widgets ---------------------------------------------------- */
 
 .kk-sidebar {

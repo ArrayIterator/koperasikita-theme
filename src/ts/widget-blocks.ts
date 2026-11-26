@@ -199,71 +199,67 @@ function renderField(
 			);
 		}
 		case 'categories': {
-			/* Select2-style picker (FormTokenField): a searchable
-			 * token field, not a long checkbox list. The stored
-			 * value is term IDs; the tokens show term names. */
+			/* Checkbox list, not a token field: every category shows
+			 * directly as a checkbox, so the editor sees the options
+			 * the moment the panel opens — no typing, no focusing to
+			 * reveal them (FormTokenField only suggested matches for
+			 * typed text, so an empty focus showed nothing). The
+			 * stored value is term IDs. */
 			if (categories === null) {
 				return api.element.createElement(api.components.Spinner, { key });
 			}
 			const selected: number[] = Array.isArray(value)
 				? value.filter((item): item is number => typeof item === 'number')
 				: [];
-			const byId = new Map(categories.map((c) => [c.id, c.name]));
-			const byName = new Map(categories.map((c) => [c.name, c.id]));
-			const tokens = selected
-				.map((id) => byId.get(id))
-				.filter((name): name is string => typeof name === 'string');
-			const suggestions = categories.map((c) => c.name);
+			const boxes = categories.map((c) =>
+				api.element.createElement(api.components.CheckboxControl, {
+					key: c.id,
+					label: c.name,
+					checked: selected.includes(c.id),
+					onChange: (next: boolean) => {
+						const nextSelected = next
+							? [...selected, c.id]
+							: selected.filter((id) => id !== c.id);
+						set(key, nextSelected);
+					},
+				}),
+			);
 			return api.element.createElement(
 				'div',
 				{ key },
-				api.element.createElement(api.components.FormTokenField, {
-					label: field.label,
-					value: tokens,
-					suggestions,
-					onChange: (nextTokens: string[]) => {
-						const nextIds = nextTokens
-							.map((name) => byName.get(name))
-							.filter((id): id is number => typeof id === 'number');
-						set(key, nextIds);
-					},
-					__experimentalShowHowTo: false,
-				}),
+				api.element.createElement('p', null, field.label),
+				...boxes,
 				field.help !== undefined
 					? api.element.createElement('p', { className: 'components-base-control__help' }, field.help)
 					: null,
 			);
 		}
 		case 'tags': {
-			/* Select2-style picker (FormTokenField), same as
-			 * categories but for post tags. */
+			/* Checkbox list, same as categories but for post tags. */
 			if (tags === null) {
 				return api.element.createElement(api.components.Spinner, { key });
 			}
 			const selected: number[] = Array.isArray(value)
 				? value.filter((item): item is number => typeof item === 'number')
 				: [];
-			const byId = new Map(tags.map((t) => [t.id, t.name]));
-			const byName = new Map(tags.map((t) => [t.name, t.id]));
-			const tokens = selected
-				.map((id) => byId.get(id))
-				.filter((name): name is string => typeof name === 'string');
-			const suggestions = tags.map((t) => t.name);
+			const boxes = tags.map((t) =>
+				api.element.createElement(api.components.CheckboxControl, {
+					key: t.id,
+					label: t.name,
+					checked: selected.includes(t.id),
+					onChange: (next: boolean) => {
+						const nextSelected = next
+							? [...selected, t.id]
+							: selected.filter((id) => id !== t.id);
+						set(key, nextSelected);
+					},
+				}),
+			);
 			return api.element.createElement(
 				'div',
 				{ key },
-				api.element.createElement(api.components.FormTokenField, {
-					label: field.label,
-					value: tokens,
-					suggestions,
-					onChange: (nextTokens: string[]) => {
-						const nextIds = nextTokens
-							.map((name) => byName.get(name))
-							.filter((id): id is number => typeof id === 'number');
-						set(key, nextIds);
-					},
-					__experimentalShowHowTo: false,
-				}),
+				api.element.createElement('p', null, field.label),
+				...boxes,
 				field.help !== undefined
 					? api.element.createElement('p', { className: 'components-base-control__help' }, field.help)
 					: null,
@@ -391,7 +387,7 @@ function buildDefinitions(api: Wp): BlockDef[] {
 		},
 		{
 			slug: 'editors-picks',
-			title: __('Editor’s Picks'),
+			title: __('Post By Terms'),
 			description: __('Numbered list of posts from the categories and tags you pick, newest first.'),
 			icon: 'star-filled',
 			attributes: {

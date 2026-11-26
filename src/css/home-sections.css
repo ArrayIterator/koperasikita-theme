@@ -522,6 +522,12 @@
 	scroll-snap-type: x mandatory;
 	scrollbar-width: none;
 	padding-bottom: 0.25rem;
+	/* min-width: 0 so the row shrinks to its container and the
+	 * cards overflow inside it (scrollable) instead of forcing
+	 * the column wider; touch-action: pan-x so a horizontal
+	 * swipe is a scroll, not a tap on a card link. */
+	min-width: 0;
+	touch-action: pan-x;
 }
 
 .kk-highlights-slider::-webkit-scrollbar,
@@ -552,6 +558,8 @@
 	overflow-x: auto;
 	scroll-snap-type: x mandatory;
 	scrollbar-width: none;
+	min-width: 0;
+	touch-action: pan-x;
 }
 
 .kk-highlights-slider-full::-webkit-scrollbar {
@@ -586,6 +594,8 @@
 	scroll-snap-type: x mandatory;
 	scrollbar-width: none;
 	padding-bottom: 0.25rem;
+	min-width: 0;
+	touch-action: pan-x;
 }
 
 .kk-highlights-list--slider::-webkit-scrollbar {

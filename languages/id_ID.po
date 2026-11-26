@@ -3162,3 +3162,9 @@ msgstr "Berkas harga tidak memiliki baris 1-gram yang dapat dipakai."
 
 msgid "Unknown source."
 msgstr "Sumber tidak dikenal."
+
+msgid "Koperasi Kita Post By Terms"
+msgstr "Koperasi Kita Post Berdasarkan Term"
+
+msgid "Post By Terms"
+msgstr "Post Berdasarkan Term"

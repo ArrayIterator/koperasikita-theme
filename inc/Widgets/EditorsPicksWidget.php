@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace KoperasiKita\Widgets;
 
+use KoperasiKita\Images\FeaturedImage;
+
 /**
  * Editor's Picks widget: a numbered list of posts (1, 2, 3, 4), like
  * the old hardcoded homepage section — now a proper widget, so the
@@ -21,7 +23,7 @@ final class EditorsPicksWidget extends AbstractStoryWidget
     {
         parent::__construct(
             'kk_editors_picks',
-            __('Koperasi Kita Editor’s Picks', 'koperasikita'),
+            __('Koperasi Kita Post By Terms', 'koperasikita'),
             [
                 'description' => __('Numbered list of posts from the categories and tags you pick, newest first.', 'koperasikita'),
                 'classname' => 'kk-editors-picks-widget',
@@ -106,7 +108,7 @@ final class EditorsPicksWidget extends AbstractStoryWidget
                 return;
             }
 
-            echo $args['before_widget'] ?? '';
+            echo WidgetHeader::beforeWidget($args, $settings['header_style']);
 
             WidgetHeader::render($args, $settings['title'], $settings['header_style']);
 
@@ -119,7 +121,7 @@ final class EditorsPicksWidget extends AbstractStoryWidget
             return;
         }
 
-        echo $args['before_widget'] ?? '';
+        echo WidgetHeader::beforeWidget($args, $settings['header_style']);
 
         WidgetHeader::render($args, $settings['title'], $settings['header_style']);
 
@@ -134,9 +136,13 @@ final class EditorsPicksWidget extends AbstractStoryWidget
                         <span class="kk-pick-number" aria-hidden="true"><?php echo esc_html((string) $number); ?></span>
                     <?php endif; ?>
                     <div class="kk-pick-body">
-                        <?php if ($settings['show_thumbnail'] && has_post_thumbnail($post)) : ?>
+                        <?php if ($settings['show_thumbnail']) : ?>
                             <a class="kk-pick-thumb" href="<?php echo esc_url(get_permalink($post)); ?>" tabindex="-1" aria-hidden="true">
-                                <?php echo get_the_post_thumbnail($post, 'medium'); ?>
+                                <?php if (has_post_thumbnail($post)) : ?>
+                                    <?php echo get_the_post_thumbnail($post, 'medium'); ?>
+                                <?php else : ?>
+                                    <img src="<?php echo esc_url(FeaturedImage::defaultThumbnailUrl()); ?>" alt="" loading="lazy">
+                                <?php endif; ?>
                             </a>
                         <?php endif; ?>
                         <?php
