@@ -2023,6 +2023,27 @@ msgstr "Judul Berita Terkini"
 msgid "The label shown on the news ticker."
 msgstr "Label yang ditampilkan pada ticker berita."
 
+msgid "Breaking Ribbon Style"
+msgstr "Gaya Pita Breaking"
+
+msgid "The design of the Breaking label on the news ticker."
+msgstr "Desain label Breaking pada ticker berita."
+
+msgid "Gold (solid gold, black text)"
+msgstr "Emas (emas solid, teks hitam)"
+
+msgid "Green (brand green, white text)"
+msgstr "Hijau (hijau merek, teks putih)"
+
+msgid "Dark (near-black, white text)"
+msgstr "Gelap (hampir hitam, teks putih)"
+
+msgid "Red (alert red, white text)"
+msgstr "Merah (merah peringatan, teks putih)"
+
+msgid "Outline (gold border, dark text)"
+msgstr "Garis tepi (border emas, teks gelap)"
+
 msgid "App Icon"
 msgstr "Ikon Aplikasi"
 

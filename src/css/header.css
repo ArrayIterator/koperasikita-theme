@@ -566,16 +566,40 @@ html.kk-nav-open body {
 
 .kk-ticker-label {
 	flex: 0 0 auto;
-	font-size: 12px;
-	font-weight: 700;
+	font-size: 0.75rem;
+	font-weight: 800;
 	letter-spacing: 0.12em;
 	text-transform: uppercase;
-	/* Dark text on the gold: white on #C9962E is 2.66:1, dark text
-	 * is 7.03:1 (dark mode already uses #121212). */
-	color: #121212;
+	/* Gold (default): pure black text on the gold — 7.89:1, up from
+	 * 7.03:1 with #121212. The other styles are variants below. */
+	color: #000;
 	background: var(--kk-gold, #C9962E);
-	padding: 5px 10px;
+	padding: 0.3125rem 0.625rem;
 	border-radius: var(--kk-radius);
+}
+
+/* Breaking ribbon styles (Customizer: Header -> Breaking Ribbon
+ * Style). Every variant is high contrast so the label stays
+ * readable in both colour schemes. */
+.kk-ticker-label--green {
+	color: #fff;
+	background: var(--kk-green, #0B6B3A);
+}
+
+.kk-ticker-label--dark {
+	color: #fff;
+	background: #121212;
+}
+
+.kk-ticker-label--red {
+	color: #fff;
+	background: #B91C1C;
+}
+
+.kk-ticker-label--outline {
+	color: var(--kk-ink);
+	background: transparent;
+	box-shadow: inset 0 0 0 2px var(--kk-gold, #C9962E);
 }
 
 .kk-ticker-list {

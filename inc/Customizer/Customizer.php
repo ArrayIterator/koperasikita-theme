@@ -521,6 +521,31 @@ final class Customizer
             'type' => 'text',
         ]);
 
+        /* Breaking ribbon style: five label designs, all high
+         * contrast (gold 7.89:1, green 6.61:1, dark 18.73:1, red
+         * 6.47:1, outline 18.73:1 on the light ticker). The old
+         * single gold look was the complaint: "jelek banget". */
+        self::addSetting(
+            $wpCustomize,
+            'kk_breaking_style',
+            'gold',
+            [self::class, 'sanitizeBreakingStyle'],
+            'refresh'
+        );
+        $wpCustomize->add_control('kk_breaking_style', [
+            'label' => esc_html__('Breaking Ribbon Style', 'koperasikita'),
+            'description' => esc_html__('The design of the Breaking label on the news ticker.', 'koperasikita'),
+            'section' => 'koperasikita_header',
+            'type' => 'select',
+            'choices' => [
+                'gold' => esc_html__('Gold (solid gold, black text)', 'koperasikita'),
+                'green' => esc_html__('Green (brand green, white text)', 'koperasikita'),
+                'dark' => esc_html__('Dark (near-black, white text)', 'koperasikita'),
+                'red' => esc_html__('Red (alert red, white text)', 'koperasikita'),
+                'outline' => esc_html__('Outline (gold border, dark text)', 'koperasikita'),
+            ],
+        ]);
+
         self::addSetting(
             $wpCustomize,
             'kk_breaking_source',
@@ -1153,6 +1178,13 @@ final class Customizer
     public static function sanitizeBreakingSource(mixed $value): string
     {
         return in_array($value, ['latest', 'category', 'tag'], true) ? (string) $value : 'latest';
+    }
+
+    public static function sanitizeBreakingStyle(mixed $value): string
+    {
+        $allowed = ['gold', 'green', 'dark', 'red', 'outline'];
+
+        return in_array($value, $allowed, true) ? (string) $value : 'gold';
     }
 
     /**

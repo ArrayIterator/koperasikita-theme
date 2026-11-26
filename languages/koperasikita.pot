@@ -1055,6 +1055,42 @@ msgstr ""
 msgid "Breaking"
 msgstr ""
 
+#: inc/Customizer/Customizer.php
+msgid "Breaking News Title"
+msgstr ""
+
+#: inc/Customizer/Customizer.php
+msgid "The label shown on the news ticker."
+msgstr ""
+
+#: inc/Customizer/Customizer.php
+msgid "Breaking Ribbon Style"
+msgstr ""
+
+#: inc/Customizer/Customizer.php
+msgid "The design of the Breaking label on the news ticker."
+msgstr ""
+
+#: inc/Customizer/Customizer.php
+msgid "Gold (solid gold, black text)"
+msgstr ""
+
+#: inc/Customizer/Customizer.php
+msgid "Green (brand green, white text)"
+msgstr ""
+
+#: inc/Customizer/Customizer.php
+msgid "Dark (near-black, white text)"
+msgstr ""
+
+#: inc/Customizer/Customizer.php
+msgid "Red (alert red, white text)"
+msgstr ""
+
+#: inc/Customizer/Customizer.php
+msgid "Outline (gold border, dark text)"
+msgstr ""
+
 #: template-parts/header/ticker.php
 msgid "Breaking news"
 msgstr ""
