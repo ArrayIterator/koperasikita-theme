@@ -58,12 +58,14 @@ if ( \KoperasiKita\Features\Pwa::isButtonPosition( 'above-header' ) ) {
 
 	<div class="kk-masthead">
 		<div class="kk-shell kk-masthead-inner">
-			<div class="kk-brand">
+			<div class="kk-brand<?php echo esc_attr( \KoperasiKita\Features\Logo::brandClasses() ); ?>">
 				<?php
 				// A custom logo is the site's banner lockup (mark + wordmark
 				// as one image), so it stands alone: the text title and
 				// tagline would duplicate the wordmark baked into the
-				// image. They render only with the built-in K mark.
+				// image. They render only with the built-in K mark — or
+				// next to the logo when "Show Title Text" is on (see
+				// Logo::brand, which appends the text brand itself).
 				if ( \KoperasiKita\Features\Logo::hasLogo() ) {
 					echo \KoperasiKita\Features\Logo::brand(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 				} else {
@@ -73,10 +75,10 @@ if ( \KoperasiKita\Features\Pwa::isButtonPosition( 'above-header' ) ) {
 					</a>
 					<div class="kk-brand-text">
 						<p class="kk-site-title">
-							<a href="<?php echo esc_url( home_url( '/' ) ); ?>" rel="home"><?php bloginfo( 'name' ); ?></a>
+							<a href="<?php echo esc_url( home_url( '/' ) ); ?>" rel="home"><?php echo esc_html( \KoperasiKita\Features\Logo::titleText() ); ?></a>
 						</p>
 						<?php
-						$description = get_bloginfo( 'description', 'display' );
+						$description = \KoperasiKita\Features\Logo::subtitleText();
 						if ( $description ) {
 							?>
 							<p class="kk-site-tagline"><?php echo esc_html( $description ); ?></p>

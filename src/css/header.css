@@ -205,6 +205,45 @@ html[data-kk-scheme="system"] .kk-icon-monitor {
 	color: var(--kk-muted);
 }
 
+/* Text brand: the title and slogan stack (the lockup renders them
+ * as spans inside the logo link, the fallback as paragraphs). Next
+ * to a logo the title runs smaller than the standalone 32px. */
+.kk-brand-text .kk-site-title,
+.kk-brand-text .kk-site-tagline {
+	display: block;
+}
+
+.kk-brand .custom-logo-link .kk-site-title {
+	font-size: 1.25rem;
+	line-height: 1.2;
+}
+
+.kk-brand .custom-logo-link .kk-site-tagline {
+	font-size: 0.8125rem;
+}
+
+/* Square logo: fixed square sizes (an SVG has no intrinsic size,
+ * so the raster sizes would not apply to it). */
+.kk-brand .kk-logo--square {
+	width: 56px;
+	height: 56px;
+	object-fit: contain;
+}
+
+@media (max-width: 767px) {
+	/* "Center Brand on Mobile": the brand is the only visible
+	 * masthead item here (the date is hidden), so auto margins
+	 * centre it. */
+	.kk-brand--center-mobile {
+		margin-inline: auto;
+	}
+
+	/* "Hide Text on Mobile": title + slogan go away, logo only. */
+	.kk-brand--hide-text-mobile .kk-brand-text {
+		display: none;
+	}
+}
+
 .kk-masthead-date {
 	display: none;
 	font-size: 13px;
@@ -383,6 +422,7 @@ html.kk-nav-open body {
 .kk-drawer-brand {
 	display: inline-flex;
 	align-items: center;
+	gap: 10px;
 	min-width: 0;
 }
 
@@ -397,6 +437,35 @@ html.kk-nav-open body {
 	height: auto;
 	max-width: 180px;
 	max-height: 32px;
+}
+
+/* Square drawer logo: a fixed 32px square (an SVG has no intrinsic
+ * size, so the max-size rules above would not square it). */
+.kk-drawer-brand-logo.kk-logo--square {
+	width: 32px;
+	height: 32px;
+	max-width: 32px;
+	max-height: 32px;
+	object-fit: contain;
+}
+
+/* Drawer brand text (title + optional slogan beside the logo). */
+.kk-drawer-brand-text {
+	display: flex;
+	flex-direction: column;
+	min-width: 0;
+}
+
+.kk-drawer-brand-title {
+	font-weight: 700;
+	font-size: 0.9375rem;
+	line-height: 1.2;
+	color: var(--kk-ink);
+}
+
+.kk-drawer-brand-slogan {
+	font-size: 0.75rem;
+	color: var(--kk-muted);
 }
 
 /* Drill-down back bar: shown when a sub-menu is open. */

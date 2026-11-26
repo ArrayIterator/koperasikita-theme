@@ -2888,3 +2888,107 @@ msgstr "Tampilkan Judul Menu"
 #: inc/Customizer/Customizer.php:1233
 msgid "Menu Title Size"
 msgstr "Ukuran Judul Menu"
+
+#: inc/Customizer/Customizer.php:71
+msgid "Advanced Logo & Sidebar"
+msgstr "Logo Lanjutan & Sidebar"
+
+#: inc/Customizer/Customizer.php:998
+msgid "Show Back to Top Button"
+msgstr "Tampilkan Tombol Kembali ke Atas"
+
+#: inc/Customizer/Customizer.php:2093
+msgid "Ignore Default Logo"
+msgstr "Abaikan Logo Default"
+
+#: inc/Customizer/Customizer.php:2094
+msgid "Ignore the default logo and use the square logo (or the built-in mark) instead."
+msgstr "Abaikan logo default dan gunakan logo kotak (atau mark bawaan)."
+
+#: inc/Customizer/Customizer.php:2102
+msgid "Square Logo / Icon"
+msgstr "Logo / Ikon Kotak"
+
+#: inc/Customizer/Customizer.php:2103
+msgid "A square mark for the drawer and as the masthead fallback. SVG files are accepted."
+msgstr "Mark kotak untuk drawer dan sebagai cadangan masthead. File SVG diterima."
+
+#: inc/Customizer/Customizer.php:2111
+msgid "Show Title Text"
+msgstr "Tampilkan Teks Judul"
+
+#: inc/Customizer/Customizer.php:2112
+msgid "Show the site title as text next to the logo in the masthead."
+msgstr "Tampilkan judul situs sebagai teks di samping logo pada masthead."
+
+#: inc/Customizer/Customizer.php:2120
+msgid "Logo Title Text"
+msgstr "Teks Judul Logo"
+
+#: inc/Customizer/Customizer.php:2121
+msgid "Leave empty to use the site title."
+msgstr "Kosongkan untuk memakai judul situs."
+
+#: inc/Customizer/Customizer.php:2130
+msgid "Show Slogan"
+msgstr "Tampilkan Slogan"
+
+#: inc/Customizer/Customizer.php:2131
+msgid "Show the subtitle under the title."
+msgstr "Tampilkan subjudul di bawah judul."
+
+#: inc/Customizer/Customizer.php:2140
+msgid "Logo Subtitle"
+msgstr "Subjudul Logo"
+
+#: inc/Customizer/Customizer.php:2141
+msgid "Leave empty to use the site tagline."
+msgstr "Kosongkan untuk memakai tagline situs."
+
+#: inc/Customizer/Customizer.php:2150
+msgid "Center Brand on Mobile"
+msgstr "Ratakan Brand ke Tengah di Mobile"
+
+#: inc/Customizer/Customizer.php:2158
+msgid "Hide Text on Mobile"
+msgstr "Sembunyikan Teks di Mobile"
+
+#: inc/Customizer/Customizer.php:2159
+msgid "Hide the title and slogan on mobile, logo only."
+msgstr "Sembunyikan judul dan slogan di mobile, logo saja."
+
+#: inc/Customizer/Customizer.php:2173
+msgid "Sidebar Brand"
+msgstr "Brand Sidebar"
+
+#: inc/Customizer/Customizer.php:2174
+msgid "How the brand renders in the drawer (mobile sidebar)."
+msgstr "Cara brand tampil di drawer (sidebar mobile)."
+
+#: inc/Customizer/Customizer.php:2178
+msgid "Logo Only"
+msgstr "Logo Saja"
+
+#: inc/Customizer/Customizer.php:2179
+msgid "Logo + Title"
+msgstr "Logo + Judul"
+
+#: inc/Customizer/Customizer.php:2180
+msgid "Logo + Title + Slogan"
+msgstr "Logo + Judul + Slogan"
+
+#: inc/Customizer/Customizer.php:2181
+msgid "Title Only"
+msgstr "Judul Saja"
+
+#: inc/Customizer/Customizer.php:2182
+msgid "Hidden"
+msgstr "Disembunyikan"
+
+#: inc/Features/Logo.php:162
+msgid "This SVG file could not be read."
+msgstr "File SVG ini tidak bisa dibaca."
+
+#: inc/Features/Logo.php:179
+msgid "This SVG file contains active content and cannot be uploaded. Use a plain image SVG."
+msgstr "File SVG ini mengandung konten aktif dan tidak bisa diunggah. Gunakan SVG gambar biasa."

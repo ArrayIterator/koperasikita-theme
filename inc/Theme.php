@@ -12,6 +12,7 @@ use KoperasiKita\Customizer\Customizer;
 use KoperasiKita\Customizer\TermSearch;
 use KoperasiKita\Features\Features;
 use KoperasiKita\Features\Fonts;
+use KoperasiKita\Features\Logo;
 use KoperasiKita\Features\Pwa;
 use KoperasiKita\Features\StyleVariant;
 use KoperasiKita\SEO\Seo;
@@ -52,6 +53,7 @@ final class Theme
 
         add_action('customize_register', [Customizer::class, 'register']);
         add_action('customize_register', [Customizer::class, 'registerLogoControls'], 20);
+        add_action('customize_register', [Customizer::class, 'registerAdvancedLogoControls'], 20);
 
         add_action('wp_enqueue_scripts', [Enqueue::class, 'register']);
         add_action('admin_enqueue_scripts', [Enqueue::class, 'registerAdmin']);
@@ -74,6 +76,7 @@ final class Theme
         add_action('init', [Blocks::class, 'register']);
         add_action('init', [MenuIcons::class, 'register']);
         add_action('init', [Menus::class, 'register']);
+        add_action('init', [Logo::class, 'register']);
 
         add_action('admin_menu', [Setup::class, 'register']);
         add_action('admin_notices', [Setup::class, 'adminNotice']);

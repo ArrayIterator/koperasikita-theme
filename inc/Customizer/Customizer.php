@@ -68,6 +68,7 @@ final class Customizer
         $sections = [
             'koperasikita_colors' => esc_html__('Color Palette', 'koperasikita'),
             'koperasikita_logo' => esc_html__('Logo', 'koperasikita'),
+            'koperasikita_advanced_logo' => esc_html__('Advanced Logo & Sidebar', 'koperasikita'),
             'koperasikita_typography' => esc_html__('Typography', 'koperasikita'),
             'koperasikita_header' => esc_html__('Header & Breaking News', 'koperasikita'),
             'koperasikita_mobile_menu' => esc_html__('Mobile Menu', 'koperasikita'),
@@ -980,6 +981,21 @@ final class Customizer
         );
         $wpCustomize->add_control('kk_dark_mode_toggle', [
             'label' => esc_html__('Show Dark-Mode Switch', 'koperasikita'),
+            'section' => 'koperasikita_accessibility',
+            'type' => 'checkbox',
+        ]);
+
+        /* Back to top: the floating button that appears after
+         * scrolling down (footer.php). Off hides it entirely. */
+        self::addSetting(
+            $wpCustomize,
+            'kk_back_to_top',
+            true,
+            [self::class, 'sanitizeBool'],
+            'refresh'
+        );
+        $wpCustomize->add_control('kk_back_to_top', [
+            'label' => esc_html__('Show Back to Top Button', 'koperasikita'),
             'section' => 'koperasikita_accessibility',
             'type' => 'checkbox',
         ]);
@@ -2062,6 +2078,114 @@ final class Customizer
     }
 
     /**
+     * Advanced logo & sidebar brand controls (section
+     * koperasikita_advanced_logo): a square logo/icon (SVG upload is
+     * allowed — see Logo::register, which only accepts sanitised
+     * SVGs), an override that ignores the default logo, the text
+     * brand (title + slogan), mobile centring / text hiding, and
+     * how the drawer (mobile sidebar) brand renders. All defaults
+     * keep the current look: no text brand, logo-only drawer.
+     */
+    public static function registerAdvancedLogoControls(WP_Customize_Manager $wpCustomize): void
+    {
+        self::addSetting($wpCustomize, 'kk_logo_ignore_default', false, [self::class, 'sanitizeBool'], 'refresh');
+        $wpCustomize->add_control('kk_logo_ignore_default', [
+            'label' => esc_html__('Ignore Default Logo', 'koperasikita'),
+            'description' => esc_html__('Ignore the default logo and use the square logo (or the built-in mark) instead.', 'koperasikita'),
+            'section' => 'koperasikita_advanced_logo',
+            'type' => 'checkbox',
+            'priority' => 10,
+        ]);
+
+        self::addSetting($wpCustomize, 'kk_logo_square', 0, 'absint');
+        $wpCustomize->add_control(new WP_Customize_Media_Control($wpCustomize, 'kk_logo_square', [
+            'label' => esc_html__('Square Logo / Icon', 'koperasikita'),
+            'description' => esc_html__('A square mark for the drawer and as the masthead fallback. SVG files are accepted.', 'koperasikita'),
+            'section' => 'koperasikita_advanced_logo',
+            'mime_type' => 'image',
+            'priority' => 20,
+        ]));
+
+        self::addSetting($wpCustomize, 'kk_logo_show_title', false, [self::class, 'sanitizeBool'], 'refresh');
+        $wpCustomize->add_control('kk_logo_show_title', [
+            'label' => esc_html__('Show Title Text', 'koperasikita'),
+            'description' => esc_html__('Show the site title as text next to the logo in the masthead.', 'koperasikita'),
+            'section' => 'koperasikita_advanced_logo',
+            'type' => 'checkbox',
+            'priority' => 30,
+        ]);
+
+        self::addSetting($wpCustomize, 'kk_logo_title_text', '', 'sanitize_text_field', 'refresh');
+        $wpCustomize->add_control('kk_logo_title_text', [
+            'label' => esc_html__('Logo Title Text', 'koperasikita'),
+            'description' => esc_html__('Leave empty to use the site title.', 'koperasikita'),
+            'section' => 'koperasikita_advanced_logo',
+            'type' => 'text',
+            'priority' => 40,
+            'active_callback' => [self::class, 'isLogoTitleShown'],
+        ]);
+
+        self::addSetting($wpCustomize, 'kk_logo_show_slogan', false, [self::class, 'sanitizeBool'], 'refresh');
+        $wpCustomize->add_control('kk_logo_show_slogan', [
+            'label' => esc_html__('Show Slogan', 'koperasikita'),
+            'description' => esc_html__('Show the subtitle under the title.', 'koperasikita'),
+            'section' => 'koperasikita_advanced_logo',
+            'type' => 'checkbox',
+            'priority' => 50,
+            'active_callback' => [self::class, 'isLogoTitleShown'],
+        ]);
+
+        self::addSetting($wpCustomize, 'kk_logo_subtitle_text', '', 'sanitize_text_field', 'refresh');
+        $wpCustomize->add_control('kk_logo_subtitle_text', [
+            'label' => esc_html__('Logo Subtitle', 'koperasikita'),
+            'description' => esc_html__('Leave empty to use the site tagline.', 'koperasikita'),
+            'section' => 'koperasikita_advanced_logo',
+            'type' => 'text',
+            'priority' => 60,
+            'active_callback' => [self::class, 'isLogoSloganShown'],
+        ]);
+
+        self::addSetting($wpCustomize, 'kk_logo_center_mobile', false, [self::class, 'sanitizeBool'], 'refresh');
+        $wpCustomize->add_control('kk_logo_center_mobile', [
+            'label' => esc_html__('Center Brand on Mobile', 'koperasikita'),
+            'section' => 'koperasikita_advanced_logo',
+            'type' => 'checkbox',
+            'priority' => 70,
+        ]);
+
+        self::addSetting($wpCustomize, 'kk_logo_hide_text_mobile', false, [self::class, 'sanitizeBool'], 'refresh');
+        $wpCustomize->add_control('kk_logo_hide_text_mobile', [
+            'label' => esc_html__('Hide Text on Mobile', 'koperasikita'),
+            'description' => esc_html__('Hide the title and slogan on mobile, logo only.', 'koperasikita'),
+            'section' => 'koperasikita_advanced_logo',
+            'type' => 'checkbox',
+            'priority' => 80,
+        ]);
+
+        self::addSetting(
+            $wpCustomize,
+            'kk_logo_sidebar_mode',
+            'logo-only',
+            [self::class, 'sanitizeSidebarMode'],
+            'refresh'
+        );
+        $wpCustomize->add_control('kk_logo_sidebar_mode', [
+            'label' => esc_html__('Sidebar Brand', 'koperasikita'),
+            'description' => esc_html__('How the brand renders in the drawer (mobile sidebar).', 'koperasikita'),
+            'section' => 'koperasikita_advanced_logo',
+            'type' => 'select',
+            'choices' => [
+                'logo-only' => esc_html__('Logo Only', 'koperasikita'),
+                'logo-title' => esc_html__('Logo + Title', 'koperasikita'),
+                'logo-title-slogan' => esc_html__('Logo + Title + Slogan', 'koperasikita'),
+                'title-only' => esc_html__('Title Only', 'koperasikita'),
+                'hidden' => esc_html__('Hidden', 'koperasikita'),
+            ],
+            'priority' => 90,
+        ]);
+    }
+
+    /**
      * Add the is-inverted class to the custom logo image when the
      * "Invert Logo in Dark Mode" setting is on, so the dark-mode invert
      * rule in app.css applies on the live site (not just in the preview).
@@ -2142,6 +2266,25 @@ final class Customizer
     public static function isMobileMenuTitlesShown(): bool
     {
         return self::isMobileMenuDisplayed() && (bool) get_theme_mod('kk_mobile_menu_show_titles', true);
+    }
+
+    /* The text-brand settings only show while the title text is on;
+     * the subtitle additionally needs the slogan on. */
+    public static function isLogoTitleShown(): bool
+    {
+        return (bool) get_theme_mod('kk_logo_show_title', false);
+    }
+
+    public static function isLogoSloganShown(): bool
+    {
+        return self::isLogoTitleShown() && (bool) get_theme_mod('kk_logo_show_slogan', false);
+    }
+
+    public static function sanitizeSidebarMode(mixed $value): string
+    {
+        $allowed = ['logo-only', 'logo-title', 'logo-title-slogan', 'title-only', 'hidden'];
+
+        return in_array($value, $allowed, true) ? (string) $value : 'logo-only';
     }
 
     public static function sanitizeHeroSliderStyle(mixed $value): string

@@ -113,9 +113,11 @@ if ( [] !== $bottom_nav_items && \KoperasiKita\Setup\Menus::isDisplayed() ) :
 endif;
 ?>
 
+<?php if ( get_theme_mod( 'kk_back_to_top', true ) ) : ?>
 <button type="button" class="kk-back-to-top" id="kk-back-to-top" aria-label="<?php esc_attr_e( 'Back to top', 'koperasikita' ); ?>" hidden>
 	<?php echo \KoperasiKita\Icons\Icon::svg( 'arrow-right', 20 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 </button>
+<?php endif; ?>
 
 <?php wp_footer(); ?>
 

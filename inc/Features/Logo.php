@@ -37,6 +37,154 @@ final class Logo
         };
     }
 
+    /** Attachment ID of the square logo/icon, or 0 when not set. */
+    public static function squareId(): int
+    {
+        return (int) get_theme_mod('kk_logo_square', 0);
+    }
+
+    /** Whether the default logo is ignored (square logo / mark instead). */
+    public static function ignoreDefault(): bool
+    {
+        return (bool) get_theme_mod('kk_logo_ignore_default', false);
+    }
+
+    /** The text-brand title: custom text, or the site title. */
+    public static function titleText(): string
+    {
+        $custom = trim((string) get_theme_mod('kk_logo_title_text', ''));
+
+        return '' !== $custom ? $custom : (string) get_bloginfo('name');
+    }
+
+    /** The text-brand subtitle: custom text, or the site tagline. */
+    public static function subtitleText(): string
+    {
+        $custom = trim((string) get_theme_mod('kk_logo_subtitle_text', ''));
+
+        return '' !== $custom ? $custom : (string) get_bloginfo('description', 'display');
+    }
+
+    /** Whether the masthead shows the title text next to the logo. */
+    public static function showTitle(): bool
+    {
+        return (bool) get_theme_mod('kk_logo_show_title', false);
+    }
+
+    /** Whether the masthead shows the slogan under the title. */
+    public static function showSlogan(): bool
+    {
+        return (bool) get_theme_mod('kk_logo_show_slogan', false);
+    }
+
+    /** Whether the masthead brand is centred on mobile. */
+    public static function centerMobile(): bool
+    {
+        return (bool) get_theme_mod('kk_logo_center_mobile', false);
+    }
+
+    /** Whether the brand text is hidden on mobile (logo only). */
+    public static function hideTextMobile(): bool
+    {
+        return (bool) get_theme_mod('kk_logo_hide_text_mobile', false);
+    }
+
+    /** How the drawer (mobile sidebar) brand renders. */
+    public static function sidebarMode(): string
+    {
+        $allowed = ['logo-only', 'logo-title', 'logo-title-slogan', 'title-only', 'hidden'];
+        $mode = get_theme_mod('kk_logo_sidebar_mode', 'logo-only');
+
+        return in_array($mode, $allowed, true) ? (string) $mode : 'logo-only';
+    }
+
+    /** Extra classes for the masthead brand wrapper. */
+    public static function brandClasses(): string
+    {
+        $classes = '';
+
+        if (self::centerMobile()) {
+            $classes .= ' kk-brand--center-mobile';
+        }
+
+        if (self::hideTextMobile()) {
+            $classes .= ' kk-brand--hide-text-mobile';
+        }
+
+        return $classes;
+    }
+
+    /**
+     * Register the SVG upload filters. SVGs are only accepted from
+     * users who can manage options (the Customizer), and every SVG
+     * is screened for active content on upload: a logo SVG must be
+     * a picture, never a script. WordPress blocks SVG uploads by
+     * default because an unsanitised SVG can run JavaScript; the
+     * prefilter below is what makes allowing them safe here.
+     */
+    public static function register(): void
+    {
+        add_filter('upload_mimes', [self::class, 'allowSvgUpload']);
+        add_filter('wp_handle_upload_prefilter', [self::class, 'rejectUnsafeSvg']);
+    }
+
+    /** Allow SVG uploads for administrators (Customizer logos). */
+    public static function allowSvgUpload(array $mimes): array
+    {
+        if (!current_user_can('manage_options')) {
+            return $mimes;
+        }
+
+        $mimes['svg'] = 'image/svg+xml';
+
+        return $mimes;
+    }
+
+    /**
+     * Reject an SVG upload that carries active content (scripts,
+     * event handlers, javascript: URIs, foreign objects, embeds,
+     * forms, XML entities, or server-side processing instructions).
+     * Anything else passes through untouched.
+     */
+    public static function rejectUnsafeSvg(array $file): array
+    {
+        $name = (string) ($file['name'] ?? '');
+        $type = (string) ($file['type'] ?? '');
+
+        if ('image/svg+xml' !== $type && !str_ends_with(strtolower($name), '.svg')) {
+            return $file;
+        }
+
+        $tmp = (string) ($file['tmp_name'] ?? '');
+        $contents = '' !== $tmp && is_readable($tmp) ? file_get_contents($tmp) : false;
+
+        if (false === $contents) {
+            $file['error'] = __('This SVG file could not be read.', 'koperasikita');
+
+            return $file;
+        }
+
+        $unsafe = [
+            '/<script/i',
+            '/\son\w+\s*=/i',
+            '/javascript\s*:/i',
+            '/<foreignObject/i',
+            '/<(iframe|object|embed|form|meta|base)\b/i',
+            '/<!ENTITY/i',
+            '/<\?(?!xml\b)/i',
+        ];
+
+        foreach ($unsafe as $pattern) {
+            if (1 === preg_match($pattern, $contents)) {
+                $file['error'] = __('This SVG file contains active content and cannot be uploaded. Use a plain image SVG.', 'koperasikita');
+
+                return $file;
+            }
+        }
+
+        return $file;
+    }
+
     /** Desktop light logo (falls back to the mobile logo). */
     public static function desktopId(): int
     {
@@ -64,6 +212,12 @@ final class Logo
     /** Whether any logo variant is set. */
     public static function hasLogo(): bool
     {
+        // With "Ignore Default Logo" only the square logo counts —
+        // the default variants are set but deliberately unused.
+        if (self::ignoreDefault()) {
+            return 0 !== self::squareId();
+        }
+
         return 0 !== self::desktopId()
             || 0 !== self::mobileId()
             || 0 !== self::darkId()
@@ -75,6 +229,19 @@ final class Logo
     {
         if (0 === $id) {
             return '';
+        }
+
+        // SVG has no intrinsic size, so wp_get_attachment_image would
+        // emit an <img> without dimensions — build the tag from the
+        // URL instead; the CSS sizes the logo.
+        if ('image/svg+xml' === get_post_mime_type($id)) {
+            $url = wp_get_attachment_url($id);
+
+            if (!is_string($url) || '' === $url) {
+                return '';
+            }
+
+            return '<img class="' . esc_attr($class) . '" src="' . esc_url($url) . '" alt="">';
         }
 
         $html = wp_get_attachment_image($id, 'full', false, ['class' => $class]);
@@ -123,29 +290,96 @@ final class Logo
         return $html;
     }
 
-    /** The masthead brand: desktop + mobile logo pairs in one link. */
+    /** The text brand (title + optional slogan) for the masthead
+     * lockup; '' unless "Show Title Text" is on. */
+    private static function textBrand(): string
+    {
+        if (!self::showTitle()) {
+            return '';
+        }
+
+        $html = '<span class="kk-brand-text">';
+        $html .= '<span class="kk-site-title">' . esc_html(self::titleText()) . '</span>';
+
+        if (self::showSlogan()) {
+            $html .= '<span class="kk-site-tagline">' . esc_html(self::subtitleText()) . '</span>';
+        }
+
+        $html .= '</span>';
+
+        return $html;
+    }
+
+    /** The masthead brand: desktop + mobile logo pairs in one link,
+     * plus the text brand when "Show Title Text" is on. With
+     * "Ignore Default Logo" the square logo stands alone in both
+     * schemes (no dark variant); hasLogo() is false without one,
+     * so the caller falls back to the built-in mark. */
     public static function brand(): string
     {
+        if (self::ignoreDefault()) {
+            $desktop = [self::squareId(), 0];
+            $mobile = [self::squareId(), 0];
+            $squareClass = 0 !== self::squareId() ? ' kk-logo--square' : '';
+        } else {
+            $desktop = [self::desktopId(), self::darkId()];
+            $mobile = [self::mobileId(), self::mobileDarkId()];
+            $squareClass = '';
+        }
+
         $html = '<a class="custom-logo-link" href="' . esc_url(home_url('/')) . '" rel="home">';
-        $html .= self::pair(self::desktopId(), self::darkId(), 'custom-logo kk-logo--light', 'custom-logo kk-logo--dark', 'kk-brand-logos kk-brand-logos--desktop');
-        $html .= self::pair(self::mobileId(), self::mobileDarkId(), 'custom-logo kk-logo--light', 'custom-logo kk-logo--dark', 'kk-brand-logos kk-brand-logos--mobile');
+        $html .= self::pair($desktop[0], $desktop[1], 'custom-logo kk-logo--light' . $squareClass, 'custom-logo kk-logo--dark', 'kk-brand-logos kk-brand-logos--desktop');
+        $html .= self::pair($mobile[0], $mobile[1], 'custom-logo kk-logo--light' . $squareClass, 'custom-logo kk-logo--dark', 'kk-brand-logos kk-brand-logos--mobile');
+        $html .= self::textBrand();
         $html .= '</a>';
 
         return $html;
     }
 
-    /** The drawer header brand: the mobile logo pair, or the K mark. */
+    /** The drawer header brand, per the "Sidebar Brand" mode: the
+     * square logo first when set, else the mobile pair, else the
+     * built-in K mark; title and slogan only in the modes that
+     * include them. 'hidden' renders nothing. */
     public static function drawerBrand(): string
     {
-        $light = self::mobileId();
-        $dark = self::mobileDarkId();
+        $mode = self::sidebarMode();
+
+        if ('hidden' === $mode) {
+            return '';
+        }
+
+        $showLogo = 'title-only' !== $mode;
+        $showTitle = 'logo-only' !== $mode;
+        $showSlogan = 'logo-title-slogan' === $mode;
 
         $html = '<a class="kk-drawer-brand" href="' . esc_url(home_url('/')) . '" rel="home" aria-label="' . esc_attr(get_bloginfo('name')) . '">';
 
-        if (0 === $light && 0 === $dark) {
-            $html .= '<img class="kk-drawer-brand-logo" src="' . esc_url(get_template_directory_uri() . '/assets/img/logo-k.svg') . '" alt="" width="32" height="32" aria-hidden="true">';
-        } else {
-            $html .= self::pair($light, $dark, 'kk-drawer-brand-logo kk-logo--light', 'kk-drawer-brand-logo kk-logo--dark', 'kk-drawer-brand-logos');
+        if ($showLogo) {
+            $square = self::squareId();
+
+            if (0 !== $square) {
+                $html .= self::img($square, 'kk-drawer-brand-logo kk-logo--square');
+            } else {
+                $light = self::ignoreDefault() ? 0 : self::mobileId();
+                $dark = self::ignoreDefault() ? 0 : self::mobileDarkId();
+
+                if (0 === $light && 0 === $dark) {
+                    $html .= '<img class="kk-drawer-brand-logo" src="' . esc_url(get_template_directory_uri() . '/assets/img/logo-k.svg') . '" alt="" width="32" height="32" aria-hidden="true">';
+                } else {
+                    $html .= self::pair($light, $dark, 'kk-drawer-brand-logo kk-logo--light', 'kk-drawer-brand-logo kk-logo--dark', 'kk-drawer-brand-logos');
+                }
+            }
+        }
+
+        if ($showTitle) {
+            $html .= '<span class="kk-drawer-brand-text">';
+            $html .= '<span class="kk-drawer-brand-title">' . esc_html(self::titleText()) . '</span>';
+
+            if ($showSlogan) {
+                $html .= '<span class="kk-drawer-brand-slogan">' . esc_html(self::subtitleText()) . '</span>';
+            }
+
+            $html .= '</span>';
         }
 
         $html .= '</a>';
