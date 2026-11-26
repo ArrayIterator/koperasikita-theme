@@ -10,7 +10,7 @@
 
 .kk-latest-items.kk-layout-grid {
 	display: grid;
-	gap: 24px;
+	gap: 0.85rem;
 }
 
 /* List rows are flat, not cards: no background and no shadow — the
@@ -183,7 +183,7 @@
 
 .kk-category-block-items {
 	display: grid;
-	gap: 24px;
+	gap: 0.85rem;
 }
 
 .kk-more-link {

@@ -58,7 +58,7 @@ $is_list   = 'list-scrollable' === $display;
 			<?php
 			foreach ( $highlights_posts as $post ) :
 				setup_postdata( $post );
-				get_template_part( 'template-parts/content/card-news' );
+				get_template_part( 'template-parts/content/card-news', null, ['highlights_card' => true] );
 			endforeach;
 			?>
 		</div>
@@ -67,7 +67,7 @@ $is_list   = 'list-scrollable' === $display;
 			<?php
 			foreach ( $highlights_posts as $post ) :
 				setup_postdata( $post );
-				get_template_part( 'template-parts/content/card-news' );
+				get_template_part( 'template-parts/content/card-news', null, ['highlights_card' => true] );
 			endforeach;
 			?>
 		</div>
@@ -76,7 +76,7 @@ $is_list   = 'list-scrollable' === $display;
 			<?php
 			foreach ( $highlights_posts as $post ) :
 				setup_postdata( $post );
-				get_template_part( 'template-parts/content/card-news' );
+				get_template_part( 'template-parts/content/card-news', null, ['highlights_card' => true] );
 			endforeach;
 			?>
 		</div>

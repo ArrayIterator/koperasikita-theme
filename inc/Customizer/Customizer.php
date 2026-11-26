@@ -321,6 +321,28 @@ final class Customizer
             'active_callback' => [self::class, 'isHeroSlider'],
         ]);
 
+        /* Bottom Border: the rule under the hero that separates it
+         * from the content below. Classic is a single 1px divider;
+         * Double is the newspaper double rule; No Border leaves
+         * the hero flowing straight into the content. */
+        self::addSetting(
+            $wpCustomize,
+            'kk_hero_bottom_border',
+            'classic',
+            [self::class, 'sanitizeHeroBottomBorder'],
+            'refresh'
+        );
+        $wpCustomize->add_control('kk_hero_bottom_border', [
+            'label' => esc_html__('Bottom Border', 'koperasikita'),
+            'section' => 'koperasikita_homepage',
+            'type' => 'select',
+            'choices' => [
+                'classic' => esc_html__('Classic', 'koperasikita'),
+                'no-border' => esc_html__('No Border', 'koperasikita'),
+                'double' => esc_html__('Double', 'koperasikita'),
+            ],
+        ]);
+
         /* Lead options (grid modes): whether the lead title sits
          * inside the featured image or below it, and which parts
          * show. Only shown while the Hero Presentation is a grid. */
@@ -637,6 +659,22 @@ final class Customizer
                 'slider-manual' => esc_html__('Slider', 'koperasikita'),
             ],
         ]);
+
+        /* Which parts each highlight card shows (same toggles as the
+         * hero cards and slider). */
+        $highlights_toggles = [
+            'kk_highlights_show_category' => ['Show Category', true],
+            'kk_highlights_show_date' => ['Show Date', true],
+            'kk_highlights_show_excerpt' => ['Show Excerpt', false],
+        ];
+        foreach ($highlights_toggles as $id => [$label, $default]) {
+            self::addSetting($wpCustomize, $id, $default, [self::class, 'sanitizeBool'], 'refresh');
+            $wpCustomize->add_control($id, [
+                'label' => esc_html__($label, 'koperasikita'),
+                'section' => 'koperasikita_homepage',
+                'type' => 'checkbox',
+            ]);
+        }
 
         self::addSetting(
             $wpCustomize,
@@ -1782,6 +1820,11 @@ final class Customizer
     public static function sanitizeHeroLeadTitlePosition(mixed $value): string
     {
         return in_array($value, ['below', 'inside'], true) ? (string) $value : 'below';
+    }
+
+    public static function sanitizeHeroBottomBorder(mixed $value): string
+    {
+        return in_array($value, ['classic', 'no-border', 'double'], true) ? (string) $value : 'classic';
     }
 
     public static function sanitizeColor(mixed $value): string

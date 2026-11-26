@@ -46,6 +46,11 @@ if ( $has_left && ! $left_active ) {
 if ( $has_right && ! $right_active ) {
 	$section_class .= ' kk-hero--no-right-widget';
 }
+// Bottom Border: the rule under the hero (Classic / No Border /
+// Double). Defaults to Classic.
+$bottom_border = (string) get_theme_mod( 'kk_hero_bottom_border', 'classic' );
+$bottom_border = in_array( $bottom_border, ['classic', 'no-border', 'double'], true ) ? $bottom_border : 'classic';
+$section_class .= ' kk-hero--border-' . $bottom_border;
 $lead       = array_shift( $hero_posts );
 $rest       = $hero_posts;
 // Grid Center: the lead sits in the middle, cards on both sides.

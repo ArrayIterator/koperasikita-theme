@@ -28,6 +28,21 @@
 	gap: 20px;
 }
 
+/* --- Bottom Border -------------------------------------------------------- */
+/* The rule under the hero that separates it from the content
+ * below. Classic is a single 1px divider; Double is the
+ * newspaper double rule; No Border leaves the hero flowing
+ * straight into the content. */
+.kk-hero--border-classic {
+	border-bottom: 1px solid var(--kk-border);
+	padding-bottom: 20px;
+}
+
+.kk-hero--border-double {
+	border-bottom: 3px double var(--kk-border);
+	padding-bottom: 20px;
+}
+
 .kk-hero-lead-media img {
 	width: 100%;
 	aspect-ratio: 16 / 9;

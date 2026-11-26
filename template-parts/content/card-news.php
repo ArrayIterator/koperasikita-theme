@@ -13,8 +13,12 @@
  * $args['hero_card'] = true): the Hero Card settings decide which
  * parts show (title / category / date / excerpt) and where the
  * title sits (below the image, above the image, or inside the
- * featured image). Outside the hero the card keeps its default
- * parts and the title below the image.
+ * featured image). Highlights cards (rendered with
+ * $args['highlights_card'] = true) use the Highlights settings
+ * the same way (category / date / excerpt; the title always
+ * shows and stays below the image). Outside the hero and the
+ * highlights the card keeps its default parts and the title
+ * below the image.
  *
  * @package KoperasiKita
  */
@@ -24,6 +28,7 @@ $thumb_url  = \KoperasiKita\Images\FeaturedImage::url( get_the_ID(), 'medium' );
 $bookmarks_enabled = \KoperasiKita\Features\Features::isEnabled( 'bookmarks' );
 
 $is_hero_card = ! empty( $args['hero_card'] );
+$is_highlights_card = ! empty( $args['highlights_card'] );
 $show_title = true;
 $show_category = true;
 $show_date = true;
@@ -36,6 +41,10 @@ if ( $is_hero_card ) {
 	$show_excerpt = (bool) get_theme_mod( 'kk_hero_card_show_excerpt', false );
 	$title_position = (string) get_theme_mod( 'kk_hero_card_title_position', 'below' );
 	$title_position = in_array( $title_position, ['below', 'above', 'inside'], true ) ? $title_position : 'below';
+} elseif ( $is_highlights_card ) {
+	$show_category = (bool) get_theme_mod( 'kk_highlights_show_category', true );
+	$show_date = (bool) get_theme_mod( 'kk_highlights_show_date', true );
+	$show_excerpt = (bool) get_theme_mod( 'kk_highlights_show_excerpt', false );
 }
 
 $title_html = '';

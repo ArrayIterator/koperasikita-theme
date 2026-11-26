@@ -2550,3 +2550,9 @@ msgstr "Tampilkan kategori"
 
 msgid "Leave all unchecked to show posts from every tag."
 msgstr "Biarkan semua tidak dicentang untuk menampilkan posting dari semua tag."
+
+msgid "Bottom Border"
+msgstr "Garis Bawah"
+
+msgid "Double"
+msgstr "Ganda"
