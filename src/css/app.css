@@ -16,6 +16,11 @@
 
 html {
 	-webkit-text-size-adjust: 100%;
+	/* No sideways scroll, ever: an absolutely-positioned element
+	 * (e.g. the expanding mobile search) must never push the page
+	 * wider than the viewport. `clip` (not `hidden`) keeps sticky
+	 * positioning working. */
+	overflow-x: clip;
 }
 
 body {

@@ -1175,6 +1175,7 @@ final class Customizer
             'kk_single_related' => ['koperasikita_single', 'Show Related News', true, 10],
             'kk_single_reading_time' => ['koperasikita_single', 'Show Reading Time', true, 10],
             'kk_single_show_share' => ['koperasikita_single', 'Show Share Buttons', true, 10],
+            'kk_agenda_location_enabled' => ['koperasikita_single', 'Show Event Location on Agenda Pages', true, 10],
             'kk_comments_avatars' => ['koperasikita_comments', 'Show Comment Avatars', true, 10],
             'kk_images_lazy' => ['koperasikita_media', 'Lazy-Load Images', true, 10],
             'kk_images_srcset' => ['koperasikita_media', 'Enable Responsive Images', true, 10],
@@ -1191,7 +1192,6 @@ final class Customizer
             'kk_clock_seconds' => ['koperasikita_header', 'Show Seconds on the Clock', false, 34],
             'kk_clock_24h' => ['koperasikita_header', 'Use the 24-Hour Clock', true, 35],
             'kk_sticky_header' => ['koperasikita_header', 'Sticky Header Navigation', true, 39],
-            'kk_sidebar_sticky' => ['koperasikita_accessibility', 'Sticky Sidebar While Scrolling', false, 10],
             'kk_list_show_time' => ['koperasikita_accessibility', 'Show Time on Article List & Archive', false, 10],
             'kk_single_show_time' => ['koperasikita_accessibility', 'Show Time on Single Post & Page', false, 10],
         ];
@@ -1284,6 +1284,32 @@ final class Customizer
                 'dark' => esc_html__('Dark (near-black, white text)', 'koperasikita'),
                 'red' => esc_html__('Red (alert red, white text)', 'koperasikita'),
                 'outline' => esc_html__('Outline (gold border, dark text)', 'koperasikita'),
+            ],
+        ]);
+
+        /* Agenda event location position: where the location picker
+         * (venue + map link) is shown on a single agenda page. Only
+         * shown when the location itself is enabled. */
+        self::addSetting(
+            $wpCustomize,
+            'kk_agenda_location_position',
+            'below-info',
+            [self::class, 'sanitizeAgendaLocationPosition'],
+            'refresh'
+        );
+        $wpCustomize->add_control('kk_agenda_location_position', [
+            'label' => esc_html__('Event Location Position', 'koperasikita'),
+            'description' => esc_html__('Where the event location is shown on a single agenda page.', 'koperasikita'),
+            'section' => 'koperasikita_single',
+            'type' => 'select',
+            'active_callback' => [self::class, 'isAgendaLocationEnabled'],
+            'priority' => 11,
+            'choices' => [
+                'below-info' => esc_html__('Below Agenda Info', 'koperasikita'),
+                'above-info' => esc_html__('Above Agenda Info', 'koperasikita'),
+                'below-article' => esc_html__('Below the Article', 'koperasikita'),
+                'below-thumbnail' => esc_html__('Below the Thumbnail', 'koperasikita'),
+                'before-article' => esc_html__('Before the Article (after Text Resizer)', 'koperasikita'),
             ],
         ]);
 
@@ -2044,6 +2070,18 @@ final class Customizer
         $allowed = ['gold', 'green', 'dark', 'red', 'outline'];
 
         return in_array($value, $allowed, true) ? (string) $value : 'gold';
+    }
+
+    public static function sanitizeAgendaLocationPosition(mixed $value): string
+    {
+        $allowed = ['below-info', 'above-info', 'below-article', 'below-thumbnail', 'before-article'];
+
+        return in_array($value, $allowed, true) ? (string) $value : 'below-info';
+    }
+
+    public static function isAgendaLocationEnabled(): bool
+    {
+        return (bool) get_theme_mod('kk_agenda_location_enabled', true);
     }
 
     public static function sanitizeHeroMode(mixed $value): string

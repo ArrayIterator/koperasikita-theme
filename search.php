@@ -2,13 +2,21 @@
 /**
  * The search results template.
  *
+ * Results use the Main Sidebar (Archive & Search). No results use
+ * the 404 Sidebar: when it has widgets the page is two-column (half
+ * page); when empty it is full width. No hardcoded latest-news list.
+ *
  * @package KoperasiKita
  */
 
 get_header();
+
+$kk_no_results = ! have_posts();
+$kk_sidebar_id = $kk_no_results ? 'sidebar-404' : 'sidebar-1';
+$kk_has_sidebar = is_active_sidebar( $kk_sidebar_id );
 ?>
 
-<div class="kk-shell kk-archive-layout">
+<div class="kk-shell<?php echo $kk_has_sidebar ? ' kk-archive-layout' : ''; ?>">
 	<div class="kk-content-area">
 		<?php get_template_part( 'template-parts/content/breadcrumb' ); ?>
 
@@ -23,7 +31,7 @@ get_header();
 			<?php get_search_form(); ?>
 		</header>
 
-		<?php if ( have_posts() ) : ?>
+		<?php if ( ! $kk_no_results ) : ?>
 			<div class="kk-card-grid kk-layout-<?php echo esc_attr( \KoperasiKita\Features\Pagination::archiveLayout() ); ?>">
 				<?php
 				while ( have_posts() ) :
@@ -38,34 +46,20 @@ get_header();
 		<?php else : ?>
 			<section class="kk-no-results">
 				<h2 class="kk-section-title"><?php esc_html_e( 'No results found', 'koperasikita' ); ?></h2>
-				<p><?php esc_html_e( 'Try different keywords, or browse the latest news below.', 'koperasikita' ); ?></p>
-				<?php
-				$latest = new WP_Query(
-					array(
-						'post_type'      => 'post',
-						'posts_per_page' => 5,
-					)
-				);
-
-				if ( $latest->have_posts() ) :
-					?>
-					<div class="kk-no-results-latest kk-card-grid kk-layout-list">
-						<?php
-						while ( $latest->have_posts() ) :
-							$latest->the_post();
-							get_template_part( 'template-parts/content/card-news' );
-						endwhile;
-						?>
-					</div>
-					<?php
-					wp_reset_postdata();
-				endif;
-				?>
+				<p><?php esc_html_e( 'Try different keywords, or use the search form above.', 'koperasikita' ); ?></p>
 			</section>
 		<?php endif; ?>
 	</div>
 
-	<?php get_sidebar(); ?>
+	<?php
+	if ( $kk_has_sidebar ) {
+		if ( $kk_no_results ) {
+			get_sidebar( '404' );
+		} else {
+			get_sidebar();
+		}
+	}
+	?>
 </div>
 
 <?php

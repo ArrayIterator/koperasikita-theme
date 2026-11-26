@@ -40,11 +40,4 @@ $timeLabel = $startLabel !== '' && $endLabel !== '' ? $startLabel . ' &ndash; ' 
             <dd><?php echo wp_kses_post($timeLabel); ?></dd>
         </div>
     <?php endif; ?>
-
-    <?php if ($meta['location'] !== '') : ?>
-        <div class="kk-agenda-meta-row">
-            <dt><?php esc_html_e('Location', 'koperasikita'); ?></dt>
-            <dd><?php echo esc_html($meta['location']); ?></dd>
-        </div>
-    <?php endif; ?>
 </dl>

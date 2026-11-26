@@ -15,9 +15,29 @@ get_header();
 
 	<?php get_template_part( 'template-parts/home/hero-grid' ); ?>
 
+	<?php
+	// Before Highlights widget area: full-width strip directly
+	// before the Highlights (Sorotan) section. Renders nothing
+	// when empty.
+	if ( is_active_sidebar( 'kk-before-highlights' ) ) :
+		?>
+		<div class="kk-widget-area kk-widget-area--before-highlights">
+			<?php dynamic_sidebar( 'kk-before-highlights' ); ?>
+		</div>
+		<?php
+	endif;
+	?>
+
 	<?php get_template_part( 'template-parts/home/highlights' ); ?>
 
-	<div class="kk-home-layout">
+	<?php
+	// Block Area widget (global, locked): ONE shared area for the
+	// whole category-block region, not one per block. When it has
+	// no widget, the homepage sidebar drops below the primary
+	// content instead of sitting beside it.
+	$kk_has_block_widget = is_active_sidebar( 'kk-block' );
+	?>
+	<div class="kk-home-layout<?php echo $kk_has_block_widget ? '' : ' kk-home--no-block-widget'; ?>">
 		<div class="kk-home-primary">
 			<?php
 			// Market strip: gold spot, stocks and crypto above the latest
@@ -34,6 +54,19 @@ get_header();
 			}
 			?>
 
+			<?php
+			// Before Latest News widget area: full-width strip
+			// directly before the Latest News section. Renders
+			// nothing when empty.
+			if ( is_active_sidebar( 'kk-before-latest' ) ) :
+				?>
+				<div class="kk-widget-area kk-widget-area--before-latest">
+					<?php dynamic_sidebar( 'kk-before-latest' ); ?>
+				</div>
+				<?php
+			endif;
+			?>
+
 			<?php get_template_part( 'template-parts/home/latest-news' ); ?>
 
 			<?php
@@ -43,6 +76,18 @@ get_header();
 				set_query_var( 'kk_category_block_slot', $block['slot'] );
 				get_template_part( 'template-parts/home/category-block' );
 			}
+			?>
+
+			<?php
+			// Block Area widget: the global, locked widget for the
+			// category-block region. Renders nothing when empty.
+			if ( $kk_has_block_widget ) :
+				?>
+				<div class="kk-widget-area kk-widget-area--block">
+					<?php dynamic_sidebar( 'kk-block' ); ?>
+				</div>
+				<?php
+			endif;
 			?>
 		</div>
 

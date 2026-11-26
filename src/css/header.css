@@ -414,11 +414,28 @@ html.kk-nav-open body {
 }
 
 @media (max-width: 767px) {
-	/* Mobile: the field stretches full-width up to near the
-	 * hamburger (sidebar) button — it spans the bar from the
-	 * toggle leftwards to just short of the hamburger. */
+	/* Mobile: the field spans the nav bar itself, from its left edge
+	 * to just before the toggles — instead of growing left out of the
+	 * toggle by a fixed viewport width, which overflows the left
+	 * edge ("kebablasan") whenever the toggle sits further right
+	 * than assumed. The form goes static so the input positions
+	 * against .kk-nav-inner (made the containing block here), and
+	 * the width is left/right, not a vw guess. */
+	.kk-nav-inner {
+		position: relative;
+	}
+
+	.kk-search-expand {
+		position: static;
+	}
+
 	.kk-search-expand.is-open .kk-search-expand-input {
-		width: calc(100vw - 8rem);
+		left: 0;
+		right: 6.5rem;
+		top: 50%;
+		transform: translateY(-50%);
+		width: auto;
+		transition: opacity 0.2s ease, visibility 0s;
 	}
 }
 

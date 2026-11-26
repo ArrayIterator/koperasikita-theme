@@ -63,6 +63,26 @@ final class Agenda
         return Features::isEnabled('agenda');
     }
 
+    /** Location picker positions, in display order. */
+    public static function locationPositions(): array
+    {
+        return ['below-info', 'above-info', 'below-article', 'below-thumbnail', 'before-article'];
+    }
+
+    /** Whether the event Location picker is shown on single agenda pages. */
+    public static function locationEnabled(): bool
+    {
+        return (bool) get_theme_mod('kk_agenda_location_enabled', true);
+    }
+
+    /** Where the event Location picker is shown on single agenda pages. */
+    public static function locationPosition(): string
+    {
+        $position = (string) get_theme_mod('kk_agenda_location_position', 'below-info');
+
+        return in_array($position, self::locationPositions(), true) ? $position : 'below-info';
+    }
+
     public static function register(): void
     {
         if (!self::isEnabled()) {

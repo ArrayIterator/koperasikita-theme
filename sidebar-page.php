@@ -12,6 +12,6 @@ if ( ! is_active_sidebar( 'sidebar-page' ) ) {
 }
 ?>
 
-<aside class="kk-sidebar" aria-label="<?php esc_attr_e( 'Sidebar', 'koperasikita' ); ?>">
+<aside class="kk-sidebar<?php echo \KoperasiKita\Admin\SidebarSettings::isSticky( 'sidebar-page' ) ? ' kk-sidebar--sticky' : ''; ?>" aria-label="<?php esc_attr_e( 'Sidebar', 'koperasikita' ); ?>">
 	<?php dynamic_sidebar( 'sidebar-page' ); ?>
 </aside>

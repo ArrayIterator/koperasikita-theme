@@ -31,6 +31,14 @@
 	padding: 24px 0;
 }
 
+.kk-no-results .kk-section-title {
+	/* No top rule here: the search header already ends in a 2px
+	 * bottom border, and a second rule 24px below it reads as a
+	 * stray empty band (two thick rules with a blank gap). */
+	border-top: 0;
+	padding-top: 0;
+}
+
 .kk-no-results p {
 	color: var(--kk-muted);
 	margin-bottom: 16px;
@@ -38,6 +46,24 @@
 
 .kk-search-header .search-form {
 	margin-top: 16px;
+}
+
+/* --- Widget areas ------------------------------------------------------- */
+/* Full-width content strips (Below Header, Before Latest News, Before
+ * Highlights, Block Area). They render in the normal flow and vanish
+ * entirely when empty. Widgets inside get the standard widget
+ * treatment (top rule + title) from .kk-sidebar .widget. */
+.kk-widget-area {
+	margin-bottom: 32px;
+}
+
+.kk-widget-area--below-header {
+	margin-top: 16px;
+}
+
+.kk-widget-area .widget {
+	border-top: 2px solid var(--kk-ink);
+	padding-top: 12px;
 }
 
 /* --- Sidebar / widgets ---------------------------------------------------- */
@@ -690,7 +716,16 @@
 	background: var(--kk-green, #0B6B3A);
 	color: #fff;
 	font-weight: 600;
+	border: 1px solid var(--kk-green, #0B6B3A);
 	border-radius: var(--kk-radius);
+	cursor: pointer;
+}
+
+.search-submit:hover,
+.search-submit:focus-visible {
+	background: var(--kk-green-dark, #07522C);
+	border-color: var(--kk-green-dark, #07522C);
+	color: #fff;
 }
 
 /* --- 404 ------------------------------------------------------------------ */
@@ -724,21 +759,7 @@
 }
 
 .kk-404-home {
-	margin-bottom: 40px;
-}
-
-.kk-404 .kk-section-title,
-.kk-404-latest,
-.kk-no-results-latest {
-	text-align: left;
-}
-
-.kk-404-latest {
-	margin-top: 16px;
-}
-
-.kk-no-results-latest {
-	margin-top: 16px;
+	margin-bottom: 0;
 }
 
 /* --- Bookmarks page ------------------------------------------------------- */

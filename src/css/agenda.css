@@ -179,19 +179,22 @@
 }
 
 /* --- Event details ------------------------------------------------------- */
-
+/* Flat, not a box: the old grey surface fill + border + radius read as
+ * a slab. The details are rows under a 2px rule (like a widget title),
+ * separated by hairline dividers — the same quiet list language as
+ * the article lists. */
 .kk-agenda-meta {
 	margin: 0 0 16px;
-	padding: 14px 16px;
-	border: 1px solid var(--kk-border);
-	border-radius: var(--kk-radius);
-	background: var(--kk-surface);
+	padding: 0;
+	border: 0;
+	border-top: 2px solid var(--kk-ink);
+	background: transparent;
 }
 
 .kk-agenda-meta-row {
 	display: flex;
 	gap: 12px;
-	padding: 4px 0;
+	padding: 10px 0;
 	font-size: 15px;
 	line-height: 1.5;
 }
@@ -210,6 +213,47 @@
 .kk-agenda-meta-row dd {
 	margin: 0;
 	color: var(--kk-ink);
+}
+
+/* --- Event location ("location picker") ---------------------------------- */
+/* The venue as its own row: a location glyph, the venue text, and a
+ * "View map" link (Google Maps search, new tab). Same flat row
+ * language as the details above. */
+.kk-agenda-location {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	margin: 0 0 16px;
+	padding: 10px 0;
+	border-top: 1px solid var(--kk-border);
+	font-size: 15px;
+	line-height: 1.5;
+}
+
+.kk-agenda-location-icon {
+	flex: 0 0 auto;
+	display: inline-flex;
+	color: var(--kk-green, #0B6B3A);
+}
+
+.kk-agenda-location-icon svg {
+	display: block;
+}
+
+.kk-agenda-location-text {
+	color: var(--kk-ink);
+}
+
+.kk-agenda-location-map {
+	margin-left: auto;
+	flex: 0 0 auto;
+	font-weight: 600;
+	color: var(--kk-green, #0B6B3A);
+	white-space: nowrap;
+}
+
+.kk-agenda-location-map:hover {
+	text-decoration: underline;
 }
 
 .kk-agenda-single .kk-article-content {

@@ -175,24 +175,15 @@
 	min-height: 0;
 	padding: 0;
 	justify-content: center;
-	/* No border: the frosted circle is defined by its blur + soft
-	 * shadow alone, so the button reads as a floating action without
-	 * a ring around it. */
+	/* Bare icon, no background: no frosted circle, no blur, no
+	 * shadow, no border, no outline. The glyph alone, white so it
+	 * reads over the thumbnail. (Hover green and the saved
+	 * white-on-green state still win — higher specificity.) */
 	border: 0;
-	border-radius: 50%;
-	/* Frosted glass over the thumbnail: a translucent white circle
-	 * with a slight blur, so the button reads as a floating action
-	 * instead of a flat sticker. The icon stays dark (#1a1a1a) — the
-	 * frosted white keeps it legible in both modes. (Hover green and
-	 * the saved white-on-green state still win — higher specificity.) */
-	background: rgb(255 255 255 / 0.55);
-	-webkit-backdrop-filter: blur(6px);
-	backdrop-filter: blur(6px);
-	box-shadow: 0 2px 10px rgb(0 0 0 / 0.18);
-	/* The circle is white in BOTH modes, so the icon must be dark in
-	 * both modes too: --kk-ink turns near-white in dark mode and the
-	 * bookmark vanishes on the white circle. */
-	color: #1a1a1a;
+	border-radius: 0;
+	background: transparent;
+	box-shadow: none;
+	color: #fff;
 }
 
 .kk-card .kk-bookmark-button .kk-bookmark-label {
@@ -200,31 +191,29 @@
 }
 
 .kk-card .kk-bookmark-button:hover {
-	background: #fff;
+	background: transparent;
 	color: var(--kk-green, #0B6B3A);
 }
 
 .kk-card .kk-bookmark-button[aria-pressed="true"] {
-	background: var(--kk-green, #0B6B3A);
-	color: #fff;
+	background: transparent;
+	color: var(--kk-green, #0B6B3A);
 }
 
-/* Saved: the bookmark is a solid white fill on the green circle. The
- * svg is stroke-based (Feather), so both fill and stroke are set to
- * white — fill alone would leave a hollow outline. */
+/* Saved: the bookmark is a solid green fill, no background circle.
+ * The svg is stroke-based (Feather), so both fill and stroke are
+ * set to green — fill alone would leave a hollow outline. */
 .kk-card .kk-bookmark-button[aria-pressed="true"] svg {
-	fill: #fff;
-	stroke: #fff;
+	fill: var(--kk-green, #0B6B3A);
+	stroke: var(--kk-green, #0B6B3A);
 }
 
-/* Focus ring follows the circle: the global :focus-visible outline
- * is a square fallback around a round button, so the bookmark gets
- * its own ring — a box-shadow, which always follows border-radius.
- * The paper gap keeps the gold ring legible on the frosted circle,
- * and the soft shadow stays so the button keeps its elevation. */
+/* Focus ring: a plain outline (keyboard users only) — no shadow,
+ * no background. */
 .kk-card .kk-bookmark-button:focus-visible {
-	outline: none;
-	box-shadow: 0 0 0 2px var(--kk-paper, #fff), 0 0 0 4px var(--kk-gold, #C9962E), 0 2px 10px rgb(0 0 0 / 0.18);
+	outline: 2px solid var(--kk-gold, #C9962E);
+	outline-offset: 2px;
+	box-shadow: none;
 }
 
 /* List rows: the bookmark takes its own column at the right edge of

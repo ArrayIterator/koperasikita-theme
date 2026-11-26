@@ -137,20 +137,15 @@ html.kk-nav-open .kk-pwa-float {
 }
 
 .kk-pwa-float--float-bottom {
-	/* Same width as the top banner: the top banner spans the full
-	 * width (its content sits in .kk-shell, 1240px max), so the
-	 * bottom bar does the same — width 100% up to the shell max.
-	 * The old min(100% - 2rem, shell) left it 2rem narrower than
-	 * the top banner at every viewport below the shell max, which
-	 * is why it still looked narrower. Edge-to-edge again, so the
-	 * square corners and no side borders come back (the base
-	 * .kk-pwa-float rounded style is for the floating buttons,
-	 * not this bar). */
+	/* Full width like the top banner: the top PWA banner's background
+	 * spans the whole viewport (its content sits in .kk-shell), so
+	 * the bottom bar does the same — edge to edge, content centred.
+	 * The old shell max-width left white gaps at the sides and never
+	 * matched the top. */
 	left: 0;
 	right: 0;
 	width: 100%;
-	max-width: var(--kk-shell-max);
-	margin-inline: auto;
+	max-width: none;
 	bottom: 64px;
 	border-radius: 0;
 	border-left: 0;

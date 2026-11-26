@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace KoperasiKita;
 
+use KoperasiKita\Admin\SidebarSettings;
 use KoperasiKita\Api\Api;
 use KoperasiKita\Assets\Enqueue;
 use KoperasiKita\Breadcrumb\Breadcrumb;
@@ -63,6 +64,7 @@ final class Theme
         add_action('init', [Api::class, 'register']);
         add_action('init', [TermSearch::class, 'register']);
         add_action('init', [StyleVariant::class, 'register']);
+        add_action('init', [SidebarSettings::class, 'register']);
         add_action('init', [Pwa::class, 'register']);
         add_action('init', [Seo::class, 'register']);
         add_action('init', [Breadcrumb::class, 'register']);

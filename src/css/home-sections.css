@@ -380,7 +380,11 @@
 	padding: 20px;
 }
 
-.kk-home .kk-card-body {
+/* List rows keep the body flush with the top of the thumbnail (the
+ * body is a side column there). Grid cards use the base 12px top
+ * padding so the article data (date/title) has a margin under the
+ * thumbnail — without it the text sits directly on the image. */
+.kk-home .kk-layout-list .kk-card-body {
 	padding-top: 0;
 }
 

@@ -2631,3 +2631,81 @@ msgstr "Sebelumnya / Berikutnya"
 
 msgid "Back to homepage"
 msgstr "Kembali ke beranda"
+
+msgid "Load More"
+msgstr "Muat Lebih Banyak"
+
+msgid "Event Location Position"
+msgstr "Posisi Lokasi Acara"
+
+msgid "Where the event location is shown on a single agenda page."
+msgstr "Tempat lokasi acara ditampilkan pada halaman agenda tunggal."
+
+msgid "Below Agenda Info"
+msgstr "Di bawah Info Agenda"
+
+msgid "Above Agenda Info"
+msgstr "Di atas Info Agenda"
+
+msgid "Below the Article"
+msgstr "Di bawah Artikel"
+
+msgid "Below the Thumbnail"
+msgstr "Di bawah Thumbnail"
+
+msgid "Before the Article (after Text Resizer)"
+msgstr "Sebelum Artikel (setelah Pengubah Ukuran Teks)"
+
+msgid "404 Sidebar"
+msgstr "Sidebar 404"
+
+msgid "Agenda Sidebar"
+msgstr "Sidebar Agenda"
+
+msgid "Below Header"
+msgstr "Di bawah Header"
+
+msgid "Before Latest News"
+msgstr "Sebelum Berita Terbaru"
+
+msgid "Before Highlights"
+msgstr "Sebelum Sorotan"
+
+msgid "Block Area"
+msgstr "Area Blok"
+
+msgid "Sidebar Settings"
+msgstr "Pengaturan Sidebar"
+
+msgid "Show Event Location on Agenda Pages"
+msgstr "Tampilkan Lokasi Acara di Halaman Agenda"
+
+msgid "View map"
+msgstr "Lihat peta"
+
+msgid "The page you are looking for may have moved, or it no longer exists. Try searching, or go back to the homepage."
+msgstr "Halaman yang Anda cari mungkin telah dipindahkan, atau sudah tidak ada lagi. Coba cari, atau kembali ke beranda."
+
+msgid "Sticky while scrolling"
+msgstr "Menempel saat menggulir"
+
+msgid "Right column of the 404 page and the search page when no results are found. When empty, those pages are full width."
+msgstr "Kolom kanan halaman 404 dan halaman pencarian saat tidak ada hasil. Jika kosong, halaman tersebut tampil selebar penuh."
+
+msgid "Right column of the agenda pages (single event and agenda archive), next to the event details."
+msgstr "Kolom kanan halaman agenda (acara tunggal dan arsip agenda), di samping detail acara."
+
+msgid "Full-width strip directly below the breaking-news ticker, above the main content. Shown on every page."
+msgstr "Strip selebar penuh tepat di bawah ticker berita terkini, di atas konten utama. Ditampilkan di setiap halaman."
+
+msgid "Homepage, full-width strip directly before the Latest News section."
+msgstr "Beranda, strip selebar penuh tepat sebelum bagian Berita Terbaru."
+
+msgid "Homepage, full-width strip directly before the Highlights (Sorotan) section."
+msgstr "Beranda, strip selebar penuh tepat sebelum bagian Sorotan."
+
+msgid "Homepage, global widget in the category-block region (one shared area for all blocks, not per block). When empty, the homepage sidebar moves below the content."
+msgstr "Beranda, widget global di area blok kategori (satu area bersama untuk semua blok, bukan per blok). Jika kosong, sidebar beranda pindah ke bawah konten."
+
+msgid "Choose which sidebars stay visible while the reader scrolls. Only sidebars can stick — the full-width widget areas (Below Header, Before Latest News, Before Highlights, Block Area) always scroll with the page."
+msgstr "Pilih sidebar mana yang tetap terlihat saat pembaca menggulir. Hanya sidebar yang bisa menempel — area widget selebar penuh (Di bawah Header, Sebelum Berita Terbaru, Sebelum Sorotan, Area Blok) selalu menggulir bersama halaman."

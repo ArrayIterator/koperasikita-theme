@@ -38,6 +38,43 @@ final class Sidebars
                 esc_html__('Hero Right Widget', 'koperasikita'),
                 esc_html__('Right column of the homepage hero, next to the lead story. Only shown when the Hero Presentation pairs the hero with a right widget.', 'koperasikita'),
             ],
+            // 404 / search-not-found sidebar. When it has widgets the
+            // 404 and no-results pages are two-column (half page);
+            // when empty they are full width — no fallback, no
+            // hardcoded latest-news list.
+            'sidebar-404' => [
+                esc_html__('404 Sidebar', 'koperasikita'),
+                esc_html__('Right column of the 404 page and the search page when no results are found. When empty, those pages are full width.', 'koperasikita'),
+            ],
+            // Agenda sidebar: right column of the single agenda item
+            // and the agenda archive.
+            'sidebar-agenda' => [
+                esc_html__('Agenda Sidebar', 'koperasikita'),
+                esc_html__('Right column of the agenda pages (single event and agenda archive), next to the event details.', 'koperasikita'),
+            ],
+            // Full-width content strips. These are NOT sidebars, so
+            // they never get a sticky setting — they render in the
+            // normal flow and disappear entirely when empty.
+            'kk-below-header' => [
+                esc_html__('Below Header', 'koperasikita'),
+                esc_html__('Full-width strip directly below the breaking-news ticker, above the main content. Shown on every page.', 'koperasikita'),
+            ],
+            'kk-before-latest' => [
+                esc_html__('Before Latest News', 'koperasikita'),
+                esc_html__('Homepage, full-width strip directly before the Latest News section.', 'koperasikita'),
+            ],
+            'kk-before-highlights' => [
+                esc_html__('Before Highlights', 'koperasikita'),
+                esc_html__('Homepage, full-width strip directly before the Highlights (Sorotan) section.', 'koperasikita'),
+            ],
+            // Global block-area widget: ONE shared area for the whole
+            // category-block region, locked — not one area per block.
+            // When empty, the homepage sidebar drops below the
+            // primary content instead of sitting beside it.
+            'kk-block' => [
+                esc_html__('Block Area', 'koperasikita'),
+                esc_html__('Homepage, global widget in the category-block region (one shared area for all blocks, not per block). When empty, the homepage sidebar moves below the content.', 'koperasikita'),
+            ],
         ];
 
         foreach ($sidebars as $id => [$name, $description]) {

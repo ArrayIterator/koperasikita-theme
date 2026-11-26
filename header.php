@@ -105,6 +105,20 @@ get_template_part( 'template-parts/header/site-nav' );
 <?php get_template_part( 'template-parts/header/ticker' ); ?>
 
 <?php
+// Below Header widget area: full-width strip directly below the
+// breaking-news ticker, above the main content. Shown on every page.
+// Renders nothing when empty. NOT a sidebar, so it never gets a
+// sticky setting.
+if ( is_active_sidebar( 'kk-below-header' ) ) :
+	?>
+	<div class="kk-shell kk-widget-area kk-widget-area--below-header">
+		<?php dynamic_sidebar( 'kk-below-header' ); ?>
+	</div>
+	<?php
+endif;
+?>
+
+<?php
 // The weather location picker lives here, not in the top bar: the top bar
 // is toggleable (kk_topbar_enabled), and the picker is the dialog opened
 // by the weather widget's "Change location" button as well as the top-bar

@@ -176,25 +176,33 @@
 		grid-template-columns: 1fr var(--kk-sidebar-width);
 	}
 
+	/* Block Area empty: the homepage sidebar drops below the primary
+	 * content (single column) instead of sitting beside it. */
+	.kk-home-layout.kk-home--no-block-widget {
+		grid-template-columns: 1fr;
+	}
+
 	.kk-archive-layout,
 	.kk-single-layout,
 	.kk-page-layout {
 		grid-template-columns: 1fr var(--kk-sidebar-width);
 	}
 
-	/* Sticky sidebar: the sidebar sticks while the reader scrolls.
-	 * The offset clears the sticky nav (~48px) plus a gap; when the
-	 * nav itself is not sticky the sidebar can sit closer to the top.
-	 * align-self keeps the grid item from stretching to the row
-	 * height, without which sticky has nothing to stick against.
-	 */
-	body.kk-sidebar-sticky .kk-sidebar {
+	/* Sticky sidebar (per-sidebar, Appearance -> Sidebar Settings):
+	 * a sidebar with .kk-sidebar--sticky sticks while the reader
+	 * scrolls. The offset clears the sticky nav (~48px) plus a gap;
+	 * when the nav itself is not sticky the sidebar can sit closer
+	 * to the top. align-self keeps the grid item from stretching to
+	 * the row height, without which sticky has nothing to stick
+	 * against. Only sidebars stick — content strips never get this
+	 * class. */
+	.kk-sidebar--sticky {
 		position: sticky;
 		top: 64px;
 		align-self: start;
 	}
 
-	body.kk-sidebar-sticky.kk-sticky-off .kk-sidebar {
+	body.kk-sticky-off .kk-sidebar--sticky {
 		top: 16px;
 	}
 

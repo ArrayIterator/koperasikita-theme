@@ -28,10 +28,6 @@ final class StyleVariant
                 $classes[] = 'kk-sticky-off';
             }
 
-            if ((bool) get_theme_mod('kk_sidebar_sticky', false)) {
-                $classes[] = 'kk-sidebar-sticky';
-            }
-
             return $classes;
         });
     }
