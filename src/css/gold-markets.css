@@ -467,6 +467,29 @@
 	--dd-border: var(--kk-border, #E6E3DE);
 }
 
+/* Preview badge: preview renders (templates page, widget forms)
+ * use fixed sample data, never live prices, and the badge says so.
+ * Gold on the dark palettes, green on the light panel and above the
+ * (white) table, so it reads on every palette. */
+.kk-data-desk-preview-badge {
+	display: inline-block;
+	margin: 0 0 12px;
+	padding: 2px 8px;
+	font-size: 12px;
+	font-weight: 700;
+	letter-spacing: 0.04em;
+	text-transform: uppercase;
+	border-radius: var(--kk-radius, 3px);
+	background: var(--dd-kicker, #f0c75e);
+	color: #1a1a1a;
+}
+
+.kk-data-desk-panel--light .kk-data-desk-preview-badge,
+.kk-gold-data-desk .kk-data-desk-preview-badge {
+	background: var(--kk-green, #0b6b3a);
+	color: #fff;
+}
+
 .kk-data-desk-kicker {
 	margin: 0;
 	font-size: 12px;

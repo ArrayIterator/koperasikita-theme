@@ -23,6 +23,11 @@ use KoperasiKita\Features\Markets;
 $brands = isset($args['brands']) && is_array($args['brands']) ? $args['brands'] : [];
 $client = isset($args['client']) && is_array($args['client']) ? $args['client'] : [];
 $palette = DataDesk::sanitizePalette(isset($args['palette']) ? (string) $args['palette'] : DataDesk::DEFAULT_PALETTE);
+// Preview renders (templates page, widget forms) pass 'preview' =>
+// true: the rows are fixed sample prices, never live snapshots, the
+// badge says so, and the live-refresh hooks are left off so no
+// script ever overwrites the sample rows with real prices.
+$preview = !empty($args['preview']);
 
 if ($brands === []) {
 	?>
@@ -34,13 +39,18 @@ if ($brands === []) {
 
 <div
 	class="kk-gold-data-desk kk-gold-data-desk--<?php echo esc_attr($palette); ?>"
-	data-kk-market-prices
-	data-kk-market="gold"
-	data-kk-provider="<?php echo esc_attr((string) ($client['provider'] ?? 'manual')); ?>"
-	<?php if (!empty($client['clientApiUrl'])) : ?>
-		data-kk-client-api="<?php echo esc_attr((string) $client['clientApiUrl']); ?>"
+	<?php if (!$preview) : ?>
+		data-kk-market-prices
+		data-kk-market="gold"
+		data-kk-provider="<?php echo esc_attr((string) ($client['provider'] ?? 'manual')); ?>"
+		<?php if (!empty($client['clientApiUrl'])) : ?>
+			data-kk-client-api="<?php echo esc_attr((string) $client['clientApiUrl']); ?>"
+		<?php endif; ?>
 	<?php endif; ?>
 >
+	<?php if ($preview) : ?>
+		<p class="kk-data-desk-preview-badge"><?php esc_html_e('Preview — sample data', 'koperasikita'); ?></p>
+	<?php endif; ?>
 	<table class="kk-data-desk-table">
 		<thead>
 			<tr>

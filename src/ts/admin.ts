@@ -36,6 +36,7 @@ interface AdminStrings {
 	notDownloaded: string;
 	downloadFailed: string;
 	adminDataMissing: string;
+	loadingPreview: string;
 }
 
 interface AdminData {
@@ -86,6 +87,7 @@ const FALLBACK_STRINGS: AdminStrings = {
 	notDownloaded: 'Not downloaded yet',
 	downloadFailed: 'Download failed.',
 	adminDataMissing: 'Admin data is not available.',
+	loadingPreview: 'Loading preview…',
 };
 
 function adminData(): AdminData | null {
@@ -106,6 +108,7 @@ function adminStrings(): AdminStrings {
 		notDownloaded: strings?.notDownloaded ?? FALLBACK_STRINGS.notDownloaded,
 		downloadFailed: strings?.downloadFailed ?? FALLBACK_STRINGS.downloadFailed,
 		adminDataMissing: strings?.adminDataMissing ?? FALLBACK_STRINGS.adminDataMissing,
+		loadingPreview: strings?.loadingPreview ?? FALLBACK_STRINGS.loadingPreview,
 	};
 }
 
@@ -295,6 +298,8 @@ function initAdmin(): void {
 	initProviderPickers();
 	initMenuIconPickers();
 	initGoldSync();
+	initDataDeskPreview();
+	initDataDeskWidgetPreview();
 
 	if (!adminData()) {
 		return;
@@ -307,6 +312,160 @@ function initAdmin(): void {
 
 	bindFontsControls(container);
 	watchFontSettings(container);
+}
+
+/**
+ * Live Data Desk preview on the Data Desk Templates form.
+ *
+ * The preview box under the form shows the real panel / table markup
+ * with sample data (the server renders the first one). Every field
+ * change — kind, symbol, days, brands, palette, title — re-renders
+ * it through kk_data_desk_preview, debounced so typing in the title
+ * does not fire a request per keystroke. The brands picker is a chip
+ * UI over the hidden select and never fires `change` on it, so
+ * clicks in its wrapper refresh too. A failed refresh keeps the
+ * last good preview and reports the error under the box.
+ */
+function initDataDeskPreview(): void {
+	const config = adminData();
+	if (!config) {
+		return;
+	}
+	const container = document.querySelector<HTMLElement>('[data-kk-data-desk-preview]');
+	if (!container) {
+		return;
+	}
+	const kind = document.getElementById('kk-template-kind') as HTMLSelectElement | null;
+	const symbol = document.getElementById('kk-template-symbol') as HTMLSelectElement | null;
+	const days = document.getElementById('kk-template-days') as HTMLInputElement | null;
+	const brands = document.getElementById('kk-template-brands') as HTMLSelectElement | null;
+	const palette = document.getElementById('kk-template-palette') as HTMLSelectElement | null;
+	const title = document.getElementById('kk-template-title') as HTMLInputElement | null;
+	if (!kind || !symbol || !days || !brands || !palette || !title) {
+		return;
+	}
+
+	const status = document.createElement('p');
+	status.className = 'description';
+	container.after(status);
+
+	let timer: number | null = null;
+	let lastGood = container.innerHTML;
+
+	const refresh = (): void => {
+		if (timer !== null) {
+			window.clearTimeout(timer);
+			timer = null;
+		}
+		timer = window.setTimeout(() => {
+			const params: Record<string, string> = {
+				kind: kind.value,
+				symbol: symbol.value,
+				days: days.value,
+				palette: palette.value,
+				title: title.value,
+				brands: Array.from(brands.selectedOptions)
+					.map((option) => option.value)
+					.join(','),
+			};
+			container.classList.add('is-loading');
+			status.textContent = adminStrings().loadingPreview;
+			void postAjax<{ html: string }>(config, 'kk_data_desk_preview', params)
+				.then((data) => {
+					container.innerHTML = data.html;
+					lastGood = data.html;
+					status.textContent = '';
+				})
+				.catch((error: unknown) => {
+					container.innerHTML = lastGood;
+					status.textContent = errorMessage(error);
+				})
+				.finally(() => {
+					container.classList.remove('is-loading');
+				});
+		}, 300);
+	};
+
+	[kind, symbol, days, palette].forEach((el) => {
+		el.addEventListener('change', refresh);
+	});
+	[days, title].forEach((el) => {
+		el.addEventListener('input', refresh);
+	});
+	brands.addEventListener('change', refresh);
+	brands.parentElement?.querySelector('.kk-term-picker')?.addEventListener('click', refresh);
+}
+
+/**
+ * Layout preview in the classic Data Desk / Gold Data Desk widget
+ * forms (widgets.php, Customizer). Each form renders its preview
+ * server-side; changing the template select re-renders it through
+ * kk_data_desk_preview by template id. Widget forms re-render after
+ * a save, so new boxes are picked up by a MutationObserver, the
+ * same pattern initTermPickers uses. A failed refresh keeps the last
+ * good preview and reports the error under the box.
+ */
+function initDataDeskWidgetPreview(): void {
+	const config = adminData();
+	if (!config) {
+		return;
+	}
+
+	const bindOne = (box: HTMLElement): void => {
+		if (box.dataset.kkPreviewInit === '1') {
+			return;
+		}
+		box.dataset.kkPreviewInit = '1';
+
+		const body = box.querySelector<HTMLElement>('[data-kk-data-desk-widget-preview-body]');
+		const select = box
+			.closest('form')
+			?.querySelector<HTMLSelectElement>('[data-kk-data-desk-template-select]');
+		if (!body || !select) {
+			return;
+		}
+
+		const status = document.createElement('p');
+		status.className = 'description';
+		box.after(status);
+
+		let lastGood = body.innerHTML;
+
+		select.addEventListener('change', () => {
+			box.classList.add('is-loading');
+			status.textContent = adminStrings().loadingPreview;
+			void postAjax<{ html: string }>(config, 'kk_data_desk_preview', { template: select.value })
+				.then((data) => {
+					body.innerHTML = data.html;
+					lastGood = data.html;
+					status.textContent = '';
+				})
+				.catch((error: unknown) => {
+					body.innerHTML = lastGood;
+					status.textContent = errorMessage(error);
+				})
+				.finally(() => {
+					box.classList.remove('is-loading');
+				});
+		});
+	};
+
+	const scan = (root: ParentNode): void => {
+		root.querySelectorAll<HTMLElement>('[data-kk-data-desk-widget-preview]').forEach(bindOne);
+	};
+
+	scan(document);
+
+	const observer = new MutationObserver((mutations) => {
+		for (const mutation of Array.from(mutations)) {
+			for (const node of Array.from(mutation.addedNodes)) {
+				if (node instanceof HTMLElement) {
+					scan(node);
+				}
+			}
+		}
+	});
+	observer.observe(document.body, { childList: true, subtree: true });
 }
 
 /**

@@ -22,6 +22,10 @@ use KoperasiKita\Features\Markets;
 $data = isset($args['data']) && is_array($args['data']) ? $args['data'] : null;
 $palette = DataDesk::sanitizePalette(isset($args['palette']) ? (string) $args['palette'] : DataDesk::DEFAULT_PALETTE);
 $days = isset($args['days']) ? max(3, min(30, (int) $args['days'])) : DataDesk::DEFAULT_DAYS;
+// Preview renders (templates page, widget forms) pass 'preview' =>
+// true: the data is a fixed sample series, never live prices, and
+// the badge says so.
+$preview = !empty($args['preview']);
 
 if ($data === null) {
 	return;
@@ -103,6 +107,9 @@ $polyline = implode(' ', array_map(static fn(array $c): string => number_format(
 ?>
 
 <section class="kk-data-desk-panel kk-data-desk-panel--<?php echo esc_attr($palette); ?>">
+	<?php if ($preview) : ?>
+		<p class="kk-data-desk-preview-badge"><?php esc_html_e('Preview — sample data', 'koperasikita'); ?></p>
+	<?php endif; ?>
 	<header class="kk-data-desk-head">
 		<p class="kk-data-desk-kicker"><?php esc_html_e('Meja Data', 'koperasikita'); ?></p>
 		<h2 class="kk-data-desk-title"><?php echo esc_html($title); ?></h2>

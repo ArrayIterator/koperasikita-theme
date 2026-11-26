@@ -146,9 +146,12 @@ final class DataDeskTemplatesPage
     }
 
     /**
-     * The template list: name, kind, what it shows, palette, days,
-     * and actions. The built-in defaults carry a "Default" badge and
-     * offer Duplicate only — they can never be edited or deleted.
+     * The template list: name, a visual preview of the layout, kind,
+     * what it shows, palette, days, and actions. The built-in
+     * defaults carry a "Default" badge and offer Duplicate only —
+     * they can never be edited or deleted. The preview is the real
+     * panel / table markup with sample data, scaled down, so the
+     * list shows the layout, not just its name.
      */
     private static function renderList(string $pageUrl): void
     {
@@ -159,6 +162,7 @@ final class DataDeskTemplatesPage
             <thead>
                 <tr>
                     <th><?php esc_html_e('Name', 'koperasikita'); ?></th>
+                    <th><?php esc_html_e('Preview', 'koperasikita'); ?></th>
                     <th><?php esc_html_e('Kind', 'koperasikita'); ?></th>
                     <th><?php esc_html_e('Shows', 'koperasikita'); ?></th>
                     <th><?php esc_html_e('Palette', 'koperasikita'); ?></th>
@@ -180,6 +184,16 @@ final class DataDeskTemplatesPage
                             <?php if ($isDefault) : ?>
                                 <span class="description"><?php esc_html_e('Default', 'koperasikita'); ?></span>
                             <?php endif; ?>
+                        </td>
+                        <td>
+                            <div class="kk-data-desk-list-preview">
+                                <div class="kk-data-desk-list-preview-inner">
+                                    <?php
+                                    // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- renderPreview returns the theme's own template markup.
+                                    echo DataDesk::renderPreview($template);
+                                    ?>
+                                </div>
+                            </div>
                         </td>
                         <td><?php echo esc_html($kinds[$template['kind']] ?? $template['kind']); ?></td>
                         <td><?php echo esc_html($shows); ?></td>
@@ -303,6 +317,19 @@ final class DataDeskTemplatesPage
                     </td>
                 </tr>
             </table>
+            <?php /* Live preview: the real panel / table markup with sample data, re-rendered by admin.ts
+             * (kk_data_desk_preview) whenever a field above changes — kind, symbol, days, brands,
+             * palette or title. The server renders the first preview so the section is never empty. */ ?>
+            <h2><?php esc_html_e('Preview', 'koperasikita'); ?></h2>
+            <p class="description">
+                <?php esc_html_e('Live preview of this template with sample data. It updates as you change the settings above.', 'koperasikita'); ?>
+            </p>
+            <div id="kk-data-desk-live-preview" data-kk-data-desk-preview>
+                <?php
+                // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- renderPreview returns the theme's own template markup.
+                echo DataDesk::renderPreview($template);
+                ?>
+            </div>
             <?php submit_button($id !== '' ? __('Update Template', 'koperasikita') : __('Add Template', 'koperasikita')); ?>
             <a href="<?php echo esc_url($pageUrl); ?>" class="button"><?php esc_html_e('Cancel', 'koperasikita'); ?></a>
         </form>

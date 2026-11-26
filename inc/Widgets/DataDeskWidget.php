@@ -77,6 +77,13 @@ final class DataDeskWidget extends WP_Widget
     {
         $title = isset($instance['title']) ? (string) $instance['title'] : '';
         $templateId = isset($instance['template']) ? sanitize_key((string) $instance['template']) : DataDesk::DEFAULT_TEMPLATE_ID;
+        // The preview shows what the widget will render: a table
+        // template picked here falls back to the default panel, the
+        // same fallback widget() applies.
+        $previewTemplate = DataDesk::getTemplate($templateId);
+        if ($previewTemplate['kind'] !== DataDesk::KIND_PANEL) {
+            $previewTemplate = DataDesk::defaultTemplate();
+        }
         ?>
         <p>
             <label for="<?php echo esc_attr($this->get_field_id('title')); ?>">
@@ -97,6 +104,7 @@ final class DataDeskWidget extends WP_Widget
             </label>
             <select
                 class="widefat"
+                data-kk-data-desk-template-select
                 id="<?php echo esc_attr($this->get_field_id('template')); ?>"
                 name="<?php echo esc_attr($this->get_field_name('template')); ?>"
             >
@@ -110,6 +118,18 @@ final class DataDeskWidget extends WP_Widget
                 <?php esc_html_e('Manage templates on the Data Desk Templates page.', 'koperasikita'); ?>
             </span>
         </p>
+        <?php /* Layout preview: the real panel markup with sample data, re-rendered by admin.ts
+         * (kk_data_desk_preview) when the template above changes. The block editor needs no
+         * extra box — its ServerSideRender preview below the settings is the live preview. */ ?>
+        <div class="kk-data-desk-widget-preview" data-kk-data-desk-widget-preview data-kk-kind="panel">
+            <p class="kk-data-desk-widget-preview-label"><?php esc_html_e('Layout preview — sample data', 'koperasikita'); ?></p>
+            <div data-kk-data-desk-widget-preview-body>
+                <?php
+                // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- renderPreview returns the theme's own template markup.
+                echo DataDesk::renderPreview($previewTemplate);
+                ?>
+            </div>
+        </div>
         <?php
     }
 
