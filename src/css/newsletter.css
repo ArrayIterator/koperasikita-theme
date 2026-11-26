@@ -97,8 +97,14 @@
 	align-self: start;
 	margin: 0;
 	/* Own column on a light background: ink, not the white glyph
-	 * meant for over a thumbnail (invisible here). */
+	 * meant for over a thumbnail (invisible here); no circle. */
+	background: transparent;
+	border-radius: 0;
 	color: var(--kk-ink);
+}
+
+.kk-latest-items.kk-layout-newsletter > .kk-card:not(:first-child) .kk-bookmark-button[aria-pressed="true"] {
+	color: var(--kk-green, #0B6B3A);
 }
 
 .kk-latest-items.kk-layout-newsletter > .kk-card:not(:first-child) .kk-card-media img {
@@ -203,8 +209,10 @@
 	.kk-latest-items.kk-layout-newsletter > .kk-card:not(:first-child) .kk-bookmark-button {
 		grid-area: media;
 		margin: 10px;
-		/* Back over the thumbnail: white again (the desktop rule
-		 * made it ink for its own column). */
+		/* Back over the thumbnail: dark circle + white again (the
+		 * desktop rule made it ink for its own column). */
+		background: rgb(0 0 0 / 0.45);
+		border-radius: 50%;
 		color: #fff;
 	}
 

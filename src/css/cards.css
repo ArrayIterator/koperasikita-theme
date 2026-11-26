@@ -171,7 +171,10 @@
  * or a trailing action at the right edge of the row (list) — never a
  * stray button under the text. The "Save" label is hidden; the button
  * keeps its "Save bookmark" aria-label, and the saved state is the
- * green fill, same as before. */
+ * green fill, same as before. Over a thumbnail the glyph sits on a
+ * dark translucent circle, so the white icon reads on ANY thumbnail —
+ * including the light default placeholder, where a bare white glyph
+ * is invisible. */
 .kk-card .kk-bookmark-button {
 	grid-area: media;
 	justify-self: end;
@@ -183,13 +186,11 @@
 	min-height: 0;
 	padding: 0;
 	justify-content: center;
-	/* Bare icon, no background: no frosted circle, no blur, no
-	 * shadow, no border, no outline. The glyph alone, white so it
-	 * reads over the thumbnail. (Hover green and the saved
-	 * white-on-green state still win — higher specificity.) */
+	/* Dark translucent circle behind the white glyph — no blur, no
+	 * shadow, no border. The glyph alone reads over the photo. */
 	border: 0;
-	border-radius: 0;
-	background: transparent;
+	border-radius: 50%;
+	background: rgb(0 0 0 / 0.45);
 	box-shadow: none;
 	color: #fff;
 }
@@ -199,21 +200,21 @@
 }
 
 .kk-card .kk-bookmark-button:hover {
-	background: transparent;
-	color: var(--kk-green, #0B6B3A);
+	background: var(--kk-green, #0B6B3A);
+	color: #fff;
 }
 
 .kk-card .kk-bookmark-button[aria-pressed="true"] {
-	background: transparent;
-	color: var(--kk-green, #0B6B3A);
+	background: var(--kk-green, #0B6B3A);
+	color: #fff;
 }
 
-/* Saved: the bookmark is a solid green fill, no background circle.
- * The svg is stroke-based (Feather), so both fill and stroke are
- * set to green — fill alone would leave a hollow outline. */
+/* Saved: the bookmark is a solid white fill on the green circle.
+ * The svg is stroke-based (Feather), so both fill and stroke follow
+ * the button colour — fill alone would leave a hollow outline. */
 .kk-card .kk-bookmark-button[aria-pressed="true"] svg {
-	fill: var(--kk-green, #0B6B3A);
-	stroke: var(--kk-green, #0B6B3A);
+	fill: currentColor;
+	stroke: currentColor;
 }
 
 /* Focus ring: a plain outline (keyboard users only) — no shadow,
@@ -228,12 +229,19 @@
  * the row, pinned to the top corner (level with the date) — centred
  * vertically it floats oddly in the middle of a tall row. The row is
  * flat on a light background, so the white glyph (meant for over a
- * thumbnail) is invisible here — ink, so the icon reads. */
+ * thumbnail) is invisible here — ink, so the icon reads, and no
+ * circle background (that belongs over a thumbnail only). */
 .kk-layout-list .kk-card .kk-bookmark-button {
 	grid-area: bookmark;
 	align-self: start;
 	margin: 0;
+	background: transparent;
+	border-radius: 0;
 	color: var(--kk-ink);
+}
+
+.kk-layout-list .kk-card .kk-bookmark-button[aria-pressed="true"] {
+	color: var(--kk-green, #0B6B3A);
 }
 
 /* Desktop: the bookmark is a hover reveal — it appears only while the

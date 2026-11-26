@@ -163,8 +163,14 @@
 	align-self: start;
 	margin: 0;
 	/* Own column on a light background: ink, not the white glyph
-	 * meant for over a thumbnail (invisible here). */
+	 * meant for over a thumbnail (invisible here); no circle. */
+	background: transparent;
+	border-radius: 0;
 	color: var(--kk-ink);
+}
+
+.kk-layout-featured .kk-card:not(:first-child) .kk-bookmark-button[aria-pressed="true"] {
+	color: var(--kk-green, #0B6B3A);
 }
 
 /* --- Featured Right ------------------------------------------------------- */
@@ -273,8 +279,14 @@
 	align-self: start;
 	margin: 0;
 	/* Own column on a light background: ink, not the white glyph
-	 * meant for over a thumbnail (invisible here). */
+	 * meant for over a thumbnail (invisible here); no circle. */
+	background: transparent;
+	border-radius: 0;
 	color: var(--kk-ink);
+}
+
+.kk-category-block-list-column .kk-bookmark-button[aria-pressed="true"] {
+	color: var(--kk-green, #0B6B3A);
 }
 
 .kk-layout-switcher {
