@@ -772,13 +772,28 @@ msgstr "Harga Emas"
 msgid "KK Gold Prices"
 msgstr "KK Harga Emas"
 
+#: inc/Widgets/GoldDataDeskWidget.php
+msgid "Gold Data Desk"
+msgstr "Data Desk Emas"
+
+msgid "KK Gold Data Desk"
+msgstr "KK Data Desk Emas"
+
 #: inc/Widgets/GoldWidget.php
 msgid "Gold prices for Indonesian gold brands in an auto-scrolling slider. Prices are edited in Settings -> Markets."
 msgstr "Harga emas untuk merek emas Indonesia dalam slider gulir otomatis. Harga diedit di Pengaturan -> Pasar."
 
+#: inc/Widgets/GoldDataDeskWidget.php
+msgid "Gold prices for Indonesian gold brands as a data table. Prices are edited in Settings -> Markets."
+msgstr "Harga emas untuk merek emas Indonesia sebagai tabel data. Harga diedit di Pengaturan -> Pasar."
+
 #: inc/Widgets/GoldWidget.php
 msgid "Koperasi Kita Gold Prices"
 msgstr "Harga Emas Koperasi Kita"
+
+#: inc/Widgets/GoldDataDeskWidget.php
+msgid "Koperasi Kita Gold Data Desk"
+msgstr "Koperasi Kita Data Desk Emas"
 
 #: inc/Widgets/GoldWidget.php
 msgid "Settings -> Markets"
@@ -2083,6 +2098,10 @@ msgid "Gold prices for Indonesian gold brands in an auto-scrolling slider."
 msgstr "Harga emas untuk merek emas Indonesia dalam slider gulir otomatis."
 
 #: inc/Widgets/Blocks.php
+msgid "Gold prices for Indonesian gold brands as a data table."
+msgstr "Harga emas untuk merek emas Indonesia sebagai tabel data."
+
+#: inc/Widgets/Blocks.php
 msgid "Gold, stock and crypto prices from the Markets providers."
 msgstr "Harga emas, saham, dan kripto dari penyedia Markets."
 
@@ -3068,6 +3087,14 @@ msgstr "Penyedia aktif"
 
 msgid "Brand"
 msgstr "Merek"
+
+#: inc/Widgets/GoldDataDeskWidget.php
+msgid "Price per gram"
+msgstr "Harga per gram"
+
+#: inc/Widgets/GoldDataDeskWidget.php
+msgid "Updated"
+msgstr "Diperbarui"
 
 msgid "Buyback (per gram)"
 msgstr "Buyback (per gram)"

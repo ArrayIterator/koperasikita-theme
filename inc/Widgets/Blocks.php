@@ -181,6 +181,22 @@ final class Blocks
                     'brands' => 'brands',
                 ],
             ];
+            $definitions['gold-data-desk'] = [
+                'class' => GoldDataDeskWidget::class,
+                'icon' => 'editor-table',
+                'title' => __('KK Gold Data Desk', 'koperasikita'),
+                'description' => __('Gold prices for Indonesian gold brands as a data table.', 'koperasikita'),
+                'attributes' => [
+                    'title' => ['type' => 'string', 'default' => ''],
+                    'headerStyle' => ['type' => 'string', 'default' => 'classic-top'],
+                    'brands' => ['type' => 'array', 'default' => [], 'items' => ['type' => 'string']],
+                ],
+                'map' => [
+                    'title' => 'title',
+                    'headerStyle' => 'header_style',
+                    'brands' => 'brands',
+                ],
+            ];
             $definitions['markets'] = [
                 'class' => MarketsWidget::class,
                 'icon' => 'chart-line',

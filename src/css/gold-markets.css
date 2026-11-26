@@ -357,6 +357,47 @@
 	white-space: nowrap;
 }
 
+/* --- Gold Data Desk ------------------------------------------------------- */
+
+.kk-gold-data-desk {
+	overflow-x: auto;
+}
+
+.kk-data-desk-table {
+	width: 100%;
+	border-collapse: collapse;
+	font-size: 14px;
+}
+
+.kk-data-desk-table th,
+.kk-data-desk-table td {
+	padding: 8px 10px;
+	text-align: left;
+	border-bottom: 1px solid var(--kk-border);
+	white-space: nowrap;
+}
+
+.kk-data-desk-table thead th {
+	font-size: 12px;
+	text-transform: uppercase;
+	letter-spacing: 0.04em;
+	color: var(--kk-muted);
+}
+
+.kk-data-desk-table tbody tr:last-child th,
+.kk-data-desk-table tbody tr:last-child td {
+	border-bottom: 0;
+}
+
+.kk-data-desk-table tbody th {
+	font-weight: 700;
+}
+
+.kk-data-desk-table td[data-kk-price] {
+	font-weight: 700;
+	font-variant-numeric: tabular-nums;
+}
+
 @media (prefers-reduced-motion: reduce) {
 	.kk-gold-slide.is-active {
 		animation: none;

@@ -6,6 +6,7 @@ namespace KoperasiKita\Setup;
 
 use KoperasiKita\Features\Features;
 use KoperasiKita\Widgets\EditorsPicksWidget;
+use KoperasiKita\Widgets\GoldDataDeskWidget;
 use KoperasiKita\Widgets\GoldWidget;
 use KoperasiKita\Widgets\MarketsWidget;
 use KoperasiKita\Widgets\PagesWidget;
@@ -32,6 +33,7 @@ final class Widgets
         // is off.
         if (Features::isEnabled('markets')) {
             register_widget(GoldWidget::class);
+            register_widget(GoldDataDeskWidget::class);
             register_widget(MarketsWidget::class);
             register_widget(YahooFinanceWidget::class);
         }

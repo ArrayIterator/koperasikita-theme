@@ -492,6 +492,28 @@ function buildDefinitions(api: Wp): BlockDef[] {
 			],
 		},
 		{
+			slug: 'gold-data-desk',
+			title: __('KK Gold Data Desk'),
+			description: __('Gold prices for Indonesian gold brands as a data table.'),
+			icon: 'editor-table',
+			attributes: {
+				title: { type: 'string', default: '' },
+				headerStyle: { type: 'string', default: 'classic-top' },
+				brands: { type: 'array', default: [], items: { type: 'string' } },
+			},
+			fields: [
+				{ key: 'title', kind: 'text', label: __('Title') },
+				headerStyleField,
+				{
+					key: 'brands',
+					kind: 'multiselect',
+					label: __('Brands to show'),
+					help: __('Leave empty to show all brands.'),
+					options: kkWidgetBlocks?.goldBrands ?? [],
+				},
+			],
+		},
+		{
 			slug: 'markets',
 			title: __('KK Markets'),
 			description: __('Gold, stock and crypto prices from the Markets providers.'),
