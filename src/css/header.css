@@ -214,7 +214,14 @@ body.admin-bar {
 
 .kk-primary-nav {
 	position: fixed;
-	top: 0;
+	/* Below the WP admin bar when logged in (same token as the sticky
+	 * nav): otherwise the bar covers the drawer's header. The token
+	 * is 0 when logged out, 32px desktop / 46px mobile when logged
+	 * in — but at <=600px the token is 0 (the bar scrolls away) while
+	 * the drawer, which locks the page scroll when open, still needs
+	 * the offset when it opens from the top of the page; see the
+	 * override below. */
+	top: var(--kk-admin-bar-height, 0px);
 	left: 0;
 	bottom: 0;
 	z-index: 60;
@@ -235,6 +242,19 @@ body.admin-bar {
 	transform: translateX(0);
 	visibility: visible;
 	transition: transform 0.28s ease;
+}
+
+/* At <=600px the --kk-admin-bar-height token is 0 (the bar scrolls
+ * away, which is right for the sticky nav) — but the drawer is fixed
+ * and locks the page scroll when open, so when it opens from the top
+ * of the page the bar is still on screen and would cover the drawer
+ * header. The drawer keeps the 46px offset at this width too. (If
+ * the drawer is opened after scrolling down, the bar is gone and the
+ * drawer shows a 46px gap at the top instead — the lesser evil.) */
+@media (max-width: 600px) {
+	body.admin-bar .kk-primary-nav {
+		top: 46px;
+	}
 }
 
 /* Right-side drawer (Customizer -> Header -> Mobile Menu Slide
@@ -580,12 +600,26 @@ html.kk-nav-open body {
 }
 
 .kk-primary-menu a {
-	display: block;
+	/* Flex so a menu icon (MenuIcons) sits beside the label, in the
+	 * drawer and in the desktop bar alike. */
+	display: flex;
+	align-items: center;
+	gap: 8px;
 	padding: 12px 4px;
 	color: var(--kk-ink);
 	font-weight: 600;
 	font-size: 15px;
 	border-bottom: 1px solid var(--kk-border);
+}
+
+/* The icon span never shrinks; its svg renders as a block. */
+.kk-primary-menu a .kk-menu-icon {
+	flex: 0 0 auto;
+	display: inline-flex;
+}
+
+.kk-primary-menu a .kk-menu-icon svg {
+	display: block;
 }
 
 .kk-primary-menu a:hover,

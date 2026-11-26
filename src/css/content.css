@@ -95,6 +95,57 @@
 	border-bottom: 0;
 }
 
+/* --- Sidebar menu (Appearance -> Menus -> Sidebar Menu) ------------------ */
+/* A vertical nav list at the top of the main sidebar, shown only when a
+ * menu is assigned to the Sidebar Menu location. Links are flex rows so
+ * a menu icon (MenuIcons) sits beside the label; the current page's
+ * link is green, like the primary nav. */
+.kk-sidebar-nav {
+	border-top: 2px solid var(--kk-ink);
+	padding-top: 12px;
+}
+
+.kk-sidebar-nav-menu {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+
+.kk-sidebar-nav-menu a {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	padding: 8px 0;
+	border-bottom: 1px solid var(--kk-border);
+	color: var(--kk-ink);
+	font-weight: 600;
+	font-size: 15px;
+}
+
+.kk-sidebar-nav-menu a:hover,
+.kk-sidebar-nav-menu .current-menu-item > a {
+	color: var(--kk-green, #0b6b3a);
+}
+
+.kk-sidebar-nav-menu a .kk-menu-icon {
+	flex: 0 0 auto;
+	display: inline-flex;
+}
+
+.kk-sidebar-nav-menu a .kk-menu-icon svg {
+	display: block;
+}
+
+.kk-sidebar-nav-menu li:last-child a {
+	border-bottom: 0;
+}
+
+.kk-sidebar-nav-menu .sub-menu {
+	list-style: none;
+	margin: 0;
+	padding-left: 26px;
+}
+
 .kk-sidebar-empty {
 	color: var(--kk-muted);
 	font-size: 14px;

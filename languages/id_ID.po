@@ -2732,3 +2732,16 @@ msgstr "Scraped (Antam, Galeri 24, UBS + spot live, gratis)"
 
 msgid "Showing: %s"
 msgstr "Menampilkan: %s"
+
+#: inc/Setup/MenuIcons.php
+msgid "Icon"
+msgstr "Ikon"
+
+#: inc/Setup/MenuIcons.php
+msgid "No icon"
+msgstr "Tanpa ikon"
+
+#: inc/Setup/ThemeSupport.php
+#: sidebar.php
+msgid "Sidebar Menu"
+msgstr "Menu Sidebar"

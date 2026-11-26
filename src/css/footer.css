@@ -58,9 +58,22 @@
 }
 
 .kk-footer-menu a {
+	/* Inline-flex so a menu icon (MenuIcons) sits beside the label. */
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
 	color: var(--kk-ink);
 	font-weight: 600;
 	font-size: 15px;
+}
+
+.kk-footer-menu a .kk-menu-icon {
+	flex: 0 0 auto;
+	display: inline-flex;
+}
+
+.kk-footer-menu a .kk-menu-icon svg {
+	display: block;
 }
 
 .kk-footer-menu a:hover {

@@ -128,3 +128,76 @@
 	margin: 1.25rem 0 0;
 	text-align: right;
 }
+
+/* --- Menu item icon picker (Appearance -> Menus, see MenuIcons) -------- */
+/* A scrollable grid of radio buttons: one per theme icon, plus a
+ * full-width "No icon" row on top. No JS — the :checked sibling
+ * selector highlights the picked icon. The scrollbar chrome is
+ * hidden (the grid is scrollable, the chrome is not needed). */
+.kk-menu-icon-field > label {
+	display: block;
+	font-weight: 600;
+	margin-bottom: 4px;
+}
+
+.kk-menu-icon-grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(40px, 1fr));
+	gap: 4px;
+	max-height: 172px;
+	overflow: auto;
+	scrollbar-width: none;
+}
+
+.kk-menu-icon-grid::-webkit-scrollbar {
+	display: none;
+}
+
+.kk-menu-icon-option {
+	position: relative;
+	display: block;
+	cursor: pointer;
+}
+
+.kk-menu-icon-option input {
+	position: absolute;
+	opacity: 0;
+	pointer-events: none;
+}
+
+.kk-menu-icon-swatch {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	min-height: 36px;
+	padding: 6px 2px;
+	border: 1px solid #dcdcde;
+	border-radius: 3px;
+	color: #1d2327;
+	background: #fff;
+}
+
+.kk-menu-icon-option:hover .kk-menu-icon-swatch {
+	border-color: #8c8f94;
+}
+
+.kk-menu-icon-option input:checked + .kk-menu-icon-swatch {
+	border-color: #0b6b3a;
+	background: #e6f4ea;
+	color: #0b6b3a;
+}
+
+.kk-menu-icon-option input:focus-visible + .kk-menu-icon-swatch {
+	outline: 2px solid #c9962e;
+	outline-offset: 1px;
+}
+
+.kk-menu-icon-option--none {
+	grid-column: 1 / -1;
+}
+
+.kk-menu-icon-option--none .kk-menu-icon-swatch {
+	min-height: 0;
+	padding: 6px 8px;
+	font-size: 12px;
+}

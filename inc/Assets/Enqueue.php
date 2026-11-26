@@ -428,6 +428,19 @@ final class Enqueue
             }
         }
 
+        /* Menus page: the menu item icon picker (MenuIcons) is styled
+         * by admin.css, so its stylesheet loads here too — style only,
+         * the admin.ts script is not needed on this page. */
+        if ($hookSuffix === 'nav-menus.php') {
+            $css = ViteLoader::css('src/ts/admin.ts');
+
+            if ($css !== '') {
+                wp_enqueue_style('kk-admin', $css, [], KK_VERSION);
+            }
+
+            return;
+        }
+
         if (!$isWidgets && !$isCustomizer) {
             return;
         }

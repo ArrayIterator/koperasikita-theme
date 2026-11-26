@@ -43,6 +43,7 @@ final class ThemeSupport
             'primary' => esc_html__('Primary Menu', 'koperasikita'),
             'footer' => esc_html__('Footer Menu', 'koperasikita'),
             'mobile-bottom' => esc_html__('Mobile Bottom Menu', 'koperasikita'),
+            'sidebar' => esc_html__('Sidebar Menu', 'koperasikita'),
         ]);
     }
 }
