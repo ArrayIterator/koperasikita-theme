@@ -13,22 +13,33 @@ get_header();
 <div class="kk-shell kk-home">
 	<?php get_template_part( 'template-parts/content/breadcrumb' ); ?>
 
-	<?php get_template_part( 'template-parts/home/hero-grid' ); ?>
-
 	<?php
-	// Before Highlights widget area: full-width strip directly
-	// before the Highlights (Sorotan) section. Renders nothing
-	// when empty.
-	if ( is_active_sidebar( 'kk-before-highlights' ) ) :
+	// Hero + Highlights (Sorotan) exist ONLY on the front page,
+	// page 1. WordPress reuses front-page.php for the paginated
+	// front page (/page/2/, /page/3/, ...) too, so without this
+	// guard the hero and highlights repeat on every page of the
+	// post list. is_paged() is true from page 2 on.
+	if ( ! is_paged() ) :
 		?>
-		<div class="kk-widget-area kk-widget-area--before-highlights">
-			<?php dynamic_sidebar( 'kk-before-highlights' ); ?>
-		</div>
-		<?php
-	endif;
-	?>
 
-	<?php get_template_part( 'template-parts/home/highlights' ); ?>
+		<?php get_template_part( 'template-parts/home/hero-grid' ); ?>
+
+		<?php
+		// Before Highlights widget area: full-width strip directly
+		// before the Highlights (Sorotan) section. Renders nothing
+		// when empty.
+		if ( is_active_sidebar( 'kk-before-highlights' ) ) :
+			?>
+			<div class="kk-widget-area kk-widget-area--before-highlights">
+				<?php dynamic_sidebar( 'kk-before-highlights' ); ?>
+			</div>
+			<?php
+		endif;
+		?>
+
+		<?php get_template_part( 'template-parts/home/highlights' ); ?>
+
+	<?php endif; ?>
 
 	<?php
 	// Block Area widget (global, locked): ONE shared area for the
