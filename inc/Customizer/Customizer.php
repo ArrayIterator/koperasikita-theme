@@ -474,7 +474,22 @@ final class Customizer
             ]);
         }
 
-        // Header: breaking-news source, top bar, live clock, sticky header.
+        // Header: breaking-news title and source, top bar, live clock,
+        // sticky header. The title is the label on the ticker itself.
+        self::addSetting(
+            $wpCustomize,
+            'kk_breaking_title',
+            __('Breaking', 'koperasikita'),
+            'sanitize_text_field',
+            'refresh'
+        );
+        $wpCustomize->add_control('kk_breaking_title', [
+            'label' => esc_html__('Breaking News Title', 'koperasikita'),
+            'description' => esc_html__('The label shown on the news ticker.', 'koperasikita'),
+            'section' => 'koperasikita_header',
+            'type' => 'text',
+        ]);
+
         self::addSetting(
             $wpCustomize,
             'kk_breaking_source',
@@ -658,6 +673,20 @@ final class Customizer
             'type' => 'text',
         ]);
 
+        // App icon (the PWA logo). Pick an image from the media
+        // library; it becomes the manifest icons and the
+        // apple-touch-icon. Leave empty to use the shipped logo
+        // (assets/img/logo-192.png / logo-512.png).
+        self::addSetting($wpCustomize, 'kk_pwa_icon', 0, 'absint', 'refresh');
+
+        $wpCustomize->add_control(new WP_Customize_Media_Control($wpCustomize, 'kk_pwa_icon', [
+            'label' => esc_html__('App Icon', 'koperasikita'),
+            'description' => esc_html__('The app logo used when installing the PWA (manifest icons and home-screen icon). Use a square image, at least 512×512. Leave empty to use the shipped logo.', 'koperasikita'),
+            'section' => 'koperasikita_pwa',
+            'settings' => 'kk_pwa_icon',
+            'mime_type' => 'image',
+        ]));
+
         $pwa_colors = [
             'kk_pwa_theme_color' => ['#0B6B3A', 'App Theme Color'],
             'kk_pwa_background_color' => ['#FFFFFF', 'App Background Color'],
@@ -767,29 +796,29 @@ final class Customizer
         ]);
 
         // Install screenshots for the manifest (shown by the browser
-        // on the install prompt). Both are optional: an empty slot is
-        // skipped, and with neither set the manifest has no
+        // on the install prompt). Each slot takes MULTIPLE images: a
+        // dynamic list — add as many as needed, remove any. An empty
+        // slot is skipped, and with neither set the manifest has no
         // screenshots field at all.
         $pwa_screenshots = [
             'kk_pwa_screenshot_wide' => [
                 'Install Screenshot (Wide)',
-                'Desktop screenshot shown when installing the app (landscape, e.g. 1280x720). Leave empty to skip.',
+                'Desktop screenshots shown when installing the app (landscape, e.g. 1280x720). Add as many as you like. Leave empty to skip.',
             ],
             'kk_pwa_screenshot_narrow' => [
                 'Install Screenshot (Narrow)',
-                'Phone screenshot shown when installing the app (portrait, e.g. 390x844). Leave empty to skip.',
+                'Phone screenshots shown when installing the app (portrait, e.g. 390x844). Add as many as you like. Leave empty to skip.',
             ],
         ];
 
         foreach ($pwa_screenshots as $id => [$label, $description]) {
-            self::addSetting($wpCustomize, $id, 0, 'absint', 'refresh');
+            self::addSetting($wpCustomize, $id, [], [self::class, 'sanitizeAttachmentIds'], 'refresh');
 
-            $wpCustomize->add_control(new WP_Customize_Media_Control($wpCustomize, $id, [
+            $wpCustomize->add_control(new MultiImageControl($wpCustomize, $id, [
                 'label' => esc_html__($label, 'koperasikita'),
                 'description' => esc_html__($description, 'koperasikita'),
                 'section' => 'koperasikita_pwa',
                 'settings' => $id,
-                'mime_type' => 'image',
             ]));
         }
 
@@ -1082,6 +1111,35 @@ final class Customizer
         // Cast, do not abs(): a negative raw ID is invalid input, not
         // the term with the matching positive ID.
         $ids = array_map(static fn (mixed $id): int => (int) $id, $value);
+        $ids = array_filter($ids, static fn (int $id): bool => $id > 0);
+
+        return array_values(array_unique($ids));
+    }
+
+    /**
+     * Attachment IDs for a multi-image setting: accepts a JSON array
+     * (the MultiImageControl hidden input), a plain array, or a
+     * single legacy attachment ID, and always returns a clean array
+     * of unique positive IDs.
+     *
+     * @return array<int>
+     */
+    public static function sanitizeAttachmentIds(mixed $value): array
+    {
+        if (is_string($value) && $value !== '') {
+            $decoded = json_decode($value, true);
+            $value = is_array($decoded) ? $decoded : [$value];
+        }
+
+        if (is_int($value) || is_numeric($value)) {
+            $value = [(int) $value];
+        }
+
+        if (!is_array($value)) {
+            return [];
+        }
+
+        $ids = array_map('absint', $value);
         $ids = array_filter($ids, static fn (int $id): bool => $id > 0);
 
         return array_values(array_unique($ids));

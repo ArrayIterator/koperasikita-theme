@@ -557,4 +557,151 @@ document.addEventListener('DOMContentLoaded', () => {
 	document
 		.querySelectorAll<HTMLElement>('[data-kk-term-multiselect]')
 		.forEach(initTermMultiSelect);
+	document
+		.querySelectorAll<HTMLElement>('[data-kk-multi-image]')
+		.forEach(initMultiImage);
 });
+
+/**
+ * Multi-image picker (MultiImageControl): a dynamic list of
+ * thumbnails with an "Add images" button that opens the media
+ * library (multiple selection). The selection syncs into the hidden,
+ * setting-linked input as a JSON array of attachment IDs.
+ *
+ * Uses the `wp.media` frame the Customizer already loads for the
+ * media controls; if it is unavailable the button simply does
+ * nothing (the saved value stays intact).
+ */
+
+interface MediaAttachment {
+	toJSON(): {
+		id?: number;
+		sizes?: { thumbnail?: { url?: string } };
+		url?: string;
+	};
+}
+
+interface MediaSelection {
+	each(callback: (attachment: MediaAttachment) => void): void;
+}
+
+interface MediaState {
+	get(key: 'selection'): MediaSelection;
+}
+
+interface MediaFrame {
+	on(event: 'select', callback: () => void): void;
+	state(): MediaState;
+	open(): void;
+}
+
+function initMultiImage(container: HTMLElement): void {
+	const list = container.querySelector<HTMLElement>('.kk-multi-image-list');
+	const addButton = container.querySelector<HTMLButtonElement>(
+		'.kk-multi-image-add',
+	);
+	const hidden = container.querySelector<HTMLInputElement>(
+		'input[type="hidden"][data-customize-setting-link]',
+	);
+	if (!list || !addButton || !hidden) {
+		return;
+	}
+
+	const selectedIds = (): number[] => {
+		try {
+			const parsed: unknown = JSON.parse(hidden.value || '[]');
+			if (!Array.isArray(parsed)) {
+				return [];
+			}
+			return parsed
+				.map((id) => Number(id))
+				.filter((id) => Number.isInteger(id) && id > 0);
+		} catch {
+			return [];
+		}
+	};
+
+	const syncFromDom = (): void => {
+		const ids = Array.from(
+			list.querySelectorAll<HTMLElement>('.kk-multi-image-item'),
+		)
+			.map((item) => Number(item.dataset.value ?? '0'))
+			.filter((id) => id > 0);
+		const next = JSON.stringify(ids);
+		if (hidden.value !== next) {
+			hidden.value = next;
+			hidden.dispatchEvent(new Event('change', { bubbles: true }));
+		}
+	};
+
+	const addItem = (id: number, thumbUrl: string): void => {
+		if (list.querySelector(`[data-value="${id}"]`)) {
+			return;
+		}
+		const item = document.createElement('span');
+		item.className = 'kk-multi-image-item';
+		item.dataset.value = String(id);
+		const img = document.createElement('img');
+		img.src = thumbUrl;
+		img.alt = '';
+		img.width = 64;
+		img.height = 64;
+		const remove = document.createElement('button');
+		remove.type = 'button';
+		remove.className = 'kk-multi-image-remove';
+		remove.setAttribute('aria-label', 'Remove image');
+		remove.textContent = '×';
+		item.appendChild(img);
+		item.appendChild(remove);
+		list.appendChild(item);
+	};
+
+	list.addEventListener('click', (event) => {
+		const remove = (event.target as HTMLElement).closest<HTMLElement>(
+			'.kk-multi-image-remove',
+		);
+		if (!remove) {
+			return;
+		}
+		const item = remove.closest<HTMLElement>('.kk-multi-image-item');
+		if (!item) {
+			return;
+		}
+		item.remove();
+		syncFromDom();
+	});
+
+	addButton.addEventListener('click', () => {
+		const media = (
+			window as unknown as {
+				wp?: { media?: (options: Record<string, unknown>) => MediaFrame };
+			}
+		).wp?.media;
+		if (!media) {
+			return;
+		}
+		const frame = media({
+			title: 'Select images',
+			button: { text: 'Add images' },
+			multiple: true,
+			library: { type: 'image' },
+		});
+		frame.on('select', () => {
+			const selection = frame.state().get('selection');
+			selection.each((attachment) => {
+				const json = attachment.toJSON();
+				const id = Number(json.id ?? 0);
+				if (id <= 0) {
+					return;
+				}
+				const thumb = json.sizes?.thumbnail?.url ?? json.url ?? '';
+				if (thumb === '') {
+					return;
+				}
+				addItem(id, thumb);
+			});
+			syncFromDom();
+		});
+		frame.open();
+	});
+}

@@ -1992,3 +1992,27 @@ msgstr "Blok Kategori %d: Artikel"
 
 msgid "Category Block %d: Display Style"
 msgstr "Blok Kategori %d: Gaya Tampilan"
+
+msgid "Breaking News Title"
+msgstr "Judul Berita Terkini"
+
+msgid "The label shown on the news ticker."
+msgstr "Label yang ditampilkan pada ticker berita."
+
+msgid "App Icon"
+msgstr "Ikon Aplikasi"
+
+msgid "The app logo used when installing the PWA (manifest icons and home-screen icon). Use a square image, at least 512\u00d7512. Leave empty to use the shipped logo."
+msgstr "Logo aplikasi yang dipakai saat menginstal PWA (ikon manifest dan ikon layar utama). Gunakan gambar persegi, minimal 512\u00d7512. Kosongkan untuk memakai logo bawaan."
+
+msgid "Add images"
+msgstr "Tambah gambar"
+
+msgid "Remove image"
+msgstr "Hapus gambar"
+
+msgid "Desktop screenshots shown when installing the app (landscape, e.g. 1280x720). Add as many as you like. Leave empty to skip."
+msgstr "Tangkapan layar desktop yang ditampilkan saat menginstal aplikasi (lanskap, mis. 1280x720). Tambahkan sebanyak yang Anda mau. Kosongkan untuk melewati."
+
+msgid "Phone screenshots shown when installing the app (portrait, e.g. 390x844). Add as many as you like. Leave empty to skip."
+msgstr "Tangkapan layar ponsel yang ditampilkan saat menginstal aplikasi (potret, mis. 390x844). Tambahkan sebanyak yang Anda mau. Kosongkan untuk melewati."

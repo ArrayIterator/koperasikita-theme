@@ -132,7 +132,73 @@ final class Pwa
         echo '<link rel="manifest" href="' . esc_url(self::manifestUrl()) . '">' . "\n";
         echo '<meta name="theme-color" content="' . esc_attr(self::themeColor()) . '">' . "\n";
         echo '<link rel="apple-touch-icon" href="'
-            . esc_url(get_template_directory_uri() . '/assets/img/logo-192.png') . '">' . "\n";
+            . esc_url(self::appIconUrl()) . '">' . "\n";
+    }
+
+    /**
+     * The app icon URL: the Customizer-picked image when one is set,
+     * otherwise the shipped logo (assets/img/logo-192.png).
+     */
+    public static function appIconUrl(): string
+    {
+        $id = absint(get_theme_mod('kk_pwa_icon', 0));
+
+        if ($id > 0) {
+            $image = wp_get_attachment_image_src($id, 'full');
+
+            if (is_array($image) && isset($image[0]) && is_string($image[0]) && $image[0] !== '') {
+                return $image[0];
+            }
+        }
+
+        return get_template_directory_uri() . '/assets/img/logo-192.png';
+    }
+
+    /**
+     * The manifest icons: the Customizer-picked image (one URL, used
+     * for both sizes — the browser scales it) when one is set,
+     * otherwise the shipped 192 + 512 logo files.
+     *
+     * @return array<int, array<string, string>>
+     */
+    public static function manifestIcons(): array
+    {
+        $id = absint(get_theme_mod('kk_pwa_icon', 0));
+
+        if ($id > 0) {
+            $image = wp_get_attachment_image_src($id, 'full');
+
+            if (is_array($image) && isset($image[0]) && is_string($image[0]) && $image[0] !== '') {
+                $mime = get_post_mime_type($id);
+                $icon = ['src' => $image[0]];
+
+                if (is_string($mime) && $mime !== '') {
+                    $icon['type'] = $mime;
+                }
+
+                return [
+                    array_merge($icon, ['sizes' => '192x192', 'purpose' => 'any']),
+                    array_merge($icon, ['sizes' => '512x512', 'purpose' => 'any']),
+                ];
+            }
+        }
+
+        $iconsBase = get_template_directory_uri() . '/assets/img/';
+
+        return [
+            [
+                'src' => $iconsBase . 'logo-192.png',
+                'sizes' => '192x192',
+                'type' => 'image/png',
+                'purpose' => 'any',
+            ],
+            [
+                'src' => $iconsBase . 'logo-512.png',
+                'sizes' => '512x512',
+                'type' => 'image/png',
+                'purpose' => 'any',
+            ],
+        ];
     }
 
     /**
@@ -306,8 +372,12 @@ final class Pwa
     }
 
     /**
-     * Screenshots for the manifest, from the Customizer media
-     * pickers. Each slot stores an attachment ID; an empty slot, a
+     * Screenshots for the manifest, from the Customizer multi-image
+     * pickers. Each slot stores a list of attachment IDs (a JSON
+     * array from the MultiImageControl, or a single legacy ID from
+     * before the multi-image picker); every usable image becomes one
+     * screenshot entry for its form factor, so the install prompt
+     * can show more than one screenshot per slot. An empty slot, a
      * deleted attachment, an image without dimensions or a
      * non-image attachment is skipped, and with no usable
      * screenshot the manifest has no screenshots field at all.
@@ -319,42 +389,53 @@ final class Pwa
         $screenshots = [];
 
         foreach (['wide' => 'kk_pwa_screenshot_wide', 'narrow' => 'kk_pwa_screenshot_narrow'] as $formFactor => $setting) {
-            $id = absint(get_theme_mod($setting, 0));
+            $raw = get_theme_mod($setting, []);
 
-            if ($id === 0) {
-                continue;
+            if (is_string($raw) && $raw !== '') {
+                $decoded = json_decode($raw, true);
+                $ids = is_array($decoded) ? $decoded : [$raw];
+            } elseif (is_array($raw)) {
+                $ids = $raw;
+            } elseif (is_int($raw) || is_numeric($raw)) {
+                $ids = [(int) $raw];
+            } else {
+                $ids = [];
             }
 
-            $image = wp_get_attachment_image_src($id, 'full');
+            $ids = array_values(array_unique(array_filter(array_map('absint', (array) $ids), static fn (int $id): bool => $id > 0)));
 
-            if ($image === false) {
-                continue;
+            foreach ($ids as $id) {
+                $image = wp_get_attachment_image_src($id, 'full');
+
+                if ($image === false) {
+                    continue;
+                }
+
+                [$url, $width, $height] = $image;
+
+                if (!is_string($url) || $url === '' || $width <= 0 || $height <= 0) {
+                    continue;
+                }
+
+                $mime = get_post_mime_type($id);
+
+                if (is_string($mime) && $mime !== '' && !str_starts_with($mime, 'image/')) {
+                    continue;
+                }
+
+                $entry = [
+                    'src' => $url,
+                    'sizes' => $width . 'x' . $height,
+                ];
+
+                if (is_string($mime) && $mime !== '') {
+                    $entry['type'] = $mime;
+                }
+
+                $entry['form_factor'] = $formFactor;
+
+                $screenshots[] = $entry;
             }
-
-            [$url, $width, $height] = $image;
-
-            if (!is_string($url) || $url === '' || $width <= 0 || $height <= 0) {
-                continue;
-            }
-
-            $mime = get_post_mime_type($id);
-
-            if (is_string($mime) && $mime !== '' && !str_starts_with($mime, 'image/')) {
-                continue;
-            }
-
-            $entry = [
-                'src' => $url,
-                'sizes' => $width . 'x' . $height,
-            ];
-
-            if (is_string($mime) && $mime !== '') {
-                $entry['type'] = $mime;
-            }
-
-            $entry['form_factor'] = $formFactor;
-
-            $screenshots[] = $entry;
         }
 
         return $screenshots;
@@ -369,8 +450,6 @@ final class Pwa
      */
     public static function manifestData(): array
     {
-        $iconsBase = get_template_directory_uri() . '/assets/img/';
-
         $manifest = [
             'id' => home_url('/'),
             'name' => self::manifestName(),
@@ -381,20 +460,7 @@ final class Pwa
             'display' => 'standalone',
             'background_color' => self::backgroundColor(),
             'theme_color' => self::themeColor(),
-            'icons' => [
-                [
-                    'src' => $iconsBase . 'logo-192.png',
-                    'sizes' => '192x192',
-                    'type' => 'image/png',
-                    'purpose' => 'any',
-                ],
-                [
-                    'src' => $iconsBase . 'logo-512.png',
-                    'sizes' => '512x512',
-                    'type' => 'image/png',
-                    'purpose' => 'any',
-                ],
-            ],
+            'icons' => self::manifestIcons(),
         ];
 
         $screenshots = self::manifestScreenshots();

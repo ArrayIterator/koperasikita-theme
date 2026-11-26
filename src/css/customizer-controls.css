@@ -251,3 +251,58 @@
 	font-size: 13px;
 	color: #646970;
 }
+
+/* --- Multi-image picker ---------------------------------------------------- */
+/* A dynamic list of thumbnails (each with a remove button) plus an
+ * "Add images" button that opens the media library. The selection
+ * syncs into a hidden input as a JSON array of attachment IDs. */
+
+.kk-multi-image-list {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px;
+	margin-bottom: 8px;
+}
+
+.kk-multi-image-list:empty {
+	margin-bottom: 0;
+}
+
+.kk-multi-image-item {
+	position: relative;
+	display: inline-block;
+	width: 64px;
+	height: 64px;
+}
+
+.kk-multi-image-item img {
+	display: block;
+	width: 64px;
+	height: 64px;
+	object-fit: cover;
+	border: 1px solid #dcdcde;
+	border-radius: 3px;
+}
+
+.kk-multi-image-remove {
+	position: absolute;
+	top: -6px;
+	right: -6px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 18px;
+	height: 18px;
+	padding: 0;
+	border: 0;
+	border-radius: 50%;
+	background: #d63638;
+	color: #fff;
+	font-size: 13px;
+	line-height: 1;
+	cursor: pointer;
+}
+
+.kk-multi-image-remove:hover {
+	background: #b32d2e;
+}

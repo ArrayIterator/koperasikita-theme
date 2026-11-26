@@ -16,12 +16,14 @@ if ( empty( $ticker_posts ) ) {
 }
 
 $ticker_speed = \KoperasiKita\Features\Ticker::speed();
+$ticker_title = (string) get_theme_mod( 'kk_breaking_title', __( 'Breaking', 'koperasikita' ) );
+$ticker_title = '' !== trim( $ticker_title ) ? $ticker_title : __( 'Breaking', 'koperasikita' );
 ?>
 
 <div class="kk-ticker-wrap">
 	<div class="kk-shell">
 		<div class="kk-ticker" role="region" aria-label="<?php esc_attr_e( 'Breaking news', 'koperasikita' ); ?>">
-			<span class="kk-ticker-label"><?php esc_html_e( 'Breaking', 'koperasikita' ); ?></span>
+			<span class="kk-ticker-label"><?php echo esc_html( $ticker_title ); ?></span>
 			<ul class="kk-ticker-list" id="kk-ticker-list" data-speed="<?php echo esc_attr( (string) $ticker_speed ); ?>">
 				<?php foreach ( $ticker_posts as $index => $ticker_post ) : ?>
 					<li class="kk-ticker-item<?php echo 0 === $index ? ' is-active' : ''; ?>">
