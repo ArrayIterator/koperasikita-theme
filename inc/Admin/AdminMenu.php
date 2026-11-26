@@ -19,13 +19,36 @@ use KoperasiKita\Setup\Setup;
  *   ├─ Data Desk Templates (panel + table templates)
  *   └─ Locations        (Agenda locations)
  *
- * The pages keep their own slugs, so existing bookmarks and the
- * Enqueue hook-suffix checks keep working — only the parent
- * (and therefore the hook suffix prefix) changed.
+ * The pages keep their own slugs, so existing bookmarks keep
+ * working. Note the hook-suffix trap, documented on
+ * submenuHookSuffix() below: submenu hooks are built from the
+ * sanitized menu TITLE, not from MENU_SLUG.
  */
 final class AdminMenu
 {
     public const MENU_SLUG = 'koperasikita';
+
+    /**
+     * Hook suffix of a submenu page under this menu.
+     *
+     * WordPress builds a submenu page's hook suffix from the
+     * SANITIZED MENU TITLE, not from the menu slug: add_menu_page()
+     * stores $admin_page_hooks[$slug] = sanitize_title($title),
+     * and get_plugin_page_hookname() returns
+     * "$title-slug_page_$page". The title 'Koperasi Kita'
+     * sanitizes to 'koperasi-kita', so the pages' hooks are
+     * 'koperasi-kita_page_<slug>' — NOT 'koperasikita_page_<slug>'.
+     * Deriving it from the same translated title string used in
+     * registerMenu() keeps the two in sync in every locale.
+     * The wrong prefix was used in Enqueue for Gold Prices, Data
+     * Desk Templates and Locations, so admin.js / agenda.js were
+     * never enqueued there at all: the Gold "Sync now" button had
+     * no handler and did nothing on click, with no error anywhere.
+     */
+    public static function submenuHookSuffix(string $pageSlug): string
+    {
+        return sanitize_title(__('Koperasi Kita', 'koperasikita')) . '_page_' . $pageSlug;
+    }
 
     public static function register(): void
     {

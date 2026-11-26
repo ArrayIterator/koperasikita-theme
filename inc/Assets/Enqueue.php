@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace KoperasiKita\Assets;
 
+use KoperasiKita\Admin\AdminMenu;
 use KoperasiKita\Features\Features;
 use KoperasiKita\Features\Fonts;
 use KoperasiKita\Features\Pwa;
@@ -463,8 +464,8 @@ final class Enqueue
          * (initTermPickers) need the admin script + ajaxUrl/nonce.
          * Runs before the widgets/customizer early return below,
          * which would drop it. */
-        $isGoldPrices = $hookSuffix === 'koperasikita_page_' . \KoperasiKita\Admin\GoldPricesPage::PAGE_SLUG;
-        $isDataDeskTemplates = $hookSuffix === 'koperasikita_page_' . \KoperasiKita\Admin\DataDeskTemplatesPage::PAGE_SLUG;
+        $isGoldPrices = $hookSuffix === AdminMenu::submenuHookSuffix(\KoperasiKita\Admin\GoldPricesPage::PAGE_SLUG);
+        $isDataDeskTemplates = $hookSuffix === AdminMenu::submenuHookSuffix(\KoperasiKita\Admin\DataDeskTemplatesPage::PAGE_SLUG);
 
         if ($isGoldPrices || $isDataDeskTemplates) {
             $css = ViteLoader::css('src/ts/admin.ts');
@@ -509,7 +510,7 @@ final class Enqueue
             $isAgendaEditor = $screen instanceof \WP_Screen
                 && $screen->post_type === \KoperasiKita\Features\Agenda::POST_TYPE
                 && in_array($screen->base, ['post', 'post-new'], true);
-            $isAgendaLocations = $hookSuffix === 'koperasikita_page_' . \KoperasiKita\Features\Agenda::LOCATIONS_PAGE_SLUG;
+            $isAgendaLocations = $hookSuffix === AdminMenu::submenuHookSuffix(\KoperasiKita\Features\Agenda::LOCATIONS_PAGE_SLUG);
 
             if ($isAgendaEditor || $isAgendaLocations) {
                 $agendaCss = ViteLoader::css('src/css/agenda.css');
