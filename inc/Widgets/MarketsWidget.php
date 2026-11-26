@@ -26,6 +26,25 @@ final class MarketsWidget extends WP_Widget
     public const LAYOUT_STRIP = 'strip';
     public const LAYOUT_MARQUEE = 'marquee';
 
+    public const STYLE_DEFAULT = 'default';
+    public const STYLE_NO_MARGIN = 'no-margin';
+
+    /** @return array<string, string> Value => label. */
+    public static function styles(): array
+    {
+        return [
+            self::STYLE_DEFAULT => __('Default', 'koperasikita'),
+            self::STYLE_NO_MARGIN => __('No Margin', 'koperasikita'),
+        ];
+    }
+
+    public static function sanitizeStyle(mixed $value): string
+    {
+        $style = is_string($value) ? $value : '';
+
+        return isset(self::styles()[$style]) ? $style : self::STYLE_DEFAULT;
+    }
+
     /** @return string[] */
     public static function layouts(): array
     {
@@ -95,6 +114,7 @@ final class MarketsWidget extends WP_Widget
         $showChange = !isset($instance['show_change']) || (bool) $instance['show_change'];
         $layout = self::sanitizeLayout($instance['layout'] ?? self::LAYOUT_LIST);
         $visible = self::sanitizeVisible($instance['visible'] ?? 1);
+        $style = self::sanitizeStyle($instance['style'] ?? self::STYLE_DEFAULT);
 
         $markets = [];
         foreach ($selected as $market) {
@@ -104,7 +124,17 @@ final class MarketsWidget extends WP_Widget
             ];
         }
 
-        echo $args['before_widget'] ?? '';
+        // No Margin style: the widget sits flush — no top border, no
+        // top padding, no bottom margin — so it reads as a seamless
+        // strip instead of a boxed widget. The class is added to the
+        // container the same way WidgetHeader::beforeWidget() adds the
+        // no-border class.
+        $beforeWidget = (string) ($args['before_widget'] ?? '');
+        if ($style === self::STYLE_NO_MARGIN && $beforeWidget !== '') {
+            $beforeWidget = preg_replace('/class="([^"]*)"/', 'class="$1 kk-markets-widget--no-margin"', $beforeWidget, 1) ?? $beforeWidget;
+        }
+
+        echo $beforeWidget;
 
         WidgetHeader::render($args, $title, WidgetHeader::style($instance));
 
@@ -153,6 +183,24 @@ final class MarketsWidget extends WP_Widget
             >
         </p>
         <?php WidgetHeader::field($this, $instance); ?>
+        <p>
+            <label for="<?php echo esc_attr($this->get_field_id('style')); ?>">
+                <?php esc_html_e('Style', 'koperasikita'); ?>
+            </label>
+            <select
+                class="widefat"
+                id="<?php echo esc_attr($this->get_field_id('style')); ?>"
+                name="<?php echo esc_attr($this->get_field_name('style')); ?>"
+            >
+                <?php $style = self::sanitizeStyle($instance['style'] ?? self::STYLE_DEFAULT); ?>
+                <?php foreach (self::styles() as $value => $label) : ?>
+                    <option value="<?php echo esc_attr($value); ?>" <?php selected($style, $value); ?>>
+                        <?php echo esc_html($label); ?>
+                    </option>
+                <?php endforeach; ?>
+            </select>
+            <span class="description"><?php esc_html_e('No Margin sits flush, with no top border, padding or bottom margin.', 'koperasikita'); ?></span>
+        </p>
         <p>
             <label for="<?php echo esc_attr($this->get_field_id('layout')); ?>">
                 <?php esc_html_e('Layout', 'koperasikita'); ?>
@@ -234,6 +282,7 @@ final class MarketsWidget extends WP_Widget
         // An unchecked checkbox is not submitted at all, so "absent" means off.
         $instance['show_change'] = isset($new['show_change']) && (bool) $new['show_change'];
         $instance['header_style'] = WidgetHeader::sanitize($new['header_style'] ?? WidgetHeader::CLASSIC_TOP);
+        $instance['style'] = self::sanitizeStyle($new['style'] ?? self::STYLE_DEFAULT);
         $instance['layout'] = self::sanitizeLayout($new['layout'] ?? self::LAYOUT_LIST);
         $instance['visible'] = self::sanitizeVisible($new['visible'] ?? 1);
 

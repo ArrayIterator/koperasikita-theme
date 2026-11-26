@@ -63,6 +63,7 @@ final class GoldPricesPage
         }
 
         self::handleBrandsSave();
+        self::handleProviderSave();
 
         // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- tab is display-only.
         $tab = isset($_GET['tab']) ? sanitize_key((string) wp_unslash($_GET['tab'])) : 'prices';
@@ -115,6 +116,34 @@ final class GoldPricesPage
 
         wp_safe_redirect(add_query_arg(
             ['tab' => 'brands', 'saved' => '1'],
+            admin_url('admin.php?page=' . self::PAGE_SLUG)
+        ));
+        exit;
+    }
+
+    /**
+     * Save the gold provider form (Prices tab): nonce + capability
+     * checked, then redirect back with a saved flag so a refresh
+     * never resubmits the form.
+     */
+    private static function handleProviderSave(): void
+    {
+        if (!isset($_POST['kk_gold_provider_nonce'])) {
+            return;
+        }
+
+        if (!current_user_can('manage_options')) {
+            wp_die(esc_html__('You do not have permission to access this page.', 'koperasikita'));
+        }
+
+        check_admin_referer('kk_gold_provider', 'kk_gold_provider_nonce');
+
+        // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- sanitised below.
+        $provider = isset($_POST['kk_gold_provider']) ? sanitize_key((string) wp_unslash($_POST['kk_gold_provider'])) : 'manual';
+        Markets::setProvider('gold', $provider);
+
+        wp_safe_redirect(add_query_arg(
+            ['tab' => 'prices', 'provider_saved' => '1'],
             admin_url('admin.php?page=' . self::PAGE_SLUG)
         ));
         exit;
@@ -182,17 +211,38 @@ final class GoldPricesPage
         </p>
         <div data-kk-gold-sync-result role="status" aria-live="polite"></div>
 
-        <h2><?php esc_html_e('Active provider', 'koperasikita'); ?></h2>
-        <p>
-            <?php
-            printf(
-                /* translators: %s: provider label. */
-                esc_html__('Gold prices on the site currently come from: %s.', 'koperasikita'),
-                '<strong>' . esc_html($active->label()) . '</strong>'
-            );
+        <h2><?php esc_html_e('Gold price provider', 'koperasikita'); ?></h2>
+        <?php
+        // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- saved flag is display-only.
+        $providerSaved = isset($_GET['provider_saved']) && $_GET['provider_saved'] === '1';
+        $currentProvider = Markets::settings()['providers']['gold'] ?? 'manual';
+        if ($providerSaved) :
             ?>
-            <a href="<?php echo esc_url(admin_url('customize.php?autofocus[section]=koperasikita_homepage')); ?>"><?php esc_html_e('Change in the Customizer', 'koperasikita'); ?></a>
-        </p>
+            <div class="notice notice-success inline"><p><?php esc_html_e('Gold provider saved.', 'koperasikita'); ?></p></div>
+        <?php endif; ?>
+        <form method="post" action="<?php echo esc_url(admin_url('admin.php?page=' . self::PAGE_SLUG . '&tab=prices')); ?>">
+            <?php wp_nonce_field('kk_gold_provider', 'kk_gold_provider_nonce'); ?>
+            <p>
+                <label for="kk-gold-provider"><?php esc_html_e('Source for gold prices in the widget and market strip.', 'koperasikita'); ?></label><br>
+                <select id="kk-gold-provider" name="kk_gold_provider">
+                    <?php foreach (Markets::providerChoices('gold') as $id => $label) : ?>
+                        <option value="<?php echo esc_attr($id); ?>" <?php selected($currentProvider, $id); ?>>
+                            <?php echo esc_html($label); ?>
+                        </option>
+                    <?php endforeach; ?>
+                </select>
+                <?php submit_button(__('Save provider', 'koperasikita'), 'secondary', 'submit', false); ?>
+            </p>
+            <p class="description">
+                <?php
+                printf(
+                    /* translators: %s: provider label. */
+                    esc_html__('Gold prices on the site currently come from: %s.', 'koperasikita'),
+                    '<strong>' . esc_html($active->label()) . '</strong>'
+                );
+                ?>
+            </p>
+        </form>
         <?php
     }
 

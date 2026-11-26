@@ -20,6 +20,13 @@ final class Features
             return false;
         }
 
+        // Markets is always on: there is no "Enable Markets" toggle.
+        // The widgets, the market strip and the gold prices are part
+        // of the theme, not an optional feature.
+        if ($feature === 'markets') {
+            return true;
+        }
+
         return (bool) get_theme_mod('kk_' . $feature . '_enabled', true);
     }
 

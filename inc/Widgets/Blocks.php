@@ -162,6 +162,50 @@ final class Blocks
                     'sortOrder' => 'sort_order',
                 ],
             ],
+            'category-list-content' => [
+                'class' => CategoryListContentWidget::class,
+                'icon' => 'category',
+                'title' => __('KK Category List Content', 'koperasikita'),
+                'description' => __('Posts from one category, in a Featured, Grid, List, Featured Right or List Column layout.', 'koperasikita'),
+                'attributes' => [
+                    'title' => ['type' => 'string', 'default' => ''],
+                    'headerStyle' => ['type' => 'string', 'default' => 'classic-top'],
+                    'termId' => ['type' => 'string', 'default' => ''],
+                    'layout' => ['type' => 'string', 'default' => 'featured'],
+                    'linkTo' => ['type' => 'boolean', 'default' => true],
+                    'count' => ['type' => 'number', 'default' => 5],
+                ],
+                'map' => [
+                    'title' => 'title',
+                    'headerStyle' => 'header_style',
+                    'termId' => 'term_id',
+                    'layout' => 'layout',
+                    'linkTo' => 'link_to',
+                    'count' => 'count',
+                ],
+            ],
+            'tag-list-content' => [
+                'class' => TagListContentWidget::class,
+                'icon' => 'tag',
+                'title' => __('KK Tag List Content', 'koperasikita'),
+                'description' => __('Posts from one tag, in a Featured, Grid, List, Featured Right or List Column layout.', 'koperasikita'),
+                'attributes' => [
+                    'title' => ['type' => 'string', 'default' => ''],
+                    'headerStyle' => ['type' => 'string', 'default' => 'classic-top'],
+                    'termId' => ['type' => 'string', 'default' => ''],
+                    'layout' => ['type' => 'string', 'default' => 'featured'],
+                    'linkTo' => ['type' => 'boolean', 'default' => true],
+                    'count' => ['type' => 'number', 'default' => 5],
+                ],
+                'map' => [
+                    'title' => 'title',
+                    'headerStyle' => 'header_style',
+                    'termId' => 'term_id',
+                    'layout' => 'layout',
+                    'linkTo' => 'link_to',
+                    'count' => 'count',
+                ],
+            ],
         ];
 
         if (Features::isEnabled('markets')) {
@@ -209,6 +253,7 @@ final class Blocks
                     'showChange' => ['type' => 'boolean', 'default' => true],
                     'layout' => ['type' => 'string', 'default' => 'list'],
                     'visible' => ['type' => 'number', 'default' => 1],
+                    'style' => ['type' => 'string', 'default' => 'default'],
                 ],
                 'map' => [
                     'title' => 'title',
@@ -217,6 +262,7 @@ final class Blocks
                     'showChange' => 'show_change',
                     'layout' => 'layout',
                     'visible' => 'visible',
+                    'style' => 'style',
                 ],
             ];
             $definitions['yahoo-finance'] = [
@@ -300,6 +346,8 @@ final class Blocks
                 'blocks' => array_keys(self::definitions()),
                 'goldBrands' => self::optionList(array_intersect_key(Gold::brands(), array_flip(Gold::enabledBrands()))),
                 'marketLabels' => self::optionList(Markets::labels()),
+                'categories' => self::termOptions('category'),
+                'tags' => self::termOptions('post_tag'),
             ]);
         }
 
@@ -320,6 +368,36 @@ final class Blocks
 
         foreach ($options as $value => $label) {
             $list[] = ['value' => (string) $value, 'label' => (string) $label];
+        }
+
+        return $list;
+    }
+
+    /**
+     * Terms of one taxonomy as select options (id => name), for the
+     * Category / Tag List Content block pickers.
+     *
+     * @return array<int, array{value: string, label: string}>
+     */
+    private static function termOptions(string $taxonomy): array
+    {
+        $terms = get_terms([
+            'taxonomy' => $taxonomy,
+            'hide_empty' => false,
+            'orderby' => 'name',
+            'order' => 'ASC',
+        ]);
+
+        if (!is_array($terms)) {
+            return [];
+        }
+
+        $list = [];
+
+        foreach ($terms as $term) {
+            if ($term instanceof \WP_Term) {
+                $list[] = ['value' => (string) $term->term_id, 'label' => $term->name];
+            }
         }
 
         return $list;

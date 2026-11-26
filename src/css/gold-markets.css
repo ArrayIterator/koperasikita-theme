@@ -407,3 +407,21 @@
 		animation: none;
 	}
 }
+
+/* --- Markets widget: No Margin style -------------------------------------- */
+/* The widget sits flush — no top border, no top padding, no bottom
+ * margin — so it reads as a seamless strip instead of a boxed widget.
+ * The rows keep a hairline divider at the bottom so the strip still
+ * separates from the content below it. This beats the header
+ * "Borderless" style, which only drops the top rule. */
+.kk-sidebar .widget.kk-markets-widget--no-margin,
+.kk-widget-area .widget.kk-markets-widget--no-margin {
+	border-top: 0;
+	padding-top: 0;
+	margin-bottom: 0;
+}
+
+.kk-markets-widget--no-margin .kk-markets {
+	border-bottom: 1px solid var(--kk-border);
+	padding-bottom: 0.5rem;
+}

@@ -78,23 +78,30 @@ final class GoldWidget extends WP_Widget
             >
         </p>
         <?php WidgetHeader::field($this, $instance); ?>
-        <p><?php esc_html_e('Brands to show:', 'koperasikita'); ?></p>
-        <?php $allBrands = Gold::brands(); ?>
-        <?php foreach (Gold::enabledBrands() as $slug) : ?>
-            <?php $label = $allBrands[$slug] ?? $slug; ?>
-            <p>
-                <input
-                    type="checkbox"
-                    id="<?php echo esc_attr($this->get_field_id('brands-' . $slug)); ?>"
-                    name="<?php echo esc_attr($this->get_field_name('brands')); ?>[]"
-                    value="<?php echo esc_attr($slug); ?>"
-                    <?php checked(in_array($slug, $selected, true)); ?>
-                >
-                <label for="<?php echo esc_attr($this->get_field_id('brands-' . $slug)); ?>">
-                    <?php echo esc_html($label); ?>
-                </label>
-            </p>
-        <?php endforeach; ?>
+        <p>
+            <label for="<?php echo esc_attr($this->get_field_id('brands')); ?>">
+                <?php esc_html_e('Brands to show:', 'koperasikita'); ?>
+            </label>
+            <?php /* Select2-style picker (see admin.ts): a searchable multi-select, not a checkbox list. */ ?>
+            <select
+                multiple
+                class="widefat"
+                data-kk-term-picker
+                id="<?php echo esc_attr($this->get_field_id('brands')); ?>"
+                name="<?php echo esc_attr($this->get_field_name('brands')); ?>[]"
+                style="min-height: 120px;"
+            >
+                <?php $allBrands = Gold::brands(); ?>
+                <?php foreach (Gold::enabledBrands() as $slug) : ?>
+                    <?php $label = $allBrands[$slug] ?? $slug; ?>
+                    <option
+                        value="<?php echo esc_attr($slug); ?>"
+                        <?php selected(in_array($slug, $selected, true)); ?>
+                    ><?php echo esc_html($label); ?></option>
+                <?php endforeach; ?>
+            </select>
+            <span class="description"><?php esc_html_e('Leave empty to show all brands.', 'koperasikita'); ?></span>
+        </p>
         <?php
     }
 

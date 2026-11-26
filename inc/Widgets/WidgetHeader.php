@@ -89,11 +89,13 @@ final class WidgetHeader
 
     /**
      * Render the widget title (or nothing). An empty title is always
-     * hidden; `hide` hides it whatever the title is.
+     * hidden; `hide` hides it whatever the title is. When $url is
+     * given the title is a link to it (the "Link To" of the term
+     * list widgets).
      *
      * @param array<string, mixed> $args Display arguments.
      */
-    public static function render(array $args, string $title, string $style): void
+    public static function render(array $args, string $title, string $style, string $url = ''): void
     {
         if ($title === '' || $style === self::HIDE) {
             return;
@@ -116,7 +118,11 @@ final class WidgetHeader
             }
         }
 
-        echo $before . esc_html($title) . ($args['after_title'] ?? '');
+        $inner = $url !== ''
+            ? '<a href="' . esc_url($url) . '">' . esc_html($title) . '</a>'
+            : esc_html($title);
+
+        echo $before . $inner . ($args['after_title'] ?? '');
     }
 
     /**

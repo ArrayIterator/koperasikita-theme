@@ -835,6 +835,74 @@ msgstr "Selesai"
 msgid "KK Agenda"
 msgstr "KK Agenda"
 
+#: inc/Widgets/AbstractTermListContentWidget.php
+msgid "Enable Link To"
+msgstr "Aktifkan Taut Ke"
+
+#: inc/Widgets/AbstractTermListContentWidget.php
+msgid "Leave empty to use the term name."
+msgstr "Kosongkan untuk memakai nama istilah."
+
+#: inc/Widgets/AbstractTermListContentWidget.php
+msgid "Link the title to the term archive."
+msgstr "Tautkan judul ke arsip istilah."
+
+#: inc/Widgets/AbstractTermListContentWidget.php
+msgid "— Select —"
+msgstr "— Pilih —"
+
+#: inc/Widgets/CategoryListContentWidget.php
+msgid "Koperasi Kita Category List Content"
+msgstr "Konten Daftar Kategori Koperasi Kita"
+
+#: inc/Widgets/CategoryListContentWidget.php
+msgid "Posts from one category, in a Featured, Grid, List, Featured Right or List Column layout."
+msgstr "Artikel dari satu kategori, dalam tata letak Featured, Grid, List, Featured Right atau List Column."
+
+#: inc/Widgets/TagListContentWidget.php
+msgid "Koperasi Kita Tag List Content"
+msgstr "Konten Daftar Tag Koperasi Kita"
+
+#: inc/Widgets/TagListContentWidget.php
+msgid "Posts from one tag, in a Featured, Grid, List, Featured Right or List Column layout."
+msgstr "Artikel dari satu tag, dalam tata letak Featured, Grid, List, Featured Right atau List Column."
+
+#: inc/Widgets/Blocks.php
+msgid "KK Category List Content"
+msgstr "KK Konten Daftar Kategori"
+
+#: inc/Widgets/Blocks.php
+msgid "KK Tag List Content"
+msgstr "KK Konten Daftar Tag"
+
+#: src/ts/widget-blocks.ts
+msgid "Leave empty to use the category name."
+msgstr "Kosongkan untuk memakai nama kategori."
+
+#: src/ts/widget-blocks.ts
+msgid "Leave empty to use the tag name."
+msgstr "Kosongkan untuk memakai nama tag."
+
+#: inc/Widgets/MarketsWidget.php
+msgid "No Margin"
+msgstr "Tanpa Margin"
+
+#: inc/Widgets/MarketsWidget.php
+msgid "No Margin sits flush, with no top border, padding or bottom margin."
+msgstr "Tanpa Margin menempel rapat, tanpa garis atas, padding, atau margin bawah."
+
+#: inc/Admin/GoldPricesPage.php
+msgid "Gold price provider"
+msgstr "Penyedia harga emas"
+
+#: inc/Admin/GoldPricesPage.php
+msgid "Gold provider saved."
+msgstr "Penyedia emas disimpan."
+
+#: inc/Admin/GoldPricesPage.php
+msgid "Save provider"
+msgstr "Simpan penyedia"
+
 #: inc/Widgets/GoldWidget.php
 msgid "Settings -> Markets"
 msgstr "Pengaturan -> Pasar"

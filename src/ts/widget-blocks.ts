@@ -120,6 +120,8 @@ declare const kkWidgetBlocks:
 			blocks?: string[];
 			goldBrands?: OptionItem[];
 			marketLabels?: OptionItem[];
+			categories?: OptionItem[];
+			tags?: OptionItem[];
 	  }
 	| undefined;
 
@@ -470,6 +472,82 @@ function buildDefinitions(api: Wp): BlockDef[] {
 			],
 		},
 		{
+			slug: 'category-list-content',
+			title: __('KK Category List Content'),
+			description: __('Posts from one category, in a Featured, Grid, List, Featured Right or List Column layout.'),
+			icon: 'category',
+			attributes: {
+				title: { type: 'string', default: '' },
+				headerStyle: { type: 'string', default: 'classic-top' },
+				termId: { type: 'string', default: '' },
+				layout: { type: 'string', default: 'featured' },
+				linkTo: { type: 'boolean', default: true },
+				count: { type: 'number', default: 5 },
+			},
+			fields: [
+				{ key: 'title', kind: 'text', label: __('Title'), help: __('Leave empty to use the category name.') },
+				headerStyleField,
+				{
+					key: 'termId',
+					kind: 'select',
+					label: __('Category'),
+					options: [{ value: '', label: __('— Select —') }, ...(kkWidgetBlocks?.categories ?? [])],
+				},
+				{
+					key: 'layout',
+					kind: 'select',
+					label: __('Layout'),
+					options: [
+						{ value: 'featured', label: __('Featured') },
+						{ value: 'grid', label: __('Grid') },
+						{ value: 'list', label: __('List') },
+						{ value: 'featured-right', label: __('Featured Right') },
+						{ value: 'list-column', label: __('List Column') },
+					],
+				},
+				{ key: 'linkTo', kind: 'toggle', label: __('Enable Link To') },
+				{ key: 'count', kind: 'number', label: __('Number of items'), min: 1, max: 10 },
+			],
+		},
+		{
+			slug: 'tag-list-content',
+			title: __('KK Tag List Content'),
+			description: __('Posts from one tag, in a Featured, Grid, List, Featured Right or List Column layout.'),
+			icon: 'tag',
+			attributes: {
+				title: { type: 'string', default: '' },
+				headerStyle: { type: 'string', default: 'classic-top' },
+				termId: { type: 'string', default: '' },
+				layout: { type: 'string', default: 'featured' },
+				linkTo: { type: 'boolean', default: true },
+				count: { type: 'number', default: 5 },
+			},
+			fields: [
+				{ key: 'title', kind: 'text', label: __('Title'), help: __('Leave empty to use the tag name.') },
+				headerStyleField,
+				{
+					key: 'termId',
+					kind: 'select',
+					label: __('Tag'),
+					options: [{ value: '', label: __('— Select —') }, ...(kkWidgetBlocks?.tags ?? [])],
+				},
+				{
+					key: 'layout',
+					kind: 'select',
+					label: __('Layout'),
+					options: [
+						{ value: 'featured', label: __('Featured') },
+						{ value: 'grid', label: __('Grid') },
+						{ value: 'list', label: __('List') },
+						{ value: 'featured-right', label: __('Featured Right') },
+						{ value: 'list-column', label: __('List Column') },
+					],
+				},
+				{ key: 'linkTo', kind: 'toggle', label: __('Enable Link To') },
+				{ key: 'count', kind: 'number', label: __('Number of items'), min: 1, max: 10 },
+			],
+		},
+		{
 			slug: 'gold',
 			title: __('KK Gold Prices'),
 			description: __('Gold prices for Indonesian gold brands in an auto-scrolling slider.'),
@@ -525,10 +603,20 @@ function buildDefinitions(api: Wp): BlockDef[] {
 				showChange: { type: 'boolean', default: true },
 				layout: { type: 'string', default: 'list' },
 				visible: { type: 'number', default: 1 },
+				style: { type: 'string', default: 'default' },
 			},
 			fields: [
 				{ key: 'title', kind: 'text', label: __('Title') },
 				headerStyleField,
+				{
+					key: 'style',
+					kind: 'select',
+					label: __('Style'),
+					options: [
+						{ value: 'default', label: __('Default') },
+						{ value: 'no-margin', label: __('No Margin') },
+					],
+				},
 				{
 					key: 'layout',
 					kind: 'select',

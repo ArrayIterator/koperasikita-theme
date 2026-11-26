@@ -236,20 +236,6 @@ final class Markets
         $providers = self::providers();
         $chosen = self::settings()['providers'][$market] ?? 'manual';
 
-        // The Customizer gold provider select (kk_gold_provider)
-        // overrides the stored option for gold: the Settings ->
-        // Markets screen is gone, so the Customizer is where the
-        // admin picks the gold provider. An unset theme mod means
-        // "not picked in the Customizer" and the stored option
-        // wins; default Manual keeps the live behaviour (honest
-        // empty state) until a live provider is picked.
-        if ($market === 'gold') {
-            $customizer = get_theme_mod('kk_gold_provider', '');
-            if (is_string($customizer) && $customizer !== '') {
-                $chosen = $customizer;
-            }
-        }
-
         if (isset($providers[$chosen]) && $providers[$chosen]->supports($market)) {
             return $providers[$chosen];
         }
@@ -261,6 +247,47 @@ final class Markets
         }
 
         return $providers['manual'];
+    }
+
+    /**
+     * Choices for a provider select: every registered provider that
+     * supports the market, id => label. Manual is always first (it is
+     * the default and the fallback).
+     *
+     * @return array<string, string>
+     */
+    public static function providerChoices(string $market): array
+    {
+        $choices = [];
+
+        foreach (self::providers() as $id => $provider) {
+            if ($provider->supports($market)) {
+                $choices[$id] = $provider->label();
+            }
+        }
+
+        if (!isset($choices['manual'])) {
+            $choices = ['manual' => __('Manual', 'koperasikita')] + $choices;
+        }
+
+        return $choices;
+    }
+
+    /**
+     * Set the provider for one market (stored in the kk_markets_settings
+     * option). An unknown provider, or one that does not support the
+     * market, falls back to Manual. Returns the provider actually saved.
+     */
+    public static function setProvider(string $market, string $provider): string
+    {
+        $choices = self::providerChoices($market);
+        $provider = isset($choices[$provider]) ? $provider : 'manual';
+
+        $settings = self::settings();
+        $settings['providers'][$market] = $provider;
+        update_option(self::OPTION, $settings);
+
+        return $provider;
     }
 
     /**
@@ -291,17 +318,16 @@ final class Markets
     /**
      * Markets for the homepage strip, in the same shape the widget passes
      * to template-parts/markets/strip.php. An empty array means "do not
-     * render the strip at all": the Markets feature is disabled, or the
-     * homepage toggle (Customizer -> Homepage Layout -> Show Market Strip
-     * on Homepage, default on) is off. When the strip does render, the
-     * template itself shows an honest empty state if no market has data
-     * yet — the same as the widget.
+     * render the strip at all": the Markets feature is disabled. When the
+     * strip does render, the template itself shows an honest empty state
+     * if no market has data yet — the same as the widget. The strip is
+     * always on (there is no Customizer toggle for it).
      *
      * @return array<string, array{label: string, prices: array<string, MarketPrice>}>
      */
     public static function homepageStripMarkets(): array
     {
-        if (!self::isEnabled() || !(bool) get_theme_mod('kk_homepage_markets_strip', true)) {
+        if (!self::isEnabled()) {
             return [];
         }
 

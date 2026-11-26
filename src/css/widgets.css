@@ -422,3 +422,212 @@
 .kk-agenda-widget-ribbon--done {
 	background: #5b6660;
 }
+
+/* --- Term list content (Category / Tag List Content widgets) ------------ */
+/* Five layouts for posts from one term. The featured post is a large
+ * card (thumbnail, title, excerpt, date); the rest are compact rows.
+ * Spacing in rem; 1px hairlines stay px. */
+
+.kk-term-list {
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+
+.kk-term-list-date {
+	font-size: 0.8125rem;
+	color: var(--kk-muted);
+}
+
+/* Featured: big card on top, compact rows below. */
+.kk-term-list--featured {
+	display: grid;
+	gap: 0.85rem;
+}
+
+.kk-term-list-featured-link {
+	display: block;
+	color: inherit;
+	text-decoration: none;
+}
+
+.kk-term-list-featured-link:hover .kk-term-list-featured-title,
+.kk-term-list-featured-link:focus-visible .kk-term-list-featured-title {
+	color: var(--kk-green);
+	text-decoration: underline;
+}
+
+.kk-term-list-featured-thumb {
+	display: block;
+	overflow: hidden;
+	border-radius: var(--kk-radius);
+}
+
+.kk-term-list-featured-thumb img {
+	display: block;
+	width: 100%;
+	aspect-ratio: 16 / 9;
+	object-fit: cover;
+}
+
+.kk-term-list-featured-text {
+	display: flex;
+	flex-direction: column;
+	gap: 0.3rem;
+	margin-top: 0.6rem;
+}
+
+.kk-term-list-featured-title {
+	font-size: 1.125rem;
+	font-weight: 700;
+	line-height: 1.35;
+	display: -webkit-box;
+	-webkit-line-clamp: var(--kk-title-clamp, 2);
+	-webkit-box-orient: vertical;
+	overflow: hidden;
+}
+
+.kk-term-list-featured-excerpt {
+	font-size: 0.9rem;
+	color: var(--kk-muted);
+	display: -webkit-box;
+	-webkit-line-clamp: var(--kk-excerpt-clamp, 2);
+	-webkit-box-orient: vertical;
+	overflow: hidden;
+}
+
+.kk-term-list-rest {
+	margin: 0;
+	padding: 0;
+	list-style: none;
+	display: grid;
+	gap: 0.6rem;
+}
+
+/* The compact rows under a featured post stack title over date, so
+ * the date never wraps into a narrow column beside the title. */
+.kk-term-list-rest .kk-term-list-row-link {
+	flex-direction: column;
+	gap: 0.15rem;
+}
+
+/* Featured Right: list on the left, featured card on the right. */
+.kk-term-list--featured-right {
+	display: grid;
+	gap: 0.85rem;
+}
+
+@media (min-width: 640px) {
+	.kk-term-list--featured-right {
+		grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr);
+	}
+
+	.kk-term-list--featured-right .kk-term-list-featured {
+		order: 2;
+	}
+
+	.kk-term-list--featured-right .kk-term-list-rest {
+		order: 1;
+	}
+}
+
+/* Grid: two-column cards. */
+.kk-term-list--grid {
+	display: grid;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	gap: 0.85rem;
+}
+
+.kk-term-list-card-link {
+	display: flex;
+	flex-direction: column;
+	gap: 0.35rem;
+	color: inherit;
+	text-decoration: none;
+}
+
+.kk-term-list-card-link:hover .kk-term-list-card-title,
+.kk-term-list-card-link:focus-visible .kk-term-list-card-title {
+	color: var(--kk-green);
+	text-decoration: underline;
+}
+
+.kk-term-list-card-thumb {
+	display: block;
+	overflow: hidden;
+	border-radius: var(--kk-radius);
+}
+
+.kk-term-list-card-thumb img {
+	display: block;
+	width: 100%;
+	aspect-ratio: 16 / 9;
+	object-fit: cover;
+}
+
+.kk-term-list-card-title {
+	font-weight: 600;
+	line-height: 1.4;
+	display: -webkit-box;
+	-webkit-line-clamp: var(--kk-title-clamp, 2);
+	-webkit-box-orient: vertical;
+	overflow: hidden;
+}
+
+/* List rows (List + List Column): thumbnail, title, date. */
+.kk-term-list-row-link {
+	display: flex;
+	align-items: flex-start;
+	gap: 0.75rem;
+	color: inherit;
+	text-decoration: none;
+}
+
+.kk-term-list-row-link:hover .kk-term-list-row-title,
+.kk-term-list-row-link:focus-visible .kk-term-list-row-title {
+	color: var(--kk-green);
+	text-decoration: underline;
+}
+
+.kk-term-list-row-thumb {
+	flex: 0 0 auto;
+	width: 4rem;
+	height: 3rem;
+	overflow: hidden;
+	border-radius: var(--kk-radius);
+}
+
+.kk-term-list-row-thumb img {
+	display: block;
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+}
+
+.kk-term-list-row-text {
+	display: flex;
+	flex-direction: column;
+	gap: 0.25rem;
+	min-width: 0;
+}
+
+.kk-term-list-row-title {
+	font-weight: 600;
+	line-height: 1.4;
+	display: -webkit-box;
+	-webkit-line-clamp: var(--kk-title-clamp, 2);
+	-webkit-box-orient: vertical;
+	overflow: hidden;
+}
+
+.kk-term-list--list {
+	display: grid;
+	gap: 0.85rem;
+}
+
+/* List Column: the same rows, in two columns. */
+.kk-term-list--list-column {
+	display: grid;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	gap: 0.85rem;
+}
