@@ -28,15 +28,18 @@ final class Customizer
     ];
 
     /**
-     * Typography size settings: theme-mod id => [CSS variable, default px, min px, max px].
+     * Size settings: theme-mod id => [CSS variable, default px, min px, max px].
      * Mirrors the kk_title_size / kk_card_title_size / kk_excerpt_size controls
      * in register(), the --kk-*-size defaults in tokens.css, and the ranges
-     * of their sanitize callbacks.
+     * of their sanitize callbacks. The article-list thumbnail size lives
+     * here too (same mechanism, different section: Appearance &
+     * Accessibility, not Typography).
      */
     private const SIZE_SETTINGS = [
         'kk_title_size' => ['--kk-title-size', 40, 24, 72],
         'kk_card_title_size' => ['--kk-card-title-size', 20, 14, 32],
         'kk_excerpt_size' => ['--kk-excerpt-size', 14, 12, 20],
+        'kk_list_thumbnail_size' => ['--kk-list-thumb-size', 120, 80, 200],
     ];
 
     private const PALETTE_LABELS = [
@@ -915,11 +918,12 @@ final class Customizer
         );
         $wpCustomize->add_control('kk_pagination_mode', [
             'label' => esc_html__('News Pagination', 'koperasikita'),
-            'section' => 'koperasikita_homepage',
+            'section' => 'koperasikita_accessibility',
             'type' => 'select',
             'choices' => [
-                'pagination' => esc_html__('Page numbers', 'koperasikita'),
-                'load-more' => esc_html__('Load more', 'koperasikita'),
+                'load-more' => esc_html__('Load More', 'koperasikita'),
+                'pagination' => esc_html__('Numbered Pagination', 'koperasikita'),
+                'next-prev' => esc_html__('Next Prev', 'koperasikita'),
             ],
         ]);
 
@@ -1201,6 +1205,26 @@ final class Customizer
                 'priority' => $priority,
             ]);
         }
+
+        /* Article List Thumbnail Size: the thumbnail column width
+         * in article list rows (Latest News list, Category Block
+         * list and List (Columns), archive and blog lists).
+         * Lives in Appearance & Accessibility with the other
+         * article-list settings. The value is printed as the
+         * --kk-list-thumb-size CSS variable (see SIZE_SETTINGS). */
+        self::addSetting(
+            $wpCustomize,
+            'kk_list_thumbnail_size',
+            120,
+            static fn ($value) => self::clampInt($value, 80, 200),
+            'refresh'
+        );
+        $wpCustomize->add_control('kk_list_thumbnail_size', [
+            'label' => esc_html__('Article List Thumbnail Size (px)', 'koperasikita'),
+            'section' => 'koperasikita_accessibility',
+            'type' => 'number',
+            'input_attrs' => ['min' => 80, 'max' => 200],
+        ]);
 
         /* Related-post count: how many related stories the single
          * post shows (was a hardcoded 3). */
@@ -2007,7 +2031,7 @@ final class Customizer
 
     public static function sanitizePaginationMode(mixed $value): string
     {
-        return in_array($value, ['pagination', 'load-more'], true) ? (string) $value : 'pagination';
+        return in_array($value, ['pagination', 'load-more', 'next-prev'], true) ? (string) $value : 'pagination';
     }
 
     public static function sanitizeBreakingSource(mixed $value): string

@@ -23,7 +23,7 @@ final class Pagination
      */
     public static function modes(): array
     {
-        return ['pagination', 'load-more'];
+        return ['pagination', 'load-more', 'next-prev'];
     }
 
     public static function mode(): string

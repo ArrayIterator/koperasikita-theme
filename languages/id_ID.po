@@ -2619,3 +2619,12 @@ msgstr "Blok Kategori %d: Baris Daftar (per kolom)"
 
 msgid "Category Block %d: List Enable Slider"
 msgstr "Blok Kategori %d: Aktifkan Slider Daftar"
+
+msgid "Article List Thumbnail Size (px)"
+msgstr "Ukuran Thumbnail Daftar Artikel (px)"
+
+msgid "Numbered Pagination"
+msgstr "Pagination Bernomor"
+
+msgid "Next Prev"
+msgstr "Sebelumnya / Berikutnya"

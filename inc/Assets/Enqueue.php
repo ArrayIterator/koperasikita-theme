@@ -87,8 +87,8 @@ final class Enqueue
 
         // The pagination loader only runs where an archive loop can
         // render it (archive / blog / search) and only when the mode
-        // is load-more — page numbers need no script.
-        if ('pagination' !== \KoperasiKita\Features\Pagination::mode() && (is_archive() || is_home() || is_search())) {
+        // is load-more — page numbers and next/prev need no script.
+        if ('load-more' === \KoperasiKita\Features\Pagination::mode() && (is_archive() || is_home() || is_search())) {
             $paginationJs = ViteLoader::js('src/ts/pagination.ts');
 
             if ($paginationJs !== '') {

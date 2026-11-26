@@ -60,17 +60,25 @@ if ( 'featured-right' === $block_layout ) {
 	$items_class = 'kk-layout-featured kk-layout-featured-right';
 }
 
-// List (Columns): split the posts into columns, each column
-// holding List Rows posts (column 1 gets the first rows, column 2
-// the next rows, and so on). Only as many columns as the posts
-// fill.
-$list_groups = [];
+// List (Columns): the rows are the OLD article list rows
+// (card-news in list mode — a 120px thumbnail, title + meta, a
+// thin divider), NOT widget-style compact rows. The posts are
+// chunked into PAGES of (columns x rows) posts; each page holds
+// that many columns, so when the slider is on, one slide shows
+// the whole page (e.g. 2 columns per slide) and prev/next moves
+// to the next page of posts.
+$list_pages = [];
 $list_enable_slider = false;
 if ( 'list-columns' === $block_layout ) {
 	$list_settings = \KoperasiKita\Features\Homepage::categoryBlockListSettings( $slot );
 	$list_enable_slider = $list_settings['enable_slider'];
-	$list_groups = array_chunk( $block_query->posts, $list_settings['rows'] );
-	$list_groups = array_slice( $list_groups, 0, $list_settings['columns'] );
+	$per_page = $list_settings['columns'] * $list_settings['rows'];
+	$list_pages = array_chunk( $block_query->posts, $per_page );
+	// Each page is split into its columns (column 1 gets the
+	// first rows, column 2 the next rows, and so on).
+	foreach ( $list_pages as $page_index => $page_posts ) {
+		$list_pages[ $page_index ] = array_chunk( $page_posts, $list_settings['rows'] );
+	}
 }
 ?>
 
@@ -90,15 +98,19 @@ if ( 'list-columns' === $block_layout ) {
 
 	<?php if ( 'list-columns' === $block_layout ) : ?>
 		<div class="kk-category-block-items <?php echo esc_attr( $items_class ); ?><?php echo $list_enable_slider ? ' kk-category-block-list--slider' : ''; ?>"<?php echo $list_enable_slider ? ' data-kk-slider' : ''; ?>>
-			<?php foreach ( $list_groups as $group ) : ?>
-				<ul class="kk-category-block-list-column">
-					<?php
-					foreach ( $group as $post ) :
-						setup_postdata( $post );
-						get_template_part( 'template-parts/content/category-row' );
-					endforeach;
-					?>
-				</ul>
+			<?php foreach ( $list_pages as $page_columns ) : ?>
+				<div class="kk-category-block-list-page">
+					<?php foreach ( $page_columns as $column_posts ) : ?>
+						<div class="kk-category-block-list-column">
+							<?php
+							foreach ( $column_posts as $post ) :
+								setup_postdata( $post );
+								get_template_part( 'template-parts/content/card-news' );
+							endforeach;
+							?>
+						</div>
+					<?php endforeach; ?>
+				</div>
 			<?php endforeach; ?>
 		</div>
 	<?php else : ?>

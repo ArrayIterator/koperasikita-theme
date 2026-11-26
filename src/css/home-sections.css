@@ -34,7 +34,9 @@
 .kk-home .kk-latest-items.kk-layout-list .kk-card,
 .kk-home .kk-category-block-items.kk-layout-list .kk-card {
 	display: grid;
-	grid-template-columns: 120px 1fr auto;
+	/* Thumbnail width is the Article List Thumbnail Size setting
+	 * (--kk-list-thumb-size, default 120px). */
+	grid-template-columns: var(--kk-list-thumb-size, 120px) 1fr auto;
 	grid-template-areas: "media body bookmark";
 	gap: 1rem;
 	background: transparent;
@@ -171,11 +173,18 @@
 }
 
 /* --- List (Columns) ------------------------------------------------------- */
-/* Widget-like rows split into columns (1–4). Each column is a stack
- * of rows; the columns sit side by side with a gap. When List
- * Enable Slider is on, the columns become a scroll-snap row with
- * prev/next buttons (same as the sliders). */
+/* The rows are the OLD article list rows (card-news in list mode),
+ * not widget rows: a thumbnail, title + meta, a thin divider. The
+ * posts are chunked into pages of (columns x rows); each page is a
+ * multi-column grid, so when List Enable Slider is on, one slide
+ * holds the whole page (e.g. 2 columns per slide) and prev/next
+ * moves to the next page. Without the slider the pages stack. */
 .kk-category-block-items.kk-layout-list-columns {
+	display: grid;
+	gap: 0;
+}
+
+.kk-category-block-list-page {
 	display: grid;
 	grid-auto-flow: column;
 	grid-auto-columns: 1fr;
@@ -196,66 +205,60 @@
 	display: none;
 }
 
-.kk-category-block-list-column {
-	margin: 0;
-	padding: 0;
-	list-style: none;
-}
-
-.kk-category-block-list--slider .kk-category-block-list-column {
-	flex: 0 0 22rem;
+.kk-category-block-list--slider .kk-category-block-list-page {
+	flex: 0 0 100%;
 	scroll-snap-align: start;
 }
 
-/* Compact row (List Columns): small thumbnail on the left, title +
- * date on the right, top-aligned. Flat — no background, no shadow,
- * a thin divider between rows. */
-.kk-category-row {
-	display: flex;
-	align-items: flex-start;
-	gap: 0.75rem;
-	padding: 0.75rem 0;
-	border-bottom: 1px solid var(--kk-border, #e5e5e0);
+.kk-category-block-list-column {
+	display: grid;
+	gap: 0;
+	align-content: start;
 }
 
-.kk-category-row:last-child {
+/* List rows inside the columns: the same flat row as the plain
+ * List layout — thumbnail, body, bookmark in their own columns,
+ * no background/shadow, a thin divider. The thumbnail width is
+ * the Article List Thumbnail Size setting
+ * (--kk-list-thumb-size, default 120px). */
+.kk-home .kk-category-block-items.kk-layout-list-columns .kk-card {
+	display: grid;
+	grid-template-columns: var(--kk-list-thumb-size, 120px) 1fr auto;
+	grid-template-areas: "media body bookmark";
+	gap: 1rem;
+	background: transparent;
+	border: 0;
+	border-bottom: 1px solid var(--kk-border);
+	border-radius: 0;
+	box-shadow: none;
+	padding: 1rem 0;
+}
+
+.kk-category-block-list-column .kk-card:first-child {
+	padding-top: 0;
+}
+
+.kk-category-block-list-column .kk-card:last-child {
 	border-bottom: 0;
+	padding-bottom: 0;
 }
 
-.kk-category-row-thumb {
-	flex: 0 0 5rem;
-	width: 5rem;
-	display: block;
-}
-
-.kk-category-row-thumb img {
-	display: block;
-	width: 100%;
+.kk-category-block-list-column .kk-card-media img {
 	aspect-ratio: 4 / 3;
-	object-fit: cover;
-	border-radius: var(--kk-radius);
 }
 
-.kk-category-row-body {
-	flex: 1;
-	min-width: 0;
+.kk-category-block-list-column .kk-card-body {
+	padding-top: 0;
 }
 
-.kk-category-row-title {
-	font-size: 1rem;
-	font-weight: 600;
-	line-height: 1.35;
-	margin: 0 0 0.25rem;
+.kk-category-block-list-column .kk-card-excerpt {
+	display: none;
 }
 
-.kk-category-row-title a {
-	color: var(--kk-ink);
-}
-
-.kk-category-row .kk-meta {
+.kk-category-block-list-column .kk-bookmark-button {
+	grid-area: bookmark;
+	align-self: start;
 	margin: 0;
-	font-size: 0.8125rem;
-	color: var(--kk-muted);
 }
 
 .kk-layout-switcher {

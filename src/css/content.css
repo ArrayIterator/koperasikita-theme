@@ -572,12 +572,43 @@
 	color: var(--kk-green, #0B6B3A);
 }
 
+/* Next Prev mode: only Previous / Next links, no page numbers.
+ * Same button shape as the numbered links, spread to the edges. */
+.kk-pagination-next-prev {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.5rem;
+	align-items: center;
+	justify-content: space-between;
+}
+
+.kk-pagination-next-prev a {
+	display: inline-flex;
+	align-items: center;
+	min-height: 44px;
+	padding: 0.5rem 0.75rem;
+	border: 1px solid var(--kk-border);
+	border-radius: var(--kk-radius);
+	color: var(--kk-ink);
+	font-weight: 600;
+}
+
+.kk-pagination-next-prev a:hover {
+	border-color: var(--kk-green, #0B6B3A);
+	color: var(--kk-green, #0B6B3A);
+}
+
+.kk-pagination-next-prev .kk-pagination-next {
+	margin-left: auto;
+}
+
 /* Archive list layout: horizontal cards with a small thumb, the same
  * shape as the homepage list layout. Grid mode needs no rules — it
- * is the card grid as rendered today. */
+ * is the card grid as rendered today. The thumbnail width is the
+ * Article List Thumbnail Size setting (--kk-list-thumb-size). */
 .kk-card-grid.kk-layout-list .kk-card {
 	display: grid;
-	grid-template-columns: 120px 1fr auto;
+	grid-template-columns: var(--kk-list-thumb-size, 120px) 1fr auto;
 	grid-template-areas: "media body bookmark";
 	gap: 16px;
 }
