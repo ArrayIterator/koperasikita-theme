@@ -550,7 +550,16 @@ function initTermMultiSelect(container: HTMLElement): void {
 	});
 }
 
-document.addEventListener('DOMContentLoaded', () => {
+/**
+ * Boot: wire up every picker on the page. This entry loads as an ES
+ * module (deferred), and the Customizer can finish parsing before a
+ * deferred module executes — so a bare DOMContentLoaded listener
+ * never fires and the pickers stay dead (no dropdown ever opens,
+ * not even "Loading..."). Run immediately when the document is
+ * already parsed, and only wait for DOMContentLoaded while the
+ * document is still loading.
+ */
+function initCustomizerControls(): void {
 	document
 		.querySelectorAll<HTMLElement>('[data-kk-term-select]')
 		.forEach(initTermSelect);
@@ -560,7 +569,13 @@ document.addEventListener('DOMContentLoaded', () => {
 	document
 		.querySelectorAll<HTMLElement>('[data-kk-multi-image]')
 		.forEach(initMultiImage);
-});
+}
+
+if (document.readyState === 'loading') {
+	document.addEventListener('DOMContentLoaded', initCustomizerControls);
+} else {
+	initCustomizerControls();
+}
 
 /**
  * Multi-image picker (MultiImageControl): a dynamic list of
