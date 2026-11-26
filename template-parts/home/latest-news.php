@@ -30,6 +30,15 @@ if ( isset( $_COOKIE['kk_layout'] ) ) {
 	}
 }
 
+/* The newsletter lead is a front-page feature only: on paged pages
+ * (/page/2/, ...) there is no lead story and no "More stories" —
+ * just the plain list. The newsletter template always renders its
+ * first card as a lead, so never use it when paged; force the plain
+ * list layout instead. */
+if ( $paged > 1 && 'newsletter' === $layout ) {
+	$layout = 'list';
+}
+
 $latest = new WP_Query(
 	array(
 		'post_type'           => 'post',
