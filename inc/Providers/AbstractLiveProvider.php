@@ -94,9 +94,15 @@ abstract class AbstractLiveProvider implements MarketPriceProvider
         // and never while the 60-second failure backoff is set. A
         // provider that just failed answers from its last good value
         // (or nothing) instead of burning another timeout.
+        //
+        // Never in block-editor preview mode (Markets::isPreviewMode):
+        // the inserter/canvas SSR render must serve the transient or
+        // the last good value, never burn an 8-second upstream
+        // timeout while a cold transient refetches — that is what
+        // left the inserter preview a blank white box for ~5s.
         $key = $this->transientKey();
 
-        if (!isset(self::$attemptedThisRequest[$key]) && get_transient($this->failedKey()) === false) {
+        if (!Markets::isPreviewMode() && !isset(self::$attemptedThisRequest[$key]) && get_transient($this->failedKey()) === false) {
             self::$attemptedThisRequest[$key] = true;
             $fetched = $this->fetch($market);
 

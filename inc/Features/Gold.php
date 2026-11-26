@@ -37,6 +37,21 @@ final class Gold
     /** Option holding the fallback provider per gold symbol (symbol => provider id or ''). */
     public const FALLBACKS_OPTION = 'kk_gold_brand_fallback_providers';
 
+    /**
+     * Live providers in the order a never-configured brand prefers
+     * them. Logam Mulia API first: it reads the synced table (a
+     * local database read — fast, and the prices the site's own
+     * sync pipeline curates). Scraped second: the 15-minute scrape,
+     * a network fetch, so it stays the fallback rather than the hot
+     * path. Xaus last: spot only. Manual is not in this list — it
+     * supplies every symbol on paper but only prices the ones an
+     * admin typed a snapshot for, so preferring it first would
+     * blank the widget on any site that never typed one.
+     *
+     * @var array<int, string>
+     */
+    private const LIVE_PROVIDER_ORDER = ['logam-mulia-api', 'scraped-gold', 'xaus'];
+
     /** @return array<string, string> Brand slug => display name. */
     public static function brands(): array
     {
@@ -193,9 +208,19 @@ final class Gold
      * The admin picks one per brand on the Gold Prices page; a symbol
      * with no saved choice migrates from the old single global gold
      * provider (kk_markets_settings providers.gold) when that provider
-     * can supply it, and falls back to Manual otherwise. Nothing is
-     * written on read — the migration is computed, so a fresh install
-     * and an upgraded install behave the same without a data migration.
+     * can supply it — except a bare 'manual' legacy, which only counts
+     * when a manual snapshot price actually exists for the symbol.
+     * Otherwise the symbol prefers a live provider (see
+     * LIVE_PROVIDER_ORDER) and only falls back to Manual when no live
+     * provider can supply it. Nothing is written on read — the
+     * migration is computed, so a fresh install and an upgraded
+     * install behave the same without a data migration.
+     *
+     * The 'manual' carve-out matters: Manual supplies every symbol
+     * on paper but prices only the ones an admin typed a snapshot
+     * for, so the old default ('manual' with no snapshots) blanked
+     * the gold widget and the block inserter previews even while
+     * the synced Logam Mulia table held prices for five brands.
      *
      * @return array<string, string>
      */
@@ -205,6 +230,8 @@ final class Gold
         $stored = get_option(self::PROVIDERS_OPTION, []);
         $stored = is_array($stored) ? $stored : [];
         $legacy = Markets::settings()['providers']['gold'] ?? 'manual';
+        $snapshots = Markets::settings()['snapshots']['gold'] ?? [];
+        $snapshots = is_array($snapshots) ? $snapshots : [];
 
         $map = [];
 
@@ -217,7 +244,28 @@ final class Gold
                 continue;
             }
 
-            $map[$symbol] = isset($choices[$legacy]) ? $legacy : 'manual';
+            // The old single global provider, when it can supply the
+            // symbol — but a bare 'manual' legacy only counts when a
+            // snapshot price exists for this symbol. Manual with no
+            // snapshot prices nothing, so it must not win over a live
+            // provider that actually has data.
+            $manualHasPrice = isset($snapshots[$symbol]['price']) && (float) $snapshots[$symbol]['price'] > 0;
+
+            if (isset($choices[$legacy]) && ($legacy !== 'manual' || $manualHasPrice)) {
+                $map[$symbol] = $legacy;
+                continue;
+            }
+
+            // No saved choice and no live legacy: prefer a live
+            // provider that can supply the symbol, in live order.
+            foreach (self::LIVE_PROVIDER_ORDER as $live) {
+                if (isset($choices[$live])) {
+                    $map[$symbol] = $live;
+                    continue 2;
+                }
+            }
+
+            $map[$symbol] = 'manual';
         }
 
         return $map;
@@ -234,7 +282,11 @@ final class Gold
     /**
      * The fallback provider per gold symbol (symbol => provider id,
      * '' = none). A saved fallback that cannot supply the symbol, or
-     * that equals the primary, is dropped on read.
+     * that equals the primary, is dropped on read. A symbol with no
+     * saved fallback defaults to the next live provider that can
+     * supply it (same live order as the primary), so a brand whose
+     * primary has no price still resolves instead of rendering
+     * empty; brands only Manual can supply keep no fallback.
      *
      * @return array<string, string>
      */
@@ -249,7 +301,20 @@ final class Gold
         foreach (array_keys(self::goldSymbols()) as $symbol) {
             $fallback = isset($stored[$symbol]) ? sanitize_key((string) $stored[$symbol]) : '';
             $choices = self::fallbackChoicesForBrand($symbol, $primaries[$symbol] ?? 'manual');
-            $map[$symbol] = isset($choices[$fallback]) && $fallback !== '' ? $fallback : '';
+
+            if ($fallback !== '' && isset($choices[$fallback])) {
+                $map[$symbol] = $fallback;
+                continue;
+            }
+
+            $map[$symbol] = '';
+
+            foreach (self::LIVE_PROVIDER_ORDER as $live) {
+                if ($live !== ($primaries[$symbol] ?? 'manual') && isset($choices[$live])) {
+                    $map[$symbol] = $live;
+                    break;
+                }
+            }
         }
 
         return $map;

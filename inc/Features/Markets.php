@@ -142,6 +142,28 @@ final class Markets
     }
 
     /**
+     * Block-editor preview mode: while true, live providers serve
+     * their cached / last-good value and never fetch upstream (see
+     * AbstractLiveProvider::prices()). Set only around a block
+     * render served over REST (Blocks::render) — the editor canvas
+     * and the inserter preview must not stall on an upstream
+     * timeout while a cold transient refetches. Frontend page
+     * renders are never REST requests, so they still refresh live.
+     */
+    private static bool $previewMode = false;
+
+    /** @internal Only Blocks::render() sets this, around one render. */
+    public static function setPreviewMode(bool $on): void
+    {
+        self::$previewMode = $on;
+    }
+
+    public static function isPreviewMode(): bool
+    {
+        return self::$previewMode;
+    }
+
+    /**
      * Full settings array, merged over the defaults so callers can always
      * read `providers`, `snapshots` and `enabled` without isset() guards.
      *
