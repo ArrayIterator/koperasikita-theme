@@ -7,6 +7,7 @@ namespace KoperasiKita\Setup;
 use KoperasiKita\Features\Features;
 use KoperasiKita\Widgets\AgendaWidget;
 use KoperasiKita\Widgets\CategoryListContentWidget;
+use KoperasiKita\Widgets\CategorySummaryWidget;
 use KoperasiKita\Widgets\EditorsPicksWidget;
 use KoperasiKita\Widgets\GoldDataDeskWidget;
 use KoperasiKita\Widgets\GoldWidget;
@@ -32,6 +33,7 @@ final class Widgets
         register_widget(PagesWidget::class);
         register_widget(CategoryListContentWidget::class);
         register_widget(TagListContentWidget::class);
+        register_widget(CategorySummaryWidget::class);
 
         // A disabled feature registers nothing: its widget never appears
         // in the admin, so there is no settings link for a feature that

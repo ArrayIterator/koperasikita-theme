@@ -3513,3 +3513,39 @@ msgstr "Koordinat"
 
 msgid "Shown in the map marker popup for the event."
 msgstr "Ditampilkan di popup penanda peta untuk acara tersebut."
+
+msgid "Koperasi Kita Category Summary"
+msgstr "Ringkasan Kategori Koperasi Kita"
+
+msgid "The latest post from each picked category, side by side in columns."
+msgstr "Artikel terbaru dari setiap kategori yang dipilih, berdampingan dalam kolom."
+
+msgid "Indeks Berita"
+msgstr "Indeks Berita"
+
+msgid "Categories to show"
+msgstr "Kategori yang ditampilkan"
+
+msgid "Leave empty to show the three categories with the most posts."
+msgstr "Biarkan kosong untuk menampilkan tiga kategori dengan artikel terbanyak."
+
+msgid "Posts per category"
+msgstr "Artikel per kategori"
+
+msgid "Show excerpt"
+msgstr "Tampilkan kutipan"
+
+msgid "Show time"
+msgstr "Tampilkan waktu"
+
+msgid "Index link label"
+msgstr "Label tautan indeks"
+
+msgid "Index link URL"
+msgstr "URL tautan indeks"
+
+msgid "Leave empty to hide the index link."
+msgstr "Biarkan kosong untuk menyembunyikan tautan indeks."
+
+msgid "Leave empty for the default label."
+msgstr "Biarkan kosong untuk label bawaan."

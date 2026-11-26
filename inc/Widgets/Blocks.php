@@ -206,6 +206,30 @@ final class Blocks
                     'count' => 'count',
                 ],
             ],
+            'category-summary' => [
+                'class' => CategorySummaryWidget::class,
+                'icon' => 'columns',
+                'title' => __('KK Category Summary', 'koperasikita'),
+                'description' => __('The latest post from each picked category, side by side in columns.', 'koperasikita'),
+                'attributes' => [
+                    'title' => ['type' => 'string', 'default' => ''],
+                    'categoryIds' => ['type' => 'array', 'default' => [], 'items' => ['type' => 'string']],
+                    'count' => ['type' => 'number', 'default' => 1],
+                    'showExcerpt' => ['type' => 'boolean', 'default' => true],
+                    'showTime' => ['type' => 'boolean', 'default' => true],
+                    'indexLabel' => ['type' => 'string', 'default' => ''],
+                    'indexUrl' => ['type' => 'string', 'default' => ''],
+                ],
+                'map' => [
+                    'title' => 'title',
+                    'categoryIds' => 'category_ids',
+                    'count' => 'count',
+                    'showExcerpt' => 'show_excerpt',
+                    'showTime' => 'show_time',
+                    'indexLabel' => 'index_label',
+                    'indexUrl' => 'index_url',
+                ],
+            ],
         ];
 
         if (Features::isEnabled('markets')) {
