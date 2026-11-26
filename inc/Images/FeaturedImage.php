@@ -217,17 +217,15 @@ final class FeaturedImage
             }
         }
 
-        /* Cache-bust the shipped placeholder: the server sends it with
-         * a 10-year max-age, so a browser that cached the old artwork
-         * would keep showing it for years after a redesign (the user
-         * saw exactly this — "teteep" — after the #97 redesign). The
-         * file's mtime as the query version makes every future edit
-         * a new URL automatically, so browsers always fetch the
-         * current artwork. */
-        $path = get_template_directory() . '/assets/img/placeholder.svg';
-        $version = is_readable( $path ) ? (string) filemtime( $path ) : KK_VERSION;
-
-        return KK_URI . '/assets/img/placeholder.svg?v=' . $version;
+        /* Plain URL, no ?v= query version: the user asked for the
+         * random-looking ?v=<mtime> to be removed from the thumbnail
+         * URL. Trade-off: the server sends this file with a 10-year
+         * max-age, so after a future placeholder redesign a browser
+         * that cached the old artwork may keep showing it until its
+         * cache expires (the "teteep" problem the ?v= was added for
+         * after #97). If that comes back, the fix is to rename the
+         * file or bump KK_VERSION here, not to re-add ?v=. */
+        return KK_URI . '/assets/img/placeholder.svg';
     }
 
     public static function srcset(int $postId, string $size = 'kk-card'): string
