@@ -64,6 +64,15 @@ final class Pwa
             'top'
         );
         add_filter('query_vars', [self::class, 'registerQueryVar']);
+        // WordPress's canonical redirect would 301 both endpoints to
+        // their trailing-slash versions (/manifest.webmanifest/ and
+        // /kk-service-worker.js/) because neither looks like a post
+        // URL — and a service worker fetched from a redirected URL
+        // fails to register. Disable the redirect for these two
+        // endpoints only; every other URL keeps its normal canonical
+        // redirect. The query var is already set by the rewrite rule
+        // when redirect_canonical runs, so this is the reliable check.
+        add_filter('redirect_canonical', [self::class, 'disableCanonicalRedirect'], 10, 2);
         add_action('template_redirect', [self::class, 'serveEndpoint']);
         add_action('wp_head', [self::class, 'printManifestLink']);
         add_action('wp_enqueue_scripts', [self::class, 'enqueueAssets']);
@@ -132,6 +141,28 @@ final class Pwa
         $vars[] = self::QUERY_VAR;
 
         return $vars;
+    }
+
+    /**
+     * Disable WordPress's canonical (trailing-slash) redirect for the
+     * two PWA endpoints. Returning false keeps the request on the
+     * exact URL the browser asked for, so the manifest and the
+     * service worker are served with a plain 200 instead of a 301
+     * to the trailing-slash version.
+     *
+     * @param string|false $redirectUrl The URL WordPress wants to redirect to, or false.
+     * @param string $requestedUrl The URL the browser actually asked for.
+     * @return string|false False for the PWA endpoints, untouched otherwise.
+     */
+    public static function disableCanonicalRedirect($redirectUrl, string $requestedUrl)
+    {
+        $endpoint = get_query_var(self::QUERY_VAR);
+
+        if ($endpoint === 'manifest' || $endpoint === 'sw') {
+            return false;
+        }
+
+        return $redirectUrl;
     }
 
     /**
