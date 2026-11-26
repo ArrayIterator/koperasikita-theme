@@ -2496,3 +2496,9 @@ msgstr "Judul di Atas"
 
 msgid "Title Inside Featured Image"
 msgstr "Judul di Dalam Gambar Utama"
+
+msgid "Hero Tags"
+msgstr "Tag Hero"
+
+msgid "Used when the hero source is Selected tags. Leave it empty to fall back to the latest posts."
+msgstr "Dipakai saat sumber hero adalah Tag terpilih. Kosongkan untuk kembali ke postingan terbaru."

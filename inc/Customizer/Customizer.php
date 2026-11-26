@@ -215,6 +215,7 @@ final class Customizer
             'choices' => [
                 'latest' => esc_html__('Latest posts', 'koperasikita'),
                 'category' => esc_html__('Selected categories', 'koperasikita'),
+                'tag' => esc_html__('Selected tags', 'koperasikita'),
             ],
         ]);
 
@@ -265,6 +266,20 @@ final class Customizer
             'description' => esc_html__('Used when the hero source is Selected categories. Leave it empty to fall back to the latest posts.', 'koperasikita'),
             'section' => 'koperasikita_homepage',
             'taxonomy' => 'category',
+        ]));
+
+        self::addSetting(
+            $wpCustomize,
+            'kk_hero_tag_ids',
+            [],
+            [self::class, 'sanitizeTermIds'],
+            'refresh'
+        );
+        $wpCustomize->add_control(new TermMultiSelectControl($wpCustomize, 'kk_hero_tag_ids', [
+            'label' => esc_html__('Hero Tags', 'koperasikita'),
+            'description' => esc_html__('Used when the hero source is Selected tags. Leave it empty to fall back to the latest posts.', 'koperasikita'),
+            'section' => 'koperasikita_homepage',
+            'taxonomy' => 'post_tag',
         ]));
 
         self::addSetting(
@@ -1702,7 +1717,7 @@ final class Customizer
 
     public static function sanitizeHeroSource(mixed $value): string
     {
-        return in_array($value, ['latest', 'category'], true) ? (string) $value : 'latest';
+        return in_array($value, ['latest', 'category', 'tag'], true) ? (string) $value : 'latest';
     }
 
     public static function sanitizeHighlightsItemStyle(mixed $value): string

@@ -34,6 +34,18 @@ $hero_mode  = Hero::sanitize( get_theme_mod( 'kk_hero_mode', Hero::GRID_LEFT ) )
 $is_slider  = Hero::isSlider( $hero_mode );
 $has_left   = Hero::hasLeftWidget( $hero_mode );
 $has_right  = Hero::hasRightWidget( $hero_mode );
+// A widget area with no widgets renders nothing: the section
+// drops the empty column (via the no-left/right-widget modifier)
+// so the hero takes the full width instead.
+$left_active  = $has_left && is_active_sidebar( 'kk-hero-left' );
+$right_active = $has_right && is_active_sidebar( 'kk-hero-right' );
+$section_class = 'kk-hero kk-hero--' . $hero_mode;
+if ( $has_left && ! $left_active ) {
+	$section_class .= ' kk-hero--no-left-widget';
+}
+if ( $has_right && ! $right_active ) {
+	$section_class .= ' kk-hero--no-right-widget';
+}
 $lead       = array_shift( $hero_posts );
 $rest       = $hero_posts;
 // Grid Center: the lead sits in the middle, cards on both sides.
@@ -46,8 +58,8 @@ if ( Hero::GRID_CENTER === $hero_mode && ! empty( $rest ) ) {
 }
 ?>
 
-<section class="kk-hero kk-hero--<?php echo esc_attr( $hero_mode ); ?>" aria-label="<?php esc_attr_e( 'Top stories', 'koperasikita' ); ?>">
-	<?php if ( $has_left ) : ?>
+<section class="<?php echo esc_attr( $section_class ); ?>" aria-label="<?php esc_attr_e( 'Top stories', 'koperasikita' ); ?>">
+	<?php if ( $left_active ) : ?>
 		<aside class="kk-hero-widget kk-hero-widget--left" aria-label="<?php esc_attr_e( 'Hero left widget', 'koperasikita' ); ?>">
 			<?php dynamic_sidebar( 'kk-hero-left' ); ?>
 		</aside>
@@ -154,7 +166,7 @@ if ( Hero::GRID_CENTER === $hero_mode && ! empty( $rest ) ) {
 		<?php wp_reset_postdata(); ?>
 	</div>
 
-	<?php if ( $has_right ) : ?>
+	<?php if ( $right_active ) : ?>
 		<aside class="kk-hero-widget kk-hero-widget--right" aria-label="<?php esc_attr_e( 'Hero right widget', 'koperasikita' ); ?>">
 			<?php dynamic_sidebar( 'kk-hero-right' ); ?>
 		</aside>

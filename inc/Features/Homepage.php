@@ -145,7 +145,7 @@ final class Homepage
     {
         $count = min(8, max(1, (int) get_theme_mod('kk_hero_count', 5)));
         $source = (string) get_theme_mod('kk_hero_source', 'latest');
-        $source = in_array($source, ['latest', 'category'], true) ? $source : 'latest';
+        $source = in_array($source, ['latest', 'category', 'tag'], true) ? $source : 'latest';
 
         $args = [
             'post_type' => 'post',
@@ -160,14 +160,21 @@ final class Homepage
             if ($categoryIds !== []) {
                 $args['category__in'] = $categoryIds;
             }
+        } elseif ($source === 'tag') {
+            $tagIds = array_values(array_filter(array_map('absint', (array) get_theme_mod('kk_hero_tag_ids', []))));
+
+            if ($tagIds !== []) {
+                $args['tag__in'] = $tagIds;
+            }
         }
 
         $query = new \WP_Query($args);
 
-        // A category with fewer posts than the count still renders
-        // what it has; only an empty result falls back to latest.
-        if ($query->posts === [] && $source === 'category') {
-            unset($args['category__in']);
+        // A category/tag with fewer posts than the count still
+        // renders what it has; only an empty result falls back to
+        // latest. An empty tag/category list is latest already.
+        if ($query->posts === [] && $source !== 'latest') {
+            unset($args['category__in'], $args['tag__in']);
             $query = new \WP_Query($args);
         }
 

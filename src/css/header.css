@@ -554,7 +554,10 @@ html.kk-nav-open body {
 .kk-primary-menu .current-menu-item > a,
 .kk-primary-menu .current-menu-ancestor > a {
 	color: var(--kk-green, #0B6B3A);
-	box-shadow: inset 0 -2px 0 var(--kk-gold, #C9962E);
+	/* Dark gold for the underline: bright gold on white is only
+	 * 2.66:1 (fails WCAG 3:1 for a UI indicator); dark gold is
+	 * 4.9:1, so the active-page mark stays visible. */
+	box-shadow: inset 0 -2px 0 var(--kk-gold-dark, #8A6D1B);
 }
 
 .kk-primary-menu .sub-menu a {
@@ -613,7 +616,10 @@ html.kk-nav-open body {
 .kk-ticker-label--outline {
 	color: var(--kk-ink);
 	background: transparent;
-	box-shadow: inset 0 0 0 2px var(--kk-gold, #C9962E);
+	/* Dark gold for the border: bright gold on white is only
+	 * 2.66:1 (fails WCAG 3:1 for a UI component); dark gold is
+	 * 4.9:1. */
+	box-shadow: inset 0 0 0 2px var(--kk-gold-dark, #8A6D1B);
 }
 
 .kk-ticker-list {

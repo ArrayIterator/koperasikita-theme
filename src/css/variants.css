@@ -27,6 +27,9 @@ html[data-color-scheme="dark"] {
 	--kk-green-dark: #2fa36b;
 	--kk-green-light: #2fa36b;
 	--kk-gold: #f6d365;
+	/* Dark mode: the background is dark, so gold-on-background
+	 * uses the light gold (bright gold passes on dark at 7:1+). */
+	--kk-gold-dark: #f6d365;
 	--kk-gold-light: #f6d365;
 	--kk-error: #ef5350;
 	--kk-success: #2fa36b;

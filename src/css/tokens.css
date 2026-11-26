@@ -17,6 +17,12 @@
 	--kk-green-dark: #07522C;
 	--kk-green-light: #2FA36B;
 	--kk-gold: #C9962E;
+	/* Dark gold: for gold used ON a light background (text, underline,
+	 * border). Bright gold on white is only 2.66:1, so it fails
+	 * WCAG for text (4.5:1) and for UI components (3:1). Dark gold
+	 * is 4.9:1 on white, so it passes both. The bright gold stays
+	 * for backgrounds with black text on it (7.89:1). */
+	--kk-gold-dark: #8A6D1B;
 	--kk-gold-light: #F6D365;
 	--kk-ink: #1B1B1B;
 	--kk-muted: #5B6470;
