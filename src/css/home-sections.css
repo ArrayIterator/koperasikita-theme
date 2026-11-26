@@ -73,7 +73,7 @@
 .kk-category-block-items.kk-layout-featured {
 	display: grid;
 	grid-template-columns: 1.5fr 1fr;
-	column-gap: 24px;
+	column-gap: 1rem;
 	/* No row-gap: the first card spans a large number of rows (see
 	 * below) and a row-gap would charge 24px for every empty spanned
 	 * row, inflating the section. The rows carry their own bottom
@@ -103,6 +103,12 @@
 	aspect-ratio: auto;
 }
 
+/* The lead card's body gets real breathing room (the base
+ * .kk-card-body only has 12px top padding). */
+.kk-layout-featured .kk-card:first-child .kk-card-body {
+	padding: 1.25rem;
+}
+
 /* The bookmark overlays the featured image: flex drops the grid-area
  * positioning, so it is pinned absolutely instead. */
 .kk-layout-featured .kk-card:first-child .kk-bookmark-button {
@@ -115,7 +121,7 @@
 .kk-home .kk-layout-featured .kk-card:not(:first-child) {
 	grid-column: 2;
 	display: grid;
-	grid-template-columns: 96px 1fr auto;
+	grid-template-columns: var(--kk-featured-thumb-size, 120px) 1fr auto;
 	grid-template-areas: "media body bookmark";
 	gap: 16px;
 	align-items: start;
