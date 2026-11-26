@@ -45,9 +45,12 @@ $display = \KoperasiKita\Customizer\Customizer::highlightsDisplay();
 $auto_attr = '';
 $show_controls = false;
 if ( 'slider-grid' === $display ) {
-	/* Grid display: every card shows at once, so there is
-	 * nothing to slide — no prev/next buttons, no autoplay. */
-	$show_controls = false;
+	$show_controls = true;
+	if ( (bool) get_theme_mod( 'kk_highlights_slider_grid_autoplay', false ) ) {
+		$interval = (int) get_theme_mod( 'kk_highlights_slider_grid_interval', 5 );
+		$interval = max( 2, min( 30, $interval ) );
+		$auto_attr = ' data-kk-auto-slide="' . ( $interval * 1000 ) . '"';
+	}
 } elseif ( 'slider-full' === $display ) {
 	$show_controls = true;
 	if ( (bool) get_theme_mod( 'kk_highlights_slider_full_autoplay', false ) ) {

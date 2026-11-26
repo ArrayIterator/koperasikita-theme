@@ -65,7 +65,7 @@ html[data-color-scheme="dark"] .kk-pick-number {
  * shadow cannot define a dark card on a dark page. */
 html[data-color-scheme="dark"] .kk-home .kk-card {
 	border: 1px solid var(--kk-border);
-	box-shadow: 0 1px 2px rgb(0 0 0 / 0.2), 0 8px 24px rgb(0 0 0 / 0.3);
+	box-shadow: none;
 }
 
 /* Photos and placeholder art are made for a white page; in dark mode
@@ -127,7 +127,7 @@ html[data-color-scheme="dark"] .kk-logo--dark {
 
 	html[data-color-scheme="system"] .kk-home .kk-card {
 		border: 1px solid var(--kk-border);
-		box-shadow: 0 1px 2px rgb(0 0 0 / 0.2), 0 8px 24px rgb(0 0 0 / 0.3);
+		box-shadow: none;
 	}
 
 	html[data-color-scheme="system"] .kk-brand-mark.is-inverted,

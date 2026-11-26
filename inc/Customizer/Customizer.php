@@ -715,14 +715,43 @@ final class Customizer
             'section' => 'koperasikita_homepage',
             'type' => 'select',
             'choices' => [
-                'slider-grid' => esc_html__('Grid', 'koperasikita'),
+                'slider-grid' => esc_html__('Slider Grid', 'koperasikita'),
                 'slider-full' => esc_html__('Slider Full', 'koperasikita'),
                 'list' => esc_html__('List', 'koperasikita'),
             ],
         ]);
 
-        /* Slider Grid is now a plain grid (no sliding), so it has
-         * no autoplay settings. Slider Full keeps its own below. */
+        /* Slider Grid: Autoplay (None by default — the grid slides
+         * on touch / prev-next, it never advances on its own) and
+         * the interval, shown only while Autoplay is on. */
+        self::addSetting(
+            $wpCustomize,
+            'kk_highlights_slider_grid_autoplay',
+            false,
+            [self::class, 'sanitizeBool'],
+            'refresh'
+        );
+        $wpCustomize->add_control('kk_highlights_slider_grid_autoplay', [
+            'label' => esc_html__('Slider Grid Autoplay', 'koperasikita'),
+            'section' => 'koperasikita_homepage',
+            'type' => 'checkbox',
+            'active_callback' => [self::class, 'isHighlightsSliderGrid'],
+        ]);
+        self::addSetting(
+            $wpCustomize,
+            'kk_highlights_slider_grid_interval',
+            5,
+            static fn ($value) => self::clampInt($value, 2, 30),
+            'refresh'
+        );
+        $wpCustomize->add_control('kk_highlights_slider_grid_interval', [
+            'label' => esc_html__('Slider Grid Autoplay Interval (seconds)', 'koperasikita'),
+            'section' => 'koperasikita_homepage',
+            'type' => 'number',
+            'input_attrs' => ['min' => 2, 'max' => 30],
+            'active_callback' => [self::class, 'isHighlightsSliderGridAutoplay'],
+        ]);
+
         /* Slider Full: Autoplay (None by default) and the interval,
          * shown only while Autoplay is on. */
         self::addSetting(
@@ -2471,6 +2500,13 @@ final class Customizer
     public static function isHighlightsList(): bool
     {
         return self::highlightsDisplay() === 'list';
+    }
+
+    /* The Slider Grid interval only shows while Slider Grid autoplay
+     * is on. */
+    public static function isHighlightsSliderGridAutoplay(): bool
+    {
+        return self::isHighlightsSliderGrid() && (bool) get_theme_mod('kk_highlights_slider_grid_autoplay', false);
     }
 
     /* The Slider Full interval only shows while Slider Full autoplay
