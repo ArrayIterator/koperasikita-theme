@@ -988,6 +988,26 @@ final class Customizer
             ],
         ]);
 
+        /* How the Previous / Next links look in the numbered and
+         * next-prev pagination: words ("Newer" / "Older") or just
+         * the double-chevron icons (« »). */
+        self::addSetting(
+            $wpCustomize,
+            'kk_pagination_nav_style',
+            'text',
+            [self::class, 'sanitizePaginationNavStyle'],
+            'refresh'
+        );
+        $wpCustomize->add_control('kk_pagination_nav_style', [
+            'label' => esc_html__('Pagination Prev / Next Style', 'koperasikita'),
+            'section' => 'koperasikita_accessibility',
+            'type' => 'select',
+            'choices' => [
+                'text' => esc_html__('Text', 'koperasikita'),
+                'icons' => esc_html__('Icons', 'koperasikita'),
+            ],
+        ]);
+
         /* Title / excerpt line clamps: how many lines a post title or
          * excerpt may wrap to in cards and lists before the ellipsis
          * cuts it. Long titles that overflow on small phones (the
@@ -2492,6 +2512,11 @@ final class Customizer
     public static function sanitizePaginationMode(mixed $value): string
     {
         return in_array($value, ['pagination', 'load-more', 'next-prev'], true) ? (string) $value : 'pagination';
+    }
+
+    public static function sanitizePaginationNavStyle(mixed $value): string
+    {
+        return in_array($value, ['text', 'icons'], true) ? (string) $value : 'text';
     }
 
     public static function sanitizeBreakingSource(mixed $value): string

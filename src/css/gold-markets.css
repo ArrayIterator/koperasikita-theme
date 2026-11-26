@@ -220,7 +220,9 @@
 	gap: 16px;
 }
 
-/* Horizontal slider layout: groups in a swipeable row, no auto-advance. */
+/* Horizontal slider layout: groups in a swipeable row, no auto-advance.
+ * The visible count (1–4, from --kk-markets-visible) sets each group's
+ * width so that many groups fit on desktop. */
 .kk-markets-strip--slider-horizontal {
 	display: flex;
 	flex-direction: row;
@@ -235,7 +237,7 @@
 }
 
 .kk-markets-strip--slider-horizontal .kk-market-group {
-	flex: 0 0 80%;
+	flex: 0 0 calc(100% / var(--kk-markets-visible, 1));
 	scroll-snap-align: start;
 	min-width: 0;
 }
@@ -251,6 +253,59 @@
 .kk-markets-strip--strip .kk-market-group {
 	flex: 1 1 160px;
 	min-width: 0;
+}
+
+/* --- Markets marquee -----------------------------------------------------
+   Continuously scrolling ticker. The track holds two identical sets and
+   translates -50% on a linear loop, so the seam never shows. Each item
+   is --kk-markets-visible wide (1–4 on desktop). Pauses on hover/focus
+   and when the tab is hidden (the animation is CSS; the pause is a
+   hover/focus rule + the reduced-motion rule below).
+   ------------------------------------------------------------------------- */
+
+.kk-markets-marquee {
+	overflow: hidden;
+	/* Container queries: items size against the marquee width, so
+	 * --kk-markets-visible really means "that many items on screen". */
+	container-type: inline-size;
+}
+
+.kk-markets-marquee-track {
+	display: flex;
+	width: max-content;
+	animation: kk-markets-marquee 28s linear infinite;
+}
+
+.kk-markets-marquee:hover .kk-markets-marquee-track,
+.kk-markets-marquee:focus-within .kk-markets-marquee-track {
+	animation-play-state: paused;
+}
+
+@keyframes kk-markets-marquee {
+	from {
+		transform: translateX(0);
+	}
+	to {
+		transform: translateX(-50%);
+	}
+}
+
+.kk-markets-marquee-set {
+	display: flex;
+	flex-shrink: 0;
+	gap: 16px;
+	padding-right: 16px;
+}
+
+.kk-markets-marquee-item {
+	flex: 0 0 calc(100cqw / var(--kk-markets-visible, 1));
+	min-width: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.kk-markets-marquee-track {
+		animation: none;
+	}
 }
 
 .kk-market-group-title {

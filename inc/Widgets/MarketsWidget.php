@@ -24,6 +24,7 @@ final class MarketsWidget extends WP_Widget
     public const LAYOUT_SLIDER_HORIZONTAL = 'slider-horizontal';
     public const LAYOUT_SLIDER_VERTICAL = 'slider-vertical';
     public const LAYOUT_STRIP = 'strip';
+    public const LAYOUT_MARQUEE = 'marquee';
 
     /** @return string[] */
     public static function layouts(): array
@@ -34,6 +35,7 @@ final class MarketsWidget extends WP_Widget
             self::LAYOUT_SLIDER_HORIZONTAL,
             self::LAYOUT_SLIDER_VERTICAL,
             self::LAYOUT_STRIP,
+            self::LAYOUT_MARQUEE,
         ];
     }
 
@@ -41,6 +43,16 @@ final class MarketsWidget extends WP_Widget
     {
         $layout = is_string($value) ? $value : '';
         return in_array($layout, self::layouts(), true) ? $layout : self::LAYOUT_LIST;
+    }
+
+    /**
+     * How many items are visible at once on desktop, for the
+     * Horizontal Slider and Marquee layouts. Clamped to 1–4.
+     */
+    public static function sanitizeVisible(mixed $value): int
+    {
+        $visible = (int) $value;
+        return max(1, min(4, $visible));
     }
 
     /** @return array<string, string> Value => label. */
@@ -52,6 +64,7 @@ final class MarketsWidget extends WP_Widget
             self::LAYOUT_SLIDER_HORIZONTAL => __('Horizontal Slider', 'koperasikita'),
             self::LAYOUT_SLIDER_VERTICAL => __('Vertical Slider', 'koperasikita'),
             self::LAYOUT_STRIP => __('Full-width Strip', 'koperasikita'),
+            self::LAYOUT_MARQUEE => __('Marquee', 'koperasikita'),
         ];
     }
 
@@ -81,6 +94,7 @@ final class MarketsWidget extends WP_Widget
             : Markets::markets();
         $showChange = !isset($instance['show_change']) || (bool) $instance['show_change'];
         $layout = self::sanitizeLayout($instance['layout'] ?? self::LAYOUT_LIST);
+        $visible = self::sanitizeVisible($instance['visible'] ?? 1);
 
         $markets = [];
         foreach ($selected as $market) {
@@ -99,11 +113,18 @@ final class MarketsWidget extends WP_Widget
                 'markets' => $markets,
                 'show_change' => $showChange,
             ]);
+        } elseif ($layout === self::LAYOUT_MARQUEE) {
+            get_template_part('template-parts/markets/marquee', null, [
+                'markets' => $markets,
+                'show_change' => $showChange,
+                'visible' => $visible,
+            ]);
         } else {
             get_template_part('template-parts/markets/strip', null, [
                 'markets' => $markets,
                 'show_change' => $showChange,
                 'layout' => $layout,
+                'visible' => $visible,
             ]);
         }
 
@@ -148,6 +169,22 @@ final class MarketsWidget extends WP_Widget
                     </option>
                 <?php endforeach; ?>
             </select>
+        </p>
+        <p>
+            <label for="<?php echo esc_attr($this->get_field_id('visible')); ?>">
+                <?php esc_html_e('Visible items (desktop)', 'koperasikita'); ?>
+            </label>
+            <input
+                class="tiny-text"
+                type="number"
+                min="1"
+                max="4"
+                step="1"
+                id="<?php echo esc_attr($this->get_field_id('visible')); ?>"
+                name="<?php echo esc_attr($this->get_field_name('visible')); ?>"
+                value="<?php echo esc_attr((string) self::sanitizeVisible($instance['visible'] ?? 1)); ?>"
+            >
+            <span class="description"><?php esc_html_e('How many items show at once in the Horizontal Slider and Marquee layouts.', 'koperasikita'); ?></span>
         </p>
         <p><?php esc_html_e('Markets to show:', 'koperasikita'); ?></p>
         <?php foreach (Markets::labels() as $market => $label) : ?>
@@ -198,6 +235,7 @@ final class MarketsWidget extends WP_Widget
         $instance['show_change'] = isset($new['show_change']) && (bool) $new['show_change'];
         $instance['header_style'] = WidgetHeader::sanitize($new['header_style'] ?? WidgetHeader::CLASSIC_TOP);
         $instance['layout'] = self::sanitizeLayout($new['layout'] ?? self::LAYOUT_LIST);
+        $instance['visible'] = self::sanitizeVisible($new['visible'] ?? 1);
 
         return $instance;
     }

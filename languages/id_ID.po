@@ -3217,3 +3217,39 @@ msgstr "Pasar berikutnya"
 
 msgid "Pause markets"
 msgstr "Jeda pasar"
+
+msgid "Pagination Prev / Next Style"
+msgstr "Gaya Prev / Next Pagination"
+
+msgid "Text"
+msgstr "Teks"
+
+msgid "Icons"
+msgstr "Ikon"
+
+msgid "Newer"
+msgstr "Lebih Baru"
+
+msgid "Older"
+msgstr "Lebih Lama"
+
+msgid "Marquee"
+msgstr "Marquee"
+
+msgid "Visible items (desktop)"
+msgstr "Item terlihat (desktop)"
+
+msgid "How many items show at once in the Horizontal Slider and Marquee layouts."
+msgstr "Berapa banyak item yang tampil sekaligus di layout Horizontal Slider dan Marquee."
+
+msgid "KK Yahoo Finance"
+msgstr "KK Yahoo Finance"
+
+msgid "Live IHSG index from Yahoo Finance (free, no API key)."
+msgstr "IHSG live dari Yahoo Finance (gratis, tanpa API key)."
+
+msgid "Koperasi Kita Yahoo Finance"
+msgstr "Koperasi Kita Yahoo Finance"
+
+msgid "Yahoo Finance"
+msgstr "Yahoo Finance"

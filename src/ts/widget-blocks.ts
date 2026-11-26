@@ -26,7 +26,7 @@ interface OptionItem {
 type FieldDef =
 	| { key: string; kind: 'text'; label: string; help?: string }
 	| { key: string; kind: 'textarea'; label: string; help?: string }
-	| { key: string; kind: 'number'; label: string; min: number; max: number }
+	| { key: string; kind: 'number'; label: string; help?: string; min: number; max: number }
 	| { key: string; kind: 'select'; label: string; options: OptionItem[] }
 	| { key: string; kind: 'toggle'; label: string }
 	| { key: string; kind: 'checkboxes'; label: string; options: OptionItem[] }
@@ -154,6 +154,7 @@ function renderField(
 			return api.element.createElement(api.components.RangeControl, {
 				key,
 				label: field.label,
+				help: field.help ?? '',
 				value: typeof value === 'number' ? value : 5,
 				min: field.min,
 				max: field.max,
@@ -501,6 +502,7 @@ function buildDefinitions(api: Wp): BlockDef[] {
 				markets: { type: 'array', default: [], items: { type: 'string' } },
 				showChange: { type: 'boolean', default: true },
 				layout: { type: 'string', default: 'list' },
+				visible: { type: 'number', default: 1 },
 			},
 			fields: [
 				{ key: 'title', kind: 'text', label: __('Title') },
@@ -515,13 +517,61 @@ function buildDefinitions(api: Wp): BlockDef[] {
 						{ value: 'slider-horizontal', label: __('Horizontal Slider') },
 						{ value: 'slider-vertical', label: __('Vertical Slider') },
 						{ value: 'strip', label: __('Full-width Strip') },
+						{ value: 'marquee', label: __('Marquee') },
 					],
+				},
+				{
+					key: 'visible',
+					kind: 'number',
+					label: __('Visible items (desktop)'),
+					help: __('How many items show at once in the Horizontal Slider and Marquee layouts.'),
+					min: 1,
+					max: 4,
 				},
 				{
 					key: 'markets',
 					kind: 'checkboxes',
 					label: __('Markets to show'),
 					options: kkWidgetBlocks?.marketLabels ?? [],
+				},
+				{ key: 'showChange', kind: 'toggle', label: __('Show day change') },
+			],
+		},
+		{
+			slug: 'yahoo-finance',
+			title: __('KK Yahoo Finance'),
+			description: __('Live IHSG index from Yahoo Finance (free, no API key).'),
+			icon: 'chart-line',
+			attributes: {
+				title: { type: 'string', default: '' },
+				headerStyle: { type: 'string', default: 'classic-top' },
+				showChange: { type: 'boolean', default: true },
+				layout: { type: 'string', default: 'list' },
+				visible: { type: 'number', default: 1 },
+			},
+			fields: [
+				{ key: 'title', kind: 'text', label: __('Title') },
+				headerStyleField,
+				{
+					key: 'layout',
+					kind: 'select',
+					label: __('Layout'),
+					options: [
+						{ value: 'list', label: __('Vertical List') },
+						{ value: 'grid', label: __('Grid') },
+						{ value: 'slider-horizontal', label: __('Horizontal Slider') },
+						{ value: 'slider-vertical', label: __('Vertical Slider') },
+						{ value: 'strip', label: __('Full-width Strip') },
+						{ value: 'marquee', label: __('Marquee') },
+					],
+				},
+				{
+					key: 'visible',
+					kind: 'number',
+					label: __('Visible items (desktop)'),
+					help: __('How many items show at once in the Horizontal Slider and Marquee layouts.'),
+					min: 1,
+					max: 4,
 				},
 				{ key: 'showChange', kind: 'toggle', label: __('Show day change') },
 			],

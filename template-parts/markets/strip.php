@@ -15,8 +15,12 @@ use KoperasiKita\Features\Markets;
 $markets = isset($args['markets']) && is_array($args['markets']) ? $args['markets'] : [];
 $show_change = !isset($args['show_change']) || (bool) $args['show_change'];
 $layout = isset($args['layout']) && is_string($args['layout']) ? $args['layout'] : 'list';
+$visible = isset($args['visible']) ? max(1, min(4, (int) $args['visible'])) : 1;
 $layout_class = in_array($layout, ['grid', 'slider-horizontal', 'strip'], true)
 	? ' kk-markets-strip--' . $layout
+	: '';
+$visible_style = $layout === 'slider-horizontal'
+	? ' style="--kk-markets-visible: ' . esc_attr((string) $visible) . ';"'
 	: '';
 
 $has_data = false;
@@ -33,7 +37,7 @@ if ($markets === [] || !$has_data) {
 	return;
 }
 ?>
-<div class="kk-markets-strip<?php echo esc_attr($layout_class); ?>">
+<div class="kk-markets-strip<?php echo esc_attr($layout_class); ?>"<?php echo $visible_style; ?>>
 	<?php foreach ($markets as $marketId => $market) : ?>
 		<?php $prices = is_array($market['prices'] ?? null) ? $market['prices'] : []; ?>
 		<?php $client = is_array($market['client'] ?? null) ? $market['client'] : []; ?>

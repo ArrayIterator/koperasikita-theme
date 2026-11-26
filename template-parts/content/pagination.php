@@ -39,17 +39,17 @@ if ( 'load-more' === $mode ) {
 			?>
 			<nav class="kk-pagination kk-pagination-next-prev" aria-label="<?php esc_attr_e( 'Posts navigation', 'koperasikita' ); ?>">
 				<?php if ( $prev_url ) : ?>
-					<span class="kk-pagination-prev"><a href="<?php echo esc_url( $prev_url ); ?>"><?php echo __( '&larr; Newer', 'koperasikita' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></a></span>
+					<span class="kk-pagination-prev"><a href="<?php echo esc_url( $prev_url ); ?>"><?php echo Pagination::prevText(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></a></span>
 				<?php endif; ?>
 				<?php if ( $next_url ) : ?>
-					<span class="kk-pagination-next"><a href="<?php echo esc_url( $next_url ); ?>"><?php echo __( 'Older &rarr;', 'koperasikita' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></a></span>
+					<span class="kk-pagination-next"><a href="<?php echo esc_url( $next_url ); ?>"><?php echo Pagination::nextText(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></a></span>
 				<?php endif; ?>
 			</nav>
 			<?php
 		}
 	} else {
-		$prev = get_previous_posts_link( __( '&larr; Newer', 'koperasikita' ) );
-		$next = get_next_posts_link( __( 'Older &rarr;', 'koperasikita' ) );
+		$prev = get_previous_posts_link( Pagination::prevText() );
+		$next = get_next_posts_link( Pagination::nextText() );
 
 		if ( $prev || $next ) {
 			?>
@@ -76,8 +76,8 @@ if ( 'load-more' === $mode ) {
 				'current'   => $paged,
 				'total'     => $max_pages,
 				'mid_size'  => 2,
-				'prev_text' => __( '&larr; Newer', 'koperasikita' ),
-				'next_text' => __( 'Older &rarr;', 'koperasikita' ),
+				'prev_text' => Pagination::prevText(),
+				'next_text' => Pagination::nextText(),
 				'type'      => 'plain',
 			)
 		);
@@ -95,8 +95,8 @@ if ( 'load-more' === $mode ) {
 	the_posts_pagination(
 		array(
 			'mid_size'  => 2,
-			'prev_text' => __( '&larr; Newer', 'koperasikita' ),
-			'next_text' => __( 'Older &rarr;', 'koperasikita' ),
+			'prev_text' => Pagination::prevText(),
+			'next_text' => Pagination::nextText(),
 			'class'     => 'kk-pagination',
 		)
 	);

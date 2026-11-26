@@ -33,6 +33,41 @@ final class Pagination
         return in_array($mode, self::modes(), true) ? $mode : 'pagination';
     }
 
+    /**
+     * How the Previous / Next links render: 'text' (words) or
+     * 'icons' (double chevrons « »).
+     */
+    public static function navStyle(): string
+    {
+        $style = (string) get_theme_mod('kk_pagination_nav_style', 'text');
+
+        return in_array($style, ['text', 'icons'], true) ? $style : 'text';
+    }
+
+    /**
+     * Previous-link label for paginate_links / the_posts_pagination.
+     * Icons mode returns the double-chevron SVG (aria-hidden) plus a
+     * screen-reader word, so the link stays understandable without
+     * visible text.
+     */
+    public static function prevText(): string
+    {
+        if (self::navStyle() === 'icons') {
+            return '<span aria-hidden="true">' . \KoperasiKita\Icons\Icon::svg('chevrons-left', 18) . '</span><span class="screen-reader-text">' . __('Newer', 'koperasikita') . '</span>';
+        }
+
+        return __('&larr; Newer', 'koperasikita');
+    }
+
+    public static function nextText(): string
+    {
+        if (self::navStyle() === 'icons') {
+            return '<span aria-hidden="true">' . \KoperasiKita\Icons\Icon::svg('chevrons-right', 18) . '</span><span class="screen-reader-text">' . __('Older', 'koperasikita') . '</span>';
+        }
+
+        return __('Older &rarr;', 'koperasikita');
+    }
+
     public static function archiveLayout(): string
     {
         $layout = (string) get_theme_mod('kk_archive_layout', 'grid');

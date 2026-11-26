@@ -14,6 +14,7 @@ use KoperasiKita\Widgets\RecentPostsWidget;
 use KoperasiKita\Widgets\RelatedPostsWidget;
 use KoperasiKita\Widgets\WeatherWidget;
 use KoperasiKita\Widgets\WorldClockWidget;
+use KoperasiKita\Widgets\YahooFinanceWidget;
 
 final class Widgets
 {
@@ -34,6 +35,7 @@ final class Widgets
         if (Features::isEnabled('markets')) {
             register_widget(GoldWidget::class);
             register_widget(MarketsWidget::class);
+            register_widget(YahooFinanceWidget::class);
         }
 
         if (Features::isEnabled('weather')) {

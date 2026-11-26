@@ -210,6 +210,7 @@ final class Blocks
                     'markets' => ['type' => 'array', 'default' => [], 'items' => ['type' => 'string']],
                     'showChange' => ['type' => 'boolean', 'default' => true],
                     'layout' => ['type' => 'string', 'default' => 'list'],
+                    'visible' => ['type' => 'number', 'default' => 1],
                 ],
                 'map' => [
                     'title' => 'title',
@@ -217,6 +218,27 @@ final class Blocks
                     'markets' => 'markets',
                     'showChange' => 'show_change',
                     'layout' => 'layout',
+                    'visible' => 'visible',
+                ],
+            ];
+            $definitions['yahoo-finance'] = [
+                'class' => YahooFinanceWidget::class,
+                'icon' => 'chart-line',
+                'title' => __('KK Yahoo Finance', 'koperasikita'),
+                'description' => __('Live IHSG index from Yahoo Finance (free, no API key).', 'koperasikita'),
+                'attributes' => [
+                    'title' => ['type' => 'string', 'default' => ''],
+                    'headerStyle' => ['type' => 'string', 'default' => 'classic-top'],
+                    'showChange' => ['type' => 'boolean', 'default' => true],
+                    'layout' => ['type' => 'string', 'default' => 'list'],
+                    'visible' => ['type' => 'number', 'default' => 1],
+                ],
+                'map' => [
+                    'title' => 'title',
+                    'headerStyle' => 'header_style',
+                    'showChange' => 'show_change',
+                    'layout' => 'layout',
+                    'visible' => 'visible',
                 ],
             ];
         }
