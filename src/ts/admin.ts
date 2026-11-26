@@ -315,10 +315,24 @@ function watchFontSettings(container: HTMLElement): void {
 }
 
 function initAdmin(): void {
-	initTermPickers();
-	initProviderPickers();
-	initMenuIconPickers();
-	initGoldSync();
+	/* One broken widget must never kill the rest: the gold sync
+	 * button once sat dead with no error at all because an
+	 * earlier init threw before initGoldSync ran. Each init is
+	 * independent, so a failure is logged and the rest still run. */
+	const inits = [
+		initTermPickers,
+		initProviderPickers,
+		initMenuIconPickers,
+		initGoldSync,
+	];
+
+	for (const init of inits) {
+		try {
+			init();
+		} catch (error) {
+			console.error(error);
+		}
+	}
 
 	if (!adminData()) {
 		return;
@@ -354,14 +368,20 @@ function initAdmin(): void {
  * source shows the server's error instead of reloading.
  */
 function initGoldSync(): void {
-	const config = adminData();
-	if (!config) {
-		return;
-	}
-
 	const button = document.querySelector<HTMLButtonElement>('[data-kk-gold-sync]');
 	const result = document.querySelector<HTMLElement>('[data-kk-gold-sync-result]');
 	if (!button || !result) {
+		return;
+	}
+
+	/* Localize data missing (stale page, cached markup, blocked
+	 * script): never leave a dead button — a click says so
+	 * honestly instead of doing nothing. */
+	const config = adminData();
+	if (!config) {
+		button.addEventListener('click', () => {
+			result.textContent = adminStrings().adminDataMissing;
+		});
 		return;
 	}
 
