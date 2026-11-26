@@ -3039,3 +3039,21 @@ msgstr "Setelah Pagination"
 
 msgid "Full-width strip directly after the pagination, on every page that shows a post list (homepage, archives, categories, search)."
 msgstr "Strip lebar penuh tepat setelah pagination, di setiap halaman yang menampilkan daftar posting (beranda, arsip, kategori, pencarian)."
+
+msgid "Footer Column 1"
+msgstr "Kolom Footer 1"
+
+msgid "Footer, first column (About). When empty, shows the logo, site name and description."
+msgstr "Footer, kolom pertama (Tentang). Saat kosong, menampilkan logo, nama situs dan deskripsi."
+
+msgid "Footer Column 2"
+msgstr "Kolom Footer 2"
+
+msgid "Footer, second column (Navigation). When empty, shows the Footer menu."
+msgstr "Footer, kolom kedua (Navigasi). Saat kosong, menampilkan Menu Footer."
+
+msgid "Footer Column 3"
+msgstr "Kolom Footer 3"
+
+msgid "Footer, third column (Stay Informed). When empty, shows the newsletter subscribe form."
+msgstr "Footer, kolom ketiga (Tetap Terinformasi). Saat kosong, menampilkan formulir berlangganan newsletter."

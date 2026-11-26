@@ -27,7 +27,9 @@ if ( ! $has_widgets && ! $has_menu ) {
 					'menu_class'     => 'kk-sidebar-nav-menu',
 					'container'      => false,
 					'fallback_cb'    => false,
-					'depth'          => 2,
+					// Depth 0 (unlimited): the sidebar menu renders
+					// every nesting level, same as the drawer.
+					'depth'          => 0,
 				)
 			);
 			?>

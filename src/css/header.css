@@ -664,7 +664,10 @@ html.kk-nav-open body {
 }
 
 /* Drill-down: sub-menus stay hidden until their parent is opened; then
- * only that parent's sub-menu shows, under the back bar. */
+ * only that parent's sub-menu shows, under the back bar. Multi-level:
+ * the drill stack marks every ancestor (.is-drill-ancestor) and the
+ * deepest item (.is-drill-current); only the path and the current
+ * level's items are visible, so any nesting depth drills cleanly. */
 .kk-primary-menu .sub-menu {
 	display: none;
 }
@@ -695,11 +698,12 @@ html.kk-nav-open body {
 }
 
 .kk-primary-nav.is-drilling .kk-drawer-back,
-.kk-primary-nav.is-drilling .kk-primary-menu > li.is-active-parent > .sub-menu {
+.kk-primary-nav.is-drilling .kk-primary-menu li.is-drill-current > .sub-menu {
 	animation: kk-submenu-slide-in 0.28s ease;
 }
 
-.kk-primary-nav.is-sliding-back .kk-primary-menu > li {
+.kk-primary-nav.is-sliding-back .kk-primary-menu > li,
+.kk-primary-nav.is-sliding-back .kk-primary-menu li.is-drill-current > .sub-menu > li {
 	animation: kk-menu-slide-in 0.28s ease;
 }
 
@@ -736,21 +740,36 @@ html.kk-nav-open body {
 	height: 18px;
 }
 
-.kk-primary-nav.is-drilling .kk-primary-menu > li {
+/* Drilling: hide every item, then reveal only the drill path
+ * (ancestors + current) and the current level's items. The sub-menu
+ * of a path item is visible so the next level is reachable; the link
+ * + toggle of a path item are hidden (only its sub-menu contents
+ * show). Specificity beats the base .kk-primary-menu .sub-menu /
+ * .kk-primary-menu a rules, and the current-level rule beats the
+ * hide-all rule. */
+.kk-primary-nav.is-drilling .kk-primary-menu li {
 	display: none;
 }
 
-.kk-primary-nav.is-drilling .kk-primary-menu > li.is-active-parent {
+.kk-primary-nav.is-drilling .kk-primary-menu li.is-drill-ancestor,
+.kk-primary-nav.is-drilling .kk-primary-menu li.is-drill-current {
 	display: block;
 }
 
-.kk-primary-nav.is-drilling .kk-primary-menu > li.is-active-parent > a,
-.kk-primary-nav.is-drilling .kk-primary-menu > li.is-active-parent > .kk-submenu-toggle {
+.kk-primary-nav.is-drilling .kk-primary-menu li.is-drill-ancestor > .sub-menu,
+.kk-primary-nav.is-drilling .kk-primary-menu li.is-drill-current > .sub-menu {
+	display: block;
+}
+
+.kk-primary-nav.is-drilling .kk-primary-menu li.is-drill-current > .sub-menu > li {
+	display: block;
+}
+
+.kk-primary-nav.is-drilling .kk-primary-menu li.is-drill-ancestor > a,
+.kk-primary-nav.is-drilling .kk-primary-menu li.is-drill-ancestor > .kk-submenu-toggle,
+.kk-primary-nav.is-drilling .kk-primary-menu li.is-drill-current > a,
+.kk-primary-nav.is-drilling .kk-primary-menu li.is-drill-current > .kk-submenu-toggle {
 	display: none;
-}
-
-.kk-primary-nav.is-drilling .kk-primary-menu > li.is-active-parent > .sub-menu {
-	display: block;
 }
 
 .kk-primary-nav.is-drilling .kk-primary-menu .sub-menu a {

@@ -101,22 +101,20 @@
 		flex: none;
 	}
 
-	/* A drill state left over from a mobile viewport never shows a
+	/* A drill state left over from a mobile viewport never hides a
 	 * sub-menu on desktop: hover owns it here. The :not(:hover) keeps
 	 * the hover rule able to open it. */
-	.kk-primary-nav.is-drilling .kk-primary-menu > li {
+	.kk-primary-nav.is-drilling .kk-primary-menu li {
 		display: list-item;
 	}
 
-	.kk-primary-nav.is-drilling .kk-primary-menu > li.is-active-parent {
-		display: list-item;
+	.kk-primary-nav.is-drilling .kk-primary-menu li.is-drill-ancestor > a,
+	.kk-primary-nav.is-drilling .kk-primary-menu li.is-drill-current > a {
+		display: flex;
 	}
 
-	.kk-primary-nav.is-drilling .kk-primary-menu > li.is-active-parent > a {
-		display: block;
-	}
-
-	.kk-primary-nav.is-drilling .kk-primary-menu > li.is-active-parent:not(:hover) > .sub-menu {
+	.kk-primary-nav.is-drilling .kk-primary-menu li.is-drill-ancestor:not(:hover) > .sub-menu,
+	.kk-primary-nav.is-drilling .kk-primary-menu li.is-drill-current:not(:hover) > .sub-menu {
 		display: none;
 	}
 
@@ -140,6 +138,17 @@
 		border-radius: var(--kk-radius);
 		padding: 8px 0;
 		z-index: 60;
+	}
+
+	/* A nested sub-menu (level 3+) flies out to the right of its
+	 * parent item instead of dropping below the whole dropdown. */
+	.kk-primary-menu .sub-menu li {
+		position: relative;
+	}
+
+	.kk-primary-menu .sub-menu .sub-menu {
+		left: 100%;
+		top: 0;
 	}
 
 	.kk-primary-menu li:hover > .sub-menu,

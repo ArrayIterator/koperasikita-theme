@@ -104,6 +104,22 @@ final class Sidebars
                 esc_html__('After Pagination', 'koperasikita'),
                 esc_html__('Full-width strip directly after the pagination, on every page that shows a post list (homepage, archives, categories, search).', 'koperasikita'),
             ],
+            // Footer columns: one widget area per footer column. When
+            // a column's area is empty the footer falls back to its
+            // built-in content (logo + site name, Footer menu,
+            // newsletter subscribe form), so the footer is never blank.
+            'kk-footer-1' => [
+                esc_html__('Footer Column 1', 'koperasikita'),
+                esc_html__('Footer, first column (About). When empty, shows the logo, site name and description.', 'koperasikita'),
+            ],
+            'kk-footer-2' => [
+                esc_html__('Footer Column 2', 'koperasikita'),
+                esc_html__('Footer, second column (Navigation). When empty, shows the Footer menu.', 'koperasikita'),
+            ],
+            'kk-footer-3' => [
+                esc_html__('Footer Column 3', 'koperasikita'),
+                esc_html__('Footer, third column (Stay Informed). When empty, shows the newsletter subscribe form.', 'koperasikita'),
+            ],
         ];
 
         foreach ($sidebars as $id => [$name, $description]) {

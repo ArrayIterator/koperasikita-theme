@@ -159,12 +159,49 @@ function initMobileNav(): void {
 	const isDesktop = (): boolean => desktopQuery.matches;
 	let drillToggle: HTMLButtonElement | null = null;
 
-	// Sub-menu drill-down: every parent item gets a chevron button
-	// after its link. Tapping it opens that sub-menu under the back
-	// bar; the back button returns to the top level.
+	// Multi-level sub-menu drill-down: every parent item at ANY depth
+	// gets a chevron button after its link. Tapping it pushes that
+	// item onto the drill stack and shows its sub-menu as the current
+	// level under the back bar; the back button pops one level, and
+	// the back label is the current level's parent. The stack is the
+	// drill path from the top level down, so a 10-level test menu
+	// drills all the way (the old code only drilled one level: it
+	// chevroned top-level items only and reset on the first back).
+	const drillStack: HTMLLIElement[] = [];
+
+	const syncDrill = (): void => {
+		// Re-mark the stack: every item but the deepest is an
+		// ancestor, the deepest is the current level.
+		$all('.is-drill-ancestor, .is-drill-current', nav).forEach((item) => {
+			item.classList.remove('is-drill-ancestor', 'is-drill-current');
+		});
+		drillStack.forEach((item, index) => {
+			item.classList.add(index === drillStack.length - 1 ? 'is-drill-current' : 'is-drill-ancestor');
+		});
+		if (drillStack.length > 0) {
+			nav.classList.add('is-drilling');
+			if (backBar) {
+				backBar.hidden = false;
+			}
+			const current = drillStack[drillStack.length - 1];
+			const currentLink = current.querySelector<HTMLAnchorElement>(':scope > a');
+			if (backLabel) {
+				backLabel.textContent = currentLink?.textContent?.trim() ?? '';
+			}
+		} else {
+			nav.classList.remove('is-drilling');
+			if (backBar) {
+				backBar.hidden = true;
+			}
+			if (backLabel) {
+				backLabel.textContent = '';
+			}
+		}
+	};
+
 	const chevronSvg =
 		'<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg>';
-	$all<HTMLLIElement>('.kk-primary-menu > li.menu-item-has-children', nav).forEach((item) => {
+	$all<HTMLLIElement>('.kk-primary-menu li.menu-item-has-children', nav).forEach((item) => {
 		const link = item.querySelector<HTMLAnchorElement>(':scope > a');
 		const sub = item.querySelector<HTMLElement>(':scope > .sub-menu');
 		if (!link || !sub) {
@@ -178,32 +215,28 @@ function initMobileNav(): void {
 		button.innerHTML = chevronSvg;
 		link.after(button);
 		button.addEventListener('click', () => {
-			nav.classList.add('is-drilling');
-			item.classList.add('is-active-parent');
+			// Re-tapping an item already on the stack truncates the
+			// stack to it instead of pushing a duplicate; normally a
+			// tap is on a current-level item, so this just pushes.
+			const existing = drillStack.indexOf(item);
+			if (existing >= 0) {
+				drillStack.length = existing + 1;
+			} else {
+				drillStack.push(item);
+			}
+			syncDrill();
 			button.setAttribute('aria-expanded', 'true');
-			if (backBar) {
-				backBar.hidden = false;
-			}
-			if (backLabel) {
-				backLabel.textContent = link.textContent?.trim() ?? '';
-			}
 			drillToggle = button;
 			backButton?.focus();
 		});
 	});
 
 	const resetDrill = (): void => {
-		nav.classList.remove('is-drilling');
-		$all('.is-active-parent', nav).forEach((item) => item.classList.remove('is-active-parent'));
+		drillStack.length = 0;
+		syncDrill();
 		$all<HTMLButtonElement>('.kk-submenu-toggle', nav).forEach((button) => {
 			button.setAttribute('aria-expanded', 'false');
 		});
-		if (backBar) {
-			backBar.hidden = true;
-		}
-		if (backLabel) {
-			backLabel.textContent = '';
-		}
 		drillToggle = null;
 	};
 
@@ -258,11 +291,21 @@ function initMobileNav(): void {
 	closeButton?.addEventListener('click', () => closeNav(true));
 	backdrop?.addEventListener('click', () => closeNav(true));
 	backButton?.addEventListener('click', () => {
-		// Slide the top level back in from the left (AMP-style); the
-		// class comes off once the 0.28s animation has run.
+		// Slide the parent level back in from the left (AMP-style);
+		// the class comes off once the 0.28s animation has run.
+		// Back pops ONE level (not a full reset), so a deep menu
+		// walks back up level by level.
 		nav.classList.add('is-sliding-back');
 		window.setTimeout(() => nav.classList.remove('is-sliding-back'), 300);
-		resetDrill();
+		const popped = drillStack.pop();
+		if (popped) {
+			const toggle = popped.querySelector<HTMLButtonElement>(':scope > .kk-submenu-toggle');
+			toggle?.setAttribute('aria-expanded', 'false');
+			// The popped item is visible again as a current-level
+			// item, so focus returns to its chevron.
+			drillToggle = toggle;
+		}
+		syncDrill();
 		drillToggle?.focus();
 	});
 	// A menu link navigates away; close the drawer first so a

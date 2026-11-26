@@ -97,6 +97,10 @@
 .kk-hero-title {
 	font-size: 30px;
 	margin: 8px 0 10px;
+	/* Same as .kk-card-title: a single unbroken word must break
+	 * across lines instead of overflowing. */
+	overflow-wrap: break-word;
+	word-break: break-word;
 }
 
 .kk-hero-title a {

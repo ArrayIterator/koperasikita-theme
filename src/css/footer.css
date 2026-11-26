@@ -35,6 +35,18 @@
 	margin-bottom: 12px;
 }
 
+/* A widget placed in a footer column titles itself like the
+ * built-in footer headings, so a custom footer column keeps the
+ * same look as the default one. */
+.kk-footer-col .kk-widget-title {
+	font-size: 12px;
+	font-weight: 700;
+	letter-spacing: 0.14em;
+	text-transform: uppercase;
+	color: var(--kk-green, #0B6B3A);
+	margin-bottom: 12px;
+}
+
 .kk-footer-site-name {
 	font-family: var(--kk-serif);
 	font-size: 22px;

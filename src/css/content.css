@@ -241,6 +241,10 @@
 .kk-article-title {
 	font-size: var(--kk-single-title-size);
 	margin: 8px 0 12px;
+	/* Same as .kk-card-title: a single unbroken word must break
+	 * across lines instead of overflowing. */
+	overflow-wrap: break-word;
+	word-break: break-word;
 }
 
 .kk-article-meta {

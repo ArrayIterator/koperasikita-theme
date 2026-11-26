@@ -12,48 +12,62 @@
 	<div class="kk-shell">
 		<div class="kk-footer-grid">
 			<div class="kk-footer-col kk-footer-about">
-				<?php if ( has_custom_logo() ) : ?>
-					<div class="kk-footer-logo"><?php the_custom_logo(); ?></div>
-				<?php endif; ?>
-				<p class="kk-footer-site-name"><?php bloginfo( 'name' ); ?></p>
-				<?php
-				$description = get_bloginfo( 'description', 'display' );
-				if ( $description ) {
-					?>
-					<p class="kk-footer-description"><?php echo esc_html( $description ); ?></p>
+				<?php if ( is_active_sidebar( 'kk-footer-1' ) ) : ?>
+					<?php dynamic_sidebar( 'kk-footer-1' ); ?>
+				<?php else : ?>
+					<?php if ( has_custom_logo() ) : ?>
+						<div class="kk-footer-logo"><?php the_custom_logo(); ?></div>
+					<?php endif; ?>
+					<p class="kk-footer-site-name"><?php bloginfo( 'name' ); ?></p>
 					<?php
-				}
-				?>
+					$description = get_bloginfo( 'description', 'display' );
+					if ( $description ) {
+						?>
+						<p class="kk-footer-description"><?php echo esc_html( $description ); ?></p>
+						<?php
+					}
+					?>
+				<?php endif; ?>
 			</div>
 
-			<nav class="kk-footer-col kk-footer-nav" aria-label="<?php esc_attr_e( 'Footer', 'koperasikita' ); ?>">
-				<p class="kk-footer-heading"><?php esc_html_e( 'Navigation', 'koperasikita' ); ?></p>
-				<?php
-				wp_nav_menu(
-					array(
-						'theme_location' => 'footer',
-						'menu_class'     => 'kk-footer-menu',
-						'container'      => false,
-						'fallback_cb'    => false,
-						'depth'          => 1,
-					)
-				);
-				?>
-			</nav>
+			<div class="kk-footer-col kk-footer-nav">
+				<?php if ( is_active_sidebar( 'kk-footer-2' ) ) : ?>
+					<?php dynamic_sidebar( 'kk-footer-2' ); ?>
+				<?php else : ?>
+					<nav aria-label="<?php esc_attr_e( 'Footer', 'koperasikita' ); ?>">
+						<p class="kk-footer-heading"><?php esc_html_e( 'Navigation', 'koperasikita' ); ?></p>
+						<?php
+						wp_nav_menu(
+							array(
+								'theme_location' => 'footer',
+								'menu_class'     => 'kk-footer-menu',
+								'container'      => false,
+								'fallback_cb'    => false,
+								'depth'          => 1,
+							)
+						);
+						?>
+					</nav>
+				<?php endif; ?>
+			</div>
 
 			<div class="kk-footer-col kk-footer-subscribe" id="kk-subscribe">
-				<p class="kk-footer-heading"><?php esc_html_e( 'Stay informed', 'koperasikita' ); ?></p>
-				<p class="kk-footer-note">
-					<?php esc_html_e( 'News, announcements and market updates from the cooperative, delivered to your inbox.', 'koperasikita' ); ?>
-				</p>
-				<?php
-				// The [kk_subscribe] shortcode renders the MailPoet subscribe
-				// form; when it is not registered (MailPoet inactive) render
-				// nothing instead of printing the literal shortcode text.
-				if ( shortcode_exists( 'kk_subscribe' ) ) {
-					echo do_shortcode( '[kk_subscribe]' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-				}
-				?>
+				<?php if ( is_active_sidebar( 'kk-footer-3' ) ) : ?>
+					<?php dynamic_sidebar( 'kk-footer-3' ); ?>
+				<?php else : ?>
+					<p class="kk-footer-heading"><?php esc_html_e( 'Stay informed', 'koperasikita' ); ?></p>
+					<p class="kk-footer-note">
+						<?php esc_html_e( 'News, announcements and market updates from the cooperative, delivered to your inbox.', 'koperasikita' ); ?>
+					</p>
+					<?php
+					// The [kk_subscribe] shortcode renders the MailPoet subscribe
+					// form; when it is not registered (MailPoet inactive) render
+					// nothing instead of printing the literal shortcode text.
+					if ( shortcode_exists( 'kk_subscribe' ) ) {
+						echo do_shortcode( '[kk_subscribe]' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+					}
+					?>
+				<?php endif; ?>
 			</div>
 		</div>
 

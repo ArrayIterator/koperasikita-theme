@@ -33,13 +33,16 @@
 		<!-- Desktop bar: the Primary menu. Hidden below 1024px. -->
 		<nav class="kk-desktop-nav" aria-label="<?php esc_attr_e( 'Primary', 'koperasikita' ); ?>">
 			<?php
+			// Depth 0 (unlimited): the desktop dropdown supports any
+			// nesting depth — a nested sub-menu flies out to the right
+			// of its parent item (responsive.css).
 			wp_nav_menu(
 				array(
 					'theme_location' => 'primary',
 					'menu_class'     => 'kk-primary-menu',
 					'container'      => false,
 					'fallback_cb'    => 'wp_page_menu',
-					'depth'          => 2,
+					'depth'          => 0,
 				)
 			);
 			?>
@@ -68,6 +71,8 @@
 			// The drawer is the Sidebar menu; Primary is the desktop
 			// bar only. Fall back to Primary when no menu is assigned
 			// to the sidebar location, so the drawer is never empty.
+			// Depth 0 (unlimited): the drill-down supports any nesting
+			// depth, so a deeply nested test menu drills all the way.
 			$drawer_location = has_nav_menu( 'sidebar' ) ? 'sidebar' : 'primary';
 			wp_nav_menu(
 				array(
@@ -75,7 +80,7 @@
 					'menu_class'     => 'kk-primary-menu',
 					'container'      => false,
 					'fallback_cb'    => 'wp_page_menu',
-					'depth'          => 2,
+					'depth'          => 0,
 				)
 			);
 			?>
