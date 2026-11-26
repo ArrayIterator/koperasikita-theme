@@ -2167,12 +2167,39 @@ final class Customizer
             'active_callback' => [self::class, 'isLogoSloganShown'],
         ]);
 
-        self::addSetting($wpCustomize, 'kk_logo_center_mobile', false, [self::class, 'sanitizeBool'], 'refresh');
-        $wpCustomize->add_control('kk_logo_center_mobile', [
-            'label' => esc_html__('Center Brand on Mobile', 'koperasikita'),
+        /* Header logo position, separately for desktop and mobile.
+         * 'left' is the default look (brand at the left, date at the
+         * right). 'centered' / 'right' move the brand with auto
+         * margins; 'hide' hides the brand (and the masthead with it,
+         * so no empty band is left). This replaces the old
+         * "Center Brand on Mobile" checkbox — centered is now just
+         * one of the mobile position choices. */
+        self::addSetting($wpCustomize, 'kk_logo_position_desktop', 'left', [self::class, 'sanitizeLogoPosition'], 'refresh');
+        $wpCustomize->add_control('kk_logo_position_desktop', [
+            'label' => esc_html__('Header Logo Position (Desktop)', 'koperasikita'),
             'section' => 'koperasikita_advanced_logo',
-            'type' => 'checkbox',
+            'type' => 'select',
+            'choices' => [
+                'left' => esc_html__('Left', 'koperasikita'),
+                'centered' => esc_html__('Centered', 'koperasikita'),
+                'right' => esc_html__('Right', 'koperasikita'),
+                'hide' => esc_html__('Hidden', 'koperasikita'),
+            ],
             'priority' => 70,
+        ]);
+
+        self::addSetting($wpCustomize, 'kk_logo_position_mobile', 'left', [self::class, 'sanitizeLogoPosition'], 'refresh');
+        $wpCustomize->add_control('kk_logo_position_mobile', [
+            'label' => esc_html__('Header Logo Position (Mobile)', 'koperasikita'),
+            'section' => 'koperasikita_advanced_logo',
+            'type' => 'select',
+            'choices' => [
+                'left' => esc_html__('Left', 'koperasikita'),
+                'centered' => esc_html__('Centered', 'koperasikita'),
+                'right' => esc_html__('Right', 'koperasikita'),
+                'hide' => esc_html__('Hidden', 'koperasikita'),
+            ],
+            'priority' => 75,
         ]);
 
         self::addSetting($wpCustomize, 'kk_logo_hide_text_mobile', false, [self::class, 'sanitizeBool'], 'refresh');
@@ -2307,6 +2334,13 @@ final class Customizer
         $allowed = ['logo-only', 'logo-title', 'logo-title-slogan', 'title-only', 'hidden'];
 
         return in_array($value, $allowed, true) ? (string) $value : 'logo-only';
+    }
+
+    public static function sanitizeLogoPosition(mixed $value): string
+    {
+        $allowed = ['left', 'centered', 'right', 'hide'];
+
+        return in_array($value, $allowed, true) ? (string) $value : 'left';
     }
 
     public static function sanitizeHeroSliderStyle(mixed $value): string

@@ -56,7 +56,7 @@ if ( \KoperasiKita\Features\Pwa::isButtonPosition( 'above-header' ) ) {
 <header class="kk-site-header" id="kk-top">
 	<?php get_template_part( 'template-parts/header/top-bar' ); ?>
 
-	<div class="kk-masthead">
+	<div class="kk-masthead<?php echo esc_attr( Logo::mastheadClasses() ); ?>">
 		<div class="kk-shell kk-masthead-inner">
 			<div class="kk-brand<?php echo esc_attr( \KoperasiKita\Features\Logo::brandClasses() ); ?>">
 				<?php

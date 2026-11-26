@@ -2996,3 +2996,16 @@ msgstr "File SVG ini mengandung konten aktif dan tidak bisa diunggah. Gunakan SV
 #: inc/Customizer/Customizer.php:1332
 msgid "Single Post Title Size"
 msgstr "Ukuran Judul Single Post"
+
+#: inc/Customizer/Customizer.php:2179
+msgid "Header Logo Position (Desktop)"
+msgstr "Posisi Logo Header (Desktop)"
+
+#: inc/Customizer/Customizer.php:2193
+msgid "Header Logo Position (Mobile)"
+msgstr "Posisi Logo Header (Mobile)"
+
+#: inc/Customizer/Customizer.php:2184
+#: inc/Customizer/Customizer.php:2198
+msgid "Centered"
+msgstr "Tengah"

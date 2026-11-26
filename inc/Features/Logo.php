@@ -77,16 +77,28 @@ final class Logo
         return (bool) get_theme_mod('kk_logo_show_slogan', false);
     }
 
-    /** Whether the masthead brand is centred on mobile. */
-    public static function centerMobile(): bool
-    {
-        return (bool) get_theme_mod('kk_logo_center_mobile', false);
-    }
-
     /** Whether the brand text is hidden on mobile (logo only). */
     public static function hideTextMobile(): bool
     {
         return (bool) get_theme_mod('kk_logo_hide_text_mobile', false);
+    }
+
+    /** Header logo position on desktop: left, centered, right, hide. */
+    public static function positionDesktop(): string
+    {
+        $allowed = ['left', 'centered', 'right', 'hide'];
+        $position = get_theme_mod('kk_logo_position_desktop', 'left');
+
+        return in_array($position, $allowed, true) ? (string) $position : 'left';
+    }
+
+    /** Header logo position on mobile: left, centered, right, hide. */
+    public static function positionMobile(): string
+    {
+        $allowed = ['left', 'centered', 'right', 'hide'];
+        $position = get_theme_mod('kk_logo_position_mobile', 'left');
+
+        return in_array($position, $allowed, true) ? (string) $position : 'left';
     }
 
     /** How the drawer (mobile sidebar) brand renders. */
@@ -103,12 +115,40 @@ final class Logo
     {
         $classes = '';
 
-        if (self::centerMobile()) {
-            $classes .= ' kk-brand--center-mobile';
+        $desktop = self::positionDesktop();
+
+        if ($desktop !== 'left') {
+            $classes .= ' kk-brand--pos-desktop-' . $desktop;
+        }
+
+        $mobile = self::positionMobile();
+
+        if ($mobile !== 'left') {
+            $classes .= ' kk-brand--pos-mobile-' . $mobile;
         }
 
         if (self::hideTextMobile()) {
             $classes .= ' kk-brand--hide-text-mobile';
+        }
+
+        return $classes;
+    }
+
+    /**
+     * Extra classes for the masthead itself. When the brand is hidden
+     * at a breakpoint the whole masthead is hidden there too, so the
+     * page is not left with an empty bordered band.
+     */
+    public static function mastheadClasses(): string
+    {
+        $classes = '';
+
+        if (self::positionDesktop() === 'hide') {
+            $classes .= ' kk-masthead--hide-brand-desktop';
+        }
+
+        if (self::positionMobile() === 'hide') {
+            $classes .= ' kk-masthead--hide-brand-mobile';
         }
 
         return $classes;

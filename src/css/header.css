@@ -230,12 +230,45 @@ html[data-kk-scheme="system"] .kk-icon-monitor {
 	object-fit: contain;
 }
 
-@media (max-width: 767px) {
-	/* "Center Brand on Mobile": the brand is the only visible
-	 * masthead item here (the date is hidden), so auto margins
-	 * centre it. */
-	.kk-brand--center-mobile {
+@media (min-width: 768px) {
+	/* Header logo position (desktop). The masthead is a flex row
+	 * (brand + date, space-between), so auto margins place the
+	 * brand: both sides centres it, left only pushes it right. */
+	.kk-brand--pos-desktop-centered {
 		margin-inline: auto;
+	}
+
+	.kk-brand--pos-desktop-right {
+		margin-left: auto;
+	}
+
+	.kk-brand--pos-desktop-hide {
+		display: none;
+	}
+
+	.kk-masthead--hide-brand-desktop {
+		display: none;
+	}
+}
+
+@media (max-width: 767px) {
+	/* Header logo position (mobile). The brand is the only visible
+	 * masthead item here (the date is hidden), so auto margins
+	 * centre it exactly. */
+	.kk-brand--pos-mobile-centered {
+		margin-inline: auto;
+	}
+
+	.kk-brand--pos-mobile-right {
+		margin-left: auto;
+	}
+
+	.kk-brand--pos-mobile-hide {
+		display: none;
+	}
+
+	.kk-masthead--hide-brand-mobile {
+		display: none;
 	}
 
 	/* "Hide Text on Mobile": title + slogan go away, logo only. */
