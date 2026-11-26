@@ -5,8 +5,9 @@
  * Three modes (see Features\Pagination and the News Pagination
  * setting in Appearance & Accessibility):
  * - Numbered Pagination: page numbers (default).
- * - Load More: the load-more button (the loader fetches the next
- *   page via the /posts endpoint).
+ * - Load More: the load-more link (the loader fetches the next
+ *   page via the /posts endpoint; once the cap is reached the link
+ *   navigates to the next page instead).
  * - Next Prev: only Previous / Next links, no page numbers.
  *
  * Accepts $args['query'] (WP_Query): paginate that query instead

@@ -413,13 +413,57 @@ final class Pwa
     }
 
     /**
+     * Whether the install prompt modal shows at all. The install
+     * button/banner is separate (kk_pwa_button_enabled): turning
+     * the prompt off leaves the button working.
+     */
+    public static function promptEnabled(): bool
+    {
+        return (bool) get_theme_mod('kk_pwa_prompt_enabled', true);
+    }
+
+    /** Title of the install prompt modal. {app_name} is replaced. */
+    public static function promptTitle(): string
+    {
+        $title = (string) get_theme_mod(
+            'kk_pwa_prompt_title',
+            // translators: %s is the app name.
+            sprintf(__('Install %s', 'koperasikita'), self::manifestName())
+        );
+
+        if (trim($title) === '') {
+            // translators: %s is the app name.
+            $title = sprintf(__('Install %s', 'koperasikita'), self::manifestName());
+        }
+
+        return str_replace('{app_name}', self::manifestName(), $title);
+    }
+
+    /** Body text of the install prompt modal. {app_name} is replaced. */
+    public static function promptText(): string
+    {
+        $text = (string) get_theme_mod(
+            'kk_pwa_prompt_text',
+            __('Add {app_name} to your home screen for faster access to news, announcements and market updates — even offline.', 'koperasikita')
+        );
+
+        if (trim($text) === '') {
+            $text = __('Add {app_name} to your home screen for faster access to news, announcements and market updates — even offline.', 'koperasikita');
+        }
+
+        return str_replace('{app_name}', self::manifestName(), $text);
+    }
+
+    /**
      * The install prompt modal is a template part, rendered once in the
      * footer. main.ts owns showing it when beforeinstallprompt fires;
      * this only makes sure the markup exists on the page.
      */
     public static function printInstallPrompt(): void
     {
-        locate_template('template-parts/pwa/install-prompt.php', true, false);
+        if (self::promptEnabled()) {
+            locate_template('template-parts/pwa/install-prompt.php', true, false);
+        }
 
         // Floating styles render here, in the footer: a full bottom
         // bar or a floating button at the bottom corners/center.

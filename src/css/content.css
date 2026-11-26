@@ -727,6 +727,10 @@
 	gap: 12px;
 }
 
+/* The Load More control is a link to the next page (see
+ * Features\Pagination::renderLoader): it looks like a button, and
+ * the script intercepts the click for an AJAX load until the cap,
+ * after which the click navigates. */
 .kk-load-more {
 	display: inline-flex;
 	align-items: center;
@@ -738,6 +742,7 @@
 	background: var(--kk-paper, #FFFFFF);
 	color: var(--kk-ink, #1B1B1B);
 	font-weight: 600;
+	text-decoration: none;
 	cursor: pointer;
 }
 
@@ -746,12 +751,14 @@
 	color: var(--kk-green, #0B6B3A);
 }
 
-.kk-load-more:disabled {
+/* An anchor has no disabled state: the script marks it busy with
+ * aria-disabled while a page is being fetched. */
+.kk-load-more[aria-disabled="true"] {
 	opacity: 0.6;
 	cursor: wait;
 }
 
-/* Loading spinner inside the Load More button: the Feather loader
+/* Loading spinner inside the Load More link: the Feather loader
  * icon, spinning. Shown only while a page is being fetched. */
 .kk-load-more-icon {
 	display: inline-flex;
@@ -770,12 +777,6 @@
 	to {
 		transform: rotate(360deg);
 	}
-}
-
-/* The numbered navigation that takes over once the Load More cap
- * is reached. */
-.kk-pagination-fallback {
-	margin-top: 16px;
 }
 
 @media (prefers-reduced-motion: reduce) {

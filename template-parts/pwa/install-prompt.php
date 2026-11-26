@@ -18,9 +18,9 @@ if ( ! \KoperasiKita\Features\Features::isEnabled( 'pwa' ) ) {
 		<button type="button" class="kk-icon-button kk-modal-close" data-kk-modal-close aria-label="<?php esc_attr_e( 'Dismiss', 'koperasikita' ); ?>">
 			<?php echo \KoperasiKita\Icons\Icon::svg( 'close', 20 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 		</button>
-		<h2 class="kk-modal-title" id="kk-install-prompt-title"><?php esc_html_e( 'Install Koperasi Kita', 'koperasikita' ); ?></h2>
+		<h2 class="kk-modal-title" id="kk-install-prompt-title"><?php echo esc_html( \KoperasiKita\Features\Pwa::promptTitle() ); ?></h2>
 		<p class="kk-modal-text">
-			<?php esc_html_e( 'Add Koperasi Kita to your home screen for faster access to news, announcements and market updates — even offline.', 'koperasikita' ); ?>
+			<?php echo esc_html( \KoperasiKita\Features\Pwa::promptText() ); ?>
 		</p>
 		<ul class="kk-install-benefits">
 			<li><?php esc_html_e( 'Read the latest news offline', 'koperasikita' ); ?></li>

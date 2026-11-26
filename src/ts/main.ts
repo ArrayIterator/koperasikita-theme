@@ -954,7 +954,18 @@ function initPwa(): void {
 			installButton.hidden = false;
 		}
 		if (installWrap) {
-			installWrap.hidden = false;
+			if (installWrap.classList.contains('kk-pwa-banner')) {
+				/* Banner above the header: start collapsed (0fr) and
+				 * expand a reflow later, so the grid-rows transition
+				 * runs and the header slides down with the banner
+				 * instead of jumping down instantly. */
+				installWrap.classList.add('is-collapsed');
+				installWrap.hidden = false;
+				void installWrap.offsetHeight;
+				installWrap.classList.remove('is-collapsed');
+			} else {
+				installWrap.hidden = false;
+			}
 		}
 		if (promptModal && !window.localStorage.getItem(INSTALL_SEEN_KEY)) {
 			// Delay comes from the Customizer (kk_pwa_prompt_delay, in
@@ -1005,7 +1016,17 @@ function initPwa(): void {
 		dismiss.addEventListener('click', () => {
 			const wrap = dismiss.closest('[data-kk-pwa-button]');
 			if (wrap instanceof HTMLElement) {
-				wrap.hidden = true;
+				if (wrap.classList.contains('kk-pwa-banner')) {
+					/* Collapse first so the header slides back up
+					 * with the banner, then hide it once the
+					 * 0.3s transition is done. */
+					wrap.classList.add('is-collapsed');
+					window.setTimeout(() => {
+						wrap.hidden = true;
+					}, 300);
+				} else {
+					wrap.hidden = true;
+				}
 			}
 			const secure = window.location.protocol === 'https:' ? '; Secure' : '';
 			document.cookie = `koperasikita_pwa_button_dismissed=${Math.floor(Date.now() / 1000)}; Path=/; Max-Age=3600; SameSite=Lax${secure}`;

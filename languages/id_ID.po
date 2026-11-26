@@ -3308,11 +3308,35 @@ msgstr "Teks \"Loading\""
 msgid "Load More Max Pages"
 msgstr "Maks. Halaman Load More"
 
-msgid "How many pages Load More may fetch. After that the normal numbered navigation appears. 0 means unlimited."
-msgstr "Berapa halaman yang boleh dimuat Load More. Setelah itu navigasi bernomor biasa muncul. 0 berarti tanpa batas."
+msgid "How many pages Load More may fetch. After that the link navigates to the next page instead. 0 means unlimited."
+msgstr "Berapa halaman yang boleh dimuat Load More. Setelah itu tautan membuka halaman berikutnya. 0 berarti tanpa batas."
 
 msgid "Sticky sidebars and which sidebar shows where."
 msgstr "Sidebar lengket dan sidebar mana yang tampil di mana."
 
 msgid "Agenda locations with map coordinates."
 msgstr "Lokasi agenda dengan koordinat peta."
+
+msgid "Show Install Prompt"
+msgstr "Tampilkan Prompt Instal"
+
+msgid "Shows the install popup after the browser offers installation. Turn off to keep only the install button/banner."
+msgstr "Menampilkan popup instal setelah browser menawarkan instalasi. Matikan untuk hanya memakai tombol/banner instal."
+
+msgid "Install Prompt Title"
+msgstr "Judul Prompt Instal"
+
+msgid "Title of the install popup. {app_name} is replaced by the app name."
+msgstr "Judul popup instal. {app_name} diganti dengan nama aplikasi."
+
+msgid "Install Prompt Text"
+msgstr "Teks Prompt Instal"
+
+msgid "Body text of the install popup. {app_name} is replaced by the app name."
+msgstr "Teks isi popup instal. {app_name} diganti dengan nama aplikasi."
+
+msgid "Install {app_name}"
+msgstr "Instal {app_name}"
+
+msgid "Install %s"
+msgstr "Instal %s"

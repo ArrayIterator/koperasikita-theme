@@ -23,20 +23,22 @@
 }
 
 /* --- Banner above the header ---------------------------------------------- */
-
+/* The banner sits in normal flow above <header>, so when it appears it
+ * pushes the header down. A translateY slide-down would move only the
+ * banner while the header jumps down instantly — instead the banner
+ * grows its own grid row (0fr -> 1fr), so the header slides down
+ * smoothly along with it. The inner row needs min-height: 0 +
+ * overflow hidden, or the 0fr row cannot collapse it. */
 .kk-pwa-banner {
+	display: grid;
+	grid-template-rows: 1fr;
 	background: var(--kk-surface);
 	border-bottom: 1px solid var(--kk-border);
-	animation: kk-pwa-slide-down 0.3s ease;
+	transition: grid-template-rows 0.3s ease;
 }
 
-@keyframes kk-pwa-slide-down {
-	from {
-		transform: translateY(-100%);
-	}
-	to {
-		transform: translateY(0);
-	}
+.kk-pwa-banner.is-collapsed {
+	grid-template-rows: 0fr;
 }
 
 .kk-pwa-banner-inner {
@@ -44,6 +46,8 @@
 	align-items: center;
 	justify-content: space-between;
 	gap: 16px;
+	min-height: 0;
+	overflow: hidden;
 	padding-top: 10px;
 	padding-bottom: 10px;
 }
@@ -253,8 +257,12 @@ html.kk-nav-open .kk-pwa-float {
 }
 
 @media (prefers-reduced-motion: reduce) {
-	/* No entrance motion: the banner and floats just appear. */
-	.kk-pwa-banner,
+	/* No entrance motion: the banner and floats just appear. The
+	 * banner's grid-rows transition is off too, so the header does
+	 * not animate — it just sits at its final position. */
+	.kk-pwa-banner {
+		transition: none;
+	}
 	.kk-pwa-float,
 	.kk-pwa-float--float-bottom-center,
 	.kk-pwa-inline {

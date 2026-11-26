@@ -1097,7 +1097,7 @@ final class Customizer
         );
         $wpCustomize->add_control('kk_load_more_max_pages', [
             'label' => esc_html__('Load More Max Pages', 'koperasikita'),
-            'description' => esc_html__('How many pages Load More may fetch. After that the normal numbered navigation appears. 0 means unlimited.', 'koperasikita'),
+            'description' => esc_html__('How many pages Load More may fetch. After that the link navigates to the next page instead. 0 means unlimited.', 'koperasikita'),
             'section' => 'koperasikita_accessibility',
             'type' => 'number',
             'input_attrs' => ['min' => 0, 'max' => 10],
@@ -1930,6 +1930,48 @@ final class Customizer
                 'max' => 60,
                 'step' => 0.5,
             ],
+        ]);
+
+        // Whether the install prompt modal shows at all. Off leaves
+        // the install button/banner working — only the popup is gone.
+        self::addSetting($wpCustomize, 'kk_pwa_prompt_enabled', true, [self::class, 'sanitizeBool'], 'refresh');
+        $wpCustomize->add_control('kk_pwa_prompt_enabled', [
+            'label' => esc_html__('Show Install Prompt', 'koperasikita'),
+            'description' => esc_html__('Shows the install popup after the browser offers installation. Turn off to keep only the install button/banner.', 'koperasikita'),
+            'section' => 'koperasikita_pwa',
+            'type' => 'checkbox',
+        ]);
+
+        // Prompt modal title and body text. {app_name} is replaced by
+        // the app name. Shown only when the prompt is enabled.
+        self::addSetting(
+            $wpCustomize,
+            'kk_pwa_prompt_title',
+            __('Install {app_name}', 'koperasikita'),
+            'sanitize_text_field',
+            'refresh'
+        );
+        $wpCustomize->add_control('kk_pwa_prompt_title', [
+            'label' => esc_html__('Install Prompt Title', 'koperasikita'),
+            'description' => esc_html__('Title of the install popup. {app_name} is replaced by the app name.', 'koperasikita'),
+            'section' => 'koperasikita_pwa',
+            'type' => 'text',
+            'active_callback' => static fn () => (bool) get_theme_mod('kk_pwa_prompt_enabled', true),
+        ]);
+
+        self::addSetting(
+            $wpCustomize,
+            'kk_pwa_prompt_text',
+            __('Add {app_name} to your home screen for faster access to news, announcements and market updates — even offline.', 'koperasikita'),
+            'sanitize_textarea_field',
+            'refresh'
+        );
+        $wpCustomize->add_control('kk_pwa_prompt_text', [
+            'label' => esc_html__('Install Prompt Text', 'koperasikita'),
+            'description' => esc_html__('Body text of the install popup. {app_name} is replaced by the app name.', 'koperasikita'),
+            'section' => 'koperasikita_pwa',
+            'type' => 'textarea',
+            'active_callback' => static fn () => (bool) get_theme_mod('kk_pwa_prompt_enabled', true),
         ]);
 
         // Install screenshots for the manifest (shown by the browser

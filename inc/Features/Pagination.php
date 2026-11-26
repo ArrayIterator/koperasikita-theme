@@ -84,7 +84,7 @@ final class Pagination
         return \KoperasiKita\Icons\Icon::exists($icon) ? $icon : 'chevrons-right';
     }
 
-    /** Load More button text (Customizer, default "Load more"). */
+    /** Load More link text (Customizer, default "Load more"). */
     public static function loadMoreText(): string
     {
         $text = (string) get_theme_mod('kk_load_more_text', 'Load more');
@@ -92,7 +92,7 @@ final class Pagination
         return $text !== '' ? $text : __('Load more', 'koperasikita');
     }
 
-    /** What the Load More button shows while loading. */
+    /** What the Load More link shows while loading. */
     public static function loadingStyle(): string
     {
         $style = (string) get_theme_mod('kk_load_more_loading_style', 'icon-text');
@@ -191,10 +191,16 @@ final class Pagination
     }
 
     /**
-     * The load-more button plus the status region. The loader script
+     * The load-more link plus the status region. The loader script
      * reads everything from these data attributes; there is no inline
      * script. Pass a query to load more of that query (the homepage
      * latest news); omit it to load more of the main query.
+     *
+     * The control is a real link to the next page, not a button: the
+     * script intercepts the click and loads the page by AJAX while
+     * there are pages left inside the cap, and once the cap is
+     * reached the click is left alone so it navigates to that page
+     * instead of showing a numbered pagination.
      */
     public static function renderLoader(?\WP_Query $query = null): void
     {
@@ -214,9 +220,8 @@ final class Pagination
         $queryVars['post_type'] = $queryVars['post_type'] ?? 'post';
         $endpoint = esc_url_raw(rest_url(Api::REST_NAMESPACE . '/posts'));
         $load_more_max = self::loadMoreMaxPages();
-        // The cap only matters when it stops before the last page;
-        // 0 means unlimited, so no fallback nav is needed.
-        $has_cap = $load_more_max > 0 && $load_more_max < $max_pages;
+        $paged = $query !== null ? (int) $query->get('paged') : (int) get_query_var('paged');
+        $paged = max(1, $paged);
         ?>
         <div
             class="kk-pagination kk-pagination-loader"
@@ -224,64 +229,19 @@ final class Pagination
             data-mode="<?php echo esc_attr($mode); ?>"
             data-endpoint="<?php echo esc_attr($endpoint); ?>"
             data-query="<?php echo esc_attr((string) wp_json_encode($queryVars)); ?>"
-            data-page="1"
+            data-page="<?php echo esc_attr((string) $paged); ?>"
             data-max-pages="<?php echo esc_attr((string) $max_pages); ?>"
             data-load-more-max="<?php echo esc_attr((string) $load_more_max); ?>"
             data-loading-style="<?php echo esc_attr(self::loadingStyle()); ?>"
             data-per-page="<?php echo esc_attr((string) self::perPage($query)); ?>"
         >
-            <button type="button" class="kk-load-more" data-kk-load-more>
+            <a class="kk-load-more" data-kk-load-more href="<?php echo esc_url(get_pagenum_link($paged + 1)); ?>">
                 <span class="kk-load-more-icon" aria-hidden="true" hidden><?php echo \KoperasiKita\Icons\Icon::svg('loader', 18); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></span>
                 <span class="kk-load-more-label"><?php echo esc_html(self::loadMoreText()); ?></span>
-            </button>
+            </a>
             <p class="kk-pagination-status" data-kk-pagination-status aria-live="polite"></p>
             <p class="kk-pagination-end" data-kk-pagination-end hidden><?php esc_html_e('No more posts.', 'koperasikita'); ?></p>
-            <?php if ($has_cap) : ?>
-                <div class="kk-pagination-fallback" data-kk-pagination-fallback hidden>
-                    <?php echo self::numberedNavHtml($query, $load_more_max); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
-                </div>
-            <?php endif; ?>
         </div>
         <?php
-    }
-
-    /**
-     * The numbered pagination HTML for the fallback nav: shown when
-     * the Load More cap is reached and there are still pages left.
-     * The current page is the cap itself — when the nav is revealed
-     * the reader has loaded exactly that many pages — so the marker
-     * is right without any client-side fix-up.
-     */
-    public static function numberedNavHtml(?\WP_Query $query = null, int $current = 1): string
-    {
-        $max_pages = self::maxPages($query);
-        $current = max(1, min($max_pages, $current));
-
-        if ($max_pages < 2) {
-            return '';
-        }
-
-        try {
-            $links = paginate_links([
-                'base' => str_replace('999999999', '%#%', esc_url(get_pagenum_link(999999999))),
-                'format' => '?paged=%#%',
-                'current' => $current,
-                'total' => $max_pages,
-                'mid_size' => 2,
-                'prev_text' => self::prevText(),
-                'next_text' => self::nextText(),
-                'type' => 'plain',
-            ]);
-        } catch (\Throwable) {
-            // A broken pagination link must never white-screen the
-            // page: the loader still works, just without the fallback.
-            return '';
-        }
-
-        if (!$links || !is_string($links)) {
-            return '';
-        }
-
-        return '<nav class="navigation pagination kk-pagination" aria-label="' . esc_attr(__('Posts navigation', 'koperasikita')) . '"><h2 class="screen-reader-text">' . esc_html__('Posts navigation', 'koperasikita') . '</h2><div class="nav-links">' . $links . '</div></nav>';
     }
 }
