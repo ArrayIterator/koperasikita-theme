@@ -398,6 +398,201 @@
 	font-variant-numeric: tabular-nums;
 }
 
+/* Palette tint for the table: the thead band takes the template
+ * palette (dark-green by default), so a table template looks like
+ * it belongs to the same family as the panel. */
+.kk-gold-data-desk--dark-green .kk-data-desk-table thead th {
+	background: #0B3D24;
+	color: #fff;
+}
+
+.kk-gold-data-desk--dark .kk-data-desk-table thead th {
+	background: #1b1b1a;
+	color: #f2f2f0;
+}
+
+/* --- Data Desk panel ------------------------------------------------------ */
+
+/* One panel, three palettes: the palette sets a handful of custom
+ * properties and the shared rules below read them, so every palette
+ * renders the same layout with its own colours. The palettes are
+ * explicit choices (not the site colour scheme): dark-green stays
+ * dark green even in light mode, and light stays light in dark mode. */
+.kk-data-desk-panel {
+	--dd-bg: #0B3D24;
+	--dd-ink: #fff;
+	--dd-muted: rgb(255 255 255 / 0.72);
+	--dd-kicker: #f0c75e;
+	--dd-line: #f0c75e;
+	--dd-axis: rgb(255 255 255 / 0.35);
+	--dd-divider: rgb(255 255 255 / 0.16);
+	--dd-border: transparent;
+	padding: 24px;
+	background: var(--dd-bg);
+	color: var(--dd-ink);
+	border: 1px solid var(--dd-border);
+	border-radius: var(--kk-radius, 3px);
+}
+
+.kk-data-desk-panel--dark-green {
+	--dd-bg: #0B3D24;
+	--dd-ink: #fff;
+	--dd-muted: rgb(255 255 255 / 0.72);
+	--dd-kicker: #f0c75e;
+	--dd-line: #f0c75e;
+	--dd-axis: rgb(255 255 255 / 0.35);
+	--dd-divider: rgb(255 255 255 / 0.16);
+	--dd-border: transparent;
+}
+
+.kk-data-desk-panel--dark {
+	--dd-bg: #1b1b1a;
+	--dd-ink: #f2f2f0;
+	--dd-muted: rgb(242 242 240 / 0.7);
+	--dd-kicker: #f6d365;
+	--dd-line: #f6d365;
+	--dd-axis: rgb(255 255 255 / 0.3);
+	--dd-divider: rgb(255 255 255 / 0.14);
+	--dd-border: transparent;
+}
+
+.kk-data-desk-panel--light {
+	--dd-bg: var(--kk-surface, #F7F7F5);
+	--dd-ink: var(--kk-ink, #1B1B1B);
+	--dd-muted: var(--kk-muted, #5B6470);
+	--dd-kicker: var(--kk-gold-dark, #8A6D1B);
+	--dd-line: var(--kk-gold, #C9962E);
+	--dd-axis: var(--kk-border, #E6E3DE);
+	--dd-divider: var(--kk-border, #E6E3DE);
+	--dd-border: var(--kk-border, #E6E3DE);
+}
+
+.kk-data-desk-kicker {
+	margin: 0;
+	font-size: 12px;
+	font-weight: 700;
+	letter-spacing: 0.14em;
+	text-transform: uppercase;
+	color: var(--dd-kicker);
+}
+
+.kk-data-desk-title {
+	margin: 8px 0 0;
+	font-size: 22px;
+	line-height: 1.25;
+	font-weight: 700;
+	/* Explicit: the base heading colour would beat the panel's
+	 * inherited --dd-ink and turn the title unreadable on dark
+	 * palettes. */
+	color: var(--dd-ink);
+}
+
+.kk-data-desk-subtitle {
+	margin: 6px 0 0;
+	font-size: 14px;
+	color: var(--dd-muted);
+}
+
+.kk-data-desk-body {
+	display: grid;
+	grid-template-columns: minmax(0, 1fr) 280px;
+	gap: 24px;
+	margin-top: 20px;
+}
+
+.kk-data-desk-chart svg {
+	display: block;
+	width: 100%;
+	height: auto;
+}
+
+.kk-data-desk-axis {
+	stroke: var(--dd-axis);
+	stroke-width: 1;
+}
+
+.kk-data-desk-axis-label,
+.kk-data-desk-point-label {
+	font-size: 11px;
+	fill: var(--dd-muted);
+}
+
+.kk-data-desk-point-label {
+	font-weight: 700;
+	fill: var(--dd-ink);
+}
+
+.kk-data-desk-line {
+	stroke: var(--dd-line);
+	stroke-width: 2.5;
+}
+
+.kk-data-desk-line--placeholder {
+	stroke-dasharray: 6 6;
+	stroke-width: 2;
+}
+
+.kk-data-desk-dot {
+	fill: var(--dd-line);
+}
+
+.kk-data-desk-placeholder {
+	margin: 12px 0 0;
+	font-size: 14px;
+	text-align: center;
+	color: var(--dd-muted);
+}
+
+.kk-data-desk-stats {
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+}
+
+.kk-data-desk-stat {
+	padding: 14px 0;
+}
+
+.kk-data-desk-stat + .kk-data-desk-stat {
+	border-top: 1px solid var(--dd-divider);
+}
+
+.kk-data-desk-stat-label {
+	margin: 0;
+	font-size: 12px;
+	font-weight: 700;
+	letter-spacing: 0.06em;
+	text-transform: uppercase;
+	color: var(--dd-muted);
+}
+
+.kk-data-desk-stat-value {
+	margin: 6px 0 0;
+	font-size: 20px;
+	font-weight: 700;
+	font-variant-numeric: tabular-nums;
+}
+
+.kk-data-desk-stat-note {
+	margin: 4px 0 0;
+	font-size: 13px;
+	color: var(--dd-muted);
+}
+
+@media (max-width: 767px) {
+	.kk-data-desk-panel {
+		padding: 20px 16px;
+	}
+
+	.kk-data-desk-body {
+		grid-template-columns: minmax(0, 1fr);
+	}
+
+	.kk-data-desk-title {
+		font-size: 20px;
+	}
+}
+
 @media (prefers-reduced-motion: reduce) {
 	.kk-gold-slide.is-active {
 		animation: none;

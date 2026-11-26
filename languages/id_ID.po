@@ -3549,3 +3549,174 @@ msgstr "Biarkan kosong untuk menyembunyikan tautan indeks."
 
 msgid "Leave empty for the default label."
 msgstr "Biarkan kosong untuk label bawaan."
+
+msgid "%d hari beruntun di zona hijau"
+msgstr "%d hari beruntun di zona hijau"
+
+msgid "%s (copy)"
+msgstr "%s (salinan)"
+
+msgid "Actions"
+msgstr "Aksi"
+
+msgid "Add New Template"
+msgstr "Tambah Template Baru"
+
+msgid "Add Template"
+msgstr "Tambah Template"
+
+msgid "All brands"
+msgstr "Semua brand"
+
+msgid "Buyback / Gram"
+msgstr "Buyback / Gram"
+
+msgid "Colour palette"
+msgstr "Palet warna"
+
+msgid "Data Desk Templates"
+msgstr "Template Data Desk"
+
+msgid "Days"
+msgstr "Hari"
+
+msgid "Days in the chart"
+msgstr "Hari di grafik"
+
+msgid "Default"
+msgstr "Bawaan"
+
+msgid "Default Table"
+msgstr "Tabel Bawaan"
+
+msgid "Delete"
+msgstr "Hapus"
+
+msgid "Delete this template?"
+msgstr "Hapus template ini?"
+
+msgid "Duplicate"
+msgstr "Duplikat"
+
+msgid "Edit"
+msgstr "Ubah"
+
+msgid "Edit Template"
+msgstr "Ubah Template"
+
+msgid "Gold prices for Indonesian gold brands as a data table. Pick a template."
+msgstr "Harga emas untuk brand emas Indonesia dalam bentuk tabel data. Pilih template."
+
+msgid "Harga %1$s, %2$d Hari Terakhir"
+msgstr "Harga %1$s, %2$d Hari Terakhir"
+
+msgid "Harga %s"
+msgstr "Harga %s"
+
+msgid "Harga Emas %1$s, %2$d Hari Terakhir"
+msgstr "Harga Emas %1$s, %2$d Hari Terakhir"
+
+msgid "Harga Jual %s / Gram"
+msgstr "Harga Jual %s / Gram"
+
+msgid "Harga jual per gram · %s"
+msgstr "Harga jual per gram · %s"
+
+msgid "Harga jual per gram · riwayat belum tersedia."
+msgstr "Harga jual per gram · riwayat belum tersedia."
+
+msgid "Harga penutupan · %s"
+msgstr "Harga penutupan · %s"
+
+msgid "Harga terkini · riwayat belum tersedia."
+msgstr "Harga terkini · riwayat belum tersedia."
+
+msgid "KK Category Summary"
+msgstr "KK Category Summary"
+
+msgid "KK Data Desk"
+msgstr "KK Data Desk"
+
+msgid "Kind"
+msgstr "Jenis"
+
+msgid "Kinerja Sepekan"
+msgstr "Kinerja Sepekan"
+
+msgid "Koperasi Kita Data Desk"
+msgstr "Koperasi Kita Data Desk"
+
+msgid "Leave empty for the automatic title."
+msgstr "Biarkan kosong untuk judul otomatis."
+
+msgid "Leave empty to use the template title."
+msgstr "Biarkan kosong untuk memakai judul template."
+
+msgid "Manage templates on the Data Desk Templates page."
+msgstr "Kelola template di halaman Template Data Desk."
+
+msgid "Meja Data"
+msgstr "Meja Data"
+
+msgid "One market symbol as a data desk panel: price chart and stats. Pick a template."
+msgstr "Satu simbol pasar sebagai panel meja data: grafik harga dan statistik. Pilih template."
+
+msgid "Palette"
+msgstr "Palet"
+
+msgid "Panel"
+msgstr "Panel"
+
+msgid "Panel only: how many days the chart covers (3–30)."
+msgstr "Panel saja: berapa hari yang dicakup grafik (3–30)."
+
+msgid "Panel only: the symbol the chart and stats show."
+msgstr "Panel saja: simbol yang ditampilkan grafik dan statistik."
+
+msgid "Price history not available yet"
+msgstr "Riwayat harga belum tersedia"
+
+msgid "Riwayat harga belum tersedia."
+msgstr "Riwayat harga belum tersedia."
+
+msgid "Setup"
+msgstr "Penyiapan"
+
+msgid "Shows"
+msgstr "Menampilkan"
+
+msgid "Spread jual–buyback %s"
+msgstr "Spread jual–buyback %s"
+
+msgid "Symbol"
+msgstr "Simbol"
+
+msgid "Table"
+msgstr "Tabel"
+
+msgid "Table only: leave empty to show all brands."
+msgstr "Tabel saja: biarkan kosong untuk menampilkan semua brand."
+
+msgid "Template"
+msgstr "Template"
+
+msgid "Template deleted."
+msgstr "Template dihapus."
+
+msgid "Template saved."
+msgstr "Template disimpan."
+
+msgid "This is a built-in default template. Saving creates a new template instead of changing it."
+msgstr "Ini template bawaan. Menyimpan akan membuat template baru, bukan mengubahnya."
+
+msgid "Untitled template"
+msgstr "Template tanpa nama"
+
+msgid "Update Template"
+msgstr "Perbarui Template"
+
+msgid "Widgets pick a template instead of carrying their own settings. The built-in defaults can never be deleted — duplicate one to edit it as a new template."
+msgstr "Widget memilih template, bukan membawa pengaturannya sendiri. Template bawaan tidak bisa dihapus — duplikat salah satunya untuk mengeditnya sebagai template baru."
+
+msgid "dari kemarin (%s)"
+msgstr "dari kemarin (%s)"

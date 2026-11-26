@@ -457,11 +457,16 @@ final class Enqueue
             return;
         }
 
-        /* Gold Prices page (Settings -> Gold Prices): the manual
-         * sync button (admin.ts initGoldSync) needs the admin
-         * script + ajaxUrl/nonce. Runs before the widgets/
-         * customizer early return below, which would drop it. */
-        if ($hookSuffix === 'koperasikita_page_' . \KoperasiKita\Admin\GoldPricesPage::PAGE_SLUG) {
+        /* Gold Prices page (Settings -> Gold Prices) and Data Desk
+         * Templates page: the manual sync button (admin.ts
+         * initGoldSync) and the brands multi-select picker
+         * (initTermPickers) need the admin script + ajaxUrl/nonce.
+         * Runs before the widgets/customizer early return below,
+         * which would drop it. */
+        $isGoldPrices = $hookSuffix === 'koperasikita_page_' . \KoperasiKita\Admin\GoldPricesPage::PAGE_SLUG;
+        $isDataDeskTemplates = $hookSuffix === 'koperasikita_page_' . \KoperasiKita\Admin\DataDeskTemplatesPage::PAGE_SLUG;
+
+        if ($isGoldPrices || $isDataDeskTemplates) {
             $css = ViteLoader::css('src/ts/admin.ts');
 
             if ($css !== '') {

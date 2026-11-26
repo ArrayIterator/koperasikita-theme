@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace KoperasiKita\Widgets;
 
 use KoperasiKita\Assets\ViteLoader;
+use KoperasiKita\Features\DataDesk;
 use KoperasiKita\Features\Features;
 use KoperasiKita\Features\Gold;
 use KoperasiKita\Features\Markets;
@@ -253,16 +254,32 @@ final class Blocks
                 'class' => GoldDataDeskWidget::class,
                 'icon' => 'editor-table',
                 'title' => __('KK Gold Data Desk', 'koperasikita'),
-                'description' => __('Gold prices for Indonesian gold brands as a data table.', 'koperasikita'),
+                'description' => __('Gold prices for Indonesian gold brands as a data table. Pick a template.', 'koperasikita'),
                 'attributes' => [
                     'title' => ['type' => 'string', 'default' => ''],
                     'headerStyle' => ['type' => 'string', 'default' => 'classic-top'],
-                    'brands' => ['type' => 'array', 'default' => [], 'items' => ['type' => 'string']],
+                    'template' => ['type' => 'string', 'default' => 'default-table'],
                 ],
                 'map' => [
                     'title' => 'title',
                     'headerStyle' => 'header_style',
-                    'brands' => 'brands',
+                    'template' => 'template',
+                ],
+            ];
+            $definitions['data-desk'] = [
+                'class' => DataDeskWidget::class,
+                'icon' => 'chart-bar',
+                'title' => __('KK Data Desk', 'koperasikita'),
+                'description' => __('One market symbol as a data desk panel: price chart and stats. Pick a template.', 'koperasikita'),
+                'attributes' => [
+                    'title' => ['type' => 'string', 'default' => ''],
+                    'headerStyle' => ['type' => 'string', 'default' => 'classic-top'],
+                    'template' => ['type' => 'string', 'default' => 'default'],
+                ],
+                'map' => [
+                    'title' => 'title',
+                    'headerStyle' => 'header_style',
+                    'template' => 'template',
                 ],
             ];
             $definitions['markets'] = [
@@ -372,6 +389,8 @@ final class Blocks
                 'marketLabels' => self::optionList(Markets::labels()),
                 'categories' => self::termOptions('category'),
                 'tags' => self::termOptions('post_tag'),
+                'dataDeskTemplates' => self::templateOptions(DataDesk::KIND_PANEL),
+                'dataDeskTableTemplates' => self::templateOptions(DataDesk::KIND_TABLE),
             ]);
         }
 
@@ -392,6 +411,23 @@ final class Blocks
 
         foreach ($options as $value => $label) {
             $list[] = ['value' => (string) $value, 'label' => (string) $label];
+        }
+
+        return $list;
+    }
+
+    /**
+     * Data Desk templates of one kind as select options (id => name),
+     * for the Data Desk / Gold Data Desk block template pickers.
+     *
+     * @return array<int, array{value: string, label: string}>
+     */
+    private static function templateOptions(string $kind): array
+    {
+        $list = [];
+
+        foreach (DataDesk::templatesOfKind($kind) as $id => $template) {
+            $list[] = ['value' => (string) $id, 'label' => (string) $template['name']];
         }
 
         return $list;

@@ -17,10 +17,12 @@
  * @package KoperasiKita
  */
 
+use KoperasiKita\Features\DataDesk;
 use KoperasiKita\Features\Markets;
 
 $brands = isset($args['brands']) && is_array($args['brands']) ? $args['brands'] : [];
 $client = isset($args['client']) && is_array($args['client']) ? $args['client'] : [];
+$palette = DataDesk::sanitizePalette(isset($args['palette']) ? (string) $args['palette'] : DataDesk::DEFAULT_PALETTE);
 
 if ($brands === []) {
 	?>
@@ -31,7 +33,7 @@ if ($brands === []) {
 ?>
 
 <div
-	class="kk-gold-data-desk"
+	class="kk-gold-data-desk kk-gold-data-desk--<?php echo esc_attr($palette); ?>"
 	data-kk-market-prices
 	data-kk-market="gold"
 	data-kk-provider="<?php echo esc_attr((string) ($client['provider'] ?? 'manual')); ?>"

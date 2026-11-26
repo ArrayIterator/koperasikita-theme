@@ -16,6 +16,7 @@ use KoperasiKita\Setup\Setup;
  *   ├─ Setup            (the Stack installer / status page)
  *   ├─ Sidebar Settings (sticky sidebars)
  *   ├─ Gold Prices      (Logam Mulia sync status + history)
+ *   ├─ Data Desk Templates (panel + table templates)
  *   └─ Locations        (Agenda locations)
  *
  * The pages keep their own slugs, so existing bookmarks and the
@@ -71,6 +72,15 @@ final class AdminMenu
             'manage_options',
             GoldPricesPage::PAGE_SLUG,
             [GoldPricesPage::class, 'render']
+        );
+
+        add_submenu_page(
+            self::MENU_SLUG,
+            esc_html__('Data Desk Templates', 'koperasikita'),
+            esc_html__('Data Desk Templates', 'koperasikita'),
+            'manage_options',
+            DataDeskTemplatesPage::PAGE_SLUG,
+            [DataDeskTemplatesPage::class, 'render']
         );
 
         add_submenu_page(

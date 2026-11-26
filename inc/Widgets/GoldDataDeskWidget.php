@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace KoperasiKita\Widgets;
 
+use KoperasiKita\Features\DataDesk;
 use KoperasiKita\Features\Gold;
 use KoperasiKita\Features\Markets;
 use WP_Widget;
@@ -12,8 +13,14 @@ use WP_Widget;
  * Gold Data Desk widget: the gold brands as a data table — one row
  * per brand with the price per gram and the last-updated date.
  *
- * Prices come from the Markets snapshot layer (Settings -> Markets);
- * the widget form only picks the title and which brands to show.
+ * The widget renders a Data Desk template of kind "table": the
+ * built-in Default Table template, or a custom table template
+ * created on the Data Desk Templates admin page. It carries no
+ * settings of its own — the template picks the brands (empty = all
+ * enabled brands) and the palette. The header title is the widget
+ * title, or the template title when the widget title is empty.
+ *
+ * Prices come from the Markets snapshot layer (Settings -> Markets).
  * The rows carry the same data-kk-symbol / data-kk-price hooks as
  * the Markets strip, so the gold-markets script refreshes the
  * prices live. When the Markets feature is disabled the widget
@@ -28,7 +35,7 @@ final class GoldDataDeskWidget extends WP_Widget
             'kk_gold_data_desk',
             __('Koperasi Kita Gold Data Desk', 'koperasikita'),
             [
-                'description' => __('Gold prices for Indonesian gold brands as a data table. Prices are edited in Settings -> Markets.', 'koperasikita'),
+                'description' => __('Gold prices for Indonesian gold brands as a data table. Pick a template.', 'koperasikita'),
                 'classname' => 'kk-gold-data-desk-widget',
                 'customize_selective_refresh' => true,
             ]
@@ -42,20 +49,31 @@ final class GoldDataDeskWidget extends WP_Widget
             return;
         }
 
-        $title = isset($instance['title']) ? (string) $instance['title'] : '';
-        $brands = isset($instance['brands']) && is_array($instance['brands'])
-            ? array_values(array_intersect($instance['brands'], Gold::enabledBrands()))
-            : Gold::enabledBrands();
+        $templateId = isset($instance['template']) ? sanitize_key((string) $instance['template']) : DataDesk::DEFAULT_TABLE_TEMPLATE_ID;
+        $template = DataDesk::getTemplate($templateId);
+        // A panel template picked here (its kind was changed after the
+        // widget picked it) falls back to the default table template —
+        // this widget only ever renders tables.
+        if ($template['kind'] !== DataDesk::KIND_TABLE) {
+            $template = DataDesk::defaultTableTemplate();
+        }
 
+        $brands = $template['brands'] !== []
+            ? array_values(array_intersect($template['brands'], Gold::enabledBrands()))
+            : Gold::enabledBrands();
         $prices = Gold::brandPrices($brands);
 
-        echo $args['before_widget'] ?? '';
+        $title = isset($instance['title']) ? (string) $instance['title'] : '';
+        $title = $title !== '' ? $title : $template['title'];
+
+        echo WidgetHeader::beforeWidget($args, WidgetHeader::style($instance));
 
         WidgetHeader::render($args, $title, WidgetHeader::style($instance));
 
         get_template_part('template-parts/gold/data-desk', null, [
             'brands' => $prices,
             'client' => Markets::clientInfo('gold'),
+            'palette' => $template['palette'],
         ]);
 
         echo $args['after_widget'] ?? '';
@@ -64,10 +82,8 @@ final class GoldDataDeskWidget extends WP_Widget
     /** @param array<string, mixed> $instance Widget settings. */
     public function form($instance): void
     {
-        $title = isset($instance['title']) ? (string) $instance['title'] : __('Gold Data Desk', 'koperasikita');
-        $selected = isset($instance['brands']) && is_array($instance['brands'])
-            ? array_values(array_intersect($instance['brands'], Gold::enabledBrands()))
-            : Gold::enabledBrands();
+        $title = isset($instance['title']) ? (string) $instance['title'] : '';
+        $templateId = isset($instance['template']) ? sanitize_key((string) $instance['template']) : DataDesk::DEFAULT_TABLE_TEMPLATE_ID;
         ?>
         <p>
             <label for="<?php echo esc_attr($this->get_field_id('title')); ?>">
@@ -80,31 +96,29 @@ final class GoldDataDeskWidget extends WP_Widget
                 name="<?php echo esc_attr($this->get_field_name('title')); ?>"
                 value="<?php echo esc_attr($title); ?>"
             >
+            <span class="description">
+                <?php esc_html_e('Leave empty to use the template title.', 'koperasikita'); ?>
+            </span>
         </p>
         <?php WidgetHeader::field($this, $instance); ?>
         <p>
-            <label for="<?php echo esc_attr($this->get_field_id('brands')); ?>">
-                <?php esc_html_e('Brands to show:', 'koperasikita'); ?>
+            <label for="<?php echo esc_attr($this->get_field_id('template')); ?>">
+                <?php esc_html_e('Template', 'koperasikita'); ?>
             </label>
-            <?php /* Select2-style picker (see admin.ts): a searchable multi-select, not a checkbox list. */ ?>
             <select
-                multiple
                 class="widefat"
-                data-kk-term-picker
-                id="<?php echo esc_attr($this->get_field_id('brands')); ?>"
-                name="<?php echo esc_attr($this->get_field_name('brands')); ?>[]"
-                style="min-height: 120px;"
+                id="<?php echo esc_attr($this->get_field_id('template')); ?>"
+                name="<?php echo esc_attr($this->get_field_name('template')); ?>"
             >
-                <?php $allBrands = Gold::brands(); ?>
-                <?php foreach (Gold::enabledBrands() as $slug) : ?>
-                    <?php $label = $allBrands[$slug] ?? $slug; ?>
-                    <option
-                        value="<?php echo esc_attr($slug); ?>"
-                        <?php selected(in_array($slug, $selected, true)); ?>
-                    ><?php echo esc_html($label); ?></option>
+                <?php foreach (DataDesk::templatesOfKind(DataDesk::KIND_TABLE) as $id => $template) : ?>
+                    <option value="<?php echo esc_attr($id); ?>" <?php selected($templateId, $id); ?>>
+                        <?php echo esc_html($template['name']); ?>
+                    </option>
                 <?php endforeach; ?>
             </select>
-            <span class="description"><?php esc_html_e('Leave empty to show all brands.', 'koperasikita'); ?></span>
+            <span class="description">
+                <?php esc_html_e('Manage templates on the Data Desk Templates page.', 'koperasikita'); ?>
+            </span>
         </p>
         <?php
     }
@@ -119,11 +133,11 @@ final class GoldDataDeskWidget extends WP_Widget
         $instance = [];
         $instance['title'] = isset($new['title']) ? sanitize_text_field((string) $new['title']) : '';
 
-        $brands = isset($new['brands']) && is_array($new['brands'])
-            ? array_values(array_intersect($new['brands'], Gold::enabledBrands()))
-            : [];
-        $instance['brands'] = $brands !== [] ? $brands : Gold::enabledBrands();
-        $instance['header_style'] = WidgetHeader::sanitize($new['header_style'] ?? WidgetHeader::CLASSIC);
+        $templateId = isset($new['template']) ? sanitize_key((string) $new['template']) : DataDesk::DEFAULT_TABLE_TEMPLATE_ID;
+        $templates = DataDesk::templatesOfKind(DataDesk::KIND_TABLE);
+        $instance['template'] = isset($templates[$templateId]) ? $templateId : DataDesk::DEFAULT_TABLE_TEMPLATE_ID;
+
+        $instance['header_style'] = WidgetHeader::sanitize($new['header_style'] ?? WidgetHeader::CLASSIC_TOP);
 
         return $instance;
     }

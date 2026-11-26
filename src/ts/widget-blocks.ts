@@ -122,6 +122,8 @@ declare const kkWidgetBlocks:
 			marketLabels?: OptionItem[];
 			categories?: OptionItem[];
 			tags?: OptionItem[];
+			dataDeskTemplates?: OptionItem[];
+			dataDeskTableTemplates?: OptionItem[];
 	  }
 	| undefined;
 
@@ -602,22 +604,42 @@ function buildDefinitions(api: Wp): BlockDef[] {
 		{
 			slug: 'gold-data-desk',
 			title: __('KK Gold Data Desk'),
-			description: __('Gold prices for Indonesian gold brands as a data table.'),
+			description: __('Gold prices for Indonesian gold brands as a data table. Pick a template.'),
 			icon: 'editor-table',
 			attributes: {
 				title: { type: 'string', default: '' },
 				headerStyle: { type: 'string', default: 'classic-top' },
-				brands: { type: 'array', default: [], items: { type: 'string' } },
+				template: { type: 'string', default: 'default-table' },
+			},
+			fields: [
+				{ key: 'title', kind: 'text', label: __('Title'), help: __('Leave empty to use the template title.') },
+				headerStyleField,
+				{
+					key: 'template',
+					kind: 'select',
+					label: __('Template'),
+					options: kkWidgetBlocks?.dataDeskTableTemplates ?? [],
+				},
+			],
+		},
+		{
+			slug: 'data-desk',
+			title: __('KK Data Desk'),
+			description: __('One market symbol as a data desk panel: price chart and stats. Pick a template.'),
+			icon: 'chart-bar',
+			attributes: {
+				title: { type: 'string', default: '' },
+				headerStyle: { type: 'string', default: 'classic-top' },
+				template: { type: 'string', default: 'default' },
 			},
 			fields: [
 				{ key: 'title', kind: 'text', label: __('Title') },
 				headerStyleField,
 				{
-					key: 'brands',
-					kind: 'multiselect',
-					label: __('Brands to show'),
-					help: __('Leave empty to show all brands.'),
-					options: kkWidgetBlocks?.goldBrands ?? [],
+					key: 'template',
+					kind: 'select',
+					label: __('Template'),
+					options: kkWidgetBlocks?.dataDeskTemplates ?? [],
 				},
 			],
 		},
