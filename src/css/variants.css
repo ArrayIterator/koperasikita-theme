@@ -68,6 +68,16 @@ html[data-color-scheme="dark"] .kk-home .kk-card {
 	box-shadow: none;
 }
 
+/* Highlights cards are flat in light mode (transparent, no shadow,
+ * no border) — keep them flat in dark mode too: the hairline above
+ * must not appear on them. */
+html[data-color-scheme="dark"] .kk-home .kk-highlights-slider .kk-card,
+html[data-color-scheme="dark"] .kk-home .kk-highlights-slider-full .kk-card,
+html[data-color-scheme="dark"] .kk-home .kk-highlights-list--slider .kk-card {
+	box-shadow: none;
+	border: none;
+}
+
 /* Photos and placeholder art are made for a white page; in dark mode
  * dim card images slightly so a light image (the flat placeholder
  * especially) does not glare out of a dark card. */
@@ -128,6 +138,13 @@ html[data-color-scheme="dark"] .kk-logo--dark {
 	html[data-color-scheme="system"] .kk-home .kk-card {
 		border: 1px solid var(--kk-border);
 		box-shadow: none;
+	}
+
+	html[data-color-scheme="system"] .kk-home .kk-highlights-slider .kk-card,
+	html[data-color-scheme="system"] .kk-home .kk-highlights-slider-full .kk-card,
+	html[data-color-scheme="system"] .kk-home .kk-highlights-list--slider .kk-card {
+		box-shadow: none;
+		border: none;
 	}
 
 	html[data-color-scheme="system"] .kk-brand-mark.is-inverted,
