@@ -143,7 +143,7 @@ html.kk-nav-open .kk-pwa-float {
 	 * that the bar no longer touches the screen edges. */
 	left: 0;
 	right: 0;
-	width: min(100% - 32px, var(--kk-shell-max));
+	width: min(100% - 2rem, var(--kk-shell-max));
 	margin-inline: auto;
 	bottom: 64px;
 	justify-content: center;

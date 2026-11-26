@@ -36,13 +36,13 @@
 	display: grid;
 	grid-template-columns: 120px 1fr auto;
 	grid-template-areas: "media body bookmark";
-	gap: 16px;
+	gap: 1rem;
 	background: transparent;
 	border: 0;
 	border-bottom: 1px solid var(--kk-border);
 	border-radius: 0;
 	box-shadow: none;
-	padding: 16px 0;
+	padding: 1rem 0;
 }
 
 .kk-latest-items.kk-layout-list .kk-card:first-child,

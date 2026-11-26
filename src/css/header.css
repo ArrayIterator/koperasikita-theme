@@ -370,10 +370,10 @@ html.kk-nav-open body {
 	width: 0;
 	min-width: 0;
 	/* Slim field: the base .search-field is 44px tall, too tall for
-	 * the sticky bar — 7px padding + text + border is ~36px. No
+	 * the sticky bar — 0.5rem padding + text + border is ~36px. No
 	 * outer shadow: the focus state uses an inner shadow instead. */
 	min-height: 0;
-	padding: 7px 0;
+	padding: 0.5rem 0;
 	border: 1px solid var(--kk-border);
 	border-radius: var(--kk-radius);
 	box-shadow: none;
@@ -384,8 +384,8 @@ html.kk-nav-open body {
 }
 
 .kk-search-expand.is-open .kk-search-expand-input {
-	width: min(240px, 55vw);
-	padding: 7px 12px;
+	width: min(15rem, 55vw);
+	padding: 0.5rem 0.75rem;
 	opacity: 1;
 	visibility: visible;
 	pointer-events: auto;
@@ -404,7 +404,7 @@ html.kk-nav-open body {
 	 * hamburger (sidebar) button — it spans the bar from the
 	 * toggle leftwards to just short of the hamburger. */
 	.kk-search-expand.is-open .kk-search-expand-input {
-		width: calc(100vw - 130px);
+		width: calc(100vw - 8rem);
 	}
 }
 

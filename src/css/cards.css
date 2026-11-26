@@ -7,7 +7,7 @@
 
 .kk-card-grid {
 	display: grid;
-	gap: 16px;
+	gap: 0.85rem;
 }
 
 .kk-card-grid-3 {
