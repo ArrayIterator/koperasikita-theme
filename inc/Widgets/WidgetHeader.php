@@ -15,9 +15,9 @@ use WP_Widget;
  * - classic (default): the title with a rule extending to the right
  *   (the "editor's picks" header); the widget container carries the
  *   thick 2px top rule.
- * - classic-2: like classic, but the title itself carries a 2px top
- *   border like a category-block section title (`.kk-section-title`),
- *   so the container's top rule is removed to avoid a doubled line.
+ * - classic-2: like classic (the rule to the right), but with no
+ *   top border at all — neither the container's thick rule nor a
+ *   border on the title itself.
  * - no-border ("Borderless Header"): the same title, without any
  *   border at all — no container rule, no title rule.
  * - hide: no header at all.
@@ -67,10 +67,8 @@ final class WidgetHeader
      * .kk-widget-area .widget) is part of the header style — "no
      * border" must remove it too, or the style setting changes
      * nothing visible (the title rule alone is 1px; the container
-     * rule is the thick 2px line). Classic-2 removes it as well
-     * because the title carries its own top border (like a
-     * category-block section title); keeping both would double the
-     * line.
+     * rule is the thick 2px line). Classic-2 removes it as well:
+     * classic-2 has no top border at all.
      *
      * @param array<string, mixed> $args Display arguments.
      */
