@@ -2628,3 +2628,6 @@ msgstr "Pagination Bernomor"
 
 msgid "Next Prev"
 msgstr "Sebelumnya / Berikutnya"
+
+msgid "Back to homepage"
+msgstr "Kembali ke beranda"

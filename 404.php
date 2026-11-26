@@ -10,8 +10,6 @@ get_header();
 
 <div class="kk-shell kk-not-found">
 	<section class="kk-404" aria-labelledby="kk-404-heading">
-		<?php get_template_part( 'template-parts/content/breadcrumb' ); ?>
-
 		<p class="kk-404-code" aria-hidden="true">404</p>
 		<h1 class="kk-page-title" id="kk-404-heading"><?php esc_html_e( 'Page not found', 'koperasikita' ); ?></h1>
 		<p class="kk-404-text">
@@ -19,6 +17,10 @@ get_header();
 		</p>
 
 		<?php get_search_form(); ?>
+
+		<p class="kk-404-home">
+			<a class="kk-button" href="<?php echo esc_url( home_url( '/' ) ); ?>"><?php esc_html_e( 'Back to homepage', 'koperasikita' ); ?></a>
+		</p>
 
 		<?php
 		$latest = new WP_Query(
@@ -31,16 +33,14 @@ get_header();
 		if ( $latest->have_posts() ) :
 			?>
 			<h2 class="kk-section-title"><?php esc_html_e( 'Latest news', 'koperasikita' ); ?></h2>
-			<ul class="kk-plain-list">
+			<div class="kk-404-latest kk-card-grid kk-layout-list">
 				<?php
 				while ( $latest->have_posts() ) :
 					$latest->the_post();
-					?>
-					<li><a href="<?php the_permalink(); ?>"><?php the_title(); ?></a></li>
-					<?php
+					get_template_part( 'template-parts/content/card-news' );
 				endwhile;
 				?>
-			</ul>
+			</div>
 			<?php
 			wp_reset_postdata();
 		endif;

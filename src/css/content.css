@@ -605,7 +605,14 @@
 /* Archive list layout: horizontal cards with a small thumb, the same
  * shape as the homepage list layout. Grid mode needs no rules — it
  * is the card grid as rendered today. The thumbnail width is the
- * Article List Thumbnail Size setting (--kk-list-thumb-size). */
+ * Article List Thumbnail Size setting (--kk-list-thumb-size). The
+ * container is pinned to one column: the responsive rules make
+ * .kk-card-grid multi-column at tablet/desktop width, and without
+ * this the list rows would squeeze into narrow columns. */
+.kk-card-grid.kk-layout-list {
+	grid-template-columns: 1fr;
+}
+
 .kk-card-grid.kk-layout-list .kk-card {
 	display: grid;
 	grid-template-columns: var(--kk-list-thumb-size, 120px) 1fr auto;
@@ -713,11 +720,25 @@
 }
 
 .kk-404 .search-form {
-	margin: 0 auto 32px;
+	margin: 0 auto 24px;
 }
 
-.kk-404 .kk-plain-list {
+.kk-404-home {
+	margin-bottom: 40px;
+}
+
+.kk-404 .kk-section-title,
+.kk-404-latest,
+.kk-no-results-latest {
 	text-align: left;
+}
+
+.kk-404-latest {
+	margin-top: 16px;
+}
+
+.kk-no-results-latest {
+	margin-top: 16px;
 }
 
 /* --- Bookmarks page ------------------------------------------------------- */
