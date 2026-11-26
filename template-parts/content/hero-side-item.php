@@ -13,6 +13,13 @@
 
 $categories = get_the_category();
 $thumb_url  = \KoperasiKita\Images\FeaturedImage::url( get_the_ID(), 'medium' );
+// The Hero card toggles (Customizer -> Homepage -> Show Title /
+// Category / Date) apply to these side items too — they were
+// rendering unconditionally, so toggling them did nothing
+// ("ga fungsi") in Grid Center mode. Same defaults as card-news.php.
+$show_title = (bool) get_theme_mod( 'kk_hero_card_show_title', true );
+$show_category = (bool) get_theme_mod( 'kk_hero_card_show_category', true );
+$show_date = (bool) get_theme_mod( 'kk_hero_card_show_date', true );
 ?>
 
 <li class="kk-hero-side-item">
@@ -22,12 +29,16 @@ $thumb_url  = \KoperasiKita\Images\FeaturedImage::url( get_the_ID(), 'medium' );
 		</a>
 	<?php endif; ?>
 	<div class="kk-hero-side-body">
-		<?php if ( ! empty( $categories ) ) : ?>
+		<?php if ( $show_category && ! empty( $categories ) ) : ?>
 			<p class="kk-eyebrow"><a href="<?php echo esc_url( get_category_link( $categories[0] ) ); ?>"><?php echo esc_html( $categories[0]->name ); ?></a></p>
 		<?php endif; ?>
-		<h3 class="kk-hero-side-title"><a href="<?php the_permalink(); ?>"><?php the_title(); ?></a></h3>
-		<p class="kk-meta">
-			<time datetime="<?php echo esc_attr( get_the_date( 'c' ) ); ?>"><?php echo esc_html( get_the_date() ); ?></time>
-		</p>
+		<?php if ( $show_title ) : ?>
+			<h3 class="kk-hero-side-title"><a href="<?php the_permalink(); ?>"><?php the_title(); ?></a></h3>
+		<?php endif; ?>
+		<?php if ( $show_date ) : ?>
+			<p class="kk-meta">
+				<time datetime="<?php echo esc_attr( get_the_date( 'c' ) ); ?>"><?php echo esc_html( get_the_date() ); ?></time>
+			</p>
+		<?php endif; ?>
 	</div>
 </li>
