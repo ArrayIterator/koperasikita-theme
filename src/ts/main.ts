@@ -420,9 +420,6 @@ function initSliders(): void {
 		}
 		const prev = section.querySelector<HTMLButtonElement>('.kk-slider-prev');
 		const next = section.querySelector<HTMLButtonElement>('.kk-slider-next');
-		if (!prev || !next) {
-			return;
-		}
 		const step = (): number => {
 			const first = slider.firstElementChild as HTMLElement | null;
 			if (!first) {
@@ -431,12 +428,53 @@ function initSliders(): void {
 			const gap = Number.parseFloat(getComputedStyle(slider).columnGap || '0') || 0;
 			return first.offsetWidth + gap;
 		};
-		prev.addEventListener('click', () => {
-			slider.scrollBy({ left: -step(), behavior: 'smooth' });
-		});
-		next.addEventListener('click', () => {
-			slider.scrollBy({ left: step(), behavior: 'smooth' });
-		});
+		if (prev && next) {
+			prev.addEventListener('click', () => {
+				slider.scrollBy({ left: -step(), behavior: 'smooth' });
+			});
+			next.addEventListener('click', () => {
+				slider.scrollBy({ left: step(), behavior: 'smooth' });
+			});
+		}
+		// Auto slide: data-kk-auto-slide="ms" advances one step on a
+		// timer and loops back to the start; pauses while the
+		// pointer is over the slider so it can be read.
+		const autoMs = Number(slider.getAttribute('data-kk-auto-slide') ?? '0') || 0;
+		if (autoMs >= 1000) {
+			let paused = false;
+			const advance = (): void => {
+				if (paused || document.hidden) {
+					return;
+				}
+				const max = slider.scrollWidth - slider.clientWidth;
+				if (slider.scrollLeft + step() >= max - 1) {
+					slider.scrollTo({ left: 0, behavior: 'smooth' });
+				} else {
+					slider.scrollBy({ left: step(), behavior: 'smooth' });
+				}
+			};
+			const timer = window.setInterval(advance, autoMs);
+			slider.addEventListener('pointerenter', () => {
+				paused = true;
+			});
+			slider.addEventListener('pointerleave', () => {
+				paused = false;
+			});
+			slider.addEventListener('focusin', () => {
+				paused = true;
+			});
+			slider.addEventListener('focusout', () => {
+				paused = false;
+			});
+			// Stop the timer when the slider leaves the page.
+			const observer = new MutationObserver(() => {
+				if (!slider.isConnected) {
+					window.clearInterval(timer);
+					observer.disconnect();
+				}
+			});
+			observer.observe(document.body, { childList: true, subtree: true });
+		}
 	});
 }
 

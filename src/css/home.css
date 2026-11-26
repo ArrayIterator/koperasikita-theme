@@ -63,6 +63,90 @@
 	gap: 20px;
 }
 
+/* --- Hero presentation modes (12) --------------------------------------- */
+/* The section is a grid; the mode class sets the columns. Widget
+ * areas render nothing when empty, so a widget mode falls back to
+ * the hero alone until a widget is added. The lead + cards inside
+ * .kk-hero-main form their own grid (lead beside cards, or cards
+ * on both sides for Grid Center). */
+
+.kk-hero--grid-left .kk-hero-main,
+.kk-hero--grid-right .kk-hero-main,
+.kk-hero--grid-left-widget .kk-hero-main,
+.kk-hero--grid-right-widget .kk-hero-main,
+.kk-hero--leads-widgets .kk-hero-main {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 20px;
+	align-items: start;
+}
+
+.kk-hero--grid-right .kk-hero-main .kk-hero-lead {
+	order: 2;
+}
+
+.kk-hero--grid-right .kk-hero-main .kk-hero-grid {
+	order: 1;
+}
+
+/* Grid Center: cards | lead | cards. */
+.kk-hero--grid-center .kk-hero-main {
+	display: grid;
+	grid-template-columns: 1fr 1.4fr 1fr;
+	gap: 20px;
+	align-items: start;
+}
+
+/* Widget pairings: hero + widget area(s). */
+.kk-hero--grid-left-widget,
+.kk-hero--slider-right-widget {
+	grid-template-columns: 2fr 1fr;
+}
+
+.kk-hero--grid-right-widget,
+.kk-hero--slider-left-widget {
+	grid-template-columns: 1fr 2fr;
+}
+
+.kk-hero--leads-widgets,
+.kk-hero--slider-center {
+	grid-template-columns: 1fr 2fr 1fr;
+}
+
+.kk-hero--slider-one-left-widget,
+.kk-hero--slider-one-right-widget {
+	grid-template-columns: 1fr 1fr;
+}
+
+.kk-hero-widget {
+	min-width: 0;
+}
+
+/* Narrow screens: every hero mode stacks (widget below the hero). */
+@media (max-width: 900px) {
+	.kk-hero--grid-left .kk-hero-main,
+	.kk-hero--grid-right .kk-hero-main,
+	.kk-hero--grid-left-widget .kk-hero-main,
+	.kk-hero--grid-right-widget .kk-hero-main,
+	.kk-hero--leads-widgets .kk-hero-main,
+	.kk-hero--grid-center .kk-hero-main,
+	.kk-hero--grid-left-widget,
+	.kk-hero--grid-right-widget,
+	.kk-hero--leads-widgets,
+	.kk-hero--slider-one-left-widget,
+	.kk-hero--slider-one-right-widget,
+	.kk-hero--slider-center,
+	.kk-hero--slider-left-widget,
+	.kk-hero--slider-right-widget {
+		grid-template-columns: 1fr;
+	}
+
+	.kk-hero--grid-right .kk-hero-main .kk-hero-lead,
+	.kk-hero--grid-right .kk-hero-main .kk-hero-grid {
+		order: 0;
+	}
+}
+
 /* --- Hero slider (Hero Presentation = Slider) ---------------------------- */
 /* One story at a time: a scroll-snap row, one full-width slide per
  * stop, prev/next buttons scroll by one slide. The scrollbar is

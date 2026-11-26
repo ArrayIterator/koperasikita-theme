@@ -13,6 +13,10 @@ final class Sidebars
             'sidebar-single' => esc_html__('Article Sidebar', 'koperasikita'),
             'sidebar-page' => esc_html__('Page Sidebar', 'koperasikita'),
             'sidebar-news' => esc_html__('News Sidebar', 'koperasikita'),
+            // Hero widget areas, shown by the Hero Presentation modes
+            // that pair the hero with a widget (Grid/Slider + Widget).
+            'kk-hero-left' => esc_html__('Hero Left Widget', 'koperasikita'),
+            'kk-hero-right' => esc_html__('Hero Right Widget', 'koperasikita'),
         ];
 
         foreach ($sidebars as $id => $name) {

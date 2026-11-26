@@ -2400,3 +2400,87 @@ msgstr "Pakai CSS Gabungan (satu file)"
 
 msgid "The app logo used when installing the PWA (manifest icons and home-screen icon). Defaults to the Koperasi Kita logo. Use a square image, at least 512×512, to replace it."
 msgstr "Logo aplikasi yang dipakai saat menginstal PWA (ikon manifest dan ikon layar utama). Bawaan: logo Koperasi Kita. Pakai gambar persegi, minimal 512×512, untuk menggantinya."
+
+msgid "Enable Title"
+msgstr "Aktifkan Judul"
+
+msgid "Item Style"
+msgstr "Gaya Item"
+
+msgid "Thumb Title Inside"
+msgstr "Judul di Dalam Thumb"
+
+msgid "Thumb With Title Below"
+msgstr "Thumb dengan Judul di Bawah"
+
+msgid "Title With Meta (No Thumb)"
+msgstr "Judul dengan Meta (Tanpa Thumb)"
+
+msgid "Layout Style"
+msgstr "Gaya Layout"
+
+msgid "Classic"
+msgstr "Klasik"
+
+msgid "No Border"
+msgstr "Tanpa Garis"
+
+msgid "Box"
+msgstr "Kotak"
+
+msgid "Display"
+msgstr "Tampilan"
+
+msgid "Grid Scrollable"
+msgstr "Grid Bisa Digulir"
+
+msgid "List Scrollable"
+msgstr "Daftar Bisa Digulir"
+
+msgid "Slider Auto Slide"
+msgstr "Slider Otomatis"
+
+msgid "Slider"
+msgstr "Slider"
+
+msgid "Grid Left (Leads + Cards)"
+msgstr "Grid Kiri (Lead + Kartu)"
+
+msgid "Grid Right (Leads + Cards)"
+msgstr "Grid Kanan (Lead + Kartu)"
+
+msgid "Grid Center (Leads + Cards)"
+msgstr "Grid Tengah (Lead + Kartu)"
+
+msgid "Grid Left Widget (Leads + Widget)"
+msgstr "Grid Widget Kiri (Lead + Widget)"
+
+msgid "Grid Right Widget (Widget + Leads)"
+msgstr "Grid Widget Kanan (Widget + Lead)"
+
+msgid "Leads Widgets (Widget + Leads + Widget)"
+msgstr "Lead + Widget (Widget + Lead + Widget)"
+
+msgid "Slider One Left With Right Widget"
+msgstr "Slider Satu Kiri dengan Widget Kanan"
+
+msgid "Slider One Right With Left Widget"
+msgstr "Slider Satu Kanan dengan Widget Kiri"
+
+msgid "Slider Full (Full Slider)"
+msgstr "Slider Penuh"
+
+msgid "Slider Center"
+msgstr "Slider Tengah"
+
+msgid "Slider Left Widget"
+msgstr "Slider Widget Kiri"
+
+msgid "Slider Right Widget"
+msgstr "Slider Widget Kanan"
+
+msgid "Hero Left Widget"
+msgstr "Widget Kiri Hero"
+
+msgid "Hero Right Widget"
+msgstr "Widget Kanan Hero"

@@ -177,7 +177,8 @@ final class Customizer
             'input_attrs' => ['min' => 3, 'max' => 8],
         ]);
 
-        /* Hero header + source: a Grid/Slider presentation switch,
+        /* Hero header + source: a Hero Presentation switch (12 modes:
+         * grid/slider, with or without a widget area beside the hero),
          * and a Latest/Category source (the category picker only
          * matters when the source is Category). No title/eyebrow
          * here: the hero renders with no heading, exactly as
@@ -185,18 +186,19 @@ final class Customizer
         self::addSetting(
             $wpCustomize,
             'kk_hero_mode',
-            'grid',
+            'grid-left',
             [self::class, 'sanitizeHeroMode'],
             'refresh'
         );
+        $choices = [];
+        foreach (\KoperasiKita\Features\Hero::modes() as $slug => $label) {
+            $choices[$slug] = esc_html__($label, 'koperasikita');
+        }
         $wpCustomize->add_control('kk_hero_mode', [
             'label' => esc_html__('Hero Presentation', 'koperasikita'),
             'section' => 'koperasikita_homepage',
             'type' => 'select',
-            'choices' => [
-                'grid' => esc_html__('Grid (lead + cards)', 'koperasikita'),
-                'slider' => esc_html__('Slider (one story at a time)', 'koperasikita'),
-            ],
+            'choices' => $choices,
         ]);
 
         self::addSetting(
@@ -407,18 +409,79 @@ final class Customizer
 
         self::addSetting(
             $wpCustomize,
-            'kk_highlights_layout',
-            'grid',
-            [self::class, 'sanitizeHighlightsLayout'],
+            'kk_highlights_show_title',
+            true,
+            [self::class, 'sanitizeBool'],
             'refresh'
         );
-        $wpCustomize->add_control('kk_highlights_layout', [
-            'label' => esc_html__('Highlights Display Style', 'koperasikita'),
+        $wpCustomize->add_control('kk_highlights_show_title', [
+            'label' => esc_html__('Enable Title', 'koperasikita'),
+            'section' => 'koperasikita_homepage',
+            'type' => 'checkbox',
+        ]);
+
+        /* Item Style: how each highlight looks — thumbnail with the
+         * title inside it, thumbnail with the title below, or title
+         * with meta and no thumbnail. */
+        self::addSetting(
+            $wpCustomize,
+            'kk_highlights_item_style',
+            'thumb-below',
+            [self::class, 'sanitizeHighlightsItemStyle'],
+            'refresh'
+        );
+        $wpCustomize->add_control('kk_highlights_item_style', [
+            'label' => esc_html__('Item Style', 'koperasikita'),
             'section' => 'koperasikita_homepage',
             'type' => 'select',
             'choices' => [
-                'grid' => esc_html__('Grid (Cards)', 'koperasikita'),
-                'slider' => esc_html__('Horizontal Slider', 'koperasikita'),
+                'thumb-inside' => esc_html__('Thumb Title Inside', 'koperasikita'),
+                'thumb-below' => esc_html__('Thumb With Title Below', 'koperasikita'),
+                'title-meta' => esc_html__('Title With Meta (No Thumb)', 'koperasikita'),
+            ],
+        ]);
+
+        /* Layout Style: the section container — classic (border top
+         * and bottom), no border, or a box with a paper background. */
+        self::addSetting(
+            $wpCustomize,
+            'kk_highlights_layout_style',
+            'classic',
+            [self::class, 'sanitizeHighlightsLayoutStyle'],
+            'refresh'
+        );
+        $wpCustomize->add_control('kk_highlights_layout_style', [
+            'label' => esc_html__('Layout Style', 'koperasikita'),
+            'section' => 'koperasikita_homepage',
+            'type' => 'select',
+            'choices' => [
+                'classic' => esc_html__('Classic', 'koperasikita'),
+                'no-border' => esc_html__('No Border', 'koperasikita'),
+                'box' => esc_html__('Box', 'koperasikita'),
+            ],
+        ]);
+
+        /* Display: how the items flow — a scrollable grid row, a
+         * scrollable list, an auto-sliding slider, or a manual
+         * slider with prev/next buttons. Replaces the old
+         * Grid/Slider layout (grid -> Grid Scrollable, slider ->
+         * Slider manual). */
+        self::addSetting(
+            $wpCustomize,
+            'kk_highlights_display',
+            'grid-scrollable',
+            [self::class, 'sanitizeHighlightsDisplay'],
+            'refresh'
+        );
+        $wpCustomize->add_control('kk_highlights_display', [
+            'label' => esc_html__('Display', 'koperasikita'),
+            'section' => 'koperasikita_homepage',
+            'type' => 'select',
+            'choices' => [
+                'grid-scrollable' => esc_html__('Grid Scrollable', 'koperasikita'),
+                'list-scrollable' => esc_html__('List Scrollable', 'koperasikita'),
+                'slider-auto' => esc_html__('Slider Auto Slide', 'koperasikita'),
+                'slider-manual' => esc_html__('Slider', 'koperasikita'),
             ],
         ]);
 
@@ -1584,12 +1647,37 @@ final class Customizer
 
     public static function sanitizeHeroMode(mixed $value): string
     {
-        return in_array($value, ['grid', 'slider'], true) ? (string) $value : 'grid';
+        // Backward compat: the old grid/slider values map to the
+        // matching new modes.
+        if ($value === 'grid') {
+            return \KoperasiKita\Features\Hero::GRID_LEFT;
+        }
+
+        if ($value === 'slider') {
+            return \KoperasiKita\Features\Hero::SLIDER_FULL;
+        }
+
+        return \KoperasiKita\Features\Hero::sanitize($value);
     }
 
     public static function sanitizeHeroSource(mixed $value): string
     {
         return in_array($value, ['latest', 'category'], true) ? (string) $value : 'latest';
+    }
+
+    public static function sanitizeHighlightsItemStyle(mixed $value): string
+    {
+        return in_array($value, ['thumb-inside', 'thumb-below', 'title-meta'], true) ? (string) $value : 'thumb-below';
+    }
+
+    public static function sanitizeHighlightsLayoutStyle(mixed $value): string
+    {
+        return in_array($value, ['classic', 'no-border', 'box'], true) ? (string) $value : 'classic';
+    }
+
+    public static function sanitizeHighlightsDisplay(mixed $value): string
+    {
+        return in_array($value, ['grid-scrollable', 'list-scrollable', 'slider-auto', 'slider-manual'], true) ? (string) $value : 'grid-scrollable';
     }
 
     public static function sanitizeHighlightsLayout(mixed $value): string

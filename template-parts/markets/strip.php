@@ -3,9 +3,9 @@
  * Markets strip: gold spot, stocks and crypto in one compact list.
  *
  * Expects $args['markets'] as array<string, array{label: string, prices: array<string, \KoperasiKita\Providers\MarketPrice>}>
- * and $args['show_change'] as bool. A market with no prices renders an
- * honest "no data" line for that market; when no market has any data the
- * whole strip is replaced by a single honest empty state.
+ * and $args['show_change'] as bool. A market with no prices renders a
+ * "no data" line for that market; when no market has any data the
+ * whole strip renders nothing.
  *
  * @package KoperasiKita
  */
@@ -24,9 +24,8 @@ foreach ($markets as $market) {
 }
 
 if ($markets === [] || !$has_data) {
-	?>
-	<p class="kk-widget-empty"><?php esc_html_e('Market data is not available yet.', 'koperasikita'); ?></p>
-	<?php
+	// No data: render nothing (no empty-state text). The strip is
+	// replaced by a widget later.
 	return;
 }
 ?>
