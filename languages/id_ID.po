@@ -2745,3 +2745,31 @@ msgstr "Tanpa ikon"
 #: sidebar.php
 msgid "Sidebar Menu"
 msgstr "Menu Sidebar"
+
+#: inc/Setup/MenuIcons.php
+msgid "Choose icon"
+msgstr "Pilih ikon"
+
+#: inc/Setup/MenuIcons.php
+msgid "Choose menu icon"
+msgstr "Pilih ikon menu"
+
+#: inc/Setup/MenuIcons.php
+msgid "Remove icon"
+msgstr "Hapus ikon"
+
+#: inc/Setup/MenuIcons.php
+msgid "Close"
+msgstr "Tutup"
+
+#: inc/Setup/MenuIcons.php
+msgid "Search icons"
+msgstr "Cari ikon"
+
+#: inc/Setup/MenuIcons.php
+msgid "Type to filter icons…"
+msgstr "Ketik untuk memfilter ikon…"
+
+#: inc/Setup/MenuIcons.php
+msgid "No icons match your search."
+msgstr "Tidak ada ikon yang cocok dengan pencarian Anda."

@@ -428,14 +428,31 @@ final class Enqueue
             }
         }
 
-        /* Menus page: the menu item icon picker (MenuIcons) is styled
-         * by admin.css, so its stylesheet loads here too — style only,
-         * the admin.ts script is not needed on this page. */
+        /* Menus page: the menu item icon picker (MenuIcons) needs both
+         * the admin stylesheet (field + popup) and the admin script
+         * (popup, search, grid), plus the icon lists for the grid. */
         if ($hookSuffix === 'nav-menus.php') {
             $css = ViteLoader::css('src/ts/admin.ts');
 
             if ($css !== '') {
                 wp_enqueue_style('kk-admin', $css, [], KK_VERSION);
+            }
+
+            $js = ViteLoader::js('src/ts/admin.ts');
+
+            if ($js !== '') {
+                wp_enqueue_script('kk-admin', $js, [], KK_VERSION, true);
+
+                wp_localize_script('kk-admin', 'kkAdminData', [
+                    'ajaxUrl' => admin_url('admin-ajax.php'),
+                    'nonce' => wp_create_nonce('koperasikita_nonce'),
+                    'menuIcons' => [
+                        'builtIn' => \KoperasiKita\Icons\Icon::builtInSvgs(20),
+                        'material' => \KoperasiKita\Icons\Icon::materialNames(),
+                        'spriteUrl' => \KoperasiKita\Icons\Icon::materialSpriteUrl(),
+                        'noIcon' => __('No icon', 'koperasikita'),
+                    ],
+                ]);
             }
 
             return;

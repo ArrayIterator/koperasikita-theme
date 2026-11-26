@@ -37,6 +37,14 @@ interface AdminData {
 	ajaxUrl: string;
 	nonce: string;
 	strings?: Partial<AdminStrings>;
+	menuIcons?: MenuIconData;
+}
+
+interface MenuIconData {
+	builtIn: Record<string, string>;
+	material: string[];
+	spriteUrl: string;
+	noIcon: string;
 }
 
 interface CustomizeValue {
@@ -269,6 +277,7 @@ function watchFontSettings(container: HTMLElement): void {
 function initAdmin(): void {
 	initTermPickers();
 	initProviderPickers();
+	initMenuIconPickers();
 
 	if (!adminData()) {
 		return;
@@ -391,6 +400,193 @@ function initProviderPickers(): void {
 				close();
 			}
 		});
+	});
+}
+
+/**
+ * Menu item icon picker on Appearance -> Menus.
+ *
+ * Each menu item has a "Choose icon" button and a preview (icon +
+ * title). The button opens one shared centered popup (blurred
+ * backdrop) with a search box and a grid of the theme's icons
+ * (built-in + the Material Icons sprite). Picking an icon writes it
+ * to the item's hidden input and refreshes the preview; "Remove
+ * icon" clears it. Close on Close, backdrop click, or Escape.
+ * The grid is built lazily on first open (2,000+ icons). Without
+ * JS the button does nothing and the saved icon (if any) stays.
+ */
+function initMenuIconPickers(): void {
+	const popup = document.getElementById('kk-menu-icon-popup');
+	if (!popup) {
+		return;
+	}
+	const data =
+		typeof kkAdminData !== 'undefined' ? kkAdminData.menuIcons : undefined;
+	if (!data) {
+		return;
+	}
+	const grid = popup.querySelector<HTMLElement>('[data-kk-menu-icon-grid]');
+	const search =
+		popup.querySelector<HTMLInputElement>('#kk-menu-icon-search');
+	const empty = popup.querySelector<HTMLElement>('[data-kk-menu-icon-empty]');
+	if (!grid || !search || !empty) {
+		return;
+	}
+
+	let currentItemId: string | null = null;
+	let opener: HTMLButtonElement | null = null;
+	let gridBuilt = false;
+
+	const iconSvg = (name: string): string => {
+		if (name.startsWith('material:')) {
+			return `<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" focusable="false"><use href="${data.spriteUrl}#material-${name.slice(9)}"></use></svg>`;
+		}
+		return data.builtIn[name] ?? '';
+	};
+
+	const buildGrid = (): void => {
+		if (gridBuilt) {
+			return;
+		}
+		gridBuilt = true;
+		const fragment = document.createDocumentFragment();
+		const addButton = (name: string): void => {
+			const button = document.createElement('button');
+			button.type = 'button';
+			button.className = 'kk-menu-icon-grid-item';
+			button.dataset.kkMenuIconName = name;
+			button.title = name;
+			button.setAttribute('aria-label', name);
+			button.innerHTML = iconSvg(name);
+			fragment.appendChild(button);
+		};
+		Object.keys(data.builtIn)
+			.sort()
+			.forEach(addButton);
+		data.material.forEach((name) => addButton(`material:${name}`));
+		grid.appendChild(fragment);
+	};
+
+	const markSelected = (name: string): void => {
+		grid
+			.querySelectorAll('.kk-menu-icon-grid-item.is-selected')
+			.forEach((el) => el.classList.remove('is-selected'));
+		if (name === '') {
+			return;
+		}
+		grid
+			.querySelector(`[data-kk-menu-icon-name="${CSS.escape(name)}"]`)
+			?.classList.add('is-selected');
+	};
+
+	const filterGrid = (): void => {
+		const query = search.value.trim().toLowerCase();
+		let visible = 0;
+		grid
+			.querySelectorAll<HTMLElement>('.kk-menu-icon-grid-item')
+			.forEach((button) => {
+				const name = button.dataset.kkMenuIconName ?? '';
+				const match = query === '' || name.toLowerCase().includes(query);
+				button.hidden = !match;
+				if (match) {
+					visible += 1;
+				}
+			});
+		empty.hidden = visible > 0;
+	};
+
+	const setPreview = (itemId: string, name: string): void => {
+		const input = document.querySelector<HTMLInputElement>(
+			`[data-kk-menu-icon-input="${CSS.escape(itemId)}"]`,
+		);
+		if (input) {
+			input.value = name;
+		}
+		const preview = document.querySelector<HTMLElement>(
+			`[data-kk-menu-icon-preview="${CSS.escape(itemId)}"]`,
+		);
+		if (!preview) {
+			return;
+		}
+		preview.textContent = '';
+		if (name === '') {
+			const emptyLabel = document.createElement('span');
+			emptyLabel.className = 'kk-menu-icon-preview-empty';
+			emptyLabel.textContent = data.noIcon;
+			preview.append(emptyLabel);
+			return;
+		}
+		const iconHolder = document.createElement('span');
+		iconHolder.innerHTML = iconSvg(name);
+		const title = document.createElement('span');
+		title.textContent = preview.dataset.kkMenuIconTitle ?? '';
+		preview.append(iconHolder, title);
+	};
+
+	const close = (): void => {
+		popup.hidden = true;
+		currentItemId = null;
+		if (opener) {
+			opener.focus();
+			opener = null;
+		}
+	};
+
+	const open = (button: HTMLButtonElement): void => {
+		currentItemId = button.dataset.kkMenuIconPick ?? null;
+		if (!currentItemId) {
+			return;
+		}
+		opener = button;
+		buildGrid();
+		const input = document.querySelector<HTMLInputElement>(
+			`[data-kk-menu-icon-input="${CSS.escape(currentItemId)}"]`,
+		);
+		markSelected(input?.value ?? '');
+		search.value = '';
+		filterGrid();
+		popup.hidden = false;
+		search.focus();
+	};
+
+	document
+		.querySelectorAll<HTMLButtonElement>('[data-kk-menu-icon-pick]')
+		.forEach((button) => {
+			button.addEventListener('click', () => open(button));
+		});
+
+	grid.addEventListener('click', (event) => {
+		const button = (event.target as HTMLElement).closest(
+			'.kk-menu-icon-grid-item',
+		) as HTMLButtonElement | null;
+		if (!button || !currentItemId) {
+			return;
+		}
+		const name = button.dataset.kkMenuIconName ?? '';
+		setPreview(currentItemId, name);
+		markSelected(name);
+		close();
+	});
+
+	search.addEventListener('input', filterGrid);
+
+	popup
+		.querySelector('[data-kk-menu-icon-remove]')
+		?.addEventListener('click', () => {
+			if (currentItemId) {
+				setPreview(currentItemId, '');
+			}
+			close();
+		});
+
+	popup.querySelectorAll('[data-kk-menu-icon-close]').forEach((el) => {
+		el.addEventListener('click', close);
+	});
+
+	document.addEventListener('keydown', (event) => {
+		if (event.key === 'Escape' && !popup.hidden) {
+			close();
+		}
 	});
 }
 

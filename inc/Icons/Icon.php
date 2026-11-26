@@ -73,7 +73,18 @@ final class Icon
     /** Whether an icon name exists (used to validate saved choices). */
     public static function exists(string $name): bool
     {
-        return isset(self::PATHS[$name]);
+        return self::isAvailable($name);
+    }
+
+    /** Whether a name is a built-in icon or a Material icon (material:name). */
+    public static function isAvailable(string $name): bool
+    {
+        if (isset(self::PATHS[$name])) {
+            return true;
+        }
+
+        return str_starts_with($name, 'material:')
+            && in_array(substr($name, 9), self::materialNames(), true);
     }
 
     /** All icon names, alphabetically — the menu icon picker lists these. */
@@ -82,6 +93,85 @@ final class Icon
         $names = array_keys(self::PATHS);
         sort($names);
 
-        return $names;
+        $material = array_map(
+            static fn(string $name): string => 'material:' . $name,
+            self::materialNames()
+        );
+
+        return array_merge($names, $material);
+    }
+
+    /** Built-in icon name => inline SVG markup (for the admin picker grid). */
+    public static function builtInSvgs(int $size = 20): array
+    {
+        $svgs = [];
+
+        foreach (array_keys(self::PATHS) as $name) {
+            $svgs[$name] = self::svg($name, $size);
+        }
+
+        return $svgs;
+    }
+
+    /** The Material Icons catalog (assets/icons/material-icons.json). */
+    public static function materialNames(): array
+    {
+        static $materialIcons = null;
+
+        if (null !== $materialIcons) {
+            return $materialIcons;
+        }
+
+        $path = get_theme_file_path('assets/icons/material-icons.json');
+
+        if (!is_readable($path)) {
+            return $materialIcons = [];
+        }
+
+        $names = json_decode((string) file_get_contents($path), true);
+
+        if (!is_array($names)) {
+            return $materialIcons = [];
+        }
+
+        return $materialIcons = array_values(
+            array_filter($names, static fn($name): bool => is_string($name) && '' !== $name)
+        );
+    }
+
+    /** URL of the Material Icons sprite (assets/icons/material-icons.svg). */
+    public static function materialSpriteUrl(): string
+    {
+        return get_theme_file_uri('assets/icons/material-icons.svg');
+    }
+
+    /**
+     * Render any icon by name: a built-in icon as inline SVG, a
+     * Material icon (material:name) as a <use> reference to the
+     * sprite. Returns '' for an unknown name.
+     */
+    public static function render(string $name, int $size = 20): string
+    {
+        if (isset(self::PATHS[$name])) {
+            return self::svg($name, $size);
+        }
+
+        if (!str_starts_with($name, 'material:')) {
+            return '';
+        }
+
+        $materialName = substr($name, 9);
+
+        if (!in_array($materialName, self::materialNames(), true)) {
+            return '';
+        }
+
+        return sprintf(
+            '<svg width="%d" height="%d" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" focusable="false"><use href="%s#material-%s"></use></svg>',
+            $size,
+            $size,
+            esc_url(self::materialSpriteUrl()),
+            esc_attr($materialName)
+        );
     }
 }
