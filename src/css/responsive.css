@@ -31,10 +31,6 @@
 	.kk-footer-grid {
 		grid-template-columns: 1fr 1fr;
 	}
-
-	.kk-masthead-date {
-		display: block;
-	}
 }
 
 @media (max-width: 1023px) {

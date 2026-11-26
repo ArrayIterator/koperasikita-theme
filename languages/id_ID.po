@@ -1657,26 +1657,6 @@ msgid "Breaking News Headlines"
 msgstr "Judul Berita Terkini"
 
 #: inc/Customizer/Customizer.php
-msgid "Top Bar Date Format"
-msgstr "Format Tanggal Bar Atas"
-
-#: inc/Customizer/Customizer.php
-msgid "Monday, 25 November 2026"
-msgstr "Senin, 25 November 2026"
-
-#: inc/Customizer/Customizer.php
-msgid "25 November 2026"
-msgstr "25 November 2026"
-
-#: inc/Customizer/Customizer.php
-msgid "Mon, 25 Nov 2026"
-msgstr "Sen, 25 Nov 2026"
-
-#: inc/Customizer/Customizer.php
-msgid "25/11/2026"
-msgstr "25/11/2026"
-
-#: inc/Customizer/Customizer.php
 msgid "Clock Time Zone"
 msgstr "Zona Waktu Jam"
 
@@ -1711,10 +1691,6 @@ msgstr "Titik (14.05.30)"
 #: inc/Customizer/Customizer.php
 msgid "Show Top Bar"
 msgstr "Tampilkan Bar Atas"
-
-#: inc/Customizer/Customizer.php
-msgid "Show Date in Top Bar"
-msgstr "Tampilkan Tanggal di Bar Atas"
 
 #: inc/Customizer/Customizer.php
 msgid "Show Live Clock in Top Bar"

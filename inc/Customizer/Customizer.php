@@ -1469,7 +1469,6 @@ final class Customizer
             'kk_breadcrumb_search' => ['koperasikita_breadcrumb', 'Show Breadcrumbs on Search Results', true, 10],
             'kk_breadcrumb_404' => ['koperasikita_breadcrumb', 'Show Breadcrumbs on 404 Pages', true, 10],
             'kk_topbar_enabled' => ['koperasikita_header', 'Show Top Bar', true, 30],
-            'kk_topbar_date' => ['koperasikita_header', 'Show Date in Top Bar', true, 31],
             'kk_clock_enabled' => ['koperasikita_header', 'Show Live Clock in Top Bar', true, 33],
             'kk_clock_seconds' => ['koperasikita_header', 'Show Seconds on the Clock', false, 34],
             'kk_clock_24h' => ['koperasikita_header', 'Use the 24-Hour Clock', true, 35],
@@ -1695,26 +1694,6 @@ final class Customizer
             'active_callback' => [self::class, 'isTickerEnabled'],
             'priority' => 17,
             'input_attrs' => ['min' => 1, 'max' => 10],
-        ]);
-
-        self::addSetting(
-            $wpCustomize,
-            'kk_topbar_date_format',
-            'l, j F Y',
-            [self::class, 'sanitizeDateFormat'],
-            'refresh'
-        );
-        $wpCustomize->add_control('kk_topbar_date_format', [
-            'label' => esc_html__('Top Bar Date Format', 'koperasikita'),
-            'section' => 'koperasikita_header',
-            'type' => 'select',
-            'priority' => 32,
-            'choices' => [
-                'l, j F Y' => esc_html__('Monday, 25 November 2026', 'koperasikita'),
-                'j F Y' => esc_html__('25 November 2026', 'koperasikita'),
-                'D, j M Y' => esc_html__('Mon, 25 Nov 2026', 'koperasikita'),
-                'j/m/Y' => esc_html__('25/11/2026', 'koperasikita'),
-            ],
         ]);
 
         self::addSetting(
@@ -2902,13 +2881,6 @@ final class Customizer
     public static function sanitizeClockSeparator(mixed $value): string
     {
         return in_array($value, ['colon', 'dot'], true) ? (string) $value : 'colon';
-    }
-
-    public static function sanitizeDateFormat(mixed $value): string
-    {
-        $allowed = ['l, j F Y', 'j F Y', 'D, j M Y', 'j/m/Y'];
-
-        return in_array($value, $allowed, true) ? (string) $value : 'l, j F Y';
     }
 
     /**

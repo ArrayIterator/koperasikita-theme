@@ -26,10 +26,6 @@
 	min-width: 0;
 }
 
-.kk-topbar-date {
-	color: var(--kk-muted, #5B6470);
-}
-
 /* Live clock: tabular figures so the width never jitters as it ticks. */
 .kk-topbar-clock {
 	color: var(--kk-muted, #5B6470);
@@ -231,9 +227,9 @@ html[data-kk-scheme="system"] .kk-icon-monitor {
 }
 
 @media (min-width: 768px) {
-	/* Header logo position (desktop). The masthead is a flex row
-	 * (brand + date, space-between), so auto margins place the
-	 * brand: both sides centres it, left only pushes it right. */
+	/* Header logo position (desktop). The masthead is a flex row,
+	 * so auto margins place the brand: both sides centres it, left
+	 * only pushes it right. */
 	.kk-brand--pos-desktop-centered {
 		margin-inline: auto;
 	}
@@ -275,13 +271,6 @@ html[data-kk-scheme="system"] .kk-icon-monitor {
 	.kk-brand--hide-text-mobile .kk-brand-text {
 		display: none;
 	}
-}
-
-.kk-masthead-date {
-	display: none;
-	font-size: 13px;
-	color: var(--kk-muted);
-	white-space: nowrap;
 }
 
 /* --- Primary nav ---------------------------------------------------------- */

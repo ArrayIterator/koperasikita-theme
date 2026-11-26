@@ -1,6 +1,6 @@
 <?php
 /**
- * Top bar: date, live clock, weather slot.
+ * Top bar: live clock, weather slot.
  *
  * Search and the colour-scheme toggle live in the sticky nav bar,
  * not here.
@@ -15,9 +15,6 @@
 if ( ! (bool) get_theme_mod( 'kk_topbar_enabled', true ) ) {
 	return;
 }
-
-$show_date = (bool) get_theme_mod( 'kk_topbar_date', true );
-$date_format = \KoperasiKita\Customizer\Customizer::sanitizeDateFormat( get_theme_mod( 'kk_topbar_date_format', 'l, j F Y' ) );
 
 $show_clock = (bool) get_theme_mod( 'kk_clock_enabled', true );
 $clock_html = '';
@@ -62,9 +59,6 @@ if ( $show_clock ) {
 <div class="kk-topbar">
 	<div class="kk-shell kk-topbar-inner">
 		<div class="kk-topbar-left">
-			<?php if ( $show_date ) : ?>
-				<p class="kk-topbar-date"><?php echo esc_html( date_i18n( $date_format ) ); ?></p>
-			<?php endif; ?>
 			<?php
 			// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- built above with escaping.
 			echo $clock_html;
