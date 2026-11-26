@@ -8,6 +8,7 @@ use KoperasiKita\Api\Api;
 use KoperasiKita\Assets\Enqueue;
 use KoperasiKita\Breadcrumb\Breadcrumb;
 use KoperasiKita\Customizer\Customizer;
+use KoperasiKita\Customizer\TermSearch;
 use KoperasiKita\Features\Features;
 use KoperasiKita\Features\Fonts;
 use KoperasiKita\Features\Pwa;
@@ -57,7 +58,7 @@ final class Theme
         add_action('init', [Features::class, 'register']);
         add_action('init', [Fonts::class, 'register']);
         add_action('init', [Api::class, 'register']);
-        add_action('init', [Customizer\TermSearch::class, 'register']);
+        add_action('init', [TermSearch::class, 'register']);
         add_action('init', [StyleVariant::class, 'register']);
         add_action('init', [Pwa::class, 'register']);
         add_action('init', [Seo::class, 'register']);
