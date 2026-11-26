@@ -34,6 +34,7 @@ final class Features
     {
         Weather::register();
         Markets::register();
+        DataDesk::register();
         Bookmarks::register();
         Agenda::register();
         Subscribe::register();

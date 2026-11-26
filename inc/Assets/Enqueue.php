@@ -474,6 +474,12 @@ final class Enqueue
                 wp_enqueue_style('kk-admin', $css, [], KK_VERSION);
             }
 
+            // The Data Desk Templates page renders live template
+            // previews (the real panel / table markup), so it needs
+            // the same styles the editor canvas uses — tokens,
+            // widgets, gold-markets and the rest.
+            self::enqueueEditorStyles();
+
             $js = ViteLoader::js('src/ts/admin.ts');
 
             if ($js !== '') {
@@ -495,6 +501,7 @@ final class Enqueue
                         'syncStepDone' => __('%s: inserted %s, skipped %s', 'koperasikita'),
                         'syncStepLatest' => __(' (latest %s)', 'koperasikita'),
                         'syncDone' => __('Done — inserted %s, skipped %s (already in database). Reloading…', 'koperasikita'),
+                        'loadingPreview' => __('Loading preview…', 'koperasikita'),
                     ],
                 ]);
             }
@@ -548,6 +555,12 @@ final class Enqueue
             wp_enqueue_style('kk-admin', $css, [], KK_VERSION);
         }
 
+        // Classic widget forms on widgets.php / the Customizer show
+        // a live Data Desk preview under the template select; the
+        // preview markup needs the editor bundle's styles here too
+        // (the form itself lives in the outer page, not the canvas).
+        self::enqueueEditorStyles();
+
         $js = ViteLoader::js('src/ts/admin.ts');
 
         if ($js !== '') {
@@ -562,6 +575,7 @@ final class Enqueue
                     'notDownloaded' => __('Not downloaded yet', 'koperasikita'),
                     'downloadFailed' => __('Download failed.', 'koperasikita'),
                     'adminDataMissing' => __('Admin data is not available.', 'koperasikita'),
+                    'loadingPreview' => __('Loading preview…', 'koperasikita'),
                 ],
             ]);
         }
@@ -598,7 +612,35 @@ final class Enqueue
      * styles as the live site. Scoped selectors
      * (.kk-widget-title--*, .kk-widget) only match the preview
      * markup, not the editor chrome.
+     *
+     * These styles load in the OUTER admin page only — the canvas
+     * is an iframe, and `enqueue_block_editor_assets` never enters
+     * it. The canvas gets its styles from the blocks' `editor_style`
+     * instead: see Blocks::registerAssets(), which registers the
+     * editor bundle (src/css/editor.css — tokens, base, content,
+     * widgets, gold-markets, weather, variants, plus the canvas
+     * shell/title rules) for every Koperasi Kita block. The bundle
+     * is enqueued here too, so any block rendered inline in the
+     * outer page (widgets.php without an iframe, the Customizer
+     * panel) is styled as well.
      */
+    /**
+     * Enqueue the editor bundle (src/css/editor.css) on an admin
+     * screen that renders widget / Data Desk preview markup outside
+     * the editor canvas — the Data Desk Templates page and the
+     * classic widget forms. The handle is registered by
+     * Blocks::registerAssets() for the canvas; wp_enqueue_style
+     * on an already-registered handle is enough here.
+     */
+    private static function enqueueEditorStyles(): void
+    {
+        $editor = ViteLoader::css('src/css/editor.css');
+
+        if ($editor !== '') {
+            wp_enqueue_style('kk-editor', $editor, [], KK_VERSION);
+        }
+    }
+
     public static function registerBlockEditor(): void
     {
         $tokens = ViteLoader::css('src/css/tokens.css');
@@ -611,6 +653,12 @@ final class Enqueue
 
         if ($widgets !== '') {
             wp_enqueue_style('kk-widgets-editor', $widgets, ['kk-tokens-editor'], KK_VERSION);
+        }
+
+        $editor = ViteLoader::css('src/css/editor.css');
+
+        if ($editor !== '') {
+            wp_enqueue_style('kk-editor', $editor, ['kk-widgets-editor'], KK_VERSION);
         }
     }
 }

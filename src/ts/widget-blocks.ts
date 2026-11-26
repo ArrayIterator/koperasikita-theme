@@ -75,6 +75,7 @@ interface Wp {
 				icon: string;
 				category: string;
 				attributes: Record<string, Record<string, unknown>>;
+				example?: { attributes: Record<string, unknown> };
 				edit: (props: BlockEditProps) => unknown;
 				save: () => null;
 			},
@@ -103,7 +104,7 @@ interface Wp {
 	};
 	blockEditor: {
 		InspectorControls: unknown;
-		useBlockProps: () => Record<string, unknown>;
+		useBlockProps: (props?: Record<string, unknown>) => Record<string, unknown>;
 	};
 	data: {
 		useSelect<T>(mapSelect: (select: WpDataSelect) => T, deps: unknown[]): T;
@@ -473,7 +474,12 @@ function renderField(
 function createEdit(def: BlockDef, api: Wp): (props: BlockEditProps) => unknown {
 	return (props: BlockEditProps) => {
 		const { attributes, setAttributes } = props;
-		const blockProps = api.blockEditor.useBlockProps();
+		/* The canvas class stands in for `.kk-sidebar` in the editor:
+		 * the_widget() renders `<div class="widget">` + `<h2
+		 * class="widgettitle">` (not the frontend's kk-widget /
+		 * kk-widget-title), so editor.css scopes the sidebar shell
+		 * rule and the title rule to this wrapper. */
+		const blockProps = api.blockEditor.useBlockProps({ className: 'kk-widget-block-canvas' });
 		const categories = api.data.useSelect(
 			(select) =>
 				select('core').getEntityRecords('taxonomy', 'category', { per_page: 100 }),
@@ -973,12 +979,23 @@ if (typeof wp !== 'undefined') {
 		if (enabled !== undefined && !enabled.includes(def.slug)) {
 			return;
 		}
+		/* Inserter preview: without an `example` the inserter shows
+		 * "No Preview Available". The example is the attribute
+		 * defaults, so the preview is the block as first inserted —
+		 * the ServerSideRender preview, not a placeholder. */
+		const exampleAttributes: Record<string, unknown> = {};
+		for (const [key, schema] of Object.entries(def.attributes)) {
+			if (schema !== null && typeof schema === 'object' && 'default' in schema) {
+				exampleAttributes[key] = (schema as { default?: unknown }).default;
+			}
+		}
 		wp.blocks.registerBlockType(`koperasi-kita/${def.slug}`, {
 			title: def.title,
 			description: def.description,
 			icon: def.icon,
 			category: 'koperasi-kita',
 			attributes: def.attributes,
+			example: { attributes: exampleAttributes },
 			edit: createEdit(def, wp),
 			save: () => null,
 		});

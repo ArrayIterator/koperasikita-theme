@@ -62,6 +62,7 @@ export default defineConfig({
         'widget-blocks': 'src/ts/widget-blocks.ts',
         'widget-blocks-css': 'src/css/widget-blocks.css',
         'widgets-css': 'src/css/widgets.css',
+        'editor-css': 'src/css/editor.css',
       },
     },
   },

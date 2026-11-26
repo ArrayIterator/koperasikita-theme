@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace KoperasiKita\Features;
 
+use KoperasiKita\Api\Ajax;
 use KoperasiKita\Providers\GoldPricesTable;
 use KoperasiKita\Providers\LogamMuliaApiProvider;
+use KoperasiKita\Providers\MarketPrice;
 
 /**
  * Data Desk panel data: the chart + three stats for one market symbol.
@@ -64,6 +66,196 @@ final class DataDesk
     public const DEFAULT_PALETTE = 'dark-green';
 
     public const DEFAULT_DAYS = 7;
+
+    /**
+     * Register the admin preview endpoint. The templates page and
+     * the widget forms re-render their preview through it, so the
+     * preview always uses the real panel / table templates.
+     */
+    public static function register(): void
+    {
+        Ajax::add('kk_data_desk_preview', [self::class, 'ajaxPreview'], false, 'manage_options');
+    }
+
+    /**
+     * The preview for one template (panel or table), rendered
+     * through the real template files with clearly-labelled SAMPLE
+     * data — never real prices presented as live. The templates
+     * page list, the template form and the widget forms all use
+     * this one path, so the preview is always the layout the
+     * widget will actually render.
+     */
+    public static function renderPreview(array $template): string
+    {
+        ob_start();
+
+        if (($template['kind'] ?? self::KIND_PANEL) === self::KIND_TABLE) {
+            get_template_part('template-parts/gold/data-desk', null, [
+                'brands' => self::previewTablePrices($template),
+                'client' => [],
+                'palette' => $template['palette'] ?? self::DEFAULT_PALETTE,
+                'preview' => true,
+            ]);
+        } else {
+            get_template_part('template-parts/data-desk/panel', null, [
+                'data' => self::previewData($template),
+                'palette' => $template['palette'] ?? self::DEFAULT_PALETTE,
+                'days' => (int) ($template['days'] ?? self::DEFAULT_DAYS),
+                'title' => $template['title'] ?? '',
+                'preview' => true,
+            ]);
+        }
+
+        $html = ob_get_clean();
+
+        return is_string($html) ? $html : '';
+    }
+
+    /**
+     * Sample panel data for a template: the same shape as
+     * panelData(), but with a fixed, clearly-labelled sample series
+     * (a gentle upward slope around a round base price) instead of
+     * real history. The chart, the stats and the streak all render,
+     * so the preview shows the layout — the numbers are illustrative
+     * only and the template marks them as a preview.
+     *
+     * @return array{market: string, symbol: string, label: string, market_label: string, price: float|null, currency: string, change: float|null, change_abs: float|null, buyback: float|null, spread: float|null, week_change: float|null, streak: int, points: array<int, array{date: string, short: string, price: float}>, has_history: bool, date_range: string}
+     */
+    public static function previewData(array $template): array
+    {
+        $parsed = self::parseSymbol((string) ($template['symbol'] ?? 'gold:antam'));
+        $parsed = $parsed ?? ['market' => 'gold', 'symbol' => 'antam'];
+        $days = isset($template['days']) ? max(3, min(30, (int) $template['days'])) : self::DEFAULT_DAYS;
+        $labels = $parsed['market'] === 'gold' ? Gold::brands() : Markets::symbols('stock');
+        $label = $labels[$parsed['symbol']] ?? $parsed['symbol'];
+        // Round sample bases, deliberately not a live price.
+        $base = $parsed['market'] === 'gold' ? 2400000.0 : 5200.0;
+
+        $points = [];
+
+        for ($i = 0; $i < $days; $i++) {
+            // A gentle upward slope with a small alternating wobble,
+            // so the chart reads as a chart and the streak is real
+            // (computed from these points, like the live path).
+            $offset = -0.8 + (1.7 * $i) / max(1, $days - 1) + ($i % 2 === 0 ? 0.15 : -0.15);
+            $date = date('Y-m-d', strtotime('-' . ($days - 1 - $i) . ' days'));
+            $points[] = [
+                'date' => $date,
+                'short' => date_i18n('D d', strtotime($date)),
+                'price' => round($base * (1 + $offset / 100)),
+            ];
+        }
+
+        $first = $points[0];
+        $last = $points[count($points) - 1];
+        $prev = $points[count($points) - 2];
+        $price = (float) $last['price'];
+        $buyback = $parsed['market'] === 'gold' ? round($price * 0.95) : null;
+
+        $streak = 0;
+        for ($i = count($points) - 1; $i >= 1; $i--) {
+            if ((float) $points[$i]['price'] > (float) $points[$i - 1]['price']) {
+                $streak++;
+            } else {
+                break;
+            }
+        }
+
+        return [
+            'market' => $parsed['market'],
+            'symbol' => $parsed['symbol'],
+            'label' => $label,
+            'market_label' => $parsed['market'] === 'gold' ? __('Gold', 'koperasikita') : __('Stocks', 'koperasikita'),
+            'price' => $price,
+            'currency' => 'IDR',
+            'change' => $prev['price'] > 0 ? (($price - (float) $prev['price']) / (float) $prev['price']) * 100 : null,
+            'change_abs' => $price - (float) $prev['price'],
+            'buyback' => $buyback,
+            'spread' => $buyback !== null && $price > 0 ? (($price - $buyback) / $price) * 100 : null,
+            'week_change' => (float) $first['price'] > 0 ? (($price - (float) $first['price']) / (float) $first['price']) * 100 : null,
+            'streak' => $streak,
+            'points' => $points,
+            'has_history' => true,
+            'date_range' => $first['date'] === $last['date']
+                ? date_i18n(get_option('date_format'), strtotime($first['date']))
+                : date_i18n('j F Y', strtotime($first['date'])) . ' – ' . date_i18n('j F Y', strtotime($last['date'])),
+        ];
+    }
+
+    /**
+     * Sample table rows for a template: one MarketPrice per brand
+     * the template shows (empty = all enabled brands), with fixed
+     * round sample prices — never a live snapshot. The table
+     * template marks them as a preview.
+     *
+     * @return array<string, MarketPrice>
+     */
+    public static function previewTablePrices(array $template): array
+    {
+        $brands = isset($template['brands']) && is_array($template['brands']) && $template['brands'] !== []
+            ? array_values(array_intersect(array_map('sanitize_key', $template['brands']), Gold::enabledBrands()))
+            : Gold::enabledBrands();
+
+        $rows = [];
+
+        foreach ($brands as $index => $slug) {
+            $rows[$slug] = new MarketPrice(
+                'gold',
+                $slug,
+                Gold::brands()[$slug] ?? $slug,
+                // Round sample prices, stepping down per row so the
+                // table reads as a table. Illustrative only.
+                2400000.0 - ($index * 25000.0),
+                null,
+                'IDR',
+                time()
+            );
+        }
+
+        return $rows;
+    }
+
+    /**
+     * The preview endpoint (kk_data_desk_preview): renders one
+     * template's preview HTML for the current form values. Either
+     * a saved template id (`template`) or the raw form fields
+     * (`kind`, `symbol`, `brands` as a comma-separated list,
+     * `palette`, `days`, `title`) — the form sends fields, the
+     * widget forms send an id.
+     *
+     * @return array{html: string}
+     */
+    public static function ajaxPreview(): array
+    {
+        // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- sanitised below.
+        $raw = wp_unslash($_POST);
+
+        $templateId = isset($raw['template']) ? sanitize_key((string) $raw['template']) : '';
+
+        if ($templateId !== '') {
+            $templates = self::templates();
+            $template = $templates[$templateId] ?? self::defaultTemplate();
+        } else {
+            $brands = [];
+            if (isset($raw['brands']) && is_string($raw['brands']) && trim($raw['brands']) !== '') {
+                $brands = array_values(array_filter(array_map('sanitize_key', explode(',', $raw['brands']))));
+            }
+
+            $template = [
+                'id' => '',
+                'name' => '',
+                'kind' => self::sanitizeKind($raw['kind'] ?? self::KIND_PANEL),
+                'symbol' => isset($raw['symbol']) ? sanitize_text_field((string) $raw['symbol']) : 'gold:antam',
+                'brands' => $brands,
+                'palette' => self::sanitizePalette(isset($raw['palette']) ? (string) $raw['palette'] : self::DEFAULT_PALETTE),
+                'days' => isset($raw['days']) ? max(3, min(30, (int) $raw['days'])) : self::DEFAULT_DAYS,
+                'title' => isset($raw['title']) ? sanitize_text_field((string) $raw['title']) : '',
+            ];
+            $template = self::sanitizeTemplate('', $template);
+        }
+
+        return ['html' => self::renderPreview($template)];
+    }
 
     /**
      * The built-in default template (a panel). It is defined in code
@@ -180,6 +372,8 @@ final class DataDesk
         // A default id ('' or a built-in) can never be overwritten:
         // saving one mints a fresh id. An existing custom id is
         // updated in place.
+        $isDefault = $id === '' || $id === self::DEFAULT_TEMPLATE_ID || $id === self::DEFAULT_TABLE_TEMPLATE_ID;
+
         if ($isDefault) {
             $id = 'tpl_' . wp_generate_uuid4();
         }

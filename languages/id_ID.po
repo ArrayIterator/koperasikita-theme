@@ -3718,6 +3718,21 @@ msgstr "Perbarui Template"
 msgid "Widgets pick a template instead of carrying their own settings. The built-in defaults can never be deleted — duplicate one to edit it as a new template."
 msgstr "Widget memilih template, bukan membawa pengaturannya sendiri. Template bawaan tidak bisa dihapus — duplikat salah satunya untuk mengeditnya sebagai template baru."
 
+msgid "Preview"
+msgstr "Pratinjau"
+
+msgid "Preview — sample data"
+msgstr "Pratinjau — data contoh"
+
+msgid "Live preview of this template with sample data. It updates as you change the settings above."
+msgstr "Pratinjau langsung template ini dengan data contoh. Pratinjau ikut berubah saat Anda mengubah pengaturan di atas."
+
+msgid "Layout preview — sample data"
+msgstr "Pratinjau tata letak — data contoh"
+
+msgid "Loading preview…"
+msgstr "Memuat pratinjau…"
+
 msgid "dari kemarin (%s)"
 msgstr "dari kemarin (%s)"
 

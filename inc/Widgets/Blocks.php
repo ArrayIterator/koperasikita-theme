@@ -44,8 +44,22 @@ final class Blocks
                 'icon' => $definition['icon'],
                 'category' => self::CATEGORY_SLUG,
                 'attributes' => $definition['attributes'],
+                // The inserter preview: without an `example` the
+                // inserter shows "No Preview Available" for the block.
+                // The example is just the attribute defaults, so the
+                // preview is the block as first inserted — a real
+                // ServerSideRender preview, not a placeholder.
+                'example' => ['attributes' => self::exampleAttributes($definition['attributes'])],
                 'editor_script' => 'kk-widget-blocks',
-                'editor_style' => 'kk-widget-blocks-editor',
+                // Both editor styles load inside the iframe canvas:
+                // the placeholder/field styles and the editor bundle
+                // (src/css/editor.css) with the frontend widget
+                // styles, so the ServerSideRender preview looks like
+                // the live site. Styles enqueued on
+                // `enqueue_block_editor_assets` never enter the
+                // canvas, which is why previews used to render
+                // unstyled (plain numbers, green titles, no rules).
+                'editor_style' => ['kk-widget-blocks-editor', 'kk-editor'],
                 'render_callback' => static function (array $attributes) use ($definition): string {
                     return self::render($attributes, $definition);
                 },
@@ -417,6 +431,39 @@ final class Blocks
         if ($css !== '') {
             wp_register_style('kk-widget-blocks-editor', $css, ['wp-edit-blocks'], KK_VERSION);
         }
+
+        // The editor bundle: the frontend styles the ServerSideRender
+        // previews need inside the iframe canvas (tokens, base,
+        // content, widgets, gold-markets, weather, variants, plus the
+        // canvas shell/title rules). Registered here so it can be a
+        // block `editor_style`; Enqueue::registerBlockEditor() also
+        // enqueues it in the outer admin page.
+        $editorCss = ViteLoader::css('src/css/editor.css');
+
+        if ($editorCss !== '') {
+            wp_register_style('kk-editor', $editorCss, ['wp-edit-blocks'], KK_VERSION);
+        }
+    }
+
+    /**
+     * The inserter-preview attributes for a block: its attribute
+     * defaults, so the example preview is the block as first
+     * inserted.
+     *
+     * @param array<string, array<string, mixed>> $attributes
+     * @return array<string, mixed>
+     */
+    private static function exampleAttributes(array $attributes): array
+    {
+        $example = [];
+
+        foreach ($attributes as $name => $schema) {
+            if (array_key_exists('default', $schema)) {
+                $example[$name] = $schema['default'];
+            }
+        }
+
+        return $example;
     }
 
     /**
