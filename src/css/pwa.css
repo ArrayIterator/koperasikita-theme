@@ -137,12 +137,15 @@ html.kk-nav-open .kk-pwa-float {
 }
 
 .kk-pwa-float--float-bottom {
+	/* Same width as the header/content container (.kk-shell): a
+	 * centered bar, not an edge-to-edge strip. The rounded corners
+	 * and side borders come back (the base .kk-pwa-float style) now
+	 * that the bar no longer touches the screen edges. */
 	left: 0;
 	right: 0;
+	width: min(100% - 32px, var(--kk-shell-max));
+	margin-inline: auto;
 	bottom: 64px;
-	border-radius: 0;
-	border-left: 0;
-	border-right: 0;
 	justify-content: center;
 }
 
