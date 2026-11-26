@@ -199,14 +199,10 @@ final class Pwa
             wp_enqueue_script('kk-pwa', $js, ['kk-main'], KK_VERSION, true);
         }
 
-        $css = ViteLoader::css('src/css/pwa.css');
-
-        if ($css !== '') {
-            /* Combined-CSS mode: the split chain is one file (kk-app),
-             * so depend on it instead of the missing kk-responsive. */
-            $dep = \KoperasiKita\Assets\Enqueue::isCombinedCss() ? 'kk-app' : 'kk-responsive';
-            wp_enqueue_style('kk-pwa', $css, [$dep], KK_VERSION);
-        }
+        /* The pwa.css lives in the split/combined chain now (see
+         * Enqueue::splitStyleEntries): it is concatenated into the
+         * combined file in combined mode and enqueued in order in
+         * split mode, so it is no longer enqueued separately here. */
     }
 
     /**

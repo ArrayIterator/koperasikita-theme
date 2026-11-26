@@ -27,18 +27,11 @@ final class Enqueue
             wp_enqueue_script('kk-main', $js, [], KK_VERSION, true);
         }
 
-        /* Feature styles depend on the last split file (kk-responsive)
-         * in split mode, and on the single combined file (kk-app) in
-         * combined mode — the combined file IS kk-app. */
-        $lastStyle = self::isCombinedCss() ? 'kk-app' : 'kk-responsive';
-
+        /* Feature styles live in the split/combined chain now (see
+         * splitStyleEntries): they are concatenated into the combined
+         * file in combined mode and enqueued in order in split mode.
+         * Only the scripts still enqueue separately here. */
         if (Features::isEnabled('markets')) {
-            $goldCss = ViteLoader::css('src/css/gold-markets.css');
-
-            if ($goldCss !== '') {
-                wp_enqueue_style('kk-gold-markets', $goldCss, [$lastStyle], KK_VERSION);
-            }
-
             $goldJs = ViteLoader::js('src/ts/gold-markets.ts');
 
             if ($goldJs !== '') {
@@ -47,12 +40,6 @@ final class Enqueue
         }
 
         if (Features::isEnabled('weather')) {
-            $weatherCss = ViteLoader::css('src/css/weather.css');
-
-            if ($weatherCss !== '') {
-                wp_enqueue_style('kk-weather', $weatherCss, [$lastStyle], KK_VERSION);
-            }
-
             $weatherJs = ViteLoader::js('src/ts/weather.ts');
 
             if ($weatherJs !== '') {
@@ -61,12 +48,6 @@ final class Enqueue
         }
 
         if (Features::isEnabled('agenda') && self::needsAgendaAssets()) {
-            $agendaCss = ViteLoader::css('src/css/agenda.css');
-
-            if ($agendaCss !== '') {
-                wp_enqueue_style('kk-agenda', $agendaCss, [$lastStyle], KK_VERSION);
-            }
-
             $agendaJs = ViteLoader::js('src/ts/agenda.ts');
 
             if ($agendaJs !== '') {
@@ -233,6 +214,28 @@ final class Enqueue
 
         if (is_front_page()) {
             $entries['kk-newsletter'] = 'src/css/newsletter.css';
+        }
+
+        /* Feature styles, last in the cascade — exactly where they
+         * used to load as separate files depending on kk-app (combined
+         * mode) or kk-responsive (split mode). They are part of the
+         * combined file too now: "combined" means every stylesheet
+         * the page serves, not just the core chain. Each one loads
+         * only under the same condition its feature used before. */
+        if (Features::isEnabled('markets')) {
+            $entries['kk-gold-markets'] = 'src/css/gold-markets.css';
+        }
+
+        if (Features::isEnabled('weather')) {
+            $entries['kk-weather'] = 'src/css/weather.css';
+        }
+
+        if (Features::isEnabled('agenda') && self::needsAgendaAssets()) {
+            $entries['kk-agenda'] = 'src/css/agenda.css';
+        }
+
+        if (Features::isEnabled('pwa')) {
+            $entries['kk-pwa'] = 'src/css/pwa.css';
         }
 
         return $entries;
