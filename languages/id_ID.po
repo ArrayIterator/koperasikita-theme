@@ -2360,11 +2360,11 @@ msgid "Show Breadcrumbs on 404 Pages"
 msgstr "Tampilkan Breadcrumb di Halaman 404"
 
 
-msgid "Use classic Header Style"
-msgstr "Pakai Gaya Header Klasik"
+msgid "Classic 2"
+msgstr "Klasik 2"
 
-msgid "Use No Border Header Style"
-msgstr "Pakai Gaya Header Tanpa Garis"
+msgid "Borderless Header"
+msgstr "Header Tanpa Garis"
 
 msgid "Hide"
 msgstr "Sembunyikan"

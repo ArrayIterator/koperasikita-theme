@@ -339,8 +339,9 @@ function buildDefinitions(api: Wp): BlockDef[] {
 		kind: 'select',
 		label: __('Header Style'),
 		options: [
-			{ value: 'classic', label: __('Use classic Header Style') },
-			{ value: 'no-border', label: __('Use No Border Header Style') },
+			{ value: 'classic', label: __('Classic') },
+			{ value: 'classic-2', label: __('Classic 2') },
+			{ value: 'no-border', label: __('Borderless Header') },
 			{ value: 'hide', label: __('Hide') },
 		],
 	};

@@ -10,11 +10,16 @@ use WP_Widget;
  * The widget header (title) style, shared by every Koperasi Kita
  * widget that renders a title.
  *
- * Three styles, picked per widget (classic form + block editor
+ * Four styles, picked per widget (classic form + block editor
  * InspectorControls):
- * - classic (default): the section-title look — lowercase title with
- *   a rule extending to the right (the "editor's picks" header).
- * - no-border: the same title, without the rule.
+ * - classic (default): the title with a rule extending to the right
+ *   (the "editor's picks" header); the widget container carries the
+ *   thick 2px top rule.
+ * - classic-2: like classic, but the title itself carries a 2px top
+ *   border like a category-block section title (`.kk-section-title`),
+ *   so the container's top rule is removed to avoid a doubled line.
+ * - no-border ("Borderless Header"): the same title, without any
+ *   border at all — no container rule, no title rule.
  * - hide: no header at all.
  *
  * An empty title hides the header whatever the style says — an empty
@@ -23,6 +28,7 @@ use WP_Widget;
 final class WidgetHeader
 {
     public const CLASSIC = 'classic';
+    public const CLASSIC_2 = 'classic-2';
     public const NO_BORDER = 'no-border';
     public const HIDE = 'hide';
 
@@ -32,15 +38,16 @@ final class WidgetHeader
     public static function options(): array
     {
         return [
-            ['value' => self::CLASSIC, 'label' => __('Use classic Header Style', 'koperasikita')],
-            ['value' => self::NO_BORDER, 'label' => __('Use No Border Header Style', 'koperasikita')],
+            ['value' => self::CLASSIC, 'label' => __('Classic', 'koperasikita')],
+            ['value' => self::CLASSIC_2, 'label' => __('Classic 2', 'koperasikita')],
+            ['value' => self::NO_BORDER, 'label' => __('Borderless Header', 'koperasikita')],
             ['value' => self::HIDE, 'label' => __('Hide', 'koperasikita')],
         ];
     }
 
     public static function sanitize(mixed $value): string
     {
-        return in_array($value, [self::CLASSIC, self::NO_BORDER, self::HIDE], true)
+        return in_array($value, [self::CLASSIC, self::CLASSIC_2, self::NO_BORDER, self::HIDE], true)
             ? (string) $value
             : self::CLASSIC;
     }
@@ -55,11 +62,15 @@ final class WidgetHeader
 
     /**
      * The widget container opening tag, with the no-border modifier
-     * when the header style is no-border. The container's top rule
-     * (content.css: .kk-sidebar .widget / .kk-widget-area .widget)
-     * is part of the header style — "no border" must remove it too,
-     * or the style setting changes nothing visible (the title rule
-     * alone is 1px; the container rule is the thick 2px line).
+     * when the header style is no-border or classic-2. The
+     * container's top rule (content.css: .kk-sidebar .widget /
+     * .kk-widget-area .widget) is part of the header style — "no
+     * border" must remove it too, or the style setting changes
+     * nothing visible (the title rule alone is 1px; the container
+     * rule is the thick 2px line). Classic-2 removes it as well
+     * because the title carries its own top border (like a
+     * category-block section title); keeping both would double the
+     * line.
      *
      * @param array<string, mixed> $args Display arguments.
      */
@@ -67,7 +78,7 @@ final class WidgetHeader
     {
         $before = (string) ($args['before_widget'] ?? '');
 
-        if ($style === self::NO_BORDER && $before !== '') {
+        if (in_array($style, [self::NO_BORDER, self::CLASSIC_2], true) && $before !== '') {
             $before = preg_replace('/class="([^"]*)"/', 'class="$1 kk-widget--no-border"', $before, 1) ?? $before;
         }
 
@@ -88,10 +99,16 @@ final class WidgetHeader
 
         $before = (string) ($args['before_title'] ?? '');
 
-        if ($style === self::NO_BORDER && $before !== '') {
+        if ($before !== '') {
             // Append the modifier to the title element's class list,
             // whatever the sidebar's before_title class is.
-            $before = preg_replace('/class="([^"]*)"/', 'class="$1 kk-widget-title--no-border"', $before, 1) ?? $before;
+            $modifier = $style === self::CLASSIC_2
+                ? 'kk-widget-title--classic-2'
+                : ($style === self::NO_BORDER ? 'kk-widget-title--no-border' : '');
+
+            if ($modifier !== '') {
+                $before = preg_replace('/class="([^"]*)"/', 'class="$1 ' . $modifier . '"', $before, 1) ?? $before;
+            }
         }
 
         echo $before . esc_html($title) . ($args['after_title'] ?? '');
