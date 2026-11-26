@@ -2688,6 +2688,22 @@ msgstr "Tampilkan Lokasi Acara di Halaman Agenda"
 msgid "View map"
 msgstr "Lihat peta"
 
+#: inc/Features/Agenda.php
+msgid "Map"
+msgstr "Peta"
+
+#: inc/Features/Agenda.php
+msgid "Search for a place…"
+msgstr "Cari tempat…"
+
+#: inc/Features/Agenda.php
+msgid "Click the map to place the pin, or drag the pin to move it. The coordinates are saved with the event."
+msgstr "Klik peta untuk menaruh pin, atau seret pin untuk memindahkannya. Koordinat tersimpan bersama acara."
+
+#: inc/Features/Agenda.php
+msgid "No pin placed"
+msgstr "Belum ada pin"
+
 msgid "The page you are looking for may have moved, or it no longer exists. Try searching, or go back to the homepage."
 msgstr "Halaman yang Anda cari mungkin telah dipindahkan, atau sudah tidak ada lagi. Coba cari, atau kembali ke beranda."
 
@@ -2797,3 +2813,58 @@ msgstr "Logo Seluler Gelap"
 #: inc/Customizer/Customizer.php
 msgid "Dark Logo"
 msgstr "Logo Gelap"
+
+#: inc/Features/Agenda.php
+#: template-parts/agenda/form-submit.php
+#: template-parts/agenda/popup-pick-location.php
+msgid "Pick Location"
+msgstr "Pilih Lokasi"
+
+#: template-parts/agenda/popup-pick-location.php
+msgid "Use this location"
+msgstr "Gunakan lokasi ini"
+
+#: template-parts/agenda/popup-pick-location.php
+msgid "Saved location"
+msgstr "Lokasi tersimpan"
+
+#: template-parts/agenda/popup-pick-location.php
+msgid "Choose a saved location…"
+msgstr "Pilih lokasi tersimpan…"
+
+#: inc/Admin/AgendaLocationsSettings.php
+#: template-parts/agenda/popup-pick-location.php
+msgid "Location description"
+msgstr "Deskripsi lokasi"
+
+#: template-parts/agenda/popup-pick-location.php
+msgid "No places found"
+msgstr "Tidak ada tempat ditemukan"
+
+#: inc/Admin/AgendaLocationsSettings.php
+msgid "Locations"
+msgstr "Lokasi"
+
+#: inc/Admin/AgendaLocationsSettings.php
+msgid "Add location"
+msgstr "Tambah lokasi"
+
+#: inc/Admin/AgendaLocationsSettings.php
+msgid "Address"
+msgstr "Alamat"
+
+#: template-parts/agenda/popup-pick-location.php
+msgid "Cancel"
+msgstr "Batal"
+
+#: inc/Admin/AgendaLocationsSettings.php
+msgid "Name"
+msgstr "Nama"
+
+#: inc/Admin/AgendaLocationsSettings.php
+msgid "No saved locations yet. Add one below."
+msgstr "Belum ada lokasi tersimpan. Tambahkan di bawah."
+
+#: inc/Admin/AgendaLocationsSettings.php
+msgid "Save the places you use often. They appear in the Pick Location popup, so you can reuse a place instead of searching for it again."
+msgstr "Simpan tempat yang sering Anda gunakan. Tempat tersebut muncul di popup Pilih Lokasi, sehingga Anda bisa menggunakannya lagi tanpa mencari dari awal."

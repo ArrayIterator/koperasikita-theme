@@ -174,6 +174,24 @@ if (isset($errors['form']) && isset($formErrors[$errors['form']])) {
             <?php endif; ?>
         </p>
 
+        <?php
+        $formLat = isset($values['lat']) && is_float($values['lat']) ? $values['lat'] : null;
+        $formLng = isset($values['lng']) && is_float($values['lng']) ? $values['lng'] : null;
+        $formDesc = isset($values['location_desc']) && is_string($values['location_desc']) ? $values['location_desc'] : '';
+        $formCoords = ($formLat !== null && $formLng !== null)
+            ? $formLat . ', ' . $formLng
+            : __('No pin placed', 'koperasikita');
+        ?>
+        <div class="kk-agenda-map-picker" data-kk-agenda-map-picker data-kk-agenda-default-lat="<?php echo esc_attr((string) \KoperasiKita\Features\Agenda::DEFAULT_LAT); ?>" data-kk-agenda-default-lng="<?php echo esc_attr((string) \KoperasiKita\Features\Agenda::DEFAULT_LNG); ?>" data-kk-agenda-no-pin="<?php esc_attr_e('No pin placed', 'koperasikita'); ?>">
+            <p class="kk-agenda-field">
+                <button type="button" class="kk-button" data-kk-agenda-pick><?php esc_html_e('Pick Location', 'koperasikita'); ?></button>
+            </p>
+            <p class="kk-agenda-coords" data-kk-agenda-coords><?php echo esc_html($formCoords); ?></p>
+            <input type="hidden" name="kk_agenda_lat" value="<?php echo esc_attr($formLat !== null ? (string) $formLat : ''); ?>" data-kk-agenda-lat>
+            <input type="hidden" name="kk_agenda_lng" value="<?php echo esc_attr($formLng !== null ? (string) $formLng : ''); ?>" data-kk-agenda-lng>
+            <input type="hidden" name="kk_agenda_location_desc" value="<?php echo esc_attr($formDesc); ?>" data-kk-agenda-location-desc>
+        </div>
+
         <p class="kk-agenda-field">
             <label for="kk-agenda-description"><?php esc_html_e('Description', 'koperasikita'); ?></label>
             <textarea
@@ -202,4 +220,6 @@ if (isset($errors['form']) && isset($formErrors[$errors['form']])) {
 
         <p class="kk-agenda-hint"><?php esc_html_e('Your submission is saved as a draft for review. It only appears on the agenda once an editor publishes it.', 'koperasikita'); ?></p>
     </form>
+
+    <?php get_template_part('template-parts/agenda/popup-pick-location'); ?>
 </div>

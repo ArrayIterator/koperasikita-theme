@@ -44,6 +44,28 @@ final class Agenda
 
     public const META_START_TS = '_kk_agenda_start_ts';
 
+    /** Map pin coordinates, stored alongside the venue text. */
+    public const META_LAT = '_kk_agenda_lat';
+
+    public const META_LNG = '_kk_agenda_lng';
+
+    /** Per-event venue description/notes, shown in the map marker popup. */
+    public const META_LOCATION_DESC = '_kk_agenda_location_desc';
+
+    /** Saved reusable locations (option `kk_agenda_locations`). */
+    public const LOCATIONS_OPTION = 'kk_agenda_locations';
+
+    /** Saved locations page slug (under the Agenda menu). */
+    public const LOCATIONS_PAGE_SLUG = 'kk-agenda-locations';
+
+    /** A location description is silently truncated past this length. */
+    public const LOCATION_DESC_MAX = 200;
+
+    /** Default map centre (Padang, same as the weather default). */
+    public const DEFAULT_LAT = -0.9471;
+
+    public const DEFAULT_LNG = 100.4172;
+
     /** Maximum submissions from one IP address within the rate window. */
     public const RATE_LIMIT_MAX = 3;
 
@@ -96,11 +118,18 @@ final class Agenda
         // priority that is currently running, is not picked up.
         self::registerPostType();
         self::registerMeta();
+        \KoperasiKita\Admin\AgendaLocationsSettings::register();
         add_action('init', [self::class, 'handleSubmission'], 20);
         add_action('after_switch_theme', 'flush_rewrite_rules');
         add_action('add_meta_boxes_' . self::POST_TYPE, [self::class, 'registerMetaBox']);
         add_action('save_post_' . self::POST_TYPE, [self::class, 'saveMetaBox'], 10, 2);
         add_action('save_post_' . self::POST_TYPE, [self::class, 'ensureMeta'], 20);
+        // The Pick Location popup is rendered once at the end of the
+        // admin page (never inside the meta box): a position:fixed
+        // popup inside the editor sidebar can be trapped by an ancestor
+        // stacking context, and it must sit above the editor but below
+        // the admin menu and admin bar (see the popup stylesheet).
+        add_action('admin_footer', [self::class, 'renderPickLocationPopup']);
         add_action('pre_get_posts', [self::class, 'orderArchive']);
         add_filter('manage_' . self::POST_TYPE . '_posts_columns', [self::class, 'adminColumns']);
         add_action('manage_' . self::POST_TYPE . '_posts_custom_column', [self::class, 'renderAdminColumn'], 10, 2);
@@ -210,6 +239,42 @@ final class Agenda
                 'auth_callback' => $auth,
             ]
         );
+
+        register_post_meta(
+            self::POST_TYPE,
+            self::META_LAT,
+            [
+                'type' => 'number',
+                'single' => true,
+                'show_in_rest' => true,
+                'sanitize_callback' => [self::class, 'sanitizeLatitude'],
+                'auth_callback' => $auth,
+            ]
+        );
+
+        register_post_meta(
+            self::POST_TYPE,
+            self::META_LNG,
+            [
+                'type' => 'number',
+                'single' => true,
+                'show_in_rest' => true,
+                'sanitize_callback' => [self::class, 'sanitizeLongitude'],
+                'auth_callback' => $auth,
+            ]
+        );
+
+        register_post_meta(
+            self::POST_TYPE,
+            self::META_LOCATION_DESC,
+            [
+                'type' => 'string',
+                'single' => true,
+                'show_in_rest' => true,
+                'sanitize_callback' => 'sanitize_text_field',
+                'auth_callback' => $auth,
+            ]
+        );
     }
 
     /**
@@ -246,6 +311,52 @@ final class Agenda
     }
 
     /**
+     * Sanitizer for one map coordinate. Anything that is not a finite
+     * number inside the range becomes null, so bad input can never be
+     * stored — an invalid pin is dropped, never saved.
+     *
+     * @param mixed $value Raw input.
+     */
+    public static function sanitizeCoordinate($value, float $min, float $max): ?float
+    {
+        if ($value === '' || $value === null) {
+            return null;
+        }
+
+        if (is_string($value)) {
+            $value = trim($value);
+
+            if (!is_numeric($value)) {
+                return null;
+            }
+
+            $value = (float) $value;
+        } elseif (is_int($value) || is_float($value)) {
+            $value = (float) $value;
+        } else {
+            return null;
+        }
+
+        if (!is_finite($value) || $value < $min || $value > $max) {
+            return null;
+        }
+
+        return $value;
+    }
+
+    /** @param mixed $value Raw input. */
+    public static function sanitizeLatitude($value): ?float
+    {
+        return self::sanitizeCoordinate($value, -90.0, 90.0);
+    }
+
+    /** @param mixed $value Raw input. */
+    public static function sanitizeLongitude($value): ?float
+    {
+        return self::sanitizeCoordinate($value, -180.0, 180.0);
+    }
+
+    /**
      * Event details for one agenda item, with every value already cleaned.
      * An item without a start date reports start_ts 0, even though the
      * stored sort key is the far-future NO_DATE_TS sentinel (see saveMeta):
@@ -258,7 +369,7 @@ final class Agenda
      * afterwards — and get_post_meta(..., true) would return the first
      * (empty) row, hiding the event's date entirely.
      *
-     * @return array{start: string, end: string, location: string, start_ts: int}
+     * @return array{start: string, end: string, location: string, start_ts: int, lat: float|null, lng: float|null, location_desc: string}
      */
     public static function getMeta(int $postId): array
     {
@@ -266,6 +377,9 @@ final class Agenda
         $end = self::firstValidDatetime(get_post_meta($postId, self::META_END, false));
         $location = self::firstNonEmptyText(get_post_meta($postId, self::META_LOCATION, false));
         $startTs = self::firstRealTimestamp(get_post_meta($postId, self::META_START_TS, false));
+        $lat = self::firstValidCoordinate(get_post_meta($postId, self::META_LAT, false), -90.0, 90.0);
+        $lng = self::firstValidCoordinate(get_post_meta($postId, self::META_LNG, false), -180.0, 180.0);
+        $locationDesc = self::firstNonEmptyText(get_post_meta($postId, self::META_LOCATION_DESC, false));
 
         if ($start === '') {
             return [
@@ -273,6 +387,9 @@ final class Agenda
                 'end' => $end,
                 'location' => $location,
                 'start_ts' => 0,
+                'lat' => $lat,
+                'lng' => $lng,
+                'location_desc' => $locationDesc,
             ];
         }
 
@@ -289,7 +406,28 @@ final class Agenda
             'end' => $end,
             'location' => $location,
             'start_ts' => $startTs,
+            'lat' => $lat,
+            'lng' => $lng,
+            'location_desc' => $locationDesc,
         ];
+    }
+
+    /**
+     * The saved reusable locations, already cleaned: rows with an empty
+     * name or invalid coordinates are dropped, so a half-filled row can
+     * never reach the picker.
+     *
+     * @return array<int, array{name: string, address: string, lat: float, lng: float, description: string}>
+     */
+    public static function savedLocations(): array
+    {
+        $option = get_option(self::LOCATIONS_OPTION, []);
+
+        if (!is_array($option)) {
+            return [];
+        }
+
+        return \KoperasiKita\Admin\AgendaLocationsSettings::sanitizeLocations($option);
     }
 
     /**
@@ -352,20 +490,62 @@ final class Agenda
     }
 
     /**
+     * First meta row that parses to a real coordinate inside the range,
+     * or null when there is none.
+     *
+     * @param array<int, mixed> $rows
+     */
+    private static function firstValidCoordinate(array $rows, float $min, float $max): ?float
+    {
+        foreach ($rows as $row) {
+            $clean = self::sanitizeCoordinate($row, $min, $max);
+
+            if ($clean !== null) {
+                return $clean;
+            }
+        }
+
+        return null;
+    }
+
+    /**
      * Save the event details for one agenda item. The timestamp is always
      * derived from the validated start string, never trusted on its own.
      * A dateless item stores the NO_DATE_TS sentinel as its sort key so
-     * it orders last on the archive instead of first.
+     * it orders last on the archive instead of first. Null coordinates
+     * delete the stored pin: an item without a pin carries no rows. The
+     * location description is truncated to LOCATION_DESC_MAX characters
+     * instead of failing the save, the same spirit as an invalid pin
+     * being dropped silently.
      */
-    public static function saveMeta(int $postId, string $start, string $end, string $location): void
+    public static function saveMeta(int $postId, string $start, string $end, string $location, ?float $lat = null, ?float $lng = null, string $locationDesc = ''): void
     {
         $start = self::sanitizeDatetime($start);
         $end = self::sanitizeDatetime($end);
         $location = sanitize_text_field($location);
+        $locationDesc = mb_substr(sanitize_text_field($locationDesc), 0, self::LOCATION_DESC_MAX);
 
         update_post_meta($postId, self::META_START, $start);
         update_post_meta($postId, self::META_END, $end);
         update_post_meta($postId, self::META_LOCATION, $location);
+
+        if ($lat === null) {
+            delete_post_meta($postId, self::META_LAT);
+        } else {
+            update_post_meta($postId, self::META_LAT, $lat);
+        }
+
+        if ($lng === null) {
+            delete_post_meta($postId, self::META_LNG);
+        } else {
+            update_post_meta($postId, self::META_LNG, $lng);
+        }
+
+        if ($locationDesc === '') {
+            delete_post_meta($postId, self::META_LOCATION_DESC);
+        } else {
+            update_post_meta($postId, self::META_LOCATION_DESC, $locationDesc);
+        }
 
         $startTs = self::NO_DATE_TS;
         if ($start !== '') {
@@ -496,6 +676,9 @@ final class Agenda
         $date = $meta['start'] !== '' ? substr($meta['start'], 0, 10) : '';
         $startTime = $meta['start'] !== '' ? substr($meta['start'], 11, 5) : '';
         $endTime = $meta['end'] !== '' ? substr($meta['end'], 11, 5) : '';
+        $coords = ($meta['lat'] !== null && $meta['lng'] !== null)
+            ? $meta['lat'] . ', ' . $meta['lng']
+            : __('No pin placed', 'koperasikita');
 
         wp_nonce_field('kk_agenda_meta_box', 'kk_agenda_meta_nonce');
         ?>
@@ -515,8 +698,34 @@ final class Agenda
             <label for="kk-agenda-location"><strong><?php esc_html_e('Location', 'koperasikita'); ?></strong></label><br>
             <input type="text" id="kk-agenda-location" name="kk_agenda_location" value="<?php echo esc_attr($meta['location']); ?>" style="width: 100%;">
         </p>
+        <div class="kk-agenda-map-picker" data-kk-agenda-map-picker data-kk-agenda-default-lat="<?php echo esc_attr((string) self::DEFAULT_LAT); ?>" data-kk-agenda-default-lng="<?php echo esc_attr((string) self::DEFAULT_LNG); ?>" data-kk-agenda-no-pin="<?php esc_attr_e('No pin placed', 'koperasikita'); ?>">
+            <p>
+                <button type="button" class="button" data-kk-agenda-pick><?php esc_html_e('Pick Location', 'koperasikita'); ?></button>
+            </p>
+            <p class="kk-agenda-coords" data-kk-agenda-coords><?php echo esc_html($coords); ?></p>
+            <input type="hidden" name="kk_agenda_lat" value="<?php echo esc_attr($meta['lat'] !== null ? (string) $meta['lat'] : ''); ?>" data-kk-agenda-lat>
+            <input type="hidden" name="kk_agenda_lng" value="<?php echo esc_attr($meta['lng'] !== null ? (string) $meta['lng'] : ''); ?>" data-kk-agenda-lng>
+            <input type="hidden" name="kk_agenda_location_desc" value="<?php echo esc_attr($meta['location_desc']); ?>" data-kk-agenda-location-desc>
+        </div>
         <p class="description"><?php esc_html_e('Date, start time and location are required for the event to show up properly on the agenda archive.', 'koperasikita'); ?></p>
         <?php
+    }
+
+    /**
+     * The shared Pick Location popup, rendered once at the end of the
+     * agenda editor screen (post.php / post-new.php only). The submit
+     * form renders the same template part itself, so both contexts
+     * share one popup and one script.
+     */
+    public static function renderPickLocationPopup(): void
+    {
+        $screen = function_exists('get_current_screen') ? get_current_screen() : null;
+
+        if (!$screen instanceof \WP_Screen || $screen->post_type !== self::POST_TYPE || !in_array($screen->base, ['post', 'post-new'], true)) {
+            return;
+        }
+
+        get_template_part('template-parts/agenda/popup-pick-location');
     }
 
     public static function saveMetaBox(int $postId, \WP_Post $post): void
@@ -537,17 +746,20 @@ final class Agenda
         $startTime = isset($_POST['kk_agenda_start_time']) ? sanitize_text_field(wp_unslash($_POST['kk_agenda_start_time'])) : '';
         $endTime = isset($_POST['kk_agenda_end_time']) ? sanitize_text_field(wp_unslash($_POST['kk_agenda_end_time'])) : '';
         $location = isset($_POST['kk_agenda_location']) ? sanitize_text_field(wp_unslash($_POST['kk_agenda_location'])) : '';
+        $lat = isset($_POST['kk_agenda_lat']) ? self::sanitizeLatitude(wp_unslash($_POST['kk_agenda_lat'])) : null;
+        $lng = isset($_POST['kk_agenda_lng']) ? self::sanitizeLongitude(wp_unslash($_POST['kk_agenda_lng'])) : null;
+        $locationDesc = isset($_POST['kk_agenda_location_desc']) ? sanitize_text_field(wp_unslash($_POST['kk_agenda_location_desc'])) : '';
 
         // Only overwrite the stored details when the editor actually sent
         // the box: a quick edit or a revision save must not wipe them.
-        if ($date === '' && $startTime === '' && $endTime === '' && $location === '') {
+        if ($date === '' && $startTime === '' && $endTime === '' && $location === '' && $lat === null && $lng === null && $locationDesc === '') {
             return;
         }
 
         $start = ($date !== '' && $startTime !== '') ? $date . ' ' . $startTime : '';
         $end = ($date !== '' && $endTime !== '') ? $date . ' ' . $endTime : '';
 
-        self::saveMeta($postId, $start, $end, $location);
+        self::saveMeta($postId, $start, $end, $location, $lat, $lng, $locationDesc);
     }
 
     /** @param array<string, string> $columns */
@@ -731,7 +943,10 @@ final class Agenda
             (int) $postId,
             $values['start'],
             $values['end'],
-            $values['location']
+            $values['location'],
+            $values['lat'],
+            $values['lng'],
+            $values['location_desc']
         );
 
         self::bumpRateLimit();
@@ -743,8 +958,12 @@ final class Agenda
     /**
      * Validates and sanitises a raw submission.
      *
+     * Coordinates are optional enrichment: an invalid pin is dropped
+     * silently instead of failing the whole submission — the venue text
+     * is the required field, the pin only places it on a map.
+     *
      * @param array<string, mixed> $input Raw $_POST data.
-     * @return array{errors: array<string, string>, values: array<string, string>} Error codes keyed by field plus the cleaned values to re-fill the form with.
+     * @return array{errors: array<string, string>, values: array<string, mixed>} Error codes keyed by field plus the cleaned values to re-fill the form with.
      */
     public static function validateSubmission(array $input): array
     {
@@ -762,6 +981,9 @@ final class Agenda
         $endTime = sanitize_text_field(wp_unslash($raw('kk_agenda_end_time')));
         $location = sanitize_text_field(wp_unslash($raw('kk_agenda_location')));
         $description = wp_kses_post(wp_unslash($raw('kk_agenda_description')));
+        $lat = self::sanitizeLatitude($raw('kk_agenda_lat'));
+        $lng = self::sanitizeLongitude($raw('kk_agenda_lng'));
+        $locationDesc = mb_substr(sanitize_text_field(wp_unslash($raw('kk_agenda_location_desc'))), 0, self::LOCATION_DESC_MAX);
 
         $errors = [];
 
@@ -827,6 +1049,9 @@ final class Agenda
                 'end_time' => $endTime,
                 'location' => $location,
                 'description' => $description,
+                'lat' => $lat,
+                'lng' => $lng,
+                'location_desc' => $locationDesc,
                 'start' => ($date !== '' && $startTime !== '' && empty($errors['date']) && empty($errors['start_time'])) ? $date . ' ' . $startTime : '',
                 'end' => ($date !== '' && $endTime !== '' && empty($errors['end_time'])) ? $date . ' ' . $endTime : '',
             ],

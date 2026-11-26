@@ -457,6 +457,33 @@ final class Enqueue
             return;
         }
 
+        /* Agenda editor and Locations page: the Pick Location popup
+         * (agenda.ts + agenda.css). The branch runs before the
+         * widgets/customizer early return below, which would drop it. */
+        if (Features::isEnabled('agenda')) {
+            $screen = function_exists('get_current_screen') ? get_current_screen() : null;
+            $isAgendaEditor = $screen instanceof \WP_Screen
+                && $screen->post_type === \KoperasiKita\Features\Agenda::POST_TYPE
+                && in_array($screen->base, ['post', 'post-new'], true);
+            $isAgendaLocations = $hookSuffix === 'agenda_page_' . \KoperasiKita\Features\Agenda::LOCATIONS_PAGE_SLUG;
+
+            if ($isAgendaEditor || $isAgendaLocations) {
+                $agendaCss = ViteLoader::css('src/css/agenda.css');
+
+                if ($agendaCss !== '') {
+                    wp_enqueue_style('kk-agenda', $agendaCss, [], KK_VERSION);
+                }
+
+                $agendaJs = ViteLoader::js('src/ts/agenda.ts');
+
+                if ($agendaJs !== '') {
+                    wp_enqueue_script('kk-agenda', $agendaJs, [], KK_VERSION, true);
+                }
+
+                return;
+            }
+        }
+
         if (!$isWidgets && !$isCustomizer) {
             return;
         }

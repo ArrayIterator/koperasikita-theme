@@ -1,3 +1,5 @@
+@import 'leaflet/dist/leaflet.css';
+
 /* ==========================================================================
    Koperasi Kita — agenda
    Standalone stylesheet for the Agenda feature: the contributor submission
@@ -256,6 +258,47 @@
 	text-decoration: underline;
 }
 
+/* --- Event map ----------------------------------------------------------- */
+/* The embedded map on a single event, and the map picker in the admin
+ * meta box and the contributor form. The container stays hidden until
+ * the map script marks it ready, so without the map library there is
+ * no empty box — the venue text is the fallback, as before. The
+ * library (Leaflet or Google) renders into [data-kk-agenda-map]. */
+.kk-agenda-map {
+	display: none;
+	box-sizing: border-box;
+	width: 100%;
+	height: 18rem;
+	margin: 0 0 16px;
+	border: 1px solid var(--kk-border);
+	border-radius: var(--kk-radius);
+	background: var(--kk-surface);
+}
+
+.kk-agenda-map.is-ready {
+	display: block;
+}
+
+.kk-agenda-map-picker {
+	display: none;
+}
+
+.kk-agenda-map-picker.is-ready {
+	display: block;
+}
+
+.kk-agenda-map-picker .kk-agenda-map {
+	height: 16rem;
+	margin: 0 0 8px;
+}
+
+.kk-agenda-coords {
+	margin: 0 0 8px;
+	font-size: 14px;
+	line-height: 1.55;
+	color: var(--kk-muted);
+}
+
 .kk-agenda-single .kk-article-content {
 	margin-top: 20px;
 	font-size: var(--article-font-size, 17px);
@@ -297,4 +340,224 @@
 		width: auto;
 		min-width: 220px;
 	}
+}
+
+/* --- Pick Location popup -------------------------------------------------- */
+/* One shared centered popup (blurred backdrop, per the popup standard)
+ * for the admin meta box and the contributor form. It sits above the
+ * editor but below the admin menu (z-index 9999) and the admin bar
+ * (99999): container 8999, the backdrop and dialog are layers inside
+ * it. The container is display: flex, so it needs the explicit
+ * [hidden] rule — the user-agent rule loses to the author display
+ * (same gotcha as the menu icon grid). */
+.kk-agenda-pick-location {
+	position: fixed;
+	inset: 0;
+	z-index: 8999;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	box-sizing: border-box;
+	padding: 1rem;
+}
+
+.kk-agenda-pick-location[hidden] {
+	display: none;
+}
+
+.kk-agenda-pick-location-backdrop {
+	position: absolute;
+	inset: 0;
+	background: rgba(18, 18, 18, 0.5);
+	backdrop-filter: blur(4px);
+}
+
+.kk-agenda-pick-location-dialog {
+	position: relative;
+	z-index: 1;
+	box-sizing: border-box;
+	width: 100%;
+	max-width: 36rem;
+	max-height: calc(100dvh - 2rem);
+	overflow: auto;
+	padding: 1.25rem;
+	border: 1px solid var(--kk-border);
+	border-radius: var(--kk-radius);
+	background: var(--kk-surface);
+	color: var(--kk-ink);
+	box-shadow: 0 12px 40px rgba(0, 0, 0, 0.25);
+}
+
+.kk-agenda-pick-location-dialog h2 {
+	margin: 0 0 1rem;
+	font-size: 1.25rem;
+	line-height: 1.3;
+}
+
+.kk-agenda-popup-field {
+	margin: 0 0 12px;
+}
+
+.kk-agenda-popup-field label {
+	display: block;
+	margin-bottom: 6px;
+	font-weight: 600;
+	font-size: 15px;
+	color: var(--kk-ink);
+}
+
+.kk-agenda-popup-field input[type="text"],
+.kk-agenda-popup-field input[type="number"],
+.kk-agenda-popup-field input[type="search"],
+.kk-agenda-popup-field select {
+	box-sizing: border-box;
+	width: 100%;
+	min-height: 44px;
+	padding: 10px 12px;
+	font-size: 16px;
+	line-height: 1.4;
+	color: var(--kk-ink);
+	background: var(--kk-surface);
+	border: 1px solid var(--kk-border);
+	border-radius: var(--kk-radius);
+}
+
+.kk-agenda-popup-field input:focus-visible,
+.kk-agenda-popup-field select:focus-visible {
+	outline: 2px solid var(--kk-gold, #c9962e);
+	outline-offset: 1px;
+	border-color: var(--kk-green, #0b6b3a);
+}
+
+.kk-agenda-popup-coords {
+	display: flex;
+	gap: 12px;
+}
+
+.kk-agenda-popup-coords .kk-agenda-popup-field {
+	flex: 1 1 0;
+	min-width: 0;
+}
+
+/* The popup's own map: same 16rem as the old inline picker map. */
+.kk-agenda-pick-location .kk-agenda-map {
+	height: 16rem;
+	margin: 0 0 8px;
+}
+
+/* Place search results: a plain list under the search box. */
+.kk-agenda-popup-results {
+	list-style: none;
+	margin: 0 0 8px;
+	padding: 0;
+	border: 1px solid var(--kk-border);
+	border-radius: var(--kk-radius);
+	max-height: 12rem;
+	overflow: auto;
+}
+
+.kk-agenda-popup-result {
+	display: block;
+	box-sizing: border-box;
+	width: 100%;
+	padding: 10px 12px;
+	text-align: left;
+	font-size: 15px;
+	line-height: 1.45;
+	color: var(--kk-ink);
+	background: transparent;
+	border: 0;
+	border-bottom: 1px solid var(--kk-border);
+	cursor: pointer;
+}
+
+.kk-agenda-popup-result:last-child {
+	border-bottom: 0;
+}
+
+.kk-agenda-popup-result:hover,
+.kk-agenda-popup-result:focus-visible {
+	background: rgba(11, 107, 58, 0.08);
+}
+
+.kk-agenda-popup-results-empty {
+	padding: 10px 12px;
+	font-size: 15px;
+	color: var(--kk-muted);
+}
+
+.kk-agenda-pick-location-actions {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px;
+	justify-content: flex-end;
+	margin: 16px 0 0;
+}
+
+/* The popup lives in the admin AND on the frontend, so its buttons
+ * carry their own styling instead of relying on WP's .button (admin
+ * only) or the theme's .kk-button (frontend only). */
+.kk-agenda-pick-location-actions .button {
+	box-sizing: border-box;
+	min-height: 44px;
+	padding: 10px 18px;
+	font-size: 15px;
+	font-weight: 600;
+	line-height: 1.4;
+	border: 1px solid var(--kk-border);
+	border-radius: var(--kk-radius);
+	background: var(--kk-surface);
+	color: var(--kk-ink);
+	cursor: pointer;
+}
+
+.kk-agenda-pick-location-actions .button-primary {
+	border-color: var(--kk-green, #0b6b3a);
+	background: var(--kk-green, #0b6b3a);
+	color: #fff;
+}
+
+/* --- Map pin -------------------------------------------------------------- */
+/* The marker is pure CSS (no marker-image assets): a green teardrop —
+ * a square with three rounded corners, rotated -45°, so the sharp
+ * corner points down — with a white dot in the middle. The divIcon
+ * wrapper gets the default Leaflet white background and border
+ * removed. The teardrop's tip sits ~6px below the 28px box, so the
+ * icon anchor is [14, 34]: the tip, not the box, marks the place. */
+.kk-agenda-pin-icon {
+	background: transparent;
+	border: none;
+}
+
+.kk-agenda-pin {
+	position: relative;
+	display: block;
+	box-sizing: border-box;
+	width: 28px;
+	height: 28px;
+}
+
+.kk-agenda-pin::before {
+	content: '';
+	position: absolute;
+	inset: 0;
+	box-sizing: border-box;
+	border-radius: 50% 50% 50% 0;
+	background: var(--kk-green, #0b6b3a);
+	border: 2px solid #fff;
+	box-shadow: 0 1px 4px rgba(0, 0, 0, 0.35);
+	transform: rotate(-45deg);
+}
+
+.kk-agenda-pin::after {
+	content: '';
+	position: absolute;
+	left: 50%;
+	top: 50%;
+	width: 8px;
+	height: 8px;
+	margin: -4px 0 0 -4px;
+	box-sizing: border-box;
+	border-radius: 50%;
+	background: #fff;
 }
