@@ -61,6 +61,7 @@ final class Theme
         add_action('customize_preview_init', [Enqueue::class, 'registerCustomizerPreview']);
         add_action('wp_enqueue_scripts', [Customizer::class, 'outputPaletteOverrides'], 20);
         add_action('wp_enqueue_scripts', [Customizer::class, 'outputTypographySizeOverrides'], 20);
+        add_action('wp_enqueue_scripts', [Customizer::class, 'outputClampOverrides'], 20);
         add_filter('get_custom_logo', [Customizer::class, 'filterCustomLogo']);
         add_filter('excerpt_length', [Customizer::class, 'filterExcerptLength'], 999);
         add_filter('excerpt_more', [Customizer::class, 'filterExcerptMore'], 999);

@@ -69,7 +69,7 @@
 
 .kk-latest-items.kk-layout-newsletter > .kk-card:first-child .kk-card-excerpt {
 	font-size: 15px;
-	-webkit-line-clamp: 2;
+	-webkit-line-clamp: var(--kk-excerpt-clamp, 2);
 }
 
 /* --- Feed rows (remaining cards) ------------------------------------------ */

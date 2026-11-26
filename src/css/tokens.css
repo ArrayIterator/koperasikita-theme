@@ -47,6 +47,11 @@
 	--kk-single-title-size: 40px;
 	--kk-card-title-size: 20px;
 	--kk-excerpt-size: 14px;
+	/* Title / excerpt line clamps (Customizer -> Appearance &
+	 * Accessibility). Unitless line counts; the -webkit-line-clamp
+	 * rules below read them via var(). */
+	--kk-title-clamp: 2;
+	--kk-excerpt-clamp: 2;
 	--kk-list-thumb-size: 180px;
 	/* Mobile bottom nav (Customizer -> Mobile Menu): the icon and
 	 * title sizes. Defaults match the bar as shipped. */

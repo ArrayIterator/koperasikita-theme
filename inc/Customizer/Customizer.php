@@ -50,6 +50,17 @@ final class Customizer
         'kk_mobile_menu_title_size' => ['--kk-mobile-menu-title-size', 11, 10, 16],
     ];
 
+    /**
+     * Title / excerpt line clamps (Customizer -> Appearance &
+     * Accessibility). Same shape as SIZE_SETTINGS but unitless line
+     * counts — the values feed --kk-title-clamp / --kk-excerpt-clamp,
+     * which the -webkit-line-clamp rules read via var().
+     */
+    private const CLAMP_SETTINGS = [
+        'kk_title_clamp' => ['--kk-title-clamp', 2, 1, 5],
+        'kk_excerpt_clamp' => ['--kk-excerpt-clamp', 2, 1, 5],
+    ];
+
     private const PALETTE_LABELS = [
         'kk_palette_primary' => 'Primary Color',
         'kk_palette_primary_dark' => 'Primary Dark Color',
@@ -976,6 +987,30 @@ final class Customizer
                 'next-prev' => esc_html__('Next Prev', 'koperasikita'),
             ],
         ]);
+
+        /* Title / excerpt line clamps: how many lines a post title or
+         * excerpt may wrap to in cards and lists before the ellipsis
+         * cuts it. Long titles that overflow on small phones (the
+         * search results especially) stay inside the card. Default 2. */
+        $clamp_controls = [
+            'kk_title_clamp' => ['Title Clamp', 2],
+            'kk_excerpt_clamp' => ['Excerpt Clamp', 2],
+        ];
+        foreach ($clamp_controls as $id => [$label, $default]) {
+            self::addSetting(
+                $wpCustomize,
+                $id,
+                $default,
+                static fn ($value) => self::clampInt($value, 1, 5),
+                'postMessage'
+            );
+            $wpCustomize->add_control($id, [
+                'label' => esc_html__($label, 'koperasikita'),
+                'section' => 'koperasikita_accessibility',
+                'type' => 'number',
+                'input_attrs' => ['min' => 1, 'max' => 5],
+            ]);
+        }
 
         self::addSetting(
             $wpCustomize,
@@ -2091,6 +2126,32 @@ final class Customizer
         }
 
         wp_add_inline_style('kk-app', $css);
+    }
+
+    /**
+     * Print the saved title/excerpt clamps onto the live site. Same
+     * shape as outputTypographySizeOverrides but unitless line counts
+     * (no 'px'): only values that differ from their defaults are
+     * printed, as --kk-title-clamp / --kk-excerpt-clamp on :root.
+     * The line-clamp rules read them via var().
+     */
+    public static function outputClampOverrides(): void
+    {
+        $declarations = '';
+
+        foreach (self::CLAMP_SETTINGS as $id => [$variable, $default, $min, $max]) {
+            $value = self::clampInt(get_theme_mod($id, $default), $min, $max);
+
+            if ($value !== $default) {
+                $declarations .= $variable . ':' . $value . ';';
+            }
+        }
+
+        if ($declarations === '') {
+            return;
+        }
+
+        wp_add_inline_style('kk-app', ':root{' . $declarations . '}');
     }
 
     /**

@@ -424,7 +424,7 @@
 
 /* Home card excerpts clamp to 2 like every other card/list excerpt. */
 .kk-home .kk-card-excerpt {
-	-webkit-line-clamp: 2;
+	-webkit-line-clamp: var(--kk-excerpt-clamp, 2);
 }
 
 /* --- Highlights ("Sorotan") ------------------------------------------------ */
