@@ -261,21 +261,27 @@ final class Pagination
             return '';
         }
 
-        $links = paginate_links([
-            'base' => str_replace(999999999, '%#%', esc_url(get_pagenum_link(999999999))),
-            'format' => '?paged=%#%',
-            'current' => $current,
-            'total' => $max_pages,
-            'mid_size' => 2,
-            'prev_text' => self::prevText(),
-            'next_text' => self::nextText(),
-            'type' => 'plain',
-        ]);
-
-        if (!$links) {
+        try {
+            $links = paginate_links([
+                'base' => str_replace('999999999', '%#%', esc_url(get_pagenum_link(999999999))),
+                'format' => '?paged=%#%',
+                'current' => $current,
+                'total' => $max_pages,
+                'mid_size' => 2,
+                'prev_text' => self::prevText(),
+                'next_text' => self::nextText(),
+                'type' => 'plain',
+            ]);
+        } catch (\Throwable) {
+            // A broken pagination link must never white-screen the
+            // page: the loader still works, just without the fallback.
             return '';
         }
 
-        return '<nav class="navigation pagination kk-pagination" aria-label="' . esc_attr__('Posts navigation', 'koperasikita') . '"><h2 class="screen-reader-text">' . esc_html__('Posts navigation', 'koperasikita') . '</h2><div class="nav-links">' . $links . '</div></nav>';
+        if (!$links || !is_string($links)) {
+            return '';
+        }
+
+        return '<nav class="navigation pagination kk-pagination" aria-label="' . esc_attr(__('Posts navigation', 'koperasikita')) . '"><h2 class="screen-reader-text">' . esc_html__('Posts navigation', 'koperasikita') . '</h2><div class="nav-links">' . $links . '</div></nav>';
     }
 }
