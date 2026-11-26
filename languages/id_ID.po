@@ -3795,3 +3795,27 @@ msgstr "Setiap %d jam"
 
 msgid "Daily gold prices from the Logam Mulia API price history (backup/prices CSV on GitHub). The sync runs automatically via WP-Cron on the schedule below and only inserts rows that are not in the database yet — one row per brand per day. Use the button below to sync on demand."
 msgstr "Harga emas harian dari riwayat harga Logam Mulia API (CSV backup/prices di GitHub). Sinkronisasi berjalan otomatis lewat WP-Cron sesuai jadwal di bawah dan hanya menyisipkan baris yang belum ada di database — satu baris per brand per hari. Gunakan tombol di bawah untuk sinkronisasi manual."
+
+#: inc/Features/Agenda.php
+msgid "Save this location for reuse"
+msgstr "Simpan lokasi ini untuk dipakai lagi"
+
+#: inc/Features/Agenda.php
+msgid "Type to search saved locations and places."
+msgstr "Ketik untuk mencari lokasi tersimpan dan tempat."
+
+#: inc/Admin/AgendaLocationsSettings.php
+msgid "Type to search saved locations and places. Picking one fills the fields below."
+msgstr "Ketik untuk mencari lokasi tersimpan dan tempat. Memilih salah satunya akan mengisi kolom di bawah."
+
+#: inc/Features/Agenda.php
+#: template-parts/agenda/form-submit.php
+#: inc/Admin/AgendaLocationsSettings.php
+msgid "Places"
+msgstr "Tempat"
+
+#: inc/Features/Agenda.php
+#: template-parts/agenda/form-submit.php
+#: inc/Admin/AgendaLocationsSettings.php
+msgid "Search for a place…"
+msgstr "Cari tempat…"

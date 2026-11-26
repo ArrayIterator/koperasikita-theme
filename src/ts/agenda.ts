@@ -24,8 +24,9 @@
  */
 
 import * as L from 'leaflet';
+import { initLocationSearch, type AjaxConfig } from './location-search';
 
-export {};
+export { filterSavedLocations, mergePlaceResults, parseSavedLocations } from './location-search';
 
 function $all<T extends Element>(selector: string, root: ParentNode = document): T[] {
 	return Array.from(root.querySelectorAll<T>(selector));
@@ -450,12 +451,18 @@ function initPickLocationPopup(): void {
 	}
 
 	// The picker blocks: each Pick Location button opens the popup
-	// for its own block.
+	// for its own block. The block is display: none until .is-ready
+	// (the popup needs JavaScript, so without it the button would be
+	// dead) — mark it ready here, now that the popup is wired. Until
+	// this line existed the button never appeared at all: nothing
+	// ever added the class, so the Event Details box showed the
+	// location text field and nothing else.
 	$all<HTMLElement>('[data-kk-agenda-map-picker]').forEach((block) => {
 		const picker = pickerFromBlock(block);
 		if (picker === null) {
 			return;
 		}
+		picker.block.classList.add('is-ready');
 		picker.pickButton.addEventListener('click', () => openPopup(picker));
 	});
 
@@ -585,4 +592,22 @@ document.addEventListener('DOMContentLoaded', () => {
 	initAgenda();
 	$all<HTMLElement>('[data-kk-agenda-map]').forEach((el) => initDisplayMap(el));
 	initPickLocationPopup();
+	initLocationSearchFields();
 });
+
+/**
+ * The inline location search on every agenda location field: the
+ * Event Details box, the Locations admin form, and the contributor
+ * form. The admin script localises kkAgendaData; on the frontend
+ * the shared kkData (ajaxUrl + the same nonce) is the fallback, so
+ * the contributor form searches through the same endpoint.
+ */
+function initLocationSearchFields(): void {
+	const adminData = (window as unknown as { kkAgendaData?: AjaxConfig }).kkAgendaData;
+	const frontData = (window as unknown as { kkData?: AjaxConfig }).kkData;
+	const config = adminData?.ajaxUrl && adminData?.nonce ? adminData : frontData?.ajaxUrl && frontData?.nonce ? frontData : null;
+
+	$all<HTMLElement>('[data-kk-agenda-location-search]').forEach((root) => {
+		initLocationSearch(root, config);
+	});
+}

@@ -382,6 +382,36 @@ final class AgendaLocationsSettings
             <input type="hidden" name="kk_location_id" value="<?php echo esc_attr($id); ?>">
             <table class="form-table">
                 <tr>
+                    <th scope="row"><label for="kk-location-search"><?php esc_html_e('Search for a place…', 'koperasikita'); ?></label></th>
+                    <td>
+                        <div
+                            class="kk-agenda-location-search"
+                            data-kk-agenda-location-search
+                            data-kk-agenda-location-context="location-form"
+                            data-kk-agenda-saved-locations="[]"
+                            data-kk-agenda-searching="<?php esc_attr_e('Searching…', 'koperasikita'); ?>"
+                            data-kk-agenda-no-results="<?php esc_attr_e('No places found', 'koperasikita'); ?>"
+                            data-kk-agenda-search-unavailable="<?php esc_attr_e('Search is unavailable right now.', 'koperasikita'); ?>"
+                            data-kk-agenda-saved-label="<?php esc_attr_e('Saved location', 'koperasikita'); ?>"
+                            data-kk-agenda-place-label="<?php esc_attr_e('Places', 'koperasikita'); ?>"
+                        >
+                            <input
+                                type="search"
+                                id="kk-location-search"
+                                class="regular-text"
+                                placeholder="<?php esc_attr_e('Search for a place…', 'koperasikita'); ?>"
+                                autocomplete="off"
+                                role="combobox"
+                                aria-expanded="false"
+                                aria-controls="kk-location-search-results"
+                                aria-autocomplete="list"
+                            >
+                            <ul class="kk-agenda-location-results" id="kk-location-search-results" role="listbox" hidden></ul>
+                        </div>
+                        <p class="description"><?php esc_html_e('Type to search saved locations and places. Picking one fills the fields below.', 'koperasikita'); ?></p>
+                    </td>
+                </tr>
+                <tr>
                     <th scope="row"><label for="kk-location-name"><?php esc_html_e('Name', 'koperasikita'); ?></label></th>
                     <td><input type="text" id="kk-location-name" name="kk_location_name" value="<?php echo esc_attr($form['name']); ?>" class="regular-text" required></td>
                 </tr>

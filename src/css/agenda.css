@@ -483,7 +483,108 @@
 .kk-agenda-popup-results-empty {
 	padding: 10px 12px;
 	font-size: 15px;
-	color: var(--kk-muted);
+	color: var(--kk-muted, #646970);
+}
+
+/* --- Inline location search (Event Details box, Locations form,
+ * contributor form) -------------------------------------------------- */
+/* The dropdown is positioned against the field wrapper, so it
+ * overlays the fields below instead of pushing them down — the meta
+ * box is a narrow sidebar column and a pushing list would shove the
+ * Pick Location button off the visible area. Hex fallbacks on every
+ * var(): the admin loads this file without tokens.css. */
+
+.kk-agenda-location-field {
+	margin: 0 0 12px;
+}
+
+.kk-agenda-location-field label {
+	display: block;
+	margin-bottom: 6px;
+}
+
+.kk-agenda-location-search {
+	position: relative;
+}
+
+.kk-agenda-location-search input[type="text"],
+.kk-agenda-location-search input[type="search"] {
+	box-sizing: border-box;
+	width: 100%;
+}
+
+.kk-agenda-location-results {
+	position: absolute;
+	left: 0;
+	right: 0;
+	top: calc(100% + 4px);
+	z-index: 60;
+	list-style: none;
+	margin: 0;
+	padding: 0;
+	background: var(--kk-surface, #fff);
+	border: 1px solid var(--kk-border, #dcdcde);
+	border-radius: var(--kk-radius, 3px);
+	box-shadow: 0 8px 24px rgba(0, 0, 0, 0.16);
+	max-height: 16rem;
+	overflow: auto;
+}
+
+.kk-agenda-location-results[hidden],
+.kk-agenda-save-location[hidden] {
+	display: none;
+}
+
+.kk-agenda-location-result {
+	display: block;
+	box-sizing: border-box;
+	width: 100%;
+	min-height: 44px;
+	padding: 10px 12px;
+	text-align: left;
+	font-size: 15px;
+	line-height: 1.45;
+	color: var(--kk-ink, #1d2327);
+	background: transparent;
+	border: 0;
+	border-bottom: 1px solid var(--kk-border, #dcdcde);
+	cursor: pointer;
+}
+
+li:last-child > .kk-agenda-location-result {
+	border-bottom: 0;
+}
+
+.kk-agenda-location-result:hover,
+.kk-agenda-location-result:focus-visible,
+.kk-agenda-location-result.is-active {
+	background: rgba(11, 107, 58, 0.08);
+}
+
+.kk-agenda-location-result-name {
+	display: block;
+	font-weight: 600;
+}
+
+.kk-agenda-location-result-meta {
+	display: block;
+	font-size: 13px;
+	color: var(--kk-muted, #646970);
+}
+
+.kk-agenda-location-status {
+	padding: 10px 12px;
+	font-size: 14px;
+	color: var(--kk-muted, #646970);
+}
+
+[data-kk-agenda-location-detail]:empty {
+	display: none;
+}
+
+.kk-agenda-save-location {
+	margin: 8px 0 0;
+	font-size: 14px;
 }
 
 .kk-agenda-pick-location-actions {

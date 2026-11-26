@@ -508,6 +508,15 @@ final class Enqueue
 
                 if ($agendaJs !== '') {
                     wp_enqueue_script('kk-agenda', $agendaJs, [], KK_VERSION, true);
+
+                    // The inline location search (Event Details box,
+                    // Locations form) posts to kk_agenda_place_search
+                    // through the shared AJAX envelope, which needs the
+                    // shared nonce and the admin-ajax URL.
+                    wp_localize_script('kk-agenda', 'kkAgendaData', [
+                        'ajaxUrl' => admin_url('admin-ajax.php'),
+                        'nonce' => \KoperasiKita\Api\Ajax::nonce(),
+                    ]);
                 }
 
                 return;

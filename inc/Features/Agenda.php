@@ -124,6 +124,11 @@ final class Agenda
         add_action('add_meta_boxes_' . self::POST_TYPE, [self::class, 'registerMetaBox']);
         add_action('save_post_' . self::POST_TYPE, [self::class, 'saveMetaBox'], 10, 2);
         add_action('save_post_' . self::POST_TYPE, [self::class, 'ensureMeta'], 20);
+        // Place search for the Event Details location field (and the
+        // Locations admin form): saved locations first, then the
+        // geocoder. Only users who can edit agenda items may search —
+        // contributors included, anonymous visitors never.
+        \KoperasiKita\Api\Ajax::add('kk_agenda_place_search', [self::class, 'ajaxSearchPlaces'], false, 'edit_posts');
         // The Pick Location popup is rendered once at the end of the
         // admin page (never inside the meta box): a position:fixed
         // popup inside the editor sidebar can be trapped by an ancestor
@@ -413,6 +418,205 @@ final class Agenda
     }
 
     /**
+     * AJAX: search places for the agenda location picker.
+     *
+     * Saved locations match first (instant, no network), then the
+     * geocoder — Open-Meteo through Weather::search() when the weather
+     * module is on, Nominatim direct when it is off, so the picker
+     * never goes silent just because weather is disabled. Geocoded
+     * rows that duplicate a saved location (same coordinates) are
+     * dropped: the saved row already carries the better name and
+     * description. Called through Api\Ajax, which already verified
+     * the nonce and the edit_posts capability.
+     *
+     * @return array{results: array<int, array{source: string, id: string, name: string, address: string, latitude: float, longitude: float, description: string}>}
+     */
+    public static function ajaxSearchPlaces(): array
+    {
+        $query = isset($_POST['query']) ? sanitize_text_field(wp_unslash($_POST['query'])) : '';
+
+        if (mb_strlen($query) < 2) {
+            return ['results' => []];
+        }
+
+        $results = [];
+        $needle = mb_strtolower($query);
+
+        foreach (self::savedLocations() as $saved) {
+            if (count($results) >= 5) {
+                break;
+            }
+
+            $haystack = mb_strtolower($saved['name'] . ' ' . $saved['address']);
+
+            if (!str_contains($haystack, $needle)) {
+                continue;
+            }
+
+            $results[] = [
+                'source' => 'saved',
+                'id' => $saved['id'] ?? '',
+                'name' => $saved['name'],
+                'address' => $saved['address'],
+                'latitude' => $saved['lat'],
+                'longitude' => $saved['lng'],
+                'description' => $saved['description'],
+            ];
+        }
+
+        $geocoded = Features::isEnabled('weather')
+            ? Weather::search($query)
+            : self::searchPlacesNominatim($query);
+
+        foreach ($geocoded as $place) {
+            if (count($results) >= 8) {
+                break;
+            }
+
+            if (!isset($place['name'], $place['latitude'], $place['longitude'])) {
+                continue;
+            }
+
+            $latitude = (float) $place['latitude'];
+            $longitude = (float) $place['longitude'];
+
+            // A geocoded row on top of a saved place adds nothing:
+            // the saved row already has the curated name, address
+            // and description for these coordinates.
+            $duplicate = false;
+
+            foreach ($results as $kept) {
+                if (abs($kept['latitude'] - $latitude) < 0.01 && abs($kept['longitude'] - $longitude) < 0.01) {
+                    $duplicate = true;
+                    break;
+                }
+            }
+
+            if ($duplicate) {
+                continue;
+            }
+
+            $results[] = [
+                'source' => 'geocoded',
+                'id' => '',
+                'name' => sanitize_text_field((string) $place['name']),
+                'address' => sanitize_text_field((string) ($place['country'] ?? '')),
+                'latitude' => $latitude,
+                'longitude' => $longitude,
+                'description' => '',
+            ];
+        }
+
+        return ['results' => $results];
+    }
+
+    /**
+     * Geocode a place name through Nominatim (OpenStreetMap), the
+     * fallback when the weather module — and with it the Open-Meteo
+     * geocoder — is off. Server-side, so the browser never talks to
+     * a third party directly. The first comma segment is the place
+     * name, the rest is the address; a failed fetch answers with an
+     * empty list, never an error, so the saved locations still show.
+     *
+     * @return array<int, array{name: string, latitude: float, longitude: float, country: string}>
+     */
+    private static function searchPlacesNominatim(string $query): array
+    {
+        $url = add_query_arg(
+            [
+                'format' => 'json',
+                'limit' => 5,
+                'accept-language' => 'id',
+                'q' => $query,
+            ],
+            'https://nominatim.openstreetmap.org/search'
+        );
+
+        $response = wp_remote_get($url, [
+            'timeout' => 5,
+            'user-agent' => 'KoperasiKita/1.0 (+' . home_url() . ')',
+        ]);
+
+        if (is_wp_error($response) || (int) wp_remote_retrieve_response_code($response) !== 200) {
+            return [];
+        }
+
+        $body = json_decode((string) wp_remote_retrieve_body($response), true);
+
+        if (!is_array($body)) {
+            return [];
+        }
+
+        $results = [];
+
+        foreach ($body as $row) {
+            if (!is_array($row) || !isset($row['lat'], $row['lon'], $row['display_name'])) {
+                continue;
+            }
+
+            $lat = Agenda::sanitizeLatitude($row['lat']);
+            $lng = Agenda::sanitizeLongitude($row['lon']);
+
+            if ($lat === null || $lng === null) {
+                continue;
+            }
+
+            $parts = array_map('trim', explode(',', (string) $row['display_name']));
+
+            $results[] = [
+                'name' => sanitize_text_field($parts[0] ?? ''),
+                'latitude' => $lat,
+                'longitude' => $lng,
+                'country' => sanitize_text_field(implode(', ', array_slice($parts, 1))),
+            ];
+        }
+
+        return $results;
+    }
+
+    /**
+     * Append one place to the shared saved locations, or return the
+     * existing row when the name (or the coordinates) is already
+     * saved — the picker never creates a duplicate. Returns null
+     * when the row cannot be saved (empty name, invalid coordinates).
+     * Only called for users who may manage the shared list; see
+     * saveMetaBox.
+     *
+     * @return array{id: string, name: string, address: string, lat: float, lng: float, description: string}|null
+     */
+    public static function addSavedLocation(string $name, string $address, ?float $lat, ?float $lng, string $description = ''): ?array
+    {
+        $row = \KoperasiKita\Admin\AgendaLocationsSettings::sanitizeLocationRow([
+            'name' => $name,
+            'address' => $address,
+            'lat' => $lat,
+            'lng' => $lng,
+            'description' => $description,
+        ]);
+
+        if ($row === null) {
+            return null;
+        }
+
+        $locations = \KoperasiKita\Admin\AgendaLocationsSettings::locations();
+
+        foreach ($locations as $existing) {
+            if (
+                mb_strtolower($existing['name']) === mb_strtolower($row['name'])
+                || (abs($existing['lat'] - $row['lat']) < 0.01 && abs($existing['lng'] - $row['lng']) < 0.01)
+            ) {
+                return $existing;
+            }
+        }
+
+        $row['id'] = 'loc_' . wp_generate_uuid4();
+        $locations[] = $row;
+        update_option(self::LOCATIONS_OPTION, array_values($locations));
+
+        return $row;
+    }
+
+    /**
      * The saved reusable locations, already cleaned: rows with an empty
      * name or invalid coordinates are dropped, so a half-filled row can
      * never reach the picker.
@@ -694,10 +898,42 @@ final class Agenda
             <label for="kk-agenda-end-time"><strong><?php esc_html_e('End time (optional)', 'koperasikita'); ?></strong></label><br>
             <input type="time" id="kk-agenda-end-time" name="kk_agenda_end_time" value="<?php echo esc_attr($endTime); ?>" style="width: 100%;">
         </p>
-        <p>
-            <label for="kk-agenda-location"><strong><?php esc_html_e('Location', 'koperasikita'); ?></strong></label><br>
-            <input type="text" id="kk-agenda-location" name="kk_agenda_location" value="<?php echo esc_attr($meta['location']); ?>" style="width: 100%;">
-        </p>
+        <div class="kk-agenda-location-field">
+            <label for="kk-agenda-location"><strong><?php esc_html_e('Location', 'koperasikita'); ?></strong></label>
+            <div
+                class="kk-agenda-location-search"
+                data-kk-agenda-location-search
+                data-kk-agenda-location-context="picker"
+                data-kk-agenda-saved-locations="<?php echo esc_attr((string) wp_json_encode(self::savedLocations())); ?>"
+                data-kk-agenda-searching="<?php esc_attr_e('Searching…', 'koperasikita'); ?>"
+                data-kk-agenda-no-results="<?php esc_attr_e('No places found', 'koperasikita'); ?>"
+                data-kk-agenda-search-unavailable="<?php esc_attr_e('Search is unavailable right now.', 'koperasikita'); ?>"
+                data-kk-agenda-saved-label="<?php esc_attr_e('Saved location', 'koperasikita'); ?>"
+                data-kk-agenda-place-label="<?php esc_attr_e('Places', 'koperasikita'); ?>"
+            >
+                <input
+                    type="text"
+                    id="kk-agenda-location"
+                    name="kk_agenda_location"
+                    value="<?php echo esc_attr($meta['location']); ?>"
+                    placeholder="<?php esc_attr_e('Search for a place…', 'koperasikita'); ?>"
+                    autocomplete="off"
+                    role="combobox"
+                    aria-expanded="false"
+                    aria-controls="kk-agenda-location-results"
+                    aria-autocomplete="list"
+                >
+                <ul class="kk-agenda-location-results" id="kk-agenda-location-results" role="listbox" hidden></ul>
+            </div>
+            <p class="description" data-kk-agenda-location-detail></p>
+            <p class="kk-agenda-save-location" data-kk-agenda-save-location hidden>
+                <label>
+                    <input type="checkbox" name="kk_agenda_save_location" value="1" checked>
+                    <?php esc_html_e('Save this location for reuse', 'koperasikita'); ?>
+                </label>
+            </p>
+            <p class="description"><?php esc_html_e('Type to search saved locations and places.', 'koperasikita'); ?></p>
+        </div>
         <div class="kk-agenda-map-picker" data-kk-agenda-map-picker data-kk-agenda-default-lat="<?php echo esc_attr((string) self::DEFAULT_LAT); ?>" data-kk-agenda-default-lng="<?php echo esc_attr((string) self::DEFAULT_LNG); ?>" data-kk-agenda-no-pin="<?php esc_attr_e('No pin placed', 'koperasikita'); ?>">
             <p>
                 <button type="button" class="button" data-kk-agenda-pick><?php esc_html_e('Pick Location', 'koperasikita'); ?></button>
@@ -706,6 +942,7 @@ final class Agenda
             <input type="hidden" name="kk_agenda_lat" value="<?php echo esc_attr($meta['lat'] !== null ? (string) $meta['lat'] : ''); ?>" data-kk-agenda-lat>
             <input type="hidden" name="kk_agenda_lng" value="<?php echo esc_attr($meta['lng'] !== null ? (string) $meta['lng'] : ''); ?>" data-kk-agenda-lng>
             <input type="hidden" name="kk_agenda_location_desc" value="<?php echo esc_attr($meta['location_desc']); ?>" data-kk-agenda-location-desc>
+            <input type="hidden" name="kk_agenda_location_address" value="" data-kk-agenda-location-address>
         </div>
         <p class="description"><?php esc_html_e('Date, start time and location are required for the event to show up properly on the agenda archive.', 'koperasikita'); ?></p>
         <?php
@@ -749,6 +986,8 @@ final class Agenda
         $lat = isset($_POST['kk_agenda_lat']) ? self::sanitizeLatitude(wp_unslash($_POST['kk_agenda_lat'])) : null;
         $lng = isset($_POST['kk_agenda_lng']) ? self::sanitizeLongitude(wp_unslash($_POST['kk_agenda_lng'])) : null;
         $locationDesc = isset($_POST['kk_agenda_location_desc']) ? sanitize_text_field(wp_unslash($_POST['kk_agenda_location_desc'])) : '';
+        $locationAddress = isset($_POST['kk_agenda_location_address']) ? sanitize_text_field(wp_unslash($_POST['kk_agenda_location_address'])) : '';
+        $saveLocation = isset($_POST['kk_agenda_save_location']) && $_POST['kk_agenda_save_location'] === '1';
 
         // Only overwrite the stored details when the editor actually sent
         // the box: a quick edit or a revision save must not wipe them.
@@ -760,6 +999,15 @@ final class Agenda
         $end = ($date !== '' && $endTime !== '') ? $date . ' ' . $endTime : '';
 
         self::saveMeta($postId, $start, $end, $location, $lat, $lng, $locationDesc);
+
+        // The editor picked a new (geocoded) place and asked to keep
+        // it: store it in the shared saved locations so the next event
+        // finds it without searching again. The shared list is managed
+        // by administrators, so a contributor's checkbox is ignored —
+        // the event itself still keeps its coordinates.
+        if ($saveLocation && $location !== '' && $lat !== null && $lng !== null && current_user_can('manage_options')) {
+            self::addSavedLocation($location, $locationAddress, $lat, $lng, $locationDesc);
+        }
     }
 
     /** @param array<string, string> $columns */

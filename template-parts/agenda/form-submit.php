@@ -156,23 +156,40 @@ if (isset($errors['form']) && isset($formErrors[$errors['form']])) {
             </p>
         </div>
 
-        <p class="kk-agenda-field">
+        <div class="kk-agenda-field">
             <label for="kk-agenda-location"><?php esc_html_e('Location', 'koperasikita'); ?></label>
-            <input
-                type="text"
-                id="kk-agenda-location"
-                name="kk_agenda_location"
-                value="<?php echo esc_attr($value('location')); ?>"
-                maxlength="200"
-                placeholder="<?php esc_attr_e('e.g. Cooperative Hall, 2nd floor', 'koperasikita'); ?>"
-                required
-                autocomplete="off"
-                <?php if ($fieldMessage('location') !== '') : ?>aria-invalid="true" aria-describedby="kk-agenda-location-error"<?php endif; ?>
+            <div
+                class="kk-agenda-location-search"
+                data-kk-agenda-location-search
+                data-kk-agenda-location-context="picker"
+                data-kk-agenda-saved-locations="<?php echo esc_attr((string) wp_json_encode(\KoperasiKita\Features\Agenda::savedLocations())); ?>"
+                data-kk-agenda-searching="<?php esc_attr_e('Searching…', 'koperasikita'); ?>"
+                data-kk-agenda-no-results="<?php esc_attr_e('No places found', 'koperasikita'); ?>"
+                data-kk-agenda-search-unavailable="<?php esc_attr_e('Search is unavailable right now.', 'koperasikita'); ?>"
+                data-kk-agenda-saved-label="<?php esc_attr_e('Saved location', 'koperasikita'); ?>"
+                data-kk-agenda-place-label="<?php esc_attr_e('Places', 'koperasikita'); ?>"
             >
+                <input
+                    type="text"
+                    id="kk-agenda-location"
+                    name="kk_agenda_location"
+                    value="<?php echo esc_attr($value('location')); ?>"
+                    maxlength="200"
+                    placeholder="<?php esc_attr_e('Search for a place…', 'koperasikita'); ?>"
+                    required
+                    autocomplete="off"
+                    role="combobox"
+                    aria-expanded="false"
+                    aria-controls="kk-agenda-location-results"
+                    aria-autocomplete="list"
+                    <?php if ($fieldMessage('location') !== '') : ?>aria-invalid="true" aria-describedby="kk-agenda-location-error"<?php endif; ?>
+                >
+                <ul class="kk-agenda-location-results" id="kk-agenda-location-results" role="listbox" hidden></ul>
+            </div>
             <?php if ($fieldMessage('location') !== '') : ?>
                 <span class="kk-agenda-error" id="kk-agenda-location-error"><?php echo esc_html($fieldMessage('location')); ?></span>
             <?php endif; ?>
-        </p>
+        </div>
 
         <?php
         $formLat = isset($values['lat']) && is_float($values['lat']) ? $values['lat'] : null;
