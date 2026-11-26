@@ -326,6 +326,12 @@ body.admin-bar {
 	gap: 8px;
 }
 
+/* Desktop bar nav (Primary menu). Hidden below 1024px; the drawer
+ * below is the Sidebar menu instead. */
+.kk-desktop-nav {
+	display: none;
+}
+
 .kk-menu-toggle {
 	display: inline-flex;
 }

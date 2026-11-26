@@ -1,12 +1,15 @@
 <?php
 /**
- * Primary navigation as a slide-in sidebar (mobile drawer) + header
- * actions + search dialog.
+ * Header navigation: desktop bar + mobile drawer + header actions
+ * + search dialog.
  *
- * On mobile the hamburger opens the nav as a drawer sliding in from
- * the left, over a blurred backdrop; on desktop the same nav is the
- * horizontal bar. The drawer header carries the logo, a close button
- * and — when a sub-menu is open — a back button (drill-down).
+ * Two menus, one bar: the desktop bar (1024px and up) is the Primary
+ * menu, and the mobile drawer (below 1024px) is the Sidebar menu —
+ * the hamburger opens the drawer sliding in from the left, over a
+ * blurred backdrop. The drawer falls back to the Primary menu when
+ * no menu is assigned to the sidebar location, so it is never empty
+ * on a fresh install. The drawer header carries the logo, a close
+ * button and — when a sub-menu is open — a back button (drill-down).
  *
  * Search and the colour-scheme toggle live here in the sticky bar,
  * not in the top bar. The PWA install button never lives here either:
@@ -27,7 +30,26 @@
 			<?php echo \KoperasiKita\Icons\Icon::svg( 'menu', 20 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 		</button>
 
-		<nav id="kk-primary-nav" class="kk-primary-nav<?php echo 'right' === get_theme_mod( 'kk_mobile_menu_side', 'left' ) ? ' kk-nav-right' : ''; ?>" aria-label="<?php esc_attr_e( 'Primary', 'koperasikita' ); ?>">
+		<!-- Desktop bar: the Primary menu. Hidden below 1024px. -->
+		<nav class="kk-desktop-nav" aria-label="<?php esc_attr_e( 'Primary', 'koperasikita' ); ?>">
+			<?php
+			wp_nav_menu(
+				array(
+					'theme_location' => 'primary',
+					'menu_class'     => 'kk-primary-menu',
+					'container'      => false,
+					'fallback_cb'    => 'wp_page_menu',
+					'depth'          => 2,
+				)
+			);
+			?>
+		</nav>
+
+		<!-- Mobile drawer: the Sidebar menu. Falls back to the Primary
+		     menu when no menu is assigned to the sidebar location, so
+		     the drawer is never empty on a fresh install. Hidden at
+		     1024px and up. -->
+		<nav id="kk-primary-nav" class="kk-primary-nav<?php echo 'right' === get_theme_mod( 'kk_mobile_menu_side', 'left' ) ? ' kk-nav-right' : ''; ?>" aria-label="<?php esc_attr_e( 'Sidebar Menu', 'koperasikita' ); ?>">
 			<div class="kk-drawer-head">
 				<?php echo \KoperasiKita\Features\Logo::drawerBrand(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 				<button type="button" class="kk-icon-button kk-drawer-close" id="kk-drawer-close" aria-label="<?php esc_attr_e( 'Close menu', 'koperasikita' ); ?>">
@@ -43,9 +65,13 @@
 			</div>
 
 			<?php
+			// The drawer is the Sidebar menu; Primary is the desktop
+			// bar only. Fall back to Primary when no menu is assigned
+			// to the sidebar location, so the drawer is never empty.
+			$drawer_location = has_nav_menu( 'sidebar' ) ? 'sidebar' : 'primary';
 			wp_nav_menu(
 				array(
-					'theme_location' => 'primary',
+					'theme_location' => $drawer_location,
 					'menu_class'     => 'kk-primary-menu',
 					'container'      => false,
 					'fallback_cb'    => 'wp_page_menu',

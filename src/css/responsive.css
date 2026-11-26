@@ -67,17 +67,14 @@
 		display: none;
 	}
 
-	.kk-primary-nav {
+	/* The desktop bar is its own nav now (Primary menu); the drawer
+	 * (Sidebar menu) is hidden at this width. */
+	.kk-desktop-nav {
 		display: block;
-		position: static;
-		transform: none;
-		visibility: visible;
-		width: auto;
-		height: auto;
-		box-shadow: none;
-		overflow: visible;
-		background: transparent;
-		transition: none;
+	}
+
+	.kk-primary-nav {
+		display: none;
 	}
 
 	/* The drawer chrome exists only below this breakpoint. */
@@ -87,12 +84,6 @@
 	.kk-nav-backdrop,
 	.kk-submenu-toggle {
 		display: none;
-	}
-
-	.kk-primary-nav.is-open {
-		position: static;
-		padding: 0;
-		border-bottom: 0;
 	}
 
 	.kk-primary-menu {
