@@ -449,6 +449,7 @@ final class Enqueue
                     'menuIcons' => [
                         'builtIn' => \KoperasiKita\Icons\Icon::builtInSvgs(20),
                         'noIcon' => __('No icon', 'koperasikita'),
+                        'defaultColor' => \KoperasiKita\Setup\MenuIcons::DEFAULT_COLOR,
                     ],
                 ]);
             }

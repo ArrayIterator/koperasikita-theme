@@ -2751,6 +2751,14 @@ msgid "Choose icon"
 msgstr "Pilih ikon"
 
 #: inc/Setup/MenuIcons.php
+msgid "Icon color"
+msgstr "Warna ikon"
+
+#: inc/Setup/MenuIcons.php
+msgid "Clear color"
+msgstr "Hapus warna"
+
+#: inc/Setup/MenuIcons.php
 msgid "Choose menu icon"
 msgstr "Pilih ikon menu"
 

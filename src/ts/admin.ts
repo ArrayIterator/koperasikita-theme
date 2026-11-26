@@ -43,6 +43,7 @@ interface AdminData {
 interface MenuIconData {
 	builtIn: Record<string, string>;
 	noIcon: string;
+	defaultColor: string;
 }
 
 interface CustomizeValue {
@@ -404,14 +405,17 @@ function initProviderPickers(): void {
 /**
  * Menu item icon picker on Appearance -> Menus.
  *
- * Each menu item has a "Choose icon" button and a preview (icon +
- * title). The button opens one shared centered popup (blurred
- * backdrop) with a search box and a grid of the theme's Feather
- * icons (290). Picking an icon writes it to the item's hidden input
- * and refreshes the preview; "Remove icon" clears it. Close on
- * Close, backdrop click, or Escape. The grid is built lazily on
- * first open. Without JS the button does nothing and the saved icon
- * (if any) stays.
+ * Each menu item has a "Choose icon" button, a preview row (icon
+ * square + colour picker, same size) and the icon name under it. The
+ * button opens one shared centered popup (blurred backdrop) with a
+ * search box and a grid of the theme's Feather icons (290). Picking
+ * an icon writes it to the item's hidden input and refreshes the
+ * preview and the name; "Remove icon" clears it. The colour picker
+ * writes to the item's hidden colour input, colours the preview live
+ * and appends the hex to the name; the × clears back to the inherited
+ * link colour. Close on Close, backdrop click, or Escape. The grid is
+ * built lazily on first open. Without JS the button does nothing and
+ * the saved icon (if any) stays.
  */
 function initMenuIconPickers(): void {
 	const popup = document.getElementById('kk-menu-icon-popup');
@@ -487,6 +491,53 @@ function initMenuIconPickers(): void {
 		empty.hidden = visible > 0;
 	};
 
+	const colorInputFor = (itemId: string): HTMLInputElement | null =>
+		document.querySelector<HTMLInputElement>(
+			`[data-kk-menu-icon-color-input="${CSS.escape(itemId)}"]`,
+		);
+
+	const setName = (itemId: string, name: string): void => {
+		const nameEl = document.querySelector<HTMLElement>(
+			`[data-kk-menu-icon-name="${CSS.escape(itemId)}"]`,
+		);
+		if (!nameEl) {
+			return;
+		}
+		if (name === '') {
+			nameEl.textContent = data.noIcon;
+			return;
+		}
+		const color = colorInputFor(itemId)?.value ?? '';
+		nameEl.textContent = color === '' ? name : `${name} · ${color}`;
+	};
+
+	const applyColor = (itemId: string, color: string): void => {
+		const hidden = colorInputFor(itemId);
+		if (hidden) {
+			hidden.value = color;
+		}
+		const preview = document.querySelector<HTMLElement>(
+			`[data-kk-menu-icon-preview="${CSS.escape(itemId)}"]`,
+		);
+		if (preview) {
+			if (color === '') {
+				preview.style.removeProperty('color');
+			} else {
+				preview.style.color = color;
+			}
+		}
+		const clear = document.querySelector<HTMLElement>(
+			`[data-kk-menu-icon-color-clear="${CSS.escape(itemId)}"]`,
+		);
+		if (clear) {
+			clear.hidden = color === '';
+		}
+		const input = document.querySelector<HTMLInputElement>(
+			`[data-kk-menu-icon-input="${CSS.escape(itemId)}"]`,
+		);
+		setName(itemId, input?.value ?? '');
+	};
+
 	const setPreview = (itemId: string, name: string): void => {
 		const input = document.querySelector<HTMLInputElement>(
 			`[data-kk-menu-icon-input="${CSS.escape(itemId)}"]`,
@@ -501,18 +552,13 @@ function initMenuIconPickers(): void {
 			return;
 		}
 		preview.textContent = '';
-		if (name === '') {
-			const emptyLabel = document.createElement('span');
-			emptyLabel.className = 'kk-menu-icon-preview-empty';
-			emptyLabel.textContent = data.noIcon;
-			preview.append(emptyLabel);
-			return;
+		preview.classList.toggle('is-empty', name === '');
+		if (name !== '') {
+			const iconHolder = document.createElement('span');
+			iconHolder.innerHTML = iconSvg(name);
+			preview.append(iconHolder);
 		}
-		const iconHolder = document.createElement('span');
-		iconHolder.innerHTML = iconSvg(name);
-		const title = document.createElement('span');
-		title.textContent = preview.dataset.kkMenuIconTitle ?? '';
-		preview.append(iconHolder, title);
+		setName(itemId, name);
 	};
 
 	const close = (): void => {
@@ -545,6 +591,35 @@ function initMenuIconPickers(): void {
 		.querySelectorAll<HTMLButtonElement>('[data-kk-menu-icon-pick]')
 		.forEach((button) => {
 			button.addEventListener('click', () => open(button));
+		});
+
+	document
+		.querySelectorAll<HTMLInputElement>('[data-kk-menu-icon-color]')
+		.forEach((picker) => {
+			picker.addEventListener('input', () => {
+				const itemId = picker.dataset.kkMenuIconColor ?? '';
+				if (itemId !== '') {
+					applyColor(itemId, picker.value);
+				}
+			});
+		});
+
+	document
+		.querySelectorAll<HTMLButtonElement>('[data-kk-menu-icon-color-clear]')
+		.forEach((button) => {
+			button.addEventListener('click', () => {
+				const itemId = button.dataset.kkMenuIconColorClear ?? '';
+				if (itemId === '') {
+					return;
+				}
+				const picker = document.querySelector<HTMLInputElement>(
+					`[data-kk-menu-icon-color="${CSS.escape(itemId)}"]`,
+				);
+				if (picker) {
+					picker.value = data.defaultColor;
+				}
+				applyColor(itemId, '');
+			});
 		});
 
 	grid.addEventListener('click', (event) => {

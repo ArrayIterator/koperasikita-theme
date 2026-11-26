@@ -130,9 +130,10 @@
 }
 
 /* --- Menu item icon picker (Appearance -> Menus, see MenuIcons) -------- */
-/* The field is a "Choose icon" button + a preview (icon + item title);
- * the popup is one shared centered dialog (blurred backdrop, per the
- * popup standard) with a search box and a grid of the theme's icons. */
+/* The field is a "Choose icon" button, then a preview row (icon square
+ * + colour picker, same size) with the icon name under it; the popup
+ * is one shared centered dialog (blurred backdrop, per the popup
+ * standard) with a search box and a grid of the theme's icons. */
 .kk-menu-icon-field-label {
 	display: block;
 	font-weight: 600;
@@ -146,25 +147,60 @@
 	gap: 8px;
 }
 
+.kk-menu-icon-row--preview {
+	margin-top: 8px;
+}
+
 .kk-menu-icon-preview {
 	display: inline-flex;
 	align-items: center;
-	gap: 6px;
-	min-height: 30px;
-	padding: 2px 8px;
+	justify-content: center;
+	box-sizing: border-box;
+	width: 2.25rem;
+	height: 2.25rem;
 	border: 1px solid #dcdcde;
 	border-radius: 3px;
 	background: #f6f7f7;
-	font-weight: 600;
+}
+
+.kk-menu-icon-preview.is-empty {
+	border-style: dashed;
 }
 
 .kk-menu-icon-preview svg {
 	display: block;
 }
 
-.kk-menu-icon-preview-empty {
+.kk-menu-icon-color {
+	box-sizing: border-box;
+	width: 2.25rem;
+	height: 2.25rem;
+	padding: 2px;
+	border: 1px solid #dcdcde;
+	border-radius: 3px;
+	background: #fff;
+	cursor: pointer;
+}
+
+.kk-menu-icon-color-clear {
+	padding: 0 0.25rem;
+	border: none;
+	background: none;
 	color: #646970;
-	font-weight: 400;
+	font-size: 1.25rem;
+	line-height: 1;
+	cursor: pointer;
+}
+
+.kk-menu-icon-color-clear:hover {
+	color: #d63638;
+}
+
+.kk-menu-icon-name {
+	display: block;
+	margin-top: 4px;
+	color: #646970;
+	font-size: 0.75rem;
 }
 
 /* Popup: same centered + blurred-backdrop pattern as the provider picker. */
