@@ -3199,3 +3199,21 @@ msgstr "Post Berdasarkan Term"
 
 msgid "KK Post By Terms"
 msgstr "KK Post Berdasarkan Term"
+
+msgid "Vertical List"
+msgstr "Daftar Vertikal"
+
+msgid "Vertical Slider"
+msgstr "Slider Vertikal"
+
+msgid "Full-width Strip"
+msgstr "Strip Lebar Penuh"
+
+msgid "Previous market"
+msgstr "Pasar sebelumnya"
+
+msgid "Next market"
+msgstr "Pasar berikutnya"
+
+msgid "Pause markets"
+msgstr "Jeda pasar"

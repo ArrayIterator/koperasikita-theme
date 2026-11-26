@@ -500,10 +500,23 @@ function buildDefinitions(api: Wp): BlockDef[] {
 				headerStyle: { type: 'string', default: 'classic-top' },
 				markets: { type: 'array', default: [], items: { type: 'string' } },
 				showChange: { type: 'boolean', default: true },
+				layout: { type: 'string', default: 'list' },
 			},
 			fields: [
 				{ key: 'title', kind: 'text', label: __('Title') },
 				headerStyleField,
+				{
+					key: 'layout',
+					kind: 'select',
+					label: __('Layout'),
+					options: [
+						{ value: 'list', label: __('Vertical List') },
+						{ value: 'grid', label: __('Grid') },
+						{ value: 'slider-horizontal', label: __('Horizontal Slider') },
+						{ value: 'slider-vertical', label: __('Vertical Slider') },
+						{ value: 'strip', label: __('Full-width Strip') },
+					],
+				},
 				{
 					key: 'markets',
 					kind: 'checkboxes',

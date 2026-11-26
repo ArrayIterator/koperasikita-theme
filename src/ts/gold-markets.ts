@@ -34,16 +34,24 @@ function $all<T extends Element>(selector: string, root: ParentNode = document):
 	return Array.from(root.querySelectorAll<T>(selector));
 }
 
-function initGoldSlider(slider: HTMLElement): void {
-	const slides = $all<HTMLElement>('[data-kk-gold-slide]', slider);
+/**
+ * Auto-advancing vertical slider, shared by the gold slider and the
+ * markets vertical slider. `kind` is the data-attribute prefix
+ * ('gold' or 'markets'): slides are [data-kk-<kind>-slide], dots
+ * [data-kk-<kind>-dot], controls [data-kk-<kind>-prev/next/toggle].
+ * `label` is the human name used in the play/pause toggle aria-label
+ * ('gold prices' / 'markets').
+ */
+function initAutoSlider(slider: HTMLElement, kind: 'gold' | 'markets', label: string): void {
+	const slides = $all<HTMLElement>(`[data-kk-${kind}-slide]`, slider);
 	if (slides.length <= 1) {
 		return;
 	}
 
-	const dots = $all<HTMLButtonElement>('[data-kk-gold-dot]', slider);
-	const prevButton = slider.querySelector<HTMLButtonElement>('[data-kk-gold-prev]');
-	const nextButton = slider.querySelector<HTMLButtonElement>('[data-kk-gold-next]');
-	const toggleButton = slider.querySelector<HTMLButtonElement>('[data-kk-gold-toggle]');
+	const dots = $all<HTMLButtonElement>(`[data-kk-${kind}-dot]`, slider);
+	const prevButton = slider.querySelector<HTMLButtonElement>(`[data-kk-${kind}-prev]`);
+	const nextButton = slider.querySelector<HTMLButtonElement>(`[data-kk-${kind}-next]`);
+	const toggleButton = slider.querySelector<HTMLButtonElement>(`[data-kk-${kind}-toggle]`);
 	const pauseIcon = toggleButton?.querySelector('.kk-widget-toggle-pause') as HTMLElement | null;
 	const playIcon = toggleButton?.querySelector('.kk-widget-toggle-play') as HTMLElement | null;
 
@@ -91,7 +99,7 @@ function initGoldSlider(slider: HTMLElement): void {
 			return;
 		}
 		toggleButton.setAttribute('aria-pressed', userPaused ? 'true' : 'false');
-		toggleButton.setAttribute('aria-label', userPaused ? 'Play gold prices' : 'Pause gold prices');
+		toggleButton.setAttribute('aria-label', userPaused ? `Play ${label}` : `Pause ${label}`);
 		if (pauseIcon) {
 			pauseIcon.hidden = userPaused;
 		}
@@ -187,7 +195,8 @@ function initGoldMarkets(): void {
 	if (getKkData().isMarketsEnabled === false) {
 		return;
 	}
-	$all<HTMLElement>('[data-kk-gold-slider]').forEach((slider) => initGoldSlider(slider));
+	$all<HTMLElement>('[data-kk-gold-slider]').forEach((slider) => initAutoSlider(slider, 'gold', 'gold prices'));
+	$all<HTMLElement>('[data-kk-markets-slider]').forEach((slider) => initAutoSlider(slider, 'markets', 'markets'));
 	initLivePrices();
 }
 

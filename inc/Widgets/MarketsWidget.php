@@ -19,6 +19,42 @@ use WP_Widget;
  */
 final class MarketsWidget extends WP_Widget
 {
+    public const LAYOUT_LIST = 'list';
+    public const LAYOUT_GRID = 'grid';
+    public const LAYOUT_SLIDER_HORIZONTAL = 'slider-horizontal';
+    public const LAYOUT_SLIDER_VERTICAL = 'slider-vertical';
+    public const LAYOUT_STRIP = 'strip';
+
+    /** @return string[] */
+    public static function layouts(): array
+    {
+        return [
+            self::LAYOUT_LIST,
+            self::LAYOUT_GRID,
+            self::LAYOUT_SLIDER_HORIZONTAL,
+            self::LAYOUT_SLIDER_VERTICAL,
+            self::LAYOUT_STRIP,
+        ];
+    }
+
+    public static function sanitizeLayout(mixed $value): string
+    {
+        $layout = is_string($value) ? $value : '';
+        return in_array($layout, self::layouts(), true) ? $layout : self::LAYOUT_LIST;
+    }
+
+    /** @return array<string, string> Value => label. */
+    public static function layoutLabels(): array
+    {
+        return [
+            self::LAYOUT_LIST => __('Vertical List', 'koperasikita'),
+            self::LAYOUT_GRID => __('Grid', 'koperasikita'),
+            self::LAYOUT_SLIDER_HORIZONTAL => __('Horizontal Slider', 'koperasikita'),
+            self::LAYOUT_SLIDER_VERTICAL => __('Vertical Slider', 'koperasikita'),
+            self::LAYOUT_STRIP => __('Full-width Strip', 'koperasikita'),
+        ];
+    }
+
     public function __construct()
     {
         parent::__construct(
@@ -44,6 +80,7 @@ final class MarketsWidget extends WP_Widget
             ? array_values(array_intersect($instance['markets'], Markets::markets()))
             : Markets::markets();
         $showChange = !isset($instance['show_change']) || (bool) $instance['show_change'];
+        $layout = self::sanitizeLayout($instance['layout'] ?? self::LAYOUT_LIST);
 
         $markets = [];
         foreach ($selected as $market) {
@@ -57,10 +94,18 @@ final class MarketsWidget extends WP_Widget
 
         WidgetHeader::render($args, $title, WidgetHeader::style($instance));
 
-        get_template_part('template-parts/markets/strip', null, [
-            'markets' => $markets,
-            'show_change' => $showChange,
-        ]);
+        if ($layout === self::LAYOUT_SLIDER_VERTICAL) {
+            get_template_part('template-parts/markets/slider-vertical', null, [
+                'markets' => $markets,
+                'show_change' => $showChange,
+            ]);
+        } else {
+            get_template_part('template-parts/markets/strip', null, [
+                'markets' => $markets,
+                'show_change' => $showChange,
+                'layout' => $layout,
+            ]);
+        }
 
         echo $args['after_widget'] ?? '';
     }
@@ -87,6 +132,23 @@ final class MarketsWidget extends WP_Widget
             >
         </p>
         <?php WidgetHeader::field($this, $instance); ?>
+        <p>
+            <label for="<?php echo esc_attr($this->get_field_id('layout')); ?>">
+                <?php esc_html_e('Layout', 'koperasikita'); ?>
+            </label>
+            <select
+                class="widefat"
+                id="<?php echo esc_attr($this->get_field_id('layout')); ?>"
+                name="<?php echo esc_attr($this->get_field_name('layout')); ?>"
+            >
+                <?php $layout = self::sanitizeLayout($instance['layout'] ?? self::LAYOUT_LIST); ?>
+                <?php foreach (self::layoutLabels() as $value => $label) : ?>
+                    <option value="<?php echo esc_attr($value); ?>" <?php selected($layout, $value); ?>>
+                        <?php echo esc_html($label); ?>
+                    </option>
+                <?php endforeach; ?>
+            </select>
+        </p>
         <p><?php esc_html_e('Markets to show:', 'koperasikita'); ?></p>
         <?php foreach (Markets::labels() as $market => $label) : ?>
             <p>
@@ -134,7 +196,8 @@ final class MarketsWidget extends WP_Widget
 
         // An unchecked checkbox is not submitted at all, so "absent" means off.
         $instance['show_change'] = isset($new['show_change']) && (bool) $new['show_change'];
-        $instance['header_style'] = WidgetHeader::sanitize($new['header_style'] ?? WidgetHeader::CLASSIC);
+        $instance['header_style'] = WidgetHeader::sanitize($new['header_style'] ?? WidgetHeader::CLASSIC_TOP);
+        $instance['layout'] = self::sanitizeLayout($new['layout'] ?? self::LAYOUT_LIST);
 
         return $instance;
     }

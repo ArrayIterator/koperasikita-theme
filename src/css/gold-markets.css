@@ -124,12 +124,133 @@
 	outline-offset: 0;
 }
 
+/* --- Markets vertical slider ---------------------------------------------
+   One slide per market group, auto-scrolling vertically — the markets
+   counterpart of the gold slider above. Shares the generic
+   .kk-widget-* controls (nav, dots, toggle) and the slide-in keyframes.
+   ------------------------------------------------------------------------- */
+
+.kk-markets-slides {
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+
+.kk-markets-slide {
+	display: none;
+	padding: 4px 2px 0;
+}
+
+.kk-markets-slide.is-active {
+	display: block;
+	animation: kk-gold-slide-in 0.45s ease;
+}
+
+.kk-markets-slider .kk-widget-nav {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	min-width: 44px;
+	min-height: 44px;
+	border-radius: var(--kk-radius);
+	color: var(--kk-ink);
+}
+
+.kk-markets-slider .kk-widget-nav:hover,
+.kk-markets-slider .kk-widget-nav:focus-visible {
+	background: var(--kk-surface-muted, #f2f2f2);
+	color: var(--kk-green, #0b6b3a);
+}
+
+.kk-markets-slider .kk-widget-nav:focus-visible {
+	outline: 2px solid var(--kk-gold, #c9962e);
+	outline-offset: 2px;
+}
+
+.kk-markets-slider .kk-widget-nav svg {
+	display: block;
+}
+
+.kk-markets-slider .kk-widget-dots {
+	gap: 2px;
+}
+
+.kk-markets-slider .kk-widget-dot {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 32px;
+	height: 32px;
+	min-width: 32px;
+	min-height: 32px;
+	padding: 0;
+	background: none;
+	border-radius: 50%;
+}
+
+.kk-markets-slider .kk-widget-dot::after {
+	content: "";
+	width: 8px;
+	height: 8px;
+	border-radius: 50%;
+	background: var(--kk-border);
+}
+
+.kk-markets-slider .kk-widget-dot.is-active::after {
+	background: var(--kk-gold, #c9962e);
+}
+
+.kk-markets-slider .kk-widget-dot:focus-visible {
+	outline: 2px solid var(--kk-gold, #c9962e);
+	outline-offset: 0;
+}
+
 /* --- Markets strip ------------------------------------------------------- */
 
 .kk-markets-strip {
 	display: flex;
 	flex-direction: column;
 	gap: 16px;
+}
+
+/* Grid layout: market groups as cells, two columns where they fit. */
+.kk-markets-strip--grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+	gap: 16px;
+}
+
+/* Horizontal slider layout: groups in a swipeable row, no auto-advance. */
+.kk-markets-strip--slider-horizontal {
+	display: flex;
+	flex-direction: row;
+	gap: 16px;
+	overflow-x: auto;
+	scroll-snap-type: x proximity;
+	scrollbar-width: none;
+}
+
+.kk-markets-strip--slider-horizontal::-webkit-scrollbar {
+	display: none;
+}
+
+.kk-markets-strip--slider-horizontal .kk-market-group {
+	flex: 0 0 80%;
+	scroll-snap-align: start;
+	min-width: 0;
+}
+
+/* Full-width strip layout: groups side by side in one wrapping row. */
+.kk-markets-strip--strip {
+	display: flex;
+	flex-direction: row;
+	flex-wrap: wrap;
+	gap: 16px 24px;
+}
+
+.kk-markets-strip--strip .kk-market-group {
+	flex: 1 1 160px;
+	min-width: 0;
 }
 
 .kk-market-group-title {
@@ -183,6 +304,10 @@
 
 @media (prefers-reduced-motion: reduce) {
 	.kk-gold-slide.is-active {
+		animation: none;
+	}
+
+	.kk-markets-slide.is-active {
 		animation: none;
 	}
 }

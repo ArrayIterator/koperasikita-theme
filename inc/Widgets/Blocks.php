@@ -209,12 +209,14 @@ final class Blocks
                     'headerStyle' => ['type' => 'string', 'default' => 'classic-top'],
                     'markets' => ['type' => 'array', 'default' => [], 'items' => ['type' => 'string']],
                     'showChange' => ['type' => 'boolean', 'default' => true],
+                    'layout' => ['type' => 'string', 'default' => 'list'],
                 ],
                 'map' => [
                     'title' => 'title',
                     'headerStyle' => 'header_style',
                     'markets' => 'markets',
                     'showChange' => 'show_change',
+                    'layout' => 'layout',
                 ],
             ];
         }
