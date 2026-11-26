@@ -199,6 +199,13 @@
 	display: none;
 }
 
+/* The card bookmark is a solid fill (not a hollow outline), so the
+ * icon reads as a bold shape on the circle — white over a thumbnail,
+ * ink in a list row. The fill follows the button colour. */
+.kk-card .kk-bookmark-button svg {
+	fill: currentColor;
+}
+
 .kk-card .kk-bookmark-button:hover {
 	background: var(--kk-green, #0B6B3A);
 	color: #fff;
