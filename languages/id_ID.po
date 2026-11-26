@@ -2198,30 +2198,6 @@ msgstr "Zona waktu"
 msgid "World Clock"
 msgstr "Jam Dunia"
 
-#: template-parts/home/hero-grid.php
-msgid "Top News"
-msgstr "Berita Utama"
-
-#: inc/Customizer/Customizer.php
-msgid "Hero Title"
-msgstr "Judul Hero"
-
-#: inc/Customizer/Customizer.php
-msgid "The heading above the hero stories. Leave it empty to hide the heading."
-msgstr "Judul di atas cerita hero. Kosongkan untuk menyembunyikan judul."
-
-#: inc/Customizer/Customizer.php
-msgid "Berita terbaru dari Koperasi Kita"
-msgstr "Berita terbaru dari Koperasi Kita"
-
-#: inc/Customizer/Customizer.php
-msgid "Hero Eyebrow"
-msgstr "Eyebrow Hero"
-
-#: inc/Customizer/Customizer.php
-msgid "The small line above the hero title. Leave it empty to hide it."
-msgstr "Baris kecil di atas judul hero. Kosongkan untuk menyembunyikannya."
-
 #: inc/Customizer/Customizer.php
 msgid "Hero Presentation"
 msgstr "Tampilan Hero"
@@ -2381,3 +2357,4 @@ msgstr "Tampilkan Breadcrumb di Hasil Pencarian"
 #: inc/Customizer/Customizer.php
 msgid "Show Breadcrumbs on 404 Pages"
 msgstr "Tampilkan Breadcrumb di Halaman 404"
+

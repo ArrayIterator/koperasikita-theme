@@ -561,18 +561,19 @@ function initClock(): void {
 }
 
 /* ------------------------------------------------------------------ */
-/* Layout switcher (grid / list / featured / newsletter)                 */
+/* Layout switcher (grid / list / newsletter) — Featured is NOT a
+ * latest-news layout; it belongs to the category blocks only.      */
 /* ------------------------------------------------------------------ */
 
 /* Read the saved layout from the `kk_layout` cookie (the value the
  * server renders from). Returns null when there is no valid cookie. */
-function readLayoutCookie(): 'grid' | 'list' | 'featured' | 'newsletter' | null {
+function readLayoutCookie(): 'grid' | 'list' | 'newsletter' | null {
 	const match = document.cookie.match(/(?:^|;)\s*kk_layout=([^;]*)/);
 	if (!match) {
 		return null;
 	}
 	const value = decodeURIComponent(match[1] ?? '');
-	return value === 'grid' || value === 'list' || value === 'featured' || value === 'newsletter'
+	return value === 'grid' || value === 'list' || value === 'newsletter'
 		? value
 		: null;
 }
@@ -584,7 +585,7 @@ function initLayoutSwitcher(): void {
 	}
 	const items = container;
 	function applyLayout(layout: string): void {
-		items.classList.remove('kk-layout-grid', 'kk-layout-list', 'kk-layout-featured', 'kk-layout-newsletter');
+		items.classList.remove('kk-layout-grid', 'kk-layout-list', 'kk-layout-newsletter');
 		items.classList.add(`kk-layout-${layout}`);
 		// The newsletter subscribe block is rendered hidden inside the
 		// container for grid/list markup; reveal it only for newsletter.
@@ -605,7 +606,7 @@ function initLayoutSwitcher(): void {
 	 * was set after the HTML was cached). The cookie is the source
 	 * the server reads; localStorage is kept for backwards
 	 * compatibility with the earlier switcher. */
-	const saved = stored === 'grid' || stored === 'list' || stored === 'featured' || stored === 'newsletter'
+	const saved = stored === 'grid' || stored === 'list' || stored === 'newsletter'
 		? stored
 		: readLayoutCookie();
 	if (saved !== null) {
@@ -614,7 +615,7 @@ function initLayoutSwitcher(): void {
 	$all<HTMLButtonElement>('[data-kk-layout]').forEach((button) => {
 		button.addEventListener('click', () => {
 			const layout = button.dataset.kkLayout;
-			if (layout !== 'grid' && layout !== 'list' && layout !== 'featured' && layout !== 'newsletter') {
+			if (layout !== 'grid' && layout !== 'list' && layout !== 'newsletter') {
 				return;
 			}
 			window.localStorage.setItem(LAYOUT_KEY, layout);

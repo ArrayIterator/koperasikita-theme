@@ -2138,30 +2138,6 @@ msgstr ""
 msgid "World Clock"
 msgstr ""
 
-#: template-parts/home/hero-grid.php
-msgid "Top News"
-msgstr ""
-
-#: inc/Customizer/Customizer.php
-msgid "Hero Title"
-msgstr ""
-
-#: inc/Customizer/Customizer.php
-msgid "The heading above the hero stories. Leave it empty to hide the heading."
-msgstr ""
-
-#: inc/Customizer/Customizer.php
-msgid "Berita terbaru dari Koperasi Kita"
-msgstr ""
-
-#: inc/Customizer/Customizer.php
-msgid "Hero Eyebrow"
-msgstr ""
-
-#: inc/Customizer/Customizer.php
-msgid "The small line above the hero title. Leave it empty to hide it."
-msgstr ""
-
 #: inc/Customizer/Customizer.php
 msgid "Hero Presentation"
 msgstr ""
@@ -2321,3 +2297,4 @@ msgstr ""
 #: inc/Customizer/Customizer.php
 msgid "Show Breadcrumbs on 404 Pages"
 msgstr ""
+

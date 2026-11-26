@@ -12,10 +12,10 @@ $latest_count = max( 1, $latest_count );
  * localStorage), and the server reads the cookie so the list renders
  * in the right layout on first paint — no flash, no JS dependency. */
 $layout       = get_theme_mod( 'kk_homepage_layout', 'grid' );
-$layout       = in_array( $layout, array( 'grid', 'list', 'featured', 'newsletter' ), true ) ? $layout : 'grid';
+$layout       = in_array( $layout, array( 'grid', 'list', 'newsletter' ), true ) ? $layout : 'grid';
 if ( isset( $_COOKIE['kk_layout'] ) ) {
 	$saved = sanitize_key( wp_unslash( $_COOKIE['kk_layout'] ) );
-	if ( in_array( $saved, array( 'grid', 'list', 'featured', 'newsletter' ), true ) ) {
+	if ( in_array( $saved, array( 'grid', 'list', 'newsletter' ), true ) ) {
 		$layout = $saved;
 	}
 }

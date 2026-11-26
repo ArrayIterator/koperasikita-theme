@@ -68,8 +68,14 @@
  * stop, prev/next buttons scroll by one slide. The scrollbar is
  * hidden (the buttons are the discoverable control). */
 
+/* The slider-controls row carries no title (the hero has no
+ * heading), so the buttons sit at the right edge on their own. */
 .kk-hero-head {
 	align-items: end;
+}
+
+.kk-hero-head .kk-slider-controls {
+	margin-left: auto;
 }
 
 .kk-slider-controls {

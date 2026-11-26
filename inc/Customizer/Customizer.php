@@ -177,38 +177,11 @@ final class Customizer
             'input_attrs' => ['min' => 3, 'max' => 8],
         ]);
 
-        /* Hero header + source: an editable title and eyebrow above
-         * the hero grid, a Grid/Slider presentation switch, and a
-         * Latest/Category source (the category picker only matters
-         * when the source is Category). */
-        self::addSetting(
-            $wpCustomize,
-            'kk_hero_title',
-            __('Top News', 'koperasikita'),
-            'sanitize_text_field',
-            'refresh'
-        );
-        $wpCustomize->add_control('kk_hero_title', [
-            'label' => esc_html__('Hero Title', 'koperasikita'),
-            'description' => esc_html__('The heading above the hero stories. Leave it empty to hide the heading.', 'koperasikita'),
-            'section' => 'koperasikita_homepage',
-            'type' => 'text',
-        ]);
-
-        self::addSetting(
-            $wpCustomize,
-            'kk_hero_eyebrow',
-            __('Berita terbaru dari Koperasi Kita', 'koperasikita'),
-            'sanitize_text_field',
-            'refresh'
-        );
-        $wpCustomize->add_control('kk_hero_eyebrow', [
-            'label' => esc_html__('Hero Eyebrow', 'koperasikita'),
-            'description' => esc_html__('The small line above the hero title. Leave it empty to hide it.', 'koperasikita'),
-            'section' => 'koperasikita_homepage',
-            'type' => 'text',
-        ]);
-
+        /* Hero header + source: a Grid/Slider presentation switch,
+         * and a Latest/Category source (the category picker only
+         * matters when the source is Category). No title/eyebrow
+         * here: the hero renders with no heading, exactly as
+         * before — the heading belongs to the sections below it. */
         self::addSetting(
             $wpCustomize,
             'kk_hero_mode',
@@ -305,7 +278,7 @@ final class Customizer
             $wpCustomize,
             'kk_homepage_layout',
             'grid',
-            [self::class, 'sanitizeLayout'],
+            [self::class, 'sanitizeLatestLayout'],
             'postMessage'
         );
         $wpCustomize->add_control('kk_homepage_layout', [
@@ -315,7 +288,6 @@ final class Customizer
             'choices' => [
                 'grid' => esc_html__('Grid', 'koperasikita'),
                 'list' => esc_html__('List', 'koperasikita'),
-                'featured' => esc_html__('Featured', 'koperasikita'),
                 'newsletter' => esc_html__('Newsletter', 'koperasikita'),
             ],
         ]);
@@ -1640,6 +1612,15 @@ final class Customizer
     public static function sanitizeLayout(mixed $value): string
     {
         return in_array($value, ['grid', 'list', 'featured', 'newsletter'], true) ? (string) $value : 'grid';
+    }
+
+    /* Latest-news layout: Grid / List / Newsletter only. Featured
+     * is NOT a latest-news layout — it belongs to the category
+     * blocks (sanitizeLayout above), so it must never be saved
+     * here. */
+    public static function sanitizeLatestLayout(mixed $value): string
+    {
+        return in_array($value, ['grid', 'list', 'newsletter'], true) ? (string) $value : 'grid';
     }
 
     public static function sanitizeAlignment(mixed $value): string

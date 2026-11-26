@@ -5,8 +5,9 @@
  *
  * Accepts $args['posts'] (array of WP_Post) or queries itself via
  * Homepage::heroPosts() (latest posts, or the picked categories when
- * the hero source is Category). The editable title + eyebrow render
- * above the stories; an empty title hides the heading.
+ * the hero source is Category). The hero renders with NO heading,
+ * exactly as before — the section headings belong to the sections
+ * below it (Latest News, Highlights, Category Blocks).
  *
  * @package KoperasiKita
  */
@@ -21,10 +22,6 @@ if ( empty( $hero_posts ) ) {
 	return;
 }
 
-$hero_title = (string) get_theme_mod( 'kk_hero_title', __( 'Top News', 'koperasikita' ) );
-$hero_title = trim( $hero_title );
-$hero_eyebrow = (string) get_theme_mod( 'kk_hero_eyebrow', '' );
-$hero_eyebrow = trim( $hero_eyebrow );
 $hero_mode = (string) get_theme_mod( 'kk_hero_mode', 'grid' );
 $hero_mode = in_array( $hero_mode, ['grid', 'slider'], true ) ? $hero_mode : 'grid';
 $lead  = array_shift( $hero_posts );
@@ -32,22 +29,12 @@ $rest  = $hero_posts;
 ?>
 
 <section class="kk-hero<?php echo 'slider' === $hero_mode ? ' kk-hero--slider' : ''; ?>" aria-label="<?php esc_attr_e( 'Top stories', 'koperasikita' ); ?>">
-	<?php if ( '' !== $hero_title || '' !== $hero_eyebrow ) : ?>
+	<?php if ( 'slider' === $hero_mode ) : ?>
 		<div class="kk-section-head kk-hero-head">
-			<div>
-				<?php if ( '' !== $hero_eyebrow ) : ?>
-					<p class="kk-eyebrow"><?php echo esc_html( $hero_eyebrow ); ?></p>
-				<?php endif; ?>
-				<?php if ( '' !== $hero_title ) : ?>
-					<h2 class="kk-section-title"><?php echo esc_html( $hero_title ); ?></h2>
-				<?php endif; ?>
+			<div class="kk-slider-controls">
+				<button type="button" class="kk-icon-button kk-slider-prev" aria-label="<?php esc_attr_e( 'Previous story', 'koperasikita' ); ?>"><?php echo \KoperasiKita\Icons\Icon::svg( 'prev', 16 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></button>
+				<button type="button" class="kk-icon-button kk-slider-next" aria-label="<?php esc_attr_e( 'Next story', 'koperasikita' ); ?>"><?php echo \KoperasiKita\Icons\Icon::svg( 'next', 16 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></button>
 			</div>
-			<?php if ( 'slider' === $hero_mode ) : ?>
-				<div class="kk-slider-controls">
-					<button type="button" class="kk-icon-button kk-slider-prev" aria-label="<?php esc_attr_e( 'Previous story', 'koperasikita' ); ?>"><?php echo \KoperasiKita\Icons\Icon::svg( 'prev', 16 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></button>
-					<button type="button" class="kk-icon-button kk-slider-next" aria-label="<?php esc_attr_e( 'Next story', 'koperasikita' ); ?>"><?php echo \KoperasiKita\Icons\Icon::svg( 'next', 16 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></button>
-				</div>
-			<?php endif; ?>
 		</div>
 	<?php endif; ?>
 
