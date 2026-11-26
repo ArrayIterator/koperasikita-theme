@@ -16,6 +16,7 @@ use KoperasiKita\Features\Pwa;
 use KoperasiKita\Features\StyleVariant;
 use KoperasiKita\SEO\Seo;
 use KoperasiKita\Setup\MenuIcons;
+use KoperasiKita\Setup\Menus;
 use KoperasiKita\Setup\Setup;
 use KoperasiKita\Setup\Sidebars;
 use KoperasiKita\Setup\ThemeSupport;
@@ -72,6 +73,7 @@ final class Theme
         add_action('init', [Breadcrumb::class, 'register']);
         add_action('init', [Blocks::class, 'register']);
         add_action('init', [MenuIcons::class, 'register']);
+        add_action('init', [Menus::class, 'register']);
 
         add_action('admin_menu', [Setup::class, 'register']);
         add_action('admin_notices', [Setup::class, 'adminNotice']);

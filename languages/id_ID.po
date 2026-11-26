@@ -2868,3 +2868,27 @@ msgstr "Belum ada lokasi tersimpan. Tambahkan di bawah."
 #: inc/Admin/AgendaLocationsSettings.php
 msgid "Save the places you use often. They appear in the Pick Location popup, so you can reuse a place instead of searching for it again."
 msgstr "Simpan tempat yang sering Anda gunakan. Tempat tersebut muncul di popup Pilih Lokasi, sehingga Anda bisa menggunakannya lagi tanpa mencari dari awal."
+
+#: inc/Customizer/Customizer.php:73
+msgid "Mobile Menu"
+msgstr "Menu Seluler"
+
+#: inc/Customizer/Customizer.php:1182
+msgid "Display Mobile Menu"
+msgstr "Tampilkan Menu Seluler"
+
+#: inc/Customizer/Customizer.php:1195
+msgid "Icon Size"
+msgstr "Ukuran Ikon"
+
+#: inc/Customizer/Customizer.php:1210
+msgid "Maximum Menu Count"
+msgstr "Jumlah Menu Maksimum"
+
+#: inc/Customizer/Customizer.php:1219
+msgid "Display Menu Title"
+msgstr "Tampilkan Judul Menu"
+
+#: inc/Customizer/Customizer.php:1233
+msgid "Menu Title Size"
+msgstr "Ukuran Judul Menu"

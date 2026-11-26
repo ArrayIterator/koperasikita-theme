@@ -166,7 +166,7 @@
 	align-items: center;
 	gap: 2px;
 	padding: 8px 4px calc(8px + env(safe-area-inset-bottom, 0px));
-	font-size: 11px;
+	font-size: var(--kk-mobile-menu-title-size, 11px);
 	font-weight: 600;
 	color: var(--kk-muted);
 	min-height: 56px;
@@ -181,13 +181,23 @@
 
 .kk-bottom-nav-menu svg {
 	display: block;
+	width: var(--kk-mobile-menu-icon-size, 18px);
+	height: var(--kk-mobile-menu-icon-size, 18px);
+}
+
+/* Titles off (Customizer -> Mobile Menu): the label text collapses
+ * to nothing while the icon keeps its size — and the text stays in
+ * the DOM, so screen readers still announce the item. */
+.kk-bottom-nav--no-titles .kk-bottom-nav-menu a {
+	font-size: 0;
 }
 
 /* Very narrow phones (320px): six labels in 320px only fit if the
- * type shrinks a touch — otherwise the longest label clips mid-word. */
+ * type shrinks a touch — otherwise the longest label clips mid-word.
+ * The min() keeps the Customizer title size as the ceiling. */
 @media (max-width: 360px) {
 	.kk-bottom-nav-menu a {
-		font-size: 10px;
+		font-size: min(var(--kk-mobile-menu-title-size, 11px), 10px);
 		padding-left: 2px;
 		padding-right: 2px;
 	}

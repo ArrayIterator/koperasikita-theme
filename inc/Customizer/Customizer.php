@@ -33,13 +33,16 @@ final class Customizer
      * in register(), the --kk-*-size defaults in tokens.css, and the ranges
      * of their sanitize callbacks. The article-list thumbnail size lives
      * here too (same mechanism, different section: Appearance &
-     * Accessibility, not Typography).
+     * Accessibility, not Typography). So do the mobile bottom-nav sizes
+     * (Mobile Menu section, not Typography).
      */
     private const SIZE_SETTINGS = [
         'kk_title_size' => ['--kk-title-size', 40, 24, 72],
         'kk_card_title_size' => ['--kk-card-title-size', 20, 14, 32],
         'kk_excerpt_size' => ['--kk-excerpt-size', 14, 12, 20],
         'kk_list_thumbnail_size' => ['--kk-list-thumb-size', 180, 80, 200],
+        'kk_mobile_menu_icon_size' => ['--kk-mobile-menu-icon-size', 18, 16, 32],
+        'kk_mobile_menu_title_size' => ['--kk-mobile-menu-title-size', 11, 10, 16],
     ];
 
     private const PALETTE_LABELS = [
@@ -67,6 +70,7 @@ final class Customizer
             'koperasikita_logo' => esc_html__('Logo', 'koperasikita'),
             'koperasikita_typography' => esc_html__('Typography', 'koperasikita'),
             'koperasikita_header' => esc_html__('Header & Breaking News', 'koperasikita'),
+            'koperasikita_mobile_menu' => esc_html__('Mobile Menu', 'koperasikita'),
             'koperasikita_homepage' => esc_html__('Homepage Layout', 'koperasikita'),
             'koperasikita_single' => esc_html__('Single Post', 'koperasikita'),
             'koperasikita_comments' => esc_html__('Comments', 'koperasikita'),
@@ -1167,6 +1171,72 @@ final class Customizer
             ],
         ]);
 
+        /* Mobile bottom nav (phones only): the master switch gates every
+         * other setting in this section — while the bar is off, the
+         * icon size, count and title settings stay hidden. The count
+         * defaults to 5 (five items fit a phone width with room for a
+         * thumb; 10 is the hard ceiling before the labels crush) and
+         * the title size only shows while titles are on. */
+        self::addSetting($wpCustomize, 'kk_mobile_menu_display', true, [self::class, 'sanitizeBool'], 'refresh');
+        $wpCustomize->add_control('kk_mobile_menu_display', [
+            'label' => esc_html__('Display Mobile Menu', 'koperasikita'),
+            'section' => 'koperasikita_mobile_menu',
+            'type' => 'checkbox',
+        ]);
+
+        self::addSetting(
+            $wpCustomize,
+            'kk_mobile_menu_icon_size',
+            18,
+            static fn ($value) => self::clampInt($value, 16, 32),
+            'postMessage'
+        );
+        $wpCustomize->add_control('kk_mobile_menu_icon_size', [
+            'label' => esc_html__('Icon Size', 'koperasikita'),
+            'section' => 'koperasikita_mobile_menu',
+            'type' => 'number',
+            'input_attrs' => ['min' => 16, 'max' => 32],
+            'active_callback' => [self::class, 'isMobileMenuDisplayed'],
+        ]);
+
+        self::addSetting(
+            $wpCustomize,
+            'kk_mobile_menu_max_count',
+            5,
+            static fn ($value) => self::clampInt($value, 1, 10),
+            'refresh'
+        );
+        $wpCustomize->add_control('kk_mobile_menu_max_count', [
+            'label' => esc_html__('Maximum Menu Count', 'koperasikita'),
+            'section' => 'koperasikita_mobile_menu',
+            'type' => 'number',
+            'input_attrs' => ['min' => 1, 'max' => 10],
+            'active_callback' => [self::class, 'isMobileMenuDisplayed'],
+        ]);
+
+        self::addSetting($wpCustomize, 'kk_mobile_menu_show_titles', true, [self::class, 'sanitizeBool'], 'refresh');
+        $wpCustomize->add_control('kk_mobile_menu_show_titles', [
+            'label' => esc_html__('Display Menu Title', 'koperasikita'),
+            'section' => 'koperasikita_mobile_menu',
+            'type' => 'checkbox',
+            'active_callback' => [self::class, 'isMobileMenuDisplayed'],
+        ]);
+
+        self::addSetting(
+            $wpCustomize,
+            'kk_mobile_menu_title_size',
+            11,
+            static fn ($value) => self::clampInt($value, 10, 16),
+            'postMessage'
+        );
+        $wpCustomize->add_control('kk_mobile_menu_title_size', [
+            'label' => esc_html__('Menu Title Size', 'koperasikita'),
+            'section' => 'koperasikita_mobile_menu',
+            'type' => 'number',
+            'input_attrs' => ['min' => 10, 'max' => 16],
+            'active_callback' => [self::class, 'isMobileMenuTitlesShown'],
+        ]);
+
         /* The 4th element is the Header-section display priority
          * (feature-group order: top bar 30, clock 33, sticky nav 39).
          * Other sections keep the default priority. */
@@ -2060,6 +2130,18 @@ final class Customizer
     public static function isHeroGrid(): bool
     {
         return ! self::isHeroSlider();
+    }
+
+    /* The mobile bottom-nav settings only show while the bar itself
+     * is displayed; the title size additionally needs titles on. */
+    public static function isMobileMenuDisplayed(): bool
+    {
+        return (bool) get_theme_mod('kk_mobile_menu_display', true);
+    }
+
+    public static function isMobileMenuTitlesShown(): bool
+    {
+        return self::isMobileMenuDisplayed() && (bool) get_theme_mod('kk_mobile_menu_show_titles', true);
     }
 
     public static function sanitizeHeroSliderStyle(mixed $value): string

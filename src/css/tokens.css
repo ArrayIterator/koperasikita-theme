@@ -47,6 +47,10 @@
 	--kk-card-title-size: 20px;
 	--kk-excerpt-size: 14px;
 	--kk-list-thumb-size: 180px;
+	/* Mobile bottom nav (Customizer -> Mobile Menu): the icon and
+	 * title sizes. Defaults match the bar as shipped. */
+	--kk-mobile-menu-icon-size: 18px;
+	--kk-mobile-menu-title-size: 11px;
 	/* Featured rows use a smaller thumb than List rows (their own
 	 * size, not the List setting). */
 	--kk-featured-thumb-size: 120px;

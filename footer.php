@@ -89,10 +89,11 @@
 // the current-menu-item state) is identical to a directly assigned menu.
 $bottom_nav_items = \KoperasiKita\Setup\Menus::mobileBottomItems();
 
-if ( [] !== $bottom_nav_items ) :
+if ( [] !== $bottom_nav_items && \KoperasiKita\Setup\Menus::isDisplayed() ) :
 	$bottom_nav_location = has_nav_menu( 'mobile-bottom' ) ? 'mobile-bottom' : 'primary';
+	$bottom_nav_classes = 'kk-bottom-nav' . ( \KoperasiKita\Setup\Menus::showTitles() ? '' : ' kk-bottom-nav--no-titles' );
 	?>
-	<nav class="kk-bottom-nav" aria-label="<?php esc_attr_e( 'Mobile navigation', 'koperasikita' ); ?>">
+	<nav class="<?php echo esc_attr( $bottom_nav_classes ); ?>" aria-label="<?php esc_attr_e( 'Mobile navigation', 'koperasikita' ); ?>">
 		<?php
 		wp_nav_menu(
 			array(
@@ -101,6 +102,9 @@ if ( [] !== $bottom_nav_items ) :
 				'container'      => false,
 				'fallback_cb'    => false,
 				'depth'          => 1,
+				// Marker for Menus::limitBottomNavItems(): cap the rendered
+				// bar at the Customizer Maximum Menu Count.
+				'kk_limit_bottom_nav' => true,
 			)
 		);
 		?>

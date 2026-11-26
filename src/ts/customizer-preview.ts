@@ -312,6 +312,8 @@ function initCustomizerPreview(): void {
 	bindSetting('kk_title_size', (next) => setRootVar('--kk-title-size', `${Number(next)}px`));
 	bindSetting('kk_card_title_size', (next) => setRootVar('--kk-card-title-size', `${Number(next)}px`));
 	bindSetting('kk_excerpt_size', (next) => setRootVar('--kk-excerpt-size', `${Number(next)}px`));
+	bindSetting('kk_mobile_menu_icon_size', (next) => setRootVar('--kk-mobile-menu-icon-size', `${Number(next)}px`));
+	bindSetting('kk_mobile_menu_title_size', (next) => setRootVar('--kk-mobile-menu-title-size', `${Number(next)}px`));
 
 	bindSetting('kk_homepage_layout', applyHomepageLayout);
 	bindSetting('kk_logo_invert_dark', applyLogoInvert);
