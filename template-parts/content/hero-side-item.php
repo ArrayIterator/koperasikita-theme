@@ -14,12 +14,13 @@
 $categories = get_the_category();
 $thumb_url  = \KoperasiKita\Images\FeaturedImage::url( get_the_ID(), 'medium' );
 // The Hero card toggles (Customizer -> Homepage -> Show Title /
-// Category / Date) apply to these side items too — they were
-// rendering unconditionally, so toggling them did nothing
+// Category / Date / Excerpt) apply to these side items too — they
+// were rendering unconditionally, so toggling them did nothing
 // ("ga fungsi") in Grid Center mode. Same defaults as card-news.php.
 $show_title = (bool) get_theme_mod( 'kk_hero_card_show_title', true );
 $show_category = (bool) get_theme_mod( 'kk_hero_card_show_category', true );
 $show_date = (bool) get_theme_mod( 'kk_hero_card_show_date', true );
+$show_excerpt = (bool) get_theme_mod( 'kk_hero_card_show_excerpt', false );
 ?>
 
 <li class="kk-hero-side-item">
@@ -39,6 +40,9 @@ $show_date = (bool) get_theme_mod( 'kk_hero_card_show_date', true );
 			<p class="kk-meta">
 				<time datetime="<?php echo esc_attr( get_the_date( 'c' ) ); ?>"><?php echo esc_html( get_the_date() ); ?></time>
 			</p>
+		<?php endif; ?>
+		<?php if ( $show_excerpt ) : ?>
+			<p class="kk-hero-side-excerpt"><?php echo esc_html( get_the_excerpt() ); ?></p>
 		<?php endif; ?>
 	</div>
 </li>

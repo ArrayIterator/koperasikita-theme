@@ -243,6 +243,17 @@
 	margin: 0;
 }
 
+.kk-hero-side-excerpt {
+	margin: 0.35rem 0 0;
+	color: var(--kk-muted);
+	font-size: 0.875rem;
+	line-height: 1.45;
+	display: -webkit-box;
+	-webkit-line-clamp: 2;
+	-webkit-box-orient: vertical;
+	overflow: hidden;
+}
+
 /* Widget pairings: hero + widget area(s). */
 .kk-hero--grid-left-widget,
 .kk-hero--slider-right-widget {
