@@ -182,6 +182,16 @@
 	cursor: pointer;
 }
 
+/* WP core nav-menus.css sets .menu-item-settings input { width: 100%; }
+ * under max-width: 782px (specificity 0,1,1) — without this the colour
+ * swatch stretches full-width on its own line on mobile. */
+.menu-item-settings .kk-menu-icon-color {
+	flex: 0 0 auto;
+	width: 2.25rem;
+	min-width: 2.25rem;
+	max-width: 2.25rem;
+}
+
 .kk-menu-icon-color-clear {
 	padding: 0 0.25rem;
 	border: none;
