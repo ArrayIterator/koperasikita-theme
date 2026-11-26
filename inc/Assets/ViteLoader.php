@@ -82,4 +82,29 @@ final class ViteLoader
 
         return '';
     }
+
+    /**
+     * Absolute filesystem path of a built CSS entry, for server-side
+     * reads (the combined-CSS builder concatenates the files). Empty
+     * when the entry has no built CSS file.
+     */
+    public static function cssPath(string $entry): string
+    {
+        $manifest = self::manifest();
+
+        $file = $manifest[$entry]['css'][0] ?? null;
+
+        if (!is_string($file)) {
+            $candidate = $manifest[$entry]['file'] ?? null;
+            $file = is_string($candidate) && str_ends_with($candidate, '.css') ? $candidate : null;
+        }
+
+        if (!is_string($file)) {
+            return '';
+        }
+
+        $path = KK_DIR . '/dist/' . $file;
+
+        return is_readable($path) ? $path : '';
+    }
 }

@@ -13,7 +13,11 @@ final class Enqueue
 {
     public static function register(): void
     {
-        self::enqueueSplitStyles();
+        if (self::isCombinedCss()) {
+            self::enqueueCombinedStyles();
+        } else {
+            self::enqueueSplitStyles();
+        }
 
         Fonts::enqueue();
 
@@ -23,11 +27,16 @@ final class Enqueue
             wp_enqueue_script('kk-main', $js, [], KK_VERSION, true);
         }
 
+        /* Feature styles depend on the last split file (kk-responsive)
+         * in split mode, and on the single combined file (kk-app) in
+         * combined mode — the combined file IS kk-app. */
+        $lastStyle = self::isCombinedCss() ? 'kk-app' : 'kk-responsive';
+
         if (Features::isEnabled('markets')) {
             $goldCss = ViteLoader::css('src/css/gold-markets.css');
 
             if ($goldCss !== '') {
-                wp_enqueue_style('kk-gold-markets', $goldCss, ['kk-responsive'], KK_VERSION);
+                wp_enqueue_style('kk-gold-markets', $goldCss, [$lastStyle], KK_VERSION);
             }
 
             $goldJs = ViteLoader::js('src/ts/gold-markets.ts');
@@ -41,7 +50,7 @@ final class Enqueue
             $weatherCss = ViteLoader::css('src/css/weather.css');
 
             if ($weatherCss !== '') {
-                wp_enqueue_style('kk-weather', $weatherCss, ['kk-responsive'], KK_VERSION);
+                wp_enqueue_style('kk-weather', $weatherCss, [$lastStyle], KK_VERSION);
             }
 
             $weatherJs = ViteLoader::js('src/ts/weather.ts');
@@ -55,7 +64,7 @@ final class Enqueue
             $agendaCss = ViteLoader::css('src/css/agenda.css');
 
             if ($agendaCss !== '') {
-                wp_enqueue_style('kk-agenda', $agendaCss, ['kk-responsive'], KK_VERSION);
+                wp_enqueue_style('kk-agenda', $agendaCss, [$lastStyle], KK_VERSION);
             }
 
             $agendaJs = ViteLoader::js('src/ts/agenda.ts');
@@ -172,42 +181,141 @@ final class Enqueue
      * responsive) loads on every page. Home-only and content styles
      * load only where their templates can appear.
      */
-    private static function enqueueSplitStyles(): void
+    /**
+     * Whether the "Serve Combined CSS" toggle (Advanced Performance &
+     * Cleanup) is on. When it is, the split chain is replaced by one
+     * combined stylesheet (handle kk-app).
+     */
+    public static function isCombinedCss(): bool
     {
-        self::enqueueStyle('kk-app', 'src/css/app.css', []);
-        self::enqueueStyle('kk-tokens', 'src/css/tokens.css', ['kk-app']);
-        self::enqueueStyle('kk-base', 'src/css/base.css', ['kk-tokens']);
-        self::enqueueStyle('kk-header', 'src/css/header.css', ['kk-base']);
+        return (bool) get_theme_mod('kk_combine_css', false);
+    }
+
+    /**
+     * The split stylesheets in cascade order for the current page,
+     * as [handle => entry] pairs. The same list drives both modes:
+     * split mode enqueues each file, combined mode concatenates them
+     * in this order into one file. The conditionals (front page,
+     * content styles) are identical in both modes, so the combined
+     * file has exactly the rules the split chain would have served.
+     *
+     * @return array<string, string>
+     */
+    private static function splitStyleEntries(): array
+    {
+        $entries = [
+            'kk-app' => 'src/css/app.css',
+            'kk-tokens' => 'src/css/tokens.css',
+            'kk-base' => 'src/css/base.css',
+            'kk-header' => 'src/css/header.css',
+        ];
 
         if (is_front_page()) {
-            self::enqueueStyle('kk-home', 'src/css/home.css', ['kk-header']);
+            $entries['kk-home'] = 'src/css/home.css';
         }
 
-        self::enqueueStyle('kk-cards', 'src/css/cards.css', ['kk-header']);
+        $entries['kk-cards'] = 'src/css/cards.css';
 
         if (is_front_page()) {
-            self::enqueueStyle('kk-home-sections', 'src/css/home-sections.css', ['kk-cards']);
+            $entries['kk-home-sections'] = 'src/css/home-sections.css';
         }
 
         if (self::needsContentStyles()) {
-            self::enqueueStyle('kk-content', 'src/css/content.css', ['kk-cards']);
+            $entries['kk-content'] = 'src/css/content.css';
         }
 
-        self::enqueueStyle('kk-footer', 'src/css/footer.css', ['kk-cards']);
-        self::enqueueStyle('kk-overlays', 'src/css/overlays.css', ['kk-footer']);
-        self::enqueueStyle('kk-variants', 'src/css/variants.css', ['kk-overlays']);
-        self::enqueueStyle('kk-responsive', 'src/css/responsive.css', ['kk-variants']);
+        $entries['kk-footer'] = 'src/css/footer.css';
+        $entries['kk-overlays'] = 'src/css/overlays.css';
+        $entries['kk-variants'] = 'src/css/variants.css';
+        $entries['kk-responsive'] = 'src/css/responsive.css';
 
-        // Newsletter layout styles load on every front-page render, not
-        // only when the saved layout is newsletter — the layout
-        // switcher is a live client-side control, so the restyle must
-        // apply the moment the user clicks Newsletter on a grid/list
-        // page. The rules are scoped to .kk-layout-newsletter /
-        // .kk-newsletter-*, so they are inert on grid/list pages.
-        // Last in the chain (after kk-responsive) so it wins over the
-        // card/layout rules it restyles.
         if (is_front_page()) {
-            self::enqueueStyle('kk-newsletter', 'src/css/newsletter.css', ['kk-responsive']);
+            $entries['kk-newsletter'] = 'src/css/newsletter.css';
+        }
+
+        return $entries;
+    }
+
+    /**
+     * Build (once per theme build) and enqueue the single combined
+     * stylesheet: every split file for this page, concatenated in
+     * cascade order, cached under uploads/koperasikita/ with a hash
+     * of the source files' paths + mtimes + theme version, so a new
+     * build automatically produces a new file. The handle is kk-app,
+     * so the Customizer palette/font inline styles (attached to
+     * kk-app) print right after the combined file, exactly where
+     * they belong — no moveAppInlineStyles needed in combined mode.
+     * Returns false (and the caller falls back to split mode) when
+     * the file cannot be built.
+     */
+    private static function enqueueCombinedStyles(): void
+    {
+        $url = self::combinedCssUrl();
+
+        if ($url === '') {
+            self::enqueueSplitStyles();
+
+            return;
+        }
+
+        wp_enqueue_style('kk-app', $url, [], KK_VERSION);
+    }
+
+    /**
+     * URL of the cached combined stylesheet for this page, building
+     * it when the sources changed. Empty string when it cannot be
+     * built (missing dist files or an unwritable uploads dir).
+     */
+    public static function combinedCssUrl(): string
+    {
+        $paths = [];
+
+        foreach (self::splitStyleEntries() as $entry) {
+            $path = ViteLoader::cssPath($entry);
+
+            if ($path === '') {
+                return '';
+            }
+
+            $paths[] = $path;
+        }
+
+        $hash = md5(implode('|', $paths) . '|' . implode('|', array_map('filemtime', $paths)) . '|' . KK_VERSION);
+        $upload = wp_get_upload_dir();
+
+        if (!empty($upload['error'])) {
+            return '';
+        }
+
+        $dir = trailingslashit((string) $upload['basedir']) . 'koperasikita';
+        $filename = 'combined-' . $hash . '.css';
+        $file = $dir . '/' . $filename;
+
+        if (!is_readable($file)) {
+            if (!wp_mkdir_p($dir)) {
+                return '';
+            }
+
+            $combined = '';
+
+            foreach ($paths as $path) {
+                $combined .= '/* ' . basename($path) . " */\n" . (string) file_get_contents($path) . "\n";
+            }
+
+            if (file_put_contents($file, $combined) === false) {
+                return '';
+            }
+        }
+
+        return trailingslashit((string) $upload['baseurl']) . 'koperasikita/' . $filename;
+    }
+
+    private static function enqueueSplitStyles(): void
+    {
+        $deps = [];
+        foreach (self::splitStyleEntries() as $handle => $entry) {
+            self::enqueueStyle($handle, $entry, $deps);
+            $deps = [$handle];
         }
 
         // Inline styles attached to kk-app (Customizer palette overrides,

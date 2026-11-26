@@ -209,6 +209,14 @@ msgid "The text shown when an excerpt is cut short. Leave the default three dots
 msgstr "Teks yang ditampilkan saat kutipan dipotong. Biarkan tiga titik bawaan, atau ketik akhiran Anda sendiri."
 
 #: inc/Customizer/Customizer.php
+msgid "Serve Combined CSS (one file)"
+msgstr "Sajikan CSS Gabungan (satu file)"
+
+#: inc/Customizer/Customizer.php
+msgid "Combine all theme stylesheets into a single CSS file (one render-blocking request instead of ~13 chained ones). The file is rebuilt automatically when the theme is updated."
+msgstr "Gabungkan semua stylesheet tema menjadi satu file CSS (satu request render-blocking, bukan ~13 file berantai). File dibuat ulang otomatis saat tema diperbarui."
+
+#: inc/Customizer/Customizer.php
 msgid "Footer Copyright Text"
 msgstr "Teks Hak Cipta Footer"
 

@@ -884,6 +884,29 @@ final class Customizer
             ]);
         }
 
+        /* Serve combined CSS: one stylesheet instead of the ~13-file
+         * split chain (app -> tokens -> base -> header -> ... ->
+         * responsive -> newsletter). Each split file is a render-
+         * blocking request chained on the previous one, so the chain
+         * delays first paint; the combined file is built once per
+         * theme build (same cascade order, same conditionals) and
+         * served as a single request. Off by default: the split files
+         * are easier to debug and let the browser cache each file
+         * independently. */
+        self::addSetting(
+            $wpCustomize,
+            'kk_combine_css',
+            false,
+            [self::class, 'sanitizeBool'],
+            'refresh'
+        );
+        $wpCustomize->add_control('kk_combine_css', [
+            'label' => esc_html__('Serve Combined CSS (one file)', 'koperasikita'),
+            'description' => esc_html__('Combine all theme stylesheets into a single CSS file (one render-blocking request instead of ~13 chained ones). The file is rebuilt automatically when the theme is updated.', 'koperasikita'),
+            'section' => 'koperasikita_advanced',
+            'type' => 'checkbox',
+        ]);
+
         self::addSetting(
             $wpCustomize,
             'kk_comments_order',

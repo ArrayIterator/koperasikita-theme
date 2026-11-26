@@ -208,6 +208,14 @@ msgid "The text shown when an excerpt is cut short. Leave the default three dots
 msgstr ""
 
 #: inc/Customizer/Customizer.php
+msgid "Serve Combined CSS (one file)"
+msgstr ""
+
+#: inc/Customizer/Customizer.php
+msgid "Combine all theme stylesheets into a single CSS file (one render-blocking request instead of ~13 chained ones). The file is rebuilt automatically when the theme is updated."
+msgstr ""
+
+#: inc/Customizer/Customizer.php
 msgid "Footer Copyright Text"
 msgstr ""
 
