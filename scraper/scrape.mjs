@@ -13,10 +13,17 @@
  *    page is server-rendered, one price table per brand ("Harga
  *    GALERI 24", "Harga UBS", "Harga ANTAM"), each row a gramage
  *    with sell + buyback price. Pegadaian's own site is
- *    bot-protected (403 + empty in headless Chrome), so Pegadaian
- *    brand prices cannot be scraped reliably and stay manual in
- *    the theme.
+ *    bot-protected (403 + empty in headless Chrome), so the
+ *    Pegadaian 1-gram price comes from the Logam Mulia backup CSV
+ *    (pegadaian.csv) instead — only the latest date's 0.01-gram
+ *    row, scaled x100 to 1 gram. EmasKita has no public source and
+ *    stays manual in the theme.
  *  - Gold spot per gram (IDR): xaus.com public API, no key.
+ *
+ * Only the important data is taken: the 1-gram sell price per
+ * brand (what the Gold widget shows) + spot. No other gramages,
+ * no buyback, no history — the CSV is read for its latest row
+ * only.
  *
  * The script never invents a price: a source that fails or returns
  * no usable number is skipped, and the JSON keeps the last good
@@ -108,6 +115,76 @@ async function spotPrice() {
 	const data = await res.json();
 	const price = data?.xau?.price;
 	return typeof price === 'number' && price > 0 ? price : null;
+}
+
+/** Split one CSV line into fields, honouring double-quoted fields. */
+function parseCsvLine(line) {
+	const out = [];
+	let cur = '';
+	let quoted = false;
+	for (let i = 0; i < line.length; i++) {
+		const ch = line[i];
+		if (ch === '"') {
+			if (quoted && line[i + 1] === '"') {
+				cur += '"';
+				i++;
+			} else {
+				quoted = !quoted;
+			}
+		} else if (ch === ',' && !quoted) {
+			out.push(cur);
+			cur = '';
+		} else {
+			cur += ch;
+		}
+	}
+	out.push(cur);
+	return out;
+}
+
+/**
+ * Pegadaian 1-gram price from the Logam Mulia backup CSV
+ * (pegadaian.csv). Pegadaian's own site blocks scrapers, so this
+ * is the only live source. Only the important data is taken: the
+ * file's latest recordedDate, weight 0.01 gram, scaled x100 to
+ * 1 gram. The rest of the file (older dates, buyback) is ignored.
+ * Returns the 1-gram price, or null when the file has no usable
+ * latest row.
+ */
+async function pegadaianPrice() {
+	const text = await fetchText(
+		'https://raw.githubusercontent.com/iamutaki/logam-mulia-api/main/backup/prices/pegadaian.csv',
+	);
+	const lines = text.split('\n').filter((l) => l.trim() !== '');
+	if (lines.length < 2) return null;
+
+	const header = parseCsvLine(lines[0]);
+	const iWeight = header.indexOf('weight');
+	const iSell = header.indexOf('sellPrice');
+	const iDate = header.indexOf('recordedDate');
+	const iMaterial = header.indexOf('material');
+	if (iWeight === -1 || iSell === -1 || iDate === -1) return null;
+
+	let maxDate = '';
+	let price = null;
+	for (const line of lines.slice(1)) {
+		const row = parseCsvLine(line);
+		const need = Math.max(iWeight, iSell, iDate);
+		if (row.length <= need) continue;
+		if (iMaterial !== -1 && row[iMaterial] !== 'gold') continue;
+		const date = row[iDate];
+		if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) continue;
+		if (Number(row[iWeight]) !== 0.01) continue;
+		const sell = Number(row[iSell]);
+		if (!Number.isFinite(sell) || sell <= 0) continue;
+		// Rows are append-only in date order; a later date wins.
+		if (date >= maxDate) {
+			maxDate = date;
+			price = sell * 100;
+		}
+	}
+
+	return price;
 }
 
 function readPrevious() {
@@ -217,6 +294,20 @@ async function main() {
 		sources.spot = prev?.sources?.spot ?? 'xaus.com (stale)';
 	}
 
+	// Pegadaian 1g (brand price, from the Logam Mulia backup CSV —
+	// Pegadaian's own site blocks scrapers).
+	const pegadaian = await pegadaianPrice().catch((err) => {
+		console.error('pegadaian failed:', err.message);
+		return null;
+	});
+	if (pegadaian !== null) {
+		prices.pegadaian = { price: Math.round(pegadaian), currency: 'IDR', updated: now };
+		sources.pegadaian = 'logam-mulia-api (pegadaian.csv)';
+	} else if (prevPrices.pegadaian?.price) {
+		prices.pegadaian = { ...prevPrices.pegadaian };
+		sources.pegadaian = prev?.sources?.pegadaian ?? 'logam-mulia-api (stale)';
+	}
+
 	if (Object.keys(prices).length === 0) {
 		console.error('no prices at all — refusing to write an empty file');
 		process.exit(1);
@@ -226,7 +317,7 @@ async function main() {
 		updated: now,
 		prices,
 		sources,
-		note: 'Free, self-hosted gold prices for the Koperasi Kita theme. Antam is the 1-gram retail price scraped from harga-emas.net; Galeri 24 and UBS are the 1-gram sell prices scraped from galeri24.co.id; spot is the live XAU price per gram in IDR from xaus.com. Pegadaian and EmasKita stay manual — Pegadaian blocks scrapers.',
+		note: 'Free, self-hosted gold prices for the Koperasi Kita theme. Antam is the 1-gram retail price scraped from harga-emas.net; Galeri 24 and UBS are the 1-gram sell prices scraped from galeri24.co.id; Pegadaian is the 1-gram price from the Logam Mulia backup CSV (pegadaian.csv, latest date only); spot is the live XAU price per gram in IDR from xaus.com. EmasKita stays manual — it has no public source.',
 	};
 
 	writeFileSync(OUT, JSON.stringify(out, null, 2) + '\n', 'utf8');

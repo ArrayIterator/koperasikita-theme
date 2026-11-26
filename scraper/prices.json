@@ -1,32 +1,38 @@
 {
-  "updated": "2026-11-26T18:33:25.820Z",
+  "updated": "2026-11-26T20:29:45.243Z",
   "prices": {
     "antam": {
       "price": 2501000,
       "currency": "IDR",
-      "updated": "2026-11-26T18:33:25.820Z"
+      "updated": "2026-11-26T20:29:45.243Z"
     },
     "galeri-24": {
       "price": 2339000,
       "currency": "IDR",
-      "updated": "2026-11-26T18:33:25.820Z"
+      "updated": "2026-11-26T20:29:45.243Z"
     },
     "ubs": {
       "price": 2362000,
       "currency": "IDR",
-      "updated": "2026-11-26T18:33:25.820Z"
+      "updated": "2026-11-26T20:29:45.243Z"
     },
     "spot": {
-      "price": 2098947,
+      "price": 2099242,
       "currency": "IDR",
-      "updated": "2026-11-26T18:33:25.820Z"
+      "updated": "2026-11-26T20:29:45.243Z"
+    },
+    "pegadaian": {
+      "price": 2261000,
+      "currency": "IDR",
+      "updated": "2026-11-26T20:29:45.243Z"
     }
   },
   "sources": {
     "antam": "harga-emas.net",
     "galeri-24": "galeri24.co.id",
     "ubs": "galeri24.co.id",
-    "spot": "xaus.com"
+    "spot": "xaus.com",
+    "pegadaian": "logam-mulia-api (pegadaian.csv)"
   },
-  "note": "Free, self-hosted gold prices for the Koperasi Kita theme. Antam is the 1-gram retail price scraped from harga-emas.net; Galeri 24 and UBS are the 1-gram sell prices scraped from galeri24.co.id; spot is the live XAU price per gram in IDR from xaus.com. Pegadaian and EmasKita stay manual — Pegadaian blocks scrapers."
+  "note": "Free, self-hosted gold prices for the Koperasi Kita theme. Antam is the 1-gram retail price scraped from harga-emas.net; Galeri 24 and UBS are the 1-gram sell prices scraped from galeri24.co.id; Pegadaian is the 1-gram price from the Logam Mulia backup CSV (pegadaian.csv, latest date only); spot is the live XAU price per gram in IDR from xaus.com. EmasKita stays manual — it has no public source."
 }

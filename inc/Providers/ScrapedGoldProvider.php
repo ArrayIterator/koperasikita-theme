@@ -16,15 +16,17 @@ use KoperasiKita\Features\Markets;
  *  - Antam 1-gram retail price, scraped from harga-emas.net.
  *  - Galeri 24 + UBS 1-gram sell prices, scraped from
  *    galeri24.co.id/harga-emas (server-rendered brand tables).
+ *  - Pegadaian 1-gram price, from the Logam Mulia backup CSV
+ *    (pegadaian.csv, latest date only) — Pegadaian's own site is
+ *    bot-protected and cannot be scraped directly.
  *  - Gold spot per gram (IDR), from xaus.com.
  *
  * The JSON is a static file on GitHub's CDN, so it is fast and
  * CORS-enabled — the browser can fetch it directly too (see
- * clientApiUrl()). Pegadaian and EmasKita are NOT in the file:
- * Pegadaian's site is bot-protected and cannot be scraped
- * reliably, so those brands stay manual. Picking this provider for
- * gold means Antam + Galeri 24 + UBS + spot come live from the
- * scrape and the other brands show no data unless a manual
+ * clientApiUrl()). EmasKita is NOT in the file: it has no public
+ * price source, so it stays manual. Picking this provider for
+ * gold means Antam + Galeri 24 + UBS + Pegadaian + spot come live
+ * from the scrape and EmasKita shows no data unless a manual
  * snapshot exists.
  *
  * Caching and the stale-value fallback live in AbstractLiveProvider
@@ -41,7 +43,7 @@ final class ScrapedGoldProvider extends AbstractLiveProvider
 
     public function label(): string
     {
-        return 'Scraped (live Antam, Galeri 24, UBS + spot, free)';
+        return 'Scraped (live Antam, Galeri 24, UBS, Pegadaian + spot, free)';
     }
 
     public function supports(string $market): bool
@@ -55,13 +57,13 @@ final class ScrapedGoldProvider extends AbstractLiveProvider
             return [];
         }
 
-        // Scraped from the theme's own prices.json: spot + the three
-        // brands the scraper covers. Pegadaian and EmasKita are not
-        // scraped, so they never appear in this list.
+        // Scraped from the theme's own prices.json: spot + the four
+        // brands the scraper covers. EmasKita is not scraped, so it
+        // never appears in this list.
         $symbols = Markets::symbols('gold');
         $supplied = [];
 
-        foreach (['spot', 'antam', 'ubs', 'galeri-24'] as $symbol) {
+        foreach (['spot', 'antam', 'ubs', 'galeri-24', 'pegadaian'] as $symbol) {
             if (isset($symbols[$symbol])) {
                 $supplied[$symbol] = $symbols[$symbol];
             }
@@ -104,7 +106,7 @@ final class ScrapedGoldProvider extends AbstractLiveProvider
 
         $prices = [];
 
-        foreach (['spot', 'antam', 'ubs', 'galeri-24'] as $symbol) {
+        foreach (['spot', 'antam', 'ubs', 'galeri-24', 'pegadaian'] as $symbol) {
             $row = $rows[$symbol] ?? null;
 
             if (!is_array($row)) {

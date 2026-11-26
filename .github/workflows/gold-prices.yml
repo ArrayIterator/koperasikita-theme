@@ -1,15 +1,15 @@
 name: Gold prices
 
 # Scrape the gold prices no free API provides (Antam 1-gram retail
-# price from harga-emas.net + gold spot per gram from xaus.com) and
-# publish them as scraper/prices.json — a free, self-hosted API the
-# theme reads from raw.githubusercontent.com. Runs every 6 hours and
-# on manual dispatch. The scraper never invents a price: a failed
-# source keeps the last good value, and the job fails loudly if no
-# price at all could be produced.
+# price from harga-emas.net, Galeri 24 + UBS from galeri24.co.id,
+# Pegadaian 1-gram from the Logam Mulia backup CSV, gold spot per
+# gram from xaus.com) and publish them as scraper/prices.json — a
+# free, self-hosted API the theme reads from raw.githubusercontent.com.
+# Runs every 15 minutes and on manual dispatch. The scraper never
+# invents a price: a failed source keeps the last good value, and the
+# job fails loudly if no price at all could be produced.
 #
-# Pegadaian's own site is bot-protected, so UBS / Galeri24 /
-# Pegadaian brand prices are NOT scraped and stay manual in the
+# EmasKita has no public price source, so it stays manual in the
 # theme (Settings -> Markets).
 
 on:
