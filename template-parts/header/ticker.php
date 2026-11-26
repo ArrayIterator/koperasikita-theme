@@ -16,8 +16,8 @@ if ( empty( $ticker_posts ) ) {
 }
 
 $ticker_speed = \KoperasiKita\Features\Ticker::speed();
-$ticker_title = (string) get_theme_mod( 'kk_breaking_title', __( 'Breaking', 'koperasikita' ) );
-$ticker_title = '' !== trim( $ticker_title ) ? $ticker_title : __( 'Breaking', 'koperasikita' );
+$ticker_title = (string) get_theme_mod( 'kk_breaking_title', __( 'New', 'koperasikita' ) );
+$ticker_title = '' !== trim( $ticker_title ) ? $ticker_title : __( 'New', 'koperasikita' );
 $ticker_style = (string) get_theme_mod( 'kk_breaking_style', 'gold' );
 $ticker_style = in_array( $ticker_style, ['gold', 'green', 'dark', 'red', 'outline'], true ) ? $ticker_style : 'gold';
 ?>

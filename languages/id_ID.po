@@ -1078,6 +1078,11 @@ msgstr "Cari"
 msgid "Breaking"
 msgstr "Terkini"
 
+#: inc/Customizer/Customizer.php
+#: template-parts/header/ticker.php
+msgid "New"
+msgstr "Baru"
+
 #: template-parts/header/ticker.php
 msgid "Breaking news"
 msgstr "Berita Terkini"

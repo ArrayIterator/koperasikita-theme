@@ -1247,7 +1247,7 @@ final class Customizer
         self::addSetting(
             $wpCustomize,
             'kk_breaking_title',
-            __('Breaking', 'koperasikita'),
+            __('New', 'koperasikita'),
             'sanitize_text_field',
             'refresh'
         );
