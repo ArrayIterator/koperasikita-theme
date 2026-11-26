@@ -13,21 +13,43 @@
 	gap: 24px;
 }
 
-/* List rows are stacked cards, not a continuous list: the container
- * is a grid so each row is separated by a clear whitespace gap. */
-.kk-latest-items.kk-layout-list {
+/* List rows are flat, not cards: no background and no shadow — the
+ * rows are separated by a thin divider, not by boxes. The gap is
+ * small (12px) because the divider does the separating. Applies to
+ * the latest news and to the category blocks, which share the list
+ * layout. */
+.kk-latest-items.kk-layout-list,
+.kk-category-block-items.kk-layout-list {
 	display: grid;
-	gap: 20px;
+	/* One column of rows: the category-block responsive rule makes
+	 * the grid multi-column at tablet width, so this pins the list
+	 * back to a single vertical stack. */
+	grid-template-columns: 1fr;
+	gap: 12px;
 }
 
-.kk-latest-items.kk-layout-list .kk-card {
+.kk-home .kk-latest-items.kk-layout-list .kk-card,
+.kk-home .kk-category-block-items.kk-layout-list .kk-card {
 	display: grid;
 	grid-template-columns: 120px 1fr auto;
 	grid-template-areas: "media body bookmark";
 	gap: 16px;
+	background: transparent;
+	border: 0;
+	border-bottom: 1px solid var(--kk-border);
+	border-radius: 0;
+	box-shadow: none;
+	padding: 0 0 12px;
 }
 
-.kk-latest-items.kk-layout-list .kk-card-media img {
+.kk-latest-items.kk-layout-list .kk-card:last-child,
+.kk-category-block-items.kk-layout-list .kk-card:last-child {
+	border-bottom: 0;
+	padding-bottom: 0;
+}
+
+.kk-latest-items.kk-layout-list .kk-card-media img,
+.kk-category-block-items.kk-layout-list .kk-card-media img {
 	aspect-ratio: 4 / 3;
 }
 
@@ -37,7 +59,8 @@
  * height of the right column and its image flexes to fill the space,
  * so the card never has a hollow body. The rows are list rows: a
  * small thumb, title + meta, no excerpt, bookmark in its own column. */
-.kk-latest-items.kk-layout-featured {
+.kk-latest-items.kk-layout-featured,
+.kk-category-block-items.kk-layout-featured {
 	display: grid;
 	grid-template-columns: 1.5fr 1fr;
 	column-gap: 24px;
@@ -79,18 +102,27 @@
 	margin: 0;
 }
 
-.kk-layout-featured .kk-card:not(:first-child) {
+.kk-home .kk-layout-featured .kk-card:not(:first-child) {
 	grid-column: 2;
 	display: grid;
 	grid-template-columns: 96px 1fr auto;
 	grid-template-areas: "media body bookmark";
 	gap: 16px;
 	align-items: start;
-	padding: 12px;
-	margin-bottom: 24px;
+	/* Flat list rows, like List mode: no background/shadow, a thin
+	 * divider, small gap. */
+	background: transparent;
+	border: 0;
+	border-bottom: 1px solid var(--kk-border);
+	border-radius: 0;
+	box-shadow: none;
+	padding: 0 0 12px;
+	margin-bottom: 12px;
 }
 
 .kk-layout-featured .kk-card:not(:first-child):last-child {
+	border-bottom: 0;
+	padding-bottom: 0;
 	margin-bottom: 0;
 }
 

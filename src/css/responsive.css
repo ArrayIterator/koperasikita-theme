@@ -257,7 +257,8 @@
 
 	/* Featured stacks: the large card on top (16:9 image again — it
 	 * no longer spans the right column), then the rows below it. */
-	.kk-latest-items.kk-layout-featured {
+	.kk-latest-items.kk-layout-featured,
+	.kk-category-block-items.kk-layout-featured {
 		grid-template-columns: 1fr;
 	}
 
@@ -278,7 +279,11 @@
 		height: auto;
 	}
 
-	.kk-layout-featured .kk-card:not(:first-child) {
+	/* The desktop row rule carries a .kk-home prefix (to beat the
+	 * dark-mode card border), so this must too — otherwise the
+	 * desktop grid-column: 2 wins and the row forces an implicit
+	 * second column, unstacking the layout. */
+	.kk-home .kk-layout-featured .kk-card:not(:first-child) {
 		grid-column: auto;
 	}
 }

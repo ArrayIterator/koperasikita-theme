@@ -12,16 +12,20 @@ namespace KoperasiKita\Features;
  * not already used by an earlier slot). A disabled slot is skipped
  * outright; a picked category that no longer exists falls back to
  * automatic for that slot, so the front page never shows a hole.
+ * Each slot carries its own post count and its own display style
+ * (Grid / List / Featured), so the blocks are independent of each
+ * other.
  */
 final class Homepage
 {
     /**
-     * @return array<int, \WP_Term>
+     * @return list<array{term: \WP_Term, slot: int}>
      */
     public static function categoryBlocks(): array
     {
         $chosen = [];
         $automatic = null;
+        $blocks = [];
 
         for ($slot = 1; $slot <= 3; $slot++) {
             if (!(bool) get_theme_mod('kk_homepage_category_' . $slot . '_enabled', true)) {
@@ -33,6 +37,7 @@ final class Homepage
 
             if ($term instanceof \WP_Term && !isset($chosen[$term->term_id])) {
                 $chosen[$term->term_id] = $term;
+                $blocks[] = ['term' => $term, 'slot' => $slot];
 
                 continue;
             }
@@ -52,16 +57,33 @@ final class Homepage
             foreach ($automatic as $candidate) {
                 if (!isset($chosen[$candidate->term_id])) {
                     $chosen[$candidate->term_id] = $candidate;
+                    $blocks[] = ['term' => $candidate, 'slot' => $slot];
                     break;
                 }
             }
         }
 
-        return array_values($chosen);
+        return $blocks;
     }
 
-    public static function categoryBlockCount(): int
+    public static function categoryBlockCount(int $slot): int
     {
-        return min(8, max(1, (int) get_theme_mod('kk_homepage_category_count', 4)));
+        // Per-slot count, falling back to the old shared setting so a
+        // site that configured it before the per-slot counts existed
+        // keeps its number instead of silently resetting to 4.
+        $count = get_theme_mod('kk_homepage_category_' . $slot . '_count', false);
+
+        if ($count === false) {
+            $count = get_theme_mod('kk_homepage_category_count', 4);
+        }
+
+        return min(8, max(1, (int) $count));
+    }
+
+    public static function categoryBlockLayout(int $slot): string
+    {
+        $layout = (string) get_theme_mod('kk_homepage_category_' . $slot . '_layout', 'grid');
+
+        return in_array($layout, ['grid', 'list', 'featured'], true) ? $layout : 'grid';
     }
 }

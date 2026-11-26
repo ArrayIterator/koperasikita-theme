@@ -19,10 +19,17 @@ if ( ! $category instanceof WP_Term ) {
 	return;
 }
 
+// The slot this block came from (1–3); the count and display style
+// are per-slot, so each block is independent of the others.
+$slot = (int) get_query_var( 'kk_category_block_slot', 1 );
+$slot = min( 3, max( 1, $slot ) );
+$block_count = \KoperasiKita\Features\Homepage::categoryBlockCount( $slot );
+$block_layout = \KoperasiKita\Features\Homepage::categoryBlockLayout( $slot );
+
 $block_query = new WP_Query(
 	array(
 		'post_type'           => 'post',
-		'posts_per_page'      => \KoperasiKita\Features\Homepage::categoryBlockCount(),
+		'posts_per_page'      => $block_count,
 		'cat'                 => $category->term_id,
 		'ignore_sticky_posts' => true,
 	)
@@ -41,7 +48,7 @@ if ( ! $block_query->have_posts() ) {
 		</h2>
 	</div>
 
-	<div class="kk-category-block-items">
+	<div class="kk-category-block-items kk-layout-<?php echo esc_attr( $block_layout ); ?>">
 		<?php
 		while ( $block_query->have_posts() ) :
 			$block_query->the_post();

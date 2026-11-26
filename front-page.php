@@ -36,8 +36,9 @@ get_header();
 
 			<?php
 			// Category blocks: the three Customizer slots, in order.
-			foreach ( \KoperasiKita\Features\Homepage::categoryBlocks() as $category ) {
-				set_query_var( 'kk_category_block', $category );
+			foreach ( \KoperasiKita\Features\Homepage::categoryBlocks() as $block ) {
+				set_query_var( 'kk_category_block', $block['term'] );
+				set_query_var( 'kk_category_block_slot', $block['slot'] );
 				get_template_part( 'template-parts/home/category-block' );
 			}
 			?>

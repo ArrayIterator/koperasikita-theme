@@ -229,9 +229,9 @@ final class Customizer
 
         // Homepage category blocks: three slots, each either a chosen
         // category or automatic (most posts), with its own on/off
-        // switch. Slot order is the display order on the front page.
-        $category_choices = self::categoryChoices();
-
+        // switch, its own post count and its own display style (Grid /
+        // List / Featured). Slot order is the display order on the
+        // front page.
         for ($slot = 1; $slot <= 3; $slot++) {
             self::addSetting(
                 $wpCustomize,
@@ -256,23 +256,42 @@ final class Customizer
             $wpCustomize->add_control(new TermSelectControl($wpCustomize, 'kk_homepage_category_' . $slot, [
                 'label' => sprintf(esc_html__('Category Block %d', 'koperasikita'), $slot),
                 'section' => 'koperasikita_homepage',
-                'choices' => $category_choices,
+                'taxonomy' => 'category',
+                'static_choices' => [0 => esc_html__('Automatic (most posts)', 'koperasikita')],
             ]));
-        }
 
-        self::addSetting(
-            $wpCustomize,
-            'kk_homepage_category_count',
-            4,
-            static fn ($value) => self::clampInt($value, 1, 8),
-            'refresh'
-        );
-        $wpCustomize->add_control('kk_homepage_category_count', [
-            'label' => esc_html__('Posts Per Category Block', 'koperasikita'),
-            'section' => 'koperasikita_homepage',
-            'type' => 'number',
-            'input_attrs' => ['min' => 1, 'max' => 8],
-        ]);
+            self::addSetting(
+                $wpCustomize,
+                'kk_homepage_category_' . $slot . '_count',
+                4,
+                static fn ($value) => self::clampInt($value, 1, 8),
+                'refresh'
+            );
+            $wpCustomize->add_control('kk_homepage_category_' . $slot . '_count', [
+                'label' => sprintf(esc_html__('Category Block %d: Posts', 'koperasikita'), $slot),
+                'section' => 'koperasikita_homepage',
+                'type' => 'number',
+                'input_attrs' => ['min' => 1, 'max' => 8],
+            ]);
+
+            self::addSetting(
+                $wpCustomize,
+                'kk_homepage_category_' . $slot . '_layout',
+                'grid',
+                [self::class, 'sanitizeLayout'],
+                'refresh'
+            );
+            $wpCustomize->add_control('kk_homepage_category_' . $slot . '_layout', [
+                'label' => sprintf(esc_html__('Category Block %d: Display Style', 'koperasikita'), $slot),
+                'section' => 'koperasikita_homepage',
+                'type' => 'select',
+                'choices' => [
+                    'grid' => esc_html__('Grid', 'koperasikita'),
+                    'list' => esc_html__('List', 'koperasikita'),
+                    'featured' => esc_html__('Featured', 'koperasikita'),
+                ],
+            ]);
+        }
 
         // Market strip on the homepage: gold spot, stocks and crypto above
         // the latest news. On by default so prices are visible on a fresh
@@ -481,7 +500,7 @@ final class Customizer
             [self::class, 'sanitizeTermIds'],
             'refresh'
         );
-        $wpCustomize->add_control(new TermCheckboxControl($wpCustomize, 'kk_breaking_category_ids', [
+        $wpCustomize->add_control(new TermMultiSelectControl($wpCustomize, 'kk_breaking_category_ids', [
             'label' => esc_html__('Ticker Categories', 'koperasikita'),
             'description' => esc_html__('Used when the source above is "Selected categories". Leave empty to fall back to the latest posts.', 'koperasikita'),
             'section' => 'koperasikita_header',
@@ -495,7 +514,7 @@ final class Customizer
             [self::class, 'sanitizeTermIds'],
             'refresh'
         );
-        $wpCustomize->add_control(new TermCheckboxControl($wpCustomize, 'kk_breaking_tag_ids', [
+        $wpCustomize->add_control(new TermMultiSelectControl($wpCustomize, 'kk_breaking_tag_ids', [
             'label' => esc_html__('Ticker Tags', 'koperasikita'),
             'description' => esc_html__('Used when the source above is "Selected tags". Leave empty to fall back to the latest posts.', 'koperasikita'),
             'section' => 'koperasikita_header',
@@ -1011,25 +1030,6 @@ final class Customizer
         $color = sanitize_hex_color((string) $value);
 
         return $color === null ? '' : $color;
-    }
-
-    /**
-     * @return array<int|string, string>
-     */
-    public static function categoryChoices(): array
-    {
-        $choices = [0 => esc_html__('Automatic (most posts)', 'koperasikita')];
-        $categories = get_categories([
-            'hide_empty' => false,
-            'orderby' => 'name',
-            'order' => 'ASC',
-        ]);
-
-        foreach ($categories as $category) {
-            $choices[$category->term_id] = $category->name;
-        }
-
-        return $choices;
     }
 
     public static function sanitizeCategoryChoice(mixed $value): int

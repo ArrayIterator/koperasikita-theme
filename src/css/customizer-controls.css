@@ -112,30 +112,142 @@
 	color: #0B6B3A;
 }
 
-.kk-term-select-empty {
+.kk-term-select-empty,
+.kk-term-select-loading {
 	margin: 0;
 	padding: 10px;
 	font-size: 13px;
 	color: #646970;
 }
 
-/* --- Term checkbox filter -------------------------------------------------- */
-/* A search field above a TermCheckboxControl list: typing hides the
- * labels that do not match, so a long term list stays navigable. */
+/* --- Searchable term multi-select ------------------------------------------ */
+/* A Select2-style multi-select: a box holding the picked chips plus an
+ * inline search field, with an absolutely positioned panel of AJAX
+ * results below it. Clicking a result adds a chip; the × on a chip
+ * removes it. The selection syncs into the hidden input as a JSON
+ * array of term IDs. */
 
-.kk-term-checkbox-filter {
-	width: 100%;
+.kk-term-multiselect {
+	position: relative;
+}
+
+.kk-term-multiselect-box {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 4px;
 	min-height: 30px;
-	margin-bottom: 6px;
-	padding: 4px 8px;
+	padding: 4px 6px;
 	border: 1px solid #8c8f94;
 	border-radius: 3px;
 	background: #fff;
-	font-size: 13px;
+	cursor: text;
 }
 
-.kk-term-checkbox-filter:focus {
+.kk-term-multiselect-box:hover {
+	border-color: #0B6B3A;
+}
+
+.kk-term-multiselect-box:focus-within {
 	outline: none;
 	border-color: #0B6B3A;
 	box-shadow: 0 0 0 1px #0B6B3A;
+}
+
+.kk-term-multiselect-chips {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 4px;
+}
+
+.kk-term-multiselect-chip {
+	display: inline-flex;
+	align-items: center;
+	gap: 4px;
+	padding: 2px 4px 2px 8px;
+	border-radius: 3px;
+	background: #f0f6fc;
+	color: #0B6B3A;
+	font-size: 13px;
+	font-weight: 600;
+}
+
+.kk-term-multiselect-remove {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 16px;
+	height: 16px;
+	padding: 0;
+	border: 0;
+	border-radius: 50%;
+	background: transparent;
+	color: #0B6B3A;
+	font-size: 14px;
+	line-height: 1;
+	cursor: pointer;
+}
+
+.kk-term-multiselect-remove:hover {
+	background: #0B6B3A;
+	color: #fff;
+}
+
+.kk-term-multiselect-search {
+	flex: 1;
+	min-width: 80px;
+	min-height: 22px;
+	padding: 0 4px;
+	border: 0;
+	font-size: 13px;
+}
+
+.kk-term-multiselect-search:focus {
+	outline: none;
+	box-shadow: none;
+}
+
+.kk-term-multiselect-panel {
+	position: absolute;
+	z-index: 10;
+	top: calc(100% + 4px);
+	left: 0;
+	right: 0;
+	border: 1px solid #8c8f94;
+	border-radius: 3px;
+	background: #fff;
+	box-shadow: 0 4px 16px rgb(0 0 0 / 0.15);
+}
+
+.kk-term-multiselect-list {
+	max-height: 180px;
+	margin: 0;
+	padding: 4px 0;
+	overflow-y: auto;
+	list-style: none;
+}
+
+.kk-term-multiselect-option {
+	padding: 6px 10px;
+	font-size: 13px;
+	color: #2c3338;
+	cursor: pointer;
+}
+
+.kk-term-multiselect-option:hover,
+.kk-term-multiselect-option.is-highlighted {
+	background: #f0f6fc;
+}
+
+.kk-term-multiselect-option.is-selected {
+	font-weight: 600;
+	color: #0B6B3A;
+}
+
+.kk-term-multiselect-empty,
+.kk-term-multiselect-loading {
+	margin: 0;
+	padding: 10px;
+	font-size: 13px;
+	color: #646970;
 }

@@ -1741,9 +1741,6 @@ msgid "Category Block %d"
 msgstr "Blok Kategori %d"
 
 #: inc/Customizer/Customizer.php
-msgid "Posts Per Category Block"
-msgstr "Artikel per Blok Kategori"
-
 #: inc/Customizer/Customizer.php
 msgid "Automatic (most posts)"
 msgstr "Otomatis (artikel terbanyak)"
@@ -1980,3 +1977,18 @@ msgstr "Masa Cache Cuaca"
 #: inc/Customizer/Customizer.php:418
 msgid "Minutes the browser keeps weather data in local storage before fetching fresh data. The top bar shows the cached weather instantly while fresh data loads in the background. 0 disables the browser cache."
 msgstr "Menit data cuaca disimpan browser di local storage sebelum mengambil data baru. Top bar langsung menampilkan cuaca dari cache selagi data baru dimuat di latar belakang. 0 menonaktifkan cache browser."
+
+msgid "Loading…"
+msgstr "Memuat…"
+
+msgid "Add…"
+msgstr "Tambah…"
+
+msgid "Remove"
+msgstr "Hapus"
+
+msgid "Category Block %d: Posts"
+msgstr "Blok Kategori %d: Artikel"
+
+msgid "Category Block %d: Display Style"
+msgstr "Blok Kategori %d: Gaya Tampilan"

@@ -57,6 +57,7 @@ final class Theme
         add_action('init', [Features::class, 'register']);
         add_action('init', [Fonts::class, 'register']);
         add_action('init', [Api::class, 'register']);
+        add_action('init', [Customizer\TermSearch::class, 'register']);
         add_action('init', [StyleVariant::class, 'register']);
         add_action('init', [Pwa::class, 'register']);
         add_action('init', [Seo::class, 'register']);
