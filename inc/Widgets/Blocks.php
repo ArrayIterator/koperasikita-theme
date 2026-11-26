@@ -223,7 +223,7 @@ final class Blocks
             $definitions['weather'] = [
                 'class' => WeatherWidget::class,
                 'icon' => 'cloud',
-                'title' => __('KK Weather', 'koperasikita'),
+                'title' => __('KK: Cuaca', 'koperasikita'),
                 'description' => __('Current weather for a city, with a location picker.', 'koperasikita'),
                 'attributes' => [
                     'title' => ['type' => 'string', 'default' => ''],

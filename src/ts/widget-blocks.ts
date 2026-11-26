@@ -515,7 +515,7 @@ function buildDefinitions(api: Wp): BlockDef[] {
 		},
 		{
 			slug: 'weather',
-			title: __('KK Weather'),
+			title: __('KK: Cuaca'),
 			description: __('Current weather for a city, with a location picker.'),
 			icon: 'cloud',
 			attributes: {

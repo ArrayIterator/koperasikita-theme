@@ -828,8 +828,8 @@ msgstr "Ditampilkan sampai pengunjung memilih lokasi lain."
 msgid "Weather"
 msgstr "Cuaca"
 
-msgid "KK Weather"
-msgstr "KK Cuaca"
+msgid "KK: Cuaca"
+msgstr "KK: Cuaca"
 
 #: inc/Widgets/WeatherWidget.php
 msgid "Weather is unavailable right now."
