@@ -2577,3 +2577,30 @@ msgstr "Kolom kiri hero beranda, di samping berita utama. Hanya tampil saat Tamp
 
 msgid "Right column of the homepage hero, next to the lead story. Only shown when the Hero Presentation pairs the hero with a right widget."
 msgstr "Kolom kanan hero beranda, di samping berita utama. Hanya tampil saat Tampilan Hero memasangkan hero dengan widget kanan."
+
+msgid "Slider Grid"
+msgstr "Slider Grid"
+
+msgid "Slider Full"
+msgstr "Slider Full"
+
+msgid "Slider Grid Autoplay"
+msgstr "Autoplay Slider Grid"
+
+msgid "Slider Grid Autoplay Interval (seconds)"
+msgstr "Interval Autoplay Slider Grid (detik)"
+
+msgid "Slider Full Autoplay"
+msgstr "Autoplay Slider Full"
+
+msgid "Slider Full Autoplay Interval (seconds)"
+msgstr "Interval Autoplay Slider Full (detik)"
+
+msgid "List Columns"
+msgstr "Kolom Daftar"
+
+msgid "List Rows (per column)"
+msgstr "Baris Daftar (per kolom)"
+
+msgid "List Enable Slider"
+msgstr "Aktifkan Slider Daftar"

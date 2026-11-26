@@ -297,7 +297,12 @@
 
 /* --- Layout Style --------------------------------------------------------- */
 /* Classic: a rule above and below the section. No Border: no rules.
- * Box: the section sits in a paper box. */
+ * Box: the section sits in a paper box. Only Box has a background:
+ * in Classic and No Border the section AND its cards are flat
+ * (transparent, no shadow), so no grey slab shows where no box was
+ * asked for. The homepage elevated-card rule (.kk-home .kk-card)
+ * gives every card a paper background, so the flat override has to
+ * win here. */
 
 .kk-highlights--layout-classic {
 	border-top: 2px solid var(--kk-ink);
@@ -310,6 +315,13 @@
 	background: var(--kk-surface, #f7f7f5);
 	border-radius: var(--kk-radius);
 	padding: 1rem;
+}
+
+.kk-highlights--layout-classic .kk-card,
+.kk-highlights--layout-no-border .kk-card {
+	background: transparent;
+	box-shadow: none;
+	padding: 0;
 }
 
 /* --- Item Style ----------------------------------------------------------- */
@@ -353,14 +365,17 @@
 }
 
 /* --- Display -------------------------------------------------------------- */
-/* Grid Scrollable and List Scrollable are horizontal scroll-snap
- * rows; the list variant renders the cards as flat rows. The
- * sliders reuse the same scroll-snap row (manual = prev/next
- * buttons, auto = timed advance via data-kk-auto-slide). */
+/* Slider Grid: a horizontal scroll-snap row of grid cards — the grid
+ * look, but swipeable (touch) with prev/next buttons. It never
+ * autoplays unless the setting says so. Slider Full: one article
+ * per slide, a small thumbnail + title like a widget row. List:
+ * widget-like rows split into columns. Every flex row here aligns
+ * its items to the top (flex-start), never vertically centered. */
 
 .kk-highlights-slider,
 .kk-highlights-scroll {
 	display: flex;
+	align-items: flex-start;
 	gap: 0.85rem;
 	overflow-x: auto;
 	scroll-snap-type: x mandatory;
@@ -385,4 +400,119 @@
 	box-shadow: none;
 	border-bottom: 1px solid var(--kk-border, #e5e5e0);
 	border-radius: 0;
+}
+
+/* Slider Full: one slide per article, full width, scroll-snap. The
+ * slide is a single compact row (small thumbnail + title), so it
+ * reads like a widget, not a grid card. */
+.kk-highlights-slider-full {
+	display: flex;
+	align-items: flex-start;
+	overflow-x: auto;
+	scroll-snap-type: x mandatory;
+	scrollbar-width: none;
+}
+
+.kk-highlights-slider-full::-webkit-scrollbar {
+	display: none;
+}
+
+.kk-highlights-full-slide {
+	flex: 0 0 100%;
+	scroll-snap-align: start;
+}
+
+.kk-highlights-full-slide .kk-highlight-row {
+	list-style: none;
+}
+
+/* List: the rows split into columns (1–4). Each column is a stack
+ * of rows; the columns sit side by side with a gap. When List
+ * Enable Slider is on, the columns become a scroll-snap row with
+ * prev/next buttons (same as the sliders). */
+.kk-highlights-list {
+	display: grid;
+	grid-auto-flow: column;
+	grid-auto-columns: 1fr;
+	align-items: start;
+	gap: 0.85rem 2rem;
+}
+
+.kk-highlights-list--slider {
+	display: flex;
+	align-items: flex-start;
+	overflow-x: auto;
+	scroll-snap-type: x mandatory;
+	scrollbar-width: none;
+	padding-bottom: 0.25rem;
+}
+
+.kk-highlights-list--slider::-webkit-scrollbar {
+	display: none;
+}
+
+.kk-highlights-list-column {
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+
+.kk-highlights-list--slider .kk-highlights-list-column {
+	flex: 0 0 22rem;
+	scroll-snap-align: start;
+}
+
+/* Compact row (Slider Full slide + List rows): small thumbnail on
+ * the left, title + meta on the right, top-aligned. Flat — no
+ * background, no shadow, a thin divider between rows. */
+.kk-highlight-row {
+	display: flex;
+	align-items: flex-start;
+	gap: 0.75rem;
+	padding: 0.75rem 0;
+	border-bottom: 1px solid var(--kk-border, #e5e5e0);
+}
+
+.kk-highlight-row:last-child {
+	border-bottom: 0;
+}
+
+.kk-highlight-row-thumb {
+	flex: 0 0 5rem;
+	width: 5rem;
+	display: block;
+}
+
+.kk-highlight-row-thumb img {
+	display: block;
+	width: 100%;
+	aspect-ratio: 4 / 3;
+	object-fit: cover;
+	border-radius: var(--kk-radius);
+}
+
+.kk-highlight-row-body {
+	flex: 1;
+	min-width: 0;
+}
+
+.kk-highlight-row-title {
+	font-size: 1rem;
+	font-weight: 600;
+	line-height: 1.35;
+	margin: 0 0 0.25rem;
+}
+
+.kk-highlight-row-title a {
+	color: var(--kk-ink);
+}
+
+.kk-highlight-row .kk-eyebrow {
+	margin: 0 0 0.25rem;
+}
+
+.kk-highlight-row .kk-meta {
+	margin: 0;
+	font-size: 0.8125rem;
+	color: var(--kk-muted);
 }

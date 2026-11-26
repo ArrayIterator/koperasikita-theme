@@ -636,15 +636,14 @@ final class Customizer
             ],
         ]);
 
-        /* Display: how the items flow — a scrollable grid row, a
-         * scrollable list, an auto-sliding slider, or a manual
-         * slider with prev/next buttons. Replaces the old
-         * Grid/Slider layout (grid -> Grid Scrollable, slider ->
-         * Slider manual). */
+        /* Display: Slider Grid (grid look, swipeable with next/prev,
+         * autoplay optional), Slider Full (one article at a time,
+         * small thumbnail + title, autoplay optional), or List
+         * (widget-like rows split into columns). */
         self::addSetting(
             $wpCustomize,
             'kk_highlights_display',
-            'grid-scrollable',
+            'slider-grid',
             [self::class, 'sanitizeHighlightsDisplay'],
             'refresh'
         );
@@ -653,11 +652,116 @@ final class Customizer
             'section' => 'koperasikita_homepage',
             'type' => 'select',
             'choices' => [
-                'grid-scrollable' => esc_html__('Grid Scrollable', 'koperasikita'),
-                'list-scrollable' => esc_html__('List Scrollable', 'koperasikita'),
-                'slider-auto' => esc_html__('Slider Auto Slide', 'koperasikita'),
-                'slider-manual' => esc_html__('Slider', 'koperasikita'),
+                'slider-grid' => esc_html__('Slider Grid', 'koperasikita'),
+                'slider-full' => esc_html__('Slider Full', 'koperasikita'),
+                'list' => esc_html__('List', 'koperasikita'),
             ],
+        ]);
+
+        /* Slider Grid: Autoplay (None by default — the grid slides
+         * on touch / prev-next, it never advances on its own) and
+         * the interval, shown only while Autoplay is on. */
+        self::addSetting(
+            $wpCustomize,
+            'kk_highlights_slider_grid_autoplay',
+            false,
+            [self::class, 'sanitizeBool'],
+            'refresh'
+        );
+        $wpCustomize->add_control('kk_highlights_slider_grid_autoplay', [
+            'label' => esc_html__('Slider Grid Autoplay', 'koperasikita'),
+            'section' => 'koperasikita_homepage',
+            'type' => 'checkbox',
+            'active_callback' => [self::class, 'isHighlightsSliderGrid'],
+        ]);
+        self::addSetting(
+            $wpCustomize,
+            'kk_highlights_slider_grid_interval',
+            5,
+            static fn ($value) => self::clampInt($value, 2, 30),
+            'refresh'
+        );
+        $wpCustomize->add_control('kk_highlights_slider_grid_interval', [
+            'label' => esc_html__('Slider Grid Autoplay Interval (seconds)', 'koperasikita'),
+            'section' => 'koperasikita_homepage',
+            'type' => 'number',
+            'input_attrs' => ['min' => 2, 'max' => 30],
+            'active_callback' => [self::class, 'isHighlightsSliderGridAutoplay'],
+        ]);
+
+        /* Slider Full: Autoplay (None by default) and the interval,
+         * shown only while Autoplay is on. */
+        self::addSetting(
+            $wpCustomize,
+            'kk_highlights_slider_full_autoplay',
+            false,
+            [self::class, 'sanitizeBool'],
+            'refresh'
+        );
+        $wpCustomize->add_control('kk_highlights_slider_full_autoplay', [
+            'label' => esc_html__('Slider Full Autoplay', 'koperasikita'),
+            'section' => 'koperasikita_homepage',
+            'type' => 'checkbox',
+            'active_callback' => [self::class, 'isHighlightsSliderFull'],
+        ]);
+        self::addSetting(
+            $wpCustomize,
+            'kk_highlights_slider_full_interval',
+            5,
+            static fn ($value) => self::clampInt($value, 2, 30),
+            'refresh'
+        );
+        $wpCustomize->add_control('kk_highlights_slider_full_interval', [
+            'label' => esc_html__('Slider Full Autoplay Interval (seconds)', 'koperasikita'),
+            'section' => 'koperasikita_homepage',
+            'type' => 'number',
+            'input_attrs' => ['min' => 2, 'max' => 30],
+            'active_callback' => [self::class, 'isHighlightsSliderFullAutoplay'],
+        ]);
+
+        /* List: how many columns the widget-like rows split into,
+         * how many rows each column shows, and whether the columns
+         * slide (prev/next + touch) instead of sitting still. */
+        self::addSetting(
+            $wpCustomize,
+            'kk_highlights_list_columns',
+            2,
+            static fn ($value) => self::clampInt($value, 1, 4),
+            'refresh'
+        );
+        $wpCustomize->add_control('kk_highlights_list_columns', [
+            'label' => esc_html__('List Columns', 'koperasikita'),
+            'section' => 'koperasikita_homepage',
+            'type' => 'number',
+            'input_attrs' => ['min' => 1, 'max' => 4],
+            'active_callback' => [self::class, 'isHighlightsList'],
+        ]);
+        self::addSetting(
+            $wpCustomize,
+            'kk_highlights_list_rows',
+            3,
+            static fn ($value) => self::clampInt($value, 1, 10),
+            'refresh'
+        );
+        $wpCustomize->add_control('kk_highlights_list_rows', [
+            'label' => esc_html__('List Rows (per column)', 'koperasikita'),
+            'section' => 'koperasikita_homepage',
+            'type' => 'number',
+            'input_attrs' => ['min' => 1, 'max' => 10],
+            'active_callback' => [self::class, 'isHighlightsList'],
+        ]);
+        self::addSetting(
+            $wpCustomize,
+            'kk_highlights_list_enable_slider',
+            false,
+            [self::class, 'sanitizeBool'],
+            'refresh'
+        );
+        $wpCustomize->add_control('kk_highlights_list_enable_slider', [
+            'label' => esc_html__('List Enable Slider', 'koperasikita'),
+            'section' => 'koperasikita_homepage',
+            'type' => 'checkbox',
+            'active_callback' => [self::class, 'isHighlightsList'],
         ]);
 
         /* Which parts each highlight card shows (same toggles as the
@@ -1906,7 +2010,65 @@ final class Customizer
 
     public static function sanitizeHighlightsDisplay(mixed $value): string
     {
-        return in_array($value, ['grid-scrollable', 'list-scrollable', 'slider-auto', 'slider-manual'], true) ? (string) $value : 'grid-scrollable';
+        return in_array($value, ['slider-grid', 'slider-full', 'list'], true) ? (string) $value : 'slider-grid';
+    }
+
+    /* The Slider Grid sub-settings (Autoplay + interval) only show
+     * while the Highlights Display is Slider Grid. */
+    public static function isHighlightsSliderGrid(): bool
+    {
+        return self::highlightsDisplay() === 'slider-grid';
+    }
+
+    /* The Slider Full sub-settings (Autoplay + interval) only show
+     * while the Highlights Display is Slider Full. */
+    public static function isHighlightsSliderFull(): bool
+    {
+        return self::highlightsDisplay() === 'slider-full';
+    }
+
+    /* The List sub-settings (Columns / Rows / Enable slider) only
+     * show while the Highlights Display is List. */
+    public static function isHighlightsList(): bool
+    {
+        return self::highlightsDisplay() === 'list';
+    }
+
+    /* The Slider Grid interval only shows while Slider Grid autoplay
+     * is on. */
+    public static function isHighlightsSliderGridAutoplay(): bool
+    {
+        return self::isHighlightsSliderGrid() && (bool) get_theme_mod('kk_highlights_slider_grid_autoplay', false);
+    }
+
+    /* The Slider Full interval only shows while Slider Full autoplay
+     * is on. */
+    public static function isHighlightsSliderFullAutoplay(): bool
+    {
+        return self::isHighlightsSliderFull() && (bool) get_theme_mod('kk_highlights_slider_full_autoplay', false);
+    }
+
+    /**
+     * The current Highlights Display, mapped from the legacy values
+     * (grid-scrollable / list-scrollable / slider-auto /
+     * slider-manual) so old installs keep a sensible display.
+     */
+    public static function highlightsDisplay(): string
+    {
+        $display = (string) get_theme_mod('kk_highlights_display', 'slider-grid');
+
+        $legacy = [
+            'grid-scrollable' => 'slider-grid',
+            'slider-auto' => 'slider-grid',
+            'slider-manual' => 'slider-grid',
+            'list-scrollable' => 'list',
+        ];
+
+        if (isset($legacy[$display])) {
+            return $legacy[$display];
+        }
+
+        return in_array($display, ['slider-grid', 'slider-full', 'list'], true) ? $display : 'slider-grid';
     }
 
     public static function sanitizeHighlightsLayout(mixed $value): string
