@@ -2040,3 +2040,139 @@ msgstr "Tangkapan layar desktop yang ditampilkan saat menginstal aplikasi (lansk
 
 msgid "Phone screenshots shown when installing the app (portrait, e.g. 390x844). Add as many as you like. Leave empty to skip."
 msgstr "Tangkapan layar ponsel yang ditampilkan saat menginstal aplikasi (potret, mis. 390x844). Tambahkan sebanyak yang Anda mau. Kosongkan untuk melewati."
+
+#: inc/Widgets/Blocks.php
+msgid "A list of page links, in menu order, by date or by title."
+msgstr "Daftar tautan halaman, urut menu, tanggal, atau judul."
+
+#: inc/Widgets/GoldWidget.php
+msgid "Brands to show"
+msgstr "Merek yang ditampilkan"
+
+#: inc/Widgets/TaxonomyPostsWidget.php
+msgid "Categories"
+msgstr "Kategori"
+
+#: inc/Widgets/AbstractStoryWidget.php
+msgid "Category News"
+msgstr "Berita Kategori"
+
+#: src/ts/widget-blocks.ts
+msgid "Configure this widget in the block settings."
+msgstr "Atur widget ini di pengaturan blok."
+
+#: inc/Widgets/Blocks.php
+msgid "Current time in the timezones you list, one per line."
+msgstr "Waktu saat ini di zona waktu yang Anda daftarkan, satu per baris."
+
+#: inc/Widgets/Blocks.php
+msgid "Gold prices for five brands in an auto-scrolling slider."
+msgstr "Harga emas lima merek dalam slider gulir otomatis."
+
+#: inc/Widgets/Blocks.php
+msgid "Gold, stock and crypto prices from the Markets providers."
+msgstr "Harga emas, saham, dan kripto dari penyedia Markets."
+
+#: inc/Widgets/Blocks.php
+msgid "Koperasi Kita"
+msgstr "Koperasi Kita"
+
+#: inc/Widgets/TaxonomyPostsWidget.php
+msgid "Koperasi Kita Category News"
+msgstr "Koperasi Kita Category News"
+
+#: inc/Widgets/PagesWidget.php
+msgid "Koperasi Kita Pages"
+msgstr "Koperasi Kita Pages"
+
+#: inc/Widgets/PopularPostsWidget.php
+msgid "Koperasi Kita Popular News"
+msgstr "Koperasi Kita Popular News"
+
+#: inc/Widgets/RecentPostsWidget.php
+msgid "Koperasi Kita Recent News"
+msgstr "Koperasi Kita Recent News"
+
+#: inc/Widgets/RelatedPostsWidget.php
+msgid "Koperasi Kita Related News"
+msgstr "Koperasi Kita Related News"
+
+#: inc/Widgets/WorldClockWidget.php
+msgid "Koperasi Kita World Clock"
+msgstr "Koperasi Kita World Clock"
+
+#: inc/Widgets/TaxonomyPostsWidget.php
+msgid "Leave all unchecked to show posts from every category."
+msgstr "Biarkan semua tidak dicentang untuk menampilkan artikel dari semua kategori."
+
+#: inc/Widgets/MarketsWidget.php
+msgid "Markets to show"
+msgstr "Market yang ditampilkan"
+
+#: inc/Widgets/PagesWidget.php
+msgid "Menu order"
+msgstr "Urutan menu"
+
+#: inc/Widgets/Blocks.php
+msgid "Most discussed posts, ranked by comment count."
+msgstr "Artikel paling banyak dibahas, diurutkan menurut jumlah komentar."
+
+#: inc/Widgets/AbstractStoryWidget.php
+msgid "Number of items"
+msgstr "Jumlah item"
+
+#: inc/Widgets/WorldClockWidget.php
+msgid "One IANA timezone per line, e.g. Asia/Jakarta."
+msgstr "Satu zona waktu IANA per baris, mis. Asia/Jakarta."
+
+#: inc/Widgets/Blocks.php
+msgid "Pages"
+msgstr "Halaman"
+
+#: inc/Widgets/Blocks.php
+msgid "Popular News"
+msgstr "Berita Populer"
+
+#: inc/Widgets/Blocks.php
+msgid "Posts from the categories you pick, newest first."
+msgstr "Artikel dari kategori yang Anda pilih, terbaru dulu."
+
+#: inc/Widgets/Blocks.php
+msgid "Posts related to the one being read, or the latest posts elsewhere."
+msgstr "Artikel terkait dengan yang sedang dibaca, atau artikel terbaru di tempat lain."
+
+#: inc/Widgets/Blocks.php
+msgid "Recent News"
+msgstr "Berita Terbaru"
+
+#: inc/Widgets/Blocks.php
+msgid "Related News"
+msgstr "Berita Terkait"
+
+#: inc/Widgets/AbstractStoryWidget.php
+msgid "Settings"
+msgstr "Pengaturan"
+
+#: inc/Widgets/WorldClockWidget.php
+msgid "Show date"
+msgstr "Tampilkan tanggal"
+
+#: inc/Widgets/AbstractStoryWidget.php
+msgid "Show thumbnails"
+msgstr "Tampilkan thumbnail"
+
+#: inc/Widgets/PagesWidget.php
+msgid "Sort order"
+msgstr "Urutan"
+
+#: inc/Widgets/Blocks.php
+msgid "The latest published posts, newest first."
+msgstr "Artikel terbaru yang diterbitkan, terbaru dulu."
+
+#: inc/Widgets/WorldClockWidget.php
+msgid "Timezones"
+msgstr "Zona waktu"
+
+#: inc/Widgets/Blocks.php
+msgid "World Clock"
+msgstr "Jam Dunia"

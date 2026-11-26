@@ -18,6 +18,7 @@ use KoperasiKita\Setup\Setup;
 use KoperasiKita\Setup\Sidebars;
 use KoperasiKita\Setup\ThemeSupport;
 use KoperasiKita\Setup\Widgets;
+use KoperasiKita\Widgets\Blocks;
 
 final class Theme
 {
@@ -65,6 +66,7 @@ final class Theme
         add_action('init', [Pwa::class, 'register']);
         add_action('init', [Seo::class, 'register']);
         add_action('init', [Breadcrumb::class, 'register']);
+        add_action('init', [Blocks::class, 'register']);
 
         add_action('admin_menu', [Setup::class, 'register']);
         add_action('admin_notices', [Setup::class, 'adminNotice']);

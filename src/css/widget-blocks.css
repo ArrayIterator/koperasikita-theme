@@ -1,0 +1,28 @@
+/* ==========================================================================
+   Koperasi Kita — widget-blocks.css — widget block editor styles
+   Only the placeholder a widget block shows on the canvas; the real
+   markup is rendered on the server. Spacing in rem.
+   ========================================================================== */
+
+.kk-widget-block-preview {
+	padding: 1rem;
+	border: 1px dashed var(--wp-admin-theme-color, #3858e9);
+	border-radius: 0.25rem;
+	background: #f6f7f7;
+}
+
+.kk-widget-block-preview strong {
+	display: block;
+	margin-bottom: 0.25rem;
+	font-size: 0.875rem;
+}
+
+.kk-widget-block-preview p {
+	margin: 0;
+	font-size: 0.8125rem;
+	color: #50575e;
+}
+
+.kk-widget-block-preview p + p {
+	margin-top: 0.25rem;
+}

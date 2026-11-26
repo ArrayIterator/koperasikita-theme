@@ -1965,3 +1965,139 @@ msgstr ""
 #: template-parts/header/site-nav.php:64
 msgid "Appearance"
 msgstr ""
+
+#: inc/Widgets/Blocks.php
+msgid "A list of page links, in menu order, by date or by title."
+msgstr ""
+
+#: inc/Widgets/GoldWidget.php
+msgid "Brands to show"
+msgstr ""
+
+#: inc/Widgets/TaxonomyPostsWidget.php
+msgid "Categories"
+msgstr ""
+
+#: inc/Widgets/AbstractStoryWidget.php
+msgid "Category News"
+msgstr ""
+
+#: src/ts/widget-blocks.ts
+msgid "Configure this widget in the block settings."
+msgstr ""
+
+#: inc/Widgets/Blocks.php
+msgid "Current time in the timezones you list, one per line."
+msgstr ""
+
+#: inc/Widgets/Blocks.php
+msgid "Gold prices for five brands in an auto-scrolling slider."
+msgstr ""
+
+#: inc/Widgets/Blocks.php
+msgid "Gold, stock and crypto prices from the Markets providers."
+msgstr ""
+
+#: inc/Widgets/Blocks.php
+msgid "Koperasi Kita"
+msgstr ""
+
+#: inc/Widgets/TaxonomyPostsWidget.php
+msgid "Koperasi Kita Category News"
+msgstr ""
+
+#: inc/Widgets/PagesWidget.php
+msgid "Koperasi Kita Pages"
+msgstr ""
+
+#: inc/Widgets/PopularPostsWidget.php
+msgid "Koperasi Kita Popular News"
+msgstr ""
+
+#: inc/Widgets/RecentPostsWidget.php
+msgid "Koperasi Kita Recent News"
+msgstr ""
+
+#: inc/Widgets/RelatedPostsWidget.php
+msgid "Koperasi Kita Related News"
+msgstr ""
+
+#: inc/Widgets/WorldClockWidget.php
+msgid "Koperasi Kita World Clock"
+msgstr ""
+
+#: inc/Widgets/TaxonomyPostsWidget.php
+msgid "Leave all unchecked to show posts from every category."
+msgstr ""
+
+#: inc/Widgets/MarketsWidget.php
+msgid "Markets to show"
+msgstr ""
+
+#: inc/Widgets/PagesWidget.php
+msgid "Menu order"
+msgstr ""
+
+#: inc/Widgets/Blocks.php
+msgid "Most discussed posts, ranked by comment count."
+msgstr ""
+
+#: inc/Widgets/AbstractStoryWidget.php
+msgid "Number of items"
+msgstr ""
+
+#: inc/Widgets/WorldClockWidget.php
+msgid "One IANA timezone per line, e.g. Asia/Jakarta."
+msgstr ""
+
+#: inc/Widgets/Blocks.php
+msgid "Pages"
+msgstr ""
+
+#: inc/Widgets/Blocks.php
+msgid "Popular News"
+msgstr ""
+
+#: inc/Widgets/Blocks.php
+msgid "Posts from the categories you pick, newest first."
+msgstr ""
+
+#: inc/Widgets/Blocks.php
+msgid "Posts related to the one being read, or the latest posts elsewhere."
+msgstr ""
+
+#: inc/Widgets/Blocks.php
+msgid "Recent News"
+msgstr ""
+
+#: inc/Widgets/Blocks.php
+msgid "Related News"
+msgstr ""
+
+#: inc/Widgets/AbstractStoryWidget.php
+msgid "Settings"
+msgstr ""
+
+#: inc/Widgets/WorldClockWidget.php
+msgid "Show date"
+msgstr ""
+
+#: inc/Widgets/AbstractStoryWidget.php
+msgid "Show thumbnails"
+msgstr ""
+
+#: inc/Widgets/PagesWidget.php
+msgid "Sort order"
+msgstr ""
+
+#: inc/Widgets/Blocks.php
+msgid "The latest published posts, newest first."
+msgstr ""
+
+#: inc/Widgets/WorldClockWidget.php
+msgid "Timezones"
+msgstr ""
+
+#: inc/Widgets/Blocks.php
+msgid "World Clock"
+msgstr ""

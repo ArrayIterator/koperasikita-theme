@@ -7,12 +7,27 @@ namespace KoperasiKita\Setup;
 use KoperasiKita\Features\Features;
 use KoperasiKita\Widgets\GoldWidget;
 use KoperasiKita\Widgets\MarketsWidget;
+use KoperasiKita\Widgets\PagesWidget;
+use KoperasiKita\Widgets\PopularPostsWidget;
+use KoperasiKita\Widgets\RecentPostsWidget;
+use KoperasiKita\Widgets\RelatedPostsWidget;
+use KoperasiKita\Widgets\TaxonomyPostsWidget;
 use KoperasiKita\Widgets\WeatherWidget;
+use KoperasiKita\Widgets\WorldClockWidget;
 
 final class Widgets
 {
     public static function register(): void
     {
+        // The story widgets, the world clock and the pages list have no
+        // feature behind them, so they always register.
+        register_widget(RecentPostsWidget::class);
+        register_widget(PopularPostsWidget::class);
+        register_widget(RelatedPostsWidget::class);
+        register_widget(TaxonomyPostsWidget::class);
+        register_widget(WorldClockWidget::class);
+        register_widget(PagesWidget::class);
+
         // A disabled feature registers nothing: its widget never appears
         // in the admin, so there is no settings link for a feature that
         // is off.

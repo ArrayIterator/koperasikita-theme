@@ -1,0 +1,464 @@
+/**
+ * Koperasi Kita — widget blocks editor script.
+ *
+ * Registers the theme widgets as blocks in the "Koperasi Kita" inserter
+ * category (the block types themselves, with render callbacks, are
+ * registered server-side in inc/Widgets/Blocks.php). Each block gets an
+ * edit UI built from a small field schema: the InspectorControls show
+ * the widget's own fields (title, count, layout, thumbnails, and the
+ * per-widget extras), while the canvas shows a placeholder — the real
+ * markup is rendered on the server through the_widget().
+ *
+ * The category picker for the Category News block reads the category
+ * list from the core store (wp.data), so it always matches the site's
+ * categories without a page reload.
+ */
+
+export {};
+
+interface OptionItem {
+	value: string;
+	label: string;
+}
+
+type FieldDef =
+	| { key: string; kind: 'text'; label: string; help?: string }
+	| { key: string; kind: 'textarea'; label: string; help?: string }
+	| { key: string; kind: 'number'; label: string; min: number; max: number }
+	| { key: string; kind: 'select'; label: string; options: OptionItem[] }
+	| { key: string; kind: 'toggle'; label: string }
+	| { key: string; kind: 'checkboxes'; label: string; options: OptionItem[] }
+	| { key: string; kind: 'categories'; label: string; help?: string };
+
+interface BlockDef {
+	slug: string;
+	title: string;
+	description: string;
+	icon: string;
+	attributes: Record<string, Record<string, unknown>>;
+	fields: FieldDef[];
+}
+
+interface CategoryRecord {
+	id: number;
+	name: string;
+	count: number;
+}
+
+interface WpDataSelect {
+	(store: string): {
+		getEntityRecords: (
+			kind: string,
+			name: string,
+			query?: Record<string, unknown>,
+		) => CategoryRecord[] | null;
+	};
+}
+
+interface BlockEditProps {
+	attributes: Record<string, unknown>;
+	setAttributes: (attributes: Record<string, unknown>) => void;
+}
+
+interface Wp {
+	blocks: {
+		registerBlockType: (
+			name: string,
+			settings: {
+				title: string;
+				description: string;
+				icon: string;
+				category: string;
+				attributes: Record<string, Record<string, unknown>>;
+				edit: (props: BlockEditProps) => unknown;
+				save: () => null;
+			},
+		) => void;
+	};
+	element: {
+		createElement: (
+			type: unknown,
+			props: Record<string, unknown> | null,
+			...children: unknown[]
+		) => unknown;
+		Fragment: unknown;
+	};
+	components: {
+		TextControl: unknown;
+		TextareaControl: unknown;
+		SelectControl: unknown;
+		ToggleControl: unknown;
+		RangeControl: unknown;
+		CheckboxControl: unknown;
+		PanelBody: unknown;
+		Spinner: unknown;
+	};
+	blockEditor: {
+		InspectorControls: unknown;
+		useBlockProps: () => Record<string, unknown>;
+	};
+	data: {
+		useSelect<T>(mapSelect: (select: WpDataSelect) => T, deps: unknown[]): T;
+	};
+	i18n: {
+		__(text: string, domain?: string): string;
+	};
+}
+
+declare const wp: Wp | undefined;
+
+declare const kkWidgetBlocks:
+	| {
+			blocks?: string[];
+			goldBrands?: OptionItem[];
+			marketLabels?: OptionItem[];
+	  }
+	| undefined;
+
+function renderField(
+	field: FieldDef,
+	attributes: Record<string, unknown>,
+	set: (key: string, value: unknown) => void,
+	categories: CategoryRecord[] | null,
+	api: Wp,
+): unknown {
+	const value = attributes[field.key];
+	const key = field.key;
+
+	switch (field.kind) {
+		case 'text':
+			return api.element.createElement(api.components.TextControl, {
+				key,
+				label: field.label,
+				help: field.help ?? '',
+				value: typeof value === 'string' ? value : '',
+				onChange: (next: string) => set(key, next),
+			});
+		case 'textarea':
+			return api.element.createElement(api.components.TextareaControl, {
+				key,
+				label: field.label,
+				help: field.help ?? '',
+				value: typeof value === 'string' ? value : '',
+				onChange: (next: string) => set(key, next),
+			});
+		case 'number':
+			return api.element.createElement(api.components.RangeControl, {
+				key,
+				label: field.label,
+				value: typeof value === 'number' ? value : 5,
+				min: field.min,
+				max: field.max,
+				onChange: (next: number | undefined) => set(key, next ?? 5),
+			});
+		case 'select':
+			return api.element.createElement(api.components.SelectControl, {
+				key,
+				label: field.label,
+				value: typeof value === 'string' ? value : '',
+				options: field.options,
+				onChange: (next: string) => set(key, next),
+			});
+		case 'toggle':
+			return api.element.createElement(api.components.ToggleControl, {
+				key,
+				label: field.label,
+				checked: value === true,
+				onChange: (next: boolean) => set(key, next),
+			});
+		case 'checkboxes': {
+			const selected: string[] = Array.isArray(value)
+				? value.filter((item): item is string => typeof item === 'string')
+				: [];
+			const boxes = field.options.map((option) =>
+				api.element.createElement(api.components.CheckboxControl, {
+					key: option.value,
+					label: option.label,
+					checked: selected.includes(option.value),
+					onChange: (next: boolean) => {
+						const nextSelected = next
+							? [...selected, option.value]
+							: selected.filter((item) => item !== option.value);
+						set(key, nextSelected);
+					},
+				}),
+			);
+			return api.element.createElement(
+				'div',
+				{ key },
+				api.element.createElement('p', null, field.label),
+				...boxes,
+			);
+		}
+		case 'categories': {
+			if (categories === null) {
+				return api.element.createElement(api.components.Spinner, { key });
+			}
+			const selected: number[] = Array.isArray(value)
+				? value.filter((item): item is number => typeof item === 'number')
+				: [];
+			const boxes = categories.map((category) =>
+				api.element.createElement(api.components.CheckboxControl, {
+					key: String(category.id),
+					label: `${category.name} (${category.count})`,
+					checked: selected.includes(category.id),
+					onChange: (next: boolean) => {
+						const nextSelected = next
+							? [...selected, category.id]
+							: selected.filter((id) => id !== category.id);
+						set(key, nextSelected);
+					},
+				}),
+			);
+			return api.element.createElement(
+				'div',
+				{ key },
+				api.element.createElement('p', null, field.label),
+				...boxes,
+				field.help !== undefined
+					? api.element.createElement('p', { className: 'components-base-control__help' }, field.help)
+					: null,
+			);
+		}
+	}
+}
+
+function createEdit(def: BlockDef, api: Wp): (props: BlockEditProps) => unknown {
+	return (props: BlockEditProps) => {
+		const { attributes, setAttributes } = props;
+		const blockProps = api.blockEditor.useBlockProps();
+		const categories = api.data.useSelect(
+			(select) =>
+				select('core').getEntityRecords('taxonomy', 'category', { per_page: 100 }),
+			[],
+		);
+		const set = (key: string, next: unknown): void => {
+			setAttributes({ [key]: next });
+		};
+		const controls = def.fields.map((field) =>
+			renderField(field, attributes, set, categories, api),
+		);
+		const inspector = api.element.createElement(
+			api.blockEditor.InspectorControls,
+			null,
+			api.element.createElement(
+				api.components.PanelBody,
+				{ title: api.i18n.__('Settings', 'koperasikita'), initialOpen: true },
+				...controls,
+			),
+		);
+		const preview = api.element.createElement(
+			'div',
+			blockProps,
+			api.element.createElement(
+				'div',
+				{ className: 'kk-widget-block-preview' },
+				api.element.createElement('strong', null, def.title),
+				api.element.createElement('p', null, def.description),
+				api.element.createElement(
+					'p',
+					null,
+					api.i18n.__('Configure this widget in the block settings.', 'koperasikita'),
+				),
+			),
+		);
+		return api.element.createElement(api.element.Fragment, null, inspector, preview);
+	};
+}
+
+function buildDefinitions(api: Wp): BlockDef[] {
+	const __ = (text: string): string => api.i18n.__(text, 'koperasikita');
+	const storyAttributes: Record<string, Record<string, unknown>> = {
+		title: { type: 'string', default: '' },
+		count: { type: 'number', default: 5 },
+		layout: { type: 'string', default: 'list' },
+		showThumbnail: { type: 'boolean', default: true },
+	};
+	const storyFields: FieldDef[] = [
+		{ key: 'title', kind: 'text', label: __('Title') },
+		{ key: 'count', kind: 'number', label: __('Number of items'), min: 1, max: 10 },
+		{
+			key: 'layout',
+			kind: 'select',
+			label: __('Layout'),
+			options: [
+				{ value: 'list', label: __('List') },
+				{ value: 'grid', label: __('Grid') },
+			],
+		},
+		{ key: 'showThumbnail', kind: 'toggle', label: __('Show thumbnails') },
+	];
+
+	return [
+		{
+			slug: 'recent-news',
+			title: __('Recent News'),
+			description: __('The latest published posts, newest first.'),
+			icon: 'megaphone',
+			attributes: storyAttributes,
+			fields: storyFields,
+		},
+		{
+			slug: 'popular-news',
+			title: __('Popular News'),
+			description: __('Most discussed posts, ranked by comment count.'),
+			icon: 'chart-line',
+			attributes: storyAttributes,
+			fields: storyFields,
+		},
+		{
+			slug: 'related-news',
+			title: __('Related News'),
+			description: __('Posts related to the one being read, or the latest posts elsewhere.'),
+			icon: 'networking',
+			attributes: storyAttributes,
+			fields: storyFields,
+		},
+		{
+			slug: 'taxonomy-posts',
+			title: __('Category News'),
+			description: __('Posts from the categories you pick, newest first.'),
+			icon: 'tag',
+			attributes: {
+				...storyAttributes,
+				categoryIds: { type: 'array', default: [], items: { type: 'number' } },
+			},
+			fields: [
+				...storyFields,
+				{
+					key: 'categoryIds',
+					kind: 'categories',
+					label: __('Categories'),
+					help: __('Leave all unchecked to show posts from every category.'),
+				},
+			],
+		},
+		{
+			slug: 'world-clock',
+			title: __('World Clock'),
+			description: __('Current time in the timezones you list, one per line.'),
+			icon: 'clock',
+			attributes: {
+				title: { type: 'string', default: '' },
+				timezones: { type: 'string', default: 'Asia/Jakarta' },
+				showDate: { type: 'boolean', default: true },
+			},
+			fields: [
+				{ key: 'title', kind: 'text', label: __('Title') },
+				{
+					key: 'timezones',
+					kind: 'textarea',
+					label: __('Timezones'),
+					help: __('One IANA timezone per line, e.g. Asia/Jakarta.'),
+				},
+				{ key: 'showDate', kind: 'toggle', label: __('Show date') },
+			],
+		},
+		{
+			slug: 'pages',
+			title: __('Pages'),
+			description: __('A list of page links, in menu order, by date or by title.'),
+			icon: 'page',
+			attributes: {
+				title: { type: 'string', default: '' },
+				count: { type: 'number', default: 5 },
+				sortOrder: { type: 'string', default: 'menu_order' },
+			},
+			fields: [
+				{ key: 'title', kind: 'text', label: __('Title') },
+				{ key: 'count', kind: 'number', label: __('Number of items'), min: 1, max: 10 },
+				{
+					key: 'sortOrder',
+					kind: 'select',
+					label: __('Sort order'),
+					options: [
+						{ value: 'menu_order', label: __('Menu order') },
+						{ value: 'date', label: __('Date') },
+						{ value: 'title', label: __('Title') },
+					],
+				},
+			],
+		},
+		{
+			slug: 'gold',
+			title: __('Gold Prices'),
+			description: __('Gold prices for five brands in an auto-scrolling slider.'),
+			icon: 'star-filled',
+			attributes: {
+				title: { type: 'string', default: '' },
+				brands: { type: 'array', default: [], items: { type: 'string' } },
+			},
+			fields: [
+				{ key: 'title', kind: 'text', label: __('Title') },
+				{
+					key: 'brands',
+					kind: 'checkboxes',
+					label: __('Brands to show'),
+					options: kkWidgetBlocks?.goldBrands ?? [],
+				},
+			],
+		},
+		{
+			slug: 'markets',
+			title: __('Markets'),
+			description: __('Gold, stock and crypto prices from the Markets providers.'),
+			icon: 'chart-line',
+			attributes: {
+				title: { type: 'string', default: '' },
+				markets: { type: 'array', default: [], items: { type: 'string' } },
+				showChange: { type: 'boolean', default: true },
+			},
+			fields: [
+				{ key: 'title', kind: 'text', label: __('Title') },
+				{
+					key: 'markets',
+					kind: 'checkboxes',
+					label: __('Markets to show'),
+					options: kkWidgetBlocks?.marketLabels ?? [],
+				},
+				{ key: 'showChange', kind: 'toggle', label: __('Show day change') },
+			],
+		},
+		{
+			slug: 'weather',
+			title: __('Weather'),
+			description: __('Current weather for a city, with a location picker.'),
+			icon: 'cloud',
+			attributes: {
+				title: { type: 'string', default: '' },
+				defaultCity: { type: 'string', default: 'Padang' },
+				showDetails: { type: 'boolean', default: false },
+			},
+			fields: [
+				{ key: 'title', kind: 'text', label: __('Title') },
+				{ key: 'defaultCity', kind: 'text', label: __('Default city') },
+				{
+					key: 'showDetails',
+					kind: 'toggle',
+					label: __('Show details (feels like, high/low, humidity, wind)'),
+				},
+			],
+		},
+	];
+}
+
+if (typeof wp !== 'undefined') {
+	// Only the blocks the server registered (the feature-gated ones are
+	// left out when their feature is off); without the localized list,
+	// register them all.
+	const enabled = kkWidgetBlocks?.blocks;
+	buildDefinitions(wp).forEach((def) => {
+		if (enabled !== undefined && !enabled.includes(def.slug)) {
+			return;
+		}
+		wp.blocks.registerBlockType(`koperasi-kita/${def.slug}`, {
+			title: def.title,
+			description: def.description,
+			icon: def.icon,
+			category: 'koperasi-kita',
+			attributes: def.attributes,
+			edit: createEdit(def, wp),
+			save: () => null,
+		});
+	});
+}

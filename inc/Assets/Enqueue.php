@@ -145,7 +145,7 @@ final class Enqueue
         self::$moduleScriptFilterAdded = true;
 
         add_filter('script_loader_tag', static function (string $tag, string $handle): string {
-            if (in_array($handle, ['kk-main', 'kk-gold-markets', 'kk-weather', 'kk-agenda', 'kk-article-font-size', 'kk-pagination', 'kk-pwa', 'kk-admin', 'kk-customizer-preview', 'kk-customizer-controls'], true) && !str_contains($tag, 'type="module"')) {
+            if (in_array($handle, ['kk-main', 'kk-gold-markets', 'kk-weather', 'kk-agenda', 'kk-article-font-size', 'kk-pagination', 'kk-pwa', 'kk-admin', 'kk-customizer-preview', 'kk-customizer-controls', 'kk-widget-blocks'], true) && !str_contains($tag, 'type="module"')) {
                 // Load these entries as modules. Vite's default 'es'
                 // output splits any module shared by two entries
                 // (src/ts/api.ts is imported by weather, admin and
@@ -222,6 +222,7 @@ final class Enqueue
 
         if (self::needsContentStyles()) {
             $entries['kk-content'] = 'src/css/content.css';
+            $entries['kk-widgets'] = 'src/css/widgets.css';
         }
 
         $entries['kk-footer'] = 'src/css/footer.css';
