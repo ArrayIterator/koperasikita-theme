@@ -421,29 +421,6 @@ function buildDefinitions(api: Wp): BlockDef[] {
 			],
 		},
 		{
-			slug: 'world-clock',
-			title: __('KK World Clock'),
-			description: __('Current time in the timezones you list, one per line.'),
-			icon: 'clock',
-			attributes: {
-				title: { type: 'string', default: '' },
-				headerStyle: { type: 'string', default: 'classic-top' },
-				timezones: { type: 'string', default: 'Asia/Jakarta' },
-				showDate: { type: 'boolean', default: true },
-			},
-			fields: [
-				{ key: 'title', kind: 'text', label: __('Title') },
-				headerStyleField,
-				{
-					key: 'timezones',
-					kind: 'textarea',
-					label: __('Timezones'),
-					help: __('One IANA timezone per line, e.g. Asia/Jakarta.'),
-				},
-				{ key: 'showDate', kind: 'toggle', label: __('Show date') },
-			],
-		},
-		{
 			slug: 'pages',
 			title: __('KK Pages'),
 			description: __('A list of page links, in menu order, by date or by title.'),

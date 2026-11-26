@@ -2091,10 +2091,6 @@ msgid "Configure this widget in the block settings."
 msgstr "Atur widget ini di pengaturan blok."
 
 #: inc/Widgets/Blocks.php
-msgid "Current time in the timezones you list, one per line."
-msgstr "Waktu saat ini di zona waktu yang Anda daftarkan, satu per baris."
-
-#: inc/Widgets/Blocks.php
 msgid "Gold prices for five brands in an auto-scrolling slider."
 msgstr "Harga emas lima merek dalam slider gulir otomatis."
 
@@ -2126,10 +2122,6 @@ msgstr "Koperasi Kita Recent News"
 msgid "Koperasi Kita Related News"
 msgstr "Koperasi Kita Related News"
 
-#: inc/Widgets/WorldClockWidget.php
-msgid "Koperasi Kita World Clock"
-msgstr "Koperasi Kita World Clock"
-
 #: inc/Widgets/TaxonomyPostsWidget.php
 msgid "Leave all unchecked to show posts from every category."
 msgstr "Biarkan semua tidak dicentang untuk menampilkan artikel dari semua kategori."
@@ -2149,10 +2141,6 @@ msgstr "Artikel paling banyak dibahas, diurutkan menurut jumlah komentar."
 #: inc/Widgets/AbstractStoryWidget.php
 msgid "Number of items"
 msgstr "Jumlah item"
-
-#: inc/Widgets/WorldClockWidget.php
-msgid "One IANA timezone per line, e.g. Asia/Jakarta."
-msgstr "Satu zona waktu IANA per baris, mis. Asia/Jakarta."
 
 #: inc/Widgets/Blocks.php
 msgid "Pages"
@@ -2194,7 +2182,6 @@ msgstr "KK Berita Terkait"
 msgid "Settings"
 msgstr "Pengaturan"
 
-#: inc/Widgets/WorldClockWidget.php
 msgid "Show date"
 msgstr "Tampilkan tanggal"
 
@@ -2209,17 +2196,6 @@ msgstr "Urutan"
 #: inc/Widgets/Blocks.php
 msgid "The latest published posts, newest first."
 msgstr "Artikel terbaru yang diterbitkan, terbaru dulu."
-
-#: inc/Widgets/WorldClockWidget.php
-msgid "Timezones"
-msgstr "Zona waktu"
-
-#: inc/Widgets/Blocks.php
-msgid "World Clock"
-msgstr "Jam Dunia"
-
-msgid "KK World Clock"
-msgstr "KK Jam Dunia"
 
 #: inc/Customizer/Customizer.php
 msgid "Hero Presentation"

@@ -144,24 +144,6 @@ final class Blocks
                     'showCategories' => 'show_categories',
                 ]),
             ],
-            'world-clock' => [
-                'class' => WorldClockWidget::class,
-                'icon' => 'clock',
-                'title' => __('KK World Clock', 'koperasikita'),
-                'description' => __('Current time in the timezones you list, one per line.', 'koperasikita'),
-                'attributes' => [
-                    'title' => ['type' => 'string', 'default' => ''],
-                    'headerStyle' => ['type' => 'string', 'default' => 'classic-top'],
-                    'timezones' => ['type' => 'string', 'default' => WorldClockWidget::DEFAULT_TIMEZONE],
-                    'showDate' => ['type' => 'boolean', 'default' => true],
-                ],
-                'map' => [
-                    'title' => 'title',
-                    'headerStyle' => 'header_style',
-                    'timezones' => 'timezones',
-                    'showDate' => 'show_date',
-                ],
-            ],
             'pages' => [
                 'class' => PagesWidget::class,
                 'icon' => 'page',

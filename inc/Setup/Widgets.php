@@ -13,20 +13,18 @@ use KoperasiKita\Widgets\PopularPostsWidget;
 use KoperasiKita\Widgets\RecentPostsWidget;
 use KoperasiKita\Widgets\RelatedPostsWidget;
 use KoperasiKita\Widgets\WeatherWidget;
-use KoperasiKita\Widgets\WorldClockWidget;
 use KoperasiKita\Widgets\YahooFinanceWidget;
 
 final class Widgets
 {
     public static function register(): void
     {
-        // The story widgets, the world clock and the pages list have no
-        // feature behind them, so they always register.
+        // The story widgets and the pages list have no feature
+        // behind them, so they always register.
         register_widget(RecentPostsWidget::class);
         register_widget(PopularPostsWidget::class);
         register_widget(RelatedPostsWidget::class);
         register_widget(EditorsPicksWidget::class);
-        register_widget(WorldClockWidget::class);
         register_widget(PagesWidget::class);
 
         // A disabled feature registers nothing: its widget never appears
