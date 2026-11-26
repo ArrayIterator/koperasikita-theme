@@ -15,8 +15,12 @@
 
 export {};
 
+import { postAjax } from './api';
+
 interface MarketsKkData {
 	isMarketsEnabled?: boolean;
+	ajaxUrl?: string;
+	nonce?: string;
 }
 
 function getKkData(): MarketsKkData {
@@ -184,6 +188,239 @@ function initGoldMarkets(): void {
 		return;
 	}
 	$all<HTMLElement>('[data-kk-gold-slider]').forEach((slider) => initGoldSlider(slider));
+	initLivePrices();
+}
+
+// ---------------------------------------------------------------------------
+// Live prices (client-side refresh).
+//
+// The server renders the price (from the backend provider, cached in a
+// transient), so the widget shows a value immediately. This refreshes it
+// in the browser without a page reload:
+//  - localStorage first: a cached price (TTL 15 minutes) is used and
+//    the server is not called at all.
+//  - When the cache is stale, the browser calls the public API
+//    directly for providers that support it (Xaus, CoinGecko and the
+//    scraped prices.json — all CORS-enabled and keyless). Providers
+//    without a direct client API (Indodax, Yahoo Finance, Manual)
+//    fall back to the backend endpoint `kk_markets_prices`.
+//  - A failed fetch leaves the server-rendered price in place; the
+//    widget never goes blank because the live call failed.
+
+interface LivePrice {
+	price: number;
+	change: number | null;
+	updated: number;
+}
+
+type LivePriceMap = Record<string, LivePrice>;
+
+const LIVE_CACHE_TTL_MS = 15 * 60 * 1000;
+
+function liveCacheKey(market: string): string {
+	return `kk-market-${market}`;
+}
+
+function readLiveCache(market: string): LivePriceMap | null {
+	try {
+		const raw = window.localStorage.getItem(liveCacheKey(market));
+		if (!raw) {
+			return null;
+		}
+		const parsed = JSON.parse(raw) as { savedAt?: number; prices?: LivePriceMap };
+		if (!parsed || typeof parsed.savedAt !== 'number' || !parsed.prices) {
+			return null;
+		}
+		if (Date.now() - parsed.savedAt > LIVE_CACHE_TTL_MS) {
+			return null;
+		}
+		return parsed.prices;
+	} catch {
+		return null;
+	}
+}
+
+function writeLiveCache(market: string, prices: LivePriceMap): void {
+	try {
+		window.localStorage.setItem(
+			liveCacheKey(market),
+			JSON.stringify({ savedAt: Date.now(), prices }),
+		);
+	} catch {
+		// Storage full or private mode — the next load just fetches again.
+	}
+}
+
+function formatIdr(price: number): string {
+	return `Rp${Math.round(price)
+		.toString()
+		.replace(/\B(?=(\d{3})+(?!\d))/g, '.')}`;
+}
+
+function formatChange(change: number): string {
+	const sign = change > 0 ? '+' : '';
+	return `${sign}${change.toFixed(2)}%`;
+}
+
+function updatePriceDom(container: HTMLElement, prices: LivePriceMap): void {
+	$all<HTMLElement>('[data-kk-symbol]', container).forEach((row) => {
+		const symbol = row.dataset.kkSymbol ?? '';
+		const entry = prices[symbol];
+		if (!entry || !Number.isFinite(entry.price) || entry.price <= 0) {
+			return;
+		}
+		const priceEl = row.querySelector<HTMLElement>('[data-kk-price]');
+		if (priceEl) {
+			priceEl.textContent = formatIdr(entry.price);
+		}
+		const changeEl = row.querySelector<HTMLElement>('[data-kk-change]');
+		if (changeEl) {
+			if (entry.change === null || !Number.isFinite(entry.change)) {
+				changeEl.textContent = '';
+			} else {
+				changeEl.textContent = formatChange(entry.change);
+				changeEl.classList.toggle('kk-market-change-up', entry.change >= 0);
+				changeEl.classList.toggle('kk-market-change-down', entry.change < 0);
+			}
+		}
+	});
+}
+
+/** Parse a provider's public API response into the symbol map. */
+function parseClientApi(provider: string, data: unknown): LivePriceMap | null {
+	if (typeof data !== 'object' || data === null) {
+		return null;
+	}
+	const now = Math.floor(Date.now() / 1000);
+	const out: LivePriceMap = {};
+
+	if (provider === 'xaus') {
+		const price = (data as { xau?: { price?: unknown } }).xau?.price;
+		if (typeof price === 'number' && price > 0) {
+			out.spot = { price, change: null, updated: now };
+		}
+	} else if (provider === 'coingecko') {
+		const ids: Record<string, string> = {
+			btc: 'bitcoin',
+			eth: 'ethereum',
+			sol: 'solana',
+			usdt: 'tether',
+			xrp: 'ripple',
+		};
+		const body = data as Record<string, { idr?: unknown; idr_24h_change?: unknown }>;
+		for (const [symbol, coinId] of Object.entries(ids)) {
+			const row = body[coinId];
+			const price = row?.idr;
+			if (typeof price !== 'number' || price <= 0) {
+				continue;
+			}
+			const change = row.idr_24h_change;
+			out[symbol] = {
+				price,
+				change: typeof change === 'number' ? change : null,
+				updated: now,
+			};
+		}
+	} else if (provider === 'scraped-gold') {
+		const rows = (data as { prices?: Record<string, { price?: unknown; updated?: unknown }> }).prices;
+		if (typeof rows !== 'object' || rows === null) {
+			return null;
+		}
+		// The scraper publishes every symbol it covers; the strip only
+		// renders the enabled ones, so any symbol present here is used.
+		for (const symbol of ['spot', 'antam', 'ubs', 'galeri-24']) {
+			const row = rows[symbol];
+			const price = row?.price;
+			if (typeof price !== 'number' || price <= 0) {
+				continue;
+			}
+			const updated = row.updated ? Date.parse(String(row.updated)) / 1000 : now;
+			out[symbol] = {
+				price,
+				change: null,
+				updated: Number.isFinite(updated) ? updated : now,
+			};
+		}
+	}
+
+	return Object.keys(out).length > 0 ? out : null;
+}
+
+async function fetchLivePrices(container: HTMLElement): Promise<LivePriceMap | null> {
+	const market = container.dataset.kkMarket ?? '';
+	const provider = container.dataset.kkProvider ?? '';
+	const clientApi = container.dataset.kkClientApi ?? '';
+
+	if (!market || provider === 'manual') {
+		return null;
+	}
+
+	// Direct client call when the provider supports it.
+	if (clientApi !== '') {
+		try {
+			const response = await fetch(clientApi, { headers: { Accept: 'application/json' } });
+			if (response.ok) {
+				const parsed = parseClientApi(provider, await response.json());
+				if (parsed !== null) {
+					return parsed;
+				}
+			}
+		} catch {
+			// Fall through to the backend endpoint.
+		}
+	}
+
+	// Backend endpoint (Indodax, Yahoo, or a failed direct call).
+	const kkData = getKkData();
+	if (!kkData.ajaxUrl || !kkData.nonce) {
+		return null;
+	}
+	try {
+		const data = await postAjax<{ prices?: Record<string, { price?: number; change?: number | null; updated?: number }> }>(
+			{ ajaxUrl: kkData.ajaxUrl, nonce: kkData.nonce },
+			'kk_markets_prices',
+			{ market },
+		);
+		const rows = data.prices ?? {};
+		const out: LivePriceMap = {};
+		for (const [symbol, row] of Object.entries(rows)) {
+			if (typeof row.price !== 'number' || row.price <= 0) {
+				continue;
+			}
+			out[symbol] = {
+				price: row.price,
+				change: typeof row.change === 'number' ? row.change : null,
+				updated: typeof row.updated === 'number' ? row.updated : Math.floor(Date.now() / 1000),
+			};
+		}
+		return Object.keys(out).length > 0 ? out : null;
+	} catch {
+		return null;
+	}
+}
+
+function initLivePrices(): void {
+	$all<HTMLElement>('[data-kk-market-prices]').forEach((container) => {
+		const market = container.dataset.kkMarket ?? '';
+		if (!market) {
+			return;
+		}
+
+		// localStorage first: a fresh cache means no server call at all.
+		const cached = readLiveCache(market);
+		if (cached !== null) {
+			updatePriceDom(container, cached);
+			return;
+		}
+
+		void fetchLivePrices(container).then((prices) => {
+			if (prices === null) {
+				return;
+			}
+			writeLiveCache(market, prices);
+			updatePriceDom(container, prices);
+		});
+	});
 }
 
 document.addEventListener('DOMContentLoaded', initGoldMarkets);

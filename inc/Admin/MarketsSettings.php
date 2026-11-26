@@ -45,15 +45,17 @@ final class MarketsSettings
      * Sanitizer for the whole settings option. Unknown markets, symbols and
      * providers are dropped; a snapshot row without a positive price is
      * dropped, so an empty field means "no data" rather than a zero price.
+     * Picker choices are kept only for known symbols of the market.
      *
      * @param mixed $input Raw submitted value.
-     * @return array{providers: array<string, string>, snapshots: array<string, array<string, array{price: float, change: float|null, updated: int}>>}
+     * @return array{providers: array<string, string>, snapshots: array<string, array<string, array{price: float, change: float|null, updated: int}>>, enabled: array<string, array<string, bool>>}
      */
     public static function sanitizeSettings($input): array
     {
         $clean = [
             'providers' => [],
             'snapshots' => [],
+            'enabled' => [],
         ];
 
         if (!is_array($input)) {
@@ -65,6 +67,22 @@ final class MarketsSettings
         foreach (Markets::markets() as $market) {
             $chosen = $submittedProviders[$market] ?? 'manual';
             $clean['providers'][$market] = in_array($chosen, $providerIds, true) ? $chosen : 'manual';
+        }
+
+        // Picker choices: only known symbols of the market, only when
+        // the checkbox was actually sent (unchecked = not shown).
+        $submittedEnabled = isset($input['enabled']) && is_array($input['enabled']) ? $input['enabled'] : [];
+        foreach (Markets::markets() as $market) {
+            $rows = $submittedEnabled[$market] ?? [];
+            if (!is_array($rows)) {
+                continue;
+            }
+
+            foreach (Markets::symbols($market) as $symbol => $label) {
+                if (!empty($rows[$symbol])) {
+                    $clean['enabled'][$market][$symbol] = true;
+                }
+            }
         }
 
         $now = time();
@@ -121,6 +139,10 @@ final class MarketsSettings
             <form method="post" action="options.php">
                 <?php settings_fields(Markets::OPTION); ?>
                 <?php foreach (Markets::markets() as $market) : ?>
+                    <?php
+                    $chosenProvider = $settings['providers'][$market] ?? 'manual';
+                    $enabled = Markets::enabledSymbols($market);
+                    ?>
                     <h2><?php echo esc_html($labels[$market]); ?></h2>
                     <table class="form-table" role="presentation">
                         <tr>
@@ -131,16 +153,28 @@ final class MarketsSettings
                                 <select
                                     id="kk-provider-<?php echo esc_attr($market); ?>"
                                     name="<?php echo esc_attr(Markets::OPTION); ?>[providers][<?php echo esc_attr($market); ?>]"
+                                    data-kk-market-provider="<?php echo esc_attr($market); ?>"
                                 >
                                     <?php foreach ($providers as $id => $provider) : ?>
                                         <?php if (!$provider->supports($market)) {
                                             continue;
                                         } ?>
-                                        <option value="<?php echo esc_attr($id); ?>" <?php selected($settings['providers'][$market], $id); ?>>
+                                        <option value="<?php echo esc_attr($id); ?>" <?php selected($chosenProvider, $id); ?>>
                                             <?php echo esc_html($provider->label()); ?>
                                         </option>
                                     <?php endforeach; ?>
                                 </select>
+                                <button
+                                    type="button"
+                                    class="button"
+                                    data-kk-provider-picker-open="<?php echo esc_attr($market); ?>"
+                                ><?php esc_html_e('Choose what to show', 'koperasikita'); ?></button>
+                                <p class="description" data-kk-provider-picker-summary="<?php echo esc_attr($market); ?>">
+                                    <?php
+                                    /* translators: %s: comma-separated list of shown symbols. */
+                                    printf(esc_html__('Showing: %s', 'koperasikita'), esc_html(implode(', ', array_values($enabled))));
+                                    ?>
+                                </p>
                             </td>
                         </tr>
                         <?php foreach (Markets::symbols($market) as $symbol => $label) : ?>
@@ -192,9 +226,92 @@ final class MarketsSettings
                             </tr>
                         <?php endforeach; ?>
                     </table>
+
+                    <?php self::renderProviderPicker($market, $providers, $settings); ?>
                 <?php endforeach; ?>
                 <?php submit_button(); ?>
             </form>
+        </div>
+        <?php
+    }
+
+    /**
+     * Provider picker popup for one market: after the admin picks a
+     * provider, this popup lists exactly what that provider can
+     * supply, and the admin ticks which symbols the strip and the
+     * widgets show. One group per provider; the script shows only
+     * the group of the selected provider and disables the rest, so
+     * only the current provider's choices are submitted. Without
+     * JavaScript the popup stays hidden and the market shows every
+     * symbol the provider supplies (see Markets::enabledSymbols()).
+     */
+    private static function renderProviderPicker(string $market, array $providers, array $settings): void
+    {
+        $labels = Markets::labels();
+        $enabled = Markets::enabledSymbols($market);
+        $storedEnabled = $settings['enabled'][$market] ?? [];
+        ?>
+        <div
+            class="kk-provider-picker"
+            data-kk-provider-picker="<?php echo esc_attr($market); ?>"
+            hidden
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="kk-provider-picker-title-<?php echo esc_attr($market); ?>"
+        >
+            <div class="kk-provider-picker-backdrop" data-kk-provider-picker-close></div>
+            <div class="kk-provider-picker-dialog">
+                <h2 id="kk-provider-picker-title-<?php echo esc_attr($market); ?>">
+                    <?php
+                    /* translators: %s: market label (Gold, Stocks, Crypto). */
+                    printf(esc_html__('What to show: %s', 'koperasikita'), esc_html($labels[$market] ?? $market));
+                    ?>
+                </h2>
+                <p class="description">
+                    <?php esc_html_e('Tick the items this provider supplies that the market strip and the widgets should show. Unchecked items are hidden everywhere.', 'koperasikita'); ?>
+                </p>
+                <?php foreach ($providers as $id => $provider) : ?>
+                    <?php if (!$provider->supports($market)) {
+                        continue;
+                    } ?>
+                    <?php $supplies = $provider->supplies($market); ?>
+                    <fieldset
+                        class="kk-provider-picker-group"
+                        data-kk-provider-picker-group="<?php echo esc_attr($id); ?>"
+                        <?php echo $id === ($settings['providers'][$market] ?? 'manual') ? '' : 'hidden'; ?>
+                    >
+                        <legend><?php echo esc_html($provider->label()); ?></legend>
+                        <?php if ($supplies === []) : ?>
+                            <p class="description"><?php esc_html_e('This provider supplies nothing for this market.', 'koperasikita'); ?></p>
+                        <?php endif; ?>
+                        <?php foreach ($supplies as $symbol => $label) : ?>
+                            <?php
+                            // Checked when the symbol is enabled now, or
+                            // when nothing was ever picked for this market
+                            // (fresh install: everything is shown).
+                            $checked = is_array($storedEnabled) && $storedEnabled !== []
+                                ? !empty($storedEnabled[$symbol])
+                                : isset($enabled[$symbol]);
+                            ?>
+                            <label class="kk-provider-picker-item">
+                                <input
+                                    type="checkbox"
+                                    name="<?php echo esc_attr(Markets::OPTION); ?>[enabled][<?php echo esc_attr($market); ?>][<?php echo esc_attr($symbol); ?>]"
+                                    value="1"
+                                    <?php checked($checked); ?>
+                                    <?php echo $id === ($settings['providers'][$market] ?? 'manual') ? '' : 'disabled'; ?>
+                                >
+                                <?php echo esc_html($label); ?>
+                            </label>
+                        <?php endforeach; ?>
+                    </fieldset>
+                <?php endforeach; ?>
+                <p class="kk-provider-picker-actions">
+                    <button type="button" class="button button-primary" data-kk-provider-picker-close>
+                        <?php esc_html_e('Done', 'koperasikita'); ?>
+                    </button>
+                </p>
+            </div>
         </div>
         <?php
     }

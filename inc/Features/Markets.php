@@ -5,10 +5,18 @@ declare(strict_types=1);
 namespace KoperasiKita\Features;
 
 use KoperasiKita\Admin\MarketsSettings;
+use KoperasiKita\Api\Ajax;
+use KoperasiKita\Api\ApiException;
 use KoperasiKita\Api\Hooks;
+use KoperasiKita\Providers\AbstractLiveProvider;
+use KoperasiKita\Providers\CoinGeckoProvider;
+use KoperasiKita\Providers\IndodaxProvider;
 use KoperasiKita\Providers\ManualSnapshotProvider;
 use KoperasiKita\Providers\MarketPrice;
 use KoperasiKita\Providers\MarketPriceProvider;
+use KoperasiKita\Providers\ScrapedGoldProvider;
+use KoperasiKita\Providers\XausProvider;
+use KoperasiKita\Providers\YahooStockProvider;
 
 /**
  * Markets data layer: gold, stock and crypto prices.
@@ -131,9 +139,9 @@ final class Markets
 
     /**
      * Full settings array, merged over the defaults so callers can always
-     * read `providers` and `snapshots` without isset() guards.
+     * read `providers`, `snapshots` and `enabled` without isset() guards.
      *
-     * @return array{providers: array<string, string>, snapshots: array<string, array<string, array{price?: float, change?: float, updated?: int}>>}
+     * @return array{providers: array<string, string>, snapshots: array<string, array<string, array{price?: float, change?: float, updated?: int}>>, enabled: array<string, array<string, bool>>}
      */
     public static function settings(): array
     {
@@ -144,6 +152,7 @@ final class Markets
                 'crypto' => 'manual',
             ],
             'snapshots' => [],
+            'enabled' => [],
         ];
 
         $stored = get_option(self::OPTION, []);
@@ -156,8 +165,44 @@ final class Markets
             ? array_merge($defaults['providers'], $settings['providers'])
             : $defaults['providers'];
         $settings['snapshots'] = is_array($settings['snapshots']) ? $settings['snapshots'] : [];
+        $settings['enabled'] = is_array($settings['enabled']) ? $settings['enabled'] : [];
 
         return $settings;
+    }
+
+    /**
+     * Symbols shown for a market: the admin's picker choice for the
+     * market's current provider. No stored choice (fresh install, or a
+     * provider switched before the picker was opened) means every
+     * symbol the provider supplies — nothing is hidden by default.
+     *
+     * @return array<string, string> Enabled symbols (slug => label).
+     */
+    public static function enabledSymbols(string $market): array
+    {
+        $supplies = self::providerFor($market)->supplies($market);
+
+        if ($supplies === []) {
+            return [];
+        }
+
+        $stored = self::settings()['enabled'][$market] ?? null;
+
+        if (!is_array($stored) || $stored === []) {
+            return $supplies;
+        }
+
+        $enabled = [];
+
+        foreach ($supplies as $symbol => $label) {
+            if (!empty($stored[$symbol])) {
+                $enabled[$symbol] = $label;
+            }
+        }
+
+        // An admin who unchecks everything gets the provider's full
+        // list back: an empty picker must not blank the whole market.
+        return $enabled !== [] ? $enabled : $supplies;
     }
 
     /** @return array<string, MarketPriceProvider> Providers keyed by id. */
@@ -206,7 +251,8 @@ final class Markets
     /**
      * Prices for one market, keyed by symbol. Only symbols with a real
      * snapshot price are returned — an empty array means "no data", and the
-     * caller renders an honest empty state.
+     * caller renders an honest empty state. Only the symbols the admin
+     * picked in the provider picker are returned (see enabledSymbols()).
      *
      * @return array<string, MarketPrice>
      */
@@ -216,7 +262,15 @@ final class Markets
             return [];
         }
 
-        return self::providerFor($market)->prices($market);
+        $enabled = self::enabledSymbols($market);
+
+        if ($enabled === []) {
+            return [];
+        }
+
+        $prices = self::providerFor($market)->prices($market);
+
+        return array_intersect_key($prices, $enabled);
     }
 
     /**
@@ -241,6 +295,12 @@ final class Markets
             $markets[$market] = [
                 'label' => self::labels()[$market] ?? $market,
                 'prices' => self::prices($market),
+                // Client-side refresh info: the provider id and the
+                // public API URL the browser may call directly (null
+                // when the provider is only served through the backend
+                // endpoint). The strip template prints these as data
+                // attributes for src/ts/markets.ts.
+                'client' => self::clientInfo($market),
             ];
         }
 
@@ -272,6 +332,67 @@ final class Markets
             return;
         }
 
+        // Live price providers (all free, no API key). Registered
+        // through the providers filter so they appear in the
+        // Settings -> Markets provider dropdown for their market,
+        // next to Manual. The default stays Manual until the admin
+        // picks one. Each provider caches in a transient (15 min)
+        // and falls back to its last good value when the upstream
+        // is unreachable.
+        add_filter(Hooks::MARKETS_PROVIDERS, static function (array $providers): array {
+            $providers['xaus'] = new XausProvider();
+            $providers['scraped-gold'] = new ScrapedGoldProvider();
+            $providers['coingecko'] = new CoinGeckoProvider();
+            $providers['indodax'] = new IndodaxProvider();
+            $providers['yahoo'] = new YahooStockProvider();
+
+            return $providers;
+        });
+
+        // Read-only prices endpoint for the client-side refresh
+        // (src/ts/markets.ts). The browser calls it only when the
+        // provider has no direct client API (Yahoo, Indodax) or the
+        // direct call failed; the localStorage cache in the browser
+        // keeps it from being called on every page load.
+        Ajax::add('kk_markets_prices', static function (): array {
+            $market = isset($_POST['market']) ? sanitize_key(wp_unslash((string) $_POST['market'])) : '';
+
+            if (!in_array($market, self::markets(), true)) {
+                throw new ApiException('kk_invalid_market', __('Unknown market.', 'koperasikita'), 400);
+            }
+
+            $prices = [];
+            foreach (self::prices($market) as $symbol => $price) {
+                $prices[$symbol] = $price->toArray();
+            }
+
+            return [
+                'market' => $market,
+                'provider' => self::providerFor($market)->id(),
+                'prices' => $prices,
+            ];
+        }, true);
+
         MarketsSettings::register();
+    }
+
+    /**
+     * Client-side fetch info for a market: the chosen provider id
+     * and the public API URL the browser may call directly, or null
+     * when the provider is only served through the backend endpoint.
+     * The frontend (src/ts/markets.ts) uses this to decide whether
+     * to call the public API straight from the browser.
+     *
+     * @return array{provider: string, clientApiUrl: string|null}
+     */
+    public static function clientInfo(string $market): array
+    {
+        $provider = self::providerFor($market);
+        $url = $provider instanceof AbstractLiveProvider ? $provider->clientApiUrl() : null;
+
+        return [
+            'provider' => $provider->id(),
+            'clientApiUrl' => $url,
+        ];
     }
 }

@@ -165,7 +165,11 @@ html[data-color-scheme="system"] .kk-icon-sun {
 
 .kk-nav-wrap {
 	position: sticky;
-	top: 0;
+	/* Below the WP admin bar when it is showing (logged-in admin):
+	 * the bar is 32px on desktop, 46px at <=782px, and scrolls away
+	 * (position:absolute) at <=600px, so the offset is 0 there. The
+	 * --kk-admin-bar-height token carries all three values. */
+	top: var(--kk-admin-bar-height, 0px);
 	z-index: 40;
 	background: var(--kk-paper);
 	border-bottom: 1px solid var(--kk-border);
@@ -174,6 +178,23 @@ html[data-color-scheme="system"] .kk-icon-sun {
 /* Sticky header off: the nav scrolls away with the page. */
 body.kk-sticky-off .kk-nav-wrap {
 	position: static;
+}
+
+/* WordPress admin bar height, by viewport (same as padangkita). */
+body.admin-bar {
+	--kk-admin-bar-height: 32px;
+}
+
+@media (max-width: 782px) {
+	body.admin-bar {
+		--kk-admin-bar-height: 46px;
+	}
+}
+
+@media (max-width: 600px) {
+	body.admin-bar {
+		--kk-admin-bar-height: 0px;
+	}
 }
 
 .kk-nav-inner {

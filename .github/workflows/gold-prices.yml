@@ -1,0 +1,48 @@
+name: Gold prices
+
+# Scrape the gold prices no free API provides (Antam 1-gram retail
+# price from harga-emas.net + gold spot per gram from xaus.com) and
+# publish them as scraper/prices.json — a free, self-hosted API the
+# theme reads from raw.githubusercontent.com. Runs every 6 hours and
+# on manual dispatch. The scraper never invents a price: a failed
+# source keeps the last good value, and the job fails loudly if no
+# price at all could be produced.
+#
+# Pegadaian's own site is bot-protected, so UBS / Galeri24 /
+# Pegadaian brand prices are NOT scraped and stay manual in the
+# theme (Settings -> Markets).
+
+on:
+  schedule:
+    - cron: '*/15 * * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  scrape:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Scrape gold prices
+        run: node scraper/scrape.mjs
+
+      - name: Commit updated prices
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add scraper/prices.json scraper/history.jsonl
+          if git diff --cached --quiet; then
+            echo "No price change."
+          else
+            git commit -m "Gold prices: $(date -u +%Y-%m-%dT%H:%M:%SZ)"
+            git push
+          fi

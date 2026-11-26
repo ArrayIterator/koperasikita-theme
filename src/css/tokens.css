@@ -12,6 +12,13 @@
 /* --- Tokens (defaults; the Customizer overrides these inline) ------------ */
 
 :root {
+	/* WordPress admin bar height (0 when logged out or the bar is
+	 * hidden). The sticky nav and sticky sidebars sit below it.
+	 * Same pattern as padangkita: 32px desktop, 46px at <=782px,
+	 * and 0px at <=600px where the bar is position:absolute and
+	 * scrolls away with the page. */
+	--kk-admin-bar-height: 0px;
+
 	/* Palette — must match Customizer::PALETTE_DEFAULTS exactly. */
 	--kk-green: #0B6B3A;
 	--kk-green-dark: #07522C;

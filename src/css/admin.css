@@ -69,3 +69,62 @@
 	margin: 0;
 	padding: 0.4rem 0.6rem;
 }
+
+/* --- Provider picker popup (Settings -> Markets) ------------------------- */
+/* Centered dialog + blurred backdrop, per the popup standard: an anchored
+ * panel is a popover, a popup is always centered with a backdrop. */
+.kk-provider-picker[hidden] {
+	display: none;
+}
+
+.kk-provider-picker-backdrop {
+	position: fixed;
+	inset: 0;
+	z-index: 100000;
+	background: rgb(0 0 0 / 0.45);
+	-webkit-backdrop-filter: blur(4px);
+	backdrop-filter: blur(4px);
+}
+
+.kk-provider-picker-dialog {
+	position: fixed;
+	z-index: 100001;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	width: min(28rem, calc(100vw - 2rem));
+	max-height: calc(100vh - 4rem);
+	overflow: auto;
+	padding: 1.25rem 1.5rem;
+	background: #fff;
+	border: 1px solid #dcdcde;
+	border-radius: 4px;
+	box-shadow: 0 8px 32px rgb(0 0 0 / 0.25);
+}
+
+.kk-provider-picker-dialog h2 {
+	margin: 0 0 0.5rem;
+	font-size: 1.25rem;
+}
+
+.kk-provider-picker-group {
+	margin: 1rem 0 0;
+	padding: 0;
+	border: 0;
+}
+
+.kk-provider-picker-group legend {
+	margin-bottom: 0.5rem;
+	font-weight: 600;
+}
+
+.kk-provider-picker-item {
+	display: block;
+	margin: 0.35rem 0;
+	cursor: pointer;
+}
+
+.kk-provider-picker-actions {
+	margin: 1.25rem 0 0;
+	text-align: right;
+}

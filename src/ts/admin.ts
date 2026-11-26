@@ -268,6 +268,7 @@ function watchFontSettings(container: HTMLElement): void {
 
 function initAdmin(): void {
 	initTermPickers();
+	initProviderPickers();
 
 	if (!adminData()) {
 		return;
@@ -280,6 +281,117 @@ function initAdmin(): void {
 
 	bindFontsControls(container);
 	watchFontSettings(container);
+}
+
+/**
+ * Provider picker popups on the Settings -> Markets screen.
+ *
+ * Each market has a provider dropdown and a "Choose what to show"
+ * button. The button opens a centered popup (blurred backdrop) that
+ * lists exactly what the selected provider can supply, as checkboxes.
+ * Only the selected provider's group is visible and enabled, so only
+ * its choices are submitted; switching the provider swaps the group
+ * and refreshes the "Showing: ..." summary under the dropdown.
+ * The summary also updates live as checkboxes are ticked. Close on
+ * Done, backdrop click, or Escape. Without JS the popup stays hidden
+ * and the market shows every symbol the provider supplies.
+ */
+function initProviderPickers(): void {
+	const pickers = document.querySelectorAll<HTMLElement>('[data-kk-provider-picker]');
+
+	pickers.forEach((picker) => {
+		const market = picker.dataset.kkProviderPicker;
+		if (!market) {
+			return;
+		}
+
+		const select = document.querySelector<HTMLSelectElement>(
+			`[data-kk-market-provider="${market}"]`,
+		);
+		const openButton = document.querySelector<HTMLButtonElement>(
+			`[data-kk-provider-picker-open="${market}"]`,
+		);
+		const summary = document.querySelector<HTMLElement>(
+			`[data-kk-provider-picker-summary="${market}"]`,
+		);
+
+		if (!select || !openButton) {
+			return;
+		}
+
+		const groups = Array.from(
+			picker.querySelectorAll<HTMLElement>('[data-kk-provider-picker-group]'),
+		);
+
+		const showGroup = (providerId: string): void => {
+			groups.forEach((group) => {
+				const active = group.dataset.kkProviderPickerGroup === providerId;
+				group.hidden = !active;
+				group.querySelectorAll<HTMLInputElement>('input[type="checkbox"]').forEach((box) => {
+					box.disabled = !active;
+				});
+			});
+		};
+
+		const refreshSummary = (): void => {
+			if (!summary) {
+				return;
+			}
+
+			const active = groups.find((group) => !group.hidden);
+			if (!active) {
+				return;
+			}
+
+			const labels = Array.from(
+				active.querySelectorAll<HTMLInputElement>('input[type="checkbox"]:checked'),
+			).map((box) => {
+				const label = box.closest('label');
+				return label ? (label.textContent ?? '').trim() : '';
+			}).filter((text) => text !== '');
+
+			// The server renders "Showing: ..." with the list; keep
+			// the same shape and only swap the list itself.
+			const prefix = summary.textContent?.split(':')[0] ?? 'Showing';
+			summary.textContent = `${prefix}: ${labels.join(', ')}`;
+		};
+
+		const open = (): void => {
+			showGroup(select.value);
+			picker.hidden = false;
+			const done = picker.querySelector<HTMLButtonElement>('[data-kk-provider-picker-close]');
+			done?.focus();
+		};
+
+		const close = (): void => {
+			picker.hidden = true;
+			refreshSummary();
+			openButton.focus();
+		};
+
+		select.addEventListener('change', () => {
+			showGroup(select.value);
+			refreshSummary();
+		});
+
+		openButton.addEventListener('click', open);
+
+		picker.querySelectorAll('[data-kk-provider-picker-close]').forEach((el) => {
+			el.addEventListener('click', close);
+		});
+
+		picker.addEventListener('change', (event) => {
+			if ((event.target as HTMLElement).matches('input[type="checkbox"]')) {
+				refreshSummary();
+			}
+		});
+
+		document.addEventListener('keydown', (event) => {
+			if (event.key === 'Escape' && !picker.hidden) {
+				close();
+			}
+		});
+	});
 }
 
 /**

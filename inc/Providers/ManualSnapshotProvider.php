@@ -31,6 +31,13 @@ final class ManualSnapshotProvider implements MarketPriceProvider
         return in_array($market, Markets::markets(), true);
     }
 
+    public function supplies(string $market): array
+    {
+        // Manual can supply every symbol of the market: the admin
+        // types the snapshot price for each one.
+        return Markets::symbols($market);
+    }
+
     public function prices(string $market): array
     {
         if (!$this->supports($market)) {

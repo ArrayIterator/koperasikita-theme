@@ -1,0 +1,32 @@
+{
+  "updated": "2026-11-26T08:13:22.268Z",
+  "prices": {
+    "antam": {
+      "price": 2501000,
+      "currency": "IDR",
+      "updated": "2026-11-26T08:13:22.268Z"
+    },
+    "galeri-24": {
+      "price": 2339000,
+      "currency": "IDR",
+      "updated": "2026-11-26T08:13:22.268Z"
+    },
+    "ubs": {
+      "price": 2362000,
+      "currency": "IDR",
+      "updated": "2026-11-26T08:13:22.268Z"
+    },
+    "spot": {
+      "price": 2090083,
+      "currency": "IDR",
+      "updated": "2026-11-26T08:13:22.268Z"
+    }
+  },
+  "sources": {
+    "antam": "harga-emas.net",
+    "galeri-24": "galeri24.co.id",
+    "ubs": "galeri24.co.id",
+    "spot": "xaus.com"
+  },
+  "note": "Free, self-hosted gold prices for the Koperasi Kita theme. Antam is the 1-gram retail price scraped from harga-emas.net; Galeri 24 and UBS are the 1-gram sell prices scraped from galeri24.co.id; spot is the live XAU price per gram in IDR from xaus.com. Pegadaian and EmasKita stay manual — Pegadaian blocks scrapers."
+}

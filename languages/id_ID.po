@@ -2709,3 +2709,21 @@ msgstr "Beranda, widget global di area blok kategori (satu area bersama untuk se
 
 msgid "Choose which sidebars stay visible while the reader scrolls. Only sidebars can stick — the full-width widget areas (Below Header, Before Latest News, Before Highlights, Block Area) always scroll with the page."
 msgstr "Pilih sidebar mana yang tetap terlihat saat pembaca menggulir. Hanya sidebar yang bisa menempel — area widget selebar penuh (Di bawah Header, Sebelum Berita Terbaru, Sebelum Sorotan, Area Blok) selalu menggulir bersama halaman."
+
+msgid "Choose what to show"
+msgstr "Pilih yang ditampilkan"
+
+msgid "What to show: %s"
+msgstr "Yang ditampilkan: %s"
+
+msgid "Tick the items this provider supplies that the market strip and the widgets should show. Unchecked items are hidden everywhere."
+msgstr "Centang item yang disediakan provider ini yang harus ditampilkan strip pasar dan widget. Item yang tidak dicentang disembunyikan di mana-mana."
+
+msgid "This provider supplies nothing for this market."
+msgstr "Provider ini tidak menyediakan apa pun untuk pasar ini."
+
+msgid "Scraped (live Antam, Galeri 24, UBS + spot, free)"
+msgstr "Scraped (Antam, Galeri 24, UBS + spot live, gratis)"
+
+msgid "Showing: %s"
+msgstr "Menampilkan: %s"
