@@ -91,8 +91,8 @@ $latest_eyebrow = trim( $latest_eyebrow );
 		 * TO newsletter client-side would show no rule and no label. */
 		if ( $latest->post_count > 1 ) :
 			?>
-			<hr class="kk-newsletter-rule" hidden>
-			<p class="kk-newsletter-more" hidden><?php esc_html_e( 'More stories', 'koperasikita' ); ?></p>
+			<hr class="kk-newsletter-rule mt-1 w-full border-0 border-t border-kk-gold" hidden>
+			<p class="kk-newsletter-more mt-5 text-xs font-bold uppercase tracking-[0.14em] text-kk-green" hidden><?php esc_html_e( 'More stories', 'koperasikita' ); ?></p>
 			<?php
 		endif;
 		?>

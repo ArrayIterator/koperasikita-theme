@@ -45,8 +45,8 @@ if ( ! $newsletter_query->have_posts() ) {
 			get_template_part( 'template-parts/home/newsletter-subscribe' );
 			if ( $newsletter_query->post_count > 1 ) :
 				?>
-				<hr class="kk-newsletter-rule">
-				<p class="kk-newsletter-more"><?php esc_html_e( 'More stories', 'koperasikita' ); ?></p>
+				<hr class="kk-newsletter-rule mt-1 w-full border-0 border-t border-kk-gold">
+				<p class="kk-newsletter-more mt-5 text-xs font-bold uppercase tracking-[0.14em] text-kk-green"><?php esc_html_e( 'More stories', 'koperasikita' ); ?></p>
 				<?php
 			endif;
 		endif;
