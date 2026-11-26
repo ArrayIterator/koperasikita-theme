@@ -625,9 +625,12 @@ html.kk-nav-open body {
 	font-weight: 800;
 	letter-spacing: 0.12em;
 	text-transform: uppercase;
-	/* Gold (default): pure black text on the gold — 7.89:1, up from
-	 * 7.03:1 with #121212. The other styles are variants below. */
-	color: #000;
+	/* Gold (default): white text on the gold, like the green / dark /
+	 * red variants. (White on bright gold is 2.66:1 — below the 3:1
+	 * UI-text bar that pure black gave at 7.89:1 — but the user asked
+	 * for the white text; the label is short bold uppercase, so it
+	 * stays legible in practice.) */
+	color: #fff;
 	background: var(--kk-gold, #C9962E);
 	padding: 0.3125rem 0.625rem;
 	border-radius: var(--kk-radius);
