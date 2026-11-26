@@ -10,10 +10,17 @@ use KoperasiKita\Providers\MarketPrice;
 /**
  * Gold brands for the gold price widget.
  *
- * The five brands are the registry; their prices come from the Markets
+ * The brands are the registry; their prices come from the Markets
  * snapshot layer (Settings -> Markets), never from hardcoded values here.
  * A brand with no saved snapshot price is simply left out of the slider,
  * and a slider with no priced brands at all renders an honest empty state.
+ *
+ * Live prices come from the scraper for Antam, UBS, Galeri 24, Lotus
+ * Archi and Pegadaian (+ spot). Hartadinata, King Halim and
+ * EmasKita have no public live price source, so they show only
+ * when a manual snapshot price exists. Mini gold (MiniGold, EOA
+ * Gold, IGS Gold, Waris Sampoerna) is a separate category — small
+ * denominations, not gram bars — so it is not in this registry.
  *
  * Third parties may add or rename brands through the
  * `koperasikita/gold/brands` filter. A brand added there with no
@@ -21,6 +28,9 @@ use KoperasiKita\Providers\MarketPrice;
  */
 final class Gold
 {
+    /** Option holding the enabled gold brand slugs (array of strings). */
+    public const ENABLED_OPTION = 'kk_enabled_gold_brands';
+
     /** @return array<string, string> Brand slug => display name. */
     public static function brands(): array
     {
@@ -28,7 +38,10 @@ final class Gold
             'antam' => 'Antam',
             'ubs' => 'UBS',
             'galeri-24' => 'Galeri 24',
+            'lotus-archi' => 'Lotus Archi',
             'pegadaian' => 'Pegadaian',
+            'hartadinata' => 'Hartadinata',
+            'king-halim' => 'King Halim',
             'emaskita' => 'EmasKita',
         ]);
 
@@ -45,6 +58,46 @@ final class Gold
         }
 
         return $clean;
+    }
+
+    /**
+     * The enabled gold brand slugs, in registry order.
+     *
+     * Managed on the Gold Prices admin page ("Enabled Gold Brands"
+     * tab). When the option has never been saved, every brand in
+     * the registry is enabled — the tab is an opt-out, not an
+     * opt-in, so existing sites keep showing all their brands.
+     * A saved empty list disables every brand on purpose.
+     *
+     * @return array<int, string>
+     */
+    public static function enabledBrands(): array
+    {
+        $all = array_keys(self::brands());
+        $stored = get_option(self::ENABLED_OPTION, false);
+
+        if ($stored === false) {
+            return $all;
+        }
+
+        if (!is_array($stored)) {
+            return $all;
+        }
+
+        return array_values(array_intersect($stored, $all));
+    }
+
+    /**
+     * Save the enabled gold brand slugs (unknown slugs are
+     * dropped, so a stale saved list never enables a brand that
+     * no longer exists).
+     *
+     * @param array<int, string> $slugs
+     */
+    public static function setEnabledBrands(array $slugs): void
+    {
+        $clean = array_values(array_intersect($slugs, array_keys(self::brands())));
+        update_option(self::ENABLED_OPTION, $clean);
     }
 
     public static function isEnabled(): bool

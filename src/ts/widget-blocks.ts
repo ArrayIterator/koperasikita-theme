@@ -30,6 +30,7 @@ type FieldDef =
 	| { key: string; kind: 'select'; label: string; options: OptionItem[] }
 	| { key: string; kind: 'toggle'; label: string }
 	| { key: string; kind: 'checkboxes'; label: string; options: OptionItem[] }
+	| { key: string; kind: 'multiselect'; label: string; help?: string; options: OptionItem[] }
 	| { key: string; kind: 'categories'; label: string; help?: string }
 	| { key: string; kind: 'tags'; label: string; help?: string };
 
@@ -198,6 +199,27 @@ function renderField(
 				api.element.createElement('p', null, field.label),
 				...boxes,
 			);
+		}
+		case 'multiselect': {
+			/* A real multi-select dropdown (WordPress SelectControl
+			 * with multiple): all options visible at once, proper
+			 * value/label mapping, stored as an array of slugs.
+			 * An empty selection means "all" — same as the checkbox
+			 * list it replaces. */
+			const selected: string[] = Array.isArray(value)
+				? value.filter((item): item is string => typeof item === 'string')
+				: [];
+			return api.element.createElement(api.components.SelectControl, {
+				key,
+				label: field.label,
+				help: field.help ?? '',
+				multiple: true,
+				value: selected,
+				options: field.options,
+				onChange: (next: string[] | string) => {
+					set(key, Array.isArray(next) ? next : [next]);
+				},
+			});
 		}
 		case 'categories': {
 			/* Checkbox list, not a token field: every category shows
@@ -450,7 +472,7 @@ function buildDefinitions(api: Wp): BlockDef[] {
 		{
 			slug: 'gold',
 			title: __('KK Gold Prices'),
-			description: __('Gold prices for five brands in an auto-scrolling slider.'),
+			description: __('Gold prices for Indonesian gold brands in an auto-scrolling slider.'),
 			icon: 'star-filled',
 			attributes: {
 				title: { type: 'string', default: '' },
@@ -462,8 +484,9 @@ function buildDefinitions(api: Wp): BlockDef[] {
 				headerStyleField,
 				{
 					key: 'brands',
-					kind: 'checkboxes',
+					kind: 'multiselect',
 					label: __('Brands to show'),
+					help: __('Leave empty to show all brands.'),
 					options: kkWidgetBlocks?.goldBrands ?? [],
 				},
 			],

@@ -169,7 +169,7 @@ final class Blocks
                 'class' => GoldWidget::class,
                 'icon' => 'star-filled',
                 'title' => __('KK Gold Prices', 'koperasikita'),
-                'description' => __('Gold prices for five brands in an auto-scrolling slider.', 'koperasikita'),
+                'description' => __('Gold prices for Indonesian gold brands in an auto-scrolling slider.', 'koperasikita'),
                 'attributes' => [
                     'title' => ['type' => 'string', 'default' => ''],
                     'headerStyle' => ['type' => 'string', 'default' => 'classic-top'],
@@ -263,7 +263,7 @@ final class Blocks
             );
             wp_localize_script('kk-widget-blocks', 'kkWidgetBlocks', [
                 'blocks' => array_keys(self::definitions()),
-                'goldBrands' => self::optionList(Gold::brands()),
+                'goldBrands' => self::optionList(array_intersect_key(Gold::brands(), array_flip(Gold::enabledBrands()))),
                 'marketLabels' => self::optionList(Markets::labels()),
             ]);
         }

@@ -25,7 +25,7 @@ final class GoldWidget extends WP_Widget
             'kk_gold',
             __('Koperasi Kita Gold Prices', 'koperasikita'),
             [
-                'description' => __('Gold prices for five brands in an auto-scrolling slider. Prices are edited in Settings -> Markets.', 'koperasikita'),
+                'description' => __('Gold prices for Indonesian gold brands in an auto-scrolling slider. Prices are edited in Settings -> Markets.', 'koperasikita'),
                 'classname' => 'kk-gold-widget',
                 'customize_selective_refresh' => true,
             ]
@@ -41,8 +41,8 @@ final class GoldWidget extends WP_Widget
 
         $title = isset($instance['title']) ? (string) $instance['title'] : '';
         $brands = isset($instance['brands']) && is_array($instance['brands'])
-            ? array_values(array_intersect($instance['brands'], array_keys(Gold::brands())))
-            : array_keys(Gold::brands());
+            ? array_values(array_intersect($instance['brands'], Gold::enabledBrands()))
+            : Gold::enabledBrands();
 
         $prices = Gold::brandPrices($brands);
 
@@ -62,8 +62,8 @@ final class GoldWidget extends WP_Widget
     {
         $title = isset($instance['title']) ? (string) $instance['title'] : __('Gold Prices', 'koperasikita');
         $selected = isset($instance['brands']) && is_array($instance['brands'])
-            ? array_values(array_intersect($instance['brands'], array_keys(Gold::brands())))
-            : array_keys(Gold::brands());
+            ? array_values(array_intersect($instance['brands'], Gold::enabledBrands()))
+            : Gold::enabledBrands();
         ?>
         <p>
             <label for="<?php echo esc_attr($this->get_field_id('title')); ?>">
@@ -79,7 +79,9 @@ final class GoldWidget extends WP_Widget
         </p>
         <?php WidgetHeader::field($this, $instance); ?>
         <p><?php esc_html_e('Brands to show:', 'koperasikita'); ?></p>
-        <?php foreach (Gold::brands() as $slug => $label) : ?>
+        <?php $allBrands = Gold::brands(); ?>
+        <?php foreach (Gold::enabledBrands() as $slug) : ?>
+            <?php $label = $allBrands[$slug] ?? $slug; ?>
             <p>
                 <input
                     type="checkbox"
@@ -107,9 +109,9 @@ final class GoldWidget extends WP_Widget
         $instance['title'] = isset($new['title']) ? sanitize_text_field((string) $new['title']) : '';
 
         $brands = isset($new['brands']) && is_array($new['brands'])
-            ? array_values(array_intersect($new['brands'], array_keys(Gold::brands())))
+            ? array_values(array_intersect($new['brands'], Gold::enabledBrands()))
             : [];
-        $instance['brands'] = $brands !== [] ? $brands : array_keys(Gold::brands());
+        $instance['brands'] = $brands !== [] ? $brands : Gold::enabledBrands();
         $instance['header_style'] = WidgetHeader::sanitize($new['header_style'] ?? WidgetHeader::CLASSIC);
 
         return $instance;

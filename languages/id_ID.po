@@ -773,8 +773,8 @@ msgid "KK Gold Prices"
 msgstr "KK Harga Emas"
 
 #: inc/Widgets/GoldWidget.php
-msgid "Gold prices for five brands in an auto-scrolling slider. Prices are edited in Settings -> Markets."
-msgstr "Harga emas lima merek dalam slider gulir otomatis. Harga diubah di Pengaturan -> Pasar."
+msgid "Gold prices for Indonesian gold brands in an auto-scrolling slider. Prices are edited in Settings -> Markets."
+msgstr "Harga emas untuk merek emas Indonesia dalam slider gulir otomatis. Harga diedit di Pengaturan -> Pasar."
 
 #: inc/Widgets/GoldWidget.php
 msgid "Koperasi Kita Gold Prices"
@@ -2078,6 +2078,10 @@ msgstr "Daftar tautan halaman, urut menu, tanggal, atau judul."
 msgid "Brands to show"
 msgstr "Merek yang ditampilkan"
 
+#: src/ts/widget-blocks.ts
+msgid "Leave empty to show all brands."
+msgstr "Kosongkan untuk menampilkan semua merek."
+
 #: inc/Widgets/TaxonomyPostsWidget.php
 msgid "Categories"
 msgstr "Kategori"
@@ -2091,8 +2095,8 @@ msgid "Configure this widget in the block settings."
 msgstr "Atur widget ini di pengaturan blok."
 
 #: inc/Widgets/Blocks.php
-msgid "Gold prices for five brands in an auto-scrolling slider."
-msgstr "Harga emas lima merek dalam slider gulir otomatis."
+msgid "Gold prices for Indonesian gold brands in an auto-scrolling slider."
+msgstr "Harga emas untuk merek emas Indonesia dalam slider gulir otomatis."
 
 #: inc/Widgets/Blocks.php
 msgid "Gold, stock and crypto prices from the Markets providers."
@@ -2743,8 +2747,8 @@ msgstr "Centang item yang disediakan provider ini yang harus ditampilkan strip p
 msgid "This provider supplies nothing for this market."
 msgstr "Provider ini tidak menyediakan apa pun untuk pasar ini."
 
-msgid "Scraped (live Antam, Galeri 24, UBS, Pegadaian + spot, free)"
-msgstr "Scraped (Antam, Galeri 24, UBS, Pegadaian + spot live, gratis)"
+msgid "Scraped (live Antam, Galeri 24, UBS, Pegadaian, Lotus Archi + spot, free)"
+msgstr "Scraped (Antam, Galeri 24, UBS, Pegadaian, Lotus Archi + spot live, gratis)"
 
 msgid "Showing: %s"
 msgstr "Menampilkan: %s"
@@ -3124,6 +3128,30 @@ msgstr "Prioritas terendah — gagal %1$d×, coba lagi %2$s."
 
 msgid "Manual sync"
 msgstr "Sinkronisasi manual"
+
+#: inc/Admin/GoldPricesPage.php
+msgid "Prices"
+msgstr "Harga"
+
+#: inc/Admin/GoldPricesPage.php
+msgid "Enabled Gold Brands"
+msgstr "Merek Emas yang Diaktifkan"
+
+#: inc/Admin/GoldPricesPage.php
+msgid "Choose which gold brands are shown on the site. Disabled brands are hidden from the Gold widget and from the widget's Brands to show picker. The widget's own Brands to show setting then picks from the enabled brands only."
+msgstr "Pilih merek emas mana yang ditampilkan di situs. Merek yang dinonaktifkan disembunyikan dari widget Emas dan dari pemilih Merek yang ditampilkan di widget. Pengaturan Merek yang ditampilkan di widget lalu hanya memilih dari merek yang diaktifkan."
+
+#: inc/Admin/GoldPricesPage.php
+msgid "Enabled"
+msgstr "Diaktifkan"
+
+#: inc/Admin/GoldPricesPage.php
+msgid "Enabled brands saved."
+msgstr "Merek yang diaktifkan disimpan."
+
+#: inc/Admin/GoldPricesPage.php
+msgid "Save brands"
+msgstr "Simpan merek"
 
 msgid "Never"
 msgstr "Belum pernah"

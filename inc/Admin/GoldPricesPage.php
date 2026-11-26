@@ -11,15 +11,17 @@ use KoperasiKita\Providers\LogamMuliaApiProvider;
 
 /**
  * Settings -> Gold Prices: the management page for the Logam Mulia
- * gold price sync.
+ * gold price sync, with two tabs.
  *
- * Shows the sync status (last sync, latest recorded date, which
- * symbols are stored, the failure backlog), a manual sync button
- * that steps through the sources one at a time via AJAX, which
- * provider is active for gold, and the stored price history as
- * both a list (table) and a dependency-free inline SVG line chart
- * (one line per brand). Uses WP admin styles only — no heavy
- * custom CSS.
+ * "Prices" shows the sync status (last sync, latest recorded date,
+ * which symbols are stored, the failure backlog), a manual sync
+ * button that steps through the sources one at a time via AJAX,
+ * which provider is active for gold, and the stored price history
+ * as both a list (table) and a dependency-free inline SVG line
+ * chart (one line per brand). "Enabled Gold Brands" is the master
+ * switch for which gold brands the site shows — a disabled brand
+ * is hidden from the Gold widget and from the widget's Brands to
+ * show picker. Uses WP admin styles only — no heavy custom CSS.
  */
 final class GoldPricesPage
 {
@@ -46,7 +48,10 @@ final class GoldPricesPage
         'antam' => '#0B6B3A',
         'ubs' => '#C9962E',
         'galeri-24' => '#2fa36b',
+        'lotus-archi' => '#7c3aed',
         'pegadaian' => '#8A6D1B',
+        'hartadinata' => '#2563eb',
+        'king-halim' => '#dc2626',
         'emaskita' => '#6b7280',
     ];
 
@@ -56,40 +61,139 @@ final class GoldPricesPage
             wp_die(esc_html__('You do not have permission to access this page.', 'koperasikita'));
         }
 
-        $status = LogamMuliaApiProvider::status();
-        $history = GoldPricesTable::history(LogamMuliaApiProvider::PROVIDER_ID, 200);
-        $active = Markets::providerFor('gold');
+        self::handleBrandsSave();
+
+        // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- tab is display-only.
+        $tab = isset($_GET['tab']) ? sanitize_key((string) wp_unslash($_GET['tab'])) : 'prices';
+        $tab = $tab === 'brands' ? 'brands' : 'prices';
         $brands = Gold::brands();
+        $pageUrl = admin_url('admin.php?page=' . self::PAGE_SLUG);
         ?>
         <div class="wrap" data-kk-gold-prices-page>
             <h1><?php esc_html_e('Gold Prices', 'koperasikita'); ?></h1>
-            <p><?php esc_html_e('Daily gold prices from the Logam Mulia API price history (backup/prices CSV on GitHub). The sync runs once a day via WP-Cron and only inserts rows that are not in the database yet — one row per brand per day. Use the button below to sync on demand.', 'koperasikita'); ?></p>
-
-            <h2><?php esc_html_e('Sync status', 'koperasikita'); ?></h2>
-            <?php self::renderStatus($status); ?>
-
-            <h2><?php esc_html_e('Manual sync', 'koperasikita'); ?></h2>
-            <p>
-                <button type="button" class="button button-primary" data-kk-gold-sync><?php esc_html_e('Sync now', 'koperasikita'); ?></button>
-            </p>
-            <div data-kk-gold-sync-result role="status" aria-live="polite"></div>
-
-            <h2><?php esc_html_e('Active provider', 'koperasikita'); ?></h2>
-            <p>
-                <?php
-                printf(
-                    /* translators: %s: provider label. */
-                    esc_html__('Gold prices on the site currently come from: %s.', 'koperasikita'),
-                    '<strong>' . esc_html($active->label()) . '</strong>'
-                );
-                ?>
-                <a href="<?php echo esc_url(admin_url('customize.php?autofocus[section]=koperasikita_homepage')); ?>"><?php esc_html_e('Change in the Customizer', 'koperasikita'); ?></a>
-            </p>
-
-            <h2><?php esc_html_e('Price history', 'koperasikita'); ?></h2>
-            <?php self::renderChart($history, $brands); ?>
-            <?php self::renderHistoryTable($history, $brands); ?>
+            <h2 class="nav-tab-wrapper">
+                <a href="<?php echo esc_url(add_query_arg('tab', 'prices', $pageUrl)); ?>" class="nav-tab<?php echo $tab === 'prices' ? ' nav-tab-active' : ''; ?>"><?php esc_html_e('Prices', 'koperasikita'); ?></a>
+                <a href="<?php echo esc_url(add_query_arg('tab', 'brands', $pageUrl)); ?>" class="nav-tab<?php echo $tab === 'brands' ? ' nav-tab-active' : ''; ?>"><?php esc_html_e('Enabled Gold Brands', 'koperasikita'); ?></a>
+            </h2>
+            <?php if ($tab === 'brands') : ?>
+                <?php self::renderBrandsTab($brands); ?>
+            <?php else : ?>
+                <?php self::renderPricesTab($brands); ?>
+            <?php endif; ?>
         </div>
+        <?php
+    }
+
+    /**
+     * Save the enabled-brands form (Brands tab): nonce + capability
+     * checked, then redirect back with a saved flag so a refresh
+     * never resubmits the form.
+     */
+    private static function handleBrandsSave(): void
+    {
+        if (!isset($_POST['kk_enabled_brands_nonce'])) {
+            return;
+        }
+
+        if (!current_user_can('manage_options')) {
+            wp_die(esc_html__('You do not have permission to access this page.', 'koperasikita'));
+        }
+
+        check_admin_referer('kk_enabled_brands', 'kk_enabled_brands_nonce');
+
+        // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- sanitised below.
+        $raw = isset($_POST['kk_enabled_brands']) ? wp_unslash($_POST['kk_enabled_brands']) : [];
+        $slugs = is_array($raw)
+            ? array_values(array_map('sanitize_key', $raw))
+            : [];
+
+        Gold::setEnabledBrands($slugs);
+
+        wp_safe_redirect(add_query_arg(
+            ['tab' => 'brands', 'saved' => '1'],
+            admin_url('admin.php?page=' . self::PAGE_SLUG)
+        ));
+        exit;
+    }
+
+    /**
+     * Brands tab: the master switch for which gold brands the site
+     * shows. A disabled brand is hidden from the Gold widget and
+     * from the widget's "Brands to show" picker. Unchecking every
+     * brand disables the gold slider on purpose.
+     *
+     * @param array<string, string> $brands Slug => label.
+     */
+    private static function renderBrandsTab(array $brands): void
+    {
+        $enabled = Gold::enabledBrands();
+        // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- saved flag is display-only.
+        $saved = isset($_GET['saved']) && $_GET['saved'] === '1';
+        ?>
+        <?php if ($saved) : ?>
+            <div class="notice notice-success is-dismissible"><p><?php esc_html_e('Enabled brands saved.', 'koperasikita'); ?></p></div>
+        <?php endif; ?>
+        <p><?php esc_html_e('Choose which gold brands are shown on the site. Disabled brands are hidden from the Gold widget and from the widget\'s Brands to show picker. The widget\'s own Brands to show setting then picks from the enabled brands only.', 'koperasikita'); ?></p>
+        <form method="post" action="<?php echo esc_url(add_query_arg('tab', 'brands', admin_url('admin.php?page=' . self::PAGE_SLUG))); ?>">
+            <?php wp_nonce_field('kk_enabled_brands', 'kk_enabled_brands_nonce'); ?>
+            <table class="form-table" role="presentation">
+                <tbody>
+                    <?php foreach ($brands as $slug => $label) : ?>
+                        <tr>
+                            <th scope="row"><?php echo esc_html($label); ?></th>
+                            <td>
+                                <label>
+                                    <input type="checkbox" name="kk_enabled_brands[]" value="<?php echo esc_attr($slug); ?>" <?php checked(in_array($slug, $enabled, true)); ?>>
+                                    <?php esc_html_e('Enabled', 'koperasikita'); ?>
+                                </label>
+                            </td>
+                        </tr>
+                    <?php endforeach; ?>
+                </tbody>
+            </table>
+            <?php submit_button(__('Save brands', 'koperasikita')); ?>
+        </form>
+        <?php
+    }
+
+    /**
+     * Prices tab: the sync status, manual sync, active provider
+     * and price history (the page as it was before the tabs).
+     *
+     * @param array<string, string> $brands Slug => label.
+     */
+    private static function renderPricesTab(array $brands): void
+    {
+        $status = LogamMuliaApiProvider::status();
+        $history = GoldPricesTable::history(LogamMuliaApiProvider::PROVIDER_ID, 200);
+        $active = Markets::providerFor('gold');
+        ?>
+        <p><?php esc_html_e('Daily gold prices from the Logam Mulia API price history (backup/prices CSV on GitHub). The sync runs once a day via WP-Cron and only inserts rows that are not in the database yet — one row per brand per day. Use the button below to sync on demand.', 'koperasikita'); ?></p>
+
+        <h2><?php esc_html_e('Sync status', 'koperasikita'); ?></h2>
+        <?php self::renderStatus($status); ?>
+
+        <h2><?php esc_html_e('Manual sync', 'koperasikita'); ?></h2>
+        <p>
+            <button type="button" class="button button-primary" data-kk-gold-sync><?php esc_html_e('Sync now', 'koperasikita'); ?></button>
+        </p>
+        <div data-kk-gold-sync-result role="status" aria-live="polite"></div>
+
+        <h2><?php esc_html_e('Active provider', 'koperasikita'); ?></h2>
+        <p>
+            <?php
+            printf(
+                /* translators: %s: provider label. */
+                esc_html__('Gold prices on the site currently come from: %s.', 'koperasikita'),
+                '<strong>' . esc_html($active->label()) . '</strong>'
+            );
+            ?>
+            <a href="<?php echo esc_url(admin_url('customize.php?autofocus[section]=koperasikita_homepage')); ?>"><?php esc_html_e('Change in the Customizer', 'koperasikita'); ?></a>
+        </p>
+
+        <h2><?php esc_html_e('Price history', 'koperasikita'); ?></h2>
+        <?php self::renderChart($history, $brands); ?>
+        <?php self::renderHistoryTable($history, $brands); ?>
         <?php
     }
 

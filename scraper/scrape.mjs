@@ -9,15 +9,19 @@
  * Sources (all free, no key):
  *  - Antam 1-gram price: harga-emas.net — the 1-gram Antam price is
  *    in the page's meta description ("Antam 1 gr: Rp. 2.501.000").
- *  - Galeri 24 + UBS 1-gram prices: galeri24.co.id/harga-emas — the
- *    page is server-rendered, one price table per brand ("Harga
- *    GALERI 24", "Harga UBS", "Harga ANTAM"), each row a gramage
- *    with sell + buyback price. Pegadaian's own site is
- *    bot-protected (403 + empty in headless Chrome), so the
- *    Pegadaian 1-gram price comes from the Logam Mulia backup CSV
- *    (pegadaian.csv) instead — only the latest date's 0.01-gram
- *    row, scaled x100 to 1 gram. EmasKita has no public source and
- *    stays manual in the theme.
+ *  - Galeri 24 + UBS + Lotus Archi 1-gram prices:
+ *    galeri24.co.id/harga-emas — the page is server-rendered, one
+ *    price table per brand ("Harga GALERI 24", "Harga UBS", "Harga
+ *    LOTUS ARCHI", ...), each row a gramage with sell + buyback
+ *    price. Pegadaian's own site is bot-protected (403 + empty in
+ *    headless Chrome), so the Pegadaian 1-gram price comes from
+ *    the Logam Mulia backup CSV (pegadaian.csv) instead — only the
+ *    latest date's 0.01-gram row, scaled x100 to 1 gram.
+ *    Hartadinata, King Halim and EmasKita have no public live
+ *    price source and stay manual in the theme. Mini gold
+ *    (MiniGold, EOA Gold, IGS Gold, Waris Sampoerna) is a separate
+ *    category — small denominations, not gram bars — so it is not
+ *    scraped here.
  *  - Gold spot per gram (IDR): xaus.com public API, no key.
  *
  * Only the important data is taken: the 1-gram sell price per
@@ -75,17 +79,24 @@ async function antamPrice() {
 }
 
 /**
- * Galeri 24 + UBS 1-gram sell prices from galeri24.co.id/harga-emas.
- * The page is server-rendered: one table per brand, headed
- * "Harga GALERI 24" / "Harga UBS", each row "gramage | sell | buyback".
- * Returns { galeri24, ubs } (each a number or null) — a brand whose
- * table or 1-gram row is missing returns null, never a guess.
+ * Galeri 24 + UBS + Lotus Archi 1-gram sell prices from
+ * galeri24.co.id/harga-emas. The page is server-rendered: one table
+ * per brand, headed "Harga GALERI 24" / "Harga UBS" / "Harga LOTUS
+ * ARCHI", each row "gramage | sell | buyback". Returns
+ * { galeri24, ubs, lotusArchi } (each a number or null) — a brand
+ * whose table or 1-gram row is missing returns null, never a guess.
+ * The plain LOTUS ARCHI table comes before LOTUS ARCHI GIFT, so the
+ * first "Harga LOTUS ARCHI" match is the plain table.
  */
 async function galeri24Prices() {
 	const html = await fetchText('https://galeri24.co.id/harga-emas');
-	const out = { galeri24: null, ubs: null };
+	const out = { galeri24: null, ubs: null, lotusArchi: null };
 
-	for (const [key, brand] of [['galeri24', 'GALERI 24'], ['ubs', 'UBS']]) {
+	for (const [key, brand] of [
+		['galeri24', 'GALERI 24'],
+		['ubs', 'UBS'],
+		['lotusArchi', 'LOTUS ARCHI'],
+	]) {
 		const head = html.indexOf(`Harga ${brand}`);
 		if (head === -1) continue;
 		// The next table starts at the following brand heading
@@ -263,14 +274,15 @@ async function main() {
 		sources.antam = prev?.sources?.antam ?? 'harga-emas.net (stale)';
 	}
 
-	// Galeri 24 + UBS 1g sell prices (brand prices, scraped).
+	// Galeri 24 + UBS + Lotus Archi 1g sell prices (brand prices, scraped).
 	const galeri = await galeri24Prices().catch((err) => {
 		console.error('galeri24 failed:', err.message);
-		return { galeri24: null, ubs: null };
+		return { galeri24: null, ubs: null, lotusArchi: null };
 	});
 	for (const [key, symbol, source] of [
 		['galeri24', 'galeri-24', 'galeri24.co.id'],
 		['ubs', 'ubs', 'galeri24.co.id'],
+		['lotusArchi', 'lotus-archi', 'galeri24.co.id'],
 	]) {
 		if (galeri[key] !== null) {
 			prices[symbol] = { price: galeri[key], currency: 'IDR', updated: now };
@@ -317,7 +329,7 @@ async function main() {
 		updated: now,
 		prices,
 		sources,
-		note: 'Free, self-hosted gold prices for the Koperasi Kita theme. Antam is the 1-gram retail price scraped from harga-emas.net; Galeri 24 and UBS are the 1-gram sell prices scraped from galeri24.co.id; Pegadaian is the 1-gram price from the Logam Mulia backup CSV (pegadaian.csv, latest date only); spot is the live XAU price per gram in IDR from xaus.com. EmasKita stays manual — it has no public source.',
+		note: 'Free, self-hosted gold prices for the Koperasi Kita theme. Antam is the 1-gram retail price scraped from harga-emas.net; Galeri 24, UBS and Lotus Archi are the 1-gram sell prices scraped from galeri24.co.id; Pegadaian is the 1-gram price from the Logam Mulia backup CSV (pegadaian.csv, latest date only); spot is the live XAU price per gram in IDR from xaus.com. Hartadinata, King Halim and EmasKita stay manual — they have no public live price source. Mini gold is a separate category and is not scraped here.',
 	};
 
 	writeFileSync(OUT, JSON.stringify(out, null, 2) + '\n', 'utf8');
