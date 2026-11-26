@@ -417,7 +417,7 @@ final class Agenda
      * name or invalid coordinates are dropped, so a half-filled row can
      * never reach the picker.
      *
-     * @return array<int, array{name: string, address: string, lat: float, lng: float, description: string}>
+     * @return array<int, array{id?: string, name: string, address: string, lat: float, lng: float, description: string}>
      */
     public static function savedLocations(): array
     {

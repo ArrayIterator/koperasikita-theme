@@ -581,51 +581,8 @@ function initPickLocationPopup(): void {
 	}
 }
 
-/* --- Locations settings page ---------------------------------------------- */
-
-function initLocationsPage(): void {
-	const page = document.querySelector('[data-kk-agenda-locations-page]');
-	if (!page) {
-		return;
-	}
-
-	const rows = page.querySelector<HTMLElement>('[data-kk-agenda-locations-rows]');
-	const template = page.querySelector<HTMLTemplateElement>('[data-kk-agenda-location-template]');
-	const addButton = page.querySelector<HTMLButtonElement>('[data-kk-agenda-location-add]');
-
-	if (!rows || !template || !addButton) {
-		return;
-	}
-
-	let nextIndex = rows.querySelectorAll('[data-kk-agenda-location-row]').length;
-
-	addButton.addEventListener('click', () => {
-		const empty = rows.querySelector('[data-kk-agenda-locations-empty]');
-		if (empty) {
-			empty.remove();
-		}
-
-		const html = template.innerHTML.split('__INDEX__').join(String(nextIndex));
-		nextIndex += 1;
-		rows.insertAdjacentHTML('beforeend', html);
-	});
-
-	rows.addEventListener('click', (event) => {
-		const target = event.target;
-		if (!(target instanceof HTMLElement)) {
-			return;
-		}
-		const remove = target.closest('[data-kk-agenda-location-remove]');
-		if (!remove) {
-			return;
-		}
-		remove.closest('[data-kk-agenda-location-row]')?.remove();
-	});
-}
-
 document.addEventListener('DOMContentLoaded', () => {
 	initAgenda();
 	$all<HTMLElement>('[data-kk-agenda-map]').forEach((el) => initDisplayMap(el));
 	initPickLocationPopup();
-	initLocationsPage();
 });

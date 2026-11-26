@@ -3471,3 +3471,45 @@ msgstr "Instal {app_name}"
 
 msgid "Install %s"
 msgstr "Instal %s"
+
+msgid "Add New Location"
+msgstr "Tambah Lokasi Baru"
+
+msgid "Search Locations"
+msgstr "Cari Lokasi"
+
+msgid "Location saved."
+msgstr "Lokasi disimpan."
+
+msgid "Location deleted."
+msgstr "Lokasi dihapus."
+
+msgid "A name and valid coordinates are required."
+msgstr "Nama dan koordinat yang valid wajib diisi."
+
+msgid "Update Location"
+msgstr "Perbarui Lokasi"
+
+msgid "Add Location"
+msgstr "Tambah Lokasi"
+
+msgid "Delete this location?"
+msgstr "Hapus lokasi ini?"
+
+msgid "No saved locations yet."
+msgstr "Belum ada lokasi tersimpan."
+
+msgid "Edit Location"
+msgstr "Ubah Lokasi"
+
+msgid "Location not found."
+msgstr "Lokasi tidak ditemukan."
+
+msgid "Back to Locations"
+msgstr "Kembali ke Lokasi"
+
+msgid "Coordinates"
+msgstr "Koordinat"
+
+msgid "Shown in the map marker popup for the event."
+msgstr "Ditampilkan di popup penanda peta untuk acara tersebut."

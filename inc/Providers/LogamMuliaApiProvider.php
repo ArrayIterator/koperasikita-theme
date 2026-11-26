@@ -92,7 +92,7 @@ final class LogamMuliaApiProvider extends AbstractLiveProvider
 
     public function label(): string
     {
-        return 'Logam Mulia API (live Antam, Galeri 24, UBS, Pegadaian)';
+        return 'Logam Mulia API (live Antam, Galeri 24, UBS, Pegadaian, Lotus Archi)';
     }
 
     public function supports(string $market): bool
@@ -109,7 +109,7 @@ final class LogamMuliaApiProvider extends AbstractLiveProvider
         $symbols = Markets::symbols('gold');
         $supplied = [];
 
-        foreach (['antam', 'ubs', 'galeri-24', 'pegadaian'] as $symbol) {
+        foreach (['antam', 'ubs', 'galeri-24', 'pegadaian', 'lotus-archi'] as $symbol) {
             if (isset($symbols[$symbol])) {
                 $supplied[$symbol] = $symbols[$symbol];
             }
@@ -641,6 +641,15 @@ final class LogamMuliaApiProvider extends AbstractLiveProvider
             $antam = $this->findRow($rows, 'ANTAM', 1.0);
             if ($antam !== null) {
                 $entries['antam'] = $this->rowToEntry($antam, 1.0, $now);
+            }
+
+            // Same source as the scraper's Lotus Archi table: the CSV
+            // carries a 1-gram LOTUS ARCHI row at the latest date.
+            // findRow matches the material type exactly, so the
+            // LOTUS ARCHI GIFT rows never match.
+            $lotusArchi = $this->findRow($rows, 'LOTUS ARCHI', 1.0);
+            if ($lotusArchi !== null) {
+                $entries['lotus-archi'] = $this->rowToEntry($lotusArchi, 1.0, $now);
             }
         } elseif ($source === 'hargaemas-net') {
             $antam = $this->findAntamRow($rows);
