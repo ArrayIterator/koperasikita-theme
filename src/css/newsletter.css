@@ -87,8 +87,12 @@
 		"media body bookmark"
 		"excerpt excerpt excerpt";
 	gap: 16px;
-	padding-top: 32px;
-	padding-bottom: 32px;
+	padding-top: 20px;
+	padding-bottom: 20px;
+	/* A real gap between the list items (not taller padding inside
+	 * them): the divider of the next card sits .3rem below the
+	 * previous card, so the borders never read as touching. */
+	margin-bottom: 0.3rem;
 	border-top: 1px solid var(--kk-border, #E6E3DE);
 }
 
