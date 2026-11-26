@@ -92,8 +92,8 @@
 	top: 50%;
 	left: 50%;
 	transform: translate(-50%, -50%);
-	width: min(28rem, calc(100vw - 2rem));
-	max-height: calc(100vh - 4rem);
+	width: min(28rem, calc(100vw - var(--kk-popup-inset, 2rem)));
+	max-height: calc(100vh - var(--kk-popup-inset, 2rem));
 	overflow: auto;
 	padding: 1.25rem 1.5rem;
 	background: #fff;
@@ -254,8 +254,8 @@
 	top: 50%;
 	left: 50%;
 	transform: translate(-50%, -50%);
-	width: min(56rem, calc(100vw - 2rem));
-	max-height: calc(100vh - 4rem);
+	width: min(56rem, calc(100vw - var(--kk-popup-inset, 2rem)));
+	max-height: calc(100vh - var(--kk-popup-inset, 2rem));
 	overflow: auto;
 	padding: 1.25rem 1.5rem;
 	background: #fff;
@@ -297,7 +297,7 @@
 	grid-template-columns: repeat(auto-fill, minmax(44px, 1fr));
 	gap: 4px;
 	margin-top: 1rem;
-	max-height: calc(100vh - 16rem);
+	max-height: calc(100vh - var(--kk-popup-inset, 2rem) - 12rem);
 	overflow: auto;
 	scrollbar-width: none;
 }

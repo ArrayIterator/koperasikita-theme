@@ -565,10 +565,15 @@ html.kk-nav-open body {
 	margin-left: auto;
 }
 
-/* Expanding search: the icon is the toggle and the field grows out
- * of it to the left when opened — no popup, no backdrop. The input
- * is absolutely positioned so the nav never reflows: it floats over
- * the menu while open and closes on Escape, outside click or submit.
+/* Expanding search: the icon is the toggle and the field grows
+ * into a FULL bar, on desktop exactly as on mobile — not a
+ * 15rem stub floating over the menu. When the form opens, the
+ * nav row gives it the whole width (see the .kk-search-open
+ * rules below): the desktop menu / mobile hamburger hides, the
+ * actions stretch, and the input fills the bar as a flex item,
+ * so the open field is the full shell width on every viewport
+ * with no vw calc to keep in sync per breakpoint. No popup, no
+ * backdrop. Escape, outside click or submit closes it again.
  * The `.kk-search-expand` prefix beats the base `.search-field`
  * (content.css loads after header.css) for width and padding. */
 .kk-search-expand {
@@ -579,7 +584,7 @@ html.kk-nav-open body {
 
 .kk-search-expand .kk-search-expand-input {
 	position: absolute;
-	right: calc(100% + 8px);
+	right: calc(100% + var(--kk-gap-sm, 8px));
 	top: 50%;
 	transform: translateY(-50%);
 	width: 0;
@@ -615,39 +620,38 @@ html.kk-nav-open body {
 	box-shadow: inset 0 1px 3px rgb(0 0 0 / 0.12);
 }
 
-@media (max-width: 767px) {
-	/* Mobile: the field fits between the hamburger and the toggle —
-	 * width calc(100vw - 9rem) (hamburger + toggle + shell padding
-	 * + gaps), anchored to the toggle's left edge (right: 4rem: the
-	 * toggle is 48px wide below 1024px and its right edge sits 16px
-	 * inside the bar, so its left edge is 16 + 48 = 64px = 4rem from
-	 * the bar's right edge). Its box matches the close button beside
-	 * it (same 48px height, 8px vertical padding, inline-flex) — see
-	 * the rule below. No transition: it opens instantly. */
-	.kk-nav-inner {
-		position: relative;
-	}
+/* Open = full bar, every width. The toggle (now the close icon)
+ * stays at the bar's right edge next to the scheme toggle; the
+ * input takes everything left of it. The menu and the hamburger
+ * hide while the field is open and come back on close, so the
+ * field never floats over — or gets squeezed by — the nav. The
+ * 44px height matches the icon buttons beside it. */
+.kk-nav-wrap.kk-search-open .kk-desktop-nav,
+.kk-nav-wrap.kk-search-open .kk-menu-toggle {
+	display: none;
+}
 
-	.kk-search-expand {
-		position: static;
-	}
+.kk-nav-wrap.kk-search-open .kk-nav-actions {
+	flex: 1;
+	min-width: 0;
+}
 
-	.kk-search-expand.is-open .kk-search-expand-input {
-		right: 4rem;
-		top: 50%;
-		transform: translateY(-50%);
-		width: calc(100vw - 9rem);
-		/* Same box as the close button beside it: inline-flex with
-		 * centred content, 8px vertical padding (the button's
-		 * padding), and the same 48px height (the nav button's
-		 * min-height below 1024px) — so the field and the button
-		 * read as one matched pair, not two mismatched heights. */
-		display: inline-flex;
-		align-items: center;
-		min-height: 3rem;
-		padding: 0.5rem 0.75rem;
-		transition: none;
-	}
+.kk-nav-wrap.kk-search-open .kk-search-expand {
+	flex: 1;
+	min-width: 0;
+}
+
+.kk-nav-wrap.kk-search-open .kk-search-expand.is-open .kk-search-expand-input {
+	position: static;
+	transform: none;
+	width: auto;
+	flex: 1;
+	min-width: 0;
+	min-height: 44px;
+	padding: 0.5rem 0.75rem;
+	opacity: 1;
+	visibility: visible;
+	pointer-events: auto;
 }
 
 /* The toggle swaps its icon: search when closed, close when open. */

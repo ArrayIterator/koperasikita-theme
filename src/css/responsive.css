@@ -6,9 +6,8 @@
 /* --- Responsive ----------------------------------------------------------- */
 
 @media (min-width: 720px) {
-	.kk-shell {
-		padding-left: 24px;
-		padding-right: 24px;
+	:root {
+		--kk-shell-padding: 24px;
 	}
 
 	.kk-hero-title {
@@ -64,9 +63,14 @@
 	}
 
 	/* The desktop bar is its own nav now (Primary menu); the drawer
-	 * (Sidebar menu) is hidden at this width. */
+	 * (Sidebar menu) is hidden at this width. The nav takes the
+	 * free row width so the search actions sit at the right edge
+	 * — and when the search opens, the nav hides and the actions
+	 * stretch to the full bar (header.css .kk-search-open). */
 	.kk-desktop-nav {
 		display: block;
+		flex: 1;
+		min-width: 0;
 	}
 
 	.kk-primary-nav {
@@ -190,12 +194,12 @@
 	 * class. */
 	.kk-sidebar--sticky {
 		position: sticky;
-		top: calc(64px + var(--kk-admin-bar-height, 0px));
+		top: calc(var(--kk-sidebar-sticky-offset, 64px) + var(--kk-admin-bar-height, 0px));
 		align-self: start;
 	}
 
 	body.kk-sticky-off .kk-sidebar--sticky {
-		top: calc(16px + var(--kk-admin-bar-height, 0px));
+		top: calc(var(--kk-gap-md, 16px) + var(--kk-admin-bar-height, 0px));
 	}
 
 	.kk-card-grid-3 {

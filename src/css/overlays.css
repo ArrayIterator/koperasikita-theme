@@ -31,8 +31,8 @@
 	position: relative;
 	width: 100%;
 	max-width: 520px;
-	max-height: calc(100vh - 48px);
-	max-height: calc(100dvh - 48px);
+	max-height: calc(100vh - var(--kk-popup-inset, 2rem));
+	max-height: calc(100dvh - var(--kk-popup-inset, 2rem));
 	overflow-y: auto;
 	background: var(--kk-paper);
 	border: 1px solid var(--kk-border);
