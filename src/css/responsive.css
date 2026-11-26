@@ -243,6 +243,18 @@
 		bottom: 84px;
 	}
 
+	/* Small bookmark on phones: a 36px circle reads oversized on a
+	 * narrow card, so it drops to 32px with a 16px icon. */
+	.kk-card .kk-bookmark-button {
+		width: 32px;
+		height: 32px;
+	}
+
+	.kk-card .kk-bookmark-button svg {
+		width: 16px;
+		height: 16px;
+	}
+
 	/* Featured stacks: the large card on top (16:9 image again — it
 	 * no longer spans the right column), then the rows below it. */
 	.kk-latest-items.kk-layout-featured {

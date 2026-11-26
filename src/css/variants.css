@@ -37,11 +37,14 @@ html[data-color-scheme="dark"] {
    on the light green the button turns into. The ghost button is
    excluded: its background is transparent, so #121212 text on the
    dark paper would be invisible. */
+/* Dark mode: green/gold surfaces get near-black text for contrast.
+ * The saved bookmark is deliberately NOT in this group: its icon is
+ * solid white on green in both modes (see cards.css), so it keeps
+ * color #fff instead of #121212 here. */
 html[data-color-scheme="dark"] .kk-brand-mark,
 html[data-color-scheme="dark"] .kk-button:not(.kk-button-ghost),
 html[data-color-scheme="dark"] .kk-pagination .page-numbers.current,
 html[data-color-scheme="dark"] .kk-layout-button.is-active,
-html[data-color-scheme="dark"] .kk-bookmark-button[aria-pressed="true"],
 html[data-color-scheme="dark"] .kk-back-to-top,
 html[data-color-scheme="dark"] .search-submit {
 	color: #121212;
@@ -95,7 +98,6 @@ html[data-color-scheme="dark"] .custom-logo.is-inverted {
 	html[data-color-scheme="system"] .kk-button:not(.kk-button-ghost),
 	html[data-color-scheme="system"] .kk-pagination .page-numbers.current,
 	html[data-color-scheme="system"] .kk-layout-button.is-active,
-	html[data-color-scheme="system"] .kk-bookmark-button[aria-pressed="true"],
 	html[data-color-scheme="system"] .kk-back-to-top,
 	html[data-color-scheme="system"] .search-submit {
 		color: #121212;

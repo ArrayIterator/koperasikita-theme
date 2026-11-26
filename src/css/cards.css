@@ -132,7 +132,10 @@
 	min-height: 0;
 	padding: 0;
 	justify-content: center;
-	border: 1px solid rgb(255 255 255 / 0.6);
+	/* No border: the frosted circle is defined by its blur + soft
+	 * shadow alone, so the button reads as a floating action without
+	 * a ring around it. */
+	border: 0;
 	border-radius: 50%;
 	/* Frosted glass over the thumbnail: a translucent white circle
 	 * with a slight blur, so the button reads as a floating action
@@ -155,13 +158,20 @@
 
 .kk-card .kk-bookmark-button:hover {
 	background: #fff;
-	border-color: transparent;
 	color: var(--kk-green, #0B6B3A);
 }
 
 .kk-card .kk-bookmark-button[aria-pressed="true"] {
 	background: var(--kk-green, #0B6B3A);
 	color: #fff;
+}
+
+/* Saved: the bookmark is a solid white fill on the green circle. The
+ * svg is stroke-based (Feather), so both fill and stroke are set to
+ * white — fill alone would leave a hollow outline. */
+.kk-card .kk-bookmark-button[aria-pressed="true"] svg {
+	fill: #fff;
+	stroke: #fff;
 }
 
 /* Focus ring follows the circle: the global :focus-visible outline
