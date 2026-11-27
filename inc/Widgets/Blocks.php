@@ -259,11 +259,19 @@ final class Blocks
                     'title' => ['type' => 'string', 'default' => ''],
                     'headerStyle' => ['type' => 'string', 'default' => 'classic-top'],
                     'brands' => ['type' => 'array', 'default' => [], 'items' => ['type' => 'string']],
+                    'style' => ['type' => 'string', 'default' => 'vertical-carousel'],
+                    'colorStyle' => ['type' => 'string', 'default' => 'auto'],
+                    'autoplay' => ['type' => 'boolean', 'default' => true],
+                    'interval' => ['type' => 'number', 'default' => 5],
                 ],
                 'map' => [
                     'title' => 'title',
                     'headerStyle' => 'header_style',
                     'brands' => 'brands',
+                    'style' => 'style',
+                    'colorStyle' => 'color_style',
+                    'autoplay' => 'autoplay',
+                    'interval' => 'interval',
                 ],
             ];
             $definitions['gold-data-desk'] = [

@@ -49,13 +49,66 @@
 	justify-content: center;
 	gap: 8px;
 	font-size: 13px;
-	color: var(--kk-muted);
+	color: var(--kk-gold-muted);
 }
 
 .kk-gold-updated {
 	margin-top: 6px;
 	font-size: 12px;
-	color: var(--kk-muted);
+	color: var(--kk-gold-muted);
+}
+
+/* Gold slider card colours: Auto follows the site scheme through
+   the --kk-* tokens; Dark and Light force the theme's dark-green
+   and light card colours, the same values as the Agenda card. Only
+   the vertical slider and the full-width slider paint the card; the
+   horizontal carousel paints each slide instead. */
+.kk-gold-slider {
+	--kk-gold-bg: var(--kk-surface);
+	--kk-gold-ink: var(--kk-ink);
+	--kk-gold-muted: var(--kk-muted);
+	--kk-gold-border: var(--kk-border);
+	--kk-gold-green: var(--kk-green);
+	--kk-gold-surface-muted: var(--kk-surface-muted, #f2f2f2);
+}
+
+.kk-gold-slider--dark {
+	--kk-gold-bg: #0e241a;
+	--kk-gold-ink: #f2f2f0;
+	--kk-gold-muted: #9aa39c;
+	--kk-gold-border: #1e3d2c;
+	--kk-gold-green: var(--kk-green-light);
+	--kk-gold-surface-muted: rgb(255 255 255 / 0.08);
+}
+
+.kk-gold-slider--light {
+	--kk-gold-bg: #ffffff;
+	--kk-gold-ink: #1b1b1b;
+	--kk-gold-muted: #5b6470;
+	--kk-gold-border: #e6e3de;
+	--kk-gold-green: #0b6b3a;
+	--kk-gold-surface-muted: #f2f2f2;
+}
+
+.kk-gold-slider--vertical-carousel.kk-gold-slider--dark,
+.kk-gold-slider--vertical-carousel.kk-gold-slider--light,
+.kk-gold-slider--slider-horizontal.kk-gold-slider--dark,
+.kk-gold-slider--slider-horizontal.kk-gold-slider--light {
+	padding: 16px;
+	color: var(--kk-gold-ink);
+	background: var(--kk-gold-bg);
+	border: 1px solid var(--kk-gold-border);
+	border-radius: var(--kk-radius);
+}
+
+/* Brand, nav and dots follow the slider vars so a forced card
+   recolors them too. */
+.kk-gold-slider .kk-gold-brand {
+	color: var(--kk-gold-muted);
+}
+
+.kk-gold-slider .kk-widget-controls {
+	border-top-color: var(--kk-gold-border);
 }
 
 .kk-market-change {
@@ -71,13 +124,13 @@
 	min-width: 44px;
 	min-height: 44px;
 	border-radius: var(--kk-radius);
-	color: var(--kk-ink);
+	color: var(--kk-gold-ink);
 }
 
 .kk-gold-slider .kk-widget-nav:hover,
 .kk-gold-slider .kk-widget-nav:focus-visible {
-	background: var(--kk-surface-muted, #f2f2f2);
-	color: var(--kk-green, #0b6b3a);
+	background: var(--kk-gold-surface-muted);
+	color: var(--kk-gold-green);
 }
 
 .kk-gold-slider .kk-widget-nav:focus-visible {
@@ -112,7 +165,7 @@
 	width: 8px;
 	height: 8px;
 	border-radius: 50%;
-	background: var(--kk-border);
+	background: var(--kk-gold-border);
 }
 
 .kk-gold-slider .kk-widget-dot.is-active::after {
@@ -122,6 +175,62 @@
 .kk-gold-slider .kk-widget-dot:focus-visible {
 	outline: 2px solid var(--kk-gold, #c9962e);
 	outline-offset: 0;
+}
+
+/* Gold horizontal carousel: a swipeable card row, one card mostly
+   visible with a peek of the next, scroll-snap per card. The active
+   card gets a gold border to match the dots. */
+.kk-gold-slider--horizontal-carousel .kk-gold-slides {
+	display: flex;
+	gap: 12px;
+	overflow-x: auto;
+	scroll-snap-type: x mandatory;
+	scrollbar-width: none;
+	padding: 2px 2px 8px;
+}
+
+.kk-gold-slider--horizontal-carousel .kk-gold-slides::-webkit-scrollbar {
+	display: none;
+}
+
+.kk-gold-slider--horizontal-carousel .kk-gold-slide {
+	display: block;
+	flex: 0 0 78%;
+	scroll-snap-align: start;
+	padding: 16px;
+	text-align: center;
+	color: var(--kk-gold-ink);
+	background: var(--kk-gold-bg);
+	border: 1px solid var(--kk-gold-border);
+	border-radius: var(--kk-radius);
+}
+
+.kk-gold-slider--horizontal-carousel .kk-gold-slide.is-active {
+	border-color: var(--kk-gold, #c9962e);
+	animation: none;
+}
+
+/* Gold slider horizontal: one brand per full-width slide in a
+   swipeable row. */
+.kk-gold-slider--slider-horizontal .kk-gold-slides {
+	display: flex;
+	overflow-x: auto;
+	scroll-snap-type: x mandatory;
+	scrollbar-width: none;
+}
+
+.kk-gold-slider--slider-horizontal .kk-gold-slides::-webkit-scrollbar {
+	display: none;
+}
+
+.kk-gold-slider--slider-horizontal .kk-gold-slide {
+	display: block;
+	flex: 0 0 100%;
+	scroll-snap-align: start;
+}
+
+.kk-gold-slider--slider-horizontal .kk-gold-slide.is-active {
+	animation: none;
 }
 
 /* --- Markets vertical slider ---------------------------------------------
