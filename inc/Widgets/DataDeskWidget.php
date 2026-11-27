@@ -120,7 +120,7 @@ final class DataDeskWidget extends WP_Widget
                 value="<?php echo esc_attr($title); ?>"
             >
         </p>
-        <?php WidgetHeader::field($this, $instance); ?>
+        <?php WidgetHeader::field($this, $instance, true); ?>
         <?php WidgetSpacing::field($this, $instance); ?>
         <p>
             <label for="<?php echo esc_attr($this->get_field_id('template')); ?>">

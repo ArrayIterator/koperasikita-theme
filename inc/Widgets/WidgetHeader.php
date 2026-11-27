@@ -128,11 +128,23 @@ final class WidgetHeader
     /**
      * The classic widget form field (a select under the title).
      *
+     * $gateOnEmptyTitle is for widgets that render no header at
+     * all without a title (the Data Desk panel): with no title
+     * every style looks identical, so the select is disabled with
+     * a hint instead of pretending to work. Widgets whose title
+     * falls back to something else (a term name, a form default)
+     * leave it off - their style still applies. A disabled control
+     * is not submitted, so the stored style rides along in a
+     * hidden input - without it the next save would reset the
+     * style to the default.
+     *
      * @param array<string, mixed> $instance
      */
-    public static function field(WP_Widget $widget, array $instance): void
+    public static function field(WP_Widget $widget, array $instance, bool $gateOnEmptyTitle = false): void
     {
         $style = self::style($instance);
+        $hasTitle = trim((string) ($instance['title'] ?? '')) !== '';
+        $disabled = $gateOnEmptyTitle && !$hasTitle;
         ?>
         <p>
             <label for="<?php echo esc_attr($widget->get_field_id('header_style')); ?>">
@@ -142,6 +154,7 @@ final class WidgetHeader
                 class="widefat"
                 id="<?php echo esc_attr($widget->get_field_id('header_style')); ?>"
                 name="<?php echo esc_attr($widget->get_field_name('header_style')); ?>"
+                <?php echo $disabled ? 'disabled="disabled"' : ''; ?>
             >
                 <?php foreach (self::options() as $option) : ?>
                     <option value="<?php echo esc_attr($option['value']); ?>" <?php selected($style, $option['value']); ?>>
@@ -149,6 +162,12 @@ final class WidgetHeader
                     </option>
                 <?php endforeach; ?>
             </select>
+            <?php if ($disabled) : ?>
+                <span class="description">
+                    <?php esc_html_e('Set a title first - the header style only applies to the widget title.', 'koperasikita'); ?>
+                </span>
+                <input type="hidden" name="<?php echo esc_attr($widget->get_field_name('header_style')); ?>" value="<?php echo esc_attr($style); ?>">
+            <?php endif; ?>
         </p>
         <?php
     }
