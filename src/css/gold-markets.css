@@ -364,6 +364,58 @@
 	min-width: 0;
 }
 
+/* --- Index strip -----------------------------------------------------------
+   The picked items as one flat horizontal row - name, value and
+   day-change chip per item, no market grouping. The row scrolls
+   sideways on narrow screens instead of wrapping, so the strip
+   keeps its one-line demo look in a sidebar too. The scrollbar
+   stays hidden (the row is swipeable / scrollable, same as the
+   horizontal slider above).
+   ------------------------------------------------------------------------- */
+
+.kk-index-strip {
+	display: flex;
+	flex-direction: row;
+	gap: 8px 24px;
+	overflow-x: auto;
+	scrollbar-width: none;
+	padding: 12px 0;
+	border-top: 1px solid var(--kk-border);
+	border-bottom: 1px solid var(--kk-border);
+}
+
+.kk-index-strip::-webkit-scrollbar {
+	display: none;
+}
+
+.kk-index-item {
+	display: inline-flex;
+	align-items: center;
+	gap: 8px;
+	white-space: nowrap;
+}
+
+.kk-index-name {
+	color: var(--kk-muted);
+}
+
+.kk-index-value {
+	font-weight: 700;
+	font-variant-numeric: tabular-nums;
+}
+
+.kk-index-change {
+	display: inline-flex;
+	align-items: center;
+	gap: 2px;
+	font-weight: 700;
+	font-variant-numeric: tabular-nums;
+}
+
+.kk-index-change svg {
+	flex-shrink: 0;
+}
+
 /* --- Markets marquee -----------------------------------------------------
    Continuously scrolling ticker. The track holds two identical sets and
    translates -50% on a linear loop, so the seam never shows. Each item

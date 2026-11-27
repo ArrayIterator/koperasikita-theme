@@ -67,7 +67,12 @@ final class YahooFinanceWidget extends WP_Widget
 
         WidgetHeader::render($args, $title, WidgetHeader::style($instance));
 
-        if ($layout === MarketsWidget::LAYOUT_SLIDER_VERTICAL) {
+        if ($layout === MarketsWidget::LAYOUT_INDEX_STRIP) {
+            get_template_part('template-parts/markets/index-strip', null, [
+                'items' => array_values($markets['stock']['prices']),
+                'show_change' => $showChange,
+            ]);
+        } elseif ($layout === MarketsWidget::LAYOUT_SLIDER_VERTICAL) {
             get_template_part('template-parts/markets/slider-vertical', null, [
                 'markets' => $markets,
                 'show_change' => $showChange,
