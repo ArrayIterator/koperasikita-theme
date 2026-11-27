@@ -448,6 +448,7 @@ final class Enqueue
                     'strings' => [
                         'saving' => __('Saving…', 'koperasikita'),
                         'close' => __('Close', 'koperasikita'),
+                        'showingOf' => __('Showing %s of %s — type to search.', 'koperasikita'),
                     ],
                 ]);
             }
@@ -535,6 +536,7 @@ final class Enqueue
                         'editStatHint' => __('Click to edit this stat.', 'koperasikita'),
                         'editHeaderHint' => __('Click to edit this header.', 'koperasikita'),
                         'close' => __('Close', 'koperasikita'),
+                        'showingOf' => __('Showing %s of %s — type to search.', 'koperasikita'),
                     ],
                 ]);
             }
@@ -643,6 +645,7 @@ final class Enqueue
                     'loadingPreview' => __('Loading preview…', 'koperasikita'),
                     'searching' => __('Searching…', 'koperasikita'),
                     'noResults' => __('No results.', 'koperasikita'),
+                    'showingOf' => __('Showing %s of %s — type to search.', 'koperasikita'),
                 ],
             ]);
         }

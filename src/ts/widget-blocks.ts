@@ -10,10 +10,10 @@
  * preview — the real frontend markup, rendered on the server through
  * the_widget().
  *
- * The category/tag pickers are Select2-style token fields
- * (FormTokenField): searchable, with one chip per picked term. The
- * term lists come from the core store (wp.data), so they always
- * match the site's categories and tags without a page reload.
+ * The category/tag pickers are searchable token fields: one chip
+ * per picked term, backed by the core store for search and the
+ * localized term lists for browsing, so they always match the
+ * site's categories and tags without a page reload.
  */
 
 export {};
@@ -30,9 +30,7 @@ type FieldDef =
 	| { key: string; kind: 'select'; label: string; options: OptionItem[] }
 	| { key: string; kind: 'toggle'; label: string }
 	| { key: string; kind: 'checkboxes'; label: string; options: OptionItem[] }
-	| { key: string; kind: 'termsearch'; label: string; help?: string; source: 'categories' | 'options'; options: OptionItem[] }
-	| { key: string; kind: 'categories'; label: string; help?: string }
-	| { key: string; kind: 'tags'; label: string; help?: string }
+	| { key: string; kind: 'termsearch'; label: string; help?: string; source: 'categories' | 'tags' | 'options'; options: OptionItem[]; single?: boolean }
 	| { key: string; kind: 'locations'; label: string; help?: string }
 	| { key: string; kind: 'postsearch'; label: string; help?: string }
 	/* A hex colour swatch: a native colour input plus a hex readout
@@ -363,35 +361,48 @@ const BROWSE_LIMIT = 10;
  * search box. With an empty search the cached localized list
  * shows (all of it under 50 terms, the first 10 at 50+), so the
  * list stays browseable; typing searches the WordPress core store
- * (categories) or filters the localized list in the browser
- * (brands). A real component — it holds the search state. */
+ * (categories and tags) or filters the localized list in the
+ * browser (brands). A real component; it holds the search state.
+ * A single field picks one term and stores its id as a plain
+ * string; the rest store an array of ids. */
 function TermSearchField(props: {
-	field: { key: string; label: string; help?: string; source: 'categories' | 'options'; options: OptionItem[] };
+	field: { key: string; label: string; help?: string; source: 'categories' | 'tags' | 'options'; options: OptionItem[]; single?: boolean };
 	value: unknown;
 	set: (key: string, value: unknown) => void;
 	api: Wp;
 }): unknown {
 	const { field, value, set, api } = props;
 	const __ = (text: string): string => api.i18n.__(text, 'koperasikita');
-	const selected: string[] = Array.isArray(value)
-		? value.filter((item): item is string => typeof item === 'string')
-		: [];
+	/* Stored ids arrive as strings; older blocks stored numbers.
+	 * Normalize both so a stored pick never vanishes. A single
+	 * field stores one id as a plain string, not an array. */
+	const selected: string[] = field.single === true
+		? typeof value === 'string' && value !== ''
+			? [value]
+			: []
+		: Array.isArray(value)
+			? value
+				.filter((item): item is string | number => typeof item === 'string' || typeof item === 'number')
+				.map((item) => String(item))
+			: [];
 	const [query, setQuery] = api.element.useState('');
 	const [debounced, setDebounced] = api.element.useState('');
 	const [status, setStatus] = api.element.useState('');
 	const timer = api.element.useRef<number | null>(null);
 
-	/* The core store search only runs for a real query (categories);
-	 * short queries filter the localized list in the browser instead,
-	 * so typing never waits on the network for the first characters. */
+	/* The core store search only runs for a real query (categories
+	 * and tags); short queries filter the localized list in the
+	 * browser instead, so typing never waits on the network for
+	 * the first characters. */
 	const trimmed = debounced.trim();
-	const searching = field.source === 'categories' && trimmed.length >= 2;
+	const taxonomy = field.source === 'tags' ? 'post_tag' : 'category';
+	const searching = (field.source === 'categories' || field.source === 'tags') && trimmed.length >= 2;
 	const records = api.data.useSelect(
 		(select) =>
 			searching
-				? select('core').getEntityRecords('taxonomy', 'category', { search: trimmed, per_page: 20 })
+				? select('core').getEntityRecords('taxonomy', taxonomy, { search: trimmed, per_page: 20 })
 				: EMPTY_RECORDS,
-		[searching, trimmed],
+		[searching, trimmed, taxonomy],
 	);
 
 	const selectedSet = new Set(selected);
@@ -403,8 +414,8 @@ function TermSearchField(props: {
 	};
 
 	/* Results: the cached localized list while browsing, the core
-	 * store search while typing (categories), a client-side filter
-	 * while typing (brands, or a query too short to search).
+	 * store search while typing (categories and tags), a client-side
+	 * filter while typing (brands, or a query too short to search).
 	 * Already-picked terms never show twice.
 	 *
 	 * The browse list is the cached variable: field.options is the
@@ -461,14 +472,22 @@ function TermSearchField(props: {
 			setStatus(`${option.label} ${__('is already in the list.')}`);
 			return;
 		}
-		set(field.key, [...selected, option.value]);
+		if (field.single === true) {
+			set(field.key, option.value);
+		} else {
+			set(field.key, [...selected, option.value]);
+		}
 		setQuery('');
 		setDebounced('');
 		setStatus(`${option.label} ${__('added.')}`);
 	};
 
 	const remove = (val: string): void => {
-		set(field.key, selected.filter((item) => item !== val));
+		if (field.single === true) {
+			set(field.key, '');
+		} else {
+			set(field.key, selected.filter((item) => item !== val));
+		}
 	};
 
 	const chips = selected.map((val) => {
@@ -695,8 +714,6 @@ function renderField(
 	field: FieldDef,
 	attributes: Record<string, unknown>,
 	set: (key: string, value: unknown) => void,
-	categories: CategoryRecord[] | null,
-	tags: CategoryRecord[] | null,
 	api: Wp,
 ): unknown {
 	const value = attributes[field.key];
@@ -775,73 +792,6 @@ function renderField(
 			 * can hold the search state. */
 			return api.element.createElement(TermSearchField, { key, field, value, set, api });
 		}
-		case 'categories': {
-			/* Checkbox list, not a token field: every category shows
-			 * directly as a checkbox, so the editor sees the options
-			 * the moment the panel opens — no typing, no focusing to
-			 * reveal them (FormTokenField only suggested matches for
-			 * typed text, so an empty focus showed nothing). The
-			 * stored value is term IDs. */
-			if (categories === null) {
-				return api.element.createElement(api.components.Spinner, { key });
-			}
-			const selected: number[] = Array.isArray(value)
-				? value.filter((item): item is number => typeof item === 'number')
-				: [];
-			const boxes = categories.map((c) =>
-				api.element.createElement(api.components.CheckboxControl, {
-					key: c.id,
-					label: c.name,
-					checked: selected.includes(c.id),
-					onChange: (next: boolean) => {
-						const nextSelected = next
-							? [...selected, c.id]
-							: selected.filter((id) => id !== c.id);
-						set(key, nextSelected);
-					},
-				}),
-			);
-			return api.element.createElement(
-				'div',
-				{ key },
-				api.element.createElement('p', null, field.label),
-				...boxes,
-				field.help !== undefined
-					? api.element.createElement('p', { className: 'components-base-control__help' }, field.help)
-					: null,
-			);
-		}
-		case 'tags': {
-			/* Checkbox list, same as categories but for post tags. */
-			if (tags === null) {
-				return api.element.createElement(api.components.Spinner, { key });
-			}
-			const selected: number[] = Array.isArray(value)
-				? value.filter((item): item is number => typeof item === 'number')
-				: [];
-			const boxes = tags.map((t) =>
-				api.element.createElement(api.components.CheckboxControl, {
-					key: t.id,
-					label: t.name,
-					checked: selected.includes(t.id),
-					onChange: (next: boolean) => {
-						const nextSelected = next
-							? [...selected, t.id]
-							: selected.filter((id) => id !== t.id);
-						set(key, nextSelected);
-					},
-				}),
-			);
-			return api.element.createElement(
-				'div',
-				{ key },
-				api.element.createElement('p', null, field.label),
-				...boxes,
-				field.help !== undefined
-					? api.element.createElement('p', { className: 'components-base-control__help' }, field.help)
-					: null,
-			);
-		}
 		case 'locations': {
 			/* The weather locations list: saved places with remove
 			 * buttons, plus a geocoding search to add more. A real
@@ -895,16 +845,6 @@ function createEdit(def: BlockDef, api: Wp): (props: BlockEditProps) => unknown 
 		 * kk-widget-title), so editor.css scopes the sidebar shell
 		 * rule and the title rule to this wrapper. */
 		const blockProps = api.blockEditor.useBlockProps({ className: 'kk-widget-block-canvas' });
-		const categories = api.data.useSelect(
-			(select) =>
-				select('core').getEntityRecords('taxonomy', 'category', { per_page: 100 }),
-			[],
-		);
-		const tags = api.data.useSelect(
-			(select) =>
-				select('core').getEntityRecords('taxonomy', 'post_tag', { per_page: 100 }),
-			[],
-		);
 		const set = (key: string, next: unknown): void => {
 			setAttributes({ [key]: next });
 		};
@@ -918,7 +858,7 @@ function createEdit(def: BlockDef, api: Wp): (props: BlockEditProps) => unknown 
 					field.showWhen === undefined ||
 					attributes[field.showWhen.key] === field.showWhen.value,
 			)
-			.map((field) => renderField(field, attributes, set, categories, tags, api));
+			.map((field) => renderField(field, attributes, set, api));
 		const inspector = api.element.createElement(
 			api.blockEditor.InspectorControls,
 			null,
@@ -1025,8 +965,8 @@ function buildDefinitions(api: Wp): BlockDef[] {
 			icon: 'star-filled',
 			attributes: {
 				...storyAttributes,
-				categoryIds: { type: 'array', default: [], items: { type: 'number' } },
-				tagIds: { type: 'array', default: [], items: { type: 'number' } },
+				categoryIds: { type: 'array', default: [], items: { type: 'string' } },
+				tagIds: { type: 'array', default: [], items: { type: 'string' } },
 				showNumeric: { type: 'boolean', default: true },
 				showDate: { type: 'boolean', default: true },
 				showCategories: { type: 'boolean', default: false },
@@ -1035,15 +975,19 @@ function buildDefinitions(api: Wp): BlockDef[] {
 				...storyFields,
 				{
 					key: 'categoryIds',
-					kind: 'categories',
+					kind: 'termsearch',
 					label: __('Categories'),
-					help: __('Leave all unchecked to show posts from every category.'),
+					help: __('Leave empty to show posts from every category.'),
+					source: 'categories',
+					options: kkWidgetBlocks?.categories ?? [],
 				},
 				{
 					key: 'tagIds',
-					kind: 'tags',
+					kind: 'termsearch',
 					label: __('Tags'),
-					help: __('Leave all unchecked to show posts from every tag.'),
+					help: __('Leave empty to show posts from every tag.'),
+					source: 'tags',
+					options: kkWidgetBlocks?.tags ?? [],
 				},
 				{ key: 'showNumeric', kind: 'toggle', label: __('Show numeric') },
 				{ key: 'showDate', kind: 'toggle', label: __('Show date') },
@@ -1095,9 +1039,12 @@ function buildDefinitions(api: Wp): BlockDef[] {
 				headerStyleField,
 				{
 					key: 'termId',
-					kind: 'select',
+					kind: 'termsearch',
 					label: __('Category'),
-					options: [{ value: '', label: __('— Select —') }, ...(kkWidgetBlocks?.categories ?? [])],
+					help: __('Leave empty to use the category name.'),
+					single: true,
+					source: 'categories',
+					options: kkWidgetBlocks?.categories ?? [],
 				},
 				{
 					key: 'layout',
@@ -1133,9 +1080,12 @@ function buildDefinitions(api: Wp): BlockDef[] {
 				headerStyleField,
 				{
 					key: 'termId',
-					kind: 'select',
+					kind: 'termsearch',
 					label: __('Tag'),
-					options: [{ value: '', label: __('— Select —') }, ...(kkWidgetBlocks?.tags ?? [])],
+					help: __('Leave empty to use the tag name.'),
+					single: true,
+					source: 'tags',
+					options: kkWidgetBlocks?.tags ?? [],
 				},
 				{
 					key: 'layout',

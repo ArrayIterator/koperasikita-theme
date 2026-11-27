@@ -1,7 +1,7 @@
 /* Koperasi Kita — admin styles.
  *
  * Select2-style term picker for widget forms (see admin.ts):
- * a searchable multi-select that replaces the native <select>.
+ * a searchable picker that replaces the native <select>.
  * The chips show picked terms; the list filters as you type.
  */
 
@@ -86,6 +86,12 @@
 .kk-term-picker-list .description {
 	margin: 0;
 	padding: 0.4rem 0.6rem;
+}
+
+.kk-term-picker-count {
+	border-top: 1px solid var(--kk-border, #ddd);
+	color: #666;
+	font-size: 0.8125rem;
 }
 
 /* --- Provider picker popup (Settings -> Markets) ------------------------- */
