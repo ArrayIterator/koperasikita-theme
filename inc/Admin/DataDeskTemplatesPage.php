@@ -6,6 +6,7 @@ namespace KoperasiKita\Admin;
 
 use KoperasiKita\Features\DataDesk;
 use KoperasiKita\Features\Gold;
+use KoperasiKita\Icons\Icon;
 
 /**
  * Koperasi Kita -> Data Desk Templates: the Data Desk template manager.
@@ -14,8 +15,11 @@ use KoperasiKita\Features\Gold;
  * as a chart + stats) or a table (the Gold Data Desk table of brands).
  * Widgets pick a template instead of carrying their own settings, so
  * a template is shared, not per-widget ("bukan widget pribadi").
- * Templates can be edited, duplicated and deleted; there are no
- * built-in defaults.
+ * User templates can be edited, duplicated and deleted. The
+ * built-in default (Default panel) carries a lock badge instead:
+ * it can be used (duplicated into your own template), edited
+ * (saving stores an override) and restored (deleting the override
+ * brings back the code-defined values) - never deleted, never frozen.
  */
 final class DataDeskTemplatesPage
 {
@@ -101,9 +105,47 @@ final class DataDeskTemplatesPage
             check_admin_referer('kk_data_desk_delete', '_wpnonce');
 
             $id = sanitize_key((string) wp_unslash($_GET['kk_data_desk_delete']));
-            DataDesk::deleteTemplate($id);
+            $deleted = DataDesk::deleteTemplate($id);
 
-            wp_safe_redirect(add_query_arg('deleted', '1', admin_url('admin.php?page=' . self::PAGE_SLUG)));
+            $url = admin_url('admin.php?page=' . self::PAGE_SLUG);
+
+            if ($deleted) {
+                $url = add_query_arg('deleted', '1', $url);
+            }
+
+            wp_safe_redirect($url);
+            exit;
+        }
+
+        // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- restore uses a nonce in the URL.
+        if (isset($_GET['kk_data_desk_restore']) && isset($_GET['_wpnonce'])) {
+            if (!current_user_can('manage_options')) {
+                wp_die(esc_html__('You do not have permission to access this page.', 'koperasikita'));
+            }
+
+            check_admin_referer('kk_data_desk_restore', '_wpnonce');
+
+            $id = sanitize_key((string) wp_unslash($_GET['kk_data_desk_restore']));
+            $restored = DataDesk::restoreTemplate($id);
+
+            // Reverting from inside the editor returns there, so the
+            // editor shows the built-in values right away; from the
+            // list it returns to the list. Anything else is not a
+            // destination, so it falls through to the list.
+            // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- return flag is display-only.
+            $backToEdit = isset($_GET['return']) && sanitize_key((string) wp_unslash($_GET['return'])) === 'edit';
+
+            if ($backToEdit) {
+                $url = add_query_arg(['action' => 'edit', 'id' => $id], admin_url('admin.php?page=' . self::PAGE_SLUG));
+            } else {
+                $url = admin_url('admin.php?page=' . self::PAGE_SLUG);
+            }
+
+            if ($restored) {
+                $url = add_query_arg('restored', '1', $url);
+            }
+
+            wp_safe_redirect($url);
             exit;
         }
 
@@ -156,21 +198,47 @@ final class DataDeskTemplatesPage
             return __('Template deleted.', 'koperasikita');
         }
 
+        // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- restored flag is display-only.
+        if (isset($_GET['restored']) && $_GET['restored'] === '1') {
+            return __('Template restored to its built-in values.', 'koperasikita');
+        }
+
         return '';
     }
 
     /**
      * The template list: name, kind, what it shows, palette, days,
-     * and actions. Every template can be edited, duplicated and
-     * deleted. The preview is not rendered inline - each row has a
-     * Preview link that opens the real panel / table markup (sample
-     * data) in a popup, fetched through kk_data_desk_preview.
+     * and actions. User templates can be edited, duplicated and
+     * deleted; the built-in carries a lock badge and offers Use
+     * (duplicate into your own template), Edit (saving stores an
+     * override) and Restore (only while an override exists). The
+     * preview is not rendered inline - each row has a Preview link
+     * that opens the real panel / table markup (sample data) in a
+     * popup, fetched through kk_data_desk_preview.
      */
     private static function renderList(string $pageUrl): void
     {
         $templates = DataDesk::templates();
         $kinds = DataDesk::kinds();
         ?>
+        <?php /* Start from an existing template: pick any built-in
+         * or user template as the base - it is duplicated into a
+         * new editable user template and the editor opens on the
+         * copy (the same duplicate the list's Use action runs). A
+         * plain new template stays one click away above; this form
+         * adds no step to it. The nonce is for the duplicate
+         * action, which the load-hook handler verifies. */ ?>
+        <form method="get" action="<?php echo esc_url(admin_url('admin.php')); ?>" class="kk-data-desk-card-actions kk-data-desk-start-from">
+            <input type="hidden" name="page" value="<?php echo esc_attr(self::PAGE_SLUG); ?>">
+            <input type="hidden" name="_wpnonce" value="<?php echo esc_attr(wp_create_nonce('kk_data_desk_duplicate')); ?>">
+            <label for="kk-data-desk-start-from"><?php esc_html_e('Or start from an existing template:', 'koperasikita'); ?></label>
+            <select id="kk-data-desk-start-from" name="kk_data_desk_duplicate">
+                <?php foreach (DataDesk::templates() as $templateId => $template) : ?>
+                    <option value="<?php echo esc_attr($templateId); ?>"><?php echo esc_html(DataDesk::displayName($template)); ?></option>
+                <?php endforeach; ?>
+            </select>
+            <input type="submit" class="kk-data-desk-button" value="<?php echo esc_attr(__('Use template', 'koperasikita')); ?>">
+        </form>
         <div class="kk-data-desk-table-wrap">
         <table class="widefat striped kk-data-desk-table">
             <thead>
@@ -193,19 +261,40 @@ final class DataDeskTemplatesPage
                     <tr>
                         <td>
                             <strong><?php echo esc_html($template['name']); ?></strong>
+                            <?php if (DataDesk::isBuiltIn($id)) : ?>
+                                <span class="kk-data-desk-built-in">
+                                    <?php
+                                    // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Icon::svg returns the theme's own SVG markup.
+                                    echo Icon::svg('lock', 13);
+                                    ?>
+                                    <?php esc_html_e('Built-in', 'koperasikita'); ?>
+                                </span>
+                            <?php endif; ?>
                         </td>
                         <td><?php echo esc_html($kinds[$template['kind']] ?? $template['kind']); ?></td>
                         <td><?php echo esc_html($shows); ?></td>
                         <td><?php echo esc_html(DataDesk::paletteLabel($template['palette'])); ?></td>
                         <td><?php echo $template['kind'] === DataDesk::KIND_PANEL ? esc_html((string) $template['days']) : '&mdash;'; ?></td>
                         <td>
-                            <a href="<?php echo esc_url(add_query_arg(['action' => 'edit', 'id' => $id], $pageUrl)); ?>"><?php esc_html_e('Edit', 'koperasikita'); ?></a>
-                            |
-                            <a href="<?php echo esc_url(wp_nonce_url(add_query_arg('kk_data_desk_duplicate', $id, $pageUrl), 'kk_data_desk_duplicate')); ?>"><?php esc_html_e('Duplicate', 'koperasikita'); ?></a>
-                            |
-                            <a href="<?php echo esc_url(wp_nonce_url(add_query_arg('kk_data_desk_delete', $id, $pageUrl), 'kk_data_desk_delete')); ?>" onclick="return confirm('<?php echo esc_js(__('Delete this template?', 'koperasikita')); ?>');"><?php esc_html_e('Delete', 'koperasikita'); ?></a>
-                            |
-                            <a href="#" data-kk-data-desk-preview-link data-kk-template-id="<?php echo esc_attr($id); ?>" data-kk-template-name="<?php echo esc_attr($template['name']); ?>"><?php esc_html_e('Preview', 'koperasikita'); ?></a>
+                            <?php if (DataDesk::isBuiltIn($id)) : ?>
+                                <a href="<?php echo esc_url(wp_nonce_url(add_query_arg('kk_data_desk_duplicate', $id, $pageUrl), 'kk_data_desk_duplicate')); ?>"><?php esc_html_e('Use', 'koperasikita'); ?></a>
+                                |
+                                <a href="<?php echo esc_url(add_query_arg(['action' => 'edit', 'id' => $id], $pageUrl)); ?>"><?php esc_html_e('Edit', 'koperasikita'); ?></a>
+                                <?php if (DataDesk::isOverridden($id)) : ?>
+                                    |
+                                    <a href="<?php echo esc_url(wp_nonce_url(add_query_arg('kk_data_desk_restore', $id, $pageUrl), 'kk_data_desk_restore')); ?>" onclick="return confirm('<?php echo esc_js(__('Restore this template to its built-in values?', 'koperasikita')); ?>');"><?php esc_html_e('Restore', 'koperasikita'); ?></a>
+                                <?php endif; ?>
+                                |
+                                <a href="#" data-kk-data-desk-preview-link data-kk-template-id="<?php echo esc_attr($id); ?>" data-kk-template-name="<?php echo esc_attr($template['name']); ?>"><?php esc_html_e('Preview', 'koperasikita'); ?></a>
+                            <?php else : ?>
+                                <a href="<?php echo esc_url(add_query_arg(['action' => 'edit', 'id' => $id], $pageUrl)); ?>"><?php esc_html_e('Edit', 'koperasikita'); ?></a>
+                                |
+                                <a href="<?php echo esc_url(wp_nonce_url(add_query_arg('kk_data_desk_duplicate', $id, $pageUrl), 'kk_data_desk_duplicate')); ?>"><?php esc_html_e('Duplicate', 'koperasikita'); ?></a>
+                                |
+                                <a href="<?php echo esc_url(wp_nonce_url(add_query_arg('kk_data_desk_delete', $id, $pageUrl), 'kk_data_desk_delete')); ?>" onclick="return confirm('<?php echo esc_js(__('Delete this template?', 'koperasikita')); ?>');"><?php esc_html_e('Delete', 'koperasikita'); ?></a>
+                                |
+                                <a href="#" data-kk-data-desk-preview-link data-kk-template-id="<?php echo esc_attr($id); ?>" data-kk-template-name="<?php echo esc_attr($template['name']); ?>"><?php esc_html_e('Preview', 'koperasikita'); ?></a>
+                            <?php endif; ?>
                         </td>
                     </tr>
                 <?php endforeach; ?>
@@ -286,6 +375,11 @@ final class DataDeskTemplatesPage
         ];
         ?>
         <h2 class="kk-data-desk-card-title"><?php echo $id !== '' ? esc_html__('Edit Template', 'koperasikita') : esc_html__('Add New Template', 'koperasikita'); ?></h2>
+        <?php if ($id !== '' && DataDesk::isBuiltIn($id)) : ?>
+            <p class="description">
+                <?php esc_html_e('This is a built-in template. Saving stores your changes as an override; Restore on the list brings back the built-in values.', 'koperasikita'); ?>
+            </p>
+        <?php endif; ?>
         <form method="post" action="<?php echo esc_url($pageUrl); ?>" id="kk-data-desk-template-form">
             <?php wp_nonce_field('kk_data_desk_template', 'kk_data_desk_template_nonce'); ?>
             <input type="hidden" name="kk_template_id" value="<?php echo esc_attr($id); ?>">
@@ -394,6 +488,9 @@ final class DataDeskTemplatesPage
                     <input type="hidden" id="kk-template-palette" name="kk_template_palette" value="<?php echo esc_attr($template['palette']); ?>">
                 </div>
                 <div class="kk-data-desk-topbar-actions">
+                    <?php if ($id !== '' && DataDesk::isBuiltIn($id)) : ?>
+                        <a href="<?php echo esc_url(wp_nonce_url(add_query_arg(['kk_data_desk_restore' => $id, 'return' => 'edit'], $pageUrl), 'kk_data_desk_restore')); ?>" class="kk-data-desk-button" onclick="return confirm('<?php echo esc_js(__('Discard your changes and restore this template to its built-in values?', 'koperasikita')); ?>');"><?php esc_html_e('Revert to default', 'koperasikita'); ?></a>
+                    <?php endif; ?>
                     <input type="submit" name="submit" class="kk-data-desk-button kk-data-desk-button--primary" value="<?php echo esc_attr($id !== '' ? __('Update Template', 'koperasikita') : __('Add Template', 'koperasikita')); ?>">
                     <a href="<?php echo esc_url($pageUrl); ?>" class="kk-data-desk-button"><?php esc_html_e('Cancel', 'koperasikita'); ?></a>
                 </div>
