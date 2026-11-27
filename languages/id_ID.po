@@ -3164,6 +3164,12 @@ msgstr "Setelah Pagination"
 msgid "Full-width strip directly after the pagination, on every page that shows a post list (homepage, archives, categories, search)."
 msgstr "Strip lebar penuh tepat setelah pagination, di setiap halaman yang menampilkan daftar posting (beranda, arsip, kategori, pencarian)."
 
+msgid "Home Bottom"
+msgstr "Beranda Bawah"
+
+msgid "Homepage, full-width strip at the bottom of the page, directly after the homepage layout. Renders on paginated front pages too."
+msgstr "Beranda, strip lebar penuh di bagian bawah halaman, tepat setelah tata letak beranda. Juga tampil di halaman depan yang dipaginasi."
+
 msgid "Footer Column 1"
 msgstr "Kolom Footer 1"
 

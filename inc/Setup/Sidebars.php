@@ -104,6 +104,14 @@ final class Sidebars
                 esc_html__('After Pagination', 'koperasikita'),
                 esc_html__('Full-width strip directly after the pagination, on every page that shows a post list (homepage, archives, categories, search).', 'koperasikita'),
             ],
+            // Home Bottom: full-width strip at the bottom of the
+            // homepage, directly after the homepage layout (below
+            // the post list and sidebar), still inside the shell.
+            // Renders on paginated front pages too.
+            'kk-home-bottom' => [
+                esc_html__('Home Bottom', 'koperasikita'),
+                esc_html__('Homepage, full-width strip at the bottom of the page, directly after the homepage layout. Renders on paginated front pages too.', 'koperasikita'),
+            ],
             // Footer columns: one widget area per footer column. When
             // a column's area is empty the footer falls back to its
             // built-in content (logo + site name, Footer menu,

@@ -117,6 +117,20 @@ get_header();
 			<?php get_sidebar( 'news' ); ?>
 		</div>
 	</div>
+
+	<?php
+	// Home Bottom widget area: full-width strip directly after the
+	// homepage layout, at the bottom of the shell. Renders nothing
+	// when empty. It renders on paginated front pages too, like the
+	// layout content (no is_paged() guard).
+	if ( is_active_sidebar( 'kk-home-bottom' ) ) :
+		?>
+		<div class="kk-widget-area kk-widget-area--home-bottom">
+			<?php dynamic_sidebar( 'kk-home-bottom' ); ?>
+		</div>
+		<?php
+	endif;
+	?>
 </div>
 
 <?php
