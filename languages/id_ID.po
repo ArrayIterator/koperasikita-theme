@@ -730,6 +730,9 @@ msgstr "Langganan tidak tersedia saat ini. Silakan coba lagi nanti."
 msgid "Thank you for subscribing. Please check your inbox to confirm your subscription."
 msgstr "Terima kasih sudah berlangganan. Periksa kotak masuk Anda untuk mengonfirmasi langganan."
 
+msgid "Thank you for subscribing."
+msgstr "Terima kasih sudah berlangganan."
+
 #: inc/Features/Subscribe.php
 msgid "Too many subscription attempts. Please try again later."
 msgstr "Terlalu banyak percobaan berlangganan. Silakan coba lagi nanti."
@@ -3926,3 +3929,59 @@ msgstr "Harga Pegadaian 0,01 gram, dikonversi ke 1 gram."
 #: inc/Providers/LogamMuliaApiProvider.php
 msgid "Antam 1-gram price (fallback when Galeri 24 has no Antam price)."
 msgstr "Harga Antam 1 gram (cadangan bila Galeri 24 tidak punya harga Antam)."
+
+#: inc/Admin/SubscribersPage.php
+msgid "Subscribers"
+msgstr "Pelanggan"
+
+#: inc/Admin/SubscribersPage.php
+msgid "No subscribers yet."
+msgstr "Belum ada pelanggan."
+
+#: inc/Admin/SubscribersPage.php
+msgid "Email"
+msgstr "Email"
+
+#: inc/Admin/SubscribersPage.php
+msgid "Date subscribed"
+msgstr "Tanggal berlangganan"
+
+#: inc/Admin/SubscribersPage.php
+msgid "Search by email"
+msgstr "Cari berdasarkan email"
+
+#: inc/Admin/SubscribersPage.php
+msgid "Search Subscribers"
+msgstr "Cari Pelanggan"
+
+#: inc/Admin/SubscribersPage.php
+msgid "Export CSV"
+msgstr "Ekspor CSV"
+
+#: inc/Admin/SubscribersPage.php
+msgid "Total: %d subscribers"
+msgstr "Total: %d pelanggan"
+
+#: inc/Admin/SubscribersPage.php
+msgid "Subscriber deleted."
+msgstr "Pelanggan dihapus."
+
+#: inc/Admin/SubscribersPage.php
+msgid "Are you sure you want to delete this subscriber?"
+msgstr "Yakin ingin menghapus pelanggan ini?"
+
+#: inc/Admin/SubscribersPage.php
+msgid "Subscribed"
+msgstr "Berlangganan"
+
+#: inc/Admin/SubscribersPage.php
+msgid "Pending"
+msgstr "Menunggu"
+
+#: inc/Admin/SubscribersPage.php
+msgid "Unsubscribed"
+msgstr "Berhenti berlangganan"
+
+#: inc/Admin/SubscribersPage.php
+msgid "Local"
+msgstr "Lokal"

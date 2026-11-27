@@ -32,9 +32,11 @@ namespace KoperasiKita\Features;
  * MailPoet is optional. When it is active the address is subscribed to
  * every MailPoet list through MailPoet's own public API (v1), with
  * confirmation and welcome mail left on so double opt-in keeps working.
- * When MailPoet is not active, or it has no lists configured, the form
- * still renders and the submit shows an honest "unavailable" message —
- * it never fakes a success and never fatals.
+ * Either way the address is stored in the theme's own subscriber
+ * table first (Subscribers::record), so the site keeps its own list
+ * even when MailPoet is not active or has no lists configured — a
+ * submit only fails when the local record itself could not be
+ * stored. It never fakes a success and never fatals.
  */
 final class Subscribe
 {
@@ -79,6 +81,13 @@ final class Subscribe
             return;
         }
 
+        // Whether a signup syncs to MailPoet or stays local —
+        // decided once here, used by the success redirect (and
+        // the honeypot fake-success) below.
+        $source = class_exists(\MailPoet\API\API::class)
+            ? Subscribers::SOURCE_MAILPOET
+            : Subscribers::SOURCE_LOCAL;
+
         $rawHoneypot = $_POST['kk_subscribe_website'] ?? '';
         // An array here is not a human typing: treat it as filled.
         $honeypot = is_string($rawHoneypot) ? sanitize_text_field(wp_unslash($rawHoneypot)) : '1';
@@ -87,7 +96,7 @@ final class Subscribe
             // A bot filled the hidden field: count it against the rate
             // limit, then pretend it worked. Nobody is subscribed.
             self::recordAttempt();
-            self::redirectWithSuccess();
+            self::redirectWithSuccess($source);
         }
 
         if (self::isRateLimited()) {
@@ -113,21 +122,30 @@ final class Subscribe
 
         self::recordAttempt();
 
-        $result = self::subscribeWithMailPoet($email);
-
-        if ($result === 'ok') {
-            self::redirectWithSuccess();
-        }
-
-        if ($result === 'unavailable') {
+        // The local record comes first: the site keeps its own list
+        // whether MailPoet is there or not. A failed local write is
+        // the only case where the submit itself fails.
+        if (!Subscribers::record($email, $source, Subscribers::STATUS_SUBSCRIBED)) {
             self::$notice = [
                 'type' => 'error',
-                'message' => __('Subscriptions are unavailable right now. Please try again later.', 'koperasikita'),
+                'message' => __('Something went wrong. Please try again later.', 'koperasikita'),
             ];
 
             return;
         }
 
+        $result = self::subscribeWithMailPoet($email);
+
+        if ($result === 'ok' || $result === 'unavailable') {
+            // 'unavailable' means MailPoet is not active or has no
+            // lists — the address is already stored locally, so the
+            // submit still succeeds.
+            self::redirectWithSuccess($source);
+        }
+
+        // MailPoet is active but its call failed. The address stays
+        // stored locally, but the submit is not reported as a
+        // success — the sync did not go through.
         self::$notice = [
             'type' => 'error',
             'message' => __('Something went wrong. Please try again later.', 'koperasikita'),
@@ -144,10 +162,17 @@ final class Subscribe
     {
         $notice = self::$notice;
 
-        if ($notice === null && self::justSubscribed()) {
+        $subscribedVia = self::justSubscribed();
+
+        if ($notice === null && $subscribedVia !== '') {
+            // MailPoet sends a confirmation email (double opt-in),
+            // so the inbox line is true there. A local-only signup
+            // gets no email at all — promising one would be a lie.
             $notice = [
                 'type' => 'success',
-                'message' => __('Thank you for subscribing. Please check your inbox to confirm your subscription.', 'koperasikita'),
+                'message' => $subscribedVia === Subscribers::SOURCE_MAILPOET
+                    ? __('Thank you for subscribing. Please check your inbox to confirm your subscription.', 'koperasikita')
+                    : __('Thank you for subscribing.', 'koperasikita'),
             ];
         }
 
@@ -179,19 +204,21 @@ final class Subscribe
     }
 
     /**
-     * True after the Post/Redirect/Get success redirect.
+     * The source the signup went through, after the
+     * Post/Redirect/Get success redirect: 'local' or 'mailpoet',
+     * or '' when this is not a post-signup render.
      */
-    private static function justSubscribed(): bool
+    private static function justSubscribed(): string
     {
         $rawFlag = $_GET['kk_subscribed'] ?? '';
         $flag = is_string($rawFlag) ? sanitize_key(wp_unslash($rawFlag)) : '';
 
-        return $flag === '1';
+        return in_array($flag, [Subscribers::SOURCE_LOCAL, Subscribers::SOURCE_MAILPOET], true) ? $flag : '';
     }
 
-    private static function redirectWithSuccess(): void
+    private static function redirectWithSuccess(string $source): void
     {
-        wp_safe_redirect(add_query_arg('kk_subscribed', '1', remove_query_arg('kk_subscribed')));
+        wp_safe_redirect(add_query_arg('kk_subscribed', $source, remove_query_arg('kk_subscribed')));
         exit;
     }
 
