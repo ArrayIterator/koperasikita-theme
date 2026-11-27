@@ -31,12 +31,6 @@ final class DataDesk
     /** Option holding the custom Data Desk templates (id => template). */
     public const TEMPLATES_OPTION = 'kk_data_desk_templates';
 
-    /** The built-in default template id. It is code, not a stored row, and can never be deleted or edited. */
-    public const DEFAULT_TEMPLATE_ID = 'default';
-
-    /** The built-in default table template id. Same protection as the panel default. */
-    public const DEFAULT_TABLE_TEMPLATE_ID = 'default-table';
-
     public const KIND_PANEL = 'panel';
     public const KIND_TABLE = 'table';
 
@@ -250,8 +244,11 @@ final class DataDesk
         $templateId = isset($raw['template']) ? sanitize_key((string) $raw['template']) : '';
 
         if ($templateId !== '') {
-            $templates = self::templates();
-            $template = $templates[$templateId] ?? self::defaultTemplate();
+            $template = self::getTemplate($templateId);
+
+            if ($template === null) {
+                return ['html' => '<p>' . esc_html__('Template not found.', 'koperasikita') . '</p>'];
+            }
         } else {
             $brands = [];
             if (isset($raw['brands']) && is_string($raw['brands']) && trim($raw['brands']) !== '') {
@@ -275,58 +272,15 @@ final class DataDesk
     }
 
     /**
-     * The built-in default template (a panel). It is defined in code
-     * and can never be deleted or edited — to change it, duplicate it
-     * into a new template and edit that one instead.
-     *
-     * @return array{id: string, name: string, kind: string, symbol: string, brands: array<int, string>, palette: string, days: int, title: string}
-     */
-    public static function defaultTemplate(): array
-    {
-        return [
-            'id' => self::DEFAULT_TEMPLATE_ID,
-            'name' => __('Default', 'koperasikita'),
-            'kind' => self::KIND_PANEL,
-            'symbol' => 'gold:antam',
-            'brands' => [],
-            'palette' => self::DEFAULT_PALETTE,
-            'days' => self::DEFAULT_DAYS,
-            'title' => '',
-        ];
-    }
-
-    /**
-     * The built-in default table template (the Gold Data Desk table).
-     * Same protection as the panel default: code, never deletable.
-     *
-     * @return array{id: string, name: string, kind: string, symbol: string, brands: array<int, string>, palette: string, days: int, title: string}
-     */
-    public static function defaultTableTemplate(): array
-    {
-        return [
-            'id' => self::DEFAULT_TABLE_TEMPLATE_ID,
-            'name' => __('Default Table', 'koperasikita'),
-            'kind' => self::KIND_TABLE,
-            'symbol' => 'gold:antam',
-            'brands' => [],
-            'palette' => self::DEFAULT_PALETTE,
-            'days' => self::DEFAULT_DAYS,
-            'title' => '',
-        ];
-    }
-
-    /**
-     * All templates: the two built-in defaults first, then the stored
-     * custom templates in the order they were created.
+     * All stored templates, in the order they were created. There
+     * are no built-in defaults: with no stored templates the list
+     * is empty.
      *
      * @return array<string, array{id: string, name: string, kind: string, symbol: string, brands: array<int, string>, palette: string, days: int, title: string}>
      */
     public static function templates(): array
     {
-        $templates = [
-            self::DEFAULT_TEMPLATE_ID => self::defaultTemplate(),
-            self::DEFAULT_TABLE_TEMPLATE_ID => self::defaultTableTemplate(),
-        ];
+        $templates = [];
         $stored = get_option(self::TEMPLATES_OPTION, []);
 
         if (!is_array($stored)) {
@@ -334,7 +288,7 @@ final class DataDesk
         }
 
         foreach ($stored as $id => $row) {
-            if (!is_string($id) || $id === '' || $id === self::DEFAULT_TEMPLATE_ID || $id === self::DEFAULT_TABLE_TEMPLATE_ID || !is_array($row)) {
+            if (!is_string($id) || $id === '' || !is_array($row)) {
                 continue;
             }
 
@@ -362,22 +316,43 @@ final class DataDesk
     }
 
     /**
-     * One template by id. An unknown id falls back to the default, so
-     * a widget pointing at a deleted template keeps rendering.
+     * The first stored template of one kind, or null when none
+     * exists. Widgets fall back to this when the template they
+     * point at is gone — never to a built-in.
      *
-     * @return array{id: string, name: string, kind: string, symbol: string, brands: array<int, string>, palette: string, days: int, title: string}
+     * @return array{id: string, name: string, kind: string, symbol: string, brands: array<int, string>, palette: string, days: int, title: string}|null
      */
-    public static function getTemplate(string $id): array
+    public static function firstTemplateOfKind(string $kind): ?array
     {
-        $templates = self::templates();
+        $kind = self::sanitizeKind($kind);
 
-        return $templates[$id] ?? self::defaultTemplate();
+        foreach (self::templates() as $template) {
+            if ($template['kind'] === $kind) {
+                return $template;
+            }
+        }
+
+        return null;
     }
 
     /**
-     * Save a custom template. The built-in defaults can never be
-     * overwritten — saving with their id creates a new template
-     * instead. Returns the id the template was saved under.
+     * One template by id, or null when no stored template has that
+     * id. Callers fall back to the first stored template of the
+     * matching kind — never to a built-in.
+     *
+     * @return array{id: string, name: string, kind: string, symbol: string, brands: array<int, string>, palette: string, days: int, title: string}|null
+     */
+    public static function getTemplate(string $id): ?array
+    {
+        $templates = self::templates();
+
+        return $templates[$id] ?? null;
+    }
+
+    /**
+     * Save a template. An empty id mints a fresh one; an existing
+     * id updates that template in place. Returns the id the
+     * template was saved under.
      *
      * @param array<string, mixed> $data
      */
@@ -386,12 +361,7 @@ final class DataDesk
         $stored = get_option(self::TEMPLATES_OPTION, []);
         $stored = is_array($stored) ? $stored : [];
 
-        // A default id ('' or a built-in) can never be overwritten:
-        // saving one mints a fresh id. An existing custom id is
-        // updated in place.
-        $isDefault = $id === '' || $id === self::DEFAULT_TEMPLATE_ID || $id === self::DEFAULT_TABLE_TEMPLATE_ID;
-
-        if ($isDefault) {
+        if ($id === '') {
             $id = 'tpl_' . wp_generate_uuid4();
         }
 
@@ -402,15 +372,10 @@ final class DataDesk
     }
 
     /**
-     * Delete a custom template. The built-in defaults can never be
-     * deleted. Returns true when a template was removed.
+     * Delete a template. Returns true when a template was removed.
      */
     public static function deleteTemplate(string $id): bool
     {
-        if ($id === self::DEFAULT_TEMPLATE_ID || $id === self::DEFAULT_TABLE_TEMPLATE_ID) {
-            return false;
-        }
-
         $stored = get_option(self::TEMPLATES_OPTION, []);
 
         if (!is_array($stored) || !isset($stored[$id])) {

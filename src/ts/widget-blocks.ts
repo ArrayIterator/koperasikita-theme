@@ -790,7 +790,7 @@ function buildDefinitions(api: Wp): BlockDef[] {
 			attributes: {
 				title: { type: 'string', default: '' },
 				headerStyle: { type: 'string', default: 'classic-top' },
-				template: { type: 'string', default: 'default-table' },
+				template: { type: 'string', default: '' },
 			},
 			fields: [
 				{ key: 'title', kind: 'text', label: __('Title'), help: __('Leave empty to use the template title.') },
@@ -811,7 +811,7 @@ function buildDefinitions(api: Wp): BlockDef[] {
 			attributes: {
 				title: { type: 'string', default: '' },
 				headerStyle: { type: 'string', default: 'classic-top' },
-				template: { type: 'string', default: 'default' },
+				template: { type: 'string', default: '' },
 			},
 			fields: [
 				{ key: 'title', kind: 'text', label: __('Title') },

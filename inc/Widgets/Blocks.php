@@ -273,7 +273,7 @@ final class Blocks
                 'attributes' => [
                     'title' => ['type' => 'string', 'default' => ''],
                     'headerStyle' => ['type' => 'string', 'default' => 'classic-top'],
-                    'template' => ['type' => 'string', 'default' => 'default-table'],
+                    'template' => ['type' => 'string', 'default' => ''],
                 ],
                 'map' => [
                     'title' => 'title',
@@ -289,7 +289,7 @@ final class Blocks
                 'attributes' => [
                     'title' => ['type' => 'string', 'default' => ''],
                     'headerStyle' => ['type' => 'string', 'default' => 'classic-top'],
-                    'template' => ['type' => 'string', 'default' => 'default'],
+                    'template' => ['type' => 'string', 'default' => ''],
                 ],
                 'map' => [
                     'title' => 'title',

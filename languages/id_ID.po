@@ -3703,17 +3703,11 @@ msgstr "Template dihapus."
 msgid "Template saved."
 msgstr "Template disimpan."
 
-msgid "This is a built-in default template. Saving creates a new template instead of changing it."
-msgstr "Ini template bawaan. Menyimpan akan membuat template baru, bukan mengubahnya."
-
 msgid "Untitled template"
 msgstr "Template tanpa nama"
 
 msgid "Update Template"
 msgstr "Perbarui Template"
-
-msgid "Widgets pick a template instead of carrying their own settings. The built-in defaults can never be deleted — duplicate one to edit it as a new template."
-msgstr "Widget memilih template, bukan membawa pengaturannya sendiri. Template bawaan tidak bisa dihapus — duplikat salah satunya untuk mengeditnya sebagai template baru."
 
 msgid "Preview"
 msgstr "Pratinjau"
@@ -4049,3 +4043,12 @@ msgstr "Tidak ada harga yang cocok dengan filter yang dipilih."
 #: inc/Admin/GoldPricesPage.php
 msgid "All providers"
 msgstr "Semua penyedia"
+
+msgid "Widgets pick a template instead of carrying their own settings."
+msgstr "Widget memilih sebuah template, bukan membawa pengaturannya sendiri."
+
+msgid "No templates yet. Create one on the Data Desk Templates page."
+msgstr "Belum ada template. Buat satu di halaman Data Desk Templates."
+
+msgid "Template not found."
+msgstr "Template tidak ditemukan."

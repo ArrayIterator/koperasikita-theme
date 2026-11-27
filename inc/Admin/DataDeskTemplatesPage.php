@@ -14,11 +14,8 @@ use KoperasiKita\Features\Gold;
  * as a chart + stats) or a table (the Gold Data Desk table of brands).
  * Widgets pick a template instead of carrying their own settings, so
  * a template is shared, not per-widget ("bukan widget pribadi").
- *
- * Two templates are built in and can never be deleted or edited:
- * Default (panel) and Default Table. To change one, duplicate it
- * into a new template and edit that one instead. Custom templates
- * can be edited, duplicated and deleted. Every string is i18n.
+ * Templates can be edited, duplicated and deleted; there are no
+ * built-in defaults.
  */
 final class DataDeskTemplatesPage
 {
@@ -38,6 +35,12 @@ final class DataDeskTemplatesPage
         $id = isset($_GET['id']) ? sanitize_key((string) wp_unslash($_GET['id'])) : '';
 
         $pageUrl = admin_url('admin.php?page=' . self::PAGE_SLUG);
+
+        // Editing a template that no longer exists falls back to the
+        // list — there is nothing to edit.
+        if ($action === 'edit' && $id !== '' && DataDesk::getTemplate($id) === null) {
+            $action = 'list';
+        }
         ?>
         <div class="wrap">
             <h1><?php esc_html_e('Data Desk Templates', 'koperasikita'); ?></h1>
@@ -117,6 +120,12 @@ final class DataDeskTemplatesPage
 
             $id = sanitize_key((string) wp_unslash($_GET['kk_data_desk_duplicate']));
             $source = DataDesk::getTemplate($id);
+
+            if ($source === null) {
+                wp_safe_redirect(admin_url('admin.php?page=' . self::PAGE_SLUG));
+                exit;
+            }
+
             $copy = $source;
             $copy['name'] = sprintf(
                 /* translators: %s: template name. */
@@ -147,9 +156,8 @@ final class DataDeskTemplatesPage
 
     /**
      * The template list: name, a visual preview of the layout, kind,
-     * what it shows, palette, days, and actions. The built-in
-     * defaults carry a "Default" badge and offer Duplicate only —
-     * they can never be edited or deleted. The preview is the real
+     * what it shows, palette, days, and actions. Every template can
+     * be edited, duplicated and deleted. The preview is the real
      * panel / table markup with sample data, scaled down, so the
      * list shows the layout, not just its name.
      */
@@ -173,7 +181,6 @@ final class DataDeskTemplatesPage
             <tbody>
                 <?php foreach ($templates as $id => $template) : ?>
                     <?php
-                    $isDefault = $id === DataDesk::DEFAULT_TEMPLATE_ID || $id === DataDesk::DEFAULT_TABLE_TEMPLATE_ID;
                     $shows = $template['kind'] === DataDesk::KIND_TABLE
                         ? ($template['brands'] !== [] ? implode(', ', array_map(static fn(string $slug): string => Gold::brands()[$slug] ?? $slug, $template['brands'])) : __('All brands', 'koperasikita'))
                         : (DataDesk::symbols()[$template['symbol']] ?? $template['symbol']);
@@ -181,9 +188,6 @@ final class DataDeskTemplatesPage
                     <tr>
                         <td>
                             <strong><?php echo esc_html($template['name']); ?></strong>
-                            <?php if ($isDefault) : ?>
-                                <span class="description"><?php esc_html_e('Default', 'koperasikita'); ?></span>
-                            <?php endif; ?>
                         </td>
                         <td>
                             <div class="kk-data-desk-list-preview">
@@ -200,22 +204,18 @@ final class DataDeskTemplatesPage
                         <td><?php echo esc_html(DataDesk::PALETTES[$template['palette']] ?? $template['palette']); ?></td>
                         <td><?php echo $template['kind'] === DataDesk::KIND_PANEL ? esc_html((string) $template['days']) : '&mdash;'; ?></td>
                         <td>
-                            <?php if (!$isDefault) : ?>
-                                <a href="<?php echo esc_url(add_query_arg(['action' => 'edit', 'id' => $id], $pageUrl)); ?>"><?php esc_html_e('Edit', 'koperasikita'); ?></a>
-                                |
-                            <?php endif; ?>
+                            <a href="<?php echo esc_url(add_query_arg(['action' => 'edit', 'id' => $id], $pageUrl)); ?>"><?php esc_html_e('Edit', 'koperasikita'); ?></a>
+                            |
                             <a href="<?php echo esc_url(wp_nonce_url(add_query_arg('kk_data_desk_duplicate', $id, $pageUrl), 'kk_data_desk_duplicate')); ?>"><?php esc_html_e('Duplicate', 'koperasikita'); ?></a>
-                            <?php if (!$isDefault) : ?>
-                                |
-                                <a href="<?php echo esc_url(wp_nonce_url(add_query_arg('kk_data_desk_delete', $id, $pageUrl), 'kk_data_desk_delete')); ?>" onclick="return confirm('<?php echo esc_js(__('Delete this template?', 'koperasikita')); ?>');"><?php esc_html_e('Delete', 'koperasikita'); ?></a>
-                            <?php endif; ?>
+                            |
+                            <a href="<?php echo esc_url(wp_nonce_url(add_query_arg('kk_data_desk_delete', $id, $pageUrl), 'kk_data_desk_delete')); ?>" onclick="return confirm('<?php echo esc_js(__('Delete this template?', 'koperasikita')); ?>');"><?php esc_html_e('Delete', 'koperasikita'); ?></a>
                         </td>
                     </tr>
                 <?php endforeach; ?>
             </tbody>
         </table>
         <p class="description">
-            <?php esc_html_e('Widgets pick a template instead of carrying their own settings. The built-in defaults can never be deleted — duplicate one to edit it as a new template.', 'koperasikita'); ?>
+            <?php esc_html_e('Widgets pick a template instead of carrying their own settings.', 'koperasikita'); ?>
         </p>
         <?php
     }
@@ -227,22 +227,25 @@ final class DataDeskTemplatesPage
      */
     private static function renderForm(string $id, string $pageUrl): void
     {
-        $template = $id !== '' ? DataDesk::getTemplate($id) : [
-            'id' => '',
-            'name' => '',
-            'kind' => DataDesk::KIND_PANEL,
-            'symbol' => 'gold:antam',
-            'brands' => [],
-            'palette' => DataDesk::DEFAULT_PALETTE,
-            'days' => DataDesk::DEFAULT_DAYS,
-            'title' => '',
-        ];
-        $isDefault = $id === DataDesk::DEFAULT_TEMPLATE_ID || $id === DataDesk::DEFAULT_TABLE_TEMPLATE_ID;
+        $template = $id !== '' ? DataDesk::getTemplate($id) : null;
+
+        if ($template === null) {
+            // A missing template (deleted since the link was made)
+            // opens as a new one instead of editing a ghost.
+            $id = '';
+            $template = [
+                'id' => '',
+                'name' => '',
+                'kind' => DataDesk::KIND_PANEL,
+                'symbol' => 'gold:antam',
+                'brands' => [],
+                'palette' => DataDesk::DEFAULT_PALETTE,
+                'days' => DataDesk::DEFAULT_DAYS,
+                'title' => '',
+            ];
+        }
         ?>
         <h2><?php echo $id !== '' ? esc_html__('Edit Template', 'koperasikita') : esc_html__('Add New Template', 'koperasikita'); ?></h2>
-        <?php if ($isDefault) : ?>
-            <div class="notice notice-warning inline"><p><?php esc_html_e('This is a built-in default template. Saving creates a new template instead of changing it.', 'koperasikita'); ?></p></div>
-        <?php endif; ?>
         <form method="post" action="<?php echo esc_url($pageUrl); ?>">
             <?php wp_nonce_field('kk_data_desk_template', 'kk_data_desk_template_nonce'); ?>
             <input type="hidden" name="kk_template_id" value="<?php echo esc_attr($id); ?>">
