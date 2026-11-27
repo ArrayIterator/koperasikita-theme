@@ -2563,13 +2563,6 @@ final class Customizer
             'transport' => 'refresh',
         ]);
 
-        $wpCustomize->add_setting('kk_market_header_index[style]', [
-            'type' => 'option',
-            'default' => MarketHeaderIndex::DEFAULT_STYLE,
-            'sanitize_callback' => [MarketHeaderIndex::class, 'sanitizeStyle'],
-            'transport' => 'refresh',
-        ]);
-
         $wpCustomize->add_setting('kk_market_header_index[cycle_interval]', [
             'type' => 'option',
             'default' => MarketHeaderIndex::DEFAULT_CYCLE_INTERVAL,
@@ -2583,18 +2576,6 @@ final class Customizer
             'section' => 'koperasikita_market_header',
             'settings' => 'kk_market_header_index[enabled]',
             'type' => 'checkbox',
-        ]);
-
-        $wpCustomize->add_control('kk_market_header_style', [
-            'label' => esc_html__('Strip style', 'koperasikita'),
-            'section' => 'koperasikita_market_header',
-            'settings' => 'kk_market_header_index[style]',
-            'type' => 'select',
-            'choices' => [
-                'dark' => esc_html__('Dark', 'koperasikita'),
-                'light' => esc_html__('Light', 'koperasikita'),
-            ],
-            'active_callback' => [self::class, 'isMarketHeaderEnabled'],
         ]);
 
         $wpCustomize->add_control('kk_market_header_cycle_interval', [

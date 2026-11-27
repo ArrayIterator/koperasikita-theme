@@ -4802,11 +4802,6 @@ msgstr "Menampilkan indeks pasar yang dipilih dalam strip di bawah header. Membu
 
 #: inc/Customizer/Customizer.php
 #: inc/Admin/MarketHeaderPage.php
-msgid "Strip style"
-msgstr "Gaya strip"
-
-#: inc/Customizer/Customizer.php
-#: inc/Admin/MarketHeaderPage.php
 msgid "Seconds between items on mobile"
 msgstr "Detik antar item di ponsel"
 

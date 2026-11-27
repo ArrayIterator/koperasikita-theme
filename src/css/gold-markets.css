@@ -451,22 +451,22 @@
 }
 
 /* Market header index
- * The strip below the header: the index strip's row inside a
- * full-width bar, dark by default with a light variant
- * (.kk-market-header--light), with the snapshot label at the
- * right. The row scrolls sideways on narrow screens (same as the
- * index strip), so the bar never pushes the page wider than the
- * viewport. The change chips use the light up/down colours from
- * the dark data desk palette - the global --kk-success /
- * --kk-error are ~1.9:1 on dark and unreadable there (see
- * --dd-up / --dd-down); the light variant uses the theme green
- * and a darker red instead, both readable on white.
+ * The strip below the header: the index strip's row with no
+ * background of its own - the items sit directly on the page
+ * background, with the snapshot label at the right. The row
+ * scrolls sideways on narrow screens (same as the index strip),
+ * so the strip never pushes the page wider than the viewport.
+ * The text follows the theme tokens, so it reads in both site
+ * modes: the up/down chips use the brand green and a dark red
+ * on light, and the lighter up/down colours from the dark data
+ * desk palette on dark (the brand green is only 2.84:1 on the
+ * dark paper - see variants.css).
  */
 
 .kk-market-header {
-	background: #1b1b1b;
-	color: #f2f2f2;
-	border-bottom: 1px solid rgb(255 255 255 / 0.12);
+	background: transparent;
+	color: var(--kk-ink);
+	border-bottom: 1px solid var(--kk-border);
 }
 
 .kk-market-header-inner {
@@ -504,46 +504,25 @@
 	gap: 6px;
 }
 
-.kk-market-header .kk-index-name {
-	color: rgb(255 255 255 / 0.72);
-}
-
-.kk-market-header .kk-index-value {
-	color: #fff;
-}
-
+/* The name/value inherit the index strip's own colours
+ * (muted name, ink value) - no header overrides needed now
+ * the strip has no background of its own. The up/down chips
+ * are the only header-specific colours: brand green / dark
+ * red on light, the lighter palette pair on dark. */
 .kk-market-header .kk-market-change-up {
-	color: #8ce99a;
-}
-
-.kk-market-header .kk-market-change-down {
-	color: #ffa8a8;
-}
-
-.kk-market-header--light {
-	background: #fff;
-	color: #1a1a1a;
-	border-bottom: 1px solid #e5e5e5;
-}
-
-.kk-market-header--light .kk-index-name {
-	color: rgb(0 0 0 / 0.6);
-}
-
-.kk-market-header--light .kk-index-value {
-	color: #1a1a1a;
-}
-
-.kk-market-header--light .kk-market-change-up {
 	color: #0b6b3a;
 }
 
-.kk-market-header--light .kk-market-change-down {
+.kk-market-header .kk-market-change-down {
 	color: #c92a2a;
 }
 
-.kk-market-header--light .kk-market-header-snapshot {
-	color: rgb(0 0 0 / 0.55);
+html[data-color-scheme="dark"] .kk-market-header .kk-market-change-up {
+	color: #8ce99a;
+}
+
+html[data-color-scheme="dark"] .kk-market-header .kk-market-change-down {
+	color: #ffa8a8;
 }
 
 .kk-market-header-snapshot {
@@ -554,7 +533,7 @@
 	 * overflow that clipped Brent's change. */
 	letter-spacing: 0.05em;
 	text-transform: uppercase;
-	color: rgb(255 255 255 / 0.6);
+	color: var(--kk-muted);
 	white-space: nowrap;
 }
 
