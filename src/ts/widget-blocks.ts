@@ -109,6 +109,7 @@ interface Wp {
 		Fragment: unknown;
 		useState: <T>(initial: T) => [T, (next: T | ((prev: T) => T)) => void];
 		useRef: <T>(initial: T) => { current: T };
+		useEffect: (effect: () => void | (() => void), deps: unknown[]) => void;
 	};
 	components: {
 		TextControl: unknown;
@@ -390,7 +391,28 @@ function TermSearchField(props: {
 	const [query, setQuery] = api.element.useState('');
 	const [debounced, setDebounced] = api.element.useState('');
 	const [status, setStatus] = api.element.useState('');
+	/* Closed until the search is used: every select is a hidden
+	 * dropdown like Select2, so the option list never sits visible
+	 * in the inspector and the fields below never move. */
+	const [open, setOpen] = api.element.useState(false);
 	const timer = api.element.useRef<number | null>(null);
+	const fieldRef = api.element.useRef<HTMLElement | null>(null);
+
+	/* A click outside closes the list. Focus leaving the field
+	 * closes it too, but a null relatedTarget (a click on plain
+	 * text) does not move focus in every browser, so the
+	 * outside-click handler decides those. */
+	api.element.useEffect(() => {
+		const onPointerDown = (event: PointerEvent): void => {
+			if (fieldRef.current !== null && !fieldRef.current.contains(event.target as Node | null)) {
+				setOpen(false);
+			}
+		};
+		document.addEventListener('pointerdown', onPointerDown);
+		return () => {
+			document.removeEventListener('pointerdown', onPointerDown);
+		};
+	}, []);
 
 	/* The core store search only runs for a real query (categories
 	 * and tags); short queries filter the localized list in the
@@ -469,6 +491,27 @@ function TermSearchField(props: {
 		timer.current = window.setTimeout(() => setDebounced(next), 300);
 	};
 
+	/* Only the search box opens the list: focus landing on a chip
+	 * remove button or an option must not pop it open. */
+	const isSearchInput = (event: FocusEvent | MouseEvent): boolean =>
+		event.target instanceof HTMLInputElement;
+
+	const closeOnLeave = (event: FocusEvent): void => {
+		const next = event.relatedTarget;
+		if (next instanceof Node && fieldRef.current !== null && fieldRef.current.contains(next)) {
+			return;
+		}
+		setOpen(false);
+	};
+
+	const closeOnEscape = (event: KeyboardEvent): void => {
+		if (event.key !== 'Escape') {
+			return;
+		}
+		setOpen(false);
+		fieldRef.current?.querySelector('input')?.blur();
+	};
+
 	const add = (option: OptionItem): void => {
 		if (selected.includes(option.value)) {
 			setStatus(`${option.label} ${__('is already in the list.')}`);
@@ -476,8 +519,13 @@ function TermSearchField(props: {
 		}
 		if (field.single === true) {
 			set(field.key, option.value);
+			setOpen(false);
 		} else {
 			set(field.key, [...selected, option.value]);
+			/* Multi picks stay open for the next pick: the option
+			 * unmounts once picked, so the search takes focus back
+			 * or the list would close with it. */
+			fieldRef.current?.querySelector('input')?.focus();
 		}
 		setQuery('');
 		setDebounced('');
@@ -527,38 +575,72 @@ function TermSearchField(props: {
 		),
 	);
 
+	/* The dropdown renders only while open, anchored under the
+	 * search box, so a closed picker shows just chips and search.
+	 * The help line sits outside the anchor: the list must open
+	 * tight under the input, not below the help text. */
+	const dropdown = open
+		? api.element.createElement(
+				'div',
+				{ className: 'kk-termsearch-dropdown' },
+				waiting ? api.element.createElement(api.components.Spinner, null) : null,
+				resultButtons.length > 0
+					? api.element.createElement('ul', { className: 'kk-termsearch-results' }, ...resultButtons)
+					: null,
+				browseCapped && resultButtons.length > 0
+					? api.element.createElement(
+							'p',
+							{ className: 'components-base-control__help' },
+							api.i18n.sprintf(
+								__('Showing %1$s of %2$s — type to search.'),
+								String(browseShown),
+								String(browseTotal),
+							),
+						)
+					: null,
+				resultButtons.length === 0 && !waiting
+					? api.element.createElement(
+							'p',
+							{ className: 'components-base-control__help' },
+							trimmed === '' ? __('No terms found.') : __('No terms match your search.'),
+						)
+					: null,
+			)
+		: null;
+
 	return api.element.createElement(
 		'div',
-		{ key: field.key, className: 'kk-termsearch-field' },
+		{
+			key: field.key,
+			className: 'kk-termsearch-field' + (open ? ' is-open' : ''),
+			ref: fieldRef,
+			onFocus: (event: FocusEvent): void => {
+				if (isSearchInput(event)) {
+					setOpen(true);
+				}
+			},
+			onClick: (event: MouseEvent): void => {
+				if (isSearchInput(event)) {
+					setOpen(true);
+				}
+			},
+			onBlur: closeOnLeave,
+			onKeyDown: closeOnEscape,
+		},
 		api.element.createElement('p', { className: 'kk-termsearch-label' }, field.label),
 		api.element.createElement('ul', { className: 'kk-termsearch-list' }, ...chips),
-		api.element.createElement(api.components.TextControl, {
-			label: __('Search terms'),
-			help: field.help ?? '',
-			value: query,
-			onChange: (next: string) => onQueryChange(next),
-		}),
-		waiting ? api.element.createElement(api.components.Spinner, null) : null,
-		resultButtons.length > 0
-			? api.element.createElement('ul', { className: 'kk-termsearch-results' }, ...resultButtons)
-			: null,
-		browseCapped && resultButtons.length > 0
-			? api.element.createElement(
-					'p',
-					{ className: 'components-base-control__help' },
-					api.i18n.sprintf(
-						__('Showing %1$s of %2$s — type to search.'),
-						String(browseShown),
-						String(browseTotal),
-					),
-				)
-			: null,
-		resultButtons.length === 0 && !waiting
-			? api.element.createElement(
-					'p',
-					{ className: 'components-base-control__help' },
-					trimmed === '' ? __('No terms found.') : __('No terms match your search.'),
-				)
+		api.element.createElement(
+			'div',
+			{ className: 'kk-termsearch-control' },
+			api.element.createElement(api.components.TextControl, {
+				label: __('Search terms'),
+				value: query,
+				onChange: (next: string) => onQueryChange(next),
+			}),
+			dropdown,
+		),
+		field.help !== undefined && field.help !== ''
+			? api.element.createElement('p', { className: 'components-base-control__help' }, field.help)
 			: null,
 		status !== ''
 			? api.element.createElement('p', { className: 'components-base-control__help' }, status)

@@ -102,17 +102,57 @@
 	margin-bottom: 1.5rem;
 }
 
+/* The control is the dropdown anchor: the list opens tight under
+ * the search box and floats over the fields below instead of
+ * pushing them down. */
+.kk-termsearch-control {
+	position: relative;
+}
+
 .kk-termsearch-label {
 	margin: 0 0 0.5rem;
 	font-size: 0.8125rem;
 	font-weight: 600;
 }
 
-.kk-termsearch-list,
-.kk-termsearch-results {
+.kk-termsearch-list {
 	margin: 0 0 0.75rem;
 	padding: 0;
 	list-style: none;
+}
+
+.kk-termsearch-dropdown {
+	position: absolute;
+	top: calc(100% + 2px);
+	left: 0;
+	right: 0;
+	z-index: 10;
+	max-height: 10rem;
+	overflow: auto;
+	background: #fff;
+	border: 1px solid #ddd;
+	border-radius: 3px;
+	box-shadow: 0 4px 12px rgb(0 0 0 / 0.15);
+	scrollbar-width: none;
+}
+
+.kk-termsearch-dropdown::-webkit-scrollbar {
+	display: none;
+}
+
+.kk-termsearch-dropdown .kk-termsearch-results {
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+
+.kk-termsearch-dropdown .components-base-control__help {
+	margin: 0;
+	padding: 0.4rem 0.6rem;
+}
+
+.kk-termsearch-dropdown .components-spinner {
+	margin: 0.4rem 0.6rem;
 }
 
 .kk-termsearch-row {
@@ -151,12 +191,12 @@
 .kk-termsearch-result {
 	display: block;
 	width: 100%;
-	padding: 0.5rem 0.75rem;
+	padding: 0.4rem 0.6rem;
 	font-size: 0.8125rem;
 	text-align: left;
-	background: #f6f7f7;
+	background: transparent;
 	border: 0;
-	border-radius: 0.25rem;
+	border-radius: 0;
 	cursor: pointer;
 }
 
