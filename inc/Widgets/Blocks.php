@@ -382,9 +382,9 @@ final class Blocks
                 'class' => AgendaWidget::class,
                 'icon' => 'calendar',
                 'title' => __('KK Agenda', 'koperasikita'),
-                'description' => __('Upcoming cooperative events as a dark card, with a status ribbon per event.', 'koperasikita'),
+                'description' => __('Upcoming cooperative events as a dark card; live events get a green dot, finished events are dimmed.', 'koperasikita'),
                 'attributes' => [
-                    'title' => ['type' => 'string', 'default' => ''],
+                    'title' => ['type' => 'string', 'default' => __('Agenda Koperasi', 'koperasikita')],
                     'count' => ['type' => 'number', 'default' => 5],
                     'showPast' => ['type' => 'boolean', 'default' => true],
                 ],

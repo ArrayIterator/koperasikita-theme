@@ -801,10 +801,12 @@ msgid "Koperasi Kita Agenda"
 msgstr "Agenda Koperasi Kita"
 
 #: inc/Widgets/AgendaWidget.php
-msgid "Upcoming cooperative events as a dark card, with a status ribbon per event."
-msgstr "Acara koperasi mendatang sebagai kartu gelap, dengan pita status per acara."
+#: inc/Widgets/Blocks.php
+#: src/ts/widget-blocks.ts
+msgid "Upcoming cooperative events as a dark card; live events get a green dot, finished events are dimmed."
+msgstr "Acara koperasi mendatang sebagai kartu gelap; acara yang sedang berlangsung ditandai titik hijau, acara yang sudah selesai diredupkan."
 
-#: inc/Widgets/AgendaWidget.php
+#: template-parts/agenda/widget.php
 msgid "No agenda items yet."
 msgstr "Belum ada agenda."
 
@@ -819,10 +821,6 @@ msgstr "Tampilkan acara lalu"
 #: inc/Widgets/AgendaWidget.php
 msgid "Fill the remaining slots with finished events, most recent first."
 msgstr "Isi slot tersisa dengan acara yang sudah selesai, terbaru dulu."
-
-#: template-parts/agenda/widget.php
-msgid "Akan Datang"
-msgstr "Akan Datang"
 
 #: template-parts/agenda/widget.php
 msgid "Berlangsung"
