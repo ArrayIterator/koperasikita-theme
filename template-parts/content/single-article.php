@@ -45,6 +45,7 @@ $font_size = \KoperasiKita\Features\ArticleFontSize::currentSize();
 					?>
 				</span>
 			<?php endif; ?>
+			<?php if ( \KoperasiKita\Features\Comments::shouldShow( get_the_ID() ) ) : ?>
 			<span class="kk-meta-sep" aria-hidden="true">&middot;</span>
 			<a href="#comments">
 				<?php
@@ -52,6 +53,7 @@ $font_size = \KoperasiKita\Features\ArticleFontSize::currentSize();
 				printf( esc_html__( '%s comments', 'koperasikita' ), esc_html( number_format_i18n( get_comments_number() ) ) );
 				?>
 			</a>
+			<?php endif; ?>
 		</p>
 
 		<?php if ( \KoperasiKita\Features\Features::isEnabled( 'bookmarks' ) ) : ?>
