@@ -4,7 +4,7 @@
  * call to action, then a single-column feed of the remaining stories.
  *
  * Accepts $args['query'] (WP_Query). Without it, runs the same query as
- * latest-news.php (kk_latest_count posts, sticky posts ignored), so this
+ * latest-news.php (posts_per_page posts, sticky posts ignored), so this
  * template is only a different presentation of the same posts.
  *
  * The markup reuses template-parts/content/card-news for every story, so
@@ -19,7 +19,7 @@
 if ( isset( $args['query'] ) && $args['query'] instanceof WP_Query ) {
 	$newsletter_query = $args['query'];
 } else {
-	$newsletter_count = max( 1, (int) get_theme_mod( 'kk_latest_count', 10 ) );
+	$newsletter_count = max( 1, (int) get_option( 'posts_per_page', 10 ) );
 	$newsletter_query = new WP_Query(
 		array(
 			'post_type'           => 'post',

@@ -186,10 +186,6 @@ msgid "Hero Posts"
 msgstr "Artikel Hero"
 
 #: inc/Customizer/Customizer.php
-msgid "Latest Posts"
-msgstr "Artikel Terbaru"
-
-#: inc/Customizer/Customizer.php
 msgid "Invert Logo in Dark Mode"
 msgstr "Balik Logo dalam Mode Gelap"
 
