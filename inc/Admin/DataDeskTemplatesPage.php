@@ -84,6 +84,7 @@ final class DataDeskTemplatesPage
                 'palette' => isset($raw['kk_template_palette']) ? sanitize_key((string) $raw['kk_template_palette']) : DataDesk::DEFAULT_PALETTE,
                 'days' => isset($raw['kk_template_days']) ? (int) $raw['kk_template_days'] : DataDesk::DEFAULT_DAYS,
                 'title' => isset($raw['kk_template_title']) ? sanitize_text_field((string) $raw['kk_template_title']) : '',
+                'kicker' => isset($raw['kk_template_kicker']) ? sanitize_text_field((string) $raw['kk_template_kicker']) : '',
             ];
 
             DataDesk::saveTemplate($id, $data);
@@ -197,7 +198,7 @@ final class DataDeskTemplatesPage
                         </td>
                         <td><?php echo esc_html($kinds[$template['kind']] ?? $template['kind']); ?></td>
                         <td><?php echo esc_html($shows); ?></td>
-                        <td><?php echo esc_html(DataDesk::PALETTES[$template['palette']] ?? $template['palette']); ?></td>
+                        <td><?php echo esc_html(DataDesk::paletteLabel($template['palette'])); ?></td>
                         <td><?php echo $template['kind'] === DataDesk::KIND_PANEL ? esc_html((string) $template['days']) : '&mdash;'; ?></td>
                         <td>
                             <?php if (!$isDefault) : ?>
@@ -236,6 +237,7 @@ final class DataDeskTemplatesPage
             'palette' => DataDesk::DEFAULT_PALETTE,
             'days' => DataDesk::DEFAULT_DAYS,
             'title' => '',
+            'kicker' => '',
         ];
         $isDefault = $id === DataDesk::DEFAULT_TEMPLATE_ID || $id === DataDesk::DEFAULT_TABLE_TEMPLATE_ID;
         ?>
@@ -246,6 +248,12 @@ final class DataDeskTemplatesPage
         <form method="post" action="<?php echo esc_url($pageUrl); ?>">
             <?php wp_nonce_field('kk_data_desk_template', 'kk_data_desk_template_nonce'); ?>
             <input type="hidden" name="kk_template_id" value="<?php echo esc_attr($id); ?>">
+            <?php /* Title and kicker have no visible rows: both are
+             * edited inline in the live preview below, which writes
+             * into these hidden fields (admin.ts) — the save flow
+             * reads them exactly as before. */ ?>
+            <input type="hidden" id="kk-template-title" name="kk_template_title" value="<?php echo esc_attr($template['title']); ?>">
+            <input type="hidden" id="kk-template-kicker" name="kk_template_kicker" value="<?php echo esc_attr($template['kicker']); ?>">
             <table class="form-table">
                 <tr>
                     <th scope="row"><label for="kk-template-name"><?php esc_html_e('Name', 'koperasikita'); ?></label></th>
@@ -304,16 +312,9 @@ final class DataDeskTemplatesPage
                     <td>
                         <select id="kk-template-palette" name="kk_template_palette">
                             <?php foreach (DataDesk::PALETTES as $value => $label) : ?>
-                                <option value="<?php echo esc_attr($value); ?>" <?php selected($template['palette'], $value); ?>><?php echo esc_html($label); ?></option>
+                                <option value="<?php echo esc_attr($value); ?>" <?php selected($template['palette'], $value); ?>><?php echo esc_html(DataDesk::paletteLabel($value)); ?></option>
                             <?php endforeach; ?>
                         </select>
-                    </td>
-                </tr>
-                <tr>
-                    <th scope="row"><label for="kk-template-title"><?php esc_html_e('Title', 'koperasikita'); ?></label></th>
-                    <td>
-                        <input type="text" id="kk-template-title" name="kk_template_title" value="<?php echo esc_attr($template['title']); ?>" class="regular-text">
-                        <p class="description"><?php esc_html_e('Leave empty for the automatic title. Use {label} for the symbol name and {day} for the number of days.', 'koperasikita'); ?></p>
                     </td>
                 </tr>
             </table>
@@ -323,6 +324,9 @@ final class DataDeskTemplatesPage
             <h2><?php esc_html_e('Preview', 'koperasikita'); ?></h2>
             <p class="description">
                 <?php esc_html_e('Live preview of this template with sample data. It updates as you change the settings above.', 'koperasikita'); ?>
+            </p>
+            <p class="description">
+                <?php esc_html_e("Click the title or 'Meja Data' in the preview to edit them. In the title you can use {label} for the symbol name and {day} for the number of days.", 'koperasikita'); ?>
             </p>
             <div id="kk-data-desk-live-preview" data-kk-data-desk-preview>
                 <?php

@@ -384,15 +384,34 @@
 }
 /* Template form live preview + classic widget preview boxes: the
  * real layout at full size, in a bordered box so it reads as a
- * preview, not page content. */
+ * preview, not page content. The templates preview is full width
+ * (the panel is the editor there); widget previews stay narrow. */
 #kk-data-desk-live-preview,
 .kk-data-desk-widget-preview {
-	max-width: 720px;
 	margin: 16px 0;
 	padding: 16px;
 	border: 1px solid #dcdcde;
 	border-radius: 3px;
 	background: #fff;
+}
+.kk-data-desk-widget-preview {
+	max-width: 720px;
+}
+/* Inline editing of the preview kicker/title (templates page
+ * only): hover shows the text is editable, editing shows a focus
+ * outline. Scoped to the live preview container — the frontend
+ * panel never gets these. */
+#kk-data-desk-live-preview .kk-data-desk-kicker:hover,
+#kk-data-desk-live-preview .kk-data-desk-title:hover {
+	cursor: text;
+	outline: 1px dashed #646970;
+	outline-offset: 2px;
+}
+#kk-data-desk-live-preview .kk-data-desk-kicker.is-editing,
+#kk-data-desk-live-preview .kk-data-desk-title.is-editing {
+	cursor: text;
+	outline: 2px solid #0b6b3a;
+	outline-offset: 2px;
 }
 #kk-data-desk-live-preview.is-loading,
 .kk-data-desk-widget-preview.is-loading {
