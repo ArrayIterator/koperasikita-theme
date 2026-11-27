@@ -179,6 +179,22 @@ final class Blocks
                     'sortOrder' => 'sort_order',
                 ],
             ],
+            'newsletter' => [
+                'class' => NewsletterWidget::class,
+                'icon' => 'mail',
+                'title' => __('KK Newsletter', 'koperasikita'),
+                'description' => __('The newsletter subscribe form, for any widget area.', 'koperasikita'),
+                'attributes' => [
+                    'title' => ['type' => 'string', 'default' => ''],
+                    'headerStyle' => ['type' => 'string', 'default' => 'classic-top'],
+                    'text' => ['type' => 'string', 'default' => NewsletterWidget::defaultText()],
+                ],
+                'map' => [
+                    'title' => 'title',
+                    'headerStyle' => 'header_style',
+                    'text' => 'text',
+                ],
+            ],
             'category-list-content' => [
                 'class' => CategoryListContentWidget::class,
                 'icon' => 'category',

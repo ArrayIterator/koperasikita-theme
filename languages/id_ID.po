@@ -2302,6 +2302,12 @@ msgstr "Halaman"
 msgid "KK Pages"
 msgstr "KK Halaman"
 
+msgid "KK Newsletter"
+msgstr "KK Buletin"
+
+msgid "The newsletter subscribe form, for any widget area."
+msgstr "Formulir berlangganan buletin, untuk area widget mana pun."
+
 #: inc/Widgets/Blocks.php
 msgid "Popular News"
 msgstr "Berita Populer"

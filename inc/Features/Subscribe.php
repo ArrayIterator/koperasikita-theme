@@ -147,12 +147,25 @@ final class Subscribe
     }
 
     /**
-     * Render the form. Shortcode attributes are intentionally ignored:
-     * the form is the same wherever it is placed.
+     * The [kk_subscribe] shortcode. Kept for existing content; the
+     * form itself is renderForm(), shared with the widget and the
+     * newsletter section. Shortcode attributes are intentionally
+     * ignored: the form is the same wherever it is placed.
      *
      * @param array<string, string> $atts
      */
     public static function renderShortcode(array $atts = []): string
+    {
+        return self::renderForm();
+    }
+
+    /**
+     * Render the subscribe form: the notice, the email field, the
+     * honeypot and the nonce. One markup for the shortcode, the
+     * newsletter widget and the newsletter section, so the form
+     * behaves identically wherever it is placed.
+     */
+    public static function renderForm(): string
     {
         $notice = self::$notice;
 

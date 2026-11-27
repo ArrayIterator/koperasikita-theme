@@ -1030,6 +1030,22 @@ function buildDefinitions(api: Wp): BlockDef[] {
 			],
 		},
 		{
+			slug: 'newsletter',
+			title: __('KK Newsletter'),
+			description: __('The newsletter subscribe form, for any widget area.'),
+			icon: 'mail',
+			attributes: {
+				title: { type: 'string', default: '' },
+				headerStyle: { type: 'string', default: 'classic-top' },
+				text: { type: 'string', default: __('News, announcements and market updates from the cooperative, delivered to your inbox.') },
+			},
+			fields: [
+				{ key: 'title', kind: 'text', label: __('Title') },
+				headerStyleField,
+				{ key: 'text', kind: 'textarea', label: __('Text') },
+			],
+		},
+		{
 			slug: 'category-list-content',
 			title: __('KK Category List Content'),
 			description: __('Posts from one category, in a Featured, Grid, List, Featured Right or List Column layout.'),

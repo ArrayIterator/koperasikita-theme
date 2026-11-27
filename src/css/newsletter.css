@@ -214,10 +214,6 @@
 	@apply min-h-11 min-w-0 flex-1 rounded-kk border border-kk-border bg-kk-paper px-3 py-2.5 text-kk-ink;
 }
 
-.kk-newsletter-subscribe-fallback {
-	@apply mt-5;
-}
-
 /* Small screens */
 
 @media (max-width: 640px) {
@@ -254,8 +250,7 @@
 		@apply flex-col;
 	}
 
-	.kk-newsletter-subscribe .kk-subscribe-submit,
-	.kk-newsletter-subscribe-fallback .kk-button {
+	.kk-newsletter-subscribe .kk-subscribe-submit {
 		@apply w-full;
 	}
 }
