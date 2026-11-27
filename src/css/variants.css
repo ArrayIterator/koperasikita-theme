@@ -316,7 +316,9 @@ body.kk-variant-compact .kk-sidebar .widget {
 }
 
 body.kk-variant-compact .kk-sidebar .widget-title,
-body.kk-variant-compact .kk-sidebar .widgettitle {
+body.kk-variant-compact .kk-sidebar .widgettitle,
+body.kk-variant-compact .kk-widget-area .widget-title,
+body.kk-variant-compact .kk-widget-area .widgettitle {
 	margin-bottom: 8px;
 }
 

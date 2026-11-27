@@ -4123,7 +4123,6 @@ msgstr "Produsen emas lokal yang menawarkan emas batangan dan perhiasan dengan b
 msgid "Emasku (HRTA GOLD)"
 msgstr "Emasku (HRTA GOLD)"
 
-
 #: inc/Admin/GoldPricesPage.php
 msgid "Status"
 msgstr "Status"
@@ -4326,8 +4325,6 @@ msgstr "Tampilkan ikon"
 msgid "Card style"
 msgstr "Gaya kartu"
 
-
-
 #: inc/Widgets/AgendaWidget.php src/ts/widget-blocks.ts
 msgid "Choose Own"
 msgstr "Pilih sendiri"
@@ -4339,7 +4336,6 @@ msgstr "Latar belakang"
 #: inc/Widgets/AgendaWidget.php src/ts/widget-blocks.ts
 msgid "Accent text"
 msgstr "Teks aksen"
-
 
 #: inc/Widgets/AgendaWidget.php
 msgid "Dark card"
@@ -4577,3 +4573,11 @@ msgstr "Margin atas (px)"
 #: src/ts/widget-blocks.ts
 msgid "Margin bottom (px)"
 msgstr "Margin bawah (px)"
+
+#: inc/Admin/SidebarSettings.php
+msgid "Left column of the homepage hero."
+msgstr "Kolom kiri hero di beranda."
+
+#: inc/Admin/SidebarSettings.php
+msgid "Right column of the homepage hero."
+msgstr "Kolom kanan hero di beranda."

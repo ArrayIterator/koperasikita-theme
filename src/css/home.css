@@ -171,14 +171,15 @@
 }
 
 /* Leads Widgets stacks the middle column: the lead is full width
- * on top, the cards below it in their own grid. The section
- * columns (1fr 2fr 1fr) and the no-widget fallbacks are untouched,
- * and the cards keep their two-column grid from responsive.css. */
+ * on top, the cards below it in their own grid. A column flex
+ * keeps that stack (children stretch full-width, like the grid
+ * did) with the same 20px gap. The section columns (1fr 2fr 1fr)
+ * and the no-widget fallbacks are untouched, and the cards keep
+ * their two-column grid from responsive.css. */
 .kk-hero--leads-widgets .kk-hero-main {
-	display: grid;
-	grid-template-columns: 1fr;
+	display: flex;
+	flex-direction: column;
 	gap: 20px;
-	align-items: start;
 }
 
 .kk-hero--grid-right .kk-hero-main {

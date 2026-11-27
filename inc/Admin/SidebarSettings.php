@@ -13,7 +13,7 @@ use KoperasiKita\Api\Ajax;
  * each sidebar area gets its own "Sticky while scrolling" checkbox
  * here. Only true sidebars get the setting - the full-width content
  * strips (Below Header, Before Latest News, Before Highlights,
- * Block Area) and the hero widget areas never stick.
+ * Block Area) never stick; the two hero widget areas do.
  *
  * Stored in the `kk_sidebar_settings` option as
  * ['sticky' => ['sidebar-1' => true, ...]].
@@ -26,7 +26,7 @@ final class SidebarSettings
 
     /**
      * Sidebar areas that may stick. id => [name, description].
-     * Content strips and hero areas are deliberately absent.
+     * Content strips are deliberately absent.
      *
      * @return array<string, array{0: string, 1: string}>
      */
@@ -56,6 +56,14 @@ final class SidebarSettings
             'sidebar-agenda' => [
                 esc_html__('Agenda Sidebar', 'koperasikita'),
                 esc_html__('Right column of the agenda pages (single event and agenda archive).', 'koperasikita'),
+            ],
+            'kk-hero-left' => [
+                esc_html__('Hero Left Widget', 'koperasikita'),
+                esc_html__('Left column of the homepage hero.', 'koperasikita'),
+            ],
+            'kk-hero-right' => [
+                esc_html__('Hero Right Widget', 'koperasikita'),
+                esc_html__('Right column of the homepage hero.', 'koperasikita'),
             ],
         ];
     }

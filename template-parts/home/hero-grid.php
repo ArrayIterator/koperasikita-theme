@@ -100,7 +100,7 @@ if ( ! $is_slider ) {
 
 <section class="<?php echo esc_attr( $section_class ); ?>" aria-label="<?php esc_attr_e( 'Top stories', 'koperasikita' ); ?>">
 	<?php if ( $left_active ) : ?>
-		<aside class="kk-hero-widget kk-hero-widget--left" aria-label="<?php esc_attr_e( 'Hero left widget', 'koperasikita' ); ?>">
+		<aside class="kk-hero-widget kk-hero-widget--left kk-sidebar<?php echo \KoperasiKita\Admin\SidebarSettings::isSticky( 'kk-hero-left' ) ? ' kk-sidebar--sticky' : ''; ?>" aria-label="<?php esc_attr_e( 'Hero left widget', 'koperasikita' ); ?>">
 			<?php dynamic_sidebar( 'kk-hero-left' ); ?>
 		</aside>
 	<?php endif; ?>
@@ -215,7 +215,7 @@ if ( ! $is_slider ) {
 	</div>
 
 	<?php if ( $right_active ) : ?>
-		<aside class="kk-hero-widget kk-hero-widget--right" aria-label="<?php esc_attr_e( 'Hero right widget', 'koperasikita' ); ?>">
+		<aside class="kk-hero-widget kk-hero-widget--right kk-sidebar<?php echo \KoperasiKita\Admin\SidebarSettings::isSticky( 'kk-hero-right' ) ? ' kk-sidebar--sticky' : ''; ?>" aria-label="<?php esc_attr_e( 'Hero right widget', 'koperasikita' ); ?>">
 			<?php dynamic_sidebar( 'kk-hero-right' ); ?>
 		</aside>
 	<?php endif; ?>

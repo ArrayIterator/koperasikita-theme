@@ -219,7 +219,7 @@ final class Setup
     }
 
     /**
-     * The Sidebar Settings popup: the same six sticky checkboxes as
+     * The Sidebar Settings popup: the same eight sticky checkboxes as
      * the full settings page, server-rendered with the current
      * values, saved through kk_sidebar_settings_save (admin.ts).
      * The trigger link keeps its href to the full page as the
