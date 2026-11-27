@@ -299,6 +299,10 @@ msgstr "Cari…"
 msgid "Search terms"
 msgstr "Cari istilah"
 
+#: src/ts/widget-blocks.ts
+msgid "Showing %1$s of %2$s — type to search."
+msgstr "Menampilkan %1$s dari %2$s — ketik untuk mencari."
+
 #: inc/Customizer/TermCheckboxControl.php
 msgid "Search terms…"
 msgstr "Cari istilah…"
