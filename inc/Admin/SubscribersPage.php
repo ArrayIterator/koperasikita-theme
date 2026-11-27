@@ -103,7 +103,7 @@ final class SubscribersPage
                                         <input type="hidden" name="action" value="kk_delete_subscriber">
                                         <?php wp_nonce_field(self::NONCE_DELETE, 'kk_subscribers_delete_nonce'); ?>
                                         <input type="hidden" name="subscriber_id" value="<?php echo esc_attr((string) $row['id']); ?>">
-                                        <input type="submit" class="button-link-delete" value="<?php esc_attr_e('Delete', 'koperasikita'); ?>" onclick="return confirm('<?php echo esc_js(__('Are you sure you want to delete this subscriber?', 'koperasikita')); ?>');">
+                                        <input type="submit" class="button-link-delete kk-subscribers-delete" value="<?php esc_attr_e('Delete', 'koperasikita'); ?>" data-confirm="<?php esc_attr_e('Confirm delete?', 'koperasikita'); ?>">
                                     </form>
                                 </td>
                             </tr>
@@ -126,6 +126,34 @@ final class SubscribersPage
                 <?php endif; ?>
             <?php endif; ?>
         </div>
+        <script>
+        // Two-step delete: the first click arms the button
+        // ("Confirm delete?"), the second submits. No native
+        // confirm() dialog — some browsers and automation dismiss
+        // those without a trace, which silently swallowed the
+        // delete entirely. Without JS the button submits at once.
+        (function () {
+            var buttons = document.querySelectorAll('.kk-subscribers-delete');
+            buttons.forEach(function (btn) {
+                btn.addEventListener('click', function (ev) {
+                    if (!btn.classList.contains('is-armed')) {
+                        ev.preventDefault();
+                        if (!btn.dataset.original) {
+                            btn.dataset.original = btn.value;
+                        }
+                        btn.classList.add('is-armed');
+                        btn.value = btn.getAttribute('data-confirm');
+                    }
+                });
+                btn.addEventListener('blur', function () {
+                    if (btn.classList.contains('is-armed')) {
+                        btn.classList.remove('is-armed');
+                        btn.value = btn.dataset.original || btn.value;
+                    }
+                });
+            });
+        })();
+        </script>
         <?php
     }
 
