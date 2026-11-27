@@ -411,13 +411,24 @@
 	color: #f2f2f0;
 }
 
+/* 'auto' tables: same as light (no thead rule) in light mode, the
+ * dark thead in dark mode. */
+html[data-color-scheme="dark"] .kk-gold-data-desk--auto .kk-data-desk-table thead th,
+[data-color-scheme="dark"] .kk-gold-data-desk--auto .kk-data-desk-table thead th {
+	background: #1b1b1a;
+	color: #f2f2f0;
+}
+
 /* --- Data Desk panel ------------------------------------------------------ */
 
-/* One panel, three palettes: the palette sets a handful of custom
+/* One panel, four palettes: the palette sets a handful of custom
  * properties and the shared rules below read them, so every palette
- * renders the same layout with its own colours. The palettes are
- * explicit choices (not the site colour scheme): dark-green stays
- * dark green even in light mode, and light stays light in dark mode. */
+ * renders the same layout with its own colours. dark-green, light
+ * and dark are explicit choices (not the site colour scheme):
+ * dark-green stays dark green even in light mode, and light stays
+ * light in dark mode. 'auto' is the exception: it follows the site
+ * colour scheme (the light palette in light mode, the dark palette
+ * in dark mode). */
 .kk-data-desk-panel {
 	--dd-bg: #0B3D24;
 	--dd-ink: #fff;
@@ -482,6 +493,38 @@
 	--dd-down: var(--kk-error, #b3261e);
 }
 
+/* 'auto': the light palette's exact colours by default, the dark
+ * palette's exact colours under html[data-color-scheme="dark"]
+ * (frontend) or a preview container carrying
+ * data-color-scheme="dark" (admin previews — the admin never sets
+ * the attribute on <html>). No new colours. */
+.kk-data-desk-panel--auto {
+	--dd-bg: var(--kk-surface, #F7F7F5);
+	--dd-ink: var(--kk-ink, #1B1B1B);
+	--dd-muted: var(--kk-muted, #5B6470);
+	--dd-kicker: var(--kk-gold-dark, #8A6D1B);
+	--dd-line: var(--kk-gold, #C9962E);
+	--dd-axis: var(--kk-border, #E6E3DE);
+	--dd-divider: var(--kk-border, #E6E3DE);
+	--dd-border: var(--kk-border, #E6E3DE);
+	--dd-up: var(--kk-success, #0b6b3a);
+	--dd-down: var(--kk-error, #b3261e);
+}
+
+html[data-color-scheme="dark"] .kk-data-desk-panel--auto,
+[data-color-scheme="dark"] .kk-data-desk-panel--auto {
+	--dd-bg: #1b1b1a;
+	--dd-ink: #f2f2f0;
+	--dd-muted: rgb(242 242 240 / 0.7);
+	--dd-kicker: #f6d365;
+	--dd-line: #f6d365;
+	--dd-axis: rgb(255 255 255 / 0.3);
+	--dd-divider: rgb(255 255 255 / 0.14);
+	--dd-border: transparent;
+	--dd-up: #8ce99a;
+	--dd-down: #ffa8a8;
+}
+
 /* Preview badge: preview renders (templates page, widget forms)
  * use fixed sample data, never live prices, and the badge says so.
  * Gold on the dark palettes, green on the light panel and above the
@@ -515,9 +558,18 @@
 }
 
 .kk-data-desk-panel--light .kk-data-desk-preview-badge,
+.kk-data-desk-panel--auto .kk-data-desk-preview-badge,
 .kk-gold-data-desk .kk-data-desk-preview-badge {
 	background: var(--kk-green, #0b6b3a);
 	color: #fff;
+}
+
+/* In dark mode the auto panel's badge goes back to gold-on-dark,
+ * like the fixed dark palettes. */
+html[data-color-scheme="dark"] .kk-data-desk-panel--auto .kk-data-desk-preview-badge,
+[data-color-scheme="dark"] .kk-data-desk-panel--auto .kk-data-desk-preview-badge {
+	background: var(--dd-kicker, #f0c75e);
+	color: #1a1a1a;
 }
 
 .kk-data-desk-panel .kk-data-desk-kicker {

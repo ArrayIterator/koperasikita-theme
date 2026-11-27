@@ -4058,3 +4058,18 @@ msgstr "Belum ada template. Buat satu di halaman Data Desk Templates."
 
 msgid "Template not found."
 msgstr "Template tidak ditemukan."
+
+msgid "Dark Green"
+msgstr "Hijau Gelap"
+
+msgid "Follow site theme"
+msgstr "Ikuti tema situs"
+
+msgid "Click to edit the kicker."
+msgstr "Klik untuk mengedit kicker."
+
+msgid "Click to edit the title."
+msgstr "Klik untuk mengedit judul."
+
+msgid "Click the title or 'Meja Data' in the preview to edit them. In the title you can use {label} for the symbol name and {day} for the number of days."
+msgstr "Klik judul atau 'Meja Data' pada pratinjau untuk mengeditnya. Pada judul, gunakan {label} untuk nama simbol dan {day} untuk jumlah hari."

@@ -41,6 +41,8 @@ interface AdminStrings {
 	syncStepLatest: string;
 	syncDone: string;
 	loadingPreview: string;
+	editKickerHint: string;
+	editTitleHint: string;
 }
 
 interface AdminData {
@@ -99,6 +101,8 @@ const FALLBACK_STRINGS: AdminStrings = {
 	syncStepLatest: ' (latest %s)',
 	syncDone: 'Done — inserted %s, skipped %s (already in database). Reloading…',
 	loadingPreview: 'Loading preview…',
+	editKickerHint: 'Click to edit the kicker.',
+	editTitleHint: 'Click to edit the title.',
 };
 
 function adminData(): AdminData | null {
@@ -124,6 +128,8 @@ function adminStrings(): AdminStrings {
 		syncStepLatest: strings?.syncStepLatest ?? FALLBACK_STRINGS.syncStepLatest,
 		syncDone: strings?.syncDone ?? FALLBACK_STRINGS.syncDone,
 		loadingPreview: strings?.loadingPreview ?? FALLBACK_STRINGS.loadingPreview,
+		editKickerHint: strings?.editKickerHint ?? FALLBACK_STRINGS.editKickerHint,
+		editTitleHint: strings?.editTitleHint ?? FALLBACK_STRINGS.editTitleHint,
 	};
 }
 
@@ -352,17 +358,38 @@ function initAdmin(): void {
 	watchFontSettings(container);
 }
 
+/* The site colour scheme for the Data Desk 'auto' palette, resolved
+ * the same way as the frontend (main.ts): the stored preference
+ * (localStorage 'kk-color-scheme') wins, otherwise the OS scheme.
+ * The frontend sets html[data-color-scheme]; the admin does not, so
+ * the preview containers carry the attribute instead. */
+function resolveAdminScheme(): 'light' | 'dark' {
+	const stored = window.localStorage.getItem('kk-color-scheme');
+	if (stored === 'light' || stored === 'dark') {
+		return stored;
+	}
+	return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+}
+
 /**
  * Live Data Desk preview on the Data Desk Templates form.
  *
  * The preview box under the form shows the real panel / table markup
  * with sample data (the server renders the first one). Every field
- * change — kind, symbol, days, brands, palette, title — re-renders
- * it through kk_data_desk_preview, debounced so typing in the title
+ * change — kind, symbol, days, brands, palette, title, kicker —
+ * re-renders it through kk_data_desk_preview, debounced so typing
  * does not fire a request per keystroke. The brands picker is a chip
  * UI over the hidden select and never fires `change` on it, so
  * clicks in its wrapper refresh too. A failed refresh keeps the
  * last good preview and reports the error under the box.
+ *
+ * The preview kicker and title are edited inline: neither has a
+ * visible form row (both are hidden inputs) — the preview IS the
+ * editor. Clicking either text edits it in place; Enter or blur
+ * commits into the hidden field and refreshes the preview, Escape
+ * cancels and restores the text. The container carries
+ * data-color-scheme so the 'auto' palette follows the site scheme
+ * in the admin preview too.
  */
 function initDataDeskPreview(): void {
 	const config = adminData();
@@ -379,7 +406,8 @@ function initDataDeskPreview(): void {
 	const brands = document.getElementById('kk-template-brands') as HTMLSelectElement | null;
 	const palette = document.getElementById('kk-template-palette') as HTMLSelectElement | null;
 	const title = document.getElementById('kk-template-title') as HTMLInputElement | null;
-	if (!kind || !symbol || !days || !brands || !palette || !title) {
+	const kicker = document.getElementById('kk-template-kicker') as HTMLInputElement | null;
+	if (!kind || !symbol || !days || !brands || !palette || !title || !kicker) {
 		return;
 	}
 
@@ -389,6 +417,25 @@ function initDataDeskPreview(): void {
 
 	let timer: number | null = null;
 	let lastGood = container.innerHTML;
+
+	/* The 'auto' palette reads this attribute (see the --auto rules
+	 * in gold-markets.css); the refresh replaces the inner HTML, not
+	 * the container, so it survives re-renders. */
+	container.setAttribute('data-color-scheme', resolveAdminScheme());
+
+	/* The discoverability hint for the inline editing (a title
+	 * tooltip on each editable text). Re-applied after every
+	 * refresh, which replaces the preview DOM. */
+	const markEditable = (): void => {
+		const kickerEl = container.querySelector('.kk-data-desk-kicker');
+		if (kickerEl) {
+			kickerEl.setAttribute('title', adminStrings().editKickerHint);
+		}
+		const titleEl = container.querySelector('.kk-data-desk-title');
+		if (titleEl) {
+			titleEl.setAttribute('title', adminStrings().editTitleHint);
+		}
+	};
 
 	const refresh = (): void => {
 		if (timer !== null) {
@@ -402,6 +449,7 @@ function initDataDeskPreview(): void {
 				days: days.value,
 				palette: palette.value,
 				title: title.value,
+				kicker: kicker.value,
 				brands: Array.from(brands.selectedOptions)
 					.map((option) => option.value)
 					.join(','),
@@ -413,9 +461,11 @@ function initDataDeskPreview(): void {
 					container.innerHTML = data.html;
 					lastGood = data.html;
 					status.textContent = '';
+					markEditable();
 				})
 				.catch((error: unknown) => {
 					container.innerHTML = lastGood;
+					markEditable();
 					status.textContent = errorMessage(error);
 				})
 				.finally(() => {
@@ -424,14 +474,90 @@ function initDataDeskPreview(): void {
 		}, 300);
 	};
 
+	/* Inline editing of the preview kicker + title, delegated on the
+	 * container because every refresh replaces the preview DOM.
+	 * Click to edit (text selected), Enter or blur commits the text
+	 * into the hidden field and refreshes the preview, Escape
+	 * cancels and restores the previous text. Clearing the title
+	 * means empty (automatic title); clearing the kicker means
+	 * empty (default 'Meja Data'). */
+	let editing: HTMLElement | null = null;
+	let editingOriginal = '';
+
+	const finishEdit = (commit: boolean): void => {
+		if (!editing) {
+			return;
+		}
+		const el = editing;
+		editing = null;
+		const field = el.classList.contains('kk-data-desk-kicker') ? kicker : title;
+		if (commit) {
+			field.value = el.textContent?.trim() ?? '';
+		} else {
+			el.textContent = editingOriginal;
+		}
+		el.removeAttribute('contenteditable');
+		el.classList.remove('is-editing');
+		el.blur();
+		if (commit) {
+			refresh();
+		}
+	};
+
+	container.addEventListener('click', (event) => {
+		const target = (event.target as HTMLElement | null)?.closest?.(
+			'.kk-data-desk-kicker, .kk-data-desk-title',
+		) as HTMLElement | null;
+		if (!target || editing === target) {
+			return;
+		}
+		/* A pending refresh would replace the node mid-edit. */
+		if (timer !== null) {
+			window.clearTimeout(timer);
+			timer = null;
+		}
+		if (editing) {
+			finishEdit(true);
+		}
+		editing = target;
+		editingOriginal = target.textContent ?? '';
+		target.setAttribute('contenteditable', 'true');
+		target.classList.add('is-editing');
+		target.focus();
+		window.getSelection()?.selectAllChildren(target);
+	});
+
+	container.addEventListener('keydown', (event) => {
+		if (!editing) {
+			return;
+		}
+		if (event.key === 'Enter') {
+			event.preventDefault();
+			finishEdit(true);
+		} else if (event.key === 'Escape') {
+			event.preventDefault();
+			finishEdit(false);
+		}
+	});
+
+	/* Blur commits: a click on the other editable text blurs first
+	 * (committing it) and the click handler then starts the new
+	 * edit, so the two paths never double-commit. */
+	container.addEventListener('focusout', () => {
+		if (editing) {
+			finishEdit(true);
+		}
+	});
+
 	[kind, symbol, days, palette].forEach((el) => {
 		el.addEventListener('change', refresh);
 	});
-	[days, title].forEach((el) => {
+	[days, title, kicker].forEach((el) => {
 		el.addEventListener('input', refresh);
 	});
 	brands.addEventListener('change', refresh);
 	brands.parentElement?.querySelector('.kk-term-picker')?.addEventListener('click', refresh);
+	markEditable();
 }
 
 /**
@@ -462,6 +588,10 @@ function initDataDeskWidgetPreview(): void {
 		if (!body || !select) {
 			return;
 		}
+
+		/* Same 'auto' palette support as the templates preview: the
+		 * box carries the resolved scheme (see resolveAdminScheme). */
+		box.setAttribute('data-color-scheme', resolveAdminScheme());
 
 		const status = document.createElement('p');
 		status.className = 'description';
