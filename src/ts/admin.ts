@@ -29,6 +29,7 @@
  */
 
 import { postAjax } from './api';
+import { initSelect2TermPickers } from './select2-terms';
 import '../css/admin.css';
 
 interface AdminStrings {
@@ -427,6 +428,7 @@ function initAdmin(): void {
 	 * independent, so a failure is logged and the rest still run. */
 	const inits = [
 		initTermPickers,
+		initSelect2TermFields,
 		initProviderPickers,
 		initMenuIconPickers,
 		initAgendaWidgetFields,
@@ -3569,17 +3571,19 @@ function initAgendaWidgetFields(): void {
 }
 
 /**
- * Select2-style term pickers for widget forms.
+ * Searchable pickers for fixed option lists in widget forms.
  *
- * A `<select data-kk-term-picker>` (rendered by the
- * widget form with every term as an option) becomes a searchable
- * picker: a search box filters the option list, picked terms show
- * as removable chips, and the underlying select stays in sync so
- * the widget form submits the picked term IDs. A multiple select
- * picks many; a single select picks one (its empty option is the
- * "none" state). The select keeps working without JS (a plain
- * multi-select), so the picker is progressive enhancement, not a
- * requirement.
+ * A `<select data-kk-term-picker>` (rendered by the form with
+ * every option in the markup - gold brands, market items, Data
+ * Desk brands) becomes a searchable picker: a search box filters
+ * the option list, picked terms show as removable chips, and the
+ * underlying select stays in sync so the widget form submits the
+ * picked term IDs. Taxonomy term fields do not use this picker
+ * anymore - they use real Select2 (see select2-terms.ts).
+ * A multiple select picks many; a single select picks one (its
+ * empty option is the "none" state). The select keeps working
+ * without JS (a plain multi-select), so the picker is progressive
+ * enhancement, not a requirement.
  *
  * Widget forms are added dynamically (Customizer, Legacy Widget
  * block), so a MutationObserver picks up selects that appear
@@ -3760,6 +3764,17 @@ function initTermPickers(): void {
 		}
 	});
 	observer.observe(document.body, { childList: true, subtree: true });
+}
+
+/* Real Select2 term pickers for classic widget forms (see
+ * select2-terms.ts): the taxonomy term selects (categories,
+ * tags, one term) become Select2 with AJAX search. */
+function initSelect2TermFields(): void {
+	const data = adminData();
+	if (!data) {
+		return;
+	}
+	initSelect2TermPickers({ ajaxUrl: data.ajaxUrl, nonce: data.nonce });
 }
 
 if (document.readyState === 'loading') {

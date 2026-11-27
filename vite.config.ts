@@ -7,7 +7,25 @@ export default defineConfig({
 	// ONLY src/css/newsletter.css, so every other entry keeps its
 	// hand-written CSS untouched. Do not add the import to another
 	// entry without deciding that entry is a Tailwind entry too.
-	plugins: [tailwindcss()],
+	plugins: [
+		tailwindcss(),
+		/* Select2 is a jQuery plugin: it needs the jQuery WordPress
+		 * already loads in the admin, not a second copy bundled
+		 * into admin.js. This shim answers `import ... from
+		 * 'jquery'` with the global, so the bundled Select2
+		 * attaches to window.jQuery. */
+		{
+			name: 'jquery-global-shim',
+			resolveId(id: string): string | null {
+				return id === 'jquery' ? '\0virtual:jquery' : null;
+			},
+			load(id: string): string | null {
+				return id === '\0virtual:jquery'
+					? 'const jq = window.jQuery || window.$; export default jq;'
+					: null;
+			},
+		},
+	],
   server: {
     host: 'localhost',
     port: 5173,

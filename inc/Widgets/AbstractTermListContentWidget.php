@@ -149,13 +149,6 @@ abstract class AbstractTermListContentWidget extends WP_Widget
     public function form($instance): void
     {
         $settings = $this->settings($instance);
-        $terms = get_terms([
-            'taxonomy' => $this->taxonomy(),
-            'hide_empty' => false,
-            'orderby' => 'name',
-            'order' => 'ASC',
-        ]);
-        $terms = is_array($terms) ? $terms : [];
         ?>
         <p>
             <label for="<?php echo esc_attr($this->get_field_id('title')); ?>">
@@ -174,26 +167,7 @@ abstract class AbstractTermListContentWidget extends WP_Widget
         </p>
         <?php WidgetHeader::field($this, $instance); ?>
         <?php WidgetSpacing::field($this, $instance); ?>
-        <p>
-            <label for="<?php echo esc_attr($this->get_field_id('term_id')); ?>">
-                <?php echo esc_html($this->termLabel()); ?>
-            </label>
-            <?php /* Searchable picker (see admin.ts), not a long plain dropdown. */ ?>
-            <select
-                class="widefat"
-                data-kk-term-picker
-                id="<?php echo esc_attr($this->get_field_id('term_id')); ?>"
-                name="<?php echo esc_attr($this->get_field_name('term_id')); ?>"
-            >
-                <option value="0"><?php esc_html_e('— Select —', 'koperasikita'); ?></option>
-                <?php foreach ($terms as $term) : ?>
-                    <?php if (!$term instanceof WP_Term) { continue; } ?>
-                    <option value="<?php echo esc_attr((string) $term->term_id); ?>" <?php selected($settings['term_id'], $term->term_id); ?>>
-                        <?php echo esc_html($term->name); ?>
-                    </option>
-                <?php endforeach; ?>
-            </select>
-        </p>
+        <?php Select2TermField::render($this, 'term_id', $this->termLabel(), $this->taxonomy(), $settings['term_id'] > 0 ? [$settings['term_id']] : [], false, __('— Select —', 'koperasikita')); ?>
         <p>
             <label for="<?php echo esc_attr($this->get_field_id('layout')); ?>">
                 <?php esc_html_e('Layout', 'koperasikita'); ?>
