@@ -271,7 +271,10 @@ function initLocationPreviewMap(el: HTMLElement): void {
 
 	let marker: L.Marker | null = null;
 
-	function syncPin(): void {
+	// Arrow function, not a hoisted declaration: the null guard above
+	// narrows latInput/lngInput, and only a non-hoisted closure keeps
+	// that narrowing (a function declaration would lose it).
+	const syncPin = (): void => {
 		const lat = parseCoord(latInput.value, -90, 90);
 		const lng = parseCoord(lngInput.value, -180, 180);
 
@@ -290,7 +293,7 @@ function initLocationPreviewMap(el: HTMLElement): void {
 		}
 
 		map.setView([lat, lng], map.getZoom());
-	}
+	};
 
 	[latInput, lngInput].forEach((input) => {
 		input.addEventListener('input', syncPin);
