@@ -6,8 +6,15 @@
  * a disabled feature loads neither this script nor any markets markup,
  * so there is nothing to guard against beyond the flag.
  *
- * The gold slider auto-advances on a timer, pauses on hover/focus, when
- * the tab is hidden, and when the user presses pause. Prev/next wrap
+ * The gold slider is a track slider modelled on the demo's vertical
+ * gold carousel: the slides sit in a flex track inside an
+ * overflow-hidden viewport and the track translates by whole steps
+ * (translateY for vertical, translateX for horizontal). The first
+ * slides are cloned onto the end so the loop wraps without a visible
+ * seam, and the wrap-back is a jump with the transition disabled.
+ * The markets slider keeps the older single-slide toggle.
+ * Both auto-advance on a timer, pause on hover/focus, when the tab
+ * is hidden, and when the user presses pause. Prev/next wrap
  * around, dots jump to a slide, and a horizontal swipe changes slides -
  * the controls are real buttons with 44px touch targets for Android.
  * A slider with a single slide has no controls and no timer.
@@ -35,36 +42,285 @@ function $all<T extends Element>(selector: string, root: ParentNode = document):
 }
 
 /**
- * Auto-advancing vertical slider, shared by the gold slider and the
- * markets vertical slider. `kind` is the data-attribute prefix
- * ('gold' or 'markets'): slides are [data-kk-<kind>-slide], dots
- * [data-kk-<kind>-dot], controls [data-kk-<kind>-prev/next/toggle].
- * `label` is the human name used in the play/pause toggle aria-label
- * ('gold prices' / 'markets').
+ * Track slider for the gold widget, all three styles. The slides sit
+ * in a flex track inside the overflow-hidden .kk-widget-scroll
+ * viewport and the track translates by whole steps: translateY for
+ * the vertical carousel, translateX for the two horizontal styles.
+ * This is the demo's vertical carousel mechanism: the first slides
+ * are cloned onto the end of the track so the loop wraps without a
+ * visible seam, advancing past the last real slide jumps back to
+ * index 0 with the transition disabled, and going back from index 0
+ * jumps to the end first and then animates one step back.
+ *
+ * One demo value is measured instead of hardcoded: the demo's cards
+ * are a fixed 88px tall so its step is a constant 96, but theme
+ * slides vary in height (brand + price + meta + an optional Updated
+ * line, wrapping by width), so the step is the first slide's height
+ * plus the track gap, read from the computed style, and the viewport
+ * height is the bottom edge of the second slide, so exactly two
+ * slides show. Both are re-measured on resize and on window load
+ * (a late webfont can change the slide height).
  */
-function initAutoSlider(slider: HTMLElement, kind: 'gold' | 'markets', label: string): void {
-	const slides = $all<HTMLElement>(`[data-kk-${kind}-slide]`, slider);
-	if (slides.length <= 1) {
+function initGoldSlider(slider: HTMLElement): void {
+	const track = slider.querySelector<HTMLElement>('.kk-gold-slides');
+	const viewport = slider.querySelector<HTMLElement>('.kk-widget-scroll');
+	const slides = $all<HTMLElement>('[data-kk-gold-slide]', slider);
+	if (track === null || slides.length <= 1) {
 		return;
 	}
 
-	const dots = $all<HTMLButtonElement>(`[data-kk-${kind}-dot]`, slider);
-	const prevButton = slider.querySelector<HTMLButtonElement>(`[data-kk-${kind}-prev]`);
-	const nextButton = slider.querySelector<HTMLButtonElement>(`[data-kk-${kind}-next]`);
-	const toggleButton = slider.querySelector<HTMLButtonElement>(`[data-kk-${kind}-toggle]`);
+	const total = slides.length;
+	const dots = $all<HTMLButtonElement>('[data-kk-gold-dot]', slider);
+	const prevButton = slider.querySelector<HTMLButtonElement>('[data-kk-gold-prev]');
+	const nextButton = slider.querySelector<HTMLButtonElement>('[data-kk-gold-next]');
+	const toggleButton = slider.querySelector<HTMLButtonElement>('[data-kk-gold-toggle]');
 	const pauseIcon = toggleButton?.querySelector('.kk-widget-toggle-pause') as HTMLElement | null;
 	const playIcon = toggleButton?.querySelector('.kk-widget-toggle-play') as HTMLElement | null;
 
 	const parsedInterval = Number(slider.dataset.interval ?? 5000);
 	const interval = Number.isFinite(parsedInterval) && parsedInterval >= 2000 ? parsedInterval : 5000;
 
-	// Horizontal styles keep every slide visible in a swipeable row
-	// and scroll the active one into view; the vertical slider
-	// toggles a single active slide. The markets slider has no style
-	// attribute, so it stays vertical. data-autoplay="0" disables
-	// the timer.
 	const style = slider.dataset.style ?? 'vertical-carousel';
-	const horizontal = style === 'horizontal-carousel' || style === 'slider-horizontal';
+	const vertical = style === 'vertical-carousel';
+	const parsedPerView = Number(slider.dataset.itemsPerView ?? 1);
+	const perView = vertical
+		? 2
+		: Number.isFinite(parsedPerView)
+			? Math.max(1, Math.min(3, Math.floor(parsedPerView)))
+			: 1;
+	const cloneCount = Math.min(perView, total);
+	const autoplay = slider.dataset.autoplay !== '0';
+	const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+	for (let c = 0; c < cloneCount; c++) {
+		const clone = slides[c].cloneNode(true) as HTMLElement;
+		clone.setAttribute('aria-hidden', 'true');
+		track.appendChild(clone);
+	}
+
+	let current = 0;
+	let timer: number | null = null;
+	let userPaused = false;
+	let hoverPaused = false;
+	let step = 0;
+
+	const measure = (): void => {
+		const gap = Number.parseFloat(window.getComputedStyle(track).gap) || 0;
+		if (vertical) {
+			step = slides[0].offsetHeight + gap;
+			if (viewport !== null) {
+				viewport.style.maxHeight = 'none';
+				viewport.style.height = `${slides[0].offsetHeight + gap + slides[1].offsetHeight}px`;
+			}
+		} else {
+			step = slides[0].offsetWidth + gap;
+		}
+	};
+
+	function syncDots(active: number): void {
+		dots.forEach((dot, dotIndex) => {
+			const isActive = dotIndex === active;
+			dot.classList.toggle('is-active', isActive);
+			dot.setAttribute('aria-current', isActive ? 'true' : 'false');
+		});
+	}
+
+	const go = (index: number, animate: boolean): void => {
+		if (!animate || reducedMotion) {
+			track.classList.add('kk-gold-track-flat');
+		}
+		track.style.transform = vertical
+			? `translateY(${-index * step}px)`
+			: `translateX(${-index * step}px)`;
+		if (!animate || reducedMotion) {
+			void track.offsetWidth;
+			track.classList.remove('kk-gold-track-flat');
+		}
+		const active = ((index % total) + total) % total;
+		slides.forEach((slide, slideIndex) => {
+			slide.classList.toggle('is-active', slideIndex === active);
+		});
+		syncDots(active);
+	};
+
+	function next(): void {
+		current += 1;
+		go(current, true);
+		if (current >= total) {
+			window.setTimeout(() => {
+				current = 0;
+				go(0, false);
+			}, 580);
+		}
+	}
+
+	function prev(): void {
+		if (current === 0) {
+			current = total;
+			go(total, false);
+		}
+		window.setTimeout(() => {
+			current -= 1;
+			go(current, true);
+		}, 30);
+	}
+
+	function stop(): void {
+		if (timer !== null) {
+			window.clearInterval(timer);
+			timer = null;
+		}
+	}
+
+	function start(): void {
+		if (!autoplay || userPaused || hoverPaused || document.hidden) {
+			return;
+		}
+		stop();
+		timer = window.setInterval(next, interval);
+	}
+
+	function syncToggle(): void {
+		if (!toggleButton) {
+			return;
+		}
+		toggleButton.setAttribute('aria-pressed', userPaused ? 'true' : 'false');
+		toggleButton.setAttribute('aria-label', userPaused ? 'Play gold prices' : 'Pause gold prices');
+		if (pauseIcon) {
+			pauseIcon.hidden = userPaused;
+		}
+		if (playIcon) {
+			playIcon.hidden = !userPaused;
+		}
+	}
+
+	prevButton?.addEventListener('click', () => {
+		prev();
+		start();
+	});
+	nextButton?.addEventListener('click', () => {
+		next();
+		start();
+	});
+	dots.forEach((dot, dotIndex) => {
+		dot.addEventListener('click', () => {
+			if (current >= total) {
+				current %= total;
+				go(current, false);
+			}
+			current = dotIndex;
+			go(current, true);
+			start();
+		});
+	});
+	toggleButton?.addEventListener('click', () => {
+		userPaused = !userPaused;
+		syncToggle();
+		if (userPaused) {
+			stop();
+		} else {
+			start();
+		}
+	});
+
+	slider.addEventListener('pointerenter', () => {
+		hoverPaused = true;
+		stop();
+	});
+	slider.addEventListener('pointerleave', () => {
+		hoverPaused = false;
+		start();
+	});
+	slider.addEventListener('focusin', () => {
+		hoverPaused = true;
+		stop();
+	});
+	slider.addEventListener('focusout', () => {
+		hoverPaused = false;
+		start();
+	});
+
+	document.addEventListener('visibilitychange', () => {
+		if (document.hidden) {
+			stop();
+		} else {
+			start();
+		}
+	});
+
+	// Horizontal swipe: a short horizontal drag changes slides, a mostly
+	// vertical drag is left alone so the page can still scroll.
+	let touchStartX = 0;
+	let touchStartY = 0;
+	slider.addEventListener(
+		'touchstart',
+		(event) => {
+			const touch = event.changedTouches[0];
+			touchStartX = touch.clientX;
+			touchStartY = touch.clientY;
+		},
+		{ passive: true },
+	);
+	slider.addEventListener(
+		'touchend',
+		(event) => {
+			const touch = event.changedTouches[0];
+			const deltaX = touch.clientX - touchStartX;
+			const deltaY = touch.clientY - touchStartY;
+			if (Math.abs(deltaX) < 40 || Math.abs(deltaX) < Math.abs(deltaY)) {
+				return;
+			}
+			if (deltaX < 0) {
+				next();
+			} else {
+				prev();
+			}
+			start();
+		},
+		{ passive: true },
+	);
+
+	measure();
+	go(0, false);
+
+	window.addEventListener('resize', () => {
+		measure();
+		go(current, false);
+	});
+	window.addEventListener('load', () => {
+		measure();
+		go(current, false);
+	});
+
+	if (!reducedMotion) {
+		start();
+	}
+}
+
+/**
+ * Auto-advancing vertical slider for the markets slider. Slides are
+ * [data-kk-markets-slide], dots [data-kk-markets-dot], controls
+ * [data-kk-markets-prev/next/toggle]. One slide is shown at a time;
+ * the active slide is toggled with the is-active class and the
+ * kk-gold-slide-in keyframes.
+ */
+function initMarketsSlider(slider: HTMLElement): void {
+	const slides = $all<HTMLElement>('[data-kk-markets-slide]', slider);
+	if (slides.length <= 1) {
+		return;
+	}
+
+	const dots = $all<HTMLButtonElement>('[data-kk-markets-dot]', slider);
+	const prevButton = slider.querySelector<HTMLButtonElement>('[data-kk-markets-prev]');
+	const nextButton = slider.querySelector<HTMLButtonElement>('[data-kk-markets-next]');
+	const toggleButton = slider.querySelector<HTMLButtonElement>('[data-kk-markets-toggle]');
+	const pauseIcon = toggleButton?.querySelector('.kk-widget-toggle-pause') as HTMLElement | null;
+	const playIcon = toggleButton?.querySelector('.kk-widget-toggle-play') as HTMLElement | null;
+
+	const parsedInterval = Number(slider.dataset.interval ?? 5000);
+	const interval = Number.isFinite(parsedInterval) && parsedInterval >= 2000 ? parsedInterval : 5000;
+
+	// data-autoplay="0" disables the timer.
 	const autoplay = slider.dataset.autoplay !== '0';
 	const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
@@ -90,13 +346,6 @@ function initAutoSlider(slider: HTMLElement, kind: 'gold' | 'markets', label: st
 		current = next;
 		slides[current].classList.add('is-active');
 		syncDots();
-		if (horizontal) {
-			slides[current].scrollIntoView({
-				behavior: reducedMotion ? 'auto' : 'smooth',
-				inline: 'start',
-				block: 'nearest',
-			});
-		}
 	}
 
 	function stop(): void {
@@ -119,7 +368,7 @@ function initAutoSlider(slider: HTMLElement, kind: 'gold' | 'markets', label: st
 			return;
 		}
 		toggleButton.setAttribute('aria-pressed', userPaused ? 'true' : 'false');
-		toggleButton.setAttribute('aria-label', userPaused ? `Play ${label}` : `Pause ${label}`);
+		toggleButton.setAttribute('aria-label', userPaused ? 'Play markets' : 'Pause markets');
 		if (pauseIcon) {
 			pauseIcon.hidden = userPaused;
 		}
@@ -177,70 +426,33 @@ function initAutoSlider(slider: HTMLElement, kind: 'gold' | 'markets', label: st
 		}
 	});
 
-	if (horizontal) {
-		// The row scrolls natively on swipe; sync the active card
-		// and dots to where the track stopped.
-		const track = slides[0].parentElement;
-		if (track !== null) {
-			let scrollRaf = 0;
-			track.addEventListener(
-				'scroll',
-				() => {
-					if (scrollRaf !== 0) {
-						return;
-					}
-					scrollRaf = window.requestAnimationFrame(() => {
-						scrollRaf = 0;
-						const trackLeft = track.getBoundingClientRect().left;
-						let best = current;
-						let bestDist = Number.POSITIVE_INFINITY;
-						slides.forEach((slide, slideIndex) => {
-							const dist = Math.abs(slide.getBoundingClientRect().left - trackLeft);
-							if (dist < bestDist) {
-								bestDist = dist;
-								best = slideIndex;
-							}
-						});
-						if (best !== current) {
-							slides[current].classList.remove('is-active');
-							current = best;
-							slides[current].classList.add('is-active');
-							syncDots();
-						}
-					});
-				},
-				{ passive: true },
-			);
-		}
-	} else {
-		// Horizontal swipe: a short horizontal drag changes slides, a mostly
-		// vertical drag is left alone so the page can still scroll.
-		let touchStartX = 0;
-		let touchStartY = 0;
-		slider.addEventListener(
-			'touchstart',
-			(event) => {
-				const touch = event.changedTouches[0];
-				touchStartX = touch.clientX;
-				touchStartY = touch.clientY;
-			},
-			{ passive: true },
-		);
-		slider.addEventListener(
-			'touchend',
-			(event) => {
-				const touch = event.changedTouches[0];
-				const deltaX = touch.clientX - touchStartX;
-				const deltaY = touch.clientY - touchStartY;
-				if (Math.abs(deltaX) < 40 || Math.abs(deltaX) < Math.abs(deltaY)) {
-					return;
-				}
-				show(current + (deltaX < 0 ? 1 : -1));
-				start();
-			},
-			{ passive: true },
-		);
-	}
+	// Horizontal swipe: a short horizontal drag changes slides, a mostly
+	// vertical drag is left alone so the page can still scroll.
+	let touchStartX = 0;
+	let touchStartY = 0;
+	slider.addEventListener(
+		'touchstart',
+		(event) => {
+			const touch = event.changedTouches[0];
+			touchStartX = touch.clientX;
+			touchStartY = touch.clientY;
+		},
+		{ passive: true },
+	);
+	slider.addEventListener(
+		'touchend',
+		(event) => {
+			const touch = event.changedTouches[0];
+			const deltaX = touch.clientX - touchStartX;
+			const deltaY = touch.clientY - touchStartY;
+			if (Math.abs(deltaX) < 40 || Math.abs(deltaX) < Math.abs(deltaY)) {
+				return;
+			}
+			show(current + (deltaX < 0 ? 1 : -1));
+			start();
+		},
+		{ passive: true },
+	);
 
 	if (!reducedMotion) {
 		start();
@@ -251,8 +463,8 @@ function initGoldMarkets(): void {
 	if (getKkData().isMarketsEnabled === false) {
 		return;
 	}
-	$all<HTMLElement>('[data-kk-gold-slider]').forEach((slider) => initAutoSlider(slider, 'gold', 'gold prices'));
-	$all<HTMLElement>('[data-kk-markets-slider]').forEach((slider) => initAutoSlider(slider, 'markets', 'markets'));
+	$all<HTMLElement>('[data-kk-gold-slider]').forEach((slider) => initGoldSlider(slider));
+	$all<HTMLElement>('[data-kk-markets-slider]').forEach((slider) => initMarketsSlider(slider));
 	initLivePrices();
 }
 

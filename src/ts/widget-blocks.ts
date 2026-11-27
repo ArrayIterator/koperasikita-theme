@@ -1171,6 +1171,8 @@ function buildDefinitions(api: Wp): BlockDef[] {
 				colorStyle: { type: 'string', default: 'auto' },
 				autoplay: { type: 'boolean', default: true },
 				interval: { type: 'number', default: 5 },
+				itemsPerView: { type: 'number', default: 1 },
+				showDots: { type: 'boolean', default: false },
 			},
 			fields: [
 				{ key: 'title', kind: 'text', label: __('Title') },
@@ -1194,6 +1196,16 @@ function buildDefinitions(api: Wp): BlockDef[] {
 					],
 				},
 				{
+					key: 'itemsPerView',
+					kind: 'select',
+					label: __('Items per view'),
+					options: [
+						{ value: '1', label: __('1 item') },
+						{ value: '2', label: __('2 items') },
+						{ value: '3', label: __('3 items') },
+					],
+				},
+				{
 					key: 'colorStyle',
 					kind: 'select',
 					label: __('Colour style'),
@@ -1204,6 +1216,7 @@ function buildDefinitions(api: Wp): BlockDef[] {
 					],
 				},
 				{ key: 'autoplay', kind: 'toggle', label: __('Autoplay') },
+				{ key: 'showDots', kind: 'toggle', label: __('Show dots') },
 				{ key: 'interval', kind: 'number', label: __('Autoplay interval (seconds)'), min: 2, max: 30 },
 			],
 		},

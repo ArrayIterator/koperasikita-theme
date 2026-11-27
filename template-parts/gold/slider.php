@@ -30,6 +30,8 @@ $colorStyle = isset($args['color_style']) && in_array($args['color_style'], ['au
     : 'auto';
 $autoplay = !isset($args['autoplay']) || (bool) $args['autoplay'];
 $interval = isset($args['interval']) ? max(2, min(30, (int) $args['interval'])) : 5;
+$itemsPerView = isset($args['items_per_view']) ? max(1, min(3, (int) $args['items_per_view'])) : 1;
+$showDots = isset($args['show_dots']) ? (bool) $args['show_dots'] : false;
 
 if ($brands === []) {
 	?>
@@ -48,7 +50,7 @@ if ($colorStyle === 'dark') {
     $classes .= ' kk-gold-slider--light';
 }
 ?>
-<div class="<?php echo esc_attr($classes); ?><?php echo $single ? ' is-single' : ''; ?>" data-kk-gold-slider data-style="<?php echo esc_attr($style); ?>" data-interval="<?php echo esc_attr((string) ($interval * 1000)); ?>" data-autoplay="<?php echo $autoplay ? '1' : '0'; ?>">
+<div class="<?php echo esc_attr($classes); ?><?php echo $single ? ' is-single' : ''; ?>" data-kk-gold-slider data-style="<?php echo esc_attr($style); ?>" data-items-per-view="<?php echo esc_attr((string) $itemsPerView); ?>" data-interval="<?php echo esc_attr((string) ($interval * 1000)); ?>" data-autoplay="<?php echo $autoplay ? '1' : '0'; ?>">
 	<div class="kk-widget-scroll">
 		<ul class="kk-gold-slides">
 			<?php $index = 0; ?>
@@ -82,6 +84,7 @@ if ($colorStyle === 'dark') {
 			<button type="button" class="kk-widget-nav" data-kk-gold-prev aria-label="<?php esc_attr_e('Previous brand', 'koperasikita'); ?>">
 				<?php echo Icon::svg('prev', 18); ?>
 			</button>
+			<?php if ($showDots) : ?>
 			<div class="kk-widget-dots" role="tablist" aria-label="<?php esc_attr_e('Gold brands', 'koperasikita'); ?>">
 				<?php $index = 0; ?>
 				<?php foreach ($brands as $slug => $price) : ?>
@@ -96,6 +99,7 @@ if ($colorStyle === 'dark') {
 					<?php $index++; ?>
 				<?php endforeach; ?>
 			</div>
+			<?php endif; ?>
 			<button type="button" class="kk-widget-nav" data-kk-gold-next aria-label="<?php esc_attr_e('Next brand', 'koperasikita'); ?>">
 				<?php echo Icon::svg('next', 18); ?>
 			</button>

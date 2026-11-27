@@ -27,6 +27,9 @@ final class GoldWidget extends WP_Widget
     private const DEFAULT_INTERVAL = 5;
     private const MIN_INTERVAL = 2;
     private const MAX_INTERVAL = 30;
+    private const DEFAULT_ITEMS_PER_VIEW = 1;
+    private const MIN_ITEMS_PER_VIEW = 1;
+    private const MAX_ITEMS_PER_VIEW = 3;
     private const STYLES = ['vertical-carousel', 'horizontal-carousel', 'slider-horizontal'];
     private const COLOR_STYLES = ['auto', 'dark', 'light'];
 
@@ -58,6 +61,8 @@ final class GoldWidget extends WP_Widget
         $colorStyle = self::sanitizeColorStyle(isset($instance['color_style']) ? (string) $instance['color_style'] : self::DEFAULT_COLOR_STYLE);
         $autoplay = !isset($instance['autoplay']) || (bool) $instance['autoplay'];
         $interval = self::sanitizeInterval(isset($instance['interval']) ? (int) $instance['interval'] : self::DEFAULT_INTERVAL);
+        $itemsPerView = self::sanitizeItemsPerView(isset($instance['items_per_view']) ? (int) $instance['items_per_view'] : self::DEFAULT_ITEMS_PER_VIEW);
+        $showDots = !empty($instance['show_dots']);
 
         $prices = Gold::brandPrices($brands);
 
@@ -71,6 +76,8 @@ final class GoldWidget extends WP_Widget
             'color_style' => $colorStyle,
             'autoplay' => $autoplay,
             'interval' => $interval,
+            'items_per_view' => $itemsPerView,
+            'show_dots' => $showDots,
         ]);
 
         echo $args['after_widget'] ?? '';
@@ -119,6 +126,23 @@ final class GoldWidget extends WP_Widget
         return max(self::MIN_INTERVAL, min(self::MAX_INTERVAL, $interval));
     }
 
+    /**
+     * @return array<int, string>
+     */
+    public static function itemsPerViewOptions(): array
+    {
+        return [
+            1 => __('1 item', 'koperasikita'),
+            2 => __('2 items', 'koperasikita'),
+            3 => __('3 items', 'koperasikita'),
+        ];
+    }
+
+    public static function sanitizeItemsPerView(int $items): int
+    {
+        return max(self::MIN_ITEMS_PER_VIEW, min(self::MAX_ITEMS_PER_VIEW, $items));
+    }
+
     /** @param array<string, mixed> $instance Widget settings. */
     public function form($instance): void
     {
@@ -130,6 +154,8 @@ final class GoldWidget extends WP_Widget
         $colorStyle = self::sanitizeColorStyle(isset($instance['color_style']) ? (string) $instance['color_style'] : self::DEFAULT_COLOR_STYLE);
         $autoplay = !isset($instance['autoplay']) || (bool) $instance['autoplay'];
         $interval = self::sanitizeInterval(isset($instance['interval']) ? (int) $instance['interval'] : self::DEFAULT_INTERVAL);
+        $itemsPerView = self::sanitizeItemsPerView(isset($instance['items_per_view']) ? (int) $instance['items_per_view'] : self::DEFAULT_ITEMS_PER_VIEW);
+        $showDots = !empty($instance['show_dots']);
         ?>
         <p>
             <label for="<?php echo esc_attr($this->get_field_id('title')); ?>">
@@ -183,6 +209,20 @@ final class GoldWidget extends WP_Widget
             </select>
         </p>
         <p>
+            <label for="<?php echo esc_attr($this->get_field_id('items_per_view')); ?>">
+                <?php esc_html_e('Items per view', 'koperasikita'); ?>
+            </label>
+            <select
+                class="widefat"
+                id="<?php echo esc_attr($this->get_field_id('items_per_view')); ?>"
+                name="<?php echo esc_attr($this->get_field_name('items_per_view')); ?>"
+            >
+                <?php foreach (self::itemsPerViewOptions() as $value => $label) : ?>
+                    <option value="<?php echo esc_attr((string) $value); ?>" <?php selected($itemsPerView, $value); ?>><?php echo esc_html($label); ?></option>
+                <?php endforeach; ?>
+            </select>
+        </p>
+        <p>
             <label for="<?php echo esc_attr($this->get_field_id('color_style')); ?>">
                 <?php esc_html_e('Colour style', 'koperasikita'); ?>
             </label>
@@ -206,6 +246,18 @@ final class GoldWidget extends WP_Widget
                     <?php checked($autoplay); ?>
                 >
                 <?php esc_html_e('Autoplay', 'koperasikita'); ?>
+            </label>
+        </p>
+        <p>
+            <label for="<?php echo esc_attr($this->get_field_id('show_dots')); ?>">
+                <input
+                    type="checkbox"
+                    id="<?php echo esc_attr($this->get_field_id('show_dots')); ?>"
+                    name="<?php echo esc_attr($this->get_field_name('show_dots')); ?>"
+                    value="1"
+                    <?php checked($showDots); ?>
+                >
+                <?php esc_html_e('Show dots', 'koperasikita'); ?>
             </label>
         </p>
         <p>
@@ -245,6 +297,8 @@ final class GoldWidget extends WP_Widget
         $instance['color_style'] = self::sanitizeColorStyle(isset($new['color_style']) ? sanitize_text_field((string) $new['color_style']) : self::DEFAULT_COLOR_STYLE);
         $instance['autoplay'] = !empty($new['autoplay']);
         $instance['interval'] = self::sanitizeInterval(isset($new['interval']) ? (int) $new['interval'] : self::DEFAULT_INTERVAL);
+        $instance['items_per_view'] = self::sanitizeItemsPerView(isset($new['items_per_view']) ? (int) $new['items_per_view'] : self::DEFAULT_ITEMS_PER_VIEW);
+        $instance['show_dots'] = !empty($new['show_dots']);
 
         return $instance;
     }
