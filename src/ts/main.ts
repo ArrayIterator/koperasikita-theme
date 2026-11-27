@@ -1399,18 +1399,15 @@ function initBackToTop(): void {
 	});
 }
 
-/* Article share: copy link                                            */
+/* Article share: copy link, native share sheet, print */
 
-function initShareCopy(): void {
+function initShare(): void {
+	const row = $('.kk-share');
+	if (!row) {
+		return;
+	}
 	const button = $('.kk-share-copy') as HTMLButtonElement | null;
-	if (!button) {
-		return;
-	}
 	const status = $('.kk-share-status');
-	const url = button.dataset.shareUrl ?? '';
-	if (!url) {
-		return;
-	}
 	let timer = 0;
 	const showMessage = (message: string, isError: boolean): void => {
 		if (!status) {
@@ -1418,10 +1415,12 @@ function initShareCopy(): void {
 		}
 		status.textContent = message;
 		status.classList.toggle('is-error', isError);
+		status.classList.add('is-visible');
 		window.clearTimeout(timer);
 		timer = window.setTimeout(() => {
 			status.textContent = '';
 			status.classList.remove('is-error');
+			status.classList.remove('is-visible');
 		}, 3000);
 	};
 	// Fallback for non-secure contexts and older browsers where the
@@ -1443,9 +1442,7 @@ function initShareCopy(): void {
 		document.body.removeChild(textarea);
 		return ok;
 	};
-	button.addEventListener('click', () => {
-		const success = button.dataset.copySuccess ?? 'Link copied';
-		const failure = button.dataset.copyError ?? 'The link could not be copied.';
+	const copyUrl = (url: string, success: string, failure: string): void => {
 		const done = (ok: boolean): void => showMessage(ok ? success : failure, !ok);
 		if (navigator.clipboard && navigator.clipboard.writeText) {
 			navigator.clipboard.writeText(url).then(
@@ -1455,7 +1452,55 @@ function initShareCopy(): void {
 		} else {
 			done(copyWithFallback(url));
 		}
-	});
+	};
+	if (button) {
+		const url = button.dataset.shareUrl ?? '';
+		if (url) {
+			button.addEventListener('click', () => {
+				const success = button.dataset.copySuccess ?? 'Link copied';
+				const failure = button.dataset.copyError ?? 'The link could not be copied.';
+				copyUrl(url, success, failure);
+			});
+		}
+	}
+	// Native share sheet (Web Share API): opens the device share
+	// sheet so the reader can share to any installed app. The
+	// button is removed entirely where the API is unavailable, so
+	// it never shows as a dead control. A cancelled sheet is
+	// silent; any other failure falls back to copying the link.
+	const nativeButton = $('.kk-share-native') as HTMLButtonElement | null;
+	if (nativeButton) {
+		if (typeof navigator.share !== 'function') {
+			nativeButton.remove();
+		} else {
+			nativeButton.addEventListener('click', () => {
+				const title = nativeButton.dataset.shareTitle ?? '';
+				const url = nativeButton.dataset.shareUrl ?? '';
+				const shareData: ShareData = { url };
+				if (title) {
+					shareData.title = title;
+					shareData.text = title;
+				}
+				navigator.share(shareData).catch((error: unknown) => {
+					if (error instanceof DOMException && error.name === 'AbortError') {
+						return;
+					}
+					const copy = $('.kk-share-copy') as HTMLButtonElement | null;
+					if (copy && url) {
+						const success = copy.dataset.copySuccess ?? 'Link copied';
+						const failure = copy.dataset.copyError ?? 'The link could not be copied.';
+						copyUrl(url, success, failure);
+					}
+				});
+			});
+		}
+	}
+	const printButton = $('.kk-share-print') as HTMLButtonElement | null;
+	if (printButton) {
+		printButton.addEventListener('click', () => {
+			window.print();
+		});
+	}
 }
 
 /* Boot                                                                */
@@ -1474,5 +1519,5 @@ document.addEventListener('DOMContentLoaded', () => {
 	initPwa();
 	initBottomNav();
 	initBackToTop();
-	initShareCopy();
+	initShare();
 });
