@@ -65,7 +65,7 @@ abstract class AbstractStoryWidget extends WP_Widget
     }
 
     /**
-     * @return array{title: string, count: int, layout: string, show_thumbnail: bool, header_style: string}
+     * @return array{title: string, count: int, layout: string, show_thumbnail: bool, header_style: string, margins: array{top: int, bottom: int}}
      */
     protected function settings(array $instance): array
     {
@@ -75,6 +75,7 @@ abstract class AbstractStoryWidget extends WP_Widget
             'layout' => isset($instance['layout']) && in_array($instance['layout'], ['list', 'grid'], true) ? (string) $instance['layout'] : 'list',
             'show_thumbnail' => !empty($instance['show_thumbnail']),
             'header_style' => WidgetHeader::style($instance),
+            'margins' => WidgetSpacing::margins($instance, WidgetSpacing::DEFAULT_BOTTOM_ARTICLE),
         ];
 
         return array_merge($settings, $this->extraSettings($instance));
@@ -94,7 +95,7 @@ abstract class AbstractStoryWidget extends WP_Widget
                 return;
             }
 
-            echo WidgetHeader::beforeWidget($args, $settings['header_style']);
+            echo WidgetSpacing::apply(WidgetHeader::beforeWidget($args, $settings['header_style']), $settings['margins']);
 
             WidgetHeader::render($args, $settings['title'], $settings['header_style']);
 
@@ -107,7 +108,7 @@ abstract class AbstractStoryWidget extends WP_Widget
             return;
         }
 
-        echo WidgetHeader::beforeWidget($args, $settings['header_style']);
+        echo WidgetSpacing::apply(WidgetHeader::beforeWidget($args, $settings['header_style']), $settings['margins']);
 
         WidgetHeader::render($args, $settings['title'], $settings['header_style']);
 
@@ -158,6 +159,7 @@ abstract class AbstractStoryWidget extends WP_Widget
             >
         </p>
         <?php WidgetHeader::field($this, $instance); ?>
+        <?php WidgetSpacing::field($this, $instance, WidgetSpacing::DEFAULT_BOTTOM_ARTICLE); ?>
         <p>
             <label for="<?php echo esc_attr($this->get_field_id('count')); ?>">
                 <?php esc_html_e('Number of items', 'koperasikita'); ?>
@@ -225,6 +227,7 @@ abstract class AbstractStoryWidget extends WP_Widget
             : 'list';
         $instance['show_thumbnail'] = !empty($new['show_thumbnail']) ? 1 : 0;
         $instance['header_style'] = WidgetHeader::sanitize($new['header_style'] ?? WidgetHeader::CLASSIC_TOP);
+        $instance = array_merge($instance, WidgetSpacing::sanitizeInstance($new, $old, WidgetSpacing::DEFAULT_BOTTOM_ARTICLE));
 
         return $this->sanitizeExtra($new, $instance);
     }

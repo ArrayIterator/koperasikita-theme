@@ -61,7 +61,7 @@ final class DataDeskWidget extends WP_Widget
         $title = isset($instance['title']) ? (string) $instance['title'] : '';
         $data = DataDesk::panelData($parsed['market'], $parsed['symbol'], (int) $template['days']);
 
-        echo WidgetHeader::beforeWidget($args, WidgetHeader::style($instance));
+        echo WidgetSpacing::apply(WidgetHeader::beforeWidget($args, WidgetHeader::style($instance)), WidgetSpacing::margins($instance));
 
         WidgetHeader::render($args, $title, WidgetHeader::style($instance));
 
@@ -107,6 +107,7 @@ final class DataDeskWidget extends WP_Widget
             >
         </p>
         <?php WidgetHeader::field($this, $instance); ?>
+        <?php WidgetSpacing::field($this, $instance); ?>
         <p>
             <label for="<?php echo esc_attr($this->get_field_id('template')); ?>">
                 <?php esc_html_e('Template', 'koperasikita'); ?>
@@ -162,6 +163,7 @@ final class DataDeskWidget extends WP_Widget
         $instance['template'] = isset($templates[$templateId]) ? $templateId : ($first['id'] ?? '');
 
         $instance['header_style'] = WidgetHeader::sanitize($new['header_style'] ?? WidgetHeader::CLASSIC_TOP);
+        $instance = array_merge($instance, WidgetSpacing::sanitizeInstance($new, $old));
 
         return $instance;
     }

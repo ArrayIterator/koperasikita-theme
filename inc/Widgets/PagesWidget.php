@@ -65,7 +65,7 @@ final class PagesWidget extends WP_Widget
                 return;
             }
 
-            echo WidgetHeader::beforeWidget($args, WidgetHeader::style($instance));
+            echo WidgetSpacing::apply(WidgetHeader::beforeWidget($args, WidgetHeader::style($instance)), WidgetSpacing::margins($instance));
 
             WidgetHeader::render($args, $title, WidgetHeader::style($instance));
 
@@ -78,7 +78,7 @@ final class PagesWidget extends WP_Widget
             return;
         }
 
-        echo WidgetHeader::beforeWidget($args, WidgetHeader::style($instance));
+        echo WidgetSpacing::apply(WidgetHeader::beforeWidget($args, WidgetHeader::style($instance)), WidgetSpacing::margins($instance));
 
         WidgetHeader::render($args, $title, WidgetHeader::style($instance));
 
@@ -119,6 +119,7 @@ final class PagesWidget extends WP_Widget
             >
         </p>
         <?php WidgetHeader::field($this, $instance); ?>
+        <?php WidgetSpacing::field($this, $instance); ?>
         <p>
             <label for="<?php echo esc_attr($this->get_field_id('count')); ?>">
                 <?php esc_html_e('Number of items', 'koperasikita'); ?>
@@ -169,6 +170,7 @@ final class PagesWidget extends WP_Widget
             ? (string) $new['sort_order']
             : 'menu_order';
         $instance['header_style'] = WidgetHeader::sanitize($new['header_style'] ?? WidgetHeader::CLASSIC_TOP);
+        $instance = array_merge($instance, WidgetSpacing::sanitizeInstance($new, $old));
 
         return $instance;
     }

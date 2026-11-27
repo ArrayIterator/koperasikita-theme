@@ -2298,3 +2298,13 @@ msgstr ""
 msgid "Show Breadcrumbs on 404 Pages"
 msgstr ""
 
+
+#: inc/Widgets/WidgetSpacing.php
+#: src/ts/widget-blocks.ts
+msgid "Margin top (px)"
+msgstr ""
+
+#: inc/Widgets/WidgetSpacing.php
+#: src/ts/widget-blocks.ts
+msgid "Margin bottom (px)"
+msgstr ""

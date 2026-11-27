@@ -49,7 +49,7 @@ final class WeatherWidget extends WP_Widget
         $location = $locations[0];
         $weather = Weather::current($location);
 
-        echo WidgetHeader::beforeWidget($args, WidgetHeader::style($instance)); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+        echo WidgetSpacing::apply(WidgetHeader::beforeWidget($args, WidgetHeader::style($instance)), WidgetSpacing::margins($instance)); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 
         WidgetHeader::render($args, $title, WidgetHeader::style($instance));
 
@@ -121,6 +121,7 @@ final class WeatherWidget extends WP_Widget
                 value="<?php echo esc_attr($title); ?>">
         </p>
         <?php WidgetHeader::field($this, $instance); ?>
+        <?php WidgetSpacing::field($this, $instance); ?>
         <p>
             <label for="<?php echo esc_attr($this->get_field_id('locations')); ?>">
                 <?php esc_html_e('Locations', 'koperasikita'); ?>
@@ -181,6 +182,7 @@ final class WeatherWidget extends WP_Widget
 
         $instance['show_details'] = !empty($newInstance['show_details']) ? 1 : 0;
         $instance['header_style'] = WidgetHeader::sanitize($newInstance['header_style'] ?? WidgetHeader::CLASSIC_TOP);
+        $instance = array_merge($instance, WidgetSpacing::sanitizeInstance($newInstance, $oldInstance));
 
         return $instance;
     }

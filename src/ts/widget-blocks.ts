@@ -28,7 +28,7 @@ type ShowWhen = { key: string; value: string | boolean };
 type FieldDef =
 	| { key: string; kind: 'text'; label: string; help?: string }
 	| { key: string; kind: 'textarea'; label: string; help?: string }
-	| { key: string; kind: 'number'; label: string; help?: string; min: number; max: number }
+	| { key: string; kind: 'number'; label: string; help?: string; min: number; max: number; fallback?: number }
 	| { key: string; kind: 'select'; label: string; options: OptionItem[]; showWhen?: ShowWhen }
 	| { key: string; kind: 'toggle'; label: string }
 	| { key: string; kind: 'checkboxes'; label: string; options: OptionItem[] }
@@ -743,10 +743,10 @@ function renderField(
 				key,
 				label: field.label,
 				help: field.help ?? '',
-				value: typeof value === 'number' ? value : 5,
+				value: typeof value === 'number' ? value : (field.fallback ?? 5),
 				min: field.min,
 				max: field.max,
-				onChange: (next: number | undefined) => set(key, next ?? 5),
+				onChange: (next: number | undefined) => set(key, next ?? (field.fallback ?? 5)),
 			});
 		case 'select':
 			return api.element.createElement(api.components.SelectControl, {
@@ -911,6 +911,8 @@ function buildDefinitions(api: Wp): BlockDef[] {
 		count: { type: 'number', default: 5 },
 		layout: { type: 'string', default: 'list' },
 		showThumbnail: { type: 'boolean', default: true },
+		marginTop: { type: 'number', default: 0 },
+		marginBottom: { type: 'number', default: 10 },
 	};
 	const headerStyleField: FieldDef = {
 		key: 'headerStyle',
@@ -924,9 +926,35 @@ function buildDefinitions(api: Wp): BlockDef[] {
 			{ value: 'hide', label: __('Hide') },
 		],
 	};
+	const marginTopField: FieldDef = {
+		key: 'marginTop',
+		kind: 'number',
+		label: __('Margin top (px)'),
+		min: 0,
+		max: 100,
+		fallback: 0,
+	};
+	const marginBottomField: FieldDef = {
+		key: 'marginBottom',
+		kind: 'number',
+		label: __('Margin bottom (px)'),
+		min: 0,
+		max: 100,
+		fallback: 0,
+	};
+	const storyMarginBottomField: FieldDef = {
+		key: 'marginBottom',
+		kind: 'number',
+		label: __('Margin bottom (px)'),
+		min: 0,
+		max: 100,
+		fallback: 10,
+	};
 	const storyFields: FieldDef[] = [
 		{ key: 'title', kind: 'text', label: __('Title') },
 		headerStyleField,
+		marginTopField,
+		storyMarginBottomField,
 		{ key: 'count', kind: 'number', label: __('Number of items'), min: 1, max: 10 },
 		{
 			key: 'layout',
@@ -940,7 +968,7 @@ function buildDefinitions(api: Wp): BlockDef[] {
 		{ key: 'showThumbnail', kind: 'toggle', label: __('Show thumbnails') },
 	];
 
-	return [
+	const definitions: BlockDef[] = [
 		{
 			slug: 'recent-news',
 			title: __('KK Recent News'),
@@ -1015,6 +1043,8 @@ function buildDefinitions(api: Wp): BlockDef[] {
 			fields: [
 				{ key: 'title', kind: 'text', label: __('Title') },
 				headerStyleField,
+				marginTopField,
+				marginBottomField,
 				{ key: 'count', kind: 'number', label: __('Number of items'), min: 1, max: 10 },
 				{
 					key: 'sortOrder',
@@ -1041,6 +1071,8 @@ function buildDefinitions(api: Wp): BlockDef[] {
 			fields: [
 				{ key: 'title', kind: 'text', label: __('Title') },
 				headerStyleField,
+				marginTopField,
+				marginBottomField,
 				{ key: 'text', kind: 'textarea', label: __('Text') },
 			],
 		},
@@ -1060,6 +1092,8 @@ function buildDefinitions(api: Wp): BlockDef[] {
 			fields: [
 				{ key: 'title', kind: 'text', label: __('Title'), help: __('Leave empty to use the category name.') },
 				headerStyleField,
+				marginTopField,
+				marginBottomField,
 				{
 					key: 'termId',
 					kind: 'termsearch',
@@ -1101,6 +1135,8 @@ function buildDefinitions(api: Wp): BlockDef[] {
 			fields: [
 				{ key: 'title', kind: 'text', label: __('Title'), help: __('Leave empty to use the tag name.') },
 				headerStyleField,
+				marginTopField,
+				marginBottomField,
 				{
 					key: 'termId',
 					kind: 'termsearch',
@@ -1142,6 +1178,8 @@ function buildDefinitions(api: Wp): BlockDef[] {
 			},
 			fields: [
 				{ key: 'title', kind: 'text', label: __('Title') },
+				marginTopField,
+				marginBottomField,
 				{
 					key: 'categoryIds',
 					kind: 'termsearch',
@@ -1176,6 +1214,8 @@ function buildDefinitions(api: Wp): BlockDef[] {
 			fields: [
 				{ key: 'title', kind: 'text', label: __('Title') },
 				headerStyleField,
+				marginTopField,
+				marginBottomField,
 				{
 					key: 'brands',
 					kind: 'termsearch',
@@ -1232,6 +1272,8 @@ function buildDefinitions(api: Wp): BlockDef[] {
 			fields: [
 				{ key: 'title', kind: 'text', label: __('Title') },
 				headerStyleField,
+				marginTopField,
+				marginBottomField,
 				{
 					key: 'template',
 					kind: 'select',
@@ -1258,6 +1300,8 @@ function buildDefinitions(api: Wp): BlockDef[] {
 			fields: [
 				{ key: 'title', kind: 'text', label: __('Title') },
 				headerStyleField,
+				marginTopField,
+				marginBottomField,
 				{
 					key: 'style',
 					kind: 'select',
@@ -1321,6 +1365,8 @@ function buildDefinitions(api: Wp): BlockDef[] {
 			fields: [
 				{ key: 'title', kind: 'text', label: __('Title') },
 				headerStyleField,
+				marginTopField,
+				marginBottomField,
 				{
 					key: 'layout',
 					kind: 'select',
@@ -1360,6 +1406,8 @@ function buildDefinitions(api: Wp): BlockDef[] {
 			fields: [
 				{ key: 'title', kind: 'text', label: __('Title') },
 				headerStyleField,
+				marginTopField,
+				marginBottomField,
 				{
 					key: 'locations',
 					kind: 'locations',
@@ -1391,6 +1439,8 @@ function buildDefinitions(api: Wp): BlockDef[] {
 			},
 			fields: [
 				{ key: 'title', kind: 'text', label: __('Title') },
+				marginTopField,
+				marginBottomField,
 				{ key: 'count', kind: 'number', label: __('Number of items'), min: 1, max: 10 },
 				{
 					key: 'showPast',
@@ -1439,6 +1489,19 @@ function buildDefinitions(api: Wp): BlockDef[] {
 			],
 		},
 	];
+
+	// Every block carries the two margin attributes: the story
+	// blocks already declare theirs (bottom defaults to 10px); the
+	// rest get the 0 / 0 pair here, so a block added later cannot
+	// forget them.
+	for (const def of definitions) {
+		if (def.attributes.marginTop === undefined) {
+			def.attributes.marginTop = { type: 'number', default: 0 };
+			def.attributes.marginBottom = { type: 'number', default: 0 };
+		}
+	}
+
+	return definitions;
 }
 
 if (typeof wp !== 'undefined') {

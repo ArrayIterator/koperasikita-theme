@@ -107,6 +107,8 @@ final class Blocks
             'count' => ['type' => 'number', 'default' => 5],
             'layout' => ['type' => 'string', 'default' => 'list'],
             'showThumbnail' => ['type' => 'boolean', 'default' => true],
+            'marginTop' => ['type' => 'number', 'default' => 0],
+            'marginBottom' => ['type' => 'number', 'default' => 10],
         ];
         $storyMap = [
             'title' => 'title',
@@ -114,6 +116,19 @@ final class Blocks
             'count' => 'count',
             'layout' => 'layout',
             'showThumbnail' => 'show_thumbnail',
+            'marginTop' => 'margin_top',
+            'marginBottom' => 'margin_bottom',
+        ];
+        // Every other block carries the same two margin attributes,
+        // both defaulting to 0 - only the article-list widgets
+        // default the bottom margin to 10px (see $storyAttributes).
+        $marginAttributes = [
+            'marginTop' => ['type' => 'number', 'default' => 0],
+            'marginBottom' => ['type' => 'number', 'default' => 0],
+        ];
+        $marginMap = [
+            'marginTop' => 'margin_top',
+            'marginBottom' => 'margin_bottom',
         ];
 
         $definitions = [
@@ -421,6 +436,17 @@ final class Blocks
                     'linkTo' => 'link_to',
                 ],
             ];
+        }
+
+        // Every block carries the two margin attributes: the story
+        // blocks above already have theirs (bottom defaults to
+        // 10px); the rest get the 0 / 0 pair here, so a block added
+        // later cannot forget them.
+        foreach ($definitions as $slug => $definition) {
+            if (!isset($definition['attributes']['marginTop'])) {
+                $definitions[$slug]['attributes'] = array_merge($definition['attributes'], $marginAttributes);
+                $definitions[$slug]['map'] = array_merge($definition['map'], $marginMap);
+            }
         }
 
         return $definitions;

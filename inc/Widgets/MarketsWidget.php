@@ -232,9 +232,12 @@ final class MarketsWidget extends WP_Widget
             $beforeWidget = preg_replace('/class="([^"]*)"/', 'class="$1 kk-markets-widget--no-margin"', $beforeWidget, 1) ?? $beforeWidget;
         }
 
-        echo WidgetHeader::beforeWidget(
-            ['before_widget' => $beforeWidget],
-            $style === self::STYLE_NO_MARGIN ? WidgetHeader::NO_BORDER : WidgetHeader::style($instance)
+        echo WidgetSpacing::apply(
+            WidgetHeader::beforeWidget(
+                ['before_widget' => $beforeWidget],
+                $style === self::STYLE_NO_MARGIN ? WidgetHeader::NO_BORDER : WidgetHeader::style($instance)
+            ),
+            WidgetSpacing::margins($instance)
         );
 
         WidgetHeader::render($args, $title, WidgetHeader::style($instance));
@@ -302,6 +305,7 @@ final class MarketsWidget extends WP_Widget
             >
         </p>
         <?php WidgetHeader::field($this, $instance); ?>
+        <?php WidgetSpacing::field($this, $instance); ?>
         <p>
             <label for="<?php echo esc_attr($this->get_field_id('style')); ?>">
                 <?php esc_html_e('Style', 'koperasikita'); ?>
@@ -428,6 +432,7 @@ final class MarketsWidget extends WP_Widget
         $instance['style'] = self::sanitizeStyle($new['style'] ?? self::STYLE_DEFAULT);
         $instance['layout'] = self::sanitizeLayout($new['layout'] ?? self::LAYOUT_LIST);
         $instance['visible'] = self::sanitizeVisible($new['visible'] ?? 1);
+        $instance = array_merge($instance, WidgetSpacing::sanitizeInstance($new, $old));
 
         return $instance;
     }
