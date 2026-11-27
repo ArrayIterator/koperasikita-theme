@@ -212,7 +212,7 @@ final class Setup
         echo '<span class="kk-setup-link-desc">' . esc_html__('Agenda locations with map coordinates.', 'koperasikita') . '</span></a>';
         echo '</div></div></section>';
 
-        \KoperasiKita\Features\FastSearch::renderSetupCard();
+        \KoperasiKita\Features\FastSearch\FastSearch::renderSetupCard();
 
         echo '<p class="kk-setup-footnote">' . esc_html__('Koperasi Kita theme', 'koperasikita')
             . ' ' . esc_html(KK_VERSION) . '</p>';
@@ -424,7 +424,7 @@ final class Setup
         }
 
         // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- unslashed here, FastSearch::saveSettings reads only its two known keys and casts them to bool.
-        $result = \KoperasiKita\Features\FastSearch::saveSettings(wp_unslash($_POST));
+        $result = \KoperasiKita\Features\FastSearch\FastSearch::saveSettings(wp_unslash($_POST));
 
         self::redirectWithStatus($result['success'] ? 'fast_search_saved' : 'fast_search_save_failed');
     }

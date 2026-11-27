@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace KoperasiKita\Features;
 
 use KoperasiKita\Images\FeaturedImage;
+use KoperasiKita\Features\FastSearch\FastSearch;
 
 final class Features
 {
