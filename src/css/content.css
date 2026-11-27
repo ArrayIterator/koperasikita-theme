@@ -899,8 +899,7 @@
 	cursor: pointer;
 }
 
-.search-submit:hover,
-.search-submit:focus-visible {
+.search-submit:hover {
 	background: var(--kk-green-dark, #07522C);
 	border-color: var(--kk-green-dark, #07522C);
 	color: #fff;

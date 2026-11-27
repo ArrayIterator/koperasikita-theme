@@ -333,7 +333,7 @@ body.admin-bar {
 	gap: 8px;
 }
 
-/* Desktop bar nav (Primary menu). Hidden below 1024px; the drawer
+/* Desktop bar nav (Primary menu). Hidden below 900px; the drawer
  * below is the Sidebar menu instead. */
 .kk-desktop-nav {
 	display: none;

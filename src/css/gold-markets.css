@@ -135,15 +135,9 @@
 	color: var(--kk-gold-ink);
 }
 
-.kk-gold-slider .kk-widget-nav:hover,
-.kk-gold-slider .kk-widget-nav:focus-visible {
+.kk-gold-slider .kk-widget-nav:hover {
 	background: var(--kk-gold-surface-muted);
 	color: var(--kk-gold-green);
-}
-
-.kk-gold-slider .kk-widget-nav:focus-visible {
-	outline: 2px solid var(--kk-gold, #c9962e);
-	outline-offset: 2px;
 }
 
 .kk-gold-slider .kk-widget-nav svg {
