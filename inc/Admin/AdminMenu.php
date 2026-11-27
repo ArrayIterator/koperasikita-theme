@@ -80,8 +80,13 @@ final class AdminMenu
             [Setup::class, 'render']
         );
 
+        /* Sidebar Settings has no submenu entry: it is managed
+         * through the Setup page popup (Setup::renderSidebarPopup),
+         * so the menu stays short. The page itself is still
+         * registered (null parent = reachable by URL, no menu
+         * item) as the popup link's no-JS fallback. */
         add_submenu_page(
-            self::MENU_SLUG,
+            null,
             esc_html__('Sidebar Settings', 'koperasikita'),
             esc_html__('Sidebar Settings', 'koperasikita'),
             'manage_options',
