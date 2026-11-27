@@ -64,11 +64,13 @@ $font_size = \KoperasiKita\Features\ArticleFontSize::currentSize();
 				data-post-url="<?php echo esc_url( get_the_permalink() ); ?>"
 				data-post-excerpt="<?php echo esc_attr( get_the_excerpt() ); ?>"
 				data-post-thumbnail="<?php echo esc_url( $thumb_url ); ?>"
+				data-label-bookmark="<?php echo esc_attr__( 'Bookmark', 'koperasikita' ); ?>"
+				data-label-bookmarked="<?php echo esc_attr__( 'Bookmarked', 'koperasikita' ); ?>"
 				aria-pressed="false"
 				aria-label="<?php esc_attr_e( 'Save bookmark', 'koperasikita' ); ?>"
 			>
 				<?php echo \KoperasiKita\Icons\Icon::svg( 'bookmark', 18 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
-				<span class="kk-bookmark-label"><?php esc_html_e( 'Save', 'koperasikita' ); ?></span>
+				<span class="kk-bookmark-label"><?php esc_html_e( 'Bookmark', 'koperasikita' ); ?></span>
 			</button>
 		<?php endif; ?>
 	</header>

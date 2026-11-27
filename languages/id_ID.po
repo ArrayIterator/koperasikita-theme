@@ -1152,6 +1152,14 @@ msgid "e.g. Cooperative Hall, 2nd floor"
 msgstr "cth. Aula Koperasi, lantai 2"
 
 #: template-parts/content/card-news.php
+msgid "Bookmark"
+msgstr "Bookmark"
+
+#: template-parts/content/card-news.php
+msgid "Bookmarked"
+msgstr "Sudah di-bookmark"
+
+#: template-parts/content/card-news.php
 msgid "Save"
 msgstr "Simpan"
 

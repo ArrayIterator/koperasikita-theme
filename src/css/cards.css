@@ -169,12 +169,12 @@
 
 /* Bookmark on the card: an icon-only circle over the thumbnail (grid)
  * or a trailing action at the right edge of the row (list) - never a
- * stray button under the text. The "Save" label is hidden; the button
- * keeps its "Save bookmark" aria-label, and the saved state is the
- * green fill, same as before. Over a thumbnail the glyph sits on a
- * dark translucent circle, so the white icon reads on ANY thumbnail -
- * including the light default placeholder, where a bare white glyph
- * is invisible. */
+ * stray button under the text. The "Bookmark" label is hidden; the
+ * button keeps its "Save bookmark" aria-label, and the saved state is
+ * the green fill with a solid icon (the unsaved icon is an outline).
+ * Over a thumbnail the glyph sits on a dark translucent circle, so the
+ * white icon reads on ANY thumbnail - including the light default
+ * placeholder, where a bare white glyph is invisible. */
 .kk-card .kk-bookmark-button {
 	grid-area: media;
 	justify-self: end;
@@ -199,11 +199,12 @@
 	display: none;
 }
 
-/* The card bookmark is a solid fill (not a hollow outline), so the
- * icon reads as a bold shape on the circle - white over a thumbnail,
- * ink in a list row. The fill follows the button colour. */
+/* The card bookmark is a hollow outline until saved, then a solid
+ * fill (see the [aria-pressed="true"] rule below). A solid fill in
+ * both states reads as "already bookmarked" before the first click,
+ * so the unsaved icon stays an outline - the fill is the state. */
 .kk-card .kk-bookmark-button svg {
-	fill: currentColor;
+	fill: none;
 }
 
 .kk-card .kk-bookmark-button:hover {
