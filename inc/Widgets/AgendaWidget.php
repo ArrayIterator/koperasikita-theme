@@ -342,8 +342,8 @@ final class AgendaWidget extends WP_Widget
         return [
             'title' => get_the_title($postId),
             'url' => (string) get_permalink($postId),
-            'day' => $displayTs > 0 ? date_i18n('d', $displayTs) : '',
-            'month' => $displayTs > 0 ? date_i18n('M', $displayTs) : '',
+            'day' => $displayTs > 0 ? wp_date('d', $displayTs) : '',
+            'month' => $displayTs > 0 ? wp_date('M', $displayTs) : '',
             'location' => (string) $meta['location'],
             'status' => $status,
         ];

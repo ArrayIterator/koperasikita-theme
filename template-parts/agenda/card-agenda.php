@@ -14,8 +14,8 @@
 $meta = \KoperasiKita\Features\Agenda::getMeta(get_the_ID());
 $thumb_url = \KoperasiKita\Images\FeaturedImage::url(get_the_ID(), 'medium');
 $eventTs = \KoperasiKita\Features\Agenda::eventTimestamp($meta['start']);
-$day = $eventTs > 0 ? date_i18n('j', $eventTs) : '';
-$month = $eventTs > 0 ? date_i18n('M', $eventTs) : '';
+$day = $eventTs > 0 ? wp_date('j', $eventTs) : '';
+$month = $eventTs > 0 ? wp_date('M', $eventTs) : '';
 ?>
 
 <article class="kk-card kk-agenda-card">

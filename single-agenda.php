@@ -34,8 +34,8 @@ get_header();
 					if ($kk_agenda_ts > 0) :
 						?>
 						<p class="kk-agenda-date-badge" aria-hidden="true">
-							<span class="kk-agenda-date-day"><?php echo esc_html(date_i18n('j', $kk_agenda_ts)); ?></span>
-							<span class="kk-agenda-date-month"><?php echo esc_html(date_i18n('M', $kk_agenda_ts)); ?></span>
+							<span class="kk-agenda-date-day"><?php echo esc_html(wp_date('j', $kk_agenda_ts)); ?></span>
+							<span class="kk-agenda-date-month"><?php echo esc_html(wp_date('M', $kk_agenda_ts)); ?></span>
 						</p>
 					<?php endif; ?>
 					<h1 class="kk-article-title"><?php the_title(); ?></h1>

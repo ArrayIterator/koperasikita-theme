@@ -428,7 +428,10 @@ final class Agenda
      * shifts when the site timezone differs from the one the stored
      * timestamp was computed in. Display values (date, time, badge)
      * use this; instant comparisons (ordering, live/done status) keep
-     * using start_ts.
+     * using start_ts. Format the result with wp_date(), never
+     * date_i18n(): date_i18n() expects a timestamp summed with the
+     * timezone offset, so a true timestamp renders shifted by the
+     * offset.
      */
     public static function eventTimestamp(string $datetime): int
     {
@@ -1055,7 +1058,7 @@ final class Agenda
         if ($column === 'kk_agenda_date') {
             $meta = self::getMeta($postId);
             $eventTs = self::eventTimestamp($meta['start']);
-            echo $meta['start'] !== '' ? esc_html(date_i18n(get_option('date_format') . ' ' . get_option('time_format'), $eventTs)) : '&mdash;';
+            echo $meta['start'] !== '' ? esc_html(wp_date(get_option('date_format') . ' ' . get_option('time_format'), $eventTs)) : '&mdash;';
         }
 
         if ($column === 'kk_agenda_location') {
