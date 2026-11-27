@@ -279,6 +279,8 @@ final class Blocks
                     'colorStyle' => ['type' => 'string', 'default' => 'auto'],
                     'autoplay' => ['type' => 'boolean', 'default' => true],
                     'interval' => ['type' => 'number', 'default' => 5],
+                    'itemsPerView' => ['type' => 'number', 'default' => 1],
+                    'showDots' => ['type' => 'boolean', 'default' => false],
                 ],
                 'map' => [
                     'title' => 'title',
@@ -288,6 +290,8 @@ final class Blocks
                     'colorStyle' => 'color_style',
                     'autoplay' => 'autoplay',
                     'interval' => 'interval',
+                    'itemsPerView' => 'items_per_view',
+                    'showDots' => 'show_dots',
                 ],
             ];
             $definitions['gold-data-desk'] = [

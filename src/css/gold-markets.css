@@ -7,6 +7,12 @@
 
 /* Gold slider */
 
+/* Gold slider: every slide stays visible in the track; the track
+   translates by whole steps inside the overflow-hidden viewport
+   (.kk-widget-scroll, content.css), so the list is never blank
+   with JS off or in the editor preview. The markets slider below
+   still toggles a single slide - it owns the slide-in keyframes. */
+
 .kk-gold-slides {
 	margin: 0;
 	padding: 0;
@@ -14,14 +20,10 @@
 }
 
 .kk-gold-slide {
-	display: none;
+	display: block;
+	flex-shrink: 0;
 	padding: 4px 2px 0;
 	text-align: center;
-}
-
-.kk-gold-slide.is-active {
-	display: block;
-	animation: kk-gold-slide-in 0.45s ease;
 }
 
 @keyframes kk-gold-slide-in {
@@ -109,6 +111,12 @@
 
 .kk-gold-slider .kk-widget-controls {
 	border-top-color: var(--kk-gold-border);
+	/* The row wraps instead of overflowing: six 32px dots plus
+	 * three 44px buttons are wider than a 320px sidebar, so
+	 * without wrapping the dots pushed the widget wide. The dots
+	 * drop to their own centred line when they do not fit; the nav
+	 * buttons keep their 44px targets. */
+	flex-wrap: wrap;
 }
 
 .kk-market-change {
@@ -177,26 +185,47 @@
 	outline-offset: 0;
 }
 
-/* Gold horizontal carousel: a swipeable card row, one card mostly
-   visible with a peek of the next, scroll-snap per card. The active
-   card gets a gold border to match the dots. */
+/* Gold vertical carousel: the demo's track. A column flex track
+   with the same .55s cubic-bezier transform transition, inside an
+   overflow-hidden viewport showing exactly two slides; the frontend
+   script sets the viewport's exact measured height and translates
+   the track by whole steps. The flat class is the script's jump
+   without animation (the loop wrap-back): transition off, transform
+   set, reflow, class removed. Without the script the viewport falls
+   back to about two slides tall: one slide is ~114px (4px top
+   padding + 12px brand at 1.6 line-height + 6px + 22px price at 1.6
+   + 4px + 13px meta at 1.6 + 6px + 12px Updated line at 1.6), so
+   two slides plus the 8px gap are ~236px, rounded to 240px. */
+.kk-gold-slider--vertical-carousel .kk-gold-slides {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+	transition: transform 0.55s cubic-bezier(0.4, 0, 0.2, 1);
+	will-change: transform;
+}
+
+.kk-gold-slides.kk-gold-track-flat {
+	transition: none;
+}
+
+.kk-gold-slider--vertical-carousel .kk-widget-scroll {
+	max-height: 240px;
+}
+
+/* Gold horizontal carousel: the same track, sideways. One card
+   mostly visible with a peek of the next at 1 item per view; 2 or 3
+   items share the row equally (12px gaps: one gap for 2 items, two
+   for 3). The active card gets a gold border to match the dots. */
 .kk-gold-slider--horizontal-carousel .kk-gold-slides {
 	display: flex;
 	gap: 12px;
-	overflow-x: auto;
-	scroll-snap-type: x mandatory;
-	scrollbar-width: none;
+	transition: transform 0.55s cubic-bezier(0.4, 0, 0.2, 1);
+	will-change: transform;
 	padding: 2px 2px 8px;
 }
 
-.kk-gold-slider--horizontal-carousel .kk-gold-slides::-webkit-scrollbar {
-	display: none;
-}
-
 .kk-gold-slider--horizontal-carousel .kk-gold-slide {
-	display: block;
 	flex: 0 0 78%;
-	scroll-snap-align: start;
 	padding: 16px;
 	text-align: center;
 	color: var(--kk-gold-ink);
@@ -205,32 +234,37 @@
 	border-radius: var(--kk-radius);
 }
 
+.kk-gold-slider--horizontal-carousel[data-items-per-view="2"] .kk-gold-slide {
+	flex-basis: calc((100% - 12px) / 2);
+}
+
+.kk-gold-slider--horizontal-carousel[data-items-per-view="3"] .kk-gold-slide {
+	flex-basis: calc((100% - 24px) / 3);
+}
+
 .kk-gold-slider--horizontal-carousel .kk-gold-slide.is-active {
 	border-color: var(--kk-gold, #c9962e);
-	animation: none;
 }
 
-/* Gold slider horizontal: one brand per full-width slide in a
-   swipeable row. */
+/* Gold slider horizontal: the same sideways track, one brand per
+   full-width slide at 1 item per view, equal shares at 2 or 3. */
 .kk-gold-slider--slider-horizontal .kk-gold-slides {
 	display: flex;
-	overflow-x: auto;
-	scroll-snap-type: x mandatory;
-	scrollbar-width: none;
-}
-
-.kk-gold-slider--slider-horizontal .kk-gold-slides::-webkit-scrollbar {
-	display: none;
+	gap: 12px;
+	transition: transform 0.55s cubic-bezier(0.4, 0, 0.2, 1);
+	will-change: transform;
 }
 
 .kk-gold-slider--slider-horizontal .kk-gold-slide {
-	display: block;
 	flex: 0 0 100%;
-	scroll-snap-align: start;
 }
 
-.kk-gold-slider--slider-horizontal .kk-gold-slide.is-active {
-	animation: none;
+.kk-gold-slider--slider-horizontal[data-items-per-view="2"] .kk-gold-slide {
+	flex-basis: calc((100% - 12px) / 2);
+}
+
+.kk-gold-slider--slider-horizontal[data-items-per-view="3"] .kk-gold-slide {
+	flex-basis: calc((100% - 24px) / 3);
 }
 
 /* Markets vertical slider
@@ -896,8 +930,8 @@ html[data-color-scheme="dark"] .kk-data-desk-panel--auto .kk-data-desk-preview-b
 }
 
 @media (prefers-reduced-motion: reduce) {
-	.kk-gold-slide.is-active {
-		animation: none;
+	.kk-gold-slides {
+		transition: none;
 	}
 
 	.kk-markets-slide.is-active {

@@ -816,12 +816,32 @@ msgid "Slider style"
 msgstr "Gaya Slider"
 
 #: inc/Widgets/GoldWidget.php src/ts/widget-blocks.ts
+msgid "Items per view"
+msgstr "Item per tampilan"
+
+#: inc/Widgets/GoldWidget.php src/ts/widget-blocks.ts
+msgid "1 item"
+msgstr "1 item"
+
+#: inc/Widgets/GoldWidget.php src/ts/widget-blocks.ts
+msgid "2 items"
+msgstr "2 item"
+
+#: inc/Widgets/GoldWidget.php src/ts/widget-blocks.ts
+msgid "3 items"
+msgstr "3 item"
+
+#: inc/Widgets/GoldWidget.php src/ts/widget-blocks.ts
 msgid "Colour style"
 msgstr "Gaya Warna"
 
 #: inc/Widgets/GoldWidget.php src/ts/widget-blocks.ts
 msgid "Autoplay"
 msgstr "Autoplay"
+
+#: inc/Widgets/GoldWidget.php src/ts/widget-blocks.ts
+msgid "Show dots"
+msgstr "Tampilkan dot"
 
 #: inc/Widgets/GoldWidget.php src/ts/widget-blocks.ts
 msgid "Autoplay interval (seconds)"
