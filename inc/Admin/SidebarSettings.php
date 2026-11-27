@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace KoperasiKita\Admin;
 
+use KoperasiKita\Api\Ajax;
+
 /**
  * The Appearance -> Sidebar Settings admin screen.
  *
@@ -62,8 +64,35 @@ final class SidebarSettings
     {
         // The page itself lives under the single "Koperasi Kita"
         // top-level menu (AdminMenu); only the settings
-        // registration stays here.
+        // registration stays here. The Setup page popup saves
+        // through kk_sidebar_settings_save (same sanitizer as the
+        // full page, so the two saves can never drift apart).
+        Ajax::add('kk_sidebar_settings_save', [self::class, 'ajaxSave'], false, 'manage_options');
         add_action('admin_init', [self::class, 'registerSettings']);
+    }
+
+    /**
+     * The AJAX save endpoint (kk_sidebar_settings_save): the Setup
+     * page popup posts the checked sticky sidebars as a comma list.
+     * Unchecked sidebars are absent from the list and save as
+     * false. The shared nonce + manage_options are enforced by
+     * Ajax::dispatch.
+     *
+     * @return array{message: string}
+     */
+    public static function ajaxSave(): array
+    {
+        // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- sanitised below.
+        $raw = wp_unslash($_POST);
+        $ids = isset($raw['sticky']) && is_string($raw['sticky']) && trim($raw['sticky']) !== ''
+            ? array_filter(array_map('sanitize_key', explode(',', $raw['sticky'])))
+            : [];
+        $clean = self::sanitizeSettings(['sticky' => array_fill_keys($ids, true)]);
+        update_option(self::OPTION, $clean);
+
+        return [
+            'message' => __('Sidebar settings saved.', 'koperasikita'),
+        ];
     }
 
     public static function registerSettings(): void

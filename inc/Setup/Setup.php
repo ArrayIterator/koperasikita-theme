@@ -202,7 +202,7 @@ final class Setup
         echo '<a class="kk-setup-link" href="' . esc_url(admin_url('widgets.php')) . '">';
         echo '<span class="kk-setup-link-title">' . esc_html__('Widgets', 'koperasikita') . '</span>';
         echo '<span class="kk-setup-link-desc">' . esc_html__('Gold, markets and weather widgets for the sidebars.', 'koperasikita') . '</span></a>';
-        echo '<a class="kk-setup-link" href="' . esc_url(admin_url('admin.php?page=' . \KoperasiKita\Admin\SidebarSettings::PAGE_SLUG)) . '">';
+        echo '<a class="kk-setup-link" data-kk-sidebar-settings-popup href="' . esc_url(admin_url('admin.php?page=' . \KoperasiKita\Admin\SidebarSettings::PAGE_SLUG)) . '">';
         echo '<span class="kk-setup-link-title">' . esc_html__('Sidebar Settings', 'koperasikita') . '</span>';
         echo '<span class="kk-setup-link-desc">' . esc_html__('Sticky sidebars and which sidebar shows where.', 'koperasikita') . '</span></a>';
         echo '<a class="kk-setup-link" href="' . esc_url(admin_url('admin.php?page=' . \KoperasiKita\Features\Agenda::LOCATIONS_PAGE_SLUG)) . '">';
@@ -212,7 +212,51 @@ final class Setup
 
         echo '<p class="kk-setup-footnote">' . esc_html__('Koperasi Kita theme', 'koperasikita')
             . ' ' . esc_html(KK_VERSION) . '</p>';
+
+        self::renderSidebarPopup();
+
         echo '</div>';
+    }
+
+    /**
+     * The Sidebar Settings popup: the same six sticky checkboxes as
+     * the full settings page, server-rendered with the current
+     * values, saved through kk_sidebar_settings_save (admin.ts).
+     * The trigger link keeps its href to the full page as the
+     * no-JS fallback; the popup only ever opens through JS.
+     */
+    private static function renderSidebarPopup(): void
+    {
+        ?>
+        <div class="kk-sidebar-popup" id="kk-sidebar-popup" hidden role="dialog" aria-modal="true" aria-labelledby="kk-sidebar-popup-title">
+            <div class="kk-sidebar-popup-backdrop" data-kk-sidebar-popup-close></div>
+            <div class="kk-sidebar-popup-panel" role="document">
+                <div class="kk-sidebar-popup-head">
+                    <h2 id="kk-sidebar-popup-title"><?php esc_html_e('Sidebar Settings', 'koperasikita'); ?></h2>
+                    <div class="kk-sidebar-popup-actions">
+                        <button type="button" class="button" data-kk-sidebar-popup-close><?php esc_html_e('Close', 'koperasikita'); ?></button>
+                    </div>
+                </div>
+                <p class="description"><?php esc_html_e('Choose which sidebars stay visible while the reader scrolls. Only sidebars can stick — the full-width widget areas (Below Header, Before Latest News, Before Highlights, Block Area) always scroll with the page.', 'koperasikita'); ?></p>
+                <form id="kk-sidebar-popup-form">
+                    <ul class="kk-sidebar-popup-list">
+                        <?php foreach (\KoperasiKita\Admin\SidebarSettings::stickySidebars() as $id => [$name, $description]) : ?>
+                            <li>
+                                <label>
+                                    <input type="checkbox" name="<?php echo esc_attr(\KoperasiKita\Admin\SidebarSettings::OPTION); ?>[sticky][<?php echo esc_attr($id); ?>]" value="1" data-kk-sidebar-id="<?php echo esc_attr($id); ?>"<?php checked(\KoperasiKita\Admin\SidebarSettings::isSticky($id)); ?>>
+                                    <?php echo esc_html($name); ?>
+                                </label>
+                                <p class="description"><?php echo esc_html($description); ?></p>
+                            </li>
+                        <?php endforeach; ?>
+                    </ul>
+                    <p>
+                        <button type="submit" class="button button-primary"><?php esc_html_e('Save settings', 'koperasikita'); ?></button>
+                    </p>
+                </form>
+            </div>
+        </div>
+        <?php
     }
 
     public static function handleInstall(): void

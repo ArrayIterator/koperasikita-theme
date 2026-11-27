@@ -46,6 +46,7 @@ interface AdminStrings {
 	editTitleHint: string;
 	previewFailed: string;
 	savingTemplate: string;
+	saving: string;
 	editDateLineHint: string;
 	editStatHint: string;
 	editHeaderHint: string;
@@ -115,6 +116,7 @@ const FALLBACK_STRINGS: AdminStrings = {
 	editTitleHint: 'Click to edit the title.',
 	previewFailed: 'Could not load the preview.',
 	savingTemplate: 'Saving…',
+	saving: 'Saving…',
 	editDateLineHint: 'Click to edit the date line.',
 	editStatHint: 'Click to edit this stat.',
 	editHeaderHint: 'Click to edit this header.',
@@ -151,6 +153,7 @@ function adminStrings(): AdminStrings {
 		editTitleHint: strings?.editTitleHint ?? FALLBACK_STRINGS.editTitleHint,
 		previewFailed: strings?.previewFailed ?? FALLBACK_STRINGS.previewFailed,
 		savingTemplate: strings?.savingTemplate ?? FALLBACK_STRINGS.savingTemplate,
+		saving: strings?.saving ?? FALLBACK_STRINGS.saving,
 		close: strings?.close ?? FALLBACK_STRINGS.close,
 		editDateLineHint: strings?.editDateLineHint ?? FALLBACK_STRINGS.editDateLineHint,
 		editStatHint: strings?.editStatHint ?? FALLBACK_STRINGS.editStatHint,
@@ -366,6 +369,7 @@ function initAdmin(): void {
 		initDataDeskAjaxSave,
 		initDataDeskWidgetPreview,
 		initDataDeskPopupPreview,
+		initSidebarSettingsPopup,
 	];
 
 	for (const init of inits) {
@@ -995,6 +999,97 @@ function initDataDeskPopupPreview(): void {
 		if (event.key === 'Escape' && !popup.hidden) {
 			close();
 		}
+	});
+}
+
+/**
+ * Sidebar Settings popup on the Setup page.
+ *
+ * The "Sidebar Settings" link in the Quick start card opens this
+ * popup instead of navigating to the full settings page (the link
+ * keeps its href as the no-JS fallback). The form posts the checked
+ * sticky sidebars through kk_sidebar_settings_save, so the page
+ * never reloads: on success a floating toast confirms and the
+ * popup closes, on failure the toast shows the server's message
+ * and the popup stays open. While saving the button is disabled
+ * with a "Saving…" label. Escape, the backdrop and the Close
+ * button all close the popup, and focus returns to the link.
+ */
+function initSidebarSettingsPopup(): void {
+	const config = adminData();
+	if (!config) {
+		return;
+	}
+	const popup = document.getElementById('kk-sidebar-popup');
+	if (!popup) {
+		return;
+	}
+	const form = popup.querySelector<HTMLFormElement>('#kk-sidebar-popup-form');
+	const closeButton = popup.querySelector<HTMLButtonElement>('button[data-kk-sidebar-popup-close]');
+	const submit = form?.querySelector<HTMLButtonElement>('button[type="submit"]') ?? null;
+	if (!form || !closeButton || !submit) {
+		return;
+	}
+
+	let opener: HTMLAnchorElement | null = null;
+
+	const close = (): void => {
+		popup.hidden = true;
+		if (opener) {
+			opener.focus();
+			opener = null;
+		}
+	};
+
+	const open = (link: HTMLAnchorElement): void => {
+		opener = link;
+		popup.hidden = false;
+		closeButton.focus();
+	};
+
+	document
+		.querySelectorAll<HTMLAnchorElement>('[data-kk-sidebar-settings-popup]')
+		.forEach((link) => {
+			link.addEventListener('click', (event) => {
+				event.preventDefault();
+				open(link);
+			});
+		});
+
+	popup.querySelectorAll('[data-kk-sidebar-popup-close]').forEach((el) => {
+		el.addEventListener('click', close);
+	});
+
+	document.addEventListener('keydown', (event) => {
+		if (event.key === 'Escape' && !popup.hidden) {
+			close();
+		}
+	});
+
+	const originalLabel = submit.textContent;
+	form.addEventListener('submit', (event) => {
+		event.preventDefault();
+		if (submit.disabled) {
+			return;
+		}
+		const checked = Array.from(form.querySelectorAll<HTMLInputElement>('input[type="checkbox"][data-kk-sidebar-id]'))
+			.filter((box) => box.checked)
+			.map((box) => box.dataset.kkSidebarId ?? '')
+			.filter((id) => id !== '');
+		submit.disabled = true;
+		submit.textContent = adminStrings().saving;
+		void postAjax<{ message: string }>(config, 'kk_sidebar_settings_save', { sticky: checked.join(',') })
+			.then((data) => {
+				showToast(data.message, 'success');
+				close();
+			})
+			.catch((error: unknown) => {
+				showToast(errorMessage(error), 'error');
+			})
+			.finally(() => {
+				submit.disabled = false;
+				submit.textContent = originalLabel;
+			});
 	});
 }
 

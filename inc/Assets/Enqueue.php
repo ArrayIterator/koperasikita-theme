@@ -427,6 +427,30 @@ final class Enqueue
             if ($setupCss !== '') {
                 wp_enqueue_style('kk-setup', $setupCss, [], KK_VERSION);
             }
+
+            /* The Sidebar Settings popup on this page (admin.ts
+             * initSidebarSettingsPopup) needs the admin script +
+             * stylesheet (popup + toast) and the shared nonce. */
+            $adminCss = ViteLoader::css('src/ts/admin.ts');
+
+            if ($adminCss !== '') {
+                wp_enqueue_style('kk-admin', $adminCss, [], KK_VERSION);
+            }
+
+            $adminJs = ViteLoader::js('src/ts/admin.ts');
+
+            if ($adminJs !== '') {
+                wp_enqueue_script('kk-admin', $adminJs, [], KK_VERSION, true);
+
+                wp_localize_script('kk-admin', 'kkAdminData', [
+                    'ajaxUrl' => admin_url('admin-ajax.php'),
+                    'nonce' => wp_create_nonce('koperasikita_nonce'),
+                    'strings' => [
+                        'saving' => __('Saving…', 'koperasikita'),
+                        'close' => __('Close', 'koperasikita'),
+                    ],
+                ]);
+            }
         }
 
         /* Menus page: the menu item icon picker (MenuIcons) needs both
