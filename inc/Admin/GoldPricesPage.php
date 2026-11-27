@@ -161,7 +161,7 @@ final class GoldPricesPage
         $days = max(1, min(90, $days));
 
         $from = date_i18n('Y-m-d', current_time('timestamp') - ($days - 1) * DAY_IN_SECONDS);
-        $rows = GoldPricesTable::historyFiltered('', ['symbols' => self::summaryChartBrands($brands), 'from' => $from], self::HISTORY_CHART_CAP, 0);
+        $rows = GoldPricesTable::historyFiltered('', ['symbols' => self::summaryChartBrands($brands), 'from' => $from], self::HISTORY_CHART_CAP, 0, Gold::officialProviders());
 
         ob_start();
         self::renderChart($rows, Gold::brands(), true);
@@ -356,7 +356,7 @@ final class GoldPricesPage
         $status = LogamMuliaApiProvider::status();
         $enabled = Gold::enabledBrands();
         $days = 7;
-        $chart = GoldPricesTable::historyFiltered('', ['symbols' => self::summaryChartBrands($enabled), 'from' => date_i18n('Y-m-d', current_time('timestamp') - ($days - 1) * DAY_IN_SECONDS)], self::HISTORY_CHART_CAP, 0);
+        $chart = GoldPricesTable::historyFiltered('', ['symbols' => self::summaryChartBrands($enabled), 'from' => date_i18n('Y-m-d', current_time('timestamp') - ($days - 1) * DAY_IN_SECONDS)], self::HISTORY_CHART_CAP, 0, Gold::officialProviders());
         $lastSync = $status['synced_at'] !== null
             ? date_i18n(get_option('date_format', 'Y-m-d') . ' ' . get_option('time_format', 'H:i'), (int) $status['synced_at'])
             : __('Never', 'koperasikita');
@@ -837,16 +837,17 @@ final class GoldPricesPage
         $filters = ['symbol' => $brand, 'from' => $from, 'to' => $to];
         $filtered = $brand !== '' || $from !== '' || $to !== '' || $provider !== '';
 
-        $chart = GoldPricesTable::historyFiltered($provider, $filters, self::HISTORY_CHART_CAP, 0);
+        $chart = GoldPricesTable::historyFiltered($provider, $filters, self::HISTORY_CHART_CAP, 0, Gold::officialProviders());
 
-        $total = GoldPricesTable::historyCount($provider, $filters);
+        $total = GoldPricesTable::historyCount($provider, $filters, Gold::officialProviders());
         $pages = max(1, (int) ceil($total / self::HISTORY_PER_PAGE));
         $page = min($page, $pages);
         $rows = GoldPricesTable::historyFiltered(
             $provider,
             $filters,
             self::HISTORY_PER_PAGE,
-            ($page - 1) * self::HISTORY_PER_PAGE
+            ($page - 1) * self::HISTORY_PER_PAGE,
+            Gold::officialProviders()
         );
 
         $pageUrl = admin_url('admin.php?page=' . self::PAGE_SLUG);
@@ -1056,7 +1057,7 @@ final class GoldPricesPage
      * the full tab width (wide aspect, so the full-width render
      * stays short).
      *
-     * @param array<int, array{symbol: string, sell_price: float, buyback_price: float|null, currency: string, recorded_date: string|null, fetched_at: int}> $history
+     * @param array<int, array{provider: string, symbol: string, sell_price: float, buyback_price: float|null, currency: string, recorded_date: string|null, fetched_at: int}> $history
      * @param array<string, string> $brands Slug => label.
      */
     private static function renderChart(array $history, array $brands, bool $filtered = false): void
@@ -1157,7 +1158,7 @@ final class GoldPricesPage
      * price per gram in IDR. The rows arrive already paged from
      * the query — this only renders them.
      *
-     * @param array<int, array{symbol: string, sell_price: float, buyback_price: float|null, currency: string, recorded_date: string|null, fetched_at: int}> $history
+     * @param array<int, array{provider: string, symbol: string, sell_price: float, buyback_price: float|null, currency: string, recorded_date: string|null, fetched_at: int}> $history
      * @param array<string, string> $brands Slug => label.
      */
     private static function renderHistoryTable(array $history, array $brands, bool $filtered = false): void
@@ -1180,6 +1181,7 @@ final class GoldPricesPage
             $rows .= '<tr>'
                 . '<td>' . esc_html((string) ($row['recorded_date'] ?? '—')) . '</td>'
                 . '<td><strong>' . esc_html($label) . '</strong></td>'
+                . '<td>' . esc_html(Gold::providerLabel((string) ($row['provider'] ?? ''))) . '</td>'
                 . '<td>' . esc_html($sell) . '</td>'
                 . '<td>' . esc_html($buyback) . '</td>'
                 . '</tr>';
@@ -1190,6 +1192,7 @@ final class GoldPricesPage
                 <tr>
                     <th><?php esc_html_e('Date', 'koperasikita'); ?></th>
                     <th><?php esc_html_e('Brand', 'koperasikita'); ?></th>
+                    <th><?php esc_html_e('Provider', 'koperasikita'); ?></th>
                     <th><?php esc_html_e('Sell (per gram)', 'koperasikita'); ?></th>
                     <th><?php esc_html_e('Buyback (per gram)', 'koperasikita'); ?></th>
                 </tr>

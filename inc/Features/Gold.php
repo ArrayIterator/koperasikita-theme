@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace KoperasiKita\Features;
 
 use KoperasiKita\Api\Hooks;
+use KoperasiKita\Providers\GoldPricesTable;
+use KoperasiKita\Providers\LogamMuliaApiProvider;
 use KoperasiKita\Providers\MarketPrice;
 
 /**
@@ -300,6 +302,69 @@ final class Gold
         $map = self::brandProviders();
 
         return $map[sanitize_key($symbol)] ?? 'manual';
+    }
+
+    /**
+     * The official provider per brand: the brand's configured
+     * primary provider. That choice is where "official" is
+     * decided (Gold Brands tab): the official site's feed for a
+     * brand is the provider the admin picked for it. A brand
+     * whose primary is the Logam Mulia CSV has no official-site
+     * feed; its history stays the CSV rows.
+     *
+     * @return array<string, string> Brand slug => provider id.
+     */
+    public static function officialProviders(): array
+    {
+        return array_intersect_key(self::brandProviders(), self::brands());
+    }
+
+    /**
+     * Record today's official price per brand in the history
+     * table. The price is the one the site itself shows
+     * (Markets::goldPrices(), primary then fallback), so history
+     * and the widget can never disagree. Only a price supplied
+     * by the brand's official provider is written: a price that
+     * arrived via the fallback is the fallback's own row to
+     * maintain, and a brand whose primary is the Logam Mulia
+     * CSV is skipped outright, its history already written by
+     * the CSV sync. A failed or missing fetch writes nothing.
+     * The write is an upsert, so a re-run the same day updates
+     * today's official row instead of duplicating it.
+     *
+     * @return array{inserted: int, updated: int, skipped: int, brands: array<string, array{provider: string, outcome: string}>}
+     */
+    public static function recordOfficialHistory(): array
+    {
+        $today = date_i18n('Y-m-d', current_time('timestamp'));
+        $prices = Markets::goldPrices();
+        $result = ['inserted' => 0, 'updated' => 0, 'skipped' => 0, 'brands' => []];
+
+        foreach (self::enabledBrands() as $symbol) {
+            $official = self::brandProvider($symbol);
+
+            if ($official === LogamMuliaApiProvider::PROVIDER_ID) {
+                continue;
+            }
+
+            $price = $prices[$symbol] ?? null;
+            $outcome = 'skipped';
+
+            if ($price instanceof MarketPrice && $price->hasData() && $price->provider === $official) {
+                $written = GoldPricesTable::upsert($official, $symbol, (float) $price->price, null, 'IDR', $today, time());
+                $outcome = $written === 1 ? 'inserted' : ($written === 2 ? 'updated' : 'unchanged');
+            }
+
+            if ($outcome === 'unchanged' || $outcome === 'skipped') {
+                $result['skipped']++;
+            } else {
+                $result[$outcome]++;
+            }
+
+            $result['brands'][$symbol] = ['provider' => $official, 'outcome' => $outcome];
+        }
+
+        return $result;
     }
 
     /**
