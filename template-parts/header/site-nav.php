@@ -101,11 +101,22 @@
 		<div class="kk-nav-actions">
 			<form class="kk-search-expand" id="kk-search-expand" role="search" method="get" action="<?php echo esc_url( home_url( '/' ) ); ?>">
 				<label class="screen-reader-text" for="kk-search-input"><?php esc_html_e( 'Search for:', 'koperasikita' ); ?></label>
-				<input class="kk-search-expand-input search-field" id="kk-search-input" type="search" name="s" value="<?php echo esc_attr( get_search_query() ); ?>" autocomplete="off" placeholder="<?php esc_attr_e( 'Search news…', 'koperasikita' ); ?>">
+				<input class="kk-search-expand-input search-field" id="kk-search-input" type="search" name="s" value="<?php echo esc_attr( get_search_query() ); ?>" autocomplete="off" placeholder="<?php esc_attr_e( 'Search news…', 'koperasikita' ); ?>" role="combobox" aria-autocomplete="list" aria-controls="kk-search-results" aria-expanded="false">
 				<button type="button" class="kk-icon-button kk-search-expand-toggle" id="kk-search-open" aria-label="<?php esc_attr_e( 'Search', 'koperasikita' ); ?>" aria-expanded="false" aria-controls="kk-search-input">
 					<span class="kk-search-expand-icon kk-search-expand-icon-search"><?php echo \KoperasiKita\Icons\Icon::svg( 'search', 18 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></span>
 					<span class="kk-search-expand-icon kk-search-expand-icon-close"><?php echo \KoperasiKita\Icons\Icon::svg( 'close', 18 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></span>
 				</button>
+
+				<!-- Live results: filled by main.ts from the search
+				     index (kk_search). The list is built client-side,
+				     so the panel stays empty until a query returns;
+				     submitting the form still goes to the full
+				     results page, as before. -->
+				<div class="kk-search-results" id="kk-search-results" hidden>
+					<ul class="kk-search-results-list" id="kk-search-results-list" role="listbox" aria-label="<?php esc_attr_e( 'Search results', 'koperasikita' ); ?>"></ul>
+					<p class="kk-search-results-empty" id="kk-search-results-empty" hidden><?php esc_html_e( 'No results found', 'koperasikita' ); ?></p>
+					<a class="kk-search-results-all" id="kk-search-results-all" href="<?php echo esc_url( home_url( '/' ) ); ?>" data-view-all="<?php esc_attr_e( 'See all results for "%s"', 'koperasikita' ); ?>" hidden><?php esc_html_e( 'See all results', 'koperasikita' ); ?></a>
+				</div>
 			</form>
 
 			<?php if ( get_theme_mod( 'kk_dark_mode_toggle', true ) ) : ?>

@@ -8,6 +8,8 @@
 
 export {};
 
+import { postAjax } from './api';
+
 interface KkData {
 	isBookmarksEnabled?: boolean;
 	isPwaEnabled?: boolean;
@@ -454,6 +456,7 @@ function initExpandingSearch(): void {
 		wrap?.classList.remove('kk-search-open');
 		toggle.setAttribute('aria-expanded', 'false');
 		input.value = '';
+		hideSearchResults();
 		if (refocus) {
 			toggle.focus();
 		}
@@ -468,12 +471,232 @@ function initExpandingSearch(): void {
 	input.addEventListener('keydown', (event) => {
 		if (event.key === 'Escape') {
 			event.preventDefault();
+			/* Results first, field second: the first Escape hides
+			 * the live results, the next one closes the field. */
+			if (searchResultsVisible()) {
+				hideSearchResults();
+				return;
+			}
 			close(true);
 		}
 	});
 	document.addEventListener('click', (event) => {
 		if (form.classList.contains('is-open') && !form.contains(event.target as Node)) {
 			close(false);
+		}
+	});
+	initFastSearch(form, input);
+}
+
+/* Live search results: the expanding field answers from the
+ * search index (kk_search) as the reader types, instead of
+ * waiting for the full results page. Debounced, with a small
+ * session-scoped cache keyed by the normalized query (failures
+ * are never cached). Arrow keys move through the results, Enter
+ * opens the active one, Escape hides the results first (the
+ * field's own Escape handler above closes the field next).
+ * Enter with no active result submits the form, so the full
+ * results page stays the fallback exactly as before. */
+
+interface SearchResult {
+	id: number;
+	title: string;
+	url: string;
+	type: string;
+	category: string | null;
+	date: string;
+	thumbnail: string;
+}
+
+interface SearchResponse {
+	query: string;
+	results: SearchResult[];
+	total: number;
+}
+
+const SEARCH_DEBOUNCE_MS = 250;
+const SEARCH_MIN_LENGTH = 2;
+const SEARCH_CACHE_MAX = 20;
+
+const searchCache = new Map<string, SearchResult[]>();
+
+let searchSeq = 0;
+let searchTimer: number | null = null;
+let searchAbort: AbortController | null = null;
+let searchActiveIndex = -1;
+let searchResults: SearchResult[] = [];
+
+function searchResultsPanel(): HTMLElement | null {
+	return $('#kk-search-results');
+}
+
+function searchResultsVisible(): boolean {
+	const panel = searchResultsPanel();
+	return panel !== null && !panel.hidden;
+}
+
+function hideSearchResults(): void {
+	const panel = searchResultsPanel();
+	if (panel) {
+		panel.hidden = true;
+	}
+	const input = $('#kk-search-input') as HTMLInputElement | null;
+	input?.setAttribute('aria-expanded', 'false');
+	input?.removeAttribute('aria-activedescendant');
+	searchActiveIndex = -1;
+	searchResults = [];
+}
+
+function setSearchActive(index: number): void {
+	const list = $('#kk-search-results-list') as HTMLUListElement | null;
+	const input = $('#kk-search-input') as HTMLInputElement | null;
+	if (!list || !input) {
+		return;
+	}
+	searchActiveIndex = index;
+	const items = Array.from(list.children);
+	items.forEach((item, i) => {
+		item.classList.toggle('is-active', i === index);
+	});
+	if (index >= 0 && items[index]) {
+		input.setAttribute('aria-activedescendant', items[index].id);
+	} else {
+		input.removeAttribute('aria-activedescendant');
+	}
+}
+
+function renderSearchResults(results: SearchResult[], query: string, form: HTMLFormElement): void {
+	const panel = searchResultsPanel();
+	const list = $('#kk-search-results-list') as HTMLUListElement | null;
+	const empty = $('#kk-search-results-empty') as HTMLElement | null;
+	const all = $('#kk-search-results-all') as HTMLAnchorElement | null;
+	const input = $('#kk-search-input') as HTMLInputElement | null;
+	if (!panel || !list || !empty || !all || !input) {
+		return;
+	}
+	searchResults = results;
+	list.replaceChildren();
+	results.forEach((result, index) => {
+		const item = document.createElement('li');
+		item.id = `kk-search-result-${index}`;
+		item.className = 'kk-search-result-item';
+		item.setAttribute('role', 'option');
+		const link = document.createElement('a');
+		link.className = 'kk-search-result';
+		link.href = result.url;
+		link.tabIndex = -1;
+		const thumb = document.createElement('span');
+		thumb.className = 'kk-search-result-thumb';
+		const img = document.createElement('img');
+		img.src = result.thumbnail;
+		img.alt = '';
+		img.loading = 'lazy';
+		thumb.appendChild(img);
+		const text = document.createElement('span');
+		text.className = 'kk-search-result-text';
+		const title = document.createElement('span');
+		title.className = 'kk-search-result-title';
+		title.textContent = result.title;
+		const meta = document.createElement('span');
+		meta.className = 'kk-search-result-meta';
+		meta.textContent = result.category ? `${result.category} · ${result.date}` : result.date;
+		text.appendChild(title);
+		text.appendChild(meta);
+		link.appendChild(thumb);
+		link.appendChild(text);
+		item.appendChild(link);
+		list.appendChild(item);
+	});
+	empty.hidden = results.length !== 0;
+	all.hidden = false;
+	all.href = `${form.action}?s=${encodeURIComponent(query)}`;
+	const template = all.getAttribute('data-view-all') ?? 'See all results for "%s"';
+	all.textContent = template.replace('%s', query);
+	panel.hidden = false;
+	input.setAttribute('aria-expanded', 'true');
+	setSearchActive(-1);
+}
+
+async function runFastSearch(query: string, form: HTMLFormElement): Promise<void> {
+	const data = getKkData();
+	if (!data.ajaxUrl || !data.nonce) {
+		return;
+	}
+	const normalized = query.trim().toLowerCase();
+	const seq = ++searchSeq;
+	const cached = searchCache.get(normalized);
+	if (cached !== undefined) {
+		if (seq === searchSeq) {
+			renderSearchResults(cached, query.trim(), form);
+		}
+		return;
+	}
+	searchAbort?.abort();
+	const controller = new AbortController();
+	searchAbort = controller;
+	try {
+		const response = await postAjax<SearchResponse>(
+			{ ajaxUrl: data.ajaxUrl, nonce: data.nonce },
+			'kk_search',
+			{ q: query.trim() },
+			controller.signal,
+		);
+		if (searchCache.size >= SEARCH_CACHE_MAX) {
+			const oldest = searchCache.keys().next().value;
+			if (oldest !== undefined) {
+				searchCache.delete(oldest);
+			}
+		}
+		searchCache.set(normalized, response.results);
+		if (seq === searchSeq) {
+			renderSearchResults(response.results, query.trim(), form);
+		}
+	} catch {
+		/* A failed query hides the panel instead of leaving the
+		 * previous query's results on screen, and it is never
+		 * cached, so the next keystroke retries. */
+		if (seq === searchSeq) {
+			hideSearchResults();
+		}
+	}
+}
+
+function initFastSearch(form: HTMLFormElement, input: HTMLInputElement): void {
+	if (!searchResultsPanel()) {
+		return;
+	}
+	input.addEventListener('input', () => {
+		if (searchTimer !== null) {
+			window.clearTimeout(searchTimer);
+			searchTimer = null;
+		}
+		const query = input.value;
+		if (query.trim().length < SEARCH_MIN_LENGTH) {
+			searchSeq++;
+			searchAbort?.abort();
+			hideSearchResults();
+			return;
+		}
+		searchTimer = window.setTimeout(() => {
+			searchTimer = null;
+			void runFastSearch(query, form);
+		}, SEARCH_DEBOUNCE_MS);
+	});
+	input.addEventListener('keydown', (event) => {
+		if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
+			if (!searchResultsVisible() || searchResults.length === 0) {
+				return;
+			}
+			event.preventDefault();
+			const next = event.key === 'ArrowDown'
+				? Math.min(searchActiveIndex + 1, searchResults.length - 1)
+				: Math.max(searchActiveIndex - 1, -1);
+			setSearchActive(next);
+			return;
+		}
+		if (event.key === 'Enter' && searchActiveIndex >= 0 && searchResults[searchActiveIndex]) {
+			event.preventDefault();
+			window.location.href = searchResults[searchActiveIndex].url;
 		}
 	});
 }

@@ -88,6 +88,7 @@ final class Theme
         add_action('admin_post_kk_setup_install', [Setup::class, 'handleInstall']);
         add_action('admin_post_kk_setup_upload', [Setup::class, 'handleUpload']);
         add_action('admin_post_kk_setup_activate', [Setup::class, 'handleActivate']);
+        add_action('admin_post_kk_search_rebuild', [Setup::class, 'handleRebuild']);
         add_action('admin_post_kk_export_subscribers', [SubscribersPage::class, 'handleExport']);
         add_action('admin_post_kk_delete_subscriber', [SubscribersPage::class, 'handleDelete']);
     }

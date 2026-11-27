@@ -46,6 +46,8 @@ final class Setup
         'install_failed',
         'upload_failed',
         'activate_failed',
+        'search_rebuilt',
+        'search_rebuild_failed',
     ];
 
     public static function pageUrl(): string
@@ -209,6 +211,30 @@ final class Setup
         echo '<span class="kk-setup-link-title">' . esc_html__('Locations', 'koperasikita') . '</span>';
         echo '<span class="kk-setup-link-desc">' . esc_html__('Agenda locations with map coordinates.', 'koperasikita') . '</span></a>';
         echo '</div></div></section>';
+
+        echo '<section class="kk-setup-card">';
+        echo '<h2 class="kk-setup-card-title">' . esc_html__('Search index', 'koperasikita') . '</h2>';
+        echo '<div class="kk-setup-card-body">';
+        echo '<p>' . esc_html__('Live search answers from a search index instead of scanning every post. New and edited posts are indexed on save; rebuild here to index the posts already published.', 'koperasikita') . '</p>';
+
+        $indexedCount = \KoperasiKita\Features\SearchIndex::count();
+
+        if (!\KoperasiKita\Features\SearchIndex::isBuilt()) {
+            echo '<p class="kk-setup-stack-status">' . esc_html__('The search index has not been built yet.', 'koperasikita') . '</p>';
+        } elseif ($indexedCount === 1) {
+            echo '<p class="kk-setup-stack-status">' . esc_html__('1 post indexed.', 'koperasikita') . '</p>';
+        } else {
+            /* translators: %d: Number of indexed posts. */
+            echo '<p class="kk-setup-stack-status">' . esc_html(sprintf(__('Search index: %d posts.', 'koperasikita'), $indexedCount)) . '</p>';
+        }
+
+        echo '<form class="kk-setup-form" method="post" action="' . esc_url(admin_url('admin-post.php')) . '">';
+        echo '<input type="hidden" name="action" value="kk_search_rebuild">';
+        wp_nonce_field('kk_search_rebuild');
+        echo '<button class="kk-setup-button kk-setup-button--primary" type="submit">'
+            . esc_html__('Rebuild search index', 'koperasikita')
+            . '</button></form>';
+        echo '</div></section>';
 
         echo '<p class="kk-setup-footnote">' . esc_html__('Koperasi Kita theme', 'koperasikita')
             . ' ' . esc_html(KK_VERSION) . '</p>';
@@ -403,6 +429,27 @@ final class Setup
         }
 
         self::redirectWithStatus('activated');
+    }
+
+    /**
+     * Rebuild the search index from the posts already published.
+     * Safe to re-run: the backfill upserts by post id, so it only
+     * refreshes rows. A run that indexes nothing while posts exist
+     * is a failure; an empty site rebuilds to an empty index.
+     */
+    public static function handleRebuild(): void
+    {
+        check_admin_referer('kk_search_rebuild');
+
+        if (!current_user_can('manage_options')) {
+            wp_die(esc_html__('Sorry, you are not allowed to manage options.', 'koperasikita'));
+        }
+
+        $result = \KoperasiKita\Features\SearchIndex::backfill();
+
+        $ok = $result['total'] === 0 || $result['indexed'] > 0;
+
+        self::redirectWithStatus($ok ? 'search_rebuilt' : 'search_rebuild_failed');
     }
 
     /**
@@ -655,6 +702,8 @@ final class Setup
             'install_failed' => ['error', __('Installation failed.', 'koperasikita')],
             'upload_failed' => ['error', __('Upload failed.', 'koperasikita')],
             'activate_failed' => ['error', __('Activation failed.', 'koperasikita')],
+            'search_rebuilt' => ['success', __('Search index rebuilt.', 'koperasikita')],
+            'search_rebuild_failed' => ['error', __('The search index could not be rebuilt.', 'koperasikita')],
             default => ['error', __('The installation could not be completed.', 'koperasikita')],
         };
     }
