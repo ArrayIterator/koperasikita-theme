@@ -593,12 +593,17 @@ function initDataDeskPreview(): void {
 		});
 	};
 
-	const refresh = (): void => {
+	/* An explicit save (the field popup's Save) refreshes
+	 * immediately; the 300ms debounce is only for focusout and
+	 * typing, where a request per keystroke would spam the
+	 * server. A debounced save left the preview showing the old
+	 * text while the user was already looking at it. */
+	const refresh = (immediate = false): void => {
 		if (timer !== null) {
 			window.clearTimeout(timer);
 			timer = null;
 		}
-		timer = window.setTimeout(() => {
+		const send = (): void => {
 			const params: Record<string, string> = {
 				kind: kind.value,
 				symbol: symbol.value,
@@ -649,7 +654,12 @@ function initDataDeskPreview(): void {
 					}
 					container.classList.remove('is-loading');
 				});
-		}, 300);
+		};
+		if (immediate) {
+			send();
+			return;
+		}
+		timer = window.setTimeout(send, 300);
 	};
 
 	/* Inline editing of the preview kicker + title + table
@@ -821,7 +831,9 @@ function initDataDeskPreview(): void {
 	});
 
 	[kind, symbol, days, palette].forEach((el) => {
-		el.addEventListener('change', refresh);
+		el.addEventListener('change', () => {
+			refresh();
+		});
 	});
 	/* The palette is a segmented control in the top bar (radios),
 	 * synced into the hidden #kk-template-palette input the
@@ -1539,7 +1551,7 @@ function initDataDeskPreview(): void {
 		fieldPopupOpener?.focus();
 		fieldPopupOpener = null;
 		if (save) {
-			refresh();
+			refresh(true);
 		}
 	};
 	const openFieldPopup = (target: HTMLElement, clicked: HTMLElement | null): void => {
@@ -1833,10 +1845,16 @@ function initDataDeskPreview(): void {
 		});
 	}
 	[days, title, kicker].forEach((el) => {
-		el.addEventListener('input', refresh);
+		el.addEventListener('input', () => {
+			refresh();
+		});
 	});
-	brands.addEventListener('change', refresh);
-	brands.parentElement?.querySelector('.kk-term-picker')?.addEventListener('click', refresh);
+	brands.addEventListener('change', () => {
+		refresh();
+	});
+	brands.parentElement?.querySelector('.kk-term-picker')?.addEventListener('click', () => {
+		refresh();
+	});
 	markEditable();
 }
 
