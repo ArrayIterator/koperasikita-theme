@@ -144,8 +144,8 @@ html[data-color-scheme="dark"] .kk-weather-widget .kk-button-ghost {
 	position: relative;
 	width: 100%;
 	max-width: 520px;
-	max-height: calc(100vh - 32px);
-	max-height: calc(100dvh - 32px);
+	max-height: calc(100vh - var(--kk-popup-inset, 2rem));
+	max-height: calc(100dvh - var(--kk-popup-inset, 2rem));
 	overflow-y: auto;
 	background: var(--kk-paper);
 	border: 1px solid var(--kk-border);
@@ -354,8 +354,6 @@ html[data-color-scheme="dark"] .kk-weather-widget .kk-button-ghost {
 
 	.kk-weather-modal-dialog {
 		padding: 24px 16px 20px;
-		max-height: calc(100vh - 24px);
-		max-height: calc(100dvh - 24px);
 	}
 
 	.kk-weather-modal-title {

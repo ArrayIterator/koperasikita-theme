@@ -63,7 +63,7 @@
 .kk-term-select-panel {
 	position: absolute;
 	z-index: 10;
-	top: calc(100% + 4px);
+	top: calc(100% + var(--kk-gap-xs, 4px));
 	left: 0;
 	right: 0;
 	border: 1px solid #8c8f94;
@@ -219,7 +219,7 @@
 .kk-term-multiselect-panel {
 	position: absolute;
 	z-index: 10;
-	top: calc(100% + 4px);
+	top: calc(100% + var(--kk-gap-xs, 4px));
 	left: 0;
 	right: 0;
 	border: 1px solid #8c8f94;

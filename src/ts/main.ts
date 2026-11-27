@@ -405,8 +405,8 @@ function initModals(): void {
 	});
 }
 
-/* Expanding search: the icon toggles a field that grows out of it
- * to the left. Escape, an outside click or submit closes it again;
+/* Expanding search: the icon toggles a field that fills the whole
+ * nav bar. Escape, an outside click or submit closes it again;
  * the query is cleared on close so a stale query never reopens. */
 function initExpandingSearch(): void {
 	const form = $('#kk-search-expand') as HTMLFormElement | null;
@@ -415,13 +415,20 @@ function initExpandingSearch(): void {
 	if (!form || !toggle || !input) {
 		return;
 	}
+	/* The wrap class is what makes the open field FULL width: it
+	 * hides the desktop menu / mobile hamburger and stretches
+	 * the actions, so the input fills the whole nav bar on
+	 * desktop exactly as on mobile (header.css). */
+	const wrap = form.closest('.kk-nav-wrap') as HTMLElement | null;
 	const open = (): void => {
 		form.classList.add('is-open');
+		wrap?.classList.add('kk-search-open');
 		toggle.setAttribute('aria-expanded', 'true');
 		input.focus();
 	};
 	const close = (refocus: boolean): void => {
 		form.classList.remove('is-open');
+		wrap?.classList.remove('kk-search-open');
 		toggle.setAttribute('aria-expanded', 'false');
 		input.value = '';
 		if (refocus) {

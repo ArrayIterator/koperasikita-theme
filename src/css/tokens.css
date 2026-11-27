@@ -66,4 +66,32 @@
 	--kk-shell-max: 1240px;
 	--kk-content-max: 720px;
 	--kk-sidebar-width: 320px;
+
+	/* Spacing scale — the single source for every calc() in the
+	 * theme. A calc() must use one of these, never a bare magic
+	 * number that differs per component for the same job:
+	 * xs = dropdown/popup offsets, sm = inline gaps, md = the
+	 * content/sidebar gap and the shell padding step, lg = the
+	 * wide shell padding, xl = the section gap. */
+	--kk-gap-xs: 4px;
+	--kk-gap-sm: 8px;
+	--kk-gap-md: 16px;
+	--kk-gap-lg: 24px;
+	--kk-gap-xl: 32px;
+	/* Shell side padding: 16px on phones, 24px at 720px and up
+	 * (responsive.css overrides this token — the .kk-shell rule
+	 * itself never hard-codes a padding). */
+	--kk-shell-padding: 16px;
+	/* Centred popups/dialogs: one inset on every side, so a
+	 * dialog is width calc(100vw - inset) and height
+	 * calc(100vh - inset) / calc(100dvh - inset) everywhere —
+	 * admin dialogs, the agenda picker, the modal and the
+	 * weather picker all share it instead of each inventing
+	 * 4rem / 48px / 32px / 24px. */
+	--kk-popup-inset: 2rem;
+	/* Header search: one mechanism on every width — when the
+	 * search opens, the menu / hamburger hides and the field
+	 * fills the whole nav bar as a flex item (see header.css).
+	 * No vw calc, no per-breakpoint reserve to keep in sync. */
+	--kk-sidebar-sticky-offset: 64px;
 }

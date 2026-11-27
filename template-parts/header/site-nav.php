@@ -16,8 +16,10 @@
  * its position is a Customizer setting (footer by default).
  *
  * Search is an expanding field, not a popup: the search icon is the
- * toggle and the input grows out of it to the left when opened
- * (Escape, outside click or submit closes it again).
+ * toggle and the input grows into a FULL bar when opened — the
+ * desktop menu / mobile hamburger hides and the field fills the
+ * whole nav row on desktop exactly as on mobile (Escape, outside
+ * click or submit closes it again).
  *
  * @package KoperasiKita
  */
