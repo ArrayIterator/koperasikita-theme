@@ -367,6 +367,43 @@
 	font-style: italic;
 }
 
+/* Code in article content: a long <pre> line must scroll inside its
+ * own box instead of pushing the page wider (there was no pre/code
+ * rule at all, so a long line overflowed the article column), and a
+ * long inline <code> token must break instead of overflowing. Code
+ * inside a <pre> keeps its line breaks: the block scrolls, so the
+ * token must not break there. */
+.kk-entry-content pre {
+	max-width: 100%;
+	overflow-x: auto;
+	padding: 16px;
+	border: 1px solid var(--kk-border, #E6E3DE);
+	border-radius: var(--kk-radius);
+	background: var(--kk-surface, #F7F7F5);
+	font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace;
+	font-size: 14px;
+	line-height: 1.6;
+}
+
+.kk-entry-content code {
+	padding: 0.15em 0.4em;
+	border-radius: var(--kk-radius);
+	background: var(--kk-surface, #F7F7F5);
+	font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace;
+	font-size: 0.875em;
+	overflow-wrap: break-word;
+	word-break: break-word;
+}
+
+.kk-entry-content pre code {
+	padding: 0;
+	border: 0;
+	background: transparent;
+	font-size: inherit;
+	overflow-wrap: normal;
+	word-break: normal;
+}
+
 .kk-entry-content ul,
 .kk-entry-content ol {
 	list-style: revert;
