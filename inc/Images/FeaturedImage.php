@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace KoperasiKita\Images;
 
+use KoperasiKita\Assets\ViteLoader;
 use KoperasiKita\Customizer\Customizer;
 
 final class FeaturedImage
@@ -217,15 +218,19 @@ final class FeaturedImage
             }
         }
 
-        /* Plain URL, no ?v= query version: the
-         * random-looking ?v=<mtime> was removed from the thumbnail
-         * URL. Trade-off: the server sends this file with a 10-year
-         * max-age, so after a future placeholder redesign a browser
-         * that cached the old artwork may keep showing it until its
-         * cache expires (the "teteep" problem the ?v= was added for
-         * after #97). If that comes back, the fix is to rename the
-         * file or bump KK_VERSION here, not to re-add ?v=. */
-        return KK_URI . '/assets/img/placeholder.svg';
+        /* The shipped placeholder. The build emits it with a content
+         * hash (src/ts/main.ts imports it for that purpose), so a new
+         * build serves a new URL and neither the service worker nor
+         * the 10-year max-age on this file can serve stale artwork.
+         * Without a build (no dist manifest) it falls back to the
+         * plain theme file, which is the same artwork. */
+        $built = ViteLoader::assetUrl('assets/img/placeholder-v1.svg');
+
+        if ($built !== '') {
+            return $built;
+        }
+
+        return KK_URI . '/assets/img/placeholder-v1.svg';
     }
 
     public static function srcset(int $postId, string $size = 'kk-card'): string

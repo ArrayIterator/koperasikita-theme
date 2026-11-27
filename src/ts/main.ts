@@ -10,6 +10,15 @@ export {};
 
 import { postAjax } from './api';
 
+/* The shipped placeholder, imported so the build emits it with a
+ * content hash and records it in the manifest: the PHP fallback
+ * resolves the hashed URL through ViteLoader, so a new build never
+ * serves the old cached artwork. The binding is intentionally
+ * unused at runtime. */
+import placeholderV1Url from '../../assets/img/placeholder-v1.svg';
+
+void placeholderV1Url;
+
 interface KkData {
 	isBookmarksEnabled?: boolean;
 	isPwaEnabled?: boolean;
