@@ -28,9 +28,11 @@ final class AgendaWidget extends WP_Widget
     private const MAX_COUNT = 10;
     private const DEFAULT_ICON = 'users';
     private const DEFAULT_STYLE = 'auto';
+    private const DEFAULT_BG_COLOR = '#ffffff';
+    private const DEFAULT_ACCENT_COLOR = '#0b6b3a';
 
     /** Allowed Card style values; anything else falls back to 'auto'. */
-    private const STYLES = ['auto', 'dark', 'light'];
+    private const STYLES = ['auto', 'dark', 'light', 'custom'];
 
     public function __construct()
     {
@@ -63,6 +65,8 @@ final class AgendaWidget extends WP_Widget
         $showIcon = !isset($instance['show_icon']) || (bool) $instance['show_icon'];
         $icon = self::sanitizeIcon(isset($instance['icon']) ? (string) $instance['icon'] : self::DEFAULT_ICON);
         $style = self::sanitizeStyle(isset($instance['style']) ? (string) $instance['style'] : self::DEFAULT_STYLE);
+        $bgColor = self::sanitizeColor(isset($instance['bg_color']) ? (string) $instance['bg_color'] : '');
+        $accentColor = self::sanitizeColor(isset($instance['accent_color']) ? (string) $instance['accent_color'] : '');
         $linkUrl = self::resolveLink(isset($instance['link_to']) ? (int) $instance['link_to'] : 0);
 
         $items = self::items($count, $showPast);
@@ -79,6 +83,8 @@ final class AgendaWidget extends WP_Widget
             'show_icon' => $showIcon,
             'icon' => $icon,
             'style' => $style,
+            'bg_color' => $bgColor,
+            'accent_color' => $accentColor,
             'link_url' => $linkUrl,
         ]);
 
@@ -93,9 +99,10 @@ final class AgendaWidget extends WP_Widget
     public static function styleOptions(): array
     {
         return [
-            'auto' => __('Follow site theme', 'koperasikita'),
-            'dark' => __('Dark card', 'koperasikita'),
-            'light' => __('Light card', 'koperasikita'),
+            'auto' => __('Auto', 'koperasikita'),
+            'dark' => __('Dark Green', 'koperasikita'),
+            'light' => __('Light', 'koperasikita'),
+            'custom' => __('Choose Own', 'koperasikita'),
         ];
     }
 
@@ -105,6 +112,18 @@ final class AgendaWidget extends WP_Widget
     public static function sanitizeStyle(string $style): string
     {
         return in_array($style, self::STYLES, true) ? $style : self::DEFAULT_STYLE;
+    }
+
+    /**
+     * Clamp a saved Choose Own colour to a hex colour; anything
+     * invalid (or empty) falls back to '' — unset, so the card uses
+     * the theme colour for that slot instead of a broken value.
+     */
+    public static function sanitizeColor(string $color): string
+    {
+        $color = sanitize_hex_color($color);
+
+        return is_string($color) ? $color : '';
     }
 
     /**
@@ -334,6 +353,8 @@ final class AgendaWidget extends WP_Widget
         $showIcon = !isset($instance['show_icon']) || (bool) $instance['show_icon'];
         $icon = self::sanitizeIcon(isset($instance['icon']) ? (string) $instance['icon'] : self::DEFAULT_ICON);
         $style = self::sanitizeStyle(isset($instance['style']) ? (string) $instance['style'] : self::DEFAULT_STYLE);
+        $bgColor = self::sanitizeColor(isset($instance['bg_color']) ? (string) $instance['bg_color'] : '');
+        $accentColor = self::sanitizeColor(isset($instance['accent_color']) ? (string) $instance['accent_color'] : '');
         $linkId = isset($instance['link_to']) ? (int) $instance['link_to'] : 0;
         $linkTitle = '';
         $linkType = '';
@@ -436,12 +457,40 @@ final class AgendaWidget extends WP_Widget
                 class="widefat"
                 id="<?php echo esc_attr($this->get_field_id('style')); ?>"
                 name="<?php echo esc_attr($this->get_field_name('style')); ?>"
+                data-kk-agenda-style-select
             >
                 <?php foreach (self::styleOptions() as $value => $label) : ?>
                     <option value="<?php echo esc_attr($value); ?>" <?php selected($style, $value); ?>><?php echo esc_html($label); ?></option>
                 <?php endforeach; ?>
             </select>
         </p>
+        <?php
+        // Choose Own colours: the visible swatch is only the picker —
+        // the hidden input holds the real value (empty = fall back to
+        // the theme colour), and the × button clears it back to empty.
+        // Same pattern as the menu icon colour in MenuIcons. The
+        // whole block is hidden unless the style is Choose Own; see
+        // initAgendaWidgetFields in admin.ts.
+        $colorRows = [
+            'bg_color' => ['label' => __('Background', 'koperasikita'), 'value' => $bgColor, 'default' => self::DEFAULT_BG_COLOR],
+            'accent_color' => ['label' => __('Accent text', 'koperasikita'), 'value' => $accentColor, 'default' => self::DEFAULT_ACCENT_COLOR],
+        ];
+        ?>
+        <div class="kk-agenda-custom-colors" data-kk-agenda-custom-colors<?php echo $style === 'custom' ? '' : ' hidden'; ?>>
+            <?php foreach ($colorRows as $key => $row) : ?>
+                <p>
+                    <span class="kk-menu-icon-field-label"><?php echo esc_html($row['label']); ?></span>
+                    <span class="kk-agenda-color-row">
+                        <span class="kk-agenda-color-wrap<?php echo '' === $row['value'] ? ' is-empty' : ''; ?>" data-kk-agenda-color-wrap="<?php echo esc_attr($key); ?>">
+                            <input type="color" class="kk-agenda-color" value="<?php echo esc_attr('' !== $row['value'] ? $row['value'] : $row['default']); ?>" data-kk-agenda-color="<?php echo esc_attr($key); ?>" aria-label="<?php echo esc_attr($row['label']); ?>">
+                        </span>
+                        <button type="button" class="kk-agenda-color-clear" data-kk-agenda-color-clear="<?php echo esc_attr($key); ?>" title="<?php esc_attr_e('Clear color', 'koperasikita'); ?>"<?php echo '' === $row['value'] ? ' hidden' : ''; ?>>&times;</button>
+                        <span class="kk-agenda-color-hex" data-kk-agenda-color-hex="<?php echo esc_attr($key); ?>"><?php echo esc_html($row['value']); ?></span>
+                    </span>
+                    <input type="hidden" name="<?php echo esc_attr($this->get_field_name($key)); ?>" value="<?php echo esc_attr($row['value']); ?>" data-kk-agenda-color-input="<?php echo esc_attr($key); ?>">
+                </p>
+            <?php endforeach; ?>
+        </div>
         <p>
             <span class="kk-menu-icon-field-label"><?php esc_html_e('Link to', 'koperasikita'); ?></span>
             <input
@@ -482,6 +531,8 @@ final class AgendaWidget extends WP_Widget
         $instance['show_icon'] = !empty($new['show_icon']);
         $instance['icon'] = self::sanitizeIcon(isset($new['icon']) ? sanitize_text_field((string) $new['icon']) : self::DEFAULT_ICON);
         $instance['style'] = self::sanitizeStyle(isset($new['style']) ? sanitize_text_field((string) $new['style']) : self::DEFAULT_STYLE);
+        $instance['bg_color'] = self::sanitizeColor(isset($new['bg_color']) ? sanitize_text_field((string) $new['bg_color']) : '');
+        $instance['accent_color'] = self::sanitizeColor(isset($new['accent_color']) ? sanitize_text_field((string) $new['accent_color']) : '');
         // A link that no longer resolves is stored as none — the
         // widget never keeps a dead id.
         $instance['link_to'] = isset($new['link_to']) && self::resolveLink((int) $new['link_to']) !== '' ? (int) $new['link_to'] : 0;

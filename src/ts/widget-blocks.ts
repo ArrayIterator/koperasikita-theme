@@ -34,7 +34,14 @@ type FieldDef =
 	| { key: string; kind: 'categories'; label: string; help?: string }
 	| { key: string; kind: 'tags'; label: string; help?: string }
 	| { key: string; kind: 'locations'; label: string; help?: string }
-	| { key: string; kind: 'postsearch'; label: string; help?: string };
+	| { key: string; kind: 'postsearch'; label: string; help?: string }
+	/* A hex colour swatch: a native colour input plus a hex readout
+	 * and a clear button (empty = fall back to the theme colour).
+	 * showWhen hides the field unless another attribute has the
+	 * given value — the Choose Own colours only show for the custom
+	 * card style. fallback is the picker starting value while the
+	 * stored value is empty; it is never stored itself. */
+	| { key: string; kind: 'color'; label: string; help?: string; showWhen?: { key: string; value: string }; fallback?: string };
 
 interface BlockDef {
 	slug: string;
@@ -665,6 +672,35 @@ function renderField(
 			 * search state and resolves the stored id to a title. */
 			return api.element.createElement(PostSearchField, { key, field, value, set, api });
 		}
+		case 'color': {
+			/* A native colour swatch + hex readout + clear button.
+			 * The input always holds a colour (the dialog needs a
+			 * starting value), so the stored value is what counts:
+			 * empty means "fall back to the theme colour", and the
+			 * × button restores it. */
+			const hex = typeof value === 'string' ? value : '';
+			return api.element.createElement(
+				'div',
+				{ key },
+				api.element.createElement('p', null, field.label),
+				api.element.createElement('input', {
+					type: 'color',
+					value: hex !== '' ? hex : (field.fallback ?? '#ffffff'),
+					onChange: (event: { target: { value: string } }) => set(key, event.target.value),
+				}),
+				api.element.createElement('span', null, hex),
+				hex !== ''
+					? api.element.createElement(
+							'button',
+							{ type: 'button', onClick: () => set(key, '') },
+							'×',
+						)
+					: null,
+				field.help !== undefined
+					? api.element.createElement('p', { className: 'components-base-control__help' }, field.help)
+					: null,
+			);
+		}
 	}
 }
 
@@ -690,9 +726,17 @@ function createEdit(def: BlockDef, api: Wp): (props: BlockEditProps) => unknown 
 		const set = (key: string, next: unknown): void => {
 			setAttributes({ [key]: next });
 		};
-		const controls = def.fields.map((field) =>
-			renderField(field, attributes, set, categories, tags, api),
-		);
+		/* Fields with a showWhen only render while the named
+		 * attribute holds the given value (the Choose Own colours
+		 * only show for the custom card style). */
+		const controls = def.fields
+			.filter(
+				(field) =>
+					!('showWhen' in field) ||
+					field.showWhen === undefined ||
+					attributes[field.showWhen.key] === field.showWhen.value,
+			)
+			.map((field) => renderField(field, attributes, set, categories, tags, api));
 		const inspector = api.element.createElement(
 			api.blockEditor.InspectorControls,
 			null,
@@ -1156,6 +1200,8 @@ function buildDefinitions(api: Wp): BlockDef[] {
 				showIcon: { type: 'boolean', default: true },
 				icon: { type: 'string', default: 'users' },
 				style: { type: 'string', default: 'auto' },
+				bgColor: { type: 'string', default: '' },
+				accentColor: { type: 'string', default: '' },
 				linkTo: { type: 'number', default: 0 },
 			},
 			fields: [
@@ -1178,10 +1224,25 @@ function buildDefinitions(api: Wp): BlockDef[] {
 					kind: 'select',
 					label: __('Card style'),
 					options: [
-						{ value: 'auto', label: __('Follow site theme') },
-						{ value: 'dark', label: __('Dark card') },
-						{ value: 'light', label: __('Light card') },
+						{ value: 'auto', label: __('Auto') },
+						{ value: 'dark', label: __('Dark Green') },
+						{ value: 'light', label: __('Light') },
+						{ value: 'custom', label: __('Choose Own') },
 					],
+				},
+				{
+					key: 'bgColor',
+					kind: 'color',
+					label: __('Background'),
+					showWhen: { key: 'style', value: 'custom' },
+					fallback: '#ffffff',
+				},
+				{
+					key: 'accentColor',
+					kind: 'color',
+					label: __('Accent text'),
+					showWhen: { key: 'style', value: 'custom' },
+					fallback: '#0b6b3a',
 				},
 				{
 					key: 'linkTo',

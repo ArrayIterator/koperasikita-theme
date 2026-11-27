@@ -1628,24 +1628,84 @@ function initAgendaWidgetFields(): void {
 		return;
 	}
 
-	/* "Show icon" shows / hides the picker row in the same form. */
+	/* "Card style" shows / hides the Choose Own colour rows in the
+	 * same form. */
 	document.addEventListener('change', (event) => {
-		const toggle = (event.target as HTMLElement).closest(
-			'[data-kk-agenda-icon-toggle]',
-		) as HTMLInputElement | null;
-		if (!toggle) {
+		const select = (event.target as HTMLElement).closest(
+			'[data-kk-agenda-style-select]',
+		) as HTMLSelectElement | null;
+		if (!select) {
 			return;
 		}
-		const scope =
-			toggle.closest('form') ??
-			toggle.closest('.widget-content') ??
-			toggle.parentElement;
-		const field = scope?.querySelector<HTMLElement>(
-			'[data-kk-agenda-icon-field]',
+		const field = scopeFor(select)?.querySelector<HTMLElement>(
+			'[data-kk-agenda-custom-colors]',
 		);
 		if (field) {
-			field.hidden = !toggle.checked;
+			field.hidden = select.value !== 'custom';
 		}
+	});
+
+	/* A Choose Own colour row: the visible swatch is only the picker —
+	 * the hidden input holds the real value (empty = fall back to the
+	 * theme colour), and the × button clears it back to empty. */
+	const syncColorRow = (scope: HTMLElement | null, key: string): void => {
+		const input = scope?.querySelector<HTMLInputElement>(
+			`[data-kk-agenda-color-input="${key}"]`,
+		);
+		const hex = scope?.querySelector<HTMLElement>(
+			`[data-kk-agenda-color-hex="${key}"]`,
+		);
+		const wrap = scope?.querySelector<HTMLElement>(
+			`[data-kk-agenda-color-wrap="${key}"]`,
+		);
+		const clear = scope?.querySelector<HTMLElement>(
+			`[data-kk-agenda-color-clear="${key}"]`,
+		);
+		if (hex && input) {
+			hex.textContent = input.value;
+		}
+		if (wrap) {
+			wrap.classList.toggle('is-empty', !input || input.value === '');
+		}
+		if (clear) {
+			clear.hidden = !input || input.value === '';
+		}
+	};
+
+	document.addEventListener('input', (event) => {
+		const picker = (event.target as HTMLElement).closest(
+			'[data-kk-agenda-color]',
+		) as HTMLInputElement | null;
+		if (!picker) {
+			return;
+		}
+		const key = picker.dataset.kkAgendaColor ?? '';
+		const scope = scopeFor(picker);
+		const input = scope?.querySelector<HTMLInputElement>(
+			`[data-kk-agenda-color-input="${key}"]`,
+		);
+		if (input) {
+			input.value = picker.value;
+		}
+		syncColorRow(scope, key);
+	});
+
+	document.addEventListener('click', (event) => {
+		const clear = (event.target as HTMLElement).closest(
+			'[data-kk-agenda-color-clear]',
+		) as HTMLElement | null;
+		if (!clear) {
+			return;
+		}
+		const key = clear.dataset.kkAgendaColorClear ?? '';
+		const scope = scopeFor(clear);
+		const input = scope?.querySelector<HTMLInputElement>(
+			`[data-kk-agenda-color-input="${key}"]`,
+		);
+		if (input) {
+			input.value = '';
+		}
+		syncColorRow(scope, key);
 	});
 
 	const scopeFor = (el: HTMLElement): HTMLElement | null =>

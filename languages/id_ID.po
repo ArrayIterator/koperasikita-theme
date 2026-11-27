@@ -4203,6 +4203,20 @@ msgid "Card style"
 msgstr "Gaya kartu"
 
 
+
+#: inc/Widgets/AgendaWidget.php src/ts/widget-blocks.ts
+msgid "Choose Own"
+msgstr "Pilih sendiri"
+
+#: inc/Widgets/AgendaWidget.php src/ts/widget-blocks.ts
+msgid "Background"
+msgstr "Latar belakang"
+
+#: inc/Widgets/AgendaWidget.php src/ts/widget-blocks.ts
+msgid "Accent text"
+msgstr "Teks aksen"
+
+
 #: inc/Widgets/AgendaWidget.php
 msgid "Dark card"
 msgstr "Kartu gelap"

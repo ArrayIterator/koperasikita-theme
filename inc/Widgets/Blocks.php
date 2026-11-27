@@ -391,6 +391,8 @@ final class Blocks
                     'showIcon' => ['type' => 'boolean', 'default' => true],
                     'icon' => ['type' => 'string', 'default' => 'users'],
                     'style' => ['type' => 'string', 'default' => 'auto'],
+                    'bgColor' => ['type' => 'string', 'default' => ''],
+                    'accentColor' => ['type' => 'string', 'default' => ''],
                     'linkTo' => ['type' => 'number', 'default' => 0],
                 ],
                 'map' => [
@@ -400,6 +402,8 @@ final class Blocks
                     'showIcon' => 'show_icon',
                     'icon' => 'icon',
                     'style' => 'style',
+                    'bgColor' => 'bg_color',
+                    'accentColor' => 'accent_color',
                     'linkTo' => 'link_to',
                 ],
             ];
