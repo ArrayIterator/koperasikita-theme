@@ -70,6 +70,7 @@ export default defineConfig({
         'widget-blocks-css': 'src/css/widget-blocks.css',
         'widgets-css': 'src/css/widgets.css',
         'editor-css': 'src/css/editor.css',
+        'editor-outer-css': 'src/css/editor-outer.css',
       },
     },
   },

@@ -536,8 +536,10 @@ final class Blocks
         // previews need inside the iframe canvas (tokens, base,
         // content, widgets, gold-markets, weather, variants, plus the
         // canvas shell/title rules). Registered here so it can be a
-        // block `editor_style`; Enqueue::registerBlockEditor() also
-        // enqueues it in the outer admin page.
+        // block `editor_style`; Enqueue::registerBlockEditor() loads
+        // the outer preview bundle (editor-outer.css) in the outer
+        // admin page instead - the canvas bundle's bare rules would
+        // restyle the WordPress frame there.
         $editorCss = ViteLoader::css('src/css/editor.css');
 
         if ($editorCss !== '') {

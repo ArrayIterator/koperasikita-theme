@@ -1,0 +1,367 @@
+/*
+   Koperasi Kita - editor-outer-base.css - scoped base rules for the
+   outer admin page.
+
+   WHY THIS FILE EXISTS: editor.css (the block-editor canvas bundle)
+   carries the frontend base rules bare - `body`, `h1-h3`, `a`, the
+   app.css reset - which is correct inside the canvas iframe, where
+   the document IS the preview. The same bundle loaded on the outer
+   admin page (widgets.php, customize.php, the Gold Prices and Data
+   Desk Templates pages) restyles the WordPress frame itself: the
+   Customizer controls render in the theme's 16px sans on white with
+   Georgia headings. The outer bundle (editor-outer.css) imports
+   this file instead of app.css and base.css, so the same rules apply
+   only inside preview markup: the Data Desk live preview, the list
+   preview popup body, the classic widget form preview body, and the
+   inline block previews (.kk-widget-block-canvas). Everything else
+   on the page keeps WordPress's own typography.
+
+   SCOPE: the four selectors below are the only preview containers
+   on the outer page. The popup and widget-form scopes stop at the
+   body element holding the rendered preview, not the whole popup or
+   form, so the surrounding admin chrome is untouched.
+
+   SYNC: the declarations mirror app.css and base.css exactly. When
+   a bare rule there changes, mirror it here; the
+   kk-verify-customizer-font-leak harness checks the two stay in
+   step. The `body.font-*` rules in base.css are deliberately NOT
+   mirrored: nothing sets those classes any more (fonts go through
+   the :root variables), so they match nowhere.
+ */
+
+[data-kk-data-desk-preview] *,
+[data-kk-data-desk-popup-body] *,
+[data-kk-data-desk-widget-preview-body] *,
+.kk-widget-block-canvas *,
+[data-kk-data-desk-preview] *::before,
+[data-kk-data-desk-popup-body] *::before,
+[data-kk-data-desk-widget-preview-body] *::before,
+.kk-widget-block-canvas *::before,
+[data-kk-data-desk-preview] *::after,
+[data-kk-data-desk-popup-body] *::after,
+[data-kk-data-desk-widget-preview-body] *::after,
+.kk-widget-block-canvas *::after {
+	box-sizing: border-box;
+}
+
+[data-kk-data-desk-preview] h1,
+[data-kk-data-desk-popup-body] h1,
+[data-kk-data-desk-widget-preview-body] h1,
+.kk-widget-block-canvas h1,
+[data-kk-data-desk-preview] h2,
+[data-kk-data-desk-popup-body] h2,
+[data-kk-data-desk-widget-preview-body] h2,
+.kk-widget-block-canvas h2,
+[data-kk-data-desk-preview] h3,
+[data-kk-data-desk-popup-body] h3,
+[data-kk-data-desk-widget-preview-body] h3,
+.kk-widget-block-canvas h3,
+[data-kk-data-desk-preview] h4,
+[data-kk-data-desk-popup-body] h4,
+[data-kk-data-desk-widget-preview-body] h4,
+.kk-widget-block-canvas h4,
+[data-kk-data-desk-preview] h5,
+[data-kk-data-desk-popup-body] h5,
+[data-kk-data-desk-widget-preview-body] h5,
+.kk-widget-block-canvas h5,
+[data-kk-data-desk-preview] h6,
+[data-kk-data-desk-popup-body] h6,
+[data-kk-data-desk-widget-preview-body] h6,
+.kk-widget-block-canvas h6,
+[data-kk-data-desk-preview] p,
+[data-kk-data-desk-popup-body] p,
+[data-kk-data-desk-widget-preview-body] p,
+.kk-widget-block-canvas p,
+[data-kk-data-desk-preview] ul,
+[data-kk-data-desk-popup-body] ul,
+[data-kk-data-desk-widget-preview-body] ul,
+.kk-widget-block-canvas ul,
+[data-kk-data-desk-preview] ol,
+[data-kk-data-desk-popup-body] ol,
+[data-kk-data-desk-widget-preview-body] ol,
+.kk-widget-block-canvas ol,
+[data-kk-data-desk-preview] figure,
+[data-kk-data-desk-popup-body] figure,
+[data-kk-data-desk-widget-preview-body] figure,
+.kk-widget-block-canvas figure,
+[data-kk-data-desk-preview] blockquote,
+[data-kk-data-desk-popup-body] blockquote,
+[data-kk-data-desk-widget-preview-body] blockquote,
+.kk-widget-block-canvas blockquote {
+	margin: 0;
+}
+
+[data-kk-data-desk-preview] ul,
+[data-kk-data-desk-popup-body] ul,
+[data-kk-data-desk-widget-preview-body] ul,
+.kk-widget-block-canvas ul,
+[data-kk-data-desk-preview] ol,
+[data-kk-data-desk-popup-body] ol,
+[data-kk-data-desk-widget-preview-body] ol,
+.kk-widget-block-canvas ol {
+	padding: 0;
+	list-style: none;
+}
+
+[data-kk-data-desk-preview] img,
+[data-kk-data-desk-popup-body] img,
+[data-kk-data-desk-widget-preview-body] img,
+.kk-widget-block-canvas img {
+	max-width: 100%;
+	height: auto;
+	display: block;
+}
+
+[data-kk-data-desk-preview] a,
+[data-kk-data-desk-popup-body] a,
+[data-kk-data-desk-widget-preview-body] a,
+.kk-widget-block-canvas a {
+	text-decoration: none;
+}
+
+[data-kk-data-desk-preview] button,
+[data-kk-data-desk-popup-body] button,
+[data-kk-data-desk-widget-preview-body] button,
+.kk-widget-block-canvas button {
+	font: inherit;
+	cursor: pointer;
+	background: none;
+	border: 0;
+	padding: 0;
+	color: inherit;
+}
+
+[data-kk-data-desk-preview] input,
+[data-kk-data-desk-popup-body] input,
+[data-kk-data-desk-widget-preview-body] input,
+.kk-widget-block-canvas input,
+[data-kk-data-desk-preview] textarea,
+[data-kk-data-desk-popup-body] textarea,
+[data-kk-data-desk-widget-preview-body] textarea,
+.kk-widget-block-canvas textarea,
+[data-kk-data-desk-preview] select,
+[data-kk-data-desk-popup-body] select,
+[data-kk-data-desk-widget-preview-body] select,
+.kk-widget-block-canvas select {
+	font: inherit;
+}
+
+/* The base body rule, without the background: the scope is a
+ * container inside the admin page, not the document, so it takes
+ * the page background and only borrows the type. */
+[data-kk-data-desk-preview],
+[data-kk-data-desk-popup-body],
+[data-kk-data-desk-widget-preview-body],
+.kk-widget-block-canvas {
+	font-family: var(--kk-sans);
+	font-size: 16px;
+	line-height: 1.6;
+	color: var(--kk-ink);
+}
+
+[data-kk-data-desk-preview] h1,
+[data-kk-data-desk-popup-body] h1,
+[data-kk-data-desk-widget-preview-body] h1,
+.kk-widget-block-canvas h1,
+[data-kk-data-desk-preview] h2,
+[data-kk-data-desk-popup-body] h2,
+[data-kk-data-desk-widget-preview-body] h2,
+.kk-widget-block-canvas h2,
+[data-kk-data-desk-preview] h3,
+[data-kk-data-desk-popup-body] h3,
+[data-kk-data-desk-widget-preview-body] h3,
+.kk-widget-block-canvas h3,
+[data-kk-data-desk-preview] .kk-site-title,
+[data-kk-data-desk-popup-body] .kk-site-title,
+[data-kk-data-desk-widget-preview-body] .kk-site-title,
+.kk-widget-block-canvas .kk-site-title,
+[data-kk-data-desk-preview] .kk-hero-title,
+[data-kk-data-desk-popup-body] .kk-hero-title,
+[data-kk-data-desk-widget-preview-body] .kk-hero-title,
+.kk-widget-block-canvas .kk-hero-title,
+[data-kk-data-desk-preview] .kk-card-title,
+[data-kk-data-desk-popup-body] .kk-card-title,
+[data-kk-data-desk-widget-preview-body] .kk-card-title,
+.kk-widget-block-canvas .kk-card-title,
+[data-kk-data-desk-preview] .kk-article-title,
+[data-kk-data-desk-popup-body] .kk-article-title,
+[data-kk-data-desk-widget-preview-body] .kk-article-title,
+.kk-widget-block-canvas .kk-article-title,
+[data-kk-data-desk-preview] .kk-page-title,
+[data-kk-data-desk-popup-body] .kk-page-title,
+[data-kk-data-desk-widget-preview-body] .kk-page-title,
+.kk-widget-block-canvas .kk-page-title {
+	font-family: var(--kk-serif);
+	font-weight: 700;
+	line-height: 1.2;
+	color: var(--kk-ink);
+}
+
+[data-kk-data-desk-preview] a,
+[data-kk-data-desk-popup-body] a,
+[data-kk-data-desk-widget-preview-body] a,
+.kk-widget-block-canvas a {
+	color: var(--kk-green, #0B6B3A);
+}
+
+[data-kk-data-desk-preview] a:hover,
+[data-kk-data-desk-popup-body] a:hover,
+[data-kk-data-desk-widget-preview-body] a:hover,
+.kk-widget-block-canvas a:hover,
+[data-kk-data-desk-preview] a:focus-visible,
+[data-kk-data-desk-popup-body] a:focus-visible,
+[data-kk-data-desk-widget-preview-body] a:focus-visible,
+.kk-widget-block-canvas a:focus-visible {
+	color: var(--kk-green-dark, #07522C);
+}
+
+[data-kk-data-desk-preview] a:focus-visible,
+[data-kk-data-desk-popup-body] a:focus-visible,
+[data-kk-data-desk-widget-preview-body] a:focus-visible,
+.kk-widget-block-canvas a:focus-visible,
+[data-kk-data-desk-preview] button:focus-visible,
+[data-kk-data-desk-popup-body] button:focus-visible,
+[data-kk-data-desk-widget-preview-body] button:focus-visible,
+.kk-widget-block-canvas button:focus-visible,
+[data-kk-data-desk-preview] input:focus-visible,
+[data-kk-data-desk-popup-body] input:focus-visible,
+[data-kk-data-desk-widget-preview-body] input:focus-visible,
+.kk-widget-block-canvas input:focus-visible,
+[data-kk-data-desk-preview] textarea:focus-visible,
+[data-kk-data-desk-popup-body] textarea:focus-visible,
+[data-kk-data-desk-widget-preview-body] textarea:focus-visible,
+.kk-widget-block-canvas textarea:focus-visible,
+[data-kk-data-desk-preview] select:focus-visible,
+[data-kk-data-desk-popup-body] select:focus-visible,
+[data-kk-data-desk-widget-preview-body] select:focus-visible,
+.kk-widget-block-canvas select:focus-visible {
+	outline: 2px solid var(--kk-gold, #C9962E);
+	outline-offset: 2px;
+}
+
+/* Class rules from base.css that widget preview markup uses: the
+ * news card eyebrow, the card meta line and the buttons (gold
+ * slider controls, newsletter subscribe). */
+[data-kk-data-desk-preview] .kk-eyebrow,
+[data-kk-data-desk-popup-body] .kk-eyebrow,
+[data-kk-data-desk-widget-preview-body] .kk-eyebrow,
+.kk-widget-block-canvas .kk-eyebrow {
+	font-family: var(--kk-sans);
+	font-size: 12px;
+	font-weight: 700;
+	letter-spacing: 0.14em;
+	text-transform: uppercase;
+	color: var(--kk-green, #0B6B3A);
+}
+
+[data-kk-data-desk-preview] .kk-eyebrow a,
+[data-kk-data-desk-popup-body] .kk-eyebrow a,
+[data-kk-data-desk-widget-preview-body] .kk-eyebrow a,
+.kk-widget-block-canvas .kk-eyebrow a {
+	color: var(--kk-green, #0B6B3A);
+}
+
+[data-kk-data-desk-preview] .kk-meta,
+[data-kk-data-desk-popup-body] .kk-meta,
+[data-kk-data-desk-widget-preview-body] .kk-meta,
+.kk-widget-block-canvas .kk-meta {
+	font-size: 13px;
+	color: var(--kk-muted);
+}
+
+[data-kk-data-desk-preview] .kk-meta a,
+[data-kk-data-desk-popup-body] .kk-meta a,
+[data-kk-data-desk-widget-preview-body] .kk-meta a,
+.kk-widget-block-canvas .kk-meta a {
+	color: var(--kk-muted);
+}
+
+[data-kk-data-desk-preview] .kk-meta a:hover,
+[data-kk-data-desk-popup-body] .kk-meta a:hover,
+[data-kk-data-desk-widget-preview-body] .kk-meta a:hover,
+.kk-widget-block-canvas .kk-meta a:hover {
+	color: var(--kk-green, #0B6B3A);
+}
+
+[data-kk-data-desk-preview] .kk-button,
+[data-kk-data-desk-popup-body] .kk-button,
+[data-kk-data-desk-widget-preview-body] .kk-button,
+.kk-widget-block-canvas .kk-button {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 8px;
+	min-height: 44px;
+	padding: 10px 20px;
+	background: var(--kk-green, #0B6B3A);
+	color: #fff;
+	font-weight: 600;
+	font-size: 15px;
+	border-radius: var(--kk-radius);
+	border: 1px solid var(--kk-green, #0B6B3A);
+}
+
+[data-kk-data-desk-preview] .kk-button:hover,
+[data-kk-data-desk-popup-body] .kk-button:hover,
+[data-kk-data-desk-widget-preview-body] .kk-button:hover,
+.kk-widget-block-canvas .kk-button:hover,
+[data-kk-data-desk-preview] .kk-button:focus-visible,
+[data-kk-data-desk-popup-body] .kk-button:focus-visible,
+[data-kk-data-desk-widget-preview-body] .kk-button:focus-visible,
+.kk-widget-block-canvas .kk-button:focus-visible {
+	background: var(--kk-green-dark, #07522C);
+	color: #fff;
+}
+
+[data-kk-data-desk-preview] .kk-button-ghost,
+[data-kk-data-desk-popup-body] .kk-button-ghost,
+[data-kk-data-desk-widget-preview-body] .kk-button-ghost,
+.kk-widget-block-canvas .kk-button-ghost {
+	background: transparent;
+	color: var(--kk-ink);
+	border-color: var(--kk-border);
+}
+
+[data-kk-data-desk-preview] .kk-button-ghost:hover,
+[data-kk-data-desk-popup-body] .kk-button-ghost:hover,
+[data-kk-data-desk-widget-preview-body] .kk-button-ghost:hover,
+.kk-widget-block-canvas .kk-button-ghost:hover,
+[data-kk-data-desk-preview] .kk-button-ghost:focus-visible,
+[data-kk-data-desk-popup-body] .kk-button-ghost:focus-visible,
+[data-kk-data-desk-widget-preview-body] .kk-button-ghost:focus-visible,
+.kk-widget-block-canvas .kk-button-ghost:focus-visible {
+	background: var(--kk-surface);
+	color: var(--kk-ink);
+	border-color: var(--kk-muted);
+}
+
+[data-kk-data-desk-preview] .kk-icon-button,
+[data-kk-data-desk-popup-body] .kk-icon-button,
+[data-kk-data-desk-widget-preview-body] .kk-icon-button,
+.kk-widget-block-canvas .kk-icon-button {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	min-width: 44px;
+	min-height: 44px;
+	padding: 8px;
+	color: var(--kk-ink);
+	border-radius: var(--kk-radius);
+}
+
+@media (hover: hover) {
+	[data-kk-data-desk-preview] .kk-icon-button:hover,
+	[data-kk-data-desk-popup-body] .kk-icon-button:hover,
+	[data-kk-data-desk-widget-preview-body] .kk-icon-button:hover,
+	.kk-widget-block-canvas .kk-icon-button:hover {
+		background: var(--kk-surface);
+		color: var(--kk-green, #0B6B3A);
+	}
+}
+
+[data-kk-data-desk-preview] .kk-icon-button svg,
+[data-kk-data-desk-popup-body] .kk-icon-button svg,
+[data-kk-data-desk-widget-preview-body] .kk-icon-button svg,
+.kk-widget-block-canvas .kk-icon-button svg {
+	display: block;
+}
