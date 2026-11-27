@@ -175,6 +175,12 @@ final class Pagination
         return max(1, (int) $query->max_num_pages);
     }
 
+    /**
+     * The page size Load More fetches. It must equal the size page one
+     * rendered, or the fetched page duplicates and skips posts - so
+     * this bound, the loader script's, and the /posts endpoint's all
+     * use 100, the same bound WP core's REST API uses.
+     */
     public static function perPage(?\WP_Query $query = null): int
     {
         $query = $query ?? $GLOBALS['wp_query'] ?? null;
@@ -183,7 +189,7 @@ final class Pagination
             $per_page = (int) $query->get('posts_per_page');
 
             if ($per_page > 0) {
-                return min(20, $per_page);
+                return min(100, $per_page);
             }
         }
 

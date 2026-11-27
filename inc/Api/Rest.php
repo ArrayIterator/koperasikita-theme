@@ -107,7 +107,7 @@ final class Rest
                     'sanitize_callback' => 'absint',
                 ],
                 'per_page' => [
-                    'description' => 'Posts per page, 1 to 20.',
+                    'description' => 'Posts per page, 1 to 100.',
                     'type' => 'integer',
                     'default' => 10,
                     'sanitize_callback' => 'absint',
@@ -300,7 +300,10 @@ final class Rest
     public static function posts(WP_REST_Request $request): WP_REST_Response
     {
         $page = max(1, (int) $request->get_param('page'));
-        $per_page = min(20, max(1, (int) $request->get_param('per_page')));
+        /* Same bound as the loader script and Pagination::perPage:
+         * the fetched page must hold exactly as many posts as page
+         * one rendered. */
+        $per_page = min(100, max(1, (int) $request->get_param('per_page')));
         $post_type = (string) $request->get_param('post_type');
 
         if (!in_array($post_type, ['post', 'agenda', 'any'], true)) {

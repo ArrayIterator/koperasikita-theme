@@ -64,7 +64,7 @@ function initPagination(): void {
 	const maxPages = Math.max(1, Number(loader.getAttribute('data-max-pages') ?? '1') || 1);
 	const loadMoreMax = Math.max(0, Number(loader.getAttribute('data-load-more-max') ?? '0') || 0);
 	const loadingStyle = loader.getAttribute('data-loading-style') ?? 'icon-text';
-	const perPage = Math.min(20, Math.max(1, Number(loader.getAttribute('data-per-page') ?? '10') || 10));
+	const perPage = Math.min(100, Math.max(1, Number(loader.getAttribute('data-per-page') ?? '10') || 10));
 	let page = Math.max(1, Number(loader.getAttribute('data-page') ?? '1') || 1);
 	let loading = false;
 
