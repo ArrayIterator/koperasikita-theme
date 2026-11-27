@@ -4,28 +4,36 @@ declare(strict_types=1);
 
 namespace KoperasiKita\Widgets;
 
-use KoperasiKita\Images\FeaturedImage;
-
 /**
- * Editor's Picks widget: a numbered list of posts (1, 2, 3, 4), like
- * the old hardcoded homepage section - now a proper widget, so the
- * editor places it in any sidebar via Appearance -> Widgets.
+ * Editor's Picks widget: posts from the categories and tags you pick,
+ * listed like the Popular News widget (compact rows: thumbnail, title,
+ * date) - now a proper widget, so the editor places it in any sidebar
+ * via Appearance -> Widgets.
  *
  * By terms: pick categories and/or tags to pull posts from. With
  * nothing picked it lists the latest posts from every term.
  *
- * Display options: Show Thumbnail, Show Numeric (the big numbers),
- * Show Date and Show Categories.
+ * The post order is always shown as its own setting (newest first by
+ * default), so the list order is never a hidden default.
  */
 final class EditorsPicksWidget extends AbstractStoryWidget
 {
+    /** @return array<string, string> */
+    public static function orderOptions(): array
+    {
+        return [
+            'date_desc' => __('Newest first', 'koperasikita'),
+            'date_asc' => __('Oldest first', 'koperasikita'),
+        ];
+    }
+
     public function __construct()
     {
         parent::__construct(
             'kk_editors_picks',
             __('Koperasi Kita Post By Terms', 'koperasikita'),
             [
-                'description' => __('Numbered list of posts from the categories and tags you pick, newest first.', 'koperasikita'),
+                'description' => __('Posts from the categories and tags you pick, in your chosen order.', 'koperasikita'),
                 'classname' => 'kk-editors-picks-widget',
                 'customize_selective_refresh' => true,
             ]
@@ -38,9 +46,9 @@ final class EditorsPicksWidget extends AbstractStoryWidget
         return [
             'category_ids' => self::cleanTermIds($instance['category_ids'] ?? []),
             'tag_ids' => self::cleanTermIds($instance['tag_ids'] ?? []),
-            'show_numeric' => !isset($instance['show_numeric']) || !empty($instance['show_numeric']),
-            'show_date' => !isset($instance['show_date']) || !empty($instance['show_date']),
-            'show_categories' => !empty($instance['show_categories']),
+            'order' => isset($instance['order']) && array_key_exists((string) $instance['order'], self::orderOptions())
+                ? (string) $instance['order']
+                : 'date_desc',
         ];
     }
 
@@ -73,7 +81,7 @@ final class EditorsPicksWidget extends AbstractStoryWidget
     }
 
     /**
-     * @param array{title: string, count: int, layout: string, show_thumbnail: bool, category_ids: int[], tag_ids: int[]} $settings
+     * @param array{title: string, count: int, layout: string, show_thumbnail: bool, category_ids: int[], tag_ids: int[], order: string} $settings
      * @return \WP_Post[]
      */
     protected function getPosts(array $settings): array
@@ -82,6 +90,8 @@ final class EditorsPicksWidget extends AbstractStoryWidget
             'numberposts' => $settings['count'],
             'post_status' => 'publish',
             'ignore_sticky_posts' => true,
+            'orderby' => 'date',
+            'order' => $settings['order'] === 'date_asc' ? 'ASC' : 'DESC',
         ];
 
         if ($settings['category_ids'] !== []) {
@@ -95,78 +105,6 @@ final class EditorsPicksWidget extends AbstractStoryWidget
         $posts = get_posts($args);
 
         return is_array($posts) ? $posts : [];
-    }
-
-    /** @param array<string, mixed> $args Display arguments. @param array<string, mixed> $instance Widget settings. */
-    public function widget($args, $instance): void
-    {
-        $settings = $this->settings($instance);
-        $posts = $this->getPosts($settings);
-
-        if ($posts === []) {
-            if (!is_admin() && !(defined('REST_REQUEST') && REST_REQUEST)) {
-                return;
-            }
-
-            echo WidgetSpacing::apply(WidgetHeader::beforeWidget($args, $settings['header_style']), $settings['margins']);
-
-            WidgetHeader::render($args, $settings['title'], $settings['header_style']);
-
-            ?>
-            <p class="kk-widget-empty"><?php esc_html_e('No posts to show yet.', 'koperasikita'); ?></p>
-            <?php
-
-            echo $args['after_widget'] ?? '';
-
-            return;
-        }
-
-        echo WidgetSpacing::apply(WidgetHeader::beforeWidget($args, $settings['header_style']), $settings['margins']);
-
-        WidgetHeader::render($args, $settings['title'], $settings['header_style']);
-
-        ?>
-        <ol class="kk-picks-list">
-            <?php
-            $number = 1;
-            foreach ($posts as $post) :
-                ?>
-                <li class="kk-pick">
-                    <?php if ($settings['show_numeric']) : ?>
-                        <span class="kk-pick-number" aria-hidden="true"><?php echo esc_html((string) $number); ?></span>
-                    <?php endif; ?>
-                    <div class="kk-pick-body">
-                        <?php if ($settings['show_thumbnail']) : ?>
-                            <a class="kk-pick-thumb" href="<?php echo esc_url(get_permalink($post)); ?>" tabindex="-1" aria-hidden="true">
-                                <?php if (has_post_thumbnail($post)) : ?>
-                                    <?php echo get_the_post_thumbnail($post, 'medium'); ?>
-                                <?php else : ?>
-                                    <img src="<?php echo esc_url(FeaturedImage::defaultThumbnailUrl()); ?>" alt="" loading="lazy">
-                                <?php endif; ?>
-                            </a>
-                        <?php endif; ?>
-                        <?php
-                        $categories = get_the_category($post->ID);
-                        if ($settings['show_categories'] && $categories !== []) :
-                            ?>
-                            <p class="kk-eyebrow"><a href="<?php echo esc_url(get_category_link($categories[0])); ?>"><?php echo esc_html($categories[0]->name); ?></a></p>
-                        <?php endif; ?>
-                        <h3 class="kk-pick-title"><a href="<?php echo esc_url(get_permalink($post)); ?>"><?php echo esc_html(get_the_title($post)); ?></a></h3>
-                        <?php if ($settings['show_date']) : ?>
-                            <p class="kk-meta">
-                                <time datetime="<?php echo esc_attr(get_the_date('c', $post)); ?>"><?php echo esc_html(get_the_date('', $post)); ?></time>
-                            </p>
-                        <?php endif; ?>
-                    </div>
-                </li>
-                <?php
-                $number++;
-            endforeach;
-            ?>
-        </ol>
-        <?php
-
-        echo $args['after_widget'] ?? '';
     }
 
     /** @param array<string, mixed> $instance Widget settings. */
@@ -227,43 +165,20 @@ final class EditorsPicksWidget extends AbstractStoryWidget
             <?php esc_html_e('Leave all unselected to show the latest posts from every category and tag.', 'koperasikita'); ?>
         </p>
         <p>
-            <input
-                class="checkbox"
-                type="checkbox"
-                id="<?php echo esc_attr($this->get_field_id('show_numeric')); ?>"
-                name="<?php echo esc_attr($this->get_field_name('show_numeric')); ?>"
-                value="1"
-                <?php checked($settings['show_numeric']); ?>
-            >
-            <label for="<?php echo esc_attr($this->get_field_id('show_numeric')); ?>">
-                <?php esc_html_e('Show Numeric', 'koperasikita'); ?>
+            <label for="<?php echo esc_attr($this->get_field_id('order')); ?>">
+                <?php esc_html_e('Order', 'koperasikita'); ?>
             </label>
-        </p>
-        <p>
-            <input
-                class="checkbox"
-                type="checkbox"
-                id="<?php echo esc_attr($this->get_field_id('show_date')); ?>"
-                name="<?php echo esc_attr($this->get_field_name('show_date')); ?>"
-                value="1"
-                <?php checked($settings['show_date']); ?>
+            <select
+                class="widefat"
+                id="<?php echo esc_attr($this->get_field_id('order')); ?>"
+                name="<?php echo esc_attr($this->get_field_name('order')); ?>"
             >
-            <label for="<?php echo esc_attr($this->get_field_id('show_date')); ?>">
-                <?php esc_html_e('Show Date', 'koperasikita'); ?>
-            </label>
-        </p>
-        <p>
-            <input
-                class="checkbox"
-                type="checkbox"
-                id="<?php echo esc_attr($this->get_field_id('show_categories')); ?>"
-                name="<?php echo esc_attr($this->get_field_name('show_categories')); ?>"
-                value="1"
-                <?php checked($settings['show_categories']); ?>
-            >
-            <label for="<?php echo esc_attr($this->get_field_id('show_categories')); ?>">
-                <?php esc_html_e('Show Categories', 'koperasikita'); ?>
-            </label>
+                <?php foreach (self::orderOptions() as $value => $label) : ?>
+                    <option value="<?php echo esc_attr($value); ?>" <?php selected($settings['order'], $value); ?>>
+                        <?php echo esc_html($label); ?>
+                    </option>
+                <?php endforeach; ?>
+            </select>
         </p>
         <?php
     }
@@ -277,9 +192,9 @@ final class EditorsPicksWidget extends AbstractStoryWidget
     {
         $instance['category_ids'] = self::cleanTermIds($new['category_ids'] ?? []);
         $instance['tag_ids'] = self::cleanTermIds($new['tag_ids'] ?? []);
-        $instance['show_numeric'] = !empty($new['show_numeric']) ? 1 : 0;
-        $instance['show_date'] = !empty($new['show_date']) ? 1 : 0;
-        $instance['show_categories'] = !empty($new['show_categories']) ? 1 : 0;
+        $instance['order'] = isset($new['order']) && array_key_exists((string) $new['order'], self::orderOptions())
+            ? (string) $new['order']
+            : 'date_desc';
 
         return $instance;
     }

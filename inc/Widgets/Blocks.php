@@ -160,20 +160,16 @@ final class Blocks
                 'class' => EditorsPicksWidget::class,
                 'icon' => 'star-filled',
                 'title' => __('KK Post By Terms', 'koperasikita'),
-                'description' => __('Numbered list of posts from the categories and tags you pick, newest first.', 'koperasikita'),
+                'description' => __('Posts from the categories and tags you pick, in your chosen order.', 'koperasikita'),
                 'attributes' => array_merge($storyAttributes, [
                     'categoryIds' => ['type' => 'array', 'default' => [], 'items' => ['type' => 'string']],
                     'tagIds' => ['type' => 'array', 'default' => [], 'items' => ['type' => 'string']],
-                    'showNumeric' => ['type' => 'boolean', 'default' => true],
-                    'showDate' => ['type' => 'boolean', 'default' => true],
-                    'showCategories' => ['type' => 'boolean', 'default' => false],
+                    'order' => ['type' => 'string', 'default' => 'date_desc'],
                 ]),
                 'map' => array_merge($storyMap, [
                     'categoryIds' => 'category_ids',
                     'tagIds' => 'tag_ids',
-                    'showNumeric' => 'show_numeric',
-                    'showDate' => 'show_date',
-                    'showCategories' => 'show_categories',
+                    'order' => 'order',
                 ]),
             ],
             'pages' => [

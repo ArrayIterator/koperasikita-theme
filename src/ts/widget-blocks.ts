@@ -1173,15 +1173,13 @@ function buildDefinitions(api: Wp): BlockDef[] {
 		{
 			slug: 'editors-picks',
 			title: __('KK Post By Terms'),
-			description: __('Numbered list of posts from the categories and tags you pick, newest first.'),
+			description: __('Posts from the categories and tags you pick, in your chosen order.'),
 			icon: 'star-filled',
 			attributes: {
 				...storyAttributes,
 				categoryIds: { type: 'array', default: [], items: { type: 'string' } },
 				tagIds: { type: 'array', default: [], items: { type: 'string' } },
-				showNumeric: { type: 'boolean', default: true },
-				showDate: { type: 'boolean', default: true },
-				showCategories: { type: 'boolean', default: false },
+				order: { type: 'string', default: 'date_desc' },
 			},
 			fields: [
 				...storyFields,
@@ -1201,9 +1199,15 @@ function buildDefinitions(api: Wp): BlockDef[] {
 					source: 'tags',
 					options: kkWidgetBlocks?.tags ?? [],
 				},
-				{ key: 'showNumeric', kind: 'toggle', label: __('Show numeric') },
-				{ key: 'showDate', kind: 'toggle', label: __('Show date') },
-				{ key: 'showCategories', kind: 'toggle', label: __('Show categories') },
+				{
+					key: 'order',
+					kind: 'select',
+					label: __('Order'),
+					options: [
+						{ value: 'date_desc', label: __('Newest first') },
+						{ value: 'date_asc', label: __('Oldest first') },
+					],
+				},
 			],
 		},
 		{
