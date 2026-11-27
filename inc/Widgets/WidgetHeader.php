@@ -65,14 +65,14 @@ final class WidgetHeader
     }
 
     /**
-     * The widget container opening tag, with the no-border modifier
-     * when the header style has no top border. The container's top
-     * rule (content.css: .kk-sidebar .widget / .kk-widget-area
-     * .widget) is part of the header style - a style with no top
-     * border must remove it too, or the setting changes nothing
-     * visible (the title rule alone is 1px; the container rule is
-     * the thick 2px line). Classic Bottom and Borderless have no
-     * top border; Classic Top and Classic Top Bottom keep it.
+     * The widget container opening tag, with the top-border modifier
+     * when the header style carries a top border. The container's top
+     * rule belongs to the title style - only classic-top and classic
+     * top bottom carry it, so only those two get the class. By
+     * default a widget has no top border at all: a widget with no
+     * title style (the agenda card, the category summary) passes
+     * no-border and gets none, and neither do classic bottom, hide
+     * or borderless.
      *
      * @param array<string, mixed> $args Display arguments.
      */
@@ -80,8 +80,8 @@ final class WidgetHeader
     {
         $before = (string) ($args['before_widget'] ?? '');
 
-        if (in_array($style, [self::CLASSIC_BOTTOM, self::NO_BORDER], true) && $before !== '') {
-            $before = preg_replace('/class="([^"]*)"/', 'class="$1 kk-widget--no-border"', $before, 1) ?? $before;
+        if (in_array($style, [self::CLASSIC_TOP, self::CLASSIC_TOP_BOTTOM], true) && $before !== '') {
+            $before = preg_replace('/class="([^"]*)"/', 'class="$1 kk-widget--top-border"', $before, 1) ?? $before;
         }
 
         return $before;

@@ -65,7 +65,7 @@ final class PagesWidget extends WP_Widget
                 return;
             }
 
-            echo $args['before_widget'] ?? '';
+            echo WidgetHeader::beforeWidget($args, WidgetHeader::style($instance));
 
             WidgetHeader::render($args, $title, WidgetHeader::style($instance));
 
@@ -78,7 +78,7 @@ final class PagesWidget extends WP_Widget
             return;
         }
 
-        echo $args['before_widget'] ?? '';
+        echo WidgetHeader::beforeWidget($args, WidgetHeader::style($instance));
 
         WidgetHeader::render($args, $title, WidgetHeader::style($instance));
 

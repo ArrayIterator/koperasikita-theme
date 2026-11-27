@@ -225,13 +225,17 @@ final class MarketsWidget extends WP_Widget
         // top padding, no bottom margin - so it reads as a seamless
         // strip instead of a boxed widget. The class is added to the
         // container the same way WidgetHeader::beforeWidget() adds the
-        // no-border class.
+        // top-border class. No Margin beats the title style's top
+        // border, so the container never claims one.
         $beforeWidget = (string) ($args['before_widget'] ?? '');
         if ($style === self::STYLE_NO_MARGIN && $beforeWidget !== '') {
             $beforeWidget = preg_replace('/class="([^"]*)"/', 'class="$1 kk-markets-widget--no-margin"', $beforeWidget, 1) ?? $beforeWidget;
         }
 
-        echo $beforeWidget;
+        echo WidgetHeader::beforeWidget(
+            ['before_widget' => $beforeWidget],
+            $style === self::STYLE_NO_MARGIN ? WidgetHeader::NO_BORDER : WidgetHeader::style($instance)
+        );
 
         WidgetHeader::render($args, $title, WidgetHeader::style($instance));
 

@@ -71,12 +71,15 @@ final class AgendaWidget extends WP_Widget
 
         $items = self::items($count, $showPast);
 
-        echo $args['before_widget'] ?? '';
+        echo WidgetHeader::beforeWidget($args, WidgetHeader::NO_BORDER);
 
         // The title lives inside the card (icon + "AGENDA KOPERASI"),
         // so this widget deliberately skips WidgetHeader::render(). The
-        // template renders the card even with no items - the empty state
-        // is an honest line inside the same card, never fake events.
+        // container's top rule belongs to the title style, and this
+        // widget has none - so the wrapper carries no top border, on
+        // the frontend and in the editor preview alike. The template
+        // renders the card even with no items - the empty state is an
+        // honest line inside the same card, never fake events.
         get_template_part('template-parts/agenda/widget', null, [
             'title' => $title,
             'items' => $items,

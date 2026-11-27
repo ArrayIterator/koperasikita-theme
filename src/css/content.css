@@ -52,7 +52,9 @@
 /* Full-width content strips (Below Header, Before Latest News, Before
  * Highlights, Block Area). They render in the normal flow and vanish
  * entirely when empty. Widgets inside get the standard widget
- * treatment (top rule + title) from .kk-sidebar .widget. */
+ * treatment (title) from .kk-sidebar .widget. The top rule comes
+ * from the widget's title style, never from the area: by default a
+ * widget has no top border at all. */
 .kk-widget-area {
 	margin-bottom: 32px;
 }
@@ -61,19 +63,14 @@
 	margin-top: 16px;
 }
 
-.kk-widget-area .widget {
+/* The container's thick top rule comes from the title style, not
+ * from the sidebar: only classic-top and classic-top-bottom carry
+ * it. By default a widget has no top border. The class is added to
+ * the container by WidgetHeader::beforeWidget(). */
+.kk-widget-area .widget.kk-widget--top-border,
+.kk-sidebar .widget.kk-widget--top-border {
 	border-top: 2px solid var(--kk-ink);
 	padding-top: 12px;
-}
-
-/* No-border header style: the widget container's thick top rule is
- * part of the header style, so "no border" removes it too - the
- * class is added to the container by WidgetHeader::beforeWidget().
- * Without this the border/no-border setting changed nothing visible. */
-.kk-widget-area .widget.kk-widget--no-border,
-.kk-sidebar .widget.kk-widget--no-border {
-	border-top: 0;
-	padding-top: 0;
 }
 
 /* Sidebar / widgets */
@@ -82,11 +79,6 @@
 	display: grid;
 	gap: 32px;
 	align-content: start;
-}
-
-.kk-sidebar .widget {
-	border-top: 2px solid var(--kk-ink);
-	padding-top: 12px;
 }
 
 .kk-sidebar .widget-title,

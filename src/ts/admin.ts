@@ -1876,6 +1876,22 @@ function initAgendaWidgetFields(): void {
 		}
 	});
 
+	/* "Show icon" shows / hides the icon picker in the same form. */
+	document.addEventListener('change', (event) => {
+		const toggle = (event.target as HTMLElement).closest(
+			'[data-kk-agenda-icon-toggle]',
+		) as HTMLInputElement | null;
+		if (!toggle) {
+			return;
+		}
+		const field = scopeFor(toggle)?.querySelector<HTMLElement>(
+			'[data-kk-agenda-icon-field]',
+		);
+		if (field) {
+			field.hidden = !toggle.checked;
+		}
+	});
+
 	/* A Choose Own colour row: the visible swatch is only the picker -
 	 * the hidden input holds the real value (empty = fall back to the
 	 * theme colour), and the x button clears it back to empty. */

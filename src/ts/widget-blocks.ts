@@ -23,11 +23,13 @@ interface OptionItem {
 	label: string;
 }
 
+type ShowWhen = { key: string; value: string | boolean };
+
 type FieldDef =
 	| { key: string; kind: 'text'; label: string; help?: string }
 	| { key: string; kind: 'textarea'; label: string; help?: string }
 	| { key: string; kind: 'number'; label: string; help?: string; min: number; max: number }
-	| { key: string; kind: 'select'; label: string; options: OptionItem[] }
+	| { key: string; kind: 'select'; label: string; options: OptionItem[]; showWhen?: ShowWhen }
 	| { key: string; kind: 'toggle'; label: string }
 	| { key: string; kind: 'checkboxes'; label: string; options: OptionItem[] }
 	| { key: string; kind: 'termsearch'; label: string; help?: string; source: 'categories' | 'tags' | 'options'; options: OptionItem[]; single?: boolean }
@@ -39,7 +41,7 @@ type FieldDef =
 	 * given value - the Choose Own colours only show for the custom
 	 * card style. fallback is the picker starting value while the
 	 * stored value is empty; it is never stored itself. */
-	| { key: string; kind: 'color'; label: string; help?: string; showWhen?: { key: string; value: string }; fallback?: string };
+	| { key: string; kind: 'color'; label: string; help?: string; showWhen?: ShowWhen; fallback?: string };
 
 interface BlockDef {
 	slug: string;
@@ -1389,6 +1391,7 @@ function buildDefinitions(api: Wp): BlockDef[] {
 					kind: 'select',
 					label: __('Icon'),
 					options: kkWidgetBlocks?.icons ?? [],
+					showWhen: { key: 'showIcon', value: true },
 				},
 				{
 					key: 'style',
