@@ -760,4 +760,41 @@ final class Enqueue
             wp_enqueue_style('kk-editor-outer', $editor, ['kk-widgets-editor'], KK_VERSION);
         }
     }
+
+    /**
+     * Strip the canvas bundle from the OUTER admin document.
+     *
+     * WordPress core enqueues every block's `editor_style` handles in
+     * the outer document too: `wp_enqueue_registered_block_scripts_and_styles`
+     * (on `enqueue_block_editor_assets`) calls wp_enqueue_style() on
+     * them whenever is_admin() and
+     * wp_should_load_block_editor_scripts_and_styles() - and the
+     * Customizer fires that hook on every load
+     * (WP_Customize_Widgets::enqueue_scripts) with the filter returning
+     * true while the widgets block editor is enabled. So the blocks'
+     * `kk-editor` handle (src/css/editor.css, which @imports base.css
+     * with bare `body` / `h1-h3` rules) lands in the outer document
+     * and restyles the WordPress frame itself in the theme's 16px sans
+     * with Georgia headings - the Customizer font leak. That is why
+     * the earlier split (outer bundle in registerBlockEditor) did not
+     * hold: it only changed what the theme enqueues directly, while
+     * the editor_style path bypasses it.
+     *
+     * Dequeueing here is safe for the canvas: the iframe collects its
+     * styles from a fresh WP_Styles instance seeded with the
+     * REGISTERED handles (_wp_get_iframed_editor_assets), so removing
+     * the handle from the outer queue leaves the iframe copy intact.
+     * Never deregister it - that would take the canvas styles with it.
+     * The other editor_style handle, `kk-widget-blocks-editor`
+     * (widget-blocks.css), stays: it is scoped to .kk-* classes, has
+     * no bare rules and no font leak.
+     *
+     * Priority 20 on the same hook: core's enqueue runs at the
+     * default priority 10, so this always runs after it, whatever
+     * order the priority-10 callbacks were registered in.
+     */
+    public static function dequeueCanvasBundleFromOuterPage(): void
+    {
+        wp_dequeue_style('kk-editor');
+    }
 }
