@@ -1247,14 +1247,6 @@ msgstr "Utama"
 msgid "Search"
 msgstr "Cari"
 
-#: template-parts/header/site-nav.php
-msgid "See all results"
-msgstr "Lihat semua hasil"
-
-#: template-parts/header/site-nav.php
-msgid "See all results for \"%s\""
-msgstr "Lihat semua hasil untuk \"%s\""
-
 #: template-parts/header/ticker.php
 msgid "Breaking"
 msgstr "Terkini"
@@ -1407,10 +1399,6 @@ msgid "Use these coordinates"
 msgstr "Gunakan koordinat ini"
 
 #: inc/Setup/Setup.php
-msgid "1 post indexed."
-msgstr "1 pos terindeks."
-
-#: inc/Setup/Setup.php
 msgid "Activate TrayDigita Stack"
 msgstr "Aktifkan TrayDigita Stack"
 
@@ -1479,10 +1467,6 @@ msgid "Koperasi Kita theme"
 msgstr "Tema Koperasi Kita"
 
 #: inc/Setup/Setup.php
-msgid "Live search answers from a search index instead of scanning every post. New and edited posts are indexed on save; rebuild here to index the posts already published."
-msgstr "Pencarian langsung menjawab dari indeks pencarian, bukan memindai setiap pos. Pos baru dan yang diubah diindeks saat disimpan; bangun ulang di sini untuk mengindeks pos yang sudah diterbitkan."
-
-#: inc/Setup/Setup.php
 msgid "Logo, colours, layout and typography, with live preview."
 msgstr "Logo, warna, tata letak, dan tipografi, dengan pratinjau live."
 
@@ -1539,22 +1523,6 @@ msgid "Requirements"
 msgstr "Persyaratan"
 
 #: inc/Setup/Setup.php
-msgid "Rebuild search index"
-msgstr "Bangun ulang indeks pencarian"
-
-#: inc/Setup/Setup.php
-msgid "Search index"
-msgstr "Indeks pencarian"
-
-#: inc/Setup/Setup.php
-msgid "Search index: %d posts."
-msgstr "Indeks pencarian: %d pos."
-
-#: inc/Setup/Setup.php
-msgid "Search index rebuilt."
-msgstr "Indeks pencarian berhasil dibangun ulang."
-
-#: inc/Setup/Setup.php
 msgid "Something went wrong."
 msgstr "Terjadi kesalahan."
 
@@ -1597,14 +1565,6 @@ msgstr "URL unduhan rilis ditolak."
 #: inc/Setup/Setup.php
 msgid "The saved-articles page. Bookmarks live in the browser, per reader."
 msgstr "Halaman artikel tersimpan. Bookmark hidup di browser, per pembaca."
-
-#: inc/Setup/Setup.php
-msgid "The search index could not be rebuilt."
-msgstr "Indeks pencarian tidak dapat dibangun ulang."
-
-#: inc/Setup/Setup.php
-msgid "The search index has not been built yet."
-msgstr "Indeks pencarian belum dibuat."
 
 #: inc/Setup/Setup.php
 msgid "Theme options"
@@ -4676,3 +4636,139 @@ msgstr "Tampilkan atau sembunyikan tiap stat hanya untuk widget ini. Template ti
 #: src/ts/widget-blocks.ts
 msgid "Hidden by the template."
 msgstr "Disembunyikan oleh template."
+
+#: inc/Features/FastSearch/FastSearch.php
+msgid "You are not allowed to change Fast Search settings."
+msgstr "Anda tidak diizinkan mengubah pengaturan Fast Search."
+
+#: inc/Features/FastSearch/FastSearch.php
+msgid "Fast Search settings saved."
+msgstr "Pengaturan Fast Search disimpan."
+
+#: inc/Features/FastSearch/FastSearch.php
+msgid "Speed up frontend search with FULLTEXT and composite database indexes, with a safe fallback to standard WordPress search while the indexes are missing."
+msgstr "Mempercepat pencarian frontend dengan indeks FULLTEXT dan indeks gabungan, dengan cadangan aman ke pencarian standar WordPress selama indeks belum ada."
+
+#: inc/Features/FastSearch/FastSearch.php
+msgid "FULLTEXT search is active on frontend search queries."
+msgstr "Pencarian FULLTEXT aktif pada kueri pencarian frontend."
+
+#: inc/Features/FastSearch/FastSearch.php
+msgid "Fallback mode"
+msgstr "Mode cadangan"
+
+#: inc/Features/FastSearch/FastSearch.php
+msgid "Required FULLTEXT indexes are missing. WordPress is safely using standard search until you install the indexes below."
+msgstr "Indeks FULLTEXT yang diperlukan belum ada. WordPress aman menggunakan pencarian standar sampai Anda memasang indeks di bawah ini."
+
+#: inc/Features/FastSearch/FastSearch.php
+msgid "Index name"
+msgstr "Nama indeks"
+
+#: inc/Features/FastSearch/FastSearch.php
+msgid "Type"
+msgstr "Tipe"
+
+#: inc/Features/FastSearch/FastSearch.php
+msgid "Columns"
+msgstr "Kolom"
+
+#: inc/Features/FastSearch/FastSearch.php
+msgid "Installed"
+msgstr "Terpasang"
+
+#: inc/Features/FastSearch/FastSearch.php
+msgid "An index build is already running. Wait for it to finish before starting another one."
+msgstr "Pembuatan indeks sedang berjalan. Tunggu sampai selesai sebelum memulai yang lain."
+
+#: inc/Features/FastSearch/FastSearch.php
+msgid "Build indexes"
+msgstr "Bangun indeks"
+
+#: inc/Features/FastSearch/FastSearch.php
+msgid "Installs the missing indexes one at a time. Large tables can take a while per index; the page stays responsive and shows progress in a popup."
+msgstr "Memasang indeks yang belum ada satu per satu. Tabel besar bisa memakan waktu per indeks; halaman tetap responsif dan menampilkan progres di popup."
+
+#: inc/Features/FastSearch/FastSearch.php
+msgid "Run these statements in the MariaDB / MySQL console to install the missing indexes manually, then reload this page."
+msgstr "Jalankan pernyataan ini di konsol MariaDB / MySQL untuk memasang indeks yang belum ada secara manual, lalu muat ulang halaman ini."
+
+#: inc/Features/FastSearch/FastSearch.php
+msgid "Use FULLTEXT search"
+msgstr "Gunakan pencarian FULLTEXT"
+
+#: inc/Features/FastSearch/FastSearch.php
+msgid "When on (and the indexes are installed), frontend search uses MATCH ... AGAINST in boolean mode, including matches on category and tag names. When off, or while the indexes are missing, standard WordPress search is used."
+msgstr "Saat aktif (dan indeks terpasang), pencarian frontend menggunakan MATCH ... AGAINST dalam mode boolean, termasuk kecocokan nama kategori dan tag. Saat nonaktif, atau selama indeks belum ada, pencarian standar WordPress digunakan."
+
+#: inc/Features/FastSearch/FastSearch.php
+msgid "Limit frontend search to posts"
+msgstr "Batasi pencarian frontend ke pos"
+
+#: inc/Features/FastSearch/FastSearch.php
+msgid "A search with no post type requested only searches posts, not pages or attachments. A search that explicitly asks for another post type is left alone."
+msgstr "Pencarian tanpa tipe pos yang diminta hanya mencari pos, bukan halaman atau lampiran. Pencarian yang secara eksplisit meminta tipe pos lain dibiarkan apa adanya."
+
+#: inc/Features/FastSearch/FastSearch.php
+msgid "Build search indexes"
+msgstr "Bangun indeks pencarian"
+
+#: inc/Features/FastSearch/FastSearch.php
+msgid "Closing this popup reloads the page so the index status shows the new state."
+msgstr "Menutup popup ini memuat ulang halaman agar status indeks menampilkan kondisi terbaru."
+
+#: inc/Features/FastSearch/FastSearch.php
+msgid "Fast Search"
+msgstr "Fast Search"
+
+#: inc/Features/FastSearch/FastSearchAjax.php
+msgid "An index build is already running."
+msgstr "Pembuatan indeks sedang berjalan."
+
+#: inc/Features/FastSearch/FastSearchAjax.php
+msgid "All search indexes are already installed."
+msgstr "Semua indeks pencarian sudah terpasang."
+
+#: inc/Features/FastSearch/FastSearchAjax.php
+msgid "The index build could not run. Please try again."
+msgstr "Pembuatan indeks tidak dapat berjalan. Silakan coba lagi."
+
+#: inc/Features/FastSearch/FastSearchAjax.php
+msgid "Index build started."
+msgstr "Pembuatan indeks dimulai."
+
+#: inc/Features/FastSearch/FastSearchAjax.php
+msgid "Missing build job."
+msgstr "Tugas pembuatan tidak ditemukan."
+
+#: inc/Features/FastSearch/FastSearchAjax.php
+msgid "Build job not found or expired."
+msgstr "Tugas pembuatan tidak ditemukan atau sudah kedaluwarsa."
+
+#: inc/Features/FastSearch/FastSearchAjax.php
+msgid "Index build finished with errors."
+msgstr "Pembuatan indeks selesai dengan galat."
+
+#: inc/Assets/Enqueue.php
+msgid "Starting index build..."
+msgstr "Memulai pembuatan indeks..."
+
+#: inc/Assets/Enqueue.php
+msgid "Building search indexes..."
+msgstr "Membangun indeks pencarian..."
+
+#: inc/Assets/Enqueue.php
+msgid "Building search indexes... %s of %s done."
+msgstr "Membangun indeks pencarian... %s dari %s selesai."
+
+#: inc/Assets/Enqueue.php
+msgid "Index build finished with errors. See the index status below."
+msgstr "Pembuatan indeks selesai dengan galat. Lihat status indeks di bawah."
+
+#: inc/Assets/Enqueue.php
+msgid "Failed"
+msgstr "Gagal"
+
+#: inc/Setup/Setup.php
+msgid "Fast Search settings could not be saved."
+msgstr "Pengaturan Fast Search tidak dapat disimpan."

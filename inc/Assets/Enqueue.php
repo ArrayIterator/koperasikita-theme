@@ -449,6 +449,15 @@ final class Enqueue
                         'saving' => __('Saving…', 'koperasikita'),
                         'close' => __('Close', 'koperasikita'),
                         'showingOf' => __('Showing %s of %s — type to search.', 'koperasikita'),
+                        'fastSearchStarting' => __('Starting index build...', 'koperasikita'),
+                        'fastSearchBuilding' => __('Building search indexes...', 'koperasikita'),
+                        'fastSearchProgress' => __('Building search indexes... %s of %s done.', 'koperasikita'),
+                        'fastSearchDone' => __('All search indexes are installed.', 'koperasikita'),
+                        'fastSearchDoneErrors' => __('Index build finished with errors. See the index status below.', 'koperasikita'),
+                        'fastSearchRunning' => __('An index build is already running.', 'koperasikita'),
+                        'fastSearchError' => __('The index build could not run. Please try again.', 'koperasikita'),
+                        'fastSearchInstalled' => __('Installed', 'koperasikita'),
+                        'fastSearchFailed' => __('Failed', 'koperasikita'),
                     ],
                 ]);
             }
