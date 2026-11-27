@@ -499,13 +499,28 @@
 	color: #1a1a1a;
 }
 
+/* Panel text colours are scoped under .kk-data-desk-panel on
+ * purpose: every text element here is a <p>, and WordPress admin
+ * colours all of them with `.widefat p` (common.css) at (0,1,1) —
+ * that beat the single-class rules (0,1,0) and turned the whole
+ * stats column, kicker and subtitle dark grey (#2c3338, 1.04:1) on
+ * the dark palettes wherever the panel renders inside a widefat
+ * table (the Templates list thumbnails). The editor preview has no
+ * .widefat ancestor, so it looked fine and hid the bug. Scoped
+ * (0,2,0) wins over .widefat p everywhere the panel renders. The
+ * title already had its own explicit colour; the change arrows got
+ * the same treatment earlier (see --dd-up / --dd-down). */
+.kk-data-desk-panel .kk-data-desk-preview-badge {
+	color: #1a1a1a;
+}
+
 .kk-data-desk-panel--light .kk-data-desk-preview-badge,
 .kk-gold-data-desk .kk-data-desk-preview-badge {
 	background: var(--kk-green, #0b6b3a);
 	color: #fff;
 }
 
-.kk-data-desk-kicker {
+.kk-data-desk-panel .kk-data-desk-kicker {
 	margin: 0;
 	font-size: 12px;
 	font-weight: 700;
@@ -525,7 +540,7 @@
 	color: var(--dd-ink);
 }
 
-.kk-data-desk-subtitle {
+.kk-data-desk-panel .kk-data-desk-subtitle {
 	margin: 6px 0 0;
 	font-size: 14px;
 	color: var(--dd-muted);
@@ -574,7 +589,7 @@
 	fill: var(--dd-line);
 }
 
-.kk-data-desk-placeholder {
+.kk-data-desk-panel .kk-data-desk-placeholder {
 	margin: 12px 0 0;
 	font-size: 14px;
 	text-align: center;
@@ -595,7 +610,7 @@
 	border-top: 1px solid var(--dd-divider);
 }
 
-.kk-data-desk-stat-label {
+.kk-data-desk-panel .kk-data-desk-stat-label {
 	margin: 0;
 	font-size: 12px;
 	font-weight: 700;
@@ -604,14 +619,17 @@
 	color: var(--dd-muted);
 }
 
-.kk-data-desk-stat-value {
+.kk-data-desk-panel .kk-data-desk-stat-value {
 	margin: 6px 0 0;
 	font-size: 20px;
 	font-weight: 700;
 	font-variant-numeric: tabular-nums;
+	/* Explicit, like the title: it only inherited --dd-ink before,
+	 * so .widefat p set it to dark grey inside tables. */
+	color: var(--dd-ink);
 }
 
-.kk-data-desk-stat-note {
+.kk-data-desk-panel .kk-data-desk-stat-note {
 	margin: 4px 0 0;
 	font-size: 13px;
 	color: var(--dd-muted);
