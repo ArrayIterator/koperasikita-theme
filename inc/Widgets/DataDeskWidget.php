@@ -55,6 +55,11 @@ final class DataDeskWidget extends WP_Widget
             return;
         }
 
+        // Per-widget overrides (symbol, days, hidden stats) apply
+        // on top of the template; the template itself is never
+        // modified.
+        $template = DataDesk::applyWidgetOverrides($template, $instance);
+
         $parsed = DataDesk::parseSymbol($template['symbol']);
         $parsed = $parsed ?? ['market' => 'gold', 'symbol' => 'antam'];
 
@@ -93,6 +98,15 @@ final class DataDeskWidget extends WP_Widget
         if ($previewTemplate === null || $previewTemplate['kind'] !== DataDesk::KIND_PANEL) {
             $previewTemplate = DataDesk::firstTemplateOfKind(DataDesk::KIND_PANEL);
         }
+        // Per-widget overrides on top of the template: the symbol
+        // and days replace the template's, and a stat can be
+        // hidden here only. Empty means "use the template's".
+        $symbolOverride = isset($instance['symbol_override']) ? (string) $instance['symbol_override'] : '';
+        $daysOverride = isset($instance['days_override']) ? (int) $instance['days_override'] : 0;
+        $templateSymbolLabel = $previewTemplate !== null ? (DataDesk::symbols()[$previewTemplate['symbol']] ?? $previewTemplate['symbol']) : '';
+        $templateDays = $previewTemplate !== null ? (int) $previewTemplate['days'] : DataDesk::DEFAULT_DAYS;
+        $templateHidden = $previewTemplate !== null ? (array) ($previewTemplate['hidden_blocks'] ?? []) : [];
+        $labelTemplate = $previewTemplate ?? DataDesk::defaultTemplate();
         ?>
         <p>
             <label for="<?php echo esc_attr($this->get_field_id('title')); ?>">
@@ -128,6 +142,79 @@ final class DataDeskWidget extends WP_Widget
                 <?php esc_html_e('Manage templates on the Data Desk Templates page.', 'koperasikita'); ?>
             </span>
         </p>
+        <p>
+            <label for="<?php echo esc_attr($this->get_field_id('symbol_override')); ?>">
+                <?php esc_html_e('Symbol', 'koperasikita'); ?>
+            </label>
+            <select
+                class="widefat"
+                data-kk-data-desk-symbol-override
+                id="<?php echo esc_attr($this->get_field_id('symbol_override')); ?>"
+                name="<?php echo esc_attr($this->get_field_name('symbol_override')); ?>"
+            >
+                <option value="" <?php selected($symbolOverride, ''); ?>>
+                    <?php
+                    /* translators: %s: the template's symbol label. */
+                    printf(esc_html__('Use template (%s)', 'koperasikita'), esc_html($templateSymbolLabel));
+                    ?>
+                </option>
+                <?php foreach (DataDesk::symbols() as $value => $label) : ?>
+                    <option value="<?php echo esc_attr($value); ?>" <?php selected($symbolOverride, $value); ?>>
+                        <?php echo esc_html($label); ?>
+                    </option>
+                <?php endforeach; ?>
+            </select>
+        </p>
+        <p>
+            <label for="<?php echo esc_attr($this->get_field_id('days_override')); ?>">
+                <?php esc_html_e('Days', 'koperasikita'); ?>
+            </label>
+            <input
+                class="widefat"
+                type="number"
+                data-kk-data-desk-days-override
+                id="<?php echo esc_attr($this->get_field_id('days_override')); ?>"
+                name="<?php echo esc_attr($this->get_field_name('days_override')); ?>"
+                value="<?php echo $daysOverride > 0 ? esc_attr((string) $daysOverride) : ''; ?>"
+                placeholder="<?php echo esc_attr((string) $templateDays); ?>"
+                min="3"
+                max="30"
+                step="1"
+            >
+            <span class="description">
+                <?php esc_html_e('Empty uses the template days.', 'koperasikita'); ?>
+            </span>
+        </p>
+        <p class="description">
+            <?php esc_html_e('Show or hide each stat for this widget only. The template is unchanged.', 'koperasikita'); ?>
+        </p>
+        <?php foreach (DataDesk::STAT_BLOCKS as $block) : ?>
+            <?php
+            $templateHides = in_array($block, $templateHidden, true);
+            $widgetHides = !empty($instance['hide_' . $block]);
+            ?>
+            <p>
+                <?php if (!$templateHides) : ?>
+                    <input type="hidden" name="<?php echo esc_attr($this->get_field_name('show_' . $block)); ?>" value="0">
+                <?php endif; ?>
+                <label>
+                    <input
+                        type="checkbox"
+                        data-kk-data-desk-show-<?php echo esc_attr($block); ?>
+                        name="<?php echo esc_attr($this->get_field_name('show_' . $block)); ?>"
+                        value="1"
+                        <?php checked(!$templateHides && !$widgetHides); ?>
+                        <?php disabled($templateHides); ?>
+                    >
+                    <?php echo esc_html(DataDesk::statLabel($labelTemplate, $block)); ?>
+                </label>
+                <?php if ($templateHides) : ?>
+                    <span class="description">
+                        <?php esc_html_e('Hidden by the template.', 'koperasikita'); ?>
+                    </span>
+                <?php endif; ?>
+            </p>
+        <?php endforeach; ?>
         <?php /* Layout preview: the real panel markup with sample data, re-rendered by admin.ts
          * (kk_data_desk_preview) when the template above changes. The block editor needs no
          * extra box - its ServerSideRender preview below the settings is the live preview. */ ?>
@@ -137,7 +224,7 @@ final class DataDeskWidget extends WP_Widget
                 <?php if ($previewTemplate !== null) : ?>
                     <?php
                     // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- renderPreview returns the theme's own template markup.
-                    echo DataDesk::renderPreview($previewTemplate);
+                    echo DataDesk::renderPreview(DataDesk::applyWidgetOverrides($previewTemplate, $instance));
                     ?>
                 <?php else : ?>
                     <p class="description"><?php esc_html_e('No templates yet. Create one on the Data Desk Templates page.', 'koperasikita'); ?></p>
@@ -161,6 +248,25 @@ final class DataDeskWidget extends WP_Widget
         $templates = DataDesk::templatesOfKind(DataDesk::KIND_PANEL);
         $first = DataDesk::firstTemplateOfKind(DataDesk::KIND_PANEL);
         $instance['template'] = isset($templates[$templateId]) ? $templateId : ($first['id'] ?? '');
+
+        // Per-widget overrides: an unknown symbol or an empty
+        // days value means "use the template's". The stat
+        // show/hide arrives either as hide_* (block editor) or
+        // as show_* (classic form checkbox); a missing field
+        // keeps the previous value.
+        $symbolOverride = isset($new['symbol_override']) ? (string) $new['symbol_override'] : '';
+        $instance['symbol_override'] = DataDesk::parseSymbol($symbolOverride) !== null ? $symbolOverride : '';
+        $daysOverride = isset($new['days_override']) ? (int) $new['days_override'] : 0;
+        $instance['days_override'] = $daysOverride > 0 ? max(3, min(30, $daysOverride)) : 0;
+        foreach (DataDesk::STAT_BLOCKS as $block) {
+            if (isset($new['hide_' . $block])) {
+                $instance['hide_' . $block] = !empty($new['hide_' . $block]);
+            } elseif (isset($new['show_' . $block])) {
+                $instance['hide_' . $block] = empty($new['show_' . $block]);
+            } else {
+                $instance['hide_' . $block] = !empty($old['hide_' . $block]);
+            }
+        }
 
         $instance['header_style'] = WidgetHeader::sanitize($new['header_style'] ?? WidgetHeader::CLASSIC_TOP);
         $instance = array_merge($instance, WidgetSpacing::sanitizeInstance($new, $old));

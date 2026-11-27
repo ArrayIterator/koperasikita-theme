@@ -119,6 +119,11 @@ final class AdminMenu
          * page after every action. */
         add_action(
             'load-' . self::submenuHookSuffix(DataDeskTemplatesPage::PAGE_SLUG),
+            [DataDeskTemplatesPage::class, 'addHelpTabs']
+        );
+
+        add_action(
+            'load-' . self::submenuHookSuffix(DataDeskTemplatesPage::PAGE_SLUG),
             [DataDeskTemplatesPage::class, 'handleActionsOnLoad']
         );
 

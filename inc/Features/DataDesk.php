@@ -34,10 +34,13 @@ final class DataDesk
     /** The built-in default panel template id. It is code, not a stored row. */
     public const DEFAULT_TEMPLATE_ID = 'default';
 
-    /** A template id belongs to a built-in when it is the code-defined default id. */
+    /** The built-in Antam 7-day panel template id. Same semantics as the default. */
+    public const ANTAM_TEMPLATE_ID = 'antam-7-hari';
+
+    /** A template id belongs to a built-in when it is a code-defined built-in id. */
     public static function isBuiltIn(string $id): bool
     {
-        return $id === self::DEFAULT_TEMPLATE_ID;
+        return $id === self::DEFAULT_TEMPLATE_ID || $id === self::ANTAM_TEMPLATE_ID;
     }
 
     /**
@@ -130,6 +133,106 @@ final class DataDesk
             '{label}' => $label,
             '{day}'   => (string) $days,
         ]);
+    }
+
+    /**
+     * The label a stat block shows in a panel: the stored override,
+     * or the computed default. A {label} token in an override is
+     * resolved to the symbol name here (the panel itself prints
+     * labels literally); the computed default already carries the
+     * symbol name. Used by the widget settings, where each stat's
+     * show/hide toggle is labelled with its stat.
+     */
+    public static function statLabel(array $template, string $block): string
+    {
+        $parsed = self::parseSymbol((string) ($template['symbol'] ?? 'gold:antam'));
+        $parsed = $parsed ?? ['market' => 'gold', 'symbol' => 'antam'];
+        $labels = $parsed['market'] === 'gold' ? Gold::brands() : Markets::symbols('stock');
+        $symbolLabel = $labels[$parsed['symbol']] ?? $parsed['symbol'];
+        $days = isset($template['days']) ? max(3, min(30, (int) $template['days'])) : self::DEFAULT_DAYS;
+
+        $override = isset($template['stats'][$block]['label']) ? (string) $template['stats'][$block]['label'] : '';
+
+        if ($override !== '') {
+            return self::replaceTitleTokens($override, $symbolLabel, $days);
+        }
+
+        if ($block === 'sell') {
+            return $parsed['market'] === 'gold'
+                ? sprintf(__('Harga Jual %s / Gram', 'koperasikita'), $symbolLabel)
+                : sprintf(__('Harga %s', 'koperasikita'), $symbolLabel);
+        }
+
+        if ($block === 'buyback') {
+            return __('Buyback / Gram', 'koperasikita');
+        }
+
+        return __('Kinerja Sepekan', 'koperasikita');
+    }
+
+    /**
+     * A template with a widget's per-instance overrides applied:
+     * the override symbol/days replace the template's, and the
+     * widget-hidden stats join the template's hidden blocks. The
+     * template itself is never modified - this returns a copy.
+     *
+     * @param array<string, mixed> $instance
+     * @return array<string, mixed>
+     */
+    public static function applyWidgetOverrides(array $template, array $instance): array
+    {
+        $symbol = isset($instance['symbol_override']) ? (string) $instance['symbol_override'] : '';
+
+        if ($symbol !== '' && self::parseSymbol($symbol) !== null) {
+            $template['symbol'] = $symbol;
+        }
+
+        $days = isset($instance['days_override']) ? (int) $instance['days_override'] : 0;
+
+        if ($days > 0) {
+            $template['days'] = max(3, min(30, $days));
+        }
+
+        $hidden = isset($template['hidden_blocks']) && is_array($template['hidden_blocks']) ? $template['hidden_blocks'] : [];
+
+        foreach (self::STAT_BLOCKS as $block) {
+            if (!empty($instance['hide_' . $block])) {
+                $hidden[] = $block;
+            }
+        }
+
+        $template['hidden_blocks'] = array_values(array_unique($hidden));
+
+        return $template;
+    }
+
+    /**
+     * The per-template values the widget settings need: symbol,
+     * days, hidden blocks and the resolved stat labels. Panel
+     * templates only - the overrides are a panel feature.
+     *
+     * @return array<string, array{symbol: string, days: int, hiddenBlocks: array<int, string>, statLabels: array<string, string>}>
+     */
+    public static function templateMeta(): array
+    {
+        $meta = [];
+
+        foreach (self::templatesOfKind(self::KIND_PANEL) as $id => $template) {
+            $labels = [];
+
+            foreach (self::STAT_BLOCKS as $block) {
+                $labels[$block] = self::statLabel($template, $block);
+            }
+
+            $meta[$id] = [
+                'symbol' => (string) ($template['symbol'] ?? 'gold:antam'),
+                'days' => (int) ($template['days'] ?? self::DEFAULT_DAYS),
+                'hiddenBlocks' => array_values((array) ($template['hidden_blocks'] ?? [])),
+                'statLabels' => $labels,
+            ];
+        }
+
+        return $meta;
     }
 
     // Placeholder settings for the panel's date line and stat notes.
@@ -526,6 +629,17 @@ final class DataDesk
             if ($template === null) {
                 return ['html' => '<p>' . esc_html__('Template not found.', 'koperasikita') . '</p>'];
             }
+
+            // A widget-form preview may carry per-instance overrides
+            // (symbol/days/hidden stats) alongside the template id;
+            // the preview renders the template with them applied.
+            $template = self::applyWidgetOverrides($template, [
+                'symbol_override' => $raw['symbol_override'] ?? '',
+                'days_override' => $raw['days_override'] ?? 0,
+                'hide_sell' => !empty($raw['hide_sell']),
+                'hide_buyback' => !empty($raw['hide_buyback']),
+                'hide_performance' => !empty($raw['hide_performance']),
+            ]);
         } else {
             $brands = [];
             if (isset($raw['brands']) && is_string($raw['brands']) && trim($raw['brands']) !== '') {
@@ -759,6 +873,44 @@ final class DataDesk
     }
 
     /**
+     * The built-in Antam 7-day panel template: the same Antam panel
+     * over 7 days in the dark-green palette as the default, but with
+     * stored token overrides on the three stat sub-lines, so the
+     * percent renders dynamically and the subs are editable as
+     * tokens. The sell sub reproduces the computed daily note, the
+     * buyback sub the spread note, the performance sub the streak
+     * note plus the period percent. The date line stays empty
+     * (computed). Defined in code like the default; editing it
+     * stores an override under its id, and Restore deletes that
+     * override - the built-in itself is never deleted.
+     *
+     * @return array{id: string, name: string, kind: string, symbol: string, brands: array<int, string>, palette: string, days: int, title: string, kicker: string, date_line: string, stats: array<string, array{label: string, sub: string}>, headers: array<string, string>, hidden_blocks: array<int, string>, placeholders: array{date_format: string, percent: string, zone_color: string}}
+     */
+    public static function antamTemplate(): array
+    {
+        return [
+            'id' => self::ANTAM_TEMPLATE_ID,
+            'name' => __('Antam 7 Hari', 'koperasikita'),
+            'kind' => self::KIND_PANEL,
+            'symbol' => 'gold:antam',
+            'brands' => [],
+            'palette' => self::DEFAULT_PALETTE,
+            'days' => self::DEFAULT_DAYS,
+            'title' => __('Harga Emas Antam, 7 Hari Terakhir', 'koperasikita'),
+            'kicker' => '',
+            'date_line' => '',
+            'stats' => [
+                'sell' => ['label' => '', 'sub' => __('{arrow} {delta} dari kemarin ({delta_pct})', 'koperasikita')],
+                'buyback' => ['label' => '', 'sub' => __('Spread jual–buyback {spread}', 'koperasikita')],
+                'performance' => ['label' => '', 'sub' => __('{streak} hari beruntun di {zone} ({delta_pct})', 'koperasikita')],
+            ],
+            'headers' => self::sanitizeHeaders([]),
+            'hidden_blocks' => [],
+            'placeholders' => self::sanitizePlaceholders([]),
+        ];
+    }
+
+    /**
      * The name a template shows in a picker: the stored name, with
      * a Built-in marker on the code-defined template, so a
      * widget form can tell them apart from user templates.
@@ -777,10 +929,11 @@ final class DataDesk
     }
 
     /**
-     * All templates: the built-in first, then the stored user
-     * templates in the order they were created. A stored row under
-     * a built-in id is that template's override - it replaces the
-     * code-defined values with the user's edited ones.
+     * All templates: the built-ins first (default, then Antam
+     * 7-day), then the stored user templates in the order they
+     * were created. A stored row under a built-in id is that
+     * template's override - it replaces the code-defined values
+     * with the user's edited ones.
      *
      * @return array<string, array{id: string, name: string, kind: string, symbol: string, brands: array<int, string>, palette: string, days: int, title: string, kicker: string, date_line: string, stats: array<string, array{label: string, sub: string}>, headers: array<string, string>, hidden_blocks: array<int, string>, placeholders: array{date_format: string, percent: string, zone_color: string}}>
      */
@@ -788,6 +941,7 @@ final class DataDesk
     {
         $templates = [
             self::DEFAULT_TEMPLATE_ID => self::defaultTemplate(),
+            self::ANTAM_TEMPLATE_ID => self::antamTemplate(),
         ];
         $stored = get_option(self::TEMPLATES_OPTION, []);
 

@@ -4,7 +4,7 @@
  *
  * Expects $args['data'] as the DataDesk::panelData() array,
  * $args['palette'] as a DataDesk palette id and $args['days'] as the
- * chart window. The kicker defaults to "Meja Data" and can be
+ * chart window. The kicker defaults to "Data Desk" and can be
  * overridden per template via $args['kicker']. The title defaults to
  * "Harga Emas {label}, {N} Hari Terakhir" for gold and
  * "Harga {label}, {N} Hari Terakhir" for stocks; a widget title
@@ -62,7 +62,7 @@ $points = is_array($data['points'] ?? null) ? $data['points'] : [];
 $hasHistory = !empty($data['has_history']) && $points !== [];
 
 // A saved template kicker overrides the default; empty means
-// "Meja Data" (uppercased by CSS).
+// "Data Desk" (uppercased by CSS).
 $kicker = isset($args['kicker']) && trim((string) $args['kicker']) !== '' ? (string) $args['kicker'] : '';
 
 // The widget title travels in $args['title'] when the widget set one;
@@ -149,7 +149,7 @@ $polyline = implode(' ', array_map(static fn(array $c): string => number_format(
 		<p class="kk-data-desk-preview-badge"><?php esc_html_e('Preview — sample data', 'koperasikita'); ?></p>
 	<?php endif; ?>
 	<header class="kk-data-desk-head">
-		<p class="kk-data-desk-kicker"><?php echo $kicker !== '' ? esc_html($kicker) : esc_html__('Meja Data', 'koperasikita'); ?></p>
+		<p class="kk-data-desk-kicker"><?php echo $kicker !== '' ? esc_html($kicker) : esc_html__('Data Desk', 'koperasikita'); ?></p>
 		<h2 class="kk-data-desk-title"><?php echo esc_html($title); ?></h2>
 		<p class="kk-data-desk-subtitle"<?php echo $editable ? ' data-kk-date-line' : ''; ?>><?php
 		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- replacePlaceholders escapes the literal text; the only markup is the {zone} span.

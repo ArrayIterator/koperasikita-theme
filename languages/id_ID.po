@@ -3763,9 +3763,6 @@ msgstr "Biarkan kosong untuk judul otomatis."
 msgid "Manage templates on the Data Desk Templates page."
 msgstr "Kelola template di halaman Template Data Desk."
 
-msgid "Meja Data"
-msgstr "Meja Data"
-
 msgid "One market symbol as a data desk panel: price chart and stats. Pick a template."
 msgstr "Satu simbol pasar sebagai panel meja data: grafik harga dan statistik. Pilih template."
 
@@ -4194,12 +4191,6 @@ msgstr "Klik untuk mengedit kicker."
 msgid "Click to edit the title."
 msgstr "Klik untuk mengedit judul."
 
-msgid "Click to edit the date line."
-msgstr "Klik untuk mengedit baris tanggal."
-
-msgid "Click the title or 'Meja Data' in the preview to edit them. In the title you can use {label} for the symbol name and {day} for the number of days."
-msgstr "Klik judul atau 'Meja Data' pada pratinjau untuk mengeditnya. Pada judul, gunakan {label} untuk nama simbol dan {day} untuk jumlah hari."
-
 msgid "Saving…"
 msgstr "Menyimpan…"
 
@@ -4299,9 +4290,6 @@ msgstr "Tidak ada merek yang dinonaktifkan."
 msgid "Edit the title in the top bar above. Click a column header in the preview to edit it."
 msgstr "Ubah judul di bilah atas. Klik header kolom pada pratinjau untuk mengeditnya."
 
-msgid "Click to edit this stat."
-msgstr "Klik untuk mengedit stat ini."
-
 msgid "Click to edit this header."
 msgstr "Klik untuk mengedit header ini."
 
@@ -4311,8 +4299,6 @@ msgstr "Sembunyikan stat ini"
 msgid "Show this stat"
 msgstr "Tampilkan stat ini"
 
-msgid "Click the title or 'Meja Data' in the preview to edit them. In the title you can use {label} for the symbol name and {day} for the number of days. Click the date line under the title to edit it. Click a stat label or note to edit it, or the eye button on a stat to hide it or show it again."
-msgstr "Klik judul atau 'Meja Data' pada pratinjau untuk mengeditnya. Pada judul, gunakan {label} untuk nama simbol dan {day} untuk jumlah hari. Klik baris tanggal di bawah judul untuk mengeditnya. Klik label atau catatan stat untuk mengeditnya, atau tombol mata pada stat untuk menyembunyikan atau menampilkannya lagi."
 #: inc/Widgets/AgendaWidget.php
 msgid "Upcoming cooperative events as a card that follows the site colour scheme; live events get a green dot, finished events are dimmed."
 msgstr "Acara koperasi mendatang sebagai kartu yang mengikuti skema warna situs; acara live mendapat titik hijau, acara selesai diredupkan."
@@ -4581,3 +4567,67 @@ msgstr "Kolom kiri hero di beranda."
 #: inc/Admin/SidebarSettings.php
 msgid "Right column of the homepage hero."
 msgstr "Kolom kanan hero di beranda."
+
+#: template-parts/data-desk/panel.php
+msgid "Data Desk"
+msgstr "Data Desk"
+
+#: inc/Features/DataDesk.php
+msgid "Antam 7 Hari"
+msgstr "Antam 7 Hari"
+
+#: inc/Features/DataDesk.php
+msgid "Harga Emas Antam, 7 Hari Terakhir"
+msgstr "Harga Emas Antam, 7 Hari Terakhir"
+
+#: inc/Features/DataDesk.php
+msgid "{arrow} {delta} dari kemarin ({delta_pct})"
+msgstr "{arrow} {delta} dari kemarin ({delta_pct})"
+
+#: inc/Features/DataDesk.php
+msgid "Spread jual–buyback {spread}"
+msgstr "Spread jual–buyback {spread}"
+
+#: inc/Features/DataDesk.php
+msgid "{streak} hari beruntun di {zone} ({delta_pct})"
+msgstr "{streak} hari beruntun di {zone} ({delta_pct})"
+
+#: inc/Assets/Enqueue.php
+msgid "Click to edit the date line in a popup."
+msgstr "Klik untuk mengedit baris tanggal dalam popup."
+
+#: inc/Assets/Enqueue.php
+msgid "Click to edit this stat in a popup."
+msgstr "Klik untuk mengedit stat ini dalam popup."
+
+#: inc/Admin/DataDeskTemplatesPage.php
+msgid "Click the title or 'Data Desk' in the preview to edit them. In the title you can use {label} for the symbol name and {day} for the number of days. Click the date line under the title to edit it in a popup. Click a stat block to edit it in a popup, or the eye button on a stat to hide it or show it again."
+msgstr "Klik judul atau 'Data Desk' pada pratinjau untuk mengeditnya. Pada judul, gunakan {label} untuk nama simbol dan {day} untuk jumlah hari. Klik baris tanggal di bawah judul untuk mengeditnya dalam popup. Klik blok stat untuk mengeditnya dalam popup, atau tombol mata pada stat untuk menyembunyikan atau menampilkannya lagi."
+
+#: inc/Admin/DataDeskTemplatesPage.php
+msgid "Label"
+msgstr "Label"
+
+#: inc/Admin/DataDeskTemplatesPage.php
+msgid "Note"
+msgstr "Catatan"
+
+#: inc/Widgets/DataDeskWidget.php
+#: src/ts/widget-blocks.ts
+msgid "Use template (%s)"
+msgstr "Gunakan template (%s)"
+
+#: inc/Widgets/DataDeskWidget.php
+#: src/ts/widget-blocks.ts
+msgid "Empty uses the template days."
+msgstr "Kosong berarti memakai jumlah hari template."
+
+#: inc/Widgets/DataDeskWidget.php
+#: src/ts/widget-blocks.ts
+msgid "Show or hide each stat for this widget only. The template is unchanged."
+msgstr "Tampilkan atau sembunyikan tiap stat hanya untuk widget ini. Template tidak berubah."
+
+#: inc/Widgets/DataDeskWidget.php
+#: src/ts/widget-blocks.ts
+msgid "Hidden by the template."
+msgstr "Disembunyikan oleh template."
