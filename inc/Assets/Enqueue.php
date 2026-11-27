@@ -577,6 +577,14 @@ final class Enqueue
             wp_localize_script('kk-admin', 'kkAdminData', [
                 'ajaxUrl' => admin_url('admin-ajax.php'),
                 'nonce' => wp_create_nonce('koperasikita_nonce'),
+                // The menu icon picker data: the Agenda widget's header
+                // icon reuses the same popup, so widgets.php and the
+                // Customizer need the icon list too (not just nav-menus).
+                'menuIcons' => [
+                    'builtIn' => \KoperasiKita\Icons\Icon::builtInSvgs(20),
+                    'noIcon' => __('No icon', 'koperasikita'),
+                    'defaultColor' => \KoperasiKita\Setup\MenuIcons::DEFAULT_COLOR,
+                ],
                 'strings' => [
                     'ready' => __('Ready', 'koperasikita'),
                     'failed' => __('Failed: %s', 'koperasikita'),
@@ -584,6 +592,8 @@ final class Enqueue
                     'downloadFailed' => __('Download failed.', 'koperasikita'),
                     'adminDataMissing' => __('Admin data is not available.', 'koperasikita'),
                     'loadingPreview' => __('Loading preview…', 'koperasikita'),
+                    'searching' => __('Searching…', 'koperasikita'),
+                    'noResults' => __('No results.', 'koperasikita'),
                 ],
             ]);
         }

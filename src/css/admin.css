@@ -358,6 +358,42 @@
 	color: #646970;
 }
 
+/* --- Agenda widget form (see AgendaWidget) -------------------------------- */
+/* The icon field is hidden while "Show icon" is off: the <p> carries a
+ * `hidden` attribute, and the explicit rule below is required — the
+ * user-agent [hidden] rule loses to any author display declaration,
+ * same gotcha as the picker grid items above. */
+.kk-agenda-icon-field[hidden] {
+	display: none;
+}
+
+/* "Link to": the search results reuse the term picker list/option
+ * styles; the chosen post/page shows as one row (title + type +
+ * remove) under the search box. */
+.kk-agenda-link-chosen {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	margin: 8px 0 0;
+}
+
+.kk-agenda-link-chosen[hidden] {
+	display: none;
+}
+
+.kk-agenda-link-chosen-title {
+	min-width: 0;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	font-weight: 600;
+}
+
+.kk-agenda-link-chosen .description {
+	margin: 0;
+	flex: 0 0 auto;
+}
+
 /*
  * Gold Prices per-brand provider table: the provider labels are long
  * ("Scraped (live Antam, Galeri 24, …)"), so uncapped selects would

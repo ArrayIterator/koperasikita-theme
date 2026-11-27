@@ -4196,3 +4196,47 @@ msgstr "Tampilkan stat ini"
 
 msgid "Click the title or 'Meja Data' in the preview to edit them. In the title you can use {label} for the symbol name and {day} for the number of days. Click the date line under the title to edit it. Click a stat label or note to edit it, or the eye button on a stat to hide it or show it again."
 msgstr "Klik judul atau 'Meja Data' pada pratinjau untuk mengeditnya. Pada judul, gunakan {label} untuk nama simbol dan {day} untuk jumlah hari. Klik baris tanggal di bawah judul untuk mengeditnya. Klik label atau catatan stat untuk mengeditnya, atau tombol mata pada stat untuk menyembunyikan atau menampilkannya lagi."
+#: inc/Widgets/AgendaWidget.php
+msgid "Upcoming cooperative events as a card that follows the site colour scheme; live events get a green dot, finished events are dimmed."
+msgstr "Acara koperasi mendatang sebagai kartu yang mengikuti skema warna situs; acara live mendapat titik hijau, acara selesai diredupkan."
+
+#: inc/Widgets/AgendaWidget.php
+msgid "Show icon"
+msgstr "Tampilkan ikon"
+
+#: inc/Widgets/AgendaWidget.php
+msgid "Card style"
+msgstr "Gaya kartu"
+
+
+#: inc/Widgets/AgendaWidget.php
+msgid "Dark card"
+msgstr "Kartu gelap"
+
+#: inc/Widgets/AgendaWidget.php
+msgid "Light card"
+msgstr "Kartu terang"
+
+#: inc/Widgets/AgendaWidget.php
+msgid "Link to"
+msgstr "Taut ke"
+
+#: inc/Widgets/AgendaWidget.php
+msgid "Search posts and pages by title…"
+msgstr "Cari postingan dan halaman berdasarkan judul…"
+
+#: inc/Widgets/AgendaWidget.php
+msgid "Search posts and pages by title"
+msgstr "Cari postingan dan halaman berdasarkan judul"
+
+#: inc/Widgets/AgendaWidget.php
+msgid "The card title links to this post or page."
+msgstr "Judul kartu menaut ke postingan atau halaman ini."
+
+#: inc/Widgets/AgendaWidget.php
+msgid "Remove link"
+msgstr "Hapus tautan"
+
+#: src/ts/admin.ts
+msgid "No results."
+msgstr "Tidak ada hasil."
