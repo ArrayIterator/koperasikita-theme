@@ -1188,6 +1188,10 @@ msgid "Link copied"
 msgstr "Tautan disalin"
 
 #: template-parts/content/single-article.php
+msgid "Print"
+msgstr "Cetak"
+
+#: template-parts/content/single-article.php
 msgid "Share"
 msgstr "Bagikan"
 
@@ -1198,6 +1202,10 @@ msgstr "Bagikan lewat email"
 #: template-parts/content/single-article.php
 msgid "Share on Facebook"
 msgstr "Bagikan ke Facebook"
+
+#: template-parts/content/single-article.php
+msgid "Share on Telegram"
+msgstr "Bagikan ke Telegram"
 
 #: template-parts/content/single-article.php
 msgid "Share on WhatsApp"

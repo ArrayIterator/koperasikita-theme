@@ -447,6 +447,7 @@
 }
 
 .kk-share {
+	position: relative;
 	display: flex;
 	flex-wrap: wrap;
 	align-items: center;
@@ -499,20 +500,45 @@
 	display: block;
 }
 
-.kk-share-copy {
+.kk-share-copy,
+.kk-share-action {
 	width: auto;
 	padding: 0 16px;
 	border-radius: 999px;
 }
 
+/* Copy feedback: a floating toast anchored to the share row, out of
+ * the document flow so it never pushes the content below it down. */
 .kk-share-status {
+	position: absolute;
+	left: 0;
+	top: calc(100% + 8px);
+	z-index: 5;
+	max-width: 100%;
+	padding: 8px 14px;
+	border: 1px solid rgb(255 255 255 / 0.12);
+	border-radius: 999px;
+	background: #1b1b1b;
+	color: #fff;
 	font-size: 14px;
 	font-weight: 600;
-	color: var(--kk-green, #0B6B3A);
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	opacity: 0;
+	visibility: hidden;
+	pointer-events: none;
+	box-shadow: 0 4px 16px rgb(0 0 0 / 0.25);
+	transition: opacity 0.15s ease, visibility 0.15s ease;
+}
+
+.kk-share-status.is-visible {
+	opacity: 1;
+	visibility: visible;
 }
 
 .kk-share-status.is-error {
-	color: var(--kk-error, #B3261E);
+	background: var(--kk-error, #B3261E);
 }
 
 .kk-author-box {
