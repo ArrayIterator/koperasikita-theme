@@ -11,6 +11,7 @@ use KoperasiKita\Api\ApiException;
 use KoperasiKita\Api\Hooks;
 use KoperasiKita\Providers\AbstractLiveProvider;
 use KoperasiKita\Providers\CoinGeckoProvider;
+use KoperasiKita\Providers\GoldPricesTable;
 use KoperasiKita\Providers\IndodaxProvider;
 use KoperasiKita\Providers\LogamMuliaApiProvider;
 use KoperasiKita\Providers\ManualSnapshotProvider;
@@ -601,6 +602,34 @@ final class Markets
 
             if ($fallbackPrice instanceof MarketPrice && $fallbackPrice->hasData()) {
                 $prices[$symbol] = $fallbackPrice->withProvider($fallback);
+            }
+        }
+
+        // Gold providers never carry a day change, so the strip and
+        // the widgets would show no chip for any gold brand. The
+        // history table holds the previous close: attach it here so
+        // gold reads like every other market. A brand with no stored
+        // previous price keeps a null change and no chip, and a
+        // provider-supplied change is never overwritten.
+        if ($prices !== []) {
+            $previous = GoldPricesTable::previousSellPrices(
+                array_keys($prices),
+                date_i18n('Y-m-d', current_time('timestamp') - DAY_IN_SECONDS),
+                Gold::officialProviders()
+            );
+
+            foreach ($prices as $symbol => $price) {
+                if ($price->change !== null || $price->price === null) {
+                    continue;
+                }
+
+                $old = $previous[$symbol] ?? null;
+
+                if ($old === null || $old <= 0) {
+                    continue;
+                }
+
+                $prices[$symbol] = $price->withChange(($price->price - $old) / $old * 100);
             }
         }
 

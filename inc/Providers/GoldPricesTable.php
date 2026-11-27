@@ -404,6 +404,35 @@ final class GoldPricesTable
     }
 
     /**
+     * The latest stored sell price per symbol on or before a date.
+     * Rows are newest first with the official provider preferred
+     * per brand+date, so the value is the same previous close the
+     * History chart plots. A symbol with no stored row before the
+     * date is left out.
+     *
+     * @param array<int, string> $symbols
+     * @param array<string, string> $official
+     * @return array<string, float>
+     */
+    public static function previousSellPrices(array $symbols, string $beforeDate, array $official = []): array
+    {
+        if ($symbols === []) {
+            return [];
+        }
+
+        $rows = self::historyFiltered('', ['symbols' => $symbols, 'to' => $beforeDate], 200, 0, $official);
+        $previous = [];
+
+        foreach ($rows as $row) {
+            if (!isset($previous[$row['symbol']])) {
+                $previous[$row['symbol']] = $row['sell_price'];
+            }
+        }
+
+        return $previous;
+    }
+
+    /**
      * The shared WHERE clause for the filtered history queries:
      * provider first (omitted when empty — "all providers"),
      * then the optional symbol and date filters.

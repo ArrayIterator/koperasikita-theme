@@ -49,6 +49,21 @@ final class MarketPrice
         );
     }
 
+    /** A copy of this price with the day change in percent attached. */
+    public function withChange(?float $change): self
+    {
+        return new self(
+            $this->market,
+            $this->symbol,
+            $this->label,
+            $this->price,
+            $change,
+            $this->currency,
+            $this->updated,
+            $this->provider
+        );
+    }
+
     /**
      * @return array{market: string, symbol: string, label: string, price: float|null, change: float|null, currency: string, updated: int, provider: string}
      */
