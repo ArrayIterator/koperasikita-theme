@@ -156,11 +156,11 @@ final class DataDeskTemplatesPage
     }
 
     /**
-     * The template list: name, a visual preview of the layout, kind,
-     * what it shows, palette, days, and actions. Every template can
-     * be edited, duplicated and deleted. The preview is the real
-     * panel / table markup with sample data, scaled down, so the
-     * list shows the layout, not just its name.
+     * The template list: name, kind, what it shows, palette, days,
+     * and actions. Every template can be edited, duplicated and
+     * deleted. The preview is not rendered inline — each row has a
+     * Preview link that opens the real panel / table markup (sample
+     * data) in a popup, fetched through kk_data_desk_preview.
      */
     private static function renderList(string $pageUrl): void
     {
@@ -171,7 +171,6 @@ final class DataDeskTemplatesPage
             <thead>
                 <tr>
                     <th><?php esc_html_e('Name', 'koperasikita'); ?></th>
-                    <th><?php esc_html_e('Preview', 'koperasikita'); ?></th>
                     <th><?php esc_html_e('Kind', 'koperasikita'); ?></th>
                     <th><?php esc_html_e('Shows', 'koperasikita'); ?></th>
                     <th><?php esc_html_e('Palette', 'koperasikita'); ?></th>
@@ -190,16 +189,6 @@ final class DataDeskTemplatesPage
                         <td>
                             <strong><?php echo esc_html($template['name']); ?></strong>
                         </td>
-                        <td>
-                            <div class="kk-data-desk-list-preview">
-                                <div class="kk-data-desk-list-preview-inner">
-                                    <?php
-                                    // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- renderPreview returns the theme's own template markup.
-                                    echo DataDesk::renderPreview($template);
-                                    ?>
-                                </div>
-                            </div>
-                        </td>
                         <td><?php echo esc_html($kinds[$template['kind']] ?? $template['kind']); ?></td>
                         <td><?php echo esc_html($shows); ?></td>
                         <td><?php echo esc_html(DataDesk::paletteLabel($template['palette'])); ?></td>
@@ -210,11 +199,29 @@ final class DataDeskTemplatesPage
                             <a href="<?php echo esc_url(wp_nonce_url(add_query_arg('kk_data_desk_duplicate', $id, $pageUrl), 'kk_data_desk_duplicate')); ?>"><?php esc_html_e('Duplicate', 'koperasikita'); ?></a>
                             |
                             <a href="<?php echo esc_url(wp_nonce_url(add_query_arg('kk_data_desk_delete', $id, $pageUrl), 'kk_data_desk_delete')); ?>" onclick="return confirm('<?php echo esc_js(__('Delete this template?', 'koperasikita')); ?>');"><?php esc_html_e('Delete', 'koperasikita'); ?></a>
+                            |
+                            <a href="#" data-kk-data-desk-preview-link data-kk-template-id="<?php echo esc_attr($id); ?>" data-kk-template-name="<?php echo esc_attr($template['name']); ?>"><?php esc_html_e('Preview', 'koperasikita'); ?></a>
                         </td>
                     </tr>
                 <?php endforeach; ?>
             </tbody>
         </table>
+        <?php /* One shared preview popup, reused by every row's Preview
+         * link. The panel is filled by admin.ts (kk_data_desk_preview
+         * by template id); without JS the link does nothing and the
+         * list stays usable. */ ?>
+        <div class="kk-data-desk-popup" id="kk-data-desk-popup" hidden role="dialog" aria-modal="true" aria-labelledby="kk-data-desk-popup-title">
+            <div class="kk-data-desk-popup-backdrop" data-kk-data-desk-popup-close></div>
+            <div class="kk-data-desk-popup-panel" role="document">
+                <div class="kk-data-desk-popup-head">
+                    <h2 id="kk-data-desk-popup-title"></h2>
+                    <div class="kk-data-desk-popup-actions">
+                        <button type="button" class="button" data-kk-data-desk-popup-close><?php esc_html_e('Close', 'koperasikita'); ?></button>
+                    </div>
+                </div>
+                <div class="kk-data-desk-popup-body" data-kk-data-desk-popup-body></div>
+            </div>
+        </div>
         <p class="description">
             <?php esc_html_e('Widgets pick a template instead of carrying their own settings.', 'koperasikita'); ?>
         </p>

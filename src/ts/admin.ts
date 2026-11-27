@@ -43,6 +43,7 @@ interface AdminStrings {
 	loadingPreview: string;
 	editKickerHint: string;
 	editTitleHint: string;
+	previewFailed: string;
 }
 
 interface AdminData {
@@ -103,6 +104,7 @@ const FALLBACK_STRINGS: AdminStrings = {
 	loadingPreview: 'Loading preview…',
 	editKickerHint: 'Click to edit the kicker.',
 	editTitleHint: 'Click to edit the title.',
+	previewFailed: 'Could not load the preview.',
 };
 
 function adminData(): AdminData | null {
@@ -130,6 +132,7 @@ function adminStrings(): AdminStrings {
 		loadingPreview: strings?.loadingPreview ?? FALLBACK_STRINGS.loadingPreview,
 		editKickerHint: strings?.editKickerHint ?? FALLBACK_STRINGS.editKickerHint,
 		editTitleHint: strings?.editTitleHint ?? FALLBACK_STRINGS.editTitleHint,
+		previewFailed: strings?.previewFailed ?? FALLBACK_STRINGS.previewFailed,
 	};
 }
 
@@ -335,6 +338,7 @@ function initAdmin(): void {
 		initGoldSync,
 		initDataDeskPreview,
 		initDataDeskWidgetPreview,
+		initDataDeskPopupPreview,
 	];
 
 	for (const init of inits) {
@@ -648,6 +652,110 @@ function initDataDeskWidgetPreview(): void {
 		}
 	});
 	observer.observe(document.body, { childList: true, subtree: true });
+}
+
+/**
+ * Template preview popup on the Data Desk Templates list.
+ *
+ * The list shows no inline preview — each row's Preview link opens
+ * one shared centered popup (blurred backdrop, same pattern as the
+ * menu icon picker) and fetches the real panel / table markup with
+ * sample data through kk_data_desk_preview by template id. Close on
+ * Close, backdrop click, or Escape; focus returns to the link that
+ * opened it. A failed fetch shows an honest error line; a template
+ * deleted since the list loaded answers "Template not found." from
+ * the server. A second open while a fetch is in flight wins — a
+ * stale response never overwrites the newer popup.
+ */
+function initDataDeskPopupPreview(): void {
+	const config = adminData();
+	if (!config) {
+		return;
+	}
+	const popup = document.getElementById('kk-data-desk-popup');
+	if (!popup) {
+		return;
+	}
+	const body = popup.querySelector<HTMLElement>('[data-kk-data-desk-popup-body]');
+	const title = popup.querySelector<HTMLElement>('#kk-data-desk-popup-title');
+	const closeButton = popup.querySelector<HTMLButtonElement>('button[data-kk-data-desk-popup-close]');
+	if (!body || !title || !closeButton) {
+		return;
+	}
+
+	let opener: HTMLAnchorElement | null = null;
+	let request = 0;
+
+	const close = (): void => {
+		popup.hidden = true;
+		if (opener) {
+			opener.focus();
+			opener = null;
+		}
+	};
+
+	const open = (link: HTMLAnchorElement): void => {
+		const id = link.dataset.kkTemplateId ?? '';
+		if (id === '') {
+			return;
+		}
+		opener = link;
+		title.textContent = link.dataset.kkTemplateName ?? '';
+		body.classList.add('is-loading');
+		body.innerHTML = '';
+		const loading = document.createElement('p');
+		loading.className = 'description';
+		loading.textContent = adminStrings().loadingPreview;
+		body.append(loading);
+		popup.hidden = false;
+		closeButton.focus();
+
+		const mine = ++request;
+		void postAjax<{ html: string }>(config, 'kk_data_desk_preview', { template: id })
+			.then((data) => {
+				if (mine !== request) {
+					return;
+				}
+				body.innerHTML = data.html;
+			})
+			.catch((error: unknown) => {
+				if (mine !== request) {
+					return;
+				}
+				const detail = error instanceof Error && error.message !== '' ? error.message : '';
+				const failed = document.createElement('p');
+				failed.textContent =
+					detail === ''
+						? adminStrings().previewFailed
+						: `${adminStrings().previewFailed} ${detail}`;
+				body.innerHTML = '';
+				body.append(failed);
+			})
+			.finally(() => {
+				if (mine === request) {
+					body.classList.remove('is-loading');
+				}
+			});
+	};
+
+	document
+		.querySelectorAll<HTMLAnchorElement>('[data-kk-data-desk-preview-link]')
+		.forEach((link) => {
+			link.addEventListener('click', (event) => {
+				event.preventDefault();
+				open(link);
+			});
+		});
+
+	popup.querySelectorAll('[data-kk-data-desk-popup-close]').forEach((el) => {
+		el.addEventListener('click', close);
+	});
+
+	document.addEventListener('keydown', (event) => {
+		if (event.key === 'Escape' && !popup.hidden) {
+			close();
+		}
+	});
 }
 
 /**

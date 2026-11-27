@@ -3730,6 +3730,9 @@ msgstr "Pratinjau tata letak — data contoh"
 msgid "Loading preview…"
 msgstr "Memuat pratinjau…"
 
+msgid "Could not load the preview."
+msgstr "Pratinjau tidak dapat dimuat."
+
 msgid "dari kemarin (%s)"
 msgstr "dari kemarin (%s)"
 
