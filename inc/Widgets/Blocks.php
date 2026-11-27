@@ -56,7 +56,15 @@ final class Blocks
                 // the placeholder/field styles and the editor bundle
                 // (src/css/editor.css) with the frontend widget
                 // styles, so the ServerSideRender preview looks like
-                // the live site. Styles enqueued on
+                // the live site. Core ALSO enqueues every block's
+                // editor_style handles in the OUTER admin document on
+                // `enqueue_block_editor_assets`
+                // (wp_enqueue_registered_block_scripts_and_styles),
+                // so the canvas bundle's bare body / h1-h3 rules would
+                // restyle the WordPress frame there - the dequeue in
+                // Enqueue::dequeueCanvasBundleFromOuterPage strips
+                // `kk-editor` from the outer queue (priority 20 on the
+                // same hook); the iframe keeps its own copy. Styles enqueued on
                 // `enqueue_block_editor_assets` never enter the
                 // canvas, which is why previews used to render
                 // unstyled (plain numbers, green titles, no rules).
