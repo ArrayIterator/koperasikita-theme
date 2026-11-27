@@ -3254,10 +3254,6 @@ msgid "Manual sync"
 msgstr "Sinkronisasi manual"
 
 #: inc/Admin/GoldPricesPage.php
-msgid "Prices"
-msgstr "Harga"
-
-#: inc/Admin/GoldPricesPage.php
 msgid "History"
 msgstr "Riwayat"
 
@@ -3831,10 +3827,6 @@ msgid "Places"
 msgstr "Tempat"
 
 #: inc/Admin/GoldPricesPage.php
-msgid "Daily gold prices from the Logam Mulia API price history (backup/prices CSV on GitHub). The sync runs automatically via WP-Cron on the schedule in Settings and only inserts rows that are not in the database yet — one row per brand per day. Use the button below to sync on demand."
-msgstr "Harga emas harian dari riwayat harga Logam Mulia API (CSV backup/prices di GitHub). Sinkronisasi berjalan otomatis lewat WP-Cron sesuai jadwal di Pengaturan dan hanya menyisipkan baris yang belum ada di database — satu baris per brand per hari. Gunakan tombol di bawah untuk sinkronisasi manual."
-
-#: inc/Admin/GoldPricesPage.php
 msgid "Gold price providers"
 msgstr "Penyedia harga emas"
 
@@ -3913,10 +3905,6 @@ msgstr "Sinkronkan %s"
 #: inc/Admin/GoldPricesPage.php
 msgid "Default source: %s"
 msgstr "Sumber default: %s"
-
-#: inc/Admin/GoldPricesPage.php
-msgid "No sync source is enabled. Enable one in Settings."
-msgstr "Tidak ada sumber sinkronisasi yang diaktifkan. Aktifkan satu di Pengaturan."
 
 #: inc/Providers/LogamMuliaApiProvider.php
 msgid "Galeri 24, UBS, Antam and Lotus Archi 1-gram prices."
@@ -4016,3 +4004,48 @@ msgstr "Produsen emas lokal yang menawarkan emas batangan dan perhiasan dengan b
 #: inc/Features/Gold.php
 msgid "Emasku (HRTA GOLD)"
 msgstr "Emasku (HRTA GOLD)"
+
+
+#: inc/Admin/GoldPricesPage.php
+msgid "Status"
+msgstr "Status"
+
+#: inc/Admin/GoldPricesPage.php
+msgid "Setting"
+msgstr "Pengaturan"
+
+#: inc/Admin/GoldPricesPage.php
+msgid "Sync"
+msgstr "Sinkronisasi"
+
+#: inc/Admin/GoldPricesPage.php
+msgid "Daily gold prices from the Logam Mulia API price history (backup/prices CSV on GitHub). The sync runs automatically via WP-Cron on the schedule on the Setting tab and only inserts rows that are not in the database yet — one row per brand per day. Use the button below to sync on demand."
+msgstr "Harga emas harian dari riwayat harga Logam Mulia API (CSV backup/prices di GitHub). Sinkronisasi berjalan otomatis lewat WP-Cron sesuai jadwal di tab Setting dan hanya menyisipkan baris yang belum ada di database — satu baris per merek per hari. Gunakan tombol di bawah untuk sinkronisasi manual."
+
+#: inc/Admin/GoldPricesPage.php
+msgid "No sync source is enabled. Enable one on the Setting tab."
+msgstr "Tidak ada sumber sinkronisasi yang diaktifkan. Aktifkan satu di tab Setting."
+
+#: inc/Admin/GoldPricesPage.php
+msgid "From"
+msgstr "Dari"
+
+#: inc/Admin/GoldPricesPage.php
+msgid "To"
+msgstr "Sampai"
+
+#: inc/Admin/GoldPricesPage.php
+msgid "Filter"
+msgstr "Filter"
+
+#: inc/Admin/GoldPricesPage.php
+msgid "Clear filters"
+msgstr "Hapus filter"
+
+#: inc/Admin/GoldPricesPage.php
+msgid "No prices match the selected filters."
+msgstr "Tidak ada harga yang cocok dengan filter yang dipilih."
+
+#: inc/Admin/GoldPricesPage.php
+msgid "All providers"
+msgstr "Semua penyedia"

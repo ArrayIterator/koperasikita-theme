@@ -168,6 +168,160 @@ final class GoldPricesTable
     }
 
     /**
+     * Filtered rows for one provider, newest first — the History
+     * tab's chart (capped, page 0) and table (paged) both read
+     * through here, so the chart and the list can never disagree
+     * about the filter. An empty $provider means "all providers".
+     *
+     * Filters: ['symbol' => slug or '', 'from' => 'Y-m-d' or '',
+     * 'to' => 'Y-m-d' or '']. Empty values mean "no filter".
+     * Dates that are not real Y-m-d dates are ignored here too,
+     * so a hand-made URL can never break the query.
+     *
+     * @param array{symbol?: string, from?: string, to?: string} $filters
+     * @return array<int, array{symbol: string, sell_price: float, buyback_price: float|null, currency: string, recorded_date: string, fetched_at: int}>
+     */
+    public static function historyFiltered(string $provider, array $filters, int $limit = 200, int $offset = 0): array
+    {
+        global $wpdb;
+
+        $table = self::table();
+
+        if ($wpdb->get_var($wpdb->prepare('SHOW TABLES LIKE %s', $table)) !== $table) {
+            return [];
+        }
+
+        [$where, $params] = self::historyWhere($provider, $filters);
+        $params[] = max(0, $limit);
+        $params[] = max(0, $offset);
+
+        $rows = $wpdb->get_results(
+            $wpdb->prepare(
+                "SELECT symbol, sell_price, buyback_price, currency, recorded_date, fetched_at
+                 FROM {$table} {$where}
+                 ORDER BY recorded_date DESC, symbol ASC LIMIT %d OFFSET %d",
+                ...$params
+            ),
+            ARRAY_A
+        );
+
+        if (!is_array($rows)) {
+            return [];
+        }
+
+        return self::cleanRows($rows);
+    }
+
+    /**
+     * How many rows the same filter matches — the History tab's
+     * page count. An empty $provider means "all providers".
+     * Counts table rows, so a row cleanRows() would
+     * drop (no symbol, no positive price) is still counted; the
+     * sync only ever inserts valid rows, so the count matches
+     * what the table shows.
+     *
+     * @param array{symbol?: string, from?: string, to?: string} $filters
+     */
+    public static function historyCount(string $provider, array $filters): int
+    {
+        global $wpdb;
+
+        $table = self::table();
+
+        if ($wpdb->get_var($wpdb->prepare('SHOW TABLES LIKE %s', $table)) !== $table) {
+            return 0;
+        }
+
+        [$where, $params] = self::historyWhere($provider, $filters);
+
+        $count = $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM {$table} {$where}", ...$params));
+
+        return $count === null ? 0 : (int) $count;
+    }
+
+    /**
+     * The shared WHERE clause for the filtered history queries:
+     * provider first (omitted when empty — "all providers"),
+     * then the optional symbol and date filters.
+     *
+     * @param array{symbol?: string, from?: string, to?: string} $filters
+     * @return array{string, array<int, string|int>}
+     */
+    private static function historyWhere(string $provider, array $filters): array
+    {
+        $where = 'WHERE 1 = 1';
+        $params = [];
+
+        if ($provider !== '') {
+            $where .= ' AND provider = %s';
+            $params[] = $provider;
+        }
+
+        $symbol = (string) ($filters['symbol'] ?? '');
+        if ($symbol !== '') {
+            $where .= ' AND symbol = %s';
+            $params[] = $symbol;
+        }
+
+        $from = self::historyDate((string) ($filters['from'] ?? ''));
+        if ($from !== '') {
+            $where .= ' AND recorded_date >= %s';
+            $params[] = $from;
+        }
+
+        $to = self::historyDate((string) ($filters['to'] ?? ''));
+        if ($to !== '') {
+            $where .= ' AND recorded_date <= %s';
+            $params[] = $to;
+        }
+
+        return [$where, $params];
+    }
+
+    /**
+     * Every provider id that has at least one row, alphabetically.
+     * The History tab's provider filter reads this, so a future
+     * provider's history appears automatically and nothing about
+     * providers is hardcoded on the page.
+     *
+     * @return array<int, string>
+     */
+    public static function providers(): array
+    {
+        global $wpdb;
+
+        $table = self::table();
+
+        if ($wpdb->get_var($wpdb->prepare('SHOW TABLES LIKE %s', $table)) !== $table) {
+            return [];
+        }
+
+        $rows = $wpdb->get_col("SELECT DISTINCT provider FROM {$table} ORDER BY provider ASC");
+
+        if (!is_array($rows)) {
+            return [];
+        }
+
+        return array_values(array_filter(
+            array_map('strval', $rows),
+            static fn(string $provider): bool => $provider !== ''
+        ));
+    }
+
+    /**
+     * A real Y-m-d date, or '' — anything else (garbage, a
+     * wrong format, an impossible date) means "no filter".
+     */
+    private static function historyDate(string $value): string
+    {
+        if (!preg_match('/^(\d{4})-(\d{2})-(\d{2})$/', $value, $m)) {
+            return '';
+        }
+
+        return checkdate((int) $m[2], (int) $m[3], (int) $m[1]) ? $value : '';
+    }
+
+    /**
      * Last-good rows for one provider (the latest row per symbol),
      * keyed by symbol. An empty array means the table does not exist
      * yet or holds no rows — never an error.
