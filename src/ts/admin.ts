@@ -1072,7 +1072,7 @@ function initSidebarSettingsPopup(): void {
 		if (submit.disabled) {
 			return;
 		}
-		const checked = [...form.querySelectorAll<HTMLInputElement>('input[type="checkbox"][data-kk-sidebar-id]')]
+		const checked = Array.from(form.querySelectorAll<HTMLInputElement>('input[type="checkbox"][data-kk-sidebar-id]'))
 			.filter((box) => box.checked)
 			.map((box) => box.dataset.kkSidebarId ?? '')
 			.filter((id) => id !== '');
