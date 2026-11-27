@@ -236,10 +236,24 @@ function initMobileNav(): void {
 		drillToggle = null;
 	};
 
+	// The drawer is fixed, so its top must clear the WP admin bar
+	// exactly as far as the bar is visible in the viewport right
+	// now: 32px desktop / 46px mobile while the bar is on screen, 0
+	// once it has scrolled away (at <=600px the bar is
+	// position:absolute). The bar's bottom edge in viewport
+	// coordinates is that height, so measure it when the drawer
+	// opens and while it stays open.
+	const syncDrawerTop = (): void => {
+		const bar = document.getElementById('wpadminbar');
+		const offset = bar ? Math.max(0, Math.round(bar.getBoundingClientRect().bottom)) : 0;
+		nav.style.setProperty('--kk-drawer-top', `${offset}px`);
+	};
+
 	const openNav = (): void => {
 		if (isDesktop()) {
 			return;
 		}
+		syncDrawerTop();
 		nav.classList.add('is-open');
 		nav.inert = false;
 		toggle.setAttribute('aria-expanded', 'true');
@@ -255,6 +269,7 @@ function initMobileNav(): void {
 
 	const closeNav = (refocusToggle: boolean): void => {
 		nav.classList.remove('is-open');
+		nav.style.removeProperty('--kk-drawer-top');
 		nav.inert = true;
 		toggle.setAttribute('aria-expanded', 'false');
 		toggle.setAttribute('aria-label', 'Open menu');
@@ -314,11 +329,25 @@ function initMobileNav(): void {
 			closeNav(true);
 		}
 	});
+	// While the drawer is open the page is scroll-locked, but the
+	// lock can leak on mobile (and a rotation changes the bar from
+	// absolute to fixed) - keep the offset tracking the bar.
+	window.addEventListener('scroll', () => {
+		if (nav.classList.contains('is-open')) {
+			syncDrawerTop();
+		}
+	}, { passive: true });
+	window.addEventListener('resize', () => {
+		if (nav.classList.contains('is-open')) {
+			syncDrawerTop();
+		}
+	});
 	// Resizing to desktop turns the drawer back into the bar: drop
 	// the drawer state instead of leaving it open off-canvas.
 	desktopQuery.addEventListener('change', (event) => {
 		if (event.matches) {
 			nav.classList.remove('is-open');
+			nav.style.removeProperty('--kk-drawer-top');
 			nav.inert = false;
 			if (backdrop) {
 				backdrop.classList.remove('is-visible');

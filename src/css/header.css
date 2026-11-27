@@ -350,14 +350,16 @@ body.admin-bar {
 
 .kk-primary-nav {
 	position: fixed;
-	/* Below the WP admin bar when logged in (same token as the sticky
-	 * nav): otherwise the bar covers the drawer's header. The token
-	 * is 0 when logged out, 32px desktop / 46px mobile when logged
-	 * in - but at <=600px the token is 0 (the bar scrolls away) while
-	 * the drawer, which locks the page scroll when open, still needs
-	 * the offset when it opens from the top of the page; see the
-	 * override below. */
-	top: var(--kk-admin-bar-height, 0px);
+	/* Below the WP admin bar when logged in: otherwise the bar covers
+	 * the drawer's header. --kk-drawer-top is the bar's visible
+	 * height in the viewport, measured by the drawer script when it
+	 * opens - 32px desktop / 46px mobile while the bar is on screen,
+	 * 0 once it has scrolled away (at <=600px the bar is
+	 * position:absolute, so a fixed 46px would leave a gap at the top
+	 * after scrolling down). The fallback is WP core's own
+	 * --wp-admin--admin-bar--height (32px, 46px at <=782px), so the
+	 * drawer still clears the bar before the script runs. */
+	top: calc(var(--kk-drawer-top, var(--wp-admin--admin-bar--height, 0px)));
 	left: 0;
 	bottom: 0;
 	z-index: 60;
@@ -378,19 +380,6 @@ body.admin-bar {
 	transform: translateX(0);
 	visibility: visible;
 	transition: transform 0.28s ease;
-}
-
-/* At <=600px the --kk-admin-bar-height token is 0 (the bar scrolls
- * away, which is right for the sticky nav) - but the drawer is fixed
- * and locks the page scroll when open, so when it opens from the top
- * of the page the bar is still on screen and would cover the drawer
- * header. The drawer keeps the 46px offset at this width too. (If
- * the drawer is opened after scrolling down, the bar is gone and the
- * drawer shows a 46px gap at the top instead - the lesser evil.) */
-@media (max-width: 600px) {
-	body.admin-bar .kk-primary-nav {
-		top: 46px;
-	}
 }
 
 /* Right-side drawer (Customizer -> Header -> Mobile Menu Slide
