@@ -19,7 +19,10 @@
  * toggle to bring them back. The date-range line under the title
  * can be overridden per template via $args['date_line'] (empty =
  * the computed line); in the editor's preview it is inline-editable
- * like the kicker/title. A symbol with no usable history gets a
+ * like the kicker/title. The date line and the stat sub-lines may
+ * use placeholders ({start}, {end}, {delta_pct}, {streak}, {zone}
+ * and more, see DataDesk::replacePlaceholders()); how they resolve
+ * is configured per template via $args['placeholders']. A symbol with no usable history gets a
  * placeholder chart and honest empty stats instead of invented
  * numbers.
  *
@@ -45,6 +48,7 @@ $stats = isset($args['stats']) && is_array($args['stats']) ? $args['stats'] : []
 $hiddenBlocks = isset($args['hidden_blocks']) && is_array($args['hidden_blocks'])
 	? array_values(array_intersect(array_map('sanitize_key', $args['hidden_blocks']), DataDesk::STAT_BLOCKS))
 	: [];
+$placeholders = DataDesk::sanitizePlaceholders($args['placeholders'] ?? []);
 
 if ($data === null) {
 	return;
@@ -81,20 +85,21 @@ if ($title === '') {
 }
 
 // A saved template date line overrides the computed range
-// line; empty means the computed text below (literal text, no
-// {label}/{day} tokens, like the stat label overrides).
+// line; empty means the computed text below. An override may
+// use placeholders ({start}, {end}, {delta_pct} and the rest),
+// resolved from the panel's own data.
 $dateLineOverride = isset($args['date_line']) ? sanitize_text_field((string) $args['date_line']) : '';
 $subtitle = '';
 if ($dateLineOverride !== '') {
-	$subtitle = $dateLineOverride;
+	$subtitle = DataDesk::replacePlaceholders($dateLineOverride, $data, $days, $placeholders);
 } elseif ($hasHistory && !empty($data['date_range'])) {
 	$subtitle = $isGold
 		/* translators: %s: date range, e.g. 15–21 November 2026. */
-		? sprintf(__('Harga jual per gram · %s', 'koperasikita'), $data['date_range'])
+		? sprintf(__('Harga jual per gram · %s', 'koperasikita'), DataDesk::formatDateRange($data, $placeholders['date_format']))
 		: sprintf(
 			/* translators: %s: date range. */
 			__('Harga penutupan · %s', 'koperasikita'),
-			$data['date_range']
+			DataDesk::formatDateRange($data, $placeholders['date_format'])
 		);
 } else {
 	$subtitle = $isGold
@@ -146,7 +151,10 @@ $polyline = implode(' ', array_map(static fn(array $c): string => number_format(
 	<header class="kk-data-desk-head">
 		<p class="kk-data-desk-kicker"><?php echo $kicker !== '' ? esc_html($kicker) : esc_html__('Meja Data', 'koperasikita'); ?></p>
 		<h2 class="kk-data-desk-title"><?php echo esc_html($title); ?></h2>
-		<p class="kk-data-desk-subtitle"<?php echo $editable ? ' data-kk-date-line' : ''; ?>><?php echo esc_html($subtitle); ?></p>
+		<p class="kk-data-desk-subtitle"<?php echo $editable ? ' data-kk-date-line' : ''; ?>><?php
+		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- replacePlaceholders escapes the literal text; the only markup is the {zone} span.
+		echo $subtitle;
+		?></p>
 	</header>
 	<div class="kk-data-desk-body">
 		<div class="kk-data-desk-chart">
@@ -172,13 +180,17 @@ $polyline = implode(' ', array_map(static fn(array $c): string => number_format(
 		</div>
 		<?php
 		// Per-block text: a stored override wins, empty means the
-		// computed text. A sub-line override is plain text; without
-		// one the block renders its computed note markup (day
-		// change, spread, streak) as before — so the $*Sub values
-		// are null when there is no override.
+		// computed text. A sub-line override is a format string:
+		// it may use placeholders, resolved from the panel's own
+		// data. Without one the block renders its computed note
+		// markup (day change, spread, streak) as before, so the
+		// $*Sub values are null when there is no override.
 		$statOverride = static function (string $key, string $field) use ($stats): string {
 			$row = isset($stats[$key]) && is_array($stats[$key]) ? $stats[$key] : [];
 			return isset($row[$field]) ? sanitize_text_field((string) $row[$field]) : '';
+		};
+		$statSub = static function (string $override) use ($data, $days, $placeholders): ?string {
+			return $override !== '' ? DataDesk::replacePlaceholders($override, $data, $days, $placeholders) : null;
 		};
 		$sellLabelOverride = $statOverride('sell', 'label');
 		$sellLabel = $sellLabelOverride !== '' ? $sellLabelOverride : ($isGold
@@ -187,15 +199,15 @@ $polyline = implode(' ', array_map(static fn(array $c): string => number_format(
 			/* translators: %s: symbol label. */
 			: sprintf(__('Harga %s', 'koperasikita'), $label));
 		$sellSubOverride = $statOverride('sell', 'sub');
-		$sellSub = $sellSubOverride !== '' ? $sellSubOverride : null;
+		$sellSub = $statSub($sellSubOverride);
 		$buybackLabelOverride = $statOverride('buyback', 'label');
 		$buybackLabel = $buybackLabelOverride !== '' ? $buybackLabelOverride : __('Buyback / Gram', 'koperasikita');
 		$buybackSubOverride = $statOverride('buyback', 'sub');
-		$buybackSub = $buybackSubOverride !== '' ? $buybackSubOverride : null;
+		$buybackSub = $statSub($buybackSubOverride);
 		$performanceLabelOverride = $statOverride('performance', 'label');
 		$performanceLabel = $performanceLabelOverride !== '' ? $performanceLabelOverride : __('Kinerja Sepekan', 'koperasikita');
 		$performanceSubOverride = $statOverride('performance', 'sub');
-		$performanceSub = $performanceSubOverride !== '' ? $performanceSubOverride : null;
+		$performanceSub = $statSub($performanceSubOverride);
 		$hiddenSell = in_array('sell', $hiddenBlocks, true);
 		$hiddenBuyback = in_array('buyback', $hiddenBlocks, true);
 		$hiddenPerformance = in_array('performance', $hiddenBlocks, true);
@@ -232,7 +244,21 @@ $polyline = implode(' ', array_map(static fn(array $c): string => number_format(
 				</p>
 				<p class="kk-data-desk-stat-note"<?php echo $editable ? ' data-kk-stat-field="sell-sub"' : ''; ?>>
 					<?php if ($sellSub !== null) : ?>
-						<?php echo esc_html($sellSub); ?>
+						<?php
+						// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- replacePlaceholders escapes the literal text; the only markup is the {zone} span.
+						echo $sellSub;
+						?>
+					<?php elseif ($placeholders['percent'] === 'period' && $price !== null && $points !== [] && isset($data['week_change']) && $data['week_change'] !== null) : ?>
+						<span class="kk-market-change <?php echo (float) $data['week_change'] >= 0 ? 'kk-market-change-up' : 'kk-market-change-down'; ?>">
+							<?php
+							echo (float) $data['week_change'] >= 0 ? '&uarr; ' : '&darr; ';
+							echo esc_html(Markets::formatPrice(abs($price - (float) $points[0]['price']), $currency));
+							?>
+						</span>
+						<?php
+						/* translators: %s: whole-period change in percent. */
+						printf(esc_html__('dari awal periode (%s)', 'koperasikita'), esc_html(Markets::formatChange((float) $data['week_change'])));
+						?>
 					<?php elseif (isset($data['change']) && $data['change'] !== null && isset($data['change_abs']) && $data['change_abs'] !== null) : ?>
 						<span class="kk-market-change <?php echo (float) $data['change'] >= 0 ? 'kk-market-change-up' : 'kk-market-change-down'; ?>">
 							<?php
@@ -262,7 +288,10 @@ $polyline = implode(' ', array_map(static fn(array $c): string => number_format(
 				</p>
 				<p class="kk-data-desk-stat-note"<?php echo $editable ? ' data-kk-stat-field="buyback-sub"' : ''; ?>>
 					<?php if ($buybackSub !== null) : ?>
-						<?php echo esc_html($buybackSub); ?>
+						<?php
+						// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- replacePlaceholders escapes the literal text; the only markup is the {zone} span.
+						echo $buybackSub;
+						?>
 					<?php elseif (isset($data['spread']) && $data['spread'] !== null) : ?>
 						<?php
 						/* translators: %s: sell-buyback spread in percent. */
@@ -286,7 +315,10 @@ $polyline = implode(' ', array_map(static fn(array $c): string => number_format(
 				</p>
 				<p class="kk-data-desk-stat-note"<?php echo $editable ? ' data-kk-stat-field="performance-sub"' : ''; ?>>
 					<?php if ($performanceSub !== null) : ?>
-						<?php echo esc_html($performanceSub); ?>
+						<?php
+						// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- replacePlaceholders escapes the literal text; the only markup is the {zone} span.
+						echo $performanceSub;
+						?>
 					<?php elseif (isset($data['streak']) && (int) $data['streak'] > 0) : ?>
 						<?php
 						/* translators: %d: consecutive up days. (Plain __() — the theme's po2mo has no plural support.) */

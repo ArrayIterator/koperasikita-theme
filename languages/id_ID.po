@@ -4303,3 +4303,139 @@ msgstr "Postingan tidak ditemukan."
 #: src/ts/widget-blocks.ts
 msgid "selected."
 msgstr "dipilih."
+
+#: inc/Features/DataDesk.php
+msgid "Full"
+msgstr "Lengkap"
+
+#: inc/Features/DataDesk.php
+msgid "Short"
+msgstr "Singkat"
+
+#: inc/Features/DataDesk.php
+msgid "Numeric"
+msgstr "Angka"
+
+#: inc/Features/DataDesk.php
+msgid "Daily change"
+msgstr "Perubahan harian"
+
+#: inc/Features/DataDesk.php
+msgid "Whole period"
+msgstr "Seluruh periode"
+
+#: inc/Features/DataDesk.php
+msgid "Red"
+msgstr "Merah"
+
+#: inc/Features/DataDesk.php
+msgid "zona hijau"
+msgstr "zona hijau"
+
+#: inc/Features/DataDesk.php
+msgid "zona merah"
+msgstr "zona merah"
+
+#: template-parts/data-desk/panel.php
+msgid "dari awal periode (%s)"
+msgstr "dari awal periode (%s)"
+
+#: inc/Admin/DataDeskTemplatesPage.php
+msgid "Placeholders"
+msgstr "Placeholder"
+
+#: inc/Admin/DataDeskTemplatesPage.php
+msgid "Placeholders resolve from the panel's own data. Click the date line or a stat note in the preview first, then Insert, otherwise the placeholder goes into the date line. The title's {label} and {day} work here too."
+msgstr "Placeholder diisi dari data panel itu sendiri. Klik baris tanggal atau catatan stat pada pratinjau dulu, lalu Sisipkan; kalau tidak, placeholder masuk ke baris tanggal. {label} dan {day} milik judul juga bisa dipakai di sini."
+
+#: inc/Admin/DataDeskTemplatesPage.php
+msgid "First date of the chart range"
+msgstr "Tanggal pertama rentang grafik"
+
+#: inc/Admin/DataDeskTemplatesPage.php
+msgid "Last date of the chart range"
+msgstr "Tanggal terakhir rentang grafik"
+
+#: inc/Admin/DataDeskTemplatesPage.php
+msgid "Last date (today)"
+msgstr "Tanggal terakhir (hari ini)"
+
+#: inc/Admin/DataDeskTemplatesPage.php
+msgid "Symbol name"
+msgstr "Nama simbol"
+
+#: inc/Admin/DataDeskTemplatesPage.php
+msgid "Number of days in the chart"
+msgstr "Jumlah hari dalam grafik"
+
+#: inc/Admin/DataDeskTemplatesPage.php
+msgid "Direction arrow (up or down)"
+msgstr "Panah arah (naik atau turun)"
+
+#: inc/Admin/DataDeskTemplatesPage.php
+msgid "Change amount"
+msgstr "Jumlah perubahan"
+
+#: inc/Admin/DataDeskTemplatesPage.php
+msgid "Change in percent"
+msgstr "Perubahan dalam persen"
+
+#: inc/Admin/DataDeskTemplatesPage.php
+msgid "Sell–buyback spread"
+msgstr "Selisih jual–buyback"
+
+#: inc/Admin/DataDeskTemplatesPage.php
+msgid "Consecutive up days"
+msgstr "Hari naik beruntun"
+
+#: inc/Admin/DataDeskTemplatesPage.php
+msgid "Zone name, in the chosen zone colour"
+msgstr "Nama zona, dengan warna zona yang dipilih"
+
+#: inc/Admin/DataDeskTemplatesPage.php
+msgid "Placeholder"
+msgstr "Placeholder"
+
+#: inc/Admin/DataDeskTemplatesPage.php
+msgid "Resolves to"
+msgstr "Berisi"
+
+#: inc/Admin/DataDeskTemplatesPage.php
+msgid "Sample"
+msgstr "Contoh"
+
+#: inc/Admin/DataDeskTemplatesPage.php
+msgid "Insert"
+msgstr "Sisipkan"
+
+#: inc/Admin/DataDeskTemplatesPage.php
+msgid "Configure placeholders"
+msgstr "Atur placeholder"
+
+#: inc/Admin/DataDeskTemplatesPage.php
+msgid "Placeholder settings"
+msgstr "Pengaturan placeholder"
+
+#: inc/Admin/DataDeskTemplatesPage.php
+msgid "These settings change how placeholders resolve in the date line and the stat notes. They apply to the preview immediately and are saved with the template."
+msgstr "Pengaturan ini mengubah cara placeholder diisi pada baris tanggal dan catatan stat. Berlaku langsung pada pratinjau dan tersimpan bersama template."
+
+#: inc/Admin/DataDeskTemplatesPage.php
+msgid "Date format"
+msgstr "Format tanggal"
+
+#: inc/Admin/DataDeskTemplatesPage.php
+msgid "Percent type"
+msgstr "Jenis persen"
+
+#: inc/Admin/DataDeskTemplatesPage.php
+msgid "Zone colour"
+msgstr "Warna zona"
+
+#: inc/Admin/DataDeskTemplatesPage.php
+msgid "Daily change (today vs yesterday)"
+msgstr "Perubahan harian (hari ini vs kemarin)"
+
+#: inc/Admin/DataDeskTemplatesPage.php
+msgid "Whole period (first day to today)"
+msgstr "Seluruh periode (hari pertama sampai hari ini)"

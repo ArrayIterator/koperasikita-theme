@@ -107,6 +107,211 @@ final class DataDesk
         ]);
     }
 
+    // Placeholder settings for the panel's date line and stat notes.
+    // A placeholder configures how a computed value is presented,
+    // never the value itself. Each option has one default, so a
+    // template without a setting renders exactly as before.
+    public const DATE_FORMATS = [
+        'full' => 'Full',
+        'short' => 'Short',
+        'numeric' => 'Numeric',
+    ];
+    public const DEFAULT_DATE_FORMAT = 'full';
+
+    public const PERCENT_TYPES = [
+        'daily' => 'Daily change',
+        'period' => 'Whole period',
+    ];
+    public const DEFAULT_PERCENT_TYPE = 'daily';
+
+    public const ZONE_COLORS = [
+        'green' => 'Green',
+        'red' => 'Red',
+        'gold' => 'Gold',
+    ];
+    public const DEFAULT_ZONE_COLOR = 'green';
+
+    public static function dateFormatLabel(string $value): string
+    {
+        return match ($value) {
+            'short' => __('Short', 'koperasikita'),
+            'numeric' => __('Numeric', 'koperasikita'),
+            'full' => __('Full', 'koperasikita'),
+            default => $value,
+        };
+    }
+
+    public static function percentTypeLabel(string $value): string
+    {
+        return match ($value) {
+            'period' => __('Whole period', 'koperasikita'),
+            'daily' => __('Daily change', 'koperasikita'),
+            default => $value,
+        };
+    }
+
+    public static function zoneColorLabel(string $value): string
+    {
+        return match ($value) {
+            'red' => __('Red', 'koperasikita'),
+            'gold' => __('Gold', 'koperasikita'),
+            'green' => __('Green', 'koperasikita'),
+            default => $value,
+        };
+    }
+
+    public static function sanitizeDateFormat(mixed $value): string
+    {
+        $value = is_string($value) ? $value : '';
+        return isset(self::DATE_FORMATS[$value]) ? $value : self::DEFAULT_DATE_FORMAT;
+    }
+
+    public static function sanitizePercentType(mixed $value): string
+    {
+        $value = is_string($value) ? $value : '';
+        return isset(self::PERCENT_TYPES[$value]) ? $value : self::DEFAULT_PERCENT_TYPE;
+    }
+
+    public static function sanitizeZoneColor(mixed $value): string
+    {
+        $value = is_string($value) ? $value : '';
+        return isset(self::ZONE_COLORS[$value]) ? $value : self::DEFAULT_ZONE_COLOR;
+    }
+
+    /** @return array{date_format: string, percent: string, zone_color: string} */
+    public static function sanitizePlaceholders(mixed $value): array
+    {
+        $row = is_array($value) ? $value : [];
+
+        return [
+            'date_format' => self::sanitizeDateFormat($row['date_format'] ?? self::DEFAULT_DATE_FORMAT),
+            'percent' => self::sanitizePercentType($row['percent'] ?? self::DEFAULT_PERCENT_TYPE),
+            'zone_color' => self::sanitizeZoneColor($row['zone_color'] ?? self::DEFAULT_ZONE_COLOR),
+        ];
+    }
+
+    /** @return array{date_format: string, percent: string, zone_color: string} */
+    public static function placeholdersFromFields(array $raw, string $prefix = ''): array
+    {
+        return [
+            'date_format' => isset($raw[$prefix . 'placeholder_date_format']) ? self::sanitizeDateFormat($raw[$prefix . 'placeholder_date_format']) : self::DEFAULT_DATE_FORMAT,
+            'percent' => isset($raw[$prefix . 'placeholder_percent']) ? self::sanitizePercentType($raw[$prefix . 'placeholder_percent']) : self::DEFAULT_PERCENT_TYPE,
+            'zone_color' => isset($raw[$prefix . 'placeholder_zone_color']) ? self::sanitizeZoneColor($raw[$prefix . 'placeholder_zone_color']) : self::DEFAULT_ZONE_COLOR,
+        ];
+    }
+
+    /**
+     * One date of the chart range in the configured placeholder
+     * format: full ("21 November 2026"), short ("21 Nov 2026") or
+     * numeric ("21/11/2026"). An empty or unparseable date resolves
+     * to nothing, never a guessed date.
+     */
+    public static function formatPlaceholderDate(string $date, string $format): string
+    {
+        if ($date === '') {
+            return '';
+        }
+
+        $ts = strtotime($date);
+        if ($ts === false) {
+            return '';
+        }
+
+        return match (self::sanitizeDateFormat($format)) {
+            'short' => date_i18n('j M Y', $ts),
+            'numeric' => date_i18n('d/m/Y', $ts),
+            default => date_i18n('j F Y', $ts),
+        };
+    }
+
+    /**
+     * The chart range ("21 November 2026 – 27 November 2026") in
+     * the configured placeholder format. The full format is the
+     * range the panel data already computed, returned untouched,
+     * so the default rendering never changes.
+     */
+    public static function formatDateRange(array $data, string $format): string
+    {
+        $range = (string) ($data['date_range'] ?? '');
+        if (self::sanitizeDateFormat($format) === 'full') {
+            return $range;
+        }
+
+        $points = is_array($data['points'] ?? null) ? $data['points'] : [];
+        if ($points === []) {
+            return $range;
+        }
+
+        $first = (string) ($points[0]['date'] ?? '');
+        $last = (string) ($points[count($points) - 1]['date'] ?? '');
+        if ($first === '' || $last === '') {
+            return $range;
+        }
+
+        $start = self::formatPlaceholderDate($first, $format);
+        $end = self::formatPlaceholderDate($last, $format);
+
+        return $first === $last ? $start : $start . ' – ' . $end;
+    }
+
+    /**
+     * Replace the date-line / stat-note placeholders in a panel
+     * format string with values from the panel's own data. {start}
+     * / {end} / {date} are the chart range ends in the configured
+     * date format, {day} / {days} the chart window, {label} the
+     * symbol name, {arrow} / {delta} / {delta_pct} the change
+     * (daily or whole period, per the configured percent type),
+     * {spread} the sell–buyback spread, {streak} the up-streak in
+     * days and {zone} the zone name in the configured zone colour.
+     * Unknown placeholders stay literal, so a typo never eats
+     * text, the same rule as the title tokens. The literal text
+     * is escaped here, so the result is safe to print as-is; the
+     * only markup it can carry is the {zone} span, built from a
+     * validated colour class and an escaped zone name.
+     */
+    public static function replacePlaceholders(string $text, array $data, int $days, array $placeholders = []): string
+    {
+        $placeholders = self::sanitizePlaceholders($placeholders);
+        $label = (string) ($data['label'] ?? '');
+        $points = is_array($data['points'] ?? null) ? $data['points'] : [];
+        $first = $points !== [] ? $points[0] : null;
+        $last = $points !== [] ? $points[count($points) - 1] : null;
+        $price = isset($data['price']) && $data['price'] !== null ? (float) $data['price'] : null;
+        $currency = (string) ($data['currency'] ?? 'IDR');
+
+        $firstDate = is_array($first) && isset($first['date']) ? (string) $first['date'] : '';
+        $lastDate = is_array($last) && isset($last['date']) ? (string) $last['date'] : '';
+        $firstPrice = is_array($first) && isset($first['price']) ? (float) $first['price'] : null;
+
+        if ($placeholders['percent'] === 'period') {
+            $changePct = isset($data['week_change']) && $data['week_change'] !== null ? (float) $data['week_change'] : null;
+            $changeAbs = $price !== null && $firstPrice !== null ? $price - $firstPrice : null;
+        } else {
+            $changePct = isset($data['change']) && $data['change'] !== null ? (float) $data['change'] : null;
+            $changeAbs = isset($data['change_abs']) && $data['change_abs'] !== null ? (float) $data['change_abs'] : null;
+        }
+
+        $arrow = $changePct === null ? '' : ((float) $changePct >= 0 ? '↑' : '↓');
+        $zoneUp = !isset($data['week_change']) || $data['week_change'] === null || (float) $data['week_change'] >= 0;
+        $zoneName = $zoneUp ? __('zona hijau', 'koperasikita') : __('zona merah', 'koperasikita');
+        $zoneClass = 'kk-data-desk-zone kk-data-desk-zone--' . $placeholders['zone_color'];
+
+        return strtr(esc_html($text), [
+            '{label}' => esc_html($label),
+            '{day}' => esc_html((string) $days),
+            '{days}' => esc_html((string) $days),
+            '{start}' => esc_html(self::formatPlaceholderDate($firstDate, $placeholders['date_format'])),
+            '{end}' => esc_html(self::formatPlaceholderDate($lastDate, $placeholders['date_format'])),
+            '{date}' => esc_html(self::formatPlaceholderDate($lastDate, $placeholders['date_format'])),
+            '{arrow}' => esc_html($arrow),
+            '{delta}' => $changeAbs === null ? '' : esc_html(Markets::formatPrice(abs($changeAbs), $currency)),
+            '{delta_pct}' => $changePct === null ? '' : esc_html(Markets::formatChange($changePct)),
+            '{spread}' => !isset($data['spread']) || $data['spread'] === null ? '' : esc_html(number_format_i18n((float) $data['spread'], 1) . '%'),
+            '{streak}' => esc_html((string) (int) ($data['streak'] ?? 0)),
+            '{zone}' => sprintf('<span class="%s">%s</span>', esc_attr($zoneClass), esc_html($zoneName)),
+        ]);
+    }
+
     /**
      * The preview for one template (panel or table), rendered
      * through the real template files with clearly-labelled SAMPLE
@@ -145,6 +350,7 @@ final class DataDesk
                 'date_line' => $template['date_line'] ?? '',
                 'stats' => $template['stats'] ?? [],
                 'hidden_blocks' => $template['hidden_blocks'] ?? [],
+                'placeholders' => $template['placeholders'] ?? [],
                 'preview' => true,
                 'editable' => $editable,
             ]);
@@ -308,6 +514,7 @@ final class DataDesk
                 'stats' => self::statsFromFields($raw),
                 'headers' => self::headersFromFields($raw),
                 'hidden_blocks' => self::hiddenBlocksFromFields($raw),
+                'placeholders' => self::placeholdersFromFields($raw),
             ];
             $template = self::sanitizeTemplate('', $template);
 
@@ -325,7 +532,7 @@ final class DataDesk
      * kk_template_brands[]) or as a comma-separated list (AJAX).
      *
      * @param array<string, mixed> $raw
-     * @return array{name: string, kind: string, symbol: string, brands: array<int, string>, palette: string, days: int, title: string, kicker: string, date_line: string, stats: array<string, array{label: string, sub: string}>, headers: array<string, string>, hidden_blocks: array<int, string>}
+     * @return array{name: string, kind: string, symbol: string, brands: array<int, string>, palette: string, days: int, title: string, kicker: string, date_line: string, stats: array<string, array{label: string, sub: string}>, headers: array<string, string>, hidden_blocks: array<int, string>, placeholders: array{date_format: string, percent: string, zone_color: string}}
      */
     public static function templateDataFromRequest(array $raw): array
     {
@@ -349,6 +556,7 @@ final class DataDesk
             'stats' => self::statsFromFields($raw, 'kk_template_'),
             'headers' => self::headersFromFields($raw, 'kk_template_'),
             'hidden_blocks' => self::hiddenBlocksFromFields($raw, 'kk_template_'),
+            'placeholders' => self::placeholdersFromFields($raw, 'kk_template_'),
         ];
     }
 
@@ -494,7 +702,7 @@ final class DataDesk
      * are no built-in defaults: with no stored templates the list
      * is empty.
      *
-     * @return array<string, array{id: string, name: string, kind: string, symbol: string, brands: array<int, string>, palette: string, days: int, title: string, kicker: string, date_line: string, stats: array<string, array{label: string, sub: string}>, headers: array<string, string>, hidden_blocks: array<int, string>}>
+     * @return array<string, array{id: string, name: string, kind: string, symbol: string, brands: array<int, string>, palette: string, days: int, title: string, kicker: string, date_line: string, stats: array<string, array{label: string, sub: string}>, headers: array<string, string>, hidden_blocks: array<int, string>, placeholders: array{date_format: string, percent: string, zone_color: string}}>
      */
     public static function templates(): array
     {
@@ -521,7 +729,7 @@ final class DataDesk
      * templates(). The widget pickers use this so a panel widget
      * never offers a table template and vice versa.
      *
-     * @return array<string, array{id: string, name: string, kind: string, symbol: string, brands: array<int, string>, palette: string, days: int, title: string, kicker: string, date_line: string, stats: array<string, array{label: string, sub: string}>, headers: array<string, string>, hidden_blocks: array<int, string>}>
+     * @return array<string, array{id: string, name: string, kind: string, symbol: string, brands: array<int, string>, palette: string, days: int, title: string, kicker: string, date_line: string, stats: array<string, array{label: string, sub: string}>, headers: array<string, string>, hidden_blocks: array<int, string>, placeholders: array{date_format: string, percent: string, zone_color: string}}>
      */
     public static function templatesOfKind(string $kind): array
     {
@@ -538,7 +746,7 @@ final class DataDesk
      * exists. Widgets fall back to this when the template they
      * point at is gone — never to a built-in.
      *
-     * @return array{id: string, name: string, kind: string, symbol: string, brands: array<int, string>, palette: string, days: int, title: string, kicker: string, date_line: string, stats: array<string, array{label: string, sub: string}>, headers: array<string, string>, hidden_blocks: array<int, string>}|null
+     * @return array{id: string, name: string, kind: string, symbol: string, brands: array<int, string>, palette: string, days: int, title: string, kicker: string, date_line: string, stats: array<string, array{label: string, sub: string}>, headers: array<string, string>, hidden_blocks: array<int, string>, placeholders: array{date_format: string, percent: string, zone_color: string}}|null
      */
     public static function firstTemplateOfKind(string $kind): ?array
     {
@@ -558,7 +766,7 @@ final class DataDesk
      * id. Callers fall back to the first stored template of the
      * matching kind — never to a built-in.
      *
-     * @return array{id: string, name: string, kind: string, symbol: string, brands: array<int, string>, palette: string, days: int, title: string, kicker: string, date_line: string, stats: array<string, array{label: string, sub: string}>, headers: array<string, string>, hidden_blocks: array<int, string>}|null
+     * @return array{id: string, name: string, kind: string, symbol: string, brands: array<int, string>, palette: string, days: int, title: string, kicker: string, date_line: string, stats: array<string, array{label: string, sub: string}>, headers: array<string, string>, hidden_blocks: array<int, string>, placeholders: array{date_format: string, percent: string, zone_color: string}}|null
      */
     public static function getTemplate(string $id): ?array
     {
@@ -613,7 +821,7 @@ final class DataDesk
      * the enabled brands so a disabled brand never renders.
      *
      * @param array<string, mixed> $row
-     * @return array{id: string, name: string, kind: string, symbol: string, brands: array<int, string>, palette: string, days: int, title: string, kicker: string, date_line: string, stats: array<string, array{label: string, sub: string}>, headers: array<string, string>, hidden_blocks: array<int, string>}
+     * @return array{id: string, name: string, kind: string, symbol: string, brands: array<int, string>, palette: string, days: int, title: string, kicker: string, date_line: string, stats: array<string, array{label: string, sub: string}>, headers: array<string, string>, hidden_blocks: array<int, string>, placeholders: array{date_format: string, percent: string, zone_color: string}}
      */
     private static function sanitizeTemplate(string $id, array $row): array
     {
@@ -638,6 +846,7 @@ final class DataDesk
             'hidden_blocks' => isset($row['hidden_blocks']) && is_array($row['hidden_blocks'])
                 ? array_values(array_intersect(array_map('sanitize_key', $row['hidden_blocks']), self::STAT_BLOCKS))
                 : [],
+            'placeholders' => self::sanitizePlaceholders($row['placeholders'] ?? []),
         ];
     }
 
