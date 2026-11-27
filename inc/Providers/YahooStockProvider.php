@@ -8,28 +8,30 @@ use KoperasiKita\Api\Hooks;
 use KoperasiKita\Features\Markets;
 
 /**
- * Live stock provider (Yahoo Finance, free, no API key).
+ * Live stock, forex and commodity provider (Yahoo Finance, free, no API key).
  *
- * Fetches IDX prices from Yahoo Finance's public spark endpoint
- * (`v8/finance/spark`), one batched request per chunk of symbols —
- * the v7/v6 quote endpoints answer `Unauthorized`/`Not Found`
- * from this server, and the v8 chart endpoint only takes one
+ * Fetches IDX prices, USD/IDR and Brent from Yahoo Finance's public
+ * spark endpoint (`v8/finance/spark`), one batched request per chunk
+ * of symbols - the v7/v6 quote endpoints answer `Unauthorized`/`Not
+ * Found` from this server, and the v8 chart endpoint only takes one
  * symbol per request, so spark is the only batched endpoint that
- * works (verified live 2026-11-27: 47/47 symbols, see
- * ~/workspace/kk-verify-stocks/live-check.php). Spark returns
- * `fulldayPrice` + `fulldayChangePercent` per symbol; a symbol
- * that returns no price is left out, never invented.
+ * works (verified live 2026-11-27: 47/47 stock symbols, see
+ * ~/workspace/kk-verify-stocks/live-check.php; USD/IDR + Brent,
+ * see ~/workspace/kk-verify-index-strip/live-check.php). Spark
+ * returns `fulldayPrice` + `fulldayChangePercent` per symbol; a
+ * symbol that returns no price is left out, never invented.
  *
  * The catalogue is the LQ45: IHSG (^JKSE) + LQ45 (^JKLQ45) +
  * the 45 constituents per the IDX announcements
  * Peng-00205/BEI.POP/10-2026 (27 Oct 2026) and the 11 Nov 2026
  * revision (MAPI/NCKL/PGEO out, ERAA/GGRM/PWON in), effective
- * 18 Nov 2026 – 29 Jan 2027. Every code was verified live
- * against Yahoo before it was added — re-check with
+ * 18 Nov 2026 - 29 Jan 2027. Every code was verified live
+ * against Yahoo before it was added - re-check with
  * ~/workspace/kk-verify-stocks/live-check.php any time, and
  * update the catalogue in Markets::symbols('stock') when IDX
  * revises the index (it is reviewed every January, April,
- * July and October).
+ * July and October). Forex adds USD/IDR (USDIDR=X) and
+ * commodity adds Brent (BZ=F), both verified live 2026-11-27.
  *
  * What this provider supplies by default is deliberately smaller
  * than the catalogue: the 2 indices + the 12 heaviest LQ45
@@ -54,23 +56,36 @@ final class YahooStockProvider extends AbstractLiveProvider
      */
     private const CHUNK_SIZE = 12;
 
-    /** The 2 indices + the 12 heaviest LQ45 constituents. */
+    /**
+     * The symbols Yahoo supplies by default, per market: the 2
+     * indices + the 12 heaviest LQ45 constituents for stock,
+     * USD/IDR for forex, Brent for commodity.
+     *
+     * @var array<string, array<int, string>>
+     */
     private const DEFAULT_SLUGS = [
-        'ihsg',
-        'lq45',
-        'bbca',
-        'bbri',
-        'bmri',
-        'tlkm',
-        'asii',
-        'ammn',
-        'bbni',
-        'icbp',
-        'untr',
-        'aadi',
-        'amrt',
-        'antm',
+        'stock' => [
+            'ihsg',
+            'lq45',
+            'bbca',
+            'bbri',
+            'bmri',
+            'tlkm',
+            'asii',
+            'ammn',
+            'bbni',
+            'icbp',
+            'untr',
+            'aadi',
+            'amrt',
+            'antm',
+        ],
+        'forex' => ['usdidr'],
+        'commodity' => ['brent'],
     ];
+
+    /** Market of the current prices() call; the cache keys follow it. */
+    private string $market = 'stock';
 
     public function id(): string
     {
@@ -79,18 +94,19 @@ final class YahooStockProvider extends AbstractLiveProvider
 
     public function label(): string
     {
-        return 'Yahoo Finance (live IDX, free)';
+        return 'Yahoo Finance (live, free)';
     }
 
     public function supports(string $market): bool
     {
-        return $market === 'stock';
+        return in_array($market, ['stock', 'forex', 'commodity'], true);
     }
 
     /**
      * The Yahoo Finance symbol for a catalogue slug, or null when
-     * the slug is not a known stock: indices use their ^ symbols,
-     * stocks use the code + `.JK`.
+     * the slug is not a known symbol: indices use their ^ symbols,
+     * stocks use the code + `.JK`, USD/IDR and Brent use their
+     * Yahoo symbols.
      */
     public static function yahooSymbol(string $slug): ?string
     {
@@ -100,6 +116,14 @@ final class YahooStockProvider extends AbstractLiveProvider
 
         if ($slug === 'lq45') {
             return '^JKLQ45';
+        }
+
+        if ($slug === 'usdidr') {
+            return 'USDIDR=X';
+        }
+
+        if ($slug === 'brent') {
+            return 'BZ=F';
         }
 
         $symbols = Markets::symbols('stock');
@@ -135,12 +159,12 @@ final class YahooStockProvider extends AbstractLiveProvider
 
     public function supplies(string $market): array
     {
-        if ($market !== 'stock') {
+        if (!in_array($market, ['stock', 'forex', 'commodity'], true)) {
             return [];
         }
 
-        $catalogue = Markets::symbols('stock');
-        $slugs = self::DEFAULT_SLUGS;
+        $catalogue = Markets::symbols($market);
+        $slugs = self::DEFAULT_SLUGS[$market];
 
         $filtered = apply_filters(Hooks::MARKETS_YAHOO_STOCK_SYMBOLS, $slugs, $market);
 
@@ -159,14 +183,31 @@ final class YahooStockProvider extends AbstractLiveProvider
         return $supplies;
     }
 
+    /**
+     * The base class caches under one fixed transient key, so a
+     * provider serving three markets would let each market
+     * overwrite the others' cached map. Remember the market of
+     * this call so the keys below stay per-market; the stock keys
+     * keep their existing names so live caches survive the
+     * upgrade.
+     *
+     * @return array<string, MarketPrice>
+     */
+    public function prices(string $market): array
+    {
+        $this->market = $market;
+
+        return parent::prices($market);
+    }
+
     protected function transientKey(): string
     {
-        return 'kk_stock_yahoo';
+        return $this->market === 'stock' ? 'kk_stock_yahoo' : 'kk_' . $this->market . '_yahoo';
     }
 
     protected function lastGoodOption(): string
     {
-        return 'kk_stock_yahoo_last_good';
+        return $this->transientKey() . '_last_good';
     }
 
     /**

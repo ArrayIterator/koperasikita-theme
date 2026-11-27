@@ -50,7 +50,7 @@ final class Markets
     /** @return array<int, string> Market slugs in display order. */
     public static function markets(): array
     {
-        return ['gold', 'stock', 'crypto'];
+        return ['gold', 'stock', 'forex', 'commodity', 'crypto'];
     }
 
     /**
@@ -64,6 +64,8 @@ final class Markets
         $labels = apply_filters(Hooks::MARKETS_LABELS, [
             'gold' => __('Gold', 'koperasikita'),
             'stock' => __('Stocks', 'koperasikita'),
+            'forex' => __('Forex', 'koperasikita'),
+            'commodity' => __('Commodity', 'koperasikita'),
             'crypto' => __('Crypto', 'koperasikita'),
         ]);
 
@@ -160,6 +162,20 @@ final class Markets
                 'unvr' => 'UNVR',
                 'wifi' => 'WIFI',
             ];
+        } elseif ($market === 'forex') {
+            // USD/IDR only: the one currency pair Yahoo Finance
+            // serves live through the spark endpoint, verified
+            // 2026-11-27 (see ~/workspace/kk-verify-index-strip/).
+            $symbols = [
+                'usdidr' => 'USD/IDR',
+            ];
+        } elseif ($market === 'commodity') {
+            // Brent only: the one commodity future Yahoo Finance
+            // serves live through the spark endpoint, verified
+            // 2026-11-27 (see ~/workspace/kk-verify-index-strip/).
+            $symbols = [
+                'brent' => 'Brent',
+            ];
         } elseif ($market === 'crypto') {
             $symbols = [
                 'btc' => 'Bitcoin',
@@ -191,7 +207,9 @@ final class Markets
 
     public static function currency(string $market): string
     {
-        return 'IDR';
+        // Brent is priced in US dollars; every other market is
+        // priced in rupiah (USD/IDR is rupiah per US dollar).
+        return $market === 'commodity' ? 'USD' : 'IDR';
     }
 
     public static function isEnabled(): bool
@@ -232,13 +250,16 @@ final class Markets
         $defaults = [
             'providers' => [
                 'gold' => 'manual',
-                // Stock and crypto default to their live providers:
-                // Yahoo (IDX) and CoinGecko. Manual only wins for a
+                // Stock, forex and commodity default to their live
+                // provider: Yahoo (IDX, USD/IDR, Brent). Crypto
+                // defaults to CoinGecko. Manual only wins for a
                 // market where an admin typed a snapshot — see
                 // providerFor(). Gold stays manual by default because
                 // each brand resolves its own provider (see
                 // Gold::brandProviders()).
                 'stock' => 'yahoo',
+                'forex' => 'yahoo',
+                'commodity' => 'yahoo',
                 'crypto' => 'coingecko',
             ],
             'snapshots' => [],
@@ -347,16 +368,19 @@ final class Markets
     /**
      * The preferred live provider per market, in order, when the
      * stored choice is Manual with no snapshot behind it (see
-     * providerFor()). Yahoo is the only stock provider; CoinGecko
-     * is the preferred crypto one — Indodax is deliberately not
-     * listed: it timed out from the web process, so it must never
-     * become the automatic choice. Gold is per-brand (see
-     * Gold::brandProviders()) and has no entry here.
+     * providerFor()). Yahoo is the only stock, forex and commodity
+     * provider; CoinGecko is the preferred crypto one - Indodax
+     * is deliberately not listed: it timed out from the web
+     * process, so it must never become the automatic choice. Gold
+     * is per-brand (see Gold::brandProviders()) and has no entry
+     * here.
      *
      * @var array<string, array<int, string>>
      */
     private const LIVE_PROVIDER_ORDER = [
         'stock' => ['yahoo'],
+        'forex' => ['yahoo'],
+        'commodity' => ['yahoo'],
         'crypto' => ['coingecko'],
     ];
 

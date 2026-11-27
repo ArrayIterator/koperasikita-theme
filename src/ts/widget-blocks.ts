@@ -142,6 +142,7 @@ declare const kkWidgetBlocks:
 			blocks?: string[];
 			goldBrands?: OptionItem[];
 			marketLabels?: OptionItem[];
+			marketItems?: OptionItem[];
 			categories?: OptionItem[];
 			tags?: OptionItem[];
 			dataDeskTemplates?: OptionItem[];
@@ -1228,12 +1229,13 @@ function buildDefinitions(api: Wp): BlockDef[] {
 		{
 			slug: 'markets',
 			title: __('KK Markets'),
-			description: __('Gold, stock and crypto prices from the Markets providers.'),
+			description: __('Gold, stock, forex, commodity and crypto prices from the Markets providers.'),
 			icon: 'chart-line',
 			attributes: {
 				title: { type: 'string', default: '' },
 				headerStyle: { type: 'string', default: 'classic-top' },
 				markets: { type: 'array', default: [], items: { type: 'string' } },
+				items: { type: 'array', default: [], items: { type: 'string' } },
 				showChange: { type: 'boolean', default: true },
 				layout: { type: 'string', default: 'list' },
 				visible: { type: 'number', default: 1 },
@@ -1262,6 +1264,7 @@ function buildDefinitions(api: Wp): BlockDef[] {
 						{ value: 'slider-vertical', label: __('Vertical Slider') },
 						{ value: 'strip', label: __('Full-width Strip') },
 						{ value: 'marquee', label: __('Marquee') },
+						{ value: 'index-strip', label: __('Index Strip') },
 					],
 				},
 				{
@@ -1277,6 +1280,14 @@ function buildDefinitions(api: Wp): BlockDef[] {
 					kind: 'checkboxes',
 					label: __('Markets to show'),
 					options: kkWidgetBlocks?.marketLabels ?? [],
+				},
+				{
+					key: 'items',
+					kind: 'termsearch',
+					label: __('Items to show'),
+					help: __('Leave empty to show all items of the markets above. Pick up to 16 items.'),
+					source: 'options',
+					options: kkWidgetBlocks?.marketItems ?? [],
 				},
 				{ key: 'showChange', kind: 'toggle', label: __('Show day change') },
 			],

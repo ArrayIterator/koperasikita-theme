@@ -8,14 +8,17 @@ use KoperasiKita\Features\Markets;
 use WP_Widget;
 
 /**
- * Markets widget: a compact strip with gold spot, stocks and crypto prices.
+ * Markets widget: a compact strip with gold spot, stocks, forex,
+ * commodities and crypto prices.
  *
- * Which markets show is picked in the widget form; the prices themselves
- * come from the provider system (manual snapshots in Settings -> Markets
- * by default). A market with no data renders an honest "no data" line, and
- * when none of the picked markets has data the widget says so instead of
- * showing a blank box. When the Markets feature is disabled the widget
- * renders nothing.
+ * Which markets show is picked in the widget form; the items
+ * picker narrows that further to individual indices and symbols
+ * (IHSG only, or IHSG + USD/IDR + Antam). The prices themselves
+ * come from the provider system (manual snapshots in Settings ->
+ * Markets by default). A market with no data renders an honest
+ * "no data" line, and when none of the picked markets has data
+ * the widget says so instead of showing a blank box. When the
+ * Markets feature is disabled the widget renders nothing.
  */
 final class MarketsWidget extends WP_Widget
 {
@@ -25,9 +28,17 @@ final class MarketsWidget extends WP_Widget
     public const LAYOUT_SLIDER_VERTICAL = 'slider-vertical';
     public const LAYOUT_STRIP = 'strip';
     public const LAYOUT_MARQUEE = 'marquee';
+    public const LAYOUT_INDEX_STRIP = 'index-strip';
 
     public const STYLE_DEFAULT = 'default';
     public const STYLE_NO_MARGIN = 'no-margin';
+
+    /**
+     * Most items a widget shows at once. A strip with more than
+     * this is unreadable, and the picker is a refinement - the
+     * markets checkboxes below it already pick the default set.
+     */
+    public const MAX_ITEMS = 16;
 
     /** @return array<string, string> Value => label. */
     public static function styles(): array
@@ -55,6 +66,7 @@ final class MarketsWidget extends WP_Widget
             self::LAYOUT_SLIDER_VERTICAL,
             self::LAYOUT_STRIP,
             self::LAYOUT_MARQUEE,
+            self::LAYOUT_INDEX_STRIP,
         ];
     }
 
@@ -84,7 +96,63 @@ final class MarketsWidget extends WP_Widget
             self::LAYOUT_SLIDER_VERTICAL => __('Vertical Slider', 'koperasikita'),
             self::LAYOUT_STRIP => __('Full-width Strip', 'koperasikita'),
             self::LAYOUT_MARQUEE => __('Marquee', 'koperasikita'),
+            self::LAYOUT_INDEX_STRIP => __('Index Strip', 'koperasikita'),
         ];
+    }
+
+    /**
+     * Every pickable item, in market order: value `market|symbol`
+     * => label `Symbol (Market)`. The picker offers the full
+     * catalogue; whether a picked item actually has a price
+     * depends on the configured provider (Yahoo serves the
+     * indices + 12 heaviest stocks live, the rest only through
+     * manual snapshots) - an item with no price is skipped at
+     * render, never invented.
+     *
+     * @return array<string, string>
+     */
+    public static function allItems(): array
+    {
+        $labels = Markets::labels();
+        $items = [];
+
+        foreach (Markets::markets() as $market) {
+            foreach (Markets::symbols($market) as $symbol => $label) {
+                $items[$market . '|' . $symbol] = $label . ' (' . ($labels[$market] ?? $market) . ')';
+            }
+        }
+
+        return $items;
+    }
+
+    /**
+     * Keep only known `market|symbol` values, in the order
+     * picked, duplicates removed, capped at MAX_ITEMS.
+     *
+     * @return string[]
+     */
+    public static function sanitizeItems(mixed $value): array
+    {
+        if (!is_array($value)) {
+            return [];
+        }
+
+        $known = self::allItems();
+        $items = [];
+
+        foreach ($value as $item) {
+            if (!is_string($item) || !isset($known[$item]) || in_array($item, $items, true)) {
+                continue;
+            }
+
+            $items[] = $item;
+
+            if (count($items) >= self::MAX_ITEMS) {
+                break;
+            }
+        }
+
+        return $items;
     }
 
     public function __construct()
@@ -93,7 +161,7 @@ final class MarketsWidget extends WP_Widget
             'kk_markets',
             __('Koperasi Kita Markets', 'koperasikita'),
             [
-                'description' => __('Gold, stock and crypto prices from the Markets providers. Prices are edited in Settings -> Markets.', 'koperasikita'),
+                'description' => __('Gold, stock, forex, commodity and crypto prices from the Markets providers. Prices are edited in Settings -> Markets.', 'koperasikita'),
                 'classname' => 'kk-markets-widget',
                 'customize_selective_refresh' => true,
             ]
@@ -115,12 +183,41 @@ final class MarketsWidget extends WP_Widget
         $layout = self::sanitizeLayout($instance['layout'] ?? self::LAYOUT_LIST);
         $visible = self::sanitizeVisible($instance['visible'] ?? 1);
         $style = self::sanitizeStyle($instance['style'] ?? self::STYLE_DEFAULT);
+        $items = self::sanitizeItems($instance['items'] ?? []);
+
+        // Picked items define the market set: a market with no
+        // picked item drops out entirely instead of rendering an
+        // empty "No data yet." section, and an unchecked market
+        // checkbox never hides a picked item. The checkboxes only
+        // matter when no items are picked.
+        $pickedMarkets = [];
+
+        foreach ($items as $item) {
+            [$itemMarket] = explode('|', $item, 2);
+            $pickedMarkets[$itemMarket] = true;
+        }
 
         $markets = [];
-        foreach ($selected as $market) {
+        foreach ($items !== [] ? array_keys($pickedMarkets) : $selected as $market) {
+            $prices = Markets::prices($market);
+
+            if ($items !== []) {
+                $picked = [];
+
+                foreach ($items as $item) {
+                    [$itemMarket, $symbol] = explode('|', $item, 2);
+
+                    if ($itemMarket === $market && isset($prices[$symbol])) {
+                        $picked[$symbol] = $prices[$symbol];
+                    }
+                }
+
+                $prices = $picked;
+            }
+
             $markets[$market] = [
                 'label' => Markets::labels()[$market],
-                'prices' => Markets::prices($market),
+                'prices' => $prices,
             ];
         }
 
@@ -138,7 +235,25 @@ final class MarketsWidget extends WP_Widget
 
         WidgetHeader::render($args, $title, WidgetHeader::style($instance));
 
-        if ($layout === self::LAYOUT_SLIDER_VERTICAL) {
+        if ($layout === self::LAYOUT_INDEX_STRIP) {
+            // Flat row in picked order, items without a price
+            // skipped - the strip never shows an invented number.
+            $flat = [];
+
+            foreach ($items as $item) {
+                [$itemMarket, $symbol] = explode('|', $item, 2);
+                $price = $markets[$itemMarket]['prices'][$symbol] ?? null;
+
+                if ($price !== null) {
+                    $flat[] = $price;
+                }
+            }
+
+            get_template_part('template-parts/markets/index-strip', null, [
+                'items' => $flat,
+                'show_change' => $showChange,
+            ]);
+        } elseif ($layout === self::LAYOUT_SLIDER_VERTICAL) {
             get_template_part('template-parts/markets/slider-vertical', null, [
                 'markets' => $markets,
                 'show_change' => $showChange,
@@ -250,6 +365,29 @@ final class MarketsWidget extends WP_Widget
             </p>
         <?php endforeach; ?>
         <p>
+            <label for="<?php echo esc_attr($this->get_field_id('items')); ?>">
+                <?php esc_html_e('Items to show:', 'koperasikita'); ?>
+            </label>
+            <?php /* Select2-style picker (see admin.ts): a searchable multi-select, not a checkbox list. */ ?>
+            <select
+                multiple
+                class="widefat"
+                data-kk-term-picker
+                id="<?php echo esc_attr($this->get_field_id('items')); ?>"
+                name="<?php echo esc_attr($this->get_field_name('items')); ?>[]"
+                style="min-height: 120px;"
+            >
+                <?php $pickedItems = self::sanitizeItems($instance['items'] ?? []); ?>
+                <?php foreach (self::allItems() as $value => $label) : ?>
+                    <option
+                        value="<?php echo esc_attr($value); ?>"
+                        <?php selected(in_array($value, $pickedItems, true)); ?>
+                    ><?php echo esc_html($label); ?></option>
+                <?php endforeach; ?>
+            </select>
+            <span class="description"><?php esc_html_e('Leave empty to show all items of the markets above. Pick up to 16 items.', 'koperasikita'); ?></span>
+        </p>
+        <p>
             <input
                 type="checkbox"
                 id="<?php echo esc_attr($this->get_field_id('show_change')); ?>"
@@ -278,6 +416,7 @@ final class MarketsWidget extends WP_Widget
             ? array_values(array_intersect($new['markets'], Markets::markets()))
             : [];
         $instance['markets'] = $markets !== [] ? $markets : Markets::markets();
+        $instance['items'] = self::sanitizeItems($new['items'] ?? []);
 
         // An unchecked checkbox is not submitted at all, so "absent" means off.
         $instance['show_change'] = isset($new['show_change']) && (bool) $new['show_change'];
