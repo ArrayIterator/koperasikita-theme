@@ -24,6 +24,11 @@
  * past the viewport on narrow phones. */
 .kk-footer-col {
 	min-width: 0;
+	/* A long unbroken string (a pasted URL or token in a text widget)
+	 * must break inside a narrow footer column instead of spilling out
+	 * of it — the same treatment card titles already get (cards.css).
+	 * break-word only breaks words that would otherwise overflow. */
+	overflow-wrap: break-word;
 }
 
 .kk-footer-heading {
@@ -37,14 +42,32 @@
 
 /* A widget placed in a footer column titles itself like the
  * built-in footer headings, so a custom footer column keeps the
- * same look as the default one. */
+ * same look as the default one. The base .kk-widget-title is a
+ * flex row (widgets.css), so its ::after grows a 1px rule across
+ * the column that the built-in headings never have — reset both,
+ * or every widget title in the footer renders with a stray line. */
 .kk-footer-col .kk-widget-title {
+	display: block;
 	font-size: 12px;
 	font-weight: 700;
 	letter-spacing: 0.14em;
 	text-transform: uppercase;
 	color: var(--kk-green, #0B6B3A);
 	margin-bottom: 12px;
+}
+
+.kk-footer-col .kk-widget-title::after {
+	display: none;
+}
+
+/* Two or more widgets in one column need the same breathing room
+ * the sidebar grid gives its widgets (32px, content.css) — without
+ * it a second widget's title butts straight against the first
+ * widget's last line (measured 0px). Adjacent-sibling only, so the
+ * default fallback content (logo / site name / description) is
+ * untouched. */
+.kk-footer-col .kk-widget + .kk-widget {
+	margin-top: 32px;
 }
 
 .kk-footer-site-name {
