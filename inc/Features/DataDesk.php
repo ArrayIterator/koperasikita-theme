@@ -875,14 +875,16 @@ final class DataDesk
     /**
      * The built-in Antam 7-day panel template: the same Antam panel
      * over 7 days in the dark-green palette as the default, but with
-     * stored token overrides on the three stat sub-lines, so the
-     * percent renders dynamically and the subs are editable as
-     * tokens. The sell sub reproduces the computed daily note, the
-     * buyback sub the spread note, the performance sub the streak
-     * note plus the period percent. The date line stays empty
-     * (computed). Defined in code like the default; editing it
-     * stores an override under its id, and Restore deletes that
-     * override - the built-in itself is never deleted.
+     * the title stored as {label} / {day} tokens (so it follows the
+     * symbol and the window, and the title edit opens on the raw
+     * tokens) and stored token overrides on the three stat
+     * sub-lines, so the percent renders dynamically and the subs
+     * are editable as tokens. The sell sub reproduces the computed
+     * daily note, the buyback sub the spread note, the performance
+     * sub the streak note plus the period percent. The date line
+     * stays empty (computed). Defined in code like the default;
+     * editing it stores an override under its id, and Restore
+     * deletes that override - the built-in itself is never deleted.
      *
      * @return array{id: string, name: string, kind: string, symbol: string, brands: array<int, string>, palette: string, days: int, title: string, kicker: string, date_line: string, stats: array<string, array{label: string, sub: string}>, headers: array<string, string>, hidden_blocks: array<int, string>, placeholders: array{date_format: string, percent: string, zone_color: string}}
      */
@@ -896,7 +898,7 @@ final class DataDesk
             'brands' => [],
             'palette' => self::DEFAULT_PALETTE,
             'days' => self::DEFAULT_DAYS,
-            'title' => __('Harga Emas Antam, 7 Hari Terakhir', 'koperasikita'),
+            'title' => __('Harga Emas {label}, {day} Hari Terakhir', 'koperasikita'),
             'kicker' => '',
             'date_line' => '',
             'stats' => [

@@ -4582,8 +4582,8 @@ msgid "Antam 7 Hari"
 msgstr "Antam 7 Hari"
 
 #: inc/Features/DataDesk.php
-msgid "Harga Emas Antam, 7 Hari Terakhir"
-msgstr "Harga Emas Antam, 7 Hari Terakhir"
+msgid "Harga Emas {label}, {day} Hari Terakhir"
+msgstr "Harga Emas {label}, {day} Hari Terakhir"
 
 #: inc/Features/DataDesk.php
 msgid "{arrow} {delta} dari kemarin ({delta_pct})"

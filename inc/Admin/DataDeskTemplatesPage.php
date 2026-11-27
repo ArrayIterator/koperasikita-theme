@@ -208,10 +208,12 @@ final class DataDeskTemplatesPage
     }
 
     /**
-     * The 12 placeholder tokens with what each resolves to and a
+     * The 13 placeholder tokens with what each resolves to and a
      * live sample from the template's own preview series. Shared
      * by the help tab and the JSON blob the token tooling reads,
-     * so the two can never drift apart.
+     * so the two can never drift apart. {day} and {days} resolve
+     * to the same number of days; {day} is the one the title
+     * takes, {days} the one the hint used to list alone.
      *
      * @return array<int, array{token: string, desc: string, sample: string}>
      */
@@ -226,6 +228,7 @@ final class DataDeskTemplatesPage
             ['{date}', __('Last date (today)', 'koperasikita')],
             ['{year}', __('Year of the last date', 'koperasikita')],
             ['{label}', __('Symbol name', 'koperasikita')],
+            ['{day}', __('Number of days in the chart', 'koperasikita')],
             ['{days}', __('Number of days in the chart', 'koperasikita')],
             ['{arrow}', __('Direction arrow (up or down)', 'koperasikita')],
             ['{delta}', __('Change amount', 'koperasikita')],
