@@ -561,6 +561,8 @@
 .kk-data-desk-table {
 	width: 100%;
 	border-collapse: collapse;
+	border: none;
+	box-shadow: none;
 	font-size: 14px;
 }
 

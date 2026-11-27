@@ -131,8 +131,8 @@ const FALLBACK_STRINGS: AdminStrings = {
 	previewFailed: 'Could not load the preview.',
 	savingTemplate: 'Saving...',
 	saving: 'Saving...',
-	editDateLineHint: 'Click to edit the date line.',
-	editStatHint: 'Click to edit this stat.',
+	editDateLineHint: 'Click to edit the date line in a popup.',
+	editStatHint: 'Click to edit this stat in a popup.',
 	editHeaderHint: 'Click to edit this header.',
 	insertResolvesTo: 'Resolves to',
 	insertInto: 'Insert into',
@@ -624,23 +624,31 @@ function initDataDeskPreview(): void {
 		}, 300);
 	};
 
-	/* Inline editing of the preview kicker + title + date line +
-	 * stat texts, delegated on the container because every refresh
+	/* Inline editing of the preview kicker + title + table
+	 * headers, delegated on the container because every refresh
 	 * replaces the preview DOM. Click to edit (text selected),
 	 * Enter or blur commits the text into the hidden field and
 	 * refreshes the preview, Escape cancels and restores the
-	 * previous text. Clearing the title means empty (automatic
-	 * title); clearing the kicker means empty (default 'Meja
-	 * Data'); clearing the date line means empty (the computed
-	 * date range); clearing a stat label or note means empty (the
-	 * computed text). */
+	 * previous text. The edit starts from the RAW stored value
+	 * (the hidden field), not the resolved text the preview
+	 * shows, so placeholders survive the round-trip; an empty
+	 * stored value opens an empty field with the resolved text
+	 * as its placeholder. Clearing the title means empty
+	 * (automatic title); clearing the kicker means empty
+	 * (default 'Data Desk'); clearing a header means empty
+	 * (the default label). The date line and the stat blocks
+	 * edit through the popup below instead. */
 	let editing: HTMLElement | null = null;
 	let editingOriginal = '';
+	/* The stat block (or 'date-line') the field popup is open
+	 * on, if any - the popup fields map to its hidden inputs. */
+	let fieldPopupBlock: string | null = null;
 
-	/* Which hidden input an inline-edited element writes into:
-	 * kicker / title / date line by class, a stat label or note
-	 * by its data-kk-stat-field attribute, a table header by its
-	 * data-kk-header-field attribute. */
+	/* Which hidden input an edited element writes into: kicker /
+	 * title / date line by class, a stat label or note by its
+	 * data-kk-stat-field attribute, a table header by its
+	 * data-kk-header-field attribute, a field-popup field by the
+	 * block the popup is open on. */
 	const fieldForEdit = (el: HTMLElement): HTMLInputElement | null => {
 		if (el.classList.contains('kk-data-desk-kicker')) {
 			return kicker;
@@ -656,7 +664,21 @@ function initDataDeskPreview(): void {
 			return statInputs[statField] ?? null;
 		}
 		const headerField = el.getAttribute('data-kk-header-field');
-		return headerField ? headerInputs[headerField] ?? null : null;
+		if (headerField) {
+			return headerInputs[headerField] ?? null;
+		}
+		if (el.hasAttribute('data-kk-field-popup-date-line')) {
+			return dateLine;
+		}
+		if (fieldPopupBlock !== null) {
+			if (el.hasAttribute('data-kk-field-popup-label')) {
+				return statInputs[`${fieldPopupBlock}-label`] ?? null;
+			}
+			if (el.hasAttribute('data-kk-field-popup-sub')) {
+				return statInputs[`${fieldPopupBlock}-sub`] ?? null;
+			}
+		}
+		return null;
 	};
 
 	const finishEdit = (commit: boolean): void => {
@@ -675,6 +697,7 @@ function initDataDeskPreview(): void {
 		}
 		el.removeAttribute('contenteditable');
 		el.classList.remove('is-editing');
+		el.removeAttribute('data-kk-placeholder');
 		el.blur();
 		if (commit && field) {
 			refresh();
@@ -683,25 +706,28 @@ function initDataDeskPreview(): void {
 
 	container.addEventListener('click', (event) => {
 		const target = (event.target as HTMLElement | null)?.closest?.(
-			'.kk-data-desk-kicker, .kk-data-desk-title, .kk-data-desk-subtitle[data-kk-date-line], .kk-data-desk-stat-label[data-kk-stat-field], .kk-data-desk-stat-note[data-kk-stat-field], th[data-kk-header-field]',
+			'.kk-data-desk-kicker, .kk-data-desk-title, th[data-kk-header-field]',
 		) as HTMLElement | null;
-		if (!target || editing === target) {
+		if (target) {
+			if (editing === target) {
+				return;
+			}
+			beginInlineEdit(target, null);
 			return;
 		}
-		/* A pending refresh would replace the node mid-edit. */
-		if (timer !== null) {
-			window.clearTimeout(timer);
-			timer = null;
+		/* The date line and the stat blocks open the field popup
+		 * instead of an inline edit; the eye toggle is inside a
+		 * stat block but belongs to its own handler below. */
+		if ((event.target as HTMLElement | null)?.closest?.('[data-kk-stat-toggle]')) {
+			return;
 		}
-		if (editing) {
-			finishEdit(true);
+		const popupTarget = (event.target as HTMLElement | null)?.closest?.(
+			'.kk-data-desk-subtitle[data-kk-date-line], [data-kk-stat-block]',
+		) as HTMLElement | null;
+		if (!popupTarget) {
+			return;
 		}
-		editing = target;
-		editingOriginal = target.textContent ?? '';
-		target.setAttribute('contenteditable', 'true');
-		target.classList.add('is-editing');
-		target.focus();
-		window.getSelection()?.selectAllChildren(target);
+		openFieldPopup(popupTarget, event.target as HTMLElement | null);
 	});
 
 	container.addEventListener('keydown', (event) => {
@@ -719,9 +745,11 @@ function initDataDeskPreview(): void {
 
 	/* Blur commits: a click on the other editable text blurs first
 	 * (committing it) and the click handler then starts the new
-	 * edit, so the two paths never double-commit. */
+	 * edit, so the two paths never double-commit. Only an edit
+	 * inside this container commits here - the field popup's
+	 * fields live outside it and commit through its own Save. */
 	container.addEventListener('focusout', () => {
-		if (editing) {
+		if (editing && container.contains(editing)) {
 			finishEdit(true);
 		}
 	});
@@ -777,16 +805,13 @@ function initDataDeskPreview(): void {
 			palette.dispatchEvent(new Event('change'));
 		});
 	});
-	/* Placeholders: the section under the preview lists the tokens
-	 * with an Insert button each, and the settings popup holds the
-	 * three choices (date format, percent type, zone colour).
-	 * Insert opens a popup (see below) that shows what the token
-	 * resolves to and asks which field it goes into, instead of
-	 * inserting blindly. A choice writes into its hidden field
-	 * and refreshes the preview at once. */
-	const placeholderSection = document.getElementById('kk-data-desk-placeholders');
+	/* Placeholders: the settings popup holds the three choices
+	 * (date format, percent type, zone colour); its Configure
+	 * button lives in the Help tab and is bound document-wide.
+	 * A choice writes into its hidden field and refreshes the
+	 * preview at once. */
 	const placeholderPopup = document.getElementById('kk-data-desk-placeholders-popup');
-	if (placeholderSection && placeholderPopup) {
+	if (placeholderPopup) {
 		const closeButton = placeholderPopup.querySelector<HTMLButtonElement>(
 			'[data-kk-placeholder-popup-close]',
 		);
@@ -796,8 +821,12 @@ function initDataDeskPreview(): void {
 			placeholderOpener?.focus();
 			placeholderOpener = null;
 		};
-		placeholderSection.querySelector('[data-kk-placeholder-configure]')?.addEventListener('click', (event) => {
-			placeholderOpener = event.currentTarget as HTMLElement;
+		document.addEventListener('click', (event) => {
+			const button = (event.target as HTMLElement | null)?.closest?.('[data-kk-placeholder-configure]') as HTMLElement | null;
+			if (!button) {
+				return;
+			}
+			placeholderOpener = button;
 			placeholderPopup.hidden = false;
 			closeButton?.focus();
 		});
@@ -822,18 +851,20 @@ function initDataDeskPreview(): void {
 		placeholderChoice('kk_placeholder_zone_color_ui', placeholderZoneColor);
 	}
 	/* Placeholder menu + autocomplete on the capable fields only:
-	 * the title ({label} and {day}), the date line and the stat
-	 * notes (all tokens). The kicker, stat labels and table
+	 * the title ({label} and {day}), the date line (date
+	 * tokens) and the stat notes (all tokens), in the preview
+	 * and in the field popup. The kicker, stat labels and table
 	 * headers resolve no tokens, so no menu or list ever opens
-	 * on them. The token list comes from the Placeholders card
-	 * table on this page (token + resolved sample per row), so
-	 * there is no second list to drift; {day} is title-only and
-	 * is not in that table, its sample is the days field. */
+	 * on them. The token list comes from the JSON blob in the
+	 * edit form (token + resolved sample per row), so there is
+	 * no second list to drift; {day} is not in that blob, its
+	 * sample is the days field. */
 	interface PlaceholderToken {
 		token: string;
 		sample: string;
 	}
-	type PlaceholderMenuTarget = { kind: 'editable'; el: HTMLElement; isTitle: boolean };
+	type TokenKind = 'title' | 'date' | 'stat';
+	type PlaceholderMenuTarget = { kind: 'editable'; el: HTMLElement; tokenKind: TokenKind };
 	type PlaceholderSuggestTarget = { kind: 'editable'; el: HTMLElement };
 	const placeholderMenu = document.createElement('div');
 	placeholderMenu.className = 'kk-data-desk-placeholder-menu';
@@ -858,23 +889,36 @@ function initDataDeskPreview(): void {
 	let longPressTimer: number | null = null;
 	let longPressPoint: { x: number; y: number } | null = null;
 	const readPlaceholderTokens = (): PlaceholderToken[] => {
-		const tokens: PlaceholderToken[] = [];
-		if (!placeholderSection) {
-			return tokens;
+		const blob = document.getElementById('kk-data-desk-placeholder-tokens');
+		if (!blob || !blob.textContent) {
+			return [];
 		}
-		placeholderSection.querySelectorAll('tbody tr').forEach((row) => {
-			const token = row.querySelector('code')?.textContent?.trim() ?? '';
-			const sample = row.children.length > 2 ? row.children[2].textContent?.trim() ?? '' : '';
-			if (token !== '') {
-				tokens.push({ token, sample });
+		try {
+			const parsed: unknown = JSON.parse(blob.textContent);
+			if (!Array.isArray(parsed)) {
+				return [];
 			}
-		});
-		return tokens;
+			return parsed
+				.filter((entry): entry is PlaceholderToken => typeof entry === 'object' && entry !== null && typeof (entry as PlaceholderToken).token === 'string' && typeof (entry as PlaceholderToken).sample === 'string')
+				.map((entry) => ({ token: entry.token, sample: entry.sample }));
+		} catch {
+			return [];
+		}
 	};
-	const tokensForField = (isTitle: boolean): PlaceholderToken[] => {
+	/* The tokens a field takes: the title takes {label} and
+	 * {day} only, the date line the date tokens, a stat note
+	 * all of them. {day} is not in the blob, so it is appended
+	 * with the days field as its sample. */
+	const dateTokens = ['{start}', '{end}', '{date}', '{days}', '{year}'];
+	const tokensForField = (kind: TokenKind): PlaceholderToken[] => {
 		const all = readPlaceholderTokens();
-		if (!isTitle) {
+		if (kind === 'stat') {
 			return all;
+		}
+		if (kind === 'date') {
+			const tokens = all.filter((entry) => dateTokens.includes(entry.token));
+			tokens.push({ token: '{day}', sample: days.value });
+			return tokens;
 		}
 		const tokens: PlaceholderToken[] = [];
 		const label = all.find((entry) => entry.token === '{label}');
@@ -888,19 +932,28 @@ function initDataDeskPreview(): void {
 		const needle = prefix.toLowerCase();
 		return tokens.filter((entry) => entry.token.slice(1, -1).toLowerCase().startsWith(needle));
 	};
-	const capableInlineTarget = (el: HTMLElement | null): { el: HTMLElement; isTitle: boolean } | null => {
+	const capableInlineTarget = (el: HTMLElement | null): { el: HTMLElement; tokenKind: TokenKind } | null => {
 		if (!el) {
 			return null;
 		}
 		if (el.classList.contains('kk-data-desk-title')) {
-			return { el, isTitle: true };
+			return { el, tokenKind: 'title' };
 		}
 		if (el.classList.contains('kk-data-desk-subtitle') && el.hasAttribute('data-kk-date-line')) {
-			return { el, isTitle: false };
+			return { el, tokenKind: 'date' };
 		}
 		const statField = el.getAttribute('data-kk-stat-field');
 		if (el.classList.contains('kk-data-desk-stat-note') && statField && statField.endsWith('-sub')) {
-			return { el, isTitle: false };
+			return { el, tokenKind: 'stat' };
+		}
+		/* The field popup's own fields: its sub and date-line
+		 * divs take tokens like their preview counterparts; its
+		 * label div resolves none, so no menu opens on it. */
+		if (el.hasAttribute('data-kk-field-popup-sub')) {
+			return { el, tokenKind: 'stat' };
+		}
+		if (el.hasAttribute('data-kk-field-popup-date-line')) {
+			return { el, tokenKind: 'date' };
 		}
 		return null;
 	};
@@ -949,7 +1002,17 @@ function initDataDeskPreview(): void {
 			finishEdit(true);
 		}
 		editing = target;
+		/* The edit starts from the RAW stored value, not the
+		 * resolved text the preview shows, so a placeholder
+		 * survives the round-trip; the resolved text stays as
+		 * the placeholder for an empty field and as the
+		 * Escape-restore text. */
 		editingOriginal = target.textContent ?? '';
+		const field = fieldForEdit(target);
+		if (field) {
+			target.textContent = field.value;
+			target.setAttribute('data-kk-placeholder', editingOriginal);
+		}
 		target.setAttribute('contenteditable', 'true');
 		target.classList.add('is-editing');
 		target.focus();
@@ -1166,7 +1229,7 @@ function initDataDeskPreview(): void {
 		}
 	};
 	const openPlaceholderMenu = (target: PlaceholderMenuTarget, x: number, y: number): void => {
-		const tokens = tokensForField(target.isTitle);
+		const tokens = tokensForField(target.tokenKind);
 		if (tokens.length === 0) {
 			return;
 		}
@@ -1254,7 +1317,7 @@ function initDataDeskPreview(): void {
 			closePlaceholderSuggest();
 			return;
 		}
-		const items = filterTokens(tokensForField(capable.isTitle), found.prefix);
+		const items = filterTokens(tokensForField(capable.tokenKind), found.prefix);
 		if (items.length === 0) {
 			closePlaceholderSuggest();
 			return;
@@ -1306,28 +1369,44 @@ function initDataDeskPreview(): void {
 	}, true);
 	container.addEventListener('contextmenu', (event) => {
 		const target = (event.target as HTMLElement | null)?.closest?.(
-			'.kk-data-desk-title, .kk-data-desk-subtitle[data-kk-date-line], .kk-data-desk-stat-note[data-kk-stat-field]',
+			'.kk-data-desk-title',
 		) as HTMLElement | null;
 		const capable = capableInlineTarget(target);
-		if (!capable) {
+		if (capable) {
+			event.preventDefault();
+			if (editing !== capable.el) {
+				beginInlineEdit(capable.el, { x: event.clientX, y: event.clientY });
+			} else {
+				placeCaretAtPoint(capable.el, event.clientX, event.clientY);
+			}
+			openPlaceholderMenu({ kind: 'editable', el: capable.el, tokenKind: capable.tokenKind }, event.clientX, event.clientY);
+			return;
+		}
+		/* A right-click on the date line or a stat block opens
+		 * the field popup instead; the token menu lives inside
+		 * the popup's fields. */
+		if ((event.target as HTMLElement | null)?.closest?.('[data-kk-stat-toggle]')) {
+			return;
+		}
+		const popupTarget = (event.target as HTMLElement | null)?.closest?.(
+			'.kk-data-desk-subtitle[data-kk-date-line], [data-kk-stat-block]',
+		) as HTMLElement | null;
+		if (!popupTarget) {
 			return;
 		}
 		event.preventDefault();
-		if (editing !== capable.el) {
-			beginInlineEdit(capable.el, { x: event.clientX, y: event.clientY });
-		} else {
-			placeCaretAtPoint(capable.el, event.clientX, event.clientY);
-		}
-		openPlaceholderMenu({ kind: 'editable', el: capable.el, isTitle: capable.isTitle }, event.clientX, event.clientY);
+		openFieldPopup(popupTarget, event.target as HTMLElement | null);
 	});
 	container.addEventListener('input', () => {
 		if (editing) {
 			refreshSuggestFromEditable();
 		}
 	});
-	/* Long-press opens the same menu as a right-click: a hold
-	 * with no movement, short enough that a normal tap (which
-	 * ends before the timer) still starts the inline edit. */
+	/* Long-press opens the same menu as a right-click on the
+	 * title, and the field popup on the date line / a stat
+	 * block: a hold with no movement, short enough that a
+	 * normal tap (which ends before the timer) still starts
+	 * the inline edit or the popup. */
 	const clearLongPress = (): void => {
 		if (longPressTimer !== null) {
 			window.clearTimeout(longPressTimer);
@@ -1350,33 +1429,210 @@ function initDataDeskPreview(): void {
 		}
 		const touch = event.touches[0];
 		const target = (event.target as HTMLElement | null)?.closest?.(
-			'.kk-data-desk-title, .kk-data-desk-subtitle[data-kk-date-line], .kk-data-desk-stat-note[data-kk-stat-field]',
+			'.kk-data-desk-title',
 		) as HTMLElement | null;
 		const capable = capableInlineTarget(target);
-		if (!capable) {
+		const popupTarget = !capable && !(event.target as HTMLElement | null)?.closest?.('[data-kk-stat-toggle]')
+			? (event.target as HTMLElement | null)?.closest?.(
+				'.kk-data-desk-subtitle[data-kk-date-line], [data-kk-stat-block]',
+			) as HTMLElement | null
+			: null;
+		if (!capable && !popupTarget) {
 			return;
 		}
 		longPressPoint = { x: touch.clientX, y: touch.clientY };
 		longPressTimer = window.setTimeout(() => {
 			longPressTimer = null;
-			if (editing !== capable.el) {
-				beginInlineEdit(capable.el, { x: touch.clientX, y: touch.clientY });
-			} else {
-				placeCaretAtPoint(capable.el, touch.clientX, touch.clientY);
+			if (capable) {
+				if (editing !== capable.el) {
+					beginInlineEdit(capable.el, { x: touch.clientX, y: touch.clientY });
+				} else {
+					placeCaretAtPoint(capable.el, touch.clientX, touch.clientY);
+				}
+				openPlaceholderMenu({ kind: 'editable', el: capable.el, tokenKind: capable.tokenKind }, touch.clientX, touch.clientY);
+			} else if (popupTarget) {
+				openFieldPopup(popupTarget, event.target as HTMLElement | null);
 			}
-			openPlaceholderMenu({ kind: 'editable', el: capable.el, isTitle: capable.isTitle }, touch.clientX, touch.clientY);
 		}, 500);
 	}, { passive: true });
 	container.addEventListener('touchmove', cancelLongPressOnMove, { passive: true });
 	container.addEventListener('touchend', clearLongPress);
 	container.addEventListener('touchcancel', clearLongPress);
-	/* Insert popup: an Insert button in the Placeholders card
-	 * opens this instead of inserting blindly. It shows the
-	 * token, what it resolves to right now, and the fields the
-	 * token resolves in, so the user picks a field that really
-	 * renders the value. Confirm is the only path that inserts;
-	 * Escape, the backdrop and Close all close without inserting
-	 * and return focus to the Insert button. */
+	/* Stat / date-line field popup: clicking a stat block or
+	 * the date line in the preview opens this instead of an
+	 * inline edit. The fields are contenteditable divs filled
+	 * with the RAW stored values, so the token tooling works
+	 * in them exactly as in the title; an empty stored value
+	 * shows the resolved text as its placeholder. Save writes
+	 * the fields into the hidden inputs and refreshes the
+	 * preview; Cancel discards everything. The percent and
+	 * zone selects edit the template's placeholder settings,
+	 * the same ones the settings popup edits. */
+	const fieldPopup = document.getElementById('kk-data-desk-field-popup');
+	const fieldPopupTitle = fieldPopup?.querySelector<HTMLElement>('#kk-data-desk-field-popup-title');
+	const fieldPopupStat = fieldPopup?.querySelector<HTMLElement>('[data-kk-field-popup-stat]');
+	const fieldPopupDate = fieldPopup?.querySelector<HTMLElement>('[data-kk-field-popup-date]');
+	const fieldPopupLabel = fieldPopup?.querySelector<HTMLElement>('[data-kk-field-popup-label]');
+	const fieldPopupSub = fieldPopup?.querySelector<HTMLElement>('[data-kk-field-popup-sub]');
+	const fieldPopupPercent = fieldPopup?.querySelector<HTMLSelectElement>('[data-kk-field-popup-percent]');
+	const fieldPopupZone = fieldPopup?.querySelector<HTMLSelectElement>('[data-kk-field-popup-zone]');
+	const fieldPopupDateLine = fieldPopup?.querySelector<HTMLElement>('[data-kk-field-popup-date-line]');
+	let fieldPopupOpener: HTMLElement | null = null;
+	const closeFieldPopup = (save: boolean): void => {
+		if (!fieldPopup || !fieldPopupLabel || !fieldPopupSub || !fieldPopupPercent || !fieldPopupZone || !fieldPopupDateLine) {
+			return;
+		}
+		if (save && fieldPopupBlock !== null) {
+			if (fieldPopupBlock === 'date-line') {
+				dateLine.value = fieldPopupDateLine.textContent?.trim() ?? '';
+			} else {
+				const labelInput = statInputs[`${fieldPopupBlock}-label`];
+				const subInput = statInputs[`${fieldPopupBlock}-sub`];
+				if (labelInput) {
+					labelInput.value = fieldPopupLabel.textContent?.trim() ?? '';
+				}
+				if (subInput) {
+					subInput.value = fieldPopupSub.textContent?.trim() ?? '';
+				}
+				placeholderPercent.value = fieldPopupPercent.value;
+				placeholderZoneColor.value = fieldPopupZone.value;
+			}
+		}
+		[fieldPopupLabel, fieldPopupSub, fieldPopupDateLine].forEach((field) => {
+			field.removeAttribute('contenteditable');
+			field.classList.remove('is-editing');
+			field.removeAttribute('data-kk-placeholder');
+		});
+		closePlaceholderMenu();
+		closePlaceholderSuggest();
+		editing = null;
+		fieldPopup.hidden = true;
+		fieldPopupBlock = null;
+		fieldPopupOpener?.focus();
+		fieldPopupOpener = null;
+		if (save) {
+			refresh();
+		}
+	};
+	const openFieldPopup = (target: HTMLElement, clicked: HTMLElement | null): void => {
+		if (!fieldPopup || !fieldPopupTitle || !fieldPopupStat || !fieldPopupDate || !fieldPopupLabel || !fieldPopupSub || !fieldPopupPercent || !fieldPopupZone || !fieldPopupDateLine) {
+			return;
+		}
+		/* A pending refresh would replace the node mid-edit. */
+		if (timer !== null) {
+			window.clearTimeout(timer);
+			timer = null;
+		}
+		if (editing) {
+			finishEdit(true);
+		}
+		closePlaceholderMenu();
+		closePlaceholderSuggest();
+		const isDate = target.classList.contains('kk-data-desk-subtitle');
+		const block = isDate ? null : target.getAttribute('data-kk-stat-block');
+		if (!isDate && !block) {
+			return;
+		}
+		fieldPopupBlock = isDate ? 'date-line' : block;
+		fieldPopupOpener = target;
+		let focusField: HTMLElement;
+		if (isDate) {
+			fieldPopupStat.hidden = true;
+			fieldPopupDate.hidden = false;
+			fieldPopupTitle.textContent = adminStrings().insertTargetDateLine;
+			fieldPopupDateLine.textContent = dateLine.value;
+			fieldPopupDateLine.setAttribute('data-kk-placeholder', target.textContent ?? '');
+			focusField = fieldPopupDateLine;
+		} else {
+			const labelText = target.querySelector('.kk-data-desk-stat-label')?.textContent ?? '';
+			const noteText = target.querySelector('.kk-data-desk-stat-note')?.textContent ?? '';
+			fieldPopupStat.hidden = false;
+			fieldPopupDate.hidden = true;
+			fieldPopupTitle.textContent = labelText;
+			fieldPopupLabel.textContent = statInputs[`${block}-label`]?.value ?? '';
+			fieldPopupLabel.setAttribute('data-kk-placeholder', labelText);
+			fieldPopupSub.textContent = statInputs[`${block}-sub`]?.value ?? '';
+			fieldPopupSub.setAttribute('data-kk-placeholder', noteText);
+			fieldPopupPercent.value = placeholderPercent.value;
+			fieldPopupZone.value = placeholderZoneColor.value;
+			/* Focus the field the user clicked: the note when
+			 * they clicked the note, the label otherwise. */
+			focusField = clicked?.closest?.('[data-kk-stat-field="sell-sub"], [data-kk-stat-field="buyback-sub"], [data-kk-stat-field="performance-sub"]')
+				? fieldPopupSub
+				: fieldPopupLabel;
+		}
+		[fieldPopupLabel, fieldPopupSub, fieldPopupDateLine].forEach((field) => {
+			field.setAttribute('contenteditable', 'true');
+			field.classList.add('is-editing');
+		});
+		fieldPopup.hidden = false;
+		editing = focusField;
+		focusField.focus();
+	};
+	/* The popup field the Insert popup's target maps to, when
+	 * the popup is open on that very field - the token lands
+	 * at the caret there, not in the hidden field behind it. */
+	const fieldPopupFieldForTarget = (target: InsertTarget): HTMLElement | null => {
+		if (!fieldPopup || fieldPopup.hidden || !fieldPopupSub || !fieldPopupDateLine) {
+			return null;
+		}
+		if (target === 'date-line') {
+			return fieldPopupBlock === 'date-line' ? fieldPopupDateLine : null;
+		}
+		return fieldPopupBlock === target.replace('-sub', '') ? fieldPopupSub : null;
+	};
+	if (fieldPopup && fieldPopupLabel && fieldPopupSub && fieldPopupPercent && fieldPopupZone && fieldPopupDateLine) {
+		fieldPopup.querySelectorAll('[data-kk-field-popup-close]').forEach((el) => {
+			el.addEventListener('click', () => {
+				closeFieldPopup(false);
+			});
+		});
+		fieldPopup.querySelector('[data-kk-field-popup-save]')?.addEventListener('click', () => {
+			closeFieldPopup(true);
+		});
+		/* Single-line fields: Enter never inserts a newline,
+		 * Escape cancels the popup. */
+		fieldPopup.addEventListener('keydown', (event) => {
+			if (event.key === 'Enter') {
+				event.preventDefault();
+			} else if (event.key === 'Escape') {
+				event.preventDefault();
+				closeFieldPopup(false);
+			}
+		});
+		/* The focused popup field is the token tooling's
+		 * target, so the { autocomplete and the right-click
+		 * menu work in it exactly as in the preview. */
+		fieldPopup.addEventListener('focusin', (event) => {
+			const field = (event.target as HTMLElement | null)?.closest?.('[data-kk-field-popup-label], [data-kk-field-popup-sub], [data-kk-field-popup-date-line]') as HTMLElement | null;
+			if (field) {
+				editing = field;
+			}
+		});
+		fieldPopup.addEventListener('input', () => {
+			if (editing) {
+				refreshSuggestFromEditable();
+			}
+		});
+		fieldPopup.addEventListener('contextmenu', (event) => {
+			const target = (event.target as HTMLElement | null)?.closest?.('[data-kk-field-popup-sub], [data-kk-field-popup-date-line]') as HTMLElement | null;
+			const capable = capableInlineTarget(target);
+			if (!capable) {
+				return;
+			}
+			event.preventDefault();
+			editing = capable.el;
+			placeCaretAtPoint(capable.el, event.clientX, event.clientY);
+			openPlaceholderMenu({ kind: 'editable', el: capable.el, tokenKind: capable.tokenKind }, event.clientX, event.clientY);
+		});
+	}
+	/* Insert popup: an Insert button in the Help tab opens this
+	 * instead of inserting blindly. It shows the token, what it
+	 * resolves to right now, and the fields the token resolves
+	 * in, so the user picks a field that really renders the
+	 * value. Confirm is the only path that inserts; Escape, the
+	 * backdrop and Close all close without inserting and return
+	 * focus to the Insert button. */
 	type InsertTarget = 'title' | 'date-line' | 'sell-sub' | 'buyback-sub' | 'performance-sub';
 	interface InsertTargetOption {
 		value: InsertTarget;
@@ -1384,7 +1640,7 @@ function initDataDeskPreview(): void {
 	}
 	const insertPopup = document.getElementById('kk-data-desk-placeholders-insert-popup');
 	const insertPopupBody = insertPopup?.querySelector('[data-kk-placeholder-insert-popup-body]');
-	if (placeholderSection && insertPopup && insertPopupBody) {
+	if (insertPopup && insertPopupBody) {
 		const closeButton = insertPopup.querySelector<HTMLButtonElement>(
 			'.kk-data-desk-popup-actions [data-kk-placeholder-insert-popup-close]',
 		);
@@ -1429,6 +1685,19 @@ function initDataDeskPreview(): void {
 				title.value = title.value === '' ? token : `${title.value} ${token}`;
 				title.setSelectionRange(title.value.length, title.value.length);
 				title.dispatchEvent(new Event('input', { bubbles: true }));
+				return;
+			}
+			/* A stat/date popup open on this very field takes
+			 * the token at the caret, not into the hidden field
+			 * behind it. */
+			const popupField = fieldPopupFieldForTarget(target);
+			if (popupField) {
+				if (editing !== popupField) {
+					editing = popupField;
+				}
+				popupField.focus();
+				insertTokenAtCaret(token);
+				popupField.focus();
 				return;
 			}
 			const field = target === 'date-line' ? dateLine : statInputs[target];
@@ -1517,10 +1786,14 @@ function initDataDeskPreview(): void {
 			insertPopup.hidden = false;
 			closeButton?.focus();
 		};
-		placeholderSection.querySelectorAll<HTMLButtonElement>('[data-kk-placeholder-insert]').forEach((button) => {
-			button.addEventListener('click', () => {
-				openPlaceholderInsertPopup(button);
-			});
+		/* The Insert buttons live in the Help tab, outside this
+		 * form, so they are bound document-wide. */
+		document.addEventListener('click', (event) => {
+			const button = (event.target as HTMLElement | null)?.closest?.('[data-kk-placeholder-insert]') as HTMLButtonElement | null;
+			if (!button) {
+				return;
+			}
+			openPlaceholderInsertPopup(button);
 		});
 		insertPopup.querySelectorAll('[data-kk-placeholder-insert-popup-close]').forEach((el) => {
 			el.addEventListener('click', closePlaceholderInsertPopup);
@@ -1641,8 +1914,9 @@ function initDataDeskAjaxSave(): void {
 
 /**
  * Layout preview in the classic Data Desk widget form (widgets.php,
- * Customizer). Each form renders its preview server-side; changing the template select re-renders it through
- * kk_data_desk_preview by template id. Widget forms re-render after
+ * Customizer). Each form renders its preview server-side; changing the template select or any widget override
+ * (symbol, days, show/hide a stat) re-renders it through
+ * kk_data_desk_preview by template id plus the overrides. Widget forms re-render after
  * a save, so new boxes are picked up by a MutationObserver, the
  * same pattern initTermPickers uses. A failed refresh keeps the last
  * good preview and reports the error under the box.
@@ -1660,12 +1934,18 @@ function initDataDeskWidgetPreview(): void {
 		box.dataset.kkPreviewInit = '1';
 
 		const body = box.querySelector<HTMLElement>('[data-kk-data-desk-widget-preview-body]');
-		const select = box
-			.closest('form')
-			?.querySelector<HTMLSelectElement>('[data-kk-data-desk-template-select]');
+		const form = box.closest('form');
+		const select = form?.querySelector<HTMLSelectElement>('[data-kk-data-desk-template-select]');
 		if (!body || !select) {
 			return;
 		}
+		const symbolOverride = form?.querySelector<HTMLSelectElement>('[data-kk-data-desk-symbol-override]');
+		const daysOverride = form?.querySelector<HTMLInputElement>('[data-kk-data-desk-days-override]');
+		const showInputs: Record<string, HTMLInputElement | null> = {
+			sell: form?.querySelector<HTMLInputElement>('[data-kk-data-desk-show-sell]') ?? null,
+			buyback: form?.querySelector<HTMLInputElement>('[data-kk-data-desk-show-buyback]') ?? null,
+			performance: form?.querySelector<HTMLInputElement>('[data-kk-data-desk-show-performance]') ?? null,
+		};
 
 		/* Same 'auto' palette support as the templates preview: the
 		 * box carries the resolved scheme (see resolveAdminScheme). */
@@ -1677,10 +1957,22 @@ function initDataDeskWidgetPreview(): void {
 
 		let lastGood = body.innerHTML;
 
-		select.addEventListener('change', () => {
+		const refreshPreview = (): void => {
 			box.classList.add('is-loading');
 			status.textContent = adminStrings().loadingPreview;
-			void postAjax<{ html: string }>(config, 'kk_data_desk_preview', { template: select.value })
+			const params: Record<string, string> = { template: select.value };
+			if (symbolOverride && symbolOverride.value !== '') {
+				params.symbol_override = symbolOverride.value;
+			}
+			if (daysOverride && daysOverride.value !== '') {
+				params.days_override = daysOverride.value;
+			}
+			for (const [block, input] of Object.entries(showInputs)) {
+				if (input && !input.checked) {
+					params[`hide_${block}`] = '1';
+				}
+			}
+			void postAjax<{ html: string }>(config, 'kk_data_desk_preview', params)
 				.then((data) => {
 					body.innerHTML = data.html;
 					lastGood = data.html;
@@ -1693,7 +1985,14 @@ function initDataDeskWidgetPreview(): void {
 				.finally(() => {
 					box.classList.remove('is-loading');
 				});
-		});
+		};
+
+		select.addEventListener('change', refreshPreview);
+		symbolOverride?.addEventListener('change', refreshPreview);
+		daysOverride?.addEventListener('change', refreshPreview);
+		for (const input of Object.values(showInputs)) {
+			input?.addEventListener('change', refreshPreview);
+		}
 	};
 
 	const scan = (root: ParentNode): void => {

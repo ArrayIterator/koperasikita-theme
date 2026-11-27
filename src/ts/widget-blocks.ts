@@ -35,6 +35,7 @@ type FieldDef =
 	| { key: string; kind: 'termsearch'; label: string; help?: string; source: 'categories' | 'tags' | 'options'; options: OptionItem[]; single?: boolean }
 	| { key: string; kind: 'locations'; label: string; help?: string }
 	| { key: string; kind: 'postsearch'; label: string; help?: string }
+	| { key: string; kind: 'data-desk-overrides'; label: string }
 	/* A hex colour swatch: a native colour input plus a hex readout
 	 * and a clear button (empty = fall back to the theme colour).
 	 * showWhen hides the field unless another attribute has the
@@ -148,11 +149,20 @@ declare const kkWidgetBlocks:
 			categories?: OptionItem[];
 			tags?: OptionItem[];
 			dataDeskTemplates?: OptionItem[];
+			dataDeskSymbols?: OptionItem[];
+			dataDeskTemplateMeta?: Record<string, DataDeskTemplateMeta>;
 			icons?: OptionItem[];
 			ajaxUrl?: string;
 			nonce?: string;
 	  }
 	| undefined;
+
+interface DataDeskTemplateMeta {
+	symbol: string;
+	days: number;
+	hiddenBlocks: string[];
+	statLabels: Record<string, string>;
+}
 
 interface WeatherLocation {
 	name: string;
@@ -712,6 +722,77 @@ function PostSearchField(props: {
 	);
 }
 
+/* The Data Desk widget overrides: symbol, days and one
+ * show/hide toggle per stat, on top of the picked template.
+ * The controls show the template's values while no override
+ * is stored (an empty symbol / 0 days means "use the
+ * template's"); a stat the template hides shows its toggle
+ * off and disabled - the template hides it, the widget
+ * cannot show it back. A real component (not a renderField
+ * branch) because the labels and defaults come from the
+ * picked template, not from the field definition. */
+function DataDeskOverridesField(props: {
+	field: { key: string; label: string };
+	attributes: Record<string, unknown>;
+	set: (key: string, value: unknown) => void;
+	api: Wp;
+}): unknown {
+	const { attributes, set, api } = props;
+	const __ = (text: string): string => api.i18n.__(text, 'koperasikita');
+	const meta = kkWidgetBlocks?.dataDeskTemplateMeta ?? {};
+	const templateId =
+		typeof attributes.template === 'string' && attributes.template !== '' && meta[attributes.template] !== undefined
+			? (attributes.template as string)
+			: (Object.keys(meta)[0] ?? '');
+	const templateMeta = meta[templateId];
+	const symbolLabel = templateMeta
+		? (kkWidgetBlocks?.dataDeskSymbols ?? []).find((option) => option.value === templateMeta.symbol)?.label ?? templateMeta.symbol
+		: '';
+	const symbolOverride = typeof attributes.symbolOverride === 'string' ? attributes.symbolOverride : '';
+	const daysOverride = typeof attributes.daysOverride === 'number' ? attributes.daysOverride : 0;
+	const hideKey = (block: string): string => `hide${block[0].toUpperCase()}${block.slice(1)}`;
+	const toggles = ['sell', 'buyback', 'performance'].map((block) => {
+		const hiddenByTemplate = templateMeta?.hiddenBlocks.includes(block) ?? false;
+		const hide = attributes[hideKey(block)] === true;
+		return api.element.createElement(api.components.ToggleControl, {
+			key: block,
+			label: templateMeta?.statLabels[block] ?? block,
+			help: hiddenByTemplate ? __('Hidden by the template.') : '',
+			checked: !hiddenByTemplate && !hide,
+			disabled: hiddenByTemplate,
+			onChange: (next: boolean) => set(hideKey(block), !next),
+		});
+	});
+	return api.element.createElement(
+		'div',
+		{ key: props.field.key },
+		api.element.createElement(api.components.SelectControl, {
+			label: __('Symbol'),
+			value: symbolOverride,
+			options: [
+				{ value: '', label: api.i18n.sprintf(__('Use template (%s)'), symbolLabel) },
+				...(kkWidgetBlocks?.dataDeskSymbols ?? []),
+			],
+			onChange: (next: string) => set('symbolOverride', next),
+		}),
+		api.element.createElement(api.components.TextControl, {
+			label: __('Days'),
+			help: __('Empty uses the template days.'),
+			type: 'number',
+			value: daysOverride > 0 ? String(daysOverride) : '',
+			placeholder: templateMeta ? String(templateMeta.days) : '',
+			min: 3,
+			max: 30,
+			onChange: (next: string) => {
+				const parsed = parseInt(next, 10);
+				set('daysOverride', Number.isNaN(parsed) ? 0 : Math.max(3, Math.min(30, parsed)));
+			},
+		}),
+		api.element.createElement('p', null, __('Show or hide each stat for this widget only. The template is unchanged.')),
+		...toggles,
+	);
+}
+
 function renderField(
 	field: FieldDef,
 	attributes: Record<string, unknown>,
@@ -805,6 +886,9 @@ function renderField(
 			 * plus a title search. A real component - it holds the
 			 * search state and resolves the stored id to a title. */
 			return api.element.createElement(PostSearchField, { key, field, value, set, api });
+		}
+		case 'data-desk-overrides': {
+			return api.element.createElement(DataDeskOverridesField, { key, field, attributes, set, api });
 		}
 		case 'color': {
 			/* A native colour swatch + hex readout + clear button.
@@ -1296,6 +1380,11 @@ function buildDefinitions(api: Wp): BlockDef[] {
 				title: { type: 'string', default: '' },
 				headerStyle: { type: 'string', default: 'classic-top' },
 				template: { type: 'string', default: '' },
+				symbolOverride: { type: 'string', default: '' },
+				daysOverride: { type: 'number', default: 0 },
+				hideSell: { type: 'boolean', default: false },
+				hideBuyback: { type: 'boolean', default: false },
+				hidePerformance: { type: 'boolean', default: false },
 			},
 			fields: [
 				{ key: 'title', kind: 'text', label: __('Title') },
@@ -1307,6 +1396,11 @@ function buildDefinitions(api: Wp): BlockDef[] {
 					kind: 'select',
 					label: __('Template'),
 					options: kkWidgetBlocks?.dataDeskTemplates ?? [],
+				},
+				{
+					key: 'overrides',
+					kind: 'data-desk-overrides',
+					label: __('Overrides'),
 				},
 			],
 		},

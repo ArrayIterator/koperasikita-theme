@@ -548,21 +548,8 @@
 	opacity: 0.6;
 }
 
-/* Placeholders section under the live preview (panel templates
- * only): the token table lists what each placeholder resolves
- * to, and the settings popup groups the three choices as radio
+/* Placeholder settings popup groups the three choices as radio
  * rows with a sample after the date-format label. */
-.kk-data-desk-placeholders {
-	margin-top: 16px;
-}
-
-.kk-data-desk-placeholders .kk-data-desk-table-wrap {
-	margin-top: 12px;
-}
-
-.kk-data-desk-placeholders table code {
-	font-size: 13px;
-}
 
 .kk-data-desk-placeholder-group {
 	margin: 16px 0 0;
@@ -584,6 +571,51 @@
 
 .kk-data-desk-placeholder-option input {
 	accent-color: #0b6b3a;
+}
+
+/* The field popup's rows: a label above a contenteditable field
+ * that reads like a text input, with the same empty-placeholder
+ * rule as the inline preview edit below. */
+.kk-data-desk-popup-field-row {
+	margin: 0 0 12px;
+}
+
+.kk-data-desk-popup-field-row select {
+	width: 100%;
+}
+
+.kk-data-desk-popup-field-label {
+	display: block;
+	margin-bottom: 4px;
+	font-size: 13px;
+	font-weight: 600;
+}
+
+.kk-data-desk-popup-field {
+	display: block;
+	width: 100%;
+	min-height: 32px;
+	padding: 6px 8px;
+	border: 1px solid #8c8f94;
+	border-radius: 3px;
+	background: #fff;
+	font-size: 14px;
+	line-height: 1.4;
+	color: #1d2327;
+	cursor: text;
+}
+
+.kk-data-desk-popup-field:focus {
+	border-color: #0b6b3a;
+	outline: 2px solid #0b6b3a;
+	outline-offset: 0;
+	box-shadow: none;
+}
+
+.kk-data-desk-popup-field:empty::before {
+	content: attr(data-kk-placeholder);
+	color: #646970;
+	pointer-events: none;
 }
 
 /* Placeholder right-click menu + "{" autocomplete list on the
@@ -799,39 +831,46 @@
 .kk-data-desk-widget-preview {
 	max-width: 720px;
 }
-/* Inline editing of the preview kicker/title/date line
- * (templates page only): hover shows the text is editable,
- * editing shows a focus outline. Scoped to the live preview
+/* Inline editing of the preview kicker/title (templates page
+ * only): hover shows the text is editable, editing shows a
+ * focus outline. An empty field shows the resolved text as its
+ * placeholder, so the user sees what the panel currently shows
+ * while the stored value is empty. Scoped to the live preview
  * container - the frontend panel never gets these. */
 #kk-data-desk-live-preview .kk-data-desk-kicker:hover,
-#kk-data-desk-live-preview .kk-data-desk-title:hover,
-#kk-data-desk-live-preview .kk-data-desk-subtitle:hover {
+#kk-data-desk-live-preview .kk-data-desk-title:hover {
 	cursor: text;
 	outline: 1px dashed #646970;
 	outline-offset: 2px;
 }
 #kk-data-desk-live-preview .kk-data-desk-kicker.is-editing,
-#kk-data-desk-live-preview .kk-data-desk-title.is-editing,
-#kk-data-desk-live-preview .kk-data-desk-subtitle.is-editing {
+#kk-data-desk-live-preview .kk-data-desk-title.is-editing {
 	cursor: text;
 	outline: 2px solid #0b6b3a;
 	outline-offset: 2px;
 }
-/* Stat blocks in the editor preview are inline-editable like the
- * kicker/title (same hover + editing affordance), and each carries
- * an eye toggle. A hidden block stays visible in the editor, dimmed,
- * so it can be un-hidden; on the frontend it is not rendered at
- * all. The toggle sits top-right of the block, clear of the label. */
-#kk-data-desk-live-preview .kk-data-desk-stat-label:hover,
-#kk-data-desk-live-preview .kk-data-desk-stat-note:hover {
-	cursor: text;
+#kk-data-desk-live-preview [contenteditable].is-editing:empty::before {
+	content: attr(data-kk-placeholder);
+	color: #646970;
+	pointer-events: none;
+}
+/* The date line opens the field popup on click: the hover
+ * affordance stays, but the cursor is a pointer, not text. */
+#kk-data-desk-live-preview .kk-data-desk-subtitle:hover {
+	cursor: pointer;
 	outline: 1px dashed #646970;
 	outline-offset: 2px;
 }
-#kk-data-desk-live-preview .kk-data-desk-stat-label.is-editing,
-#kk-data-desk-live-preview .kk-data-desk-stat-note.is-editing {
-	cursor: text;
-	outline: 2px solid #0b6b3a;
+/* Stat blocks in the editor preview open the field popup on
+ * click (same hover affordance, pointer cursor), and each
+ * carries an eye toggle. A hidden block stays visible in the
+ * editor, dimmed, so it can be un-hidden; on the frontend it
+ * is not rendered at all. The toggle sits top-right of the
+ * block, clear of the label. */
+#kk-data-desk-live-preview .kk-data-desk-stat-label:hover,
+#kk-data-desk-live-preview .kk-data-desk-stat-note:hover {
+	cursor: pointer;
+	outline: 1px dashed #646970;
 	outline-offset: 2px;
 }
 /* Table column headers in the editor preview are inline-editable
@@ -1453,13 +1492,14 @@
  * (rounded, soft border) and the header reads in Setup green. */
 .kk-data-desk-table-wrap {
 	overflow: hidden;
-	border: 1px solid #e5e5e5;
+	border: none;
 	border-radius: 12px;
 }
 
 .kk-data-desk-table {
 	margin: 0;
-	border: 0;
+	border: none;
+	box-shadow: none;
 }
 
 .kk-data-desk-table thead th {

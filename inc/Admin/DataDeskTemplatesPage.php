@@ -20,6 +20,7 @@ use KoperasiKita\Icons\Icon;
  * it can be used (duplicated into your own template), edited
  * (saving stores an override) and restored (deleting the override
  * brings back the code-defined values) - never deleted, never frozen.
+ * The second built-in (Antam 7 Hari panel) works the same way.
  */
 final class DataDeskTemplatesPage
 {
@@ -207,6 +208,88 @@ final class DataDeskTemplatesPage
     }
 
     /**
+     * The 12 placeholder tokens with what each resolves to and a
+     * live sample from the template's own preview series. Shared
+     * by the help tab and the JSON blob the token tooling reads,
+     * so the two can never drift apart.
+     *
+     * @return array<int, array{token: string, desc: string, sample: string}>
+     */
+    private static function placeholderTokenRows(array $template): array
+    {
+        $placeholders = DataDesk::sanitizePlaceholders($template['placeholders'] ?? []);
+        $sampleData = DataDesk::previewData($template);
+        $days = (int) ($template['days'] ?? DataDesk::DEFAULT_DAYS);
+        $tokens = [
+            ['{start}', __('First date of the chart range', 'koperasikita')],
+            ['{end}', __('Last date of the chart range', 'koperasikita')],
+            ['{date}', __('Last date (today)', 'koperasikita')],
+            ['{year}', __('Year of the last date', 'koperasikita')],
+            ['{label}', __('Symbol name', 'koperasikita')],
+            ['{days}', __('Number of days in the chart', 'koperasikita')],
+            ['{arrow}', __('Direction arrow (up or down)', 'koperasikita')],
+            ['{delta}', __('Change amount', 'koperasikita')],
+            ['{delta_pct}', __('Change in percent', 'koperasikita')],
+            ['{spread}', __('Sell–buyback spread', 'koperasikita')],
+            ['{streak}', __('Consecutive up days', 'koperasikita')],
+            ['{zone}', __('Zone name, in the chosen zone colour', 'koperasikita')],
+        ];
+
+        $rows = [];
+
+        foreach ($tokens as [$token, $desc]) {
+            $rows[] = [
+                'token' => $token,
+                'desc' => $desc,
+                'sample' => wp_strip_all_tags(DataDesk::replacePlaceholders($token, $sampleData, $days, $placeholders)),
+            ];
+        }
+
+        return $rows;
+    }
+
+    /**
+     * Contextual help tab for this page: the placeholder
+     * reference that used to be a card on the edit page. The
+     * samples come from the edited template on the edit page
+     * and from the built-in default on the list page. The Insert
+     * buttons and the Configure button live here now; admin.ts
+     * binds them document-wide, so they work from the tab.
+     */
+    public static function addHelpTabs(): void
+    {
+        $screen = get_current_screen();
+
+        if (!$screen instanceof \WP_Screen) {
+            return;
+        }
+
+        // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- action/id are display-only.
+        $action = isset($_GET['action']) ? sanitize_key((string) wp_unslash($_GET['action'])) : 'list';
+        // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- action/id are display-only.
+        $id = isset($_GET['id']) ? sanitize_key((string) wp_unslash($_GET['id'])) : '';
+        $template = ($action === 'edit' && $id !== '' && DataDesk::getTemplate($id) !== null)
+            ? DataDesk::getTemplate($id)
+            : DataDesk::defaultTemplate();
+
+        $content = '<p>' . esc_html__("Placeholders resolve from the panel's own data. Insert opens a popup showing what the placeholder resolves to - pick the field it goes into. You can also right-click a title, date line or stat note, or type { while editing one. The title takes {label} and {day} only.", 'koperasikita') . '</p>';
+        $content .= '<table class="widefat striped"><thead><tr><th>' . esc_html__('Placeholder', 'koperasikita') . '</th><th>' . esc_html__('Resolves to', 'koperasikita') . '</th><th>' . esc_html__('Sample', 'koperasikita') . '</th><th></th></tr></thead><tbody>';
+
+        foreach (self::placeholderTokenRows($template) as $row) {
+            $content .= '<tr><td><code>' . esc_html($row['token']) . '</code></td><td>' . esc_html($row['desc']) . '</td><td>' . esc_html($row['sample']) . '</td><td><button type="button" class="kk-data-desk-button" data-kk-placeholder-insert="' . esc_attr($row['token']) . '">' . esc_html__('Insert', 'koperasikita') . '</button></td></tr>';
+        }
+
+        $content .= '</tbody></table>';
+        $content .= '<p><button type="button" class="kk-data-desk-button kk-data-desk-button--primary" data-kk-placeholder-configure>' . esc_html__('Configure placeholders', 'koperasikita') . '</button></p>';
+
+        $screen->add_help_tab([
+            'id' => 'kk-data-desk-placeholders',
+            'title' => __('Placeholders', 'koperasikita'),
+            'content' => $content,
+        ]);
+    }
+
+    /**
      * The template list: name, kind, what it shows, palette, days,
      * and actions. User templates can be edited, duplicated and
      * deleted; the built-in carries a lock badge and offers Use
@@ -384,21 +467,22 @@ final class DataDeskTemplatesPage
             <?php wp_nonce_field('kk_data_desk_template', 'kk_data_desk_template_nonce'); ?>
             <input type="hidden" name="kk_template_id" value="<?php echo esc_attr($id); ?>">
             <?php /* The kicker and date line have no visible
-             * rows: both are edited inline in the live preview
-             * below, which writes into these hidden fields
-             * (admin.ts) - the save flow reads them exactly as
-             * before. The title DOES have a visible row in the
-             * top bar (below): the table preview has no title
-             * to click, so the header is where its title is
+             * rows: the kicker is edited inline in the live
+             * preview below, the date line in its popup - both
+             * write into these hidden fields (admin.ts), and
+             * the save flow reads them exactly as before. The
+             * title DOES have a visible row in the top bar
+             * (below): the table preview has no title to
+             * click, so the header is where its title is
              * edited. */ ?>
             <input type="hidden" id="kk-template-kicker" name="kk_template_kicker" value="<?php echo esc_attr($template['kicker']); ?>">
             <input type="hidden" id="kk-template-date-line" name="kk_template_date_line" value="<?php echo esc_attr($template['date_line'] ?? ''); ?>">
             <?php /* Stat label + sub-line overrides and the hidden
-             * stat blocks: edited inline in the live preview below
-             * (click a label or note to edit it, eye button per
-             * block to hide or show it), which writes into these
-             * hidden fields (admin.ts) - the save flow reads them
-             * exactly as the title/kicker. */ ?>
+             * stat blocks: edited in the popup below (click a stat
+             * block in the live preview, eye button per block to
+             * hide or show it), which writes into these hidden
+             * fields (admin.ts) - the save flow reads them exactly
+             * as the title/kicker. */ ?>
             <?php foreach (DataDesk::STAT_BLOCKS as $blockKey) : ?>
             <input type="hidden" id="kk-template-stat-<?php echo esc_attr($blockKey); ?>-label" name="kk_template_stat_<?php echo esc_attr($blockKey); ?>_label" value="<?php echo esc_attr($template['stats'][$blockKey]['label'] ?? ''); ?>">
             <input type="hidden" id="kk-template-stat-<?php echo esc_attr($blockKey); ?>-sub" name="kk_template_stat_<?php echo esc_attr($blockKey); ?>_sub" value="<?php echo esc_attr($template['stats'][$blockKey]['sub'] ?? ''); ?>">
@@ -506,7 +590,7 @@ final class DataDeskTemplatesPage
              * never promise a clickable preview title. The toggle
              * script below shows the matching hint. */ ?>
             <p class="description kk-data-desk-editor-hint" data-kk-template-panel-hint>
-                <?php esc_html_e("Click the title or 'Meja Data' in the preview to edit them. In the title you can use {label} for the symbol name and {day} for the number of days. Click the date line under the title to edit it. Click a stat label or note to edit it, or the eye button on a stat to hide it or show it again.", 'koperasikita'); ?>
+                <?php esc_html_e("Click the title or 'Data Desk' in the preview to edit them. In the title you can use {label} for the symbol name and {day} for the number of days. Click the date line under the title to edit it in a popup. Click a stat block to edit it in a popup, or the eye button on a stat to hide it or show it again.", 'koperasikita'); ?>
             </p>
             <p class="description kk-data-desk-editor-hint" data-kk-template-table-hint>
                 <?php esc_html_e('Edit the title in the top bar above. Click a column header in the preview to edit it.', 'koperasikita'); ?>
@@ -520,59 +604,12 @@ final class DataDeskTemplatesPage
                 echo DataDesk::renderPreview($template, true);
                 ?>
             </div>
-            <?php /* Placeholders for the date line and the stat
-             * notes: each resolves from the panel's own data, and
-             * the samples below come from this template's preview
-             * series. Panel only: a table has no date line or stat
-             * notes to put them in. */ ?>
-            <?php
-            $sampleData = DataDesk::previewData($template);
-            $placeholderTokens = [
-                ['token' => '{start}', 'desc' => __('First date of the chart range', 'koperasikita')],
-                ['token' => '{end}', 'desc' => __('Last date of the chart range', 'koperasikita')],
-                ['token' => '{date}', 'desc' => __('Last date (today)', 'koperasikita')],
-                ['token' => '{year}', 'desc' => __('Year of the last date', 'koperasikita')],
-                ['token' => '{label}', 'desc' => __('Symbol name', 'koperasikita')],
-                ['token' => '{days}', 'desc' => __('Number of days in the chart', 'koperasikita')],
-                ['token' => '{arrow}', 'desc' => __('Direction arrow (up or down)', 'koperasikita')],
-                ['token' => '{delta}', 'desc' => __('Change amount', 'koperasikita')],
-                ['token' => '{delta_pct}', 'desc' => __('Change in percent', 'koperasikita')],
-                ['token' => '{spread}', 'desc' => __('Sell–buyback spread', 'koperasikita')],
-                ['token' => '{streak}', 'desc' => __('Consecutive up days', 'koperasikita')],
-                ['token' => '{zone}', 'desc' => __('Zone name, in the chosen zone colour', 'koperasikita')],
-            ];
-            ?>
-            <section class="kk-data-desk-card kk-data-desk-placeholders" id="kk-data-desk-placeholders" data-kk-template-panel-control>
-                <h2 class="kk-data-desk-card-title"><?php esc_html_e('Placeholders', 'koperasikita'); ?></h2>
-                <p class="description">
-                    <?php esc_html_e("Placeholders resolve from the panel's own data. Insert opens a popup showing what the placeholder resolves to - pick the field it goes into. You can also right-click a title, date line or stat note, or type { while editing one. The title takes {label} and {day} only.", 'koperasikita'); ?>
-                </p>
-                <div class="kk-data-desk-table-wrap">
-                    <table class="widefat striped kk-data-desk-table">
-                        <thead>
-                            <tr>
-                                <th><?php esc_html_e('Placeholder', 'koperasikita'); ?></th>
-                                <th><?php esc_html_e('Resolves to', 'koperasikita'); ?></th>
-                                <th><?php esc_html_e('Sample', 'koperasikita'); ?></th>
-                                <th></th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <?php foreach ($placeholderTokens as $row) : ?>
-                            <tr>
-                                <td><code><?php echo esc_html($row['token']); ?></code></td>
-                                <td><?php echo esc_html($row['desc']); ?></td>
-                                <td><?php echo esc_html(wp_strip_all_tags(DataDesk::replacePlaceholders($row['token'], $sampleData, (int) $template['days'], $placeholders))); ?></td>
-                                <td><button type="button" class="kk-data-desk-button" data-kk-placeholder-insert="<?php echo esc_attr($row['token']); ?>"><?php esc_html_e('Insert', 'koperasikita'); ?></button></td>
-                            </tr>
-                            <?php endforeach; ?>
-                        </tbody>
-                    </table>
-                </div>
-                <p>
-                    <button type="button" class="kk-data-desk-button kk-data-desk-button--primary" data-kk-placeholder-configure><?php esc_html_e('Configure placeholders', 'koperasikita'); ?></button>
-                </p>
-            </section>
+            <?php /* The placeholder tokens as a JSON blob: the
+             * token tooling (right-click menu, { autocomplete,
+             * Insert popup) reads them from here, not from a card
+             * on the page - the reference itself lives in the
+             * Help tab. */ ?>
+            <script type="application/json" id="kk-data-desk-placeholder-tokens"><?php echo wp_json_encode(self::placeholderTokenRows($template)); ?></script>
         </form>
         <?php /* Placeholder settings popup: centered panel over a
          * blurred backdrop, like the list preview popup. The radios
@@ -623,11 +660,11 @@ final class DataDeskTemplatesPage
                 </div>
             </div>
         </div>
-        <?php /* Insert popup: the Placeholders card's Insert
-         * buttons open this instead of inserting blindly. The
-         * body is filled by admin.ts (token, resolved sample,
-         * target picker) because the targets depend on the token
-         * and the template kind. */ ?>
+        <?php /* Insert popup: the help tab's Insert buttons open
+         * this instead of inserting blindly. The body is filled
+         * by admin.ts (token, resolved sample, target picker)
+         * because the targets depend on the token and the
+         * template kind. */ ?>
         <div class="kk-data-desk-popup" id="kk-data-desk-placeholders-insert-popup" hidden role="dialog" aria-modal="true" aria-labelledby="kk-data-desk-placeholders-insert-popup-title">
             <div class="kk-data-desk-popup-backdrop" data-kk-placeholder-insert-popup-close></div>
             <div class="kk-data-desk-popup-panel" role="document">
@@ -638,6 +675,61 @@ final class DataDeskTemplatesPage
                     </div>
                 </div>
                 <div class="kk-data-desk-popup-body" data-kk-placeholder-insert-popup-body></div>
+            </div>
+        </div>
+        <?php /* Stat / date-line field popup: clicking a stat block
+         * or the date line in the preview opens this instead of
+         * editing inline. The fields are contenteditable divs
+         * (admin.ts fills them with the RAW stored values), so
+         * the token tooling works in them exactly as in the
+         * title. Save writes the hidden fields in the form above
+         * and refreshes the preview; Cancel discards. The percent
+         * and zone selects edit the template's placeholder
+         * settings, the same ones the settings popup edits. */ ?>
+        <div class="kk-data-desk-popup" id="kk-data-desk-field-popup" hidden role="dialog" aria-modal="true" aria-labelledby="kk-data-desk-field-popup-title">
+            <div class="kk-data-desk-popup-backdrop" data-kk-field-popup-close></div>
+            <div class="kk-data-desk-popup-panel" role="document">
+                <div class="kk-data-desk-popup-head">
+                    <h2 id="kk-data-desk-field-popup-title"></h2>
+                    <div class="kk-data-desk-popup-actions">
+                        <button type="button" class="kk-data-desk-button kk-data-desk-button--primary" data-kk-field-popup-save><?php esc_html_e('Save', 'koperasikita'); ?></button>
+                        <button type="button" class="kk-data-desk-button" data-kk-field-popup-close><?php esc_html_e('Cancel', 'koperasikita'); ?></button>
+                    </div>
+                </div>
+                <div class="kk-data-desk-popup-body">
+                    <div data-kk-field-popup-stat>
+                        <p class="kk-data-desk-popup-field-row">
+                            <span class="kk-data-desk-popup-field-label" id="kk-data-desk-field-popup-label-label"><?php esc_html_e('Label', 'koperasikita'); ?></span>
+                            <span class="kk-data-desk-popup-field kk-data-desk-popup-field--label" data-kk-field-popup-label aria-labelledby="kk-data-desk-field-popup-label-label"></span>
+                        </p>
+                        <p class="kk-data-desk-popup-field-row">
+                            <span class="kk-data-desk-popup-field-label" id="kk-data-desk-field-popup-sub-label"><?php esc_html_e('Note', 'koperasikita'); ?></span>
+                            <span class="kk-data-desk-popup-field kk-data-desk-popup-field--sub" data-kk-field-popup-sub aria-labelledby="kk-data-desk-field-popup-sub-label"></span>
+                        </p>
+                        <p class="kk-data-desk-popup-field-row">
+                            <label class="kk-data-desk-popup-field-label" for="kk-data-desk-field-popup-percent"><?php esc_html_e('Percent type', 'koperasikita'); ?></label>
+                            <select id="kk-data-desk-field-popup-percent" data-kk-field-popup-percent>
+                                <?php foreach (DataDesk::PERCENT_TYPES as $value => $label) : ?>
+                                    <option value="<?php echo esc_attr($value); ?>"><?php echo esc_html(DataDesk::percentTypeLabel($value)); ?></option>
+                                <?php endforeach; ?>
+                            </select>
+                        </p>
+                        <p class="kk-data-desk-popup-field-row">
+                            <label class="kk-data-desk-popup-field-label" for="kk-data-desk-field-popup-zone"><?php esc_html_e('Zone colour', 'koperasikita'); ?></label>
+                            <select id="kk-data-desk-field-popup-zone" data-kk-field-popup-zone>
+                                <?php foreach (DataDesk::ZONE_COLORS as $value => $label) : ?>
+                                    <option value="<?php echo esc_attr($value); ?>"><?php echo esc_html(DataDesk::zoneColorLabel($value)); ?></option>
+                                <?php endforeach; ?>
+                            </select>
+                        </p>
+                    </div>
+                    <div data-kk-field-popup-date hidden>
+                        <p class="kk-data-desk-popup-field-row">
+                            <span class="kk-data-desk-popup-field-label" id="kk-data-desk-field-popup-date-line-label"><?php esc_html_e('Date line', 'koperasikita'); ?></span>
+                            <span class="kk-data-desk-popup-field kk-data-desk-popup-field--date-line" data-kk-field-popup-date-line aria-labelledby="kk-data-desk-field-popup-date-line-label"></span>
+                        </p>
+                    </div>
+                </div>
             </div>
         </div>
         <script>

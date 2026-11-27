@@ -342,11 +342,25 @@ final class Blocks
                     'title' => ['type' => 'string', 'default' => ''],
                     'headerStyle' => ['type' => 'string', 'default' => 'classic-top'],
                     'template' => ['type' => 'string', 'default' => ''],
+                    // Per-widget overrides on top of the template:
+                    // an empty symbol / 0 days means "use the
+                    // template's", a hide flag hides that stat
+                    // for this widget only.
+                    'symbolOverride' => ['type' => 'string', 'default' => ''],
+                    'daysOverride' => ['type' => 'number', 'default' => 0],
+                    'hideSell' => ['type' => 'boolean', 'default' => false],
+                    'hideBuyback' => ['type' => 'boolean', 'default' => false],
+                    'hidePerformance' => ['type' => 'boolean', 'default' => false],
                 ],
                 'map' => [
                     'title' => 'title',
                     'headerStyle' => 'header_style',
                     'template' => 'template',
+                    'symbolOverride' => 'symbol_override',
+                    'daysOverride' => 'days_override',
+                    'hideSell' => 'hide_sell',
+                    'hideBuyback' => 'hide_buyback',
+                    'hidePerformance' => 'hide_performance',
                 ],
             ];
             $definitions['markets'] = [
@@ -496,6 +510,13 @@ final class Blocks
                 'categories' => self::termOptions('category'),
                 'tags' => self::termOptions('post_tag'),
                 'dataDeskTemplates' => self::templateOptions(DataDesk::KIND_PANEL),
+                // The Data Desk block's widget overrides: the
+                // symbol list, and per template its symbol, days,
+                // hidden stats and resolved stat labels, so the
+                // inspector shows the template's values and the
+                // effective show/hide state.
+                'dataDeskSymbols' => self::optionList(DataDesk::symbols()),
+                'dataDeskTemplateMeta' => DataDesk::templateMeta(),
                 // The agenda block's icon picker lists every icon.
                 'icons' => self::optionList(array_combine(Icon::names(), Icon::names())),
                 // The locations field searches places through the
