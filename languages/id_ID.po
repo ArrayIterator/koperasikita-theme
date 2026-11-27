@@ -803,12 +803,6 @@ msgstr "Koperasi Kita Data Desk Emas"
 msgid "Koperasi Kita Agenda"
 msgstr "Agenda Koperasi Kita"
 
-#: inc/Widgets/AgendaWidget.php
-#: inc/Widgets/Blocks.php
-#: src/ts/widget-blocks.ts
-msgid "Upcoming cooperative events as a dark card; live events get a green dot, finished events are dimmed."
-msgstr "Acara koperasi mendatang sebagai kartu gelap; acara yang sedang berlangsung ditandai titik hijau, acara yang sudah selesai diredupkan."
-
 #: template-parts/agenda/widget.php
 msgid "No agenda items yet."
 msgstr "Belum ada agenda."
@@ -4196,3 +4190,69 @@ msgstr "Tampilkan stat ini"
 
 msgid "Click the title or 'Meja Data' in the preview to edit them. In the title you can use {label} for the symbol name and {day} for the number of days. Click the date line under the title to edit it. Click a stat label or note to edit it, or the eye button on a stat to hide it or show it again."
 msgstr "Klik judul atau 'Meja Data' pada pratinjau untuk mengeditnya. Pada judul, gunakan {label} untuk nama simbol dan {day} untuk jumlah hari. Klik baris tanggal di bawah judul untuk mengeditnya. Klik label atau catatan stat untuk mengeditnya, atau tombol mata pada stat untuk menyembunyikan atau menampilkannya lagi."
+#: inc/Widgets/AgendaWidget.php
+msgid "Upcoming cooperative events as a card that follows the site colour scheme; live events get a green dot, finished events are dimmed."
+msgstr "Acara koperasi mendatang sebagai kartu yang mengikuti skema warna situs; acara live mendapat titik hijau, acara selesai diredupkan."
+
+#: inc/Widgets/AgendaWidget.php
+msgid "Show icon"
+msgstr "Tampilkan ikon"
+
+#: inc/Widgets/AgendaWidget.php
+msgid "Card style"
+msgstr "Gaya kartu"
+
+
+
+#: inc/Widgets/AgendaWidget.php src/ts/widget-blocks.ts
+msgid "Choose Own"
+msgstr "Pilih sendiri"
+
+#: inc/Widgets/AgendaWidget.php src/ts/widget-blocks.ts
+msgid "Background"
+msgstr "Latar belakang"
+
+#: inc/Widgets/AgendaWidget.php src/ts/widget-blocks.ts
+msgid "Accent text"
+msgstr "Teks aksen"
+
+
+#: inc/Widgets/AgendaWidget.php
+msgid "Dark card"
+msgstr "Kartu gelap"
+
+#: inc/Widgets/AgendaWidget.php
+msgid "Light card"
+msgstr "Kartu terang"
+
+#: inc/Widgets/AgendaWidget.php
+msgid "Link to"
+msgstr "Taut ke"
+
+#: inc/Widgets/AgendaWidget.php
+msgid "Search posts and pages by title…"
+msgstr "Cari postingan dan halaman berdasarkan judul…"
+
+#: inc/Widgets/AgendaWidget.php
+msgid "Search posts and pages by title"
+msgstr "Cari postingan dan halaman berdasarkan judul"
+
+#: inc/Widgets/AgendaWidget.php
+msgid "The card title links to this post or page."
+msgstr "Judul kartu menaut ke postingan atau halaman ini."
+
+#: inc/Widgets/AgendaWidget.php
+msgid "Remove link"
+msgstr "Hapus tautan"
+
+#: src/ts/admin.ts
+msgid "No results."
+msgstr "Tidak ada hasil."
+
+#: src/ts/widget-blocks.ts
+msgid "Post not found."
+msgstr "Postingan tidak ditemukan."
+
+#: src/ts/widget-blocks.ts
+msgid "selected."
+msgstr "dipilih."

@@ -30,7 +30,13 @@ final class MenuIcons
         add_action('wp_nav_menu_item_custom_fields', [self::class, 'renderField'], 10, 4);
         add_action('wp_update_nav_menu_item', [self::class, 'saveField'], 10, 2);
         add_filter('nav_menu_item_title', [self::class, 'prependIcon'], 10, 4);
+        // One shared popup for every picker on the page: menu items
+        // (Appearance -> Menus) and the Agenda widget's header icon
+        // (widgets.php + Customizer, which reuse the same popup and
+        // the same data attributes — see AgendaWidget::form()).
         add_action('admin_footer-nav-menus.php', [self::class, 'renderPopup']);
+        add_action('admin_footer-widgets.php', [self::class, 'renderPopup']);
+        add_action('customize_controls_print_footer_scripts', [self::class, 'renderPopup']);
     }
 
     /** The icon name saved on a menu item, or '' when none / invalid. */
@@ -123,7 +129,7 @@ final class MenuIcons
         return '' !== $color ? $icon . ' · ' . $color : $icon;
     }
 
-    /** The shared icon picker popup (one per page, reused by every menu item). */
+    /** The shared icon picker popup (one per page, reused by every menu item and every Agenda widget). */
     public static function renderPopup(): void
     {
         ?>
@@ -131,7 +137,7 @@ final class MenuIcons
             <div class="kk-menu-icon-popup-backdrop" data-kk-menu-icon-close></div>
             <div class="kk-menu-icon-popup-panel" role="document">
                 <div class="kk-menu-icon-popup-head">
-                    <h2 id="kk-menu-icon-popup-title"><?php esc_html_e('Choose menu icon', 'koperasikita'); ?></h2>
+                    <h2 id="kk-menu-icon-popup-title"><?php esc_html_e('Choose icon', 'koperasikita'); ?></h2>
                     <div class="kk-menu-icon-popup-actions">
                         <button type="button" class="button" data-kk-menu-icon-remove><?php esc_html_e('Remove icon', 'koperasikita'); ?></button>
                         <button type="button" class="button" data-kk-menu-icon-close><?php esc_html_e('Close', 'koperasikita'); ?></button>

@@ -10,6 +10,7 @@ use KoperasiKita\Features\DataDesk;
 use KoperasiKita\Features\Features;
 use KoperasiKita\Features\Gold;
 use KoperasiKita\Features\Markets;
+use KoperasiKita\Icons\Icon;
 use WP_Widget;
 
 /**
@@ -382,16 +383,28 @@ final class Blocks
                 'class' => AgendaWidget::class,
                 'icon' => 'calendar',
                 'title' => __('KK Agenda', 'koperasikita'),
-                'description' => __('Upcoming cooperative events as a dark card; live events get a green dot, finished events are dimmed.', 'koperasikita'),
+                'description' => __('Upcoming cooperative events as a card that follows the site colour scheme; live events get a green dot, finished events are dimmed.', 'koperasikita'),
                 'attributes' => [
                     'title' => ['type' => 'string', 'default' => __('Agenda Koperasi', 'koperasikita')],
                     'count' => ['type' => 'number', 'default' => 5],
                     'showPast' => ['type' => 'boolean', 'default' => true],
+                    'showIcon' => ['type' => 'boolean', 'default' => true],
+                    'icon' => ['type' => 'string', 'default' => 'users'],
+                    'style' => ['type' => 'string', 'default' => 'auto'],
+                    'bgColor' => ['type' => 'string', 'default' => ''],
+                    'accentColor' => ['type' => 'string', 'default' => ''],
+                    'linkTo' => ['type' => 'number', 'default' => 0],
                 ],
                 'map' => [
                     'title' => 'title',
                     'count' => 'count',
                     'showPast' => 'show_past',
+                    'showIcon' => 'show_icon',
+                    'icon' => 'icon',
+                    'style' => 'style',
+                    'bgColor' => 'bg_color',
+                    'accentColor' => 'accent_color',
+                    'linkTo' => 'link_to',
                 ],
             ];
         }
@@ -419,6 +432,8 @@ final class Blocks
                 'tags' => self::termOptions('post_tag'),
                 'dataDeskTemplates' => self::templateOptions(DataDesk::KIND_PANEL),
                 'dataDeskTableTemplates' => self::templateOptions(DataDesk::KIND_TABLE),
+                // The agenda block's icon picker lists every icon.
+                'icons' => self::optionList(array_combine(Icon::names(), Icon::names())),
                 // The locations field searches places through the
                 // theme's own AJAX endpoint (kk_weather_search).
                 'ajaxUrl' => admin_url('admin-ajax.php'),

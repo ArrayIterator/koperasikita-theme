@@ -49,6 +49,8 @@ interface AdminStrings {
 	editDateLineHint: string;
 	editStatHint: string;
 	close: string;
+	searching: string;
+	noResults: string;
 }
 
 interface AdminData {
@@ -115,6 +117,8 @@ const FALLBACK_STRINGS: AdminStrings = {
 	editDateLineHint: 'Click to edit the date line.',
 	editStatHint: 'Click to edit this stat.',
 	close: 'Close',
+	searching: 'Searching…',
+	noResults: 'No results.',
 };
 
 function adminData(): AdminData | null {
@@ -148,6 +152,8 @@ function adminStrings(): AdminStrings {
 		close: strings?.close ?? FALLBACK_STRINGS.close,
 		editDateLineHint: strings?.editDateLineHint ?? FALLBACK_STRINGS.editDateLineHint,
 		editStatHint: strings?.editStatHint ?? FALLBACK_STRINGS.editStatHint,
+		searching: strings?.searching ?? FALLBACK_STRINGS.searching,
+		noResults: strings?.noResults ?? FALLBACK_STRINGS.noResults,
 	};
 }
 
@@ -350,6 +356,7 @@ function initAdmin(): void {
 		initTermPickers,
 		initProviderPickers,
 		initMenuIconPickers,
+		initAgendaWidgetFields,
 		initGoldSync,
 		initGoldSummaryChart,
 		initDataDeskPreview,
@@ -1490,7 +1497,13 @@ function initMenuIconPickers(): void {
 	};
 
 	const open = (button: HTMLButtonElement): void => {
-		currentItemId = button.dataset.kkMenuIconPick ?? null;
+		/* Menu buttons carry the item id; widget buttons carry the
+		 * widget field id — both are the key the shared setPreview /
+		 * setName below look the hidden input up by. */
+		currentItemId =
+			button.dataset.kkMenuIconPick ??
+			button.dataset.kkWidgetIconPick ??
+			null;
 		if (!currentItemId) {
 			return;
 		}
@@ -1511,6 +1524,19 @@ function initMenuIconPickers(): void {
 		.forEach((button) => {
 			button.addEventListener('click', () => open(button));
 		});
+
+	/* Widget icon buttons (Agenda widget header icon) are re-rendered
+	 * by the Customizer, so load-time binding would miss them: they
+	 * are wired by delegation instead, into the same open() above. */
+	document.addEventListener('click', (event) => {
+		const button = (event.target as HTMLElement).closest(
+			'[data-kk-widget-icon-pick]',
+		) as HTMLButtonElement | null;
+		if (!button) {
+			return;
+		}
+		open(button);
+	});
 
 	document
 		.querySelectorAll<HTMLInputElement>('[data-kk-menu-icon-color]')
@@ -1573,6 +1599,337 @@ function initMenuIconPickers(): void {
 		if (event.key === 'Escape' && !popup.hidden) {
 			close();
 		}
+	});
+}
+
+interface AgendaLinkResult {
+	id: number;
+	title: string;
+	type: string;
+	url: string;
+}
+
+/**
+ * Agenda widget form extras (widgets.php + Customizer).
+ *
+ * - "Show icon" toggles the icon picker row in the same form.
+ * - "Link to" searches published posts and pages by title through
+ *   kk_agenda_link_search; picking a result stores its id and shows
+ *   the chosen title, "Remove link" clears it again. The search box
+ *   is progressive enhancement: without JS the saved link (if any)
+ *   stays exactly as the server rendered it.
+ *
+ * Widget forms are re-rendered by the Customizer, so everything here
+ * is delegated from the document — no load-time binding.
+ */
+function initAgendaWidgetFields(): void {
+	const config = adminData();
+	if (!config) {
+		return;
+	}
+
+	/* "Card style" shows / hides the Choose Own colour rows in the
+	 * same form. */
+	document.addEventListener('change', (event) => {
+		const select = (event.target as HTMLElement).closest(
+			'[data-kk-agenda-style-select]',
+		) as HTMLSelectElement | null;
+		if (!select) {
+			return;
+		}
+		const field = scopeFor(select)?.querySelector<HTMLElement>(
+			'[data-kk-agenda-custom-colors]',
+		);
+		if (field) {
+			field.hidden = select.value !== 'custom';
+		}
+	});
+
+	/* A Choose Own colour row: the visible swatch is only the picker —
+	 * the hidden input holds the real value (empty = fall back to the
+	 * theme colour), and the × button clears it back to empty. */
+	const syncColorRow = (scope: HTMLElement | null, key: string): void => {
+		const input = scope?.querySelector<HTMLInputElement>(
+			`[data-kk-agenda-color-input="${key}"]`,
+		);
+		const hex = scope?.querySelector<HTMLElement>(
+			`[data-kk-agenda-color-hex="${key}"]`,
+		);
+		const wrap = scope?.querySelector<HTMLElement>(
+			`[data-kk-agenda-color-wrap="${key}"]`,
+		);
+		const clear = scope?.querySelector<HTMLElement>(
+			`[data-kk-agenda-color-clear="${key}"]`,
+		);
+		if (hex && input) {
+			hex.textContent = input.value;
+		}
+		if (wrap) {
+			wrap.classList.toggle('is-empty', !input || input.value === '');
+		}
+		if (clear) {
+			clear.hidden = !input || input.value === '';
+		}
+	};
+
+	document.addEventListener('input', (event) => {
+		const picker = (event.target as HTMLElement).closest(
+			'[data-kk-agenda-color]',
+		) as HTMLInputElement | null;
+		if (!picker) {
+			return;
+		}
+		const key = picker.dataset.kkAgendaColor ?? '';
+		const scope = scopeFor(picker);
+		const input = scope?.querySelector<HTMLInputElement>(
+			`[data-kk-agenda-color-input="${key}"]`,
+		);
+		if (input) {
+			input.value = picker.value;
+		}
+		syncColorRow(scope, key);
+	});
+
+	document.addEventListener('click', (event) => {
+		const clear = (event.target as HTMLElement).closest(
+			'[data-kk-agenda-color-clear]',
+		) as HTMLElement | null;
+		if (!clear) {
+			return;
+		}
+		const key = clear.dataset.kkAgendaColorClear ?? '';
+		const scope = scopeFor(clear);
+		const input = scope?.querySelector<HTMLInputElement>(
+			`[data-kk-agenda-color-input="${key}"]`,
+		);
+		if (input) {
+			input.value = '';
+		}
+		syncColorRow(scope, key);
+	});
+
+	const scopeFor = (el: HTMLElement): HTMLElement | null =>
+		el.closest('form') ??
+		el.closest('.widget-content') ??
+		el.parentElement;
+
+	const resultsFor = (input: HTMLInputElement): HTMLElement | null =>
+		scopeFor(input)?.querySelector<HTMLElement>(
+			'[data-kk-agenda-link-results]',
+		) ?? null;
+
+	const setMessage = (results: HTMLElement, message: string): void => {
+		results.replaceChildren();
+		const line = document.createElement('p');
+		line.className = 'description';
+		line.textContent = message;
+		results.append(line);
+		results.hidden = false;
+	};
+
+	const renderResults = (
+		results: HTMLElement,
+		items: AgendaLinkResult[],
+	): void => {
+		results.replaceChildren();
+		if (items.length === 0) {
+			setMessage(results, adminStrings().noResults);
+			return;
+		}
+		const fragment = document.createDocumentFragment();
+		for (const item of items) {
+			const button = document.createElement('button');
+			button.type = 'button';
+			button.className = 'kk-term-picker-option';
+			button.dataset.kkAgendaLinkPick = String(item.id);
+			button.dataset.kkAgendaLinkTitle = item.title;
+			button.dataset.kkAgendaLinkType = item.type;
+			button.textContent = `${item.title} — ${item.type}`;
+			fragment.appendChild(button);
+		}
+		results.append(fragment);
+		results.hidden = false;
+	};
+
+	/* One debounced request per input; a newer keystroke aborts the
+	 * previous one, so a slow reply can never overwrite fresher
+	 * results. */
+	const timers = new WeakMap<HTMLElement, number>();
+	const controllers = new WeakMap<HTMLElement, AbortController>();
+
+	const runSearch = async (
+		input: HTMLInputElement,
+		query: string,
+	): Promise<void> => {
+		const results = resultsFor(input);
+		if (!results) {
+			return;
+		}
+		const controller = new AbortController();
+		controllers.set(input, controller);
+		try {
+			const data = await postAjax<{ results: AgendaLinkResult[] }>(
+				config,
+				'kk_agenda_link_search',
+				{ query },
+				controller.signal,
+			);
+			/* Typed on meanwhile: a newer search owns the list. */
+			if (input.value.trim() !== query) {
+				return;
+			}
+			renderResults(results, data.results);
+		} catch (error) {
+			if (error instanceof DOMException && error.name === 'AbortError') {
+				return;
+			}
+			if (input.value.trim() !== query) {
+				return;
+			}
+			setMessage(results, errorMessage(error));
+		}
+	};
+
+	document.addEventListener('input', (event) => {
+		const input = (event.target as HTMLElement).closest(
+			'[data-kk-agenda-link-search]',
+		) as HTMLInputElement | null;
+		if (!input) {
+			return;
+		}
+		const query = input.value.trim();
+		const results = resultsFor(input);
+		if (!results) {
+			return;
+		}
+		const prev = timers.get(input);
+		if (prev !== undefined) {
+			window.clearTimeout(prev);
+		}
+		controllers.get(input)?.abort();
+		if (query.length < 2) {
+			results.replaceChildren();
+			results.hidden = true;
+			return;
+		}
+		setMessage(results, adminStrings().searching);
+		timers.set(
+			input,
+			window.setTimeout(() => {
+				void runSearch(input, query);
+			}, 250),
+		);
+	});
+
+	/* Pick a result: store its id, show the chosen title + type. */
+	document.addEventListener('click', (event) => {
+		const button = (event.target as HTMLElement).closest(
+			'[data-kk-agenda-link-pick]',
+		) as HTMLButtonElement | null;
+		if (!button) {
+			return;
+		}
+		const scope = scopeFor(button);
+		if (!scope) {
+			return;
+		}
+		const input = scope.querySelector<HTMLInputElement>(
+			'[data-kk-agenda-link-input]',
+		);
+		const search = scope.querySelector<HTMLInputElement>(
+			'[data-kk-agenda-link-search]',
+		);
+		const chosen = scope.querySelector<HTMLElement>(
+			'[data-kk-agenda-link-chosen]',
+		);
+		const titleEl = scope.querySelector<HTMLElement>(
+			'[data-kk-agenda-link-chosen-title]',
+		);
+		const typeEl = scope.querySelector<HTMLElement>(
+			'[data-kk-agenda-link-chosen-type]',
+		);
+		const results = scope.querySelector<HTMLElement>(
+			'[data-kk-agenda-link-results]',
+		);
+		if (input) {
+			input.value = button.dataset.kkAgendaLinkPick ?? '0';
+		}
+		if (titleEl) {
+			titleEl.textContent = button.dataset.kkAgendaLinkTitle ?? '';
+		}
+		if (typeEl) {
+			typeEl.textContent = button.dataset.kkAgendaLinkType ?? '';
+		}
+		if (chosen) {
+			chosen.hidden = false;
+		}
+		if (results) {
+			results.replaceChildren();
+			results.hidden = true;
+		}
+		if (search) {
+			search.value = '';
+		}
+		scope
+			.querySelector<HTMLButtonElement>('[data-kk-agenda-link-clear]')
+			?.focus();
+	});
+
+	/* "Remove link": clear the stored id and the chosen row. */
+	document.addEventListener('click', (event) => {
+		const button = (event.target as HTMLElement).closest(
+			'[data-kk-agenda-link-clear]',
+		) as HTMLButtonElement | null;
+		if (!button) {
+			return;
+		}
+		const scope = scopeFor(button);
+		if (!scope) {
+			return;
+		}
+		const input = scope.querySelector<HTMLInputElement>(
+			'[data-kk-agenda-link-input]',
+		);
+		const search = scope.querySelector<HTMLInputElement>(
+			'[data-kk-agenda-link-search]',
+		);
+		const chosen = scope.querySelector<HTMLElement>(
+			'[data-kk-agenda-link-chosen]',
+		);
+		const results = scope.querySelector<HTMLElement>(
+			'[data-kk-agenda-link-results]',
+		);
+		if (input) {
+			input.value = '0';
+		}
+		if (chosen) {
+			chosen.hidden = true;
+		}
+		if (results) {
+			results.replaceChildren();
+			results.hidden = true;
+		}
+		if (search) {
+			search.value = '';
+			search.focus();
+		}
+	});
+
+	/* Enter picks the first result instead of submitting the form. */
+	document.addEventListener('keydown', (event) => {
+		if (event.key !== 'Enter') {
+			return;
+		}
+		const input = (event.target as HTMLElement).closest(
+			'[data-kk-agenda-link-search]',
+		) as HTMLInputElement | null;
+		if (!input) {
+			return;
+		}
+		event.preventDefault();
+		scopeFor(input)
+			?.querySelector<HTMLButtonElement>('[data-kk-agenda-link-pick]')
+			?.click();
 	});
 }
 

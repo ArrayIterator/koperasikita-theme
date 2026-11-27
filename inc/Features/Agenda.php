@@ -129,6 +129,9 @@ final class Agenda
         // geocoder. Only users who can edit agenda items may search —
         // contributors included, anonymous visitors never.
         \KoperasiKita\Api\Ajax::add('kk_agenda_place_search', [self::class, 'ajaxSearchPlaces'], false, 'edit_posts');
+        // Title search for the Agenda widget's "Link to" field:
+        // published posts and pages by title, nothing else.
+        \KoperasiKita\Api\Ajax::add('kk_agenda_link_search', [\KoperasiKita\Widgets\AgendaWidget::class, 'ajaxSearchLink'], false, 'edit_posts');
         // The Pick Location popup is rendered once at the end of the
         // admin page (never inside the meta box): a position:fixed
         // popup inside the editor sidebar can be trapped by an ancestor

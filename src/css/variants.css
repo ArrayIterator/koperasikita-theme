@@ -524,3 +524,31 @@ body.kk-variant-bold .kk-tag {
 		font-size: 50px;
 	}
 }
+
+/* --- Agenda card: dark mode + forced variants ------------------------------ */
+/* The dark-green reference card in dark mode. The forced-dark variant
+ * shares the same values (it also matches in dark mode, where the
+ * scheme rule already applies, so there is only one dark list). */
+html[data-color-scheme="dark"] .kk-agenda-widget-card,
+.kk-agenda-widget-card--dark {
+	--kk-agenda-bg: #0e241a;
+	--kk-agenda-border: #1e3d2c;
+	--kk-agenda-ink: #f2f2f0;
+	--kk-agenda-muted: #9aa39c;
+	--kk-agenda-green: var(--kk-green-light);
+	--kk-agenda-badge-bg: transparent;
+	--kk-agenda-badge-border: #2a4a38;
+}
+
+/* Forced-light under a dark scheme: the light-scheme values spelled
+ * out as literals — the vars resolve to dark values under a dark
+ * scheme, so they cannot be reused here. */
+html[data-color-scheme="dark"] .kk-agenda-widget-card--light {
+	--kk-agenda-bg: #ffffff;
+	--kk-agenda-border: #e6e3de;
+	--kk-agenda-ink: #1b1b1b;
+	--kk-agenda-muted: #5b6470;
+	--kk-agenda-green: #0b6b3a;
+	--kk-agenda-badge-bg: #f7f7f5;
+	--kk-agenda-badge-border: #e6e3de;
+}
