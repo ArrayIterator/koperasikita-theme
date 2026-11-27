@@ -110,6 +110,7 @@ never trusted.
 | `koperasikita/markets/providers` | filter | `array<string, MarketPriceProvider>` — market slug ⇒ provider object. A provider must implement `MarketPriceProvider`; anything else is dropped. |
 | `koperasikita/markets/labels` | filter | `array<string, string>` — market slug ⇒ display label (e.g. `crypto` ⇒ `Crypto`). |
 | `koperasikita/markets/symbols` | filter | `array<string, string>` — slug ⇒ label for ONE market. The filter receives that market's symbols array, plus the market slug as the second argument. Entries without a string slug and label are dropped. |
+| `koperasikita/markets/yahoo_stock_symbols` | filter | `array<int, string>` — stock slugs the Yahoo provider supplies live (default: IHSG, LQ45 + the 12 heaviest LQ45 constituents). The filter receives the default list, plus the market slug as the second argument. Slugs outside the stock catalogue are dropped; widening the list fetches more symbols per refresh (Yahoo spark, chunked). |
 | `koperasikita/weather/providers` | filter | `array<string, WeatherProvider>` — provider id ⇒ provider object. A provider must implement `WeatherProvider`; anything else is dropped. |
 | `koperasikita/weather/quick_cities` | filter | `array<int, array{name: string, lat: float, lon: float}>` — the quick-pick cities in the weather picker. Entries without a name and in-range coordinates are dropped. |
 | `koperasikita/gold/brands` | filter | `array<string, string>` — brand slug ⇒ display name. A brand added here with no saved snapshot still has no price. |

@@ -98,9 +98,66 @@ final class Markets
                 Gold::brands()
             );
         } elseif ($market === 'stock') {
+            // IHSG + LQ45 indices first, then the LQ45 constituents:
+            // the 12 heaviest constituents by index weight first (so
+            // a default display shows the most liquid names), then
+            // the rest alphabetically. Constituents per the IDX
+            // announcements Peng-00205/BEI.POP/10-2026 (27 Oct 2026)
+            // and the 11 Nov 2026 revision (MAPI/NCKL/PGEO out,
+            // ERAA/GGRM/PWON in), effective 18 Nov 2026 – 29 Jan 2027.
+            // Every code was verified live against Yahoo Finance
+            // (see ~/workspace/kk-verify-stocks/live-check.php) — a
+            // code that returns no Yahoo data must not be added here.
+            // Labels are the tickers themselves: that is what readers
+            // expect for stocks, and it matches the IHSG/LQ45 labels.
             $symbols = [
                 'ihsg' => 'IHSG',
                 'lq45' => 'LQ45',
+                'bbca' => 'BBCA',
+                'bbri' => 'BBRI',
+                'bmri' => 'BMRI',
+                'tlkm' => 'TLKM',
+                'asii' => 'ASII',
+                'ammn' => 'AMMN',
+                'bbni' => 'BBNI',
+                'icbp' => 'ICBP',
+                'untr' => 'UNTR',
+                'aadi' => 'AADI',
+                'amrt' => 'AMRT',
+                'antm' => 'ANTM',
+                'admr' => 'ADMR',
+                'adro' => 'ADRO',
+                'akra' => 'AKRA',
+                'bbtn' => 'BBTN',
+                'brpt' => 'BRPT',
+                'bumi' => 'BUMI',
+                'cpin' => 'CPIN',
+                'dewa' => 'DEWA',
+                'elsa' => 'ELSA',
+                'emtk' => 'EMTK',
+                'eraa' => 'ERAA',
+                'essa' => 'ESSA',
+                'excl' => 'EXCL',
+                'ggrm' => 'GGRM',
+                'goto' => 'GOTO',
+                'hrta' => 'HRTA',
+                'inco' => 'INCO',
+                'indf' => 'INDF',
+                'indy' => 'INDY',
+                'inkp' => 'INKP',
+                'isat' => 'ISAT',
+                'itmg' => 'ITMG',
+                'jpfa' => 'JPFA',
+                'klbf' => 'KLBF',
+                'mbma' => 'MBMA',
+                'mdka' => 'MDKA',
+                'medc' => 'MEDC',
+                'pgas' => 'PGAS',
+                'ptba' => 'PTBA',
+                'pwon' => 'PWON',
+                'smgr' => 'SMGR',
+                'unvr' => 'UNVR',
+                'wifi' => 'WIFI',
             ];
         } elseif ($market === 'crypto') {
             $symbols = [
