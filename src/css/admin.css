@@ -1553,12 +1553,14 @@
 	}
 }
 
-/* Agenda Locations + Subscribers pages: the Setup card language,
- * full width like Gold and Data Desk since the tables need the room.
- * WP classes are restyled here rather than replaced, so the markup
- * stays familiar and the JS hooks are untouched. */
+/* Agenda Locations + Subscribers + Market Header Index pages: the
+ * Setup card language, full width like Gold and Data Desk since the
+ * tables need the room. WP classes are restyled here rather than
+ * replaced, so the markup stays familiar and the JS hooks are
+ * untouched. */
 .kk-locations-page,
-.kk-subscribers-page {
+.kk-subscribers-page,
+.kk-market-header-page {
 	padding: 8px 0 32px;
 	font-size: 15px;
 	line-height: 1.55;
@@ -1566,17 +1568,20 @@
 }
 
 .kk-locations-page p,
-.kk-subscribers-page p {
+.kk-subscribers-page p,
+.kk-market-header-page p {
 	margin: 0 0 12px;
 }
 
 .kk-locations-page p:last-child,
-.kk-subscribers-page p:last-child {
+.kk-subscribers-page p:last-child,
+.kk-market-header-page p:last-child {
 	margin-bottom: 0;
 }
 
 .kk-locations-title,
-.kk-subscribers-title {
+.kk-subscribers-title,
+.kk-market-header-title {
 	margin: 0 0 24px;
 	font-size: 28px;
 	line-height: 1.2;
@@ -1585,7 +1590,8 @@
 }
 
 .kk-locations-card,
-.kk-subscribers-card {
+.kk-subscribers-card,
+.kk-market-header-card {
 	margin-bottom: 24px;
 	padding: 24px;
 	background: #fff;
@@ -1594,7 +1600,8 @@
 }
 
 .kk-locations-card > :last-child,
-.kk-subscribers-card > :last-child {
+.kk-subscribers-card > :last-child,
+.kk-market-header-card > :last-child {
 	margin-bottom: 0;
 }
 
@@ -1609,7 +1616,8 @@
 }
 
 .kk-locations-card-actions,
-.kk-subscribers-card-actions {
+.kk-subscribers-card-actions,
+.kk-market-header-card-actions {
 	margin: 0 0 16px;
 }
 
@@ -1617,8 +1625,10 @@
  * itself renders (List Table bulk and search buttons). */
 .kk-locations-button,
 .kk-subscribers-button,
+.kk-market-header-button,
 .kk-locations-page .button,
-.kk-subscribers-page .button {
+.kk-subscribers-page .button,
+.kk-market-header-page .button {
 	display: inline-flex;
 	align-items: center;
 	justify-content: center;
@@ -1639,8 +1649,10 @@
 
 .kk-locations-button:hover,
 .kk-subscribers-button:hover,
+.kk-market-header-button:hover,
 .kk-locations-page .button:hover,
-.kk-subscribers-page .button:hover {
+.kk-subscribers-page .button:hover,
+.kk-market-header-page .button:hover {
 	background: #eaf4ee;
 	border-color: #0b6b3a;
 	color: #0b6b3a;
@@ -1648,16 +1660,20 @@
 
 .kk-locations-button:focus-visible,
 .kk-subscribers-button:focus-visible,
+.kk-market-header-button:focus-visible,
 .kk-locations-page .button:focus-visible,
-.kk-subscribers-page .button:focus-visible {
+.kk-subscribers-page .button:focus-visible,
+.kk-market-header-page .button:focus-visible {
 	outline: 2px solid #c9962e;
 	outline-offset: 2px;
 }
 
 .kk-locations-button--primary,
 .kk-subscribers-button--primary,
+.kk-market-header-button--primary,
 .kk-locations-page .button-primary,
-.kk-subscribers-page .button-primary {
+.kk-subscribers-page .button-primary,
+.kk-market-header-page .button-primary {
 	color: #fff;
 	background: #0b6b3a;
 	border-color: #0b6b3a;
@@ -1665,8 +1681,10 @@
 
 .kk-locations-button--primary:hover,
 .kk-subscribers-button--primary:hover,
+.kk-market-header-button--primary:hover,
 .kk-locations-page .button-primary:hover,
-.kk-subscribers-page .button-primary:hover {
+.kk-subscribers-page .button-primary:hover,
+.kk-market-header-page .button-primary:hover {
 	background: #07522c;
 	border-color: #07522c;
 	color: #fff;
@@ -1674,14 +1692,17 @@
 
 .kk-locations-button:disabled,
 .kk-subscribers-button:disabled,
+.kk-market-header-button:disabled,
 .kk-locations-page .button:disabled,
-.kk-subscribers-page .button:disabled {
+.kk-subscribers-page .button:disabled,
+.kk-market-header-page .button:disabled {
 	opacity: 0.55;
 	cursor: not-allowed;
 }
 
 .kk-locations-table-wrap,
-.kk-subscribers-table-wrap {
+.kk-subscribers-table-wrap,
+.kk-market-header-table-wrap {
 	overflow: hidden;
 	border: 1px solid #e5e5e5;
 	border-radius: 12px;

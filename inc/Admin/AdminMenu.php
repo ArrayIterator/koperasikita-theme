@@ -16,6 +16,7 @@ use KoperasiKita\Setup\Setup;
  *   |- Setup            (the Stack installer / status page)
  *   |- Sidebar Settings (sticky sidebars)
  *   |- Gold Prices      (Logam Mulia sync status + history)
+ *   |- Market Header Index (the market strip below the header)
  *   |- Data Desk Templates (panel + table templates)
  *   |- Locations        (Agenda locations)
  *   `- Subscribers      (newsletter subscriber list)
@@ -101,6 +102,20 @@ final class AdminMenu
             'manage_options',
             GoldPricesPage::PAGE_SLUG,
             [GoldPricesPage::class, 'render']
+        );
+
+        add_submenu_page(
+            self::MENU_SLUG,
+            esc_html__('Market Header Index', 'koperasikita'),
+            esc_html__('Market Header Index', 'koperasikita'),
+            'manage_options',
+            MarketHeaderPage::PAGE_SLUG,
+            [MarketHeaderPage::class, 'render']
+        );
+
+        add_action(
+            'load-' . self::submenuHookSuffix(MarketHeaderPage::PAGE_SLUG),
+            [MarketHeaderPage::class, 'handleActionsOnLoad']
         );
 
         add_submenu_page(

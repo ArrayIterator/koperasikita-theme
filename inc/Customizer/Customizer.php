@@ -6,6 +6,7 @@ namespace KoperasiKita\Customizer;
 
 use KoperasiKita\Features\Fonts;
 use KoperasiKita\Features\Footer;
+use KoperasiKita\Features\MarketHeaderIndex;
 use KoperasiKita\Features\Markets;
 use KoperasiKita\Features\Performance;
 use KoperasiKita\Features\StyleVariant;
@@ -87,6 +88,7 @@ final class Customizer
             'koperasikita_advanced_logo' => esc_html__('Advanced Logo & Sidebar', 'koperasikita'),
             'koperasikita_typography' => esc_html__('Typography', 'koperasikita'),
             'koperasikita_header' => esc_html__('Header & Breaking News', 'koperasikita'),
+            'koperasikita_market_header' => esc_html__('Market Header Index', 'koperasikita'),
             'koperasikita_mobile_menu' => esc_html__('Mobile Menu', 'koperasikita'),
             'koperasikita_homepage' => esc_html__('Homepage Layout', 'koperasikita'),
             'koperasikita_single' => esc_html__('Single Post', 'koperasikita'),
@@ -115,6 +117,8 @@ final class Customizer
                 'settings' => $id,
             ]));
         }
+
+        self::registerMarketHeader($wpCustomize);
 
         self::addSetting(
             $wpCustomize,
@@ -2530,6 +2534,50 @@ final class Customizer
     public static function isWeatherEnabled(): bool
     {
         return (bool) get_theme_mod('kk_weather_enabled', true);
+    }
+
+    public static function isMarketHeaderEnabled(): bool
+    {
+        return MarketHeaderIndex::settings()['enabled'];
+    }
+
+    /* Market Header Index: the strip settings live in one option
+     * (kk_market_header_index) shared with the admin page, so these
+     * settings are 'option' type - the only option-type settings in
+     * the Customizer. Transport is refresh: the strip renders
+     * server-side, so a change reloads the preview with the new
+     * strip (or none, when disabled). */
+    private static function registerMarketHeader(WP_Customize_Manager $wpCustomize): void
+    {
+        $wpCustomize->add_setting('kk_market_header_index[enabled]', [
+            'type' => 'option',
+            'default' => true,
+            'sanitize_callback' => [MarketHeaderIndex::class, 'sanitizeEnabled'],
+            'transport' => 'refresh',
+        ]);
+
+        $wpCustomize->add_setting('kk_market_header_index[items]', [
+            'type' => 'option',
+            'default' => MarketHeaderIndex::defaultItems(),
+            'sanitize_callback' => [MarketHeaderIndex::class, 'sanitizeItems'],
+            'transport' => 'refresh',
+        ]);
+
+        $wpCustomize->add_control('kk_market_header_enabled', [
+            'label' => esc_html__('Show the market index strip', 'koperasikita'),
+            'description' => esc_html__('Shows the picked market indices in a dark strip below the header. Requires the Markets feature.', 'koperasikita'),
+            'section' => 'koperasikita_market_header',
+            'settings' => 'kk_market_header_index[enabled]',
+            'type' => 'checkbox',
+        ]);
+
+        $wpCustomize->add_control(new MarketItemsControl($wpCustomize, 'kk_market_header_items', [
+            'label' => esc_html__('Market items', 'koperasikita'),
+            'description' => esc_html__('Pick up to 16 items, in the order they show. Empty means the default set (IHSG, USD/IDR, Antam, Brent).', 'koperasikita'),
+            'section' => 'koperasikita_market_header',
+            'settings' => 'kk_market_header_index[items]',
+            'active_callback' => [self::class, 'isMarketHeaderEnabled'],
+        ]));
     }
 
     /* The slider settings only show while the Hero Presentation is

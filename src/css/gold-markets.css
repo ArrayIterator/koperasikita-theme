@@ -450,6 +450,64 @@
 	flex-shrink: 0;
 }
 
+/* Market header index
+ * The dark strip below the header: the index strip's row inside a
+ * full-width dark bar, with the snapshot label at the right. The
+ * row scrolls sideways on narrow screens (same as the index strip),
+ * so the bar never pushes the page wider than the viewport. The
+ * change chips use the light up/down colours from the dark data
+ * desk palette - the global --kk-success / --kk-error are ~1.9:1
+ * on dark and unreadable there (see --dd-up / --dd-down).
+ */
+
+.kk-market-header {
+	background: #1b1b1b;
+	color: #f2f2f2;
+	border-bottom: 1px solid rgb(255 255 255 / 0.12);
+}
+
+.kk-market-header-inner {
+	display: flex;
+	align-items: center;
+	gap: 8px 24px;
+	flex-wrap: wrap;
+	padding-top: 8px;
+	padding-bottom: 8px;
+}
+
+.kk-market-header .kk-index-strip {
+	flex: 1 1 0;
+	min-width: 0;
+	padding: 0;
+	border-top: 0;
+	border-bottom: 0;
+}
+
+.kk-market-header .kk-index-name {
+	color: rgb(255 255 255 / 0.72);
+}
+
+.kk-market-header .kk-index-value {
+	color: #fff;
+}
+
+.kk-market-header .kk-market-change-up {
+	color: #8ce99a;
+}
+
+.kk-market-header .kk-market-change-down {
+	color: #ffa8a8;
+}
+
+.kk-market-header-snapshot {
+	flex: none;
+	font-size: 12px;
+	letter-spacing: 0.08em;
+	text-transform: uppercase;
+	color: rgb(255 255 255 / 0.6);
+	white-space: nowrap;
+}
+
 /* Markets marquee
    Continuously scrolling ticker. The track holds two identical sets and
    translates -50% on a linear loop, so the seam never shows. Each item
