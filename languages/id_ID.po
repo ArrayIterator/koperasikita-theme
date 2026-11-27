@@ -2820,6 +2820,14 @@ msgstr "Halaman yang Anda cari mungkin telah dipindahkan, atau sudah tidak ada l
 msgid "Sticky while scrolling"
 msgstr "Menempel saat menggulir"
 
+#: inc/Admin/SidebarSettings.php
+msgid "Sidebar settings saved."
+msgstr "Pengaturan sidebar disimpan."
+
+#: inc/Setup/Setup.php
+msgid "Save settings"
+msgstr "Simpan pengaturan"
+
 msgid "Right column of the 404 page and the search page when no results are found. When empty, those pages are full width."
 msgstr "Kolom kanan halaman 404 dan halaman pencarian saat tidak ada hasil. Jika kosong, halaman tersebut tampil selebar penuh."
 
