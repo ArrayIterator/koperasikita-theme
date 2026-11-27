@@ -502,17 +502,9 @@ final class Setup
 
     private static function bookmarksPageUrl(): string
     {
-        $pages = get_pages([
-            'meta_key' => '_wp_page_template',
-            'meta_value' => 'template-bookmarks.php',
-            'number' => 1,
-        ]);
+        $url = \KoperasiKita\Features\Bookmarks::pageUrl();
 
-        if (!empty($pages) && isset($pages[0]->ID)) {
-            return (string) get_permalink((int) $pages[0]->ID);
-        }
-
-        return admin_url('edit.php?post_type=page');
+        return $url !== '' ? $url : admin_url('edit.php?post_type=page');
     }
 
     /**

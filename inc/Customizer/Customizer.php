@@ -1116,7 +1116,7 @@ final class Customizer
         self::addSetting(
             $wpCustomize,
             'kk_color_scheme',
-            'system',
+            'light',
             [self::class, 'sanitizeColorScheme'],
             'refresh'
         );
@@ -2876,7 +2876,7 @@ final class Customizer
 
     public static function sanitizeColorScheme(mixed $value): string
     {
-        return in_array($value, ['system', 'light', 'dark'], true) ? (string) $value : 'system';
+        return in_array($value, ['system', 'light', 'dark'], true) ? (string) $value : 'light';
     }
 
     public static function sanitizeMenuSide(mixed $value): string

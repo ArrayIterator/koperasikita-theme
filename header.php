@@ -9,7 +9,7 @@
 
 ?>
 <!doctype html>
-<html <?php language_attributes(); ?> data-color-scheme="system" data-kk-default-scheme="<?php echo esc_attr( (string) get_theme_mod( 'kk_color_scheme', 'system' ) ); ?>">
+<html <?php language_attributes(); ?> data-color-scheme="light" data-kk-default-scheme="<?php echo esc_attr( (string) get_theme_mod( 'kk_color_scheme', 'light' ) ); ?>">
 <head>
 	<script>
 	/* Colour scheme, resolved before first paint: read the stored
@@ -20,7 +20,7 @@
 	(function () {
 		try {
 			var stored = window.localStorage.getItem('kk-color-scheme');
-			var fallback = document.documentElement.getAttribute('data-kk-default-scheme') || 'system';
+			var fallback = document.documentElement.getAttribute('data-kk-default-scheme') || 'light';
 			if (stored !== 'dark' && stored !== 'light' && stored !== 'system') {
 				stored = fallback;
 			}
@@ -31,7 +31,7 @@
 			 * it is "system" the toggle shows a monitor (the resolved
 			 * scheme alone cannot tell system from a pinned mode). */
 			document.documentElement.setAttribute('data-kk-scheme', stored);
-		} catch (e) { /* private mode / no storage: keep the "system" default */ }
+		} catch (e) { /* private mode / no storage: keep the "light" default */ }
 	})();
 	</script>
 	<meta charset="<?php bloginfo( 'charset' ); ?>">

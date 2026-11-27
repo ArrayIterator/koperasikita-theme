@@ -22,6 +22,15 @@
 	padding-bottom: 16px;
 }
 
+/* Search result count: muted meta under the heading, above the
+ * form - the same muted 14px as the card meta, so it reads as
+ * information, not a second heading. */
+.kk-search-count {
+	color: var(--kk-muted);
+	font-size: 14px;
+	margin-top: 8px;
+}
+
 .kk-archive-description {
 	color: var(--kk-muted);
 	margin-top: 8px;
@@ -950,18 +959,21 @@
 	margin-top: 4px;
 }
 
-/* The note reads as plain text, not a boxed field: transparent,
- * no border, same font as the rest of the item. It is still a
- * textarea - click to edit, Save note persists it. */
+/* The note is a real input, like the comment form and search
+ * fields: bordered, paper background, padded. Capped in width so
+ * it does not stretch the full-width bookmarks column as one big
+ * empty box - a note is short text, not a document. It is still
+ * a textarea - click to edit, Save note persists it. */
 .kk-bookmark-item-note {
 	margin-top: 10px;
 	font-family: inherit;
 	font-size: 14px;
-	background: transparent;
-	border: 0;
-	border-radius: 0;
-	padding: 0;
+	background: var(--kk-paper);
+	border: 1px solid var(--kk-border);
+	border-radius: var(--kk-radius);
+	padding: 10px 12px;
 	width: 100%;
+	max-width: 560px;
 	color: var(--kk-ink);
 	resize: vertical;
 }
