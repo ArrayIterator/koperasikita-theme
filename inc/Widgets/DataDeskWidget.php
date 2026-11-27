@@ -13,14 +13,11 @@ use WP_Widget;
  * the last N days on the left, three stats on the right (price with
  * day change, buyback with spread, weekly performance).
  *
- * The widget renders a Data Desk template: the built-in Default
- * template, or a custom template created on the Data Desk Templates
- * admin page. The Default template can never be deleted or edited —
- * to change it, duplicate it into a new template and edit that one.
- * The chart is an inline SVG generated server-side from the stored
- * price history (gold) or a placeholder (stocks, which have no
- * history table yet). When the Markets feature is disabled the
- * widget renders nothing.
+ * The widget renders a Data Desk template created on the Data
+ * Desk Templates admin page. The chart is an inline SVG generated
+ * server-side from the stored price history (gold) or a
+ * placeholder (stocks, which have no history table yet). When the
+ * Markets feature is disabled the widget renders nothing.
  */
 final class DataDeskWidget extends WP_Widget
 {
@@ -44,14 +41,20 @@ final class DataDeskWidget extends WP_Widget
             return;
         }
 
-        $templateId = isset($instance['template']) ? sanitize_key((string) $instance['template']) : DataDesk::DEFAULT_TEMPLATE_ID;
-        $template = DataDesk::getTemplate($templateId);
+        $templateId = isset($instance['template']) ? sanitize_key((string) $instance['template']) : '';
+        $template = $templateId !== '' ? DataDesk::getTemplate($templateId) : null;
         // A table template picked here (its kind was changed after the
-        // widget picked it) falls back to the default panel template —
-        // this widget only ever renders panels.
-        if ($template['kind'] !== DataDesk::KIND_PANEL) {
-            $template = DataDesk::defaultTemplate();
+        // widget picked it) falls back to the first stored panel
+        // template — this widget only ever renders panels. With no
+        // panel template at all the widget renders nothing.
+        if ($template === null || $template['kind'] !== DataDesk::KIND_PANEL) {
+            $template = DataDesk::firstTemplateOfKind(DataDesk::KIND_PANEL);
         }
+
+        if ($template === null) {
+            return;
+        }
+
         $parsed = DataDesk::parseSymbol($template['symbol']);
         $parsed = $parsed ?? ['market' => 'gold', 'symbol' => 'antam'];
 
@@ -76,13 +79,14 @@ final class DataDeskWidget extends WP_Widget
     public function form($instance): void
     {
         $title = isset($instance['title']) ? (string) $instance['title'] : '';
-        $templateId = isset($instance['template']) ? sanitize_key((string) $instance['template']) : DataDesk::DEFAULT_TEMPLATE_ID;
+        $templateId = isset($instance['template']) ? sanitize_key((string) $instance['template']) : '';
         // The preview shows what the widget will render: a table
-        // template picked here falls back to the default panel, the
-        // same fallback widget() applies.
-        $previewTemplate = DataDesk::getTemplate($templateId);
-        if ($previewTemplate['kind'] !== DataDesk::KIND_PANEL) {
-            $previewTemplate = DataDesk::defaultTemplate();
+        // template picked here falls back to the first stored panel,
+        // the same fallback widget() applies. With no panel template
+        // the preview says so instead of showing a built-in.
+        $previewTemplate = $templateId !== '' ? DataDesk::getTemplate($templateId) : null;
+        if ($previewTemplate === null || $previewTemplate['kind'] !== DataDesk::KIND_PANEL) {
+            $previewTemplate = DataDesk::firstTemplateOfKind(DataDesk::KIND_PANEL);
         }
         ?>
         <p>
@@ -124,10 +128,14 @@ final class DataDeskWidget extends WP_Widget
         <div class="kk-data-desk-widget-preview" data-kk-data-desk-widget-preview data-kk-kind="panel">
             <p class="kk-data-desk-widget-preview-label"><?php esc_html_e('Layout preview — sample data', 'koperasikita'); ?></p>
             <div data-kk-data-desk-widget-preview-body>
-                <?php
-                // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- renderPreview returns the theme's own template markup.
-                echo DataDesk::renderPreview($previewTemplate);
-                ?>
+                <?php if ($previewTemplate !== null) : ?>
+                    <?php
+                    // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- renderPreview returns the theme's own template markup.
+                    echo DataDesk::renderPreview($previewTemplate);
+                    ?>
+                <?php else : ?>
+                    <p class="description"><?php esc_html_e('No templates yet. Create one on the Data Desk Templates page.', 'koperasikita'); ?></p>
+                <?php endif; ?>
             </div>
         </div>
         <?php
@@ -143,9 +151,10 @@ final class DataDeskWidget extends WP_Widget
         $instance = [];
         $instance['title'] = isset($new['title']) ? sanitize_text_field((string) $new['title']) : '';
 
-        $templateId = isset($new['template']) ? sanitize_key((string) $new['template']) : DataDesk::DEFAULT_TEMPLATE_ID;
+        $templateId = isset($new['template']) ? sanitize_key((string) $new['template']) : '';
         $templates = DataDesk::templatesOfKind(DataDesk::KIND_PANEL);
-        $instance['template'] = isset($templates[$templateId]) ? $templateId : DataDesk::DEFAULT_TEMPLATE_ID;
+        $first = DataDesk::firstTemplateOfKind(DataDesk::KIND_PANEL);
+        $instance['template'] = isset($templates[$templateId]) ? $templateId : ($first['id'] ?? '');
 
         $instance['header_style'] = WidgetHeader::sanitize($new['header_style'] ?? WidgetHeader::CLASSIC_TOP);
 
