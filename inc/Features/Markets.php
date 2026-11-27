@@ -554,6 +554,103 @@ final class Markets
     }
 
     /**
+     * In-request cache of one provider's stored gold prices: the
+     * transient or the last-good option, never an upstream fetch.
+     *
+     * @var array<string, array<string, MarketPrice>|null>
+     */
+    private static array $goldProviderStoredPrices = [];
+
+    /** One provider's stored gold prices, read at most once per request. */
+    private static function goldProviderStoredPrices(string $providerId): array
+    {
+        if (!isset(self::$goldProviderStoredPrices[$providerId])) {
+            $providers = self::providers();
+            $provider = $providers[$providerId] ?? null;
+            if ($provider instanceof AbstractLiveProvider && $provider->supports('gold')) {
+                self::$goldProviderStoredPrices[$providerId] = $provider->storedPrices('gold');
+            } elseif ($provider instanceof MarketPriceProvider && $provider->supports('gold')) {
+                // A non-live provider (Manual) reads its snapshots,
+                // never the network, so its live read is already stored-only.
+                self::$goldProviderStoredPrices[$providerId] = $provider->prices('gold');
+            } else {
+                self::$goldProviderStoredPrices[$providerId] = [];
+            }
+        }
+
+        return self::$goldProviderStoredPrices[$providerId] ?? [];
+    }
+
+    /**
+     * In-request cache of one provider's last-good rows from the
+     * history table, as MarketPrice objects. The table is written by
+     * the CSV sync and the official-history writer independently of
+     * the provider fetch, so it can hold a price the provider's own
+     * last-good option never saw.
+     *
+     * @var array<string, array<string, MarketPrice>|null>
+     */
+    private static array $goldProviderTablePrices = [];
+
+    /** One provider's history-table gold prices, read at most once per request. */
+    private static function goldProviderTablePrices(string $providerId): array
+    {
+        if (!isset(self::$goldProviderTablePrices[$providerId])) {
+            $labels = self::symbols('gold');
+            $prices = [];
+
+            foreach (GoldPricesTable::lastGood($providerId) as $symbol => $row) {
+                if (!isset($labels[$symbol])) {
+                    continue;
+                }
+
+                $sell = (float) ($row['sell_price'] ?? 0);
+
+                if ($sell <= 0) {
+                    continue;
+                }
+
+                $prices[$symbol] = new MarketPrice(
+                    'gold',
+                    $symbol,
+                    $labels[$symbol],
+                    $sell,
+                    null,
+                    (string) ($row['currency'] ?? 'IDR'),
+                    (int) ($row['fetched_at'] ?? 0),
+                    $providerId
+                );
+            }
+
+            self::$goldProviderTablePrices[$providerId] = $prices;
+        }
+
+        return self::$goldProviderTablePrices[$providerId] ?? [];
+    }
+
+    /**
+     * One symbol's stored price from one provider: the transient,
+     * else the provider's last-good option, else the history table.
+     * Null when the provider holds nothing stored for the symbol.
+     */
+    private static function goldStoredPrice(string $providerId, string $symbol): ?MarketPrice
+    {
+        $stored = self::goldProviderStoredPrices($providerId)[$symbol] ?? null;
+
+        if ($stored instanceof MarketPrice && $stored->hasData()) {
+            return $stored;
+        }
+
+        $table = self::goldProviderTablePrices($providerId)[$symbol] ?? null;
+
+        if ($table instanceof MarketPrice && $table->hasData()) {
+            return $table;
+        }
+
+        return null;
+    }
+
+    /**
      * Gold prices resolved per brand.
      *
      * Each enabled symbol is priced from its own primary provider
@@ -563,6 +660,18 @@ final class Markets
      * and strip show an honest empty state for it, never an invented
      * price. Every returned price carries the provider that actually
      * supplied it in MarketPrice::$provider.
+     *
+     * Stored first: a render serves the saved prices (transient,
+     * last-good option, history table) and never stalls on the
+     * network while one exists - a cold transient used to block the
+     * whole page render on an 8-second upstream fetch, which is what
+     * left the gold slider empty on the first load and made the data
+     * arrive late, like a debounce. The transient is warmed in the
+     * background afterwards by the browser refresh (gold-markets.ts
+     * calls the backend endpoint, which fetches live on a cold
+     * transient). Only a symbol with nothing stored anywhere falls
+     * through to the live fetch, so a brand-new install with no
+     * saved prices still gets data.
      *
      * Request count: providers are grouped, so one fetch per provider
      * serves every brand that uses it - the scraped prices.json is
@@ -583,6 +692,26 @@ final class Markets
 
         foreach ($enabled as $symbol => $label) {
             $primary = Gold::brandProvider($symbol);
+            $price = self::goldStoredPrice($primary, $symbol);
+
+            if ($price !== null) {
+                $prices[$symbol] = $price->withProvider($primary);
+                continue;
+            }
+
+            $fallback = Gold::brandFallbackProvider($symbol);
+
+            if ($fallback !== '' && $fallback !== $primary) {
+                $price = self::goldStoredPrice($fallback, $symbol);
+
+                if ($price !== null) {
+                    $prices[$symbol] = $price->withProvider($fallback);
+                    continue;
+                }
+            }
+
+            // No stored price anywhere: the live fetch is the last
+            // resort, so a brand-new install still gets data.
             $fromPrimary = self::goldProviderPrices($primary);
             $price = $fromPrimary[$symbol] ?? null;
 
@@ -590,8 +719,6 @@ final class Markets
                 $prices[$symbol] = $price->withProvider($primary);
                 continue;
             }
-
-            $fallback = Gold::brandFallbackProvider($symbol);
 
             if ($fallback === '' || $fallback === $primary) {
                 continue;

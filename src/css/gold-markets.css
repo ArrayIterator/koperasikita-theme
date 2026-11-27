@@ -209,7 +209,15 @@
 }
 
 .kk-gold-slider--vertical-carousel .kk-widget-scroll {
-	max-height: 240px;
+	/* Reserve two slides before the script measures: two 170px
+	 * slides + the 8px track gap = 348px at the 320px sidebar
+	 * width (measured in the first-paint probe), plus 4px for font
+	 * variance. The old 240px cap cut the second slide off until
+	 * the script set the exact height, so the first paint showed
+	 * only one slide. A cap only limits; the height itself still
+	 * follows the content, and the script still sets the exact
+	 * height on DOMContentLoaded. */
+	max-height: 352px;
 }
 
 /* Gold horizontal carousel: the same track, sideways. One card

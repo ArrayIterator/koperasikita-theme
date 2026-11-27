@@ -50,21 +50,18 @@ if ($colorStyle === 'dark') {
     $classes .= ' kk-gold-slider--light';
 }
 ?>
-<div class="<?php echo esc_attr($classes); ?><?php echo $single ? ' is-single' : ''; ?>" data-kk-gold-slider data-style="<?php echo esc_attr($style); ?>" data-items-per-view="<?php echo esc_attr((string) $itemsPerView); ?>" data-interval="<?php echo esc_attr((string) ($interval * 1000)); ?>" data-autoplay="<?php echo $autoplay ? '1' : '0'; ?>">
+<div class="<?php echo esc_attr($classes); ?><?php echo $single ? ' is-single' : ''; ?>" data-kk-gold-slider data-style="<?php echo esc_attr($style); ?>" data-items-per-view="<?php echo esc_attr((string) $itemsPerView); ?>" data-interval="<?php echo esc_attr((string) ($interval * 1000)); ?>" data-autoplay="<?php echo $autoplay ? '1' : '0'; ?>" data-kk-market-prices data-kk-market="gold" data-kk-provider="per-brand">
+	<?php /* Live refresh (gold-markets.ts): the container carries the markets hooks so the browser refreshes the prices in the background. No data-kk-client-api on purpose - the refresh goes through the backend endpoint, which warms the server transient on a cold cache; a direct client call would leave the transient cold and the next first paint stale. */ ?>
 	<div class="kk-widget-scroll">
 		<ul class="kk-gold-slides">
 			<?php $index = 0; ?>
 			<?php foreach ($brands as $slug => $price) : ?>
-				<li class="kk-gold-slide<?php echo $index === 0 ? ' is-active' : ''; ?>" data-kk-gold-slide<?php echo $price->provider !== '' ? ' data-kk-provider="' . esc_attr($price->provider) . '" title="' . esc_attr(sprintf(__('Source: %s', 'koperasikita'), \KoperasiKita\Features\Gold::providerLabel($price->provider))) . '"' : ''; ?>>
+				<li class="kk-gold-slide<?php echo $index === 0 ? ' is-active' : ''; ?>" data-kk-gold-slide data-kk-symbol="<?php echo esc_attr((string) $slug); ?>"<?php echo $price->provider !== '' ? ' data-kk-provider="' . esc_attr($price->provider) . '" title="' . esc_attr(sprintf(__('Source: %s', 'koperasikita'), \KoperasiKita\Features\Gold::providerLabel($price->provider))) . '"' : ''; ?>>
 					<p class="kk-gold-brand"><?php echo esc_html($price->label); ?></p>
-					<p class="kk-gold-price"><?php echo esc_html(Markets::formatPrice((float) $price->price, $price->currency)); ?></p>
+					<p class="kk-gold-price" data-kk-price><?php echo esc_html(Markets::formatPrice((float) $price->price, $price->currency)); ?></p>
 					<p class="kk-gold-meta">
 						<span><?php esc_html_e('per gram', 'koperasikita'); ?></span>
-						<?php if ($price->change !== null) : ?>
-							<span class="kk-market-change <?php echo $price->change >= 0 ? 'kk-market-change-up' : 'kk-market-change-down'; ?>">
-								<?php echo esc_html(Markets::formatChange($price->change)); ?>
-							</span>
-						<?php endif; ?>
+						<span class="kk-market-change<?php echo $price->change !== null ? ($price->change >= 0 ? ' kk-market-change-up' : ' kk-market-change-down') : ''; ?>" data-kk-change><?php echo $price->change !== null ? esc_html(Markets::formatChange($price->change)) : ''; ?></span>
 					</p>
 					<?php if ($price->updated > 0) : ?>
 						<p class="kk-gold-updated">
