@@ -156,13 +156,30 @@ final class OpenMeteoProvider implements WeatherProvider
                 'name' => sanitize_text_field((string) $place['name']),
                 'latitude' => (float) $place['latitude'],
                 'longitude' => (float) $place['longitude'],
-                'country' => isset($place['country']) ? sanitize_text_field((string) $place['country']) : '',
+                'country' => self::placeLabel($place),
             ];
         }
 
         set_transient($cacheKey, $results, self::SEARCH_TTL);
 
         return $results;
+    }
+
+    /**
+     * The label under a place name: the finest admin area first, so
+     * same-named places in different regencies read differently
+     * ("Kediri, East Java, Indonesia"). Empty parts are skipped, so
+     * a place with no admin area is just its country, as before.
+     */
+    private static function placeLabel(array $place): string
+    {
+        $parts = array_filter([
+            isset($place['admin2']) ? sanitize_text_field((string) $place['admin2']) : '',
+            isset($place['admin1']) ? sanitize_text_field((string) $place['admin1']) : '',
+            isset($place['country']) ? sanitize_text_field((string) $place['country']) : '',
+        ]);
+
+        return implode(', ', $parts);
     }
 
     /**

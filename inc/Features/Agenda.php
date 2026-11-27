@@ -953,15 +953,22 @@ final class Agenda
 
     /**
      * The shared Pick Location popup, rendered once at the end of the
-     * agenda editor screen (post.php / post-new.php only). The submit
-     * form renders the same template part itself, so both contexts
-     * share one popup and one script.
+     * agenda editor screen (post.php / post-new.php only) and the
+     * Locations admin page. The submit form renders the same template
+     * part itself, so all contexts share one popup and one script.
      */
     public static function renderPickLocationPopup(): void
     {
         $screen = function_exists('get_current_screen') ? get_current_screen() : null;
 
-        if (!$screen instanceof \WP_Screen || $screen->post_type !== self::POST_TYPE || !in_array($screen->base, ['post', 'post-new'], true)) {
+        if (!$screen instanceof \WP_Screen) {
+            return;
+        }
+
+        $isAgendaEditor = $screen->post_type === self::POST_TYPE && in_array($screen->base, ['post', 'post-new'], true);
+        $isLocationsPage = $screen->id === \KoperasiKita\Admin\AdminMenu::submenuHookSuffix(self::LOCATIONS_PAGE_SLUG);
+
+        if (!$isAgendaEditor && !$isLocationsPage) {
             return;
         }
 

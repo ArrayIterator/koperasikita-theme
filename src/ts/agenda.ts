@@ -242,6 +242,68 @@ function initDisplayMap(el: HTMLElement): void {
 	requestAnimationFrame(() => map.invalidateSize());
 }
 
+/* --- Location preview map (Locations admin form) ----------------------- */
+/* The form's own Leaflet map: the pin follows the Latitude /
+ * Longitude fields — typed by hand, picked from a search result, or
+ * applied from the Pick Location popup — and the map is centred on
+ * the picker's default location with no pin until both fields hold a
+ * valid coordinate. The fields are the source of truth, so a
+ * programmatic fill announces itself with a change event the map
+ * listens for, exactly like a manual edit. */
+function initLocationPreviewMap(el: HTMLElement): void {
+	const form = el.closest('form');
+	const latInput = form?.querySelector<HTMLInputElement>('[data-kk-agenda-lat]') ?? null;
+	const lngInput = form?.querySelector<HTMLInputElement>('[data-kk-agenda-lng]') ?? null;
+
+	if (!latInput || !lngInput) {
+		return;
+	}
+
+	const picker = el.closest<HTMLElement>('[data-kk-agenda-map-picker]');
+	const defaultLat = parseCoord(picker?.dataset.kkAgendaDefaultLat ?? '', -90, 90) ?? -0.9471;
+	const defaultLng = parseCoord(picker?.dataset.kkAgendaDefaultLng ?? '', -180, 180) ?? 100.4172;
+
+	// Same rule as the display map: the container is display: none
+	// until .is-ready, so show it before Leaflet measures it.
+	el.classList.add('is-ready');
+	const map = L.map(el, { scrollWheelZoom: false }).setView([defaultLat, defaultLng], DEFAULT_ZOOM);
+	addTileLayer(map);
+
+	let marker: L.Marker | null = null;
+
+	// Arrow function, not a hoisted declaration: the null guard above
+	// narrows latInput/lngInput, and only a non-hoisted closure keeps
+	// that narrowing (a function declaration would lose it).
+	const syncPin = (): void => {
+		const lat = parseCoord(latInput.value, -90, 90);
+		const lng = parseCoord(lngInput.value, -180, 180);
+
+		if (lat === null || lng === null) {
+			if (marker !== null) {
+				marker.remove();
+				marker = null;
+			}
+			return;
+		}
+
+		if (marker === null) {
+			marker = L.marker([lat, lng], { icon: makePin() }).addTo(map);
+		} else {
+			marker.setLatLng([lat, lng]);
+		}
+
+		map.setView([lat, lng], map.getZoom());
+	};
+
+	[latInput, lngInput].forEach((input) => {
+		input.addEventListener('input', syncPin);
+		input.addEventListener('change', syncPin);
+	});
+
+	syncPin();
+	requestAnimationFrame(() => map.invalidateSize());
+}
+
 /* --- Pick Location popup -------------------------------------------------- */
 /* One popup per page, shared by every picker block (the admin meta box
  * and the contributor form never share a page, but the code does not
@@ -252,7 +314,10 @@ interface PickerBlock {
 	block: HTMLElement;
 	latInput: HTMLInputElement;
 	lngInput: HTMLInputElement;
-	descInput: HTMLInputElement;
+	// The agenda editor keeps this as a hidden input; the Locations
+	// form wires its visible description textarea instead, so the
+	// union covers both. Either way only .value is read or written.
+	descInput: HTMLInputElement | HTMLTextAreaElement;
 	coords: HTMLElement;
 	pickButton: HTMLButtonElement;
 	noPin: string;
@@ -272,9 +337,21 @@ let popupMap: L.Map | null = null;
 let popupMarker: L.Marker | null = null;
 
 function pickerFromBlock(block: HTMLElement): PickerBlock | null {
-	const latInput = block.querySelector<HTMLInputElement>('[data-kk-agenda-lat]');
-	const lngInput = block.querySelector<HTMLInputElement>('[data-kk-agenda-lng]');
-	const descInput = block.querySelector<HTMLInputElement>('[data-kk-agenda-location-desc]');
+	// The block's own inputs first (the agenda editor: hidden inputs
+	// inside the block). The Locations form keeps its visible
+	// Latitude / Longitude / Description fields in their own table
+	// rows, so fall back to the form that owns the block — the same
+	// scope location-search.ts already uses for the search field.
+	const form = block.closest('form');
+	const latInput = block.querySelector<HTMLInputElement>('[data-kk-agenda-lat]')
+		?? form?.querySelector<HTMLInputElement>('[data-kk-agenda-lat]')
+		?? null;
+	const lngInput = block.querySelector<HTMLInputElement>('[data-kk-agenda-lng]')
+		?? form?.querySelector<HTMLInputElement>('[data-kk-agenda-lng]')
+		?? null;
+	const descInput = block.querySelector<HTMLInputElement | HTMLTextAreaElement>('[data-kk-agenda-location-desc]')
+		?? form?.querySelector<HTMLInputElement | HTMLTextAreaElement>('[data-kk-agenda-location-desc]')
+		?? null;
 	const coords = block.querySelector<HTMLElement>('[data-kk-agenda-coords]');
 	const pickButton = block.querySelector<HTMLButtonElement>('[data-kk-agenda-pick]');
 
@@ -447,6 +524,11 @@ function initPickLocationPopup(): void {
 		activePicker.descInput.value = popupDesc.value.trim().slice(0, 200);
 		activePicker.coords.textContent = hasPin ? `${lat}, ${lng}` : activePicker.noPin;
 
+		// A programmatic value set fires no event, so announce it:
+		// the Locations form's preview map follows these inputs.
+		activePicker.latInput.dispatchEvent(new Event('change', { bubbles: true }));
+		activePicker.lngInput.dispatchEvent(new Event('change', { bubbles: true }));
+
 		closePopup();
 	}
 
@@ -591,6 +673,7 @@ function initPickLocationPopup(): void {
 document.addEventListener('DOMContentLoaded', () => {
 	initAgenda();
 	$all<HTMLElement>('[data-kk-agenda-map]').forEach((el) => initDisplayMap(el));
+	$all<HTMLElement>('[data-kk-location-preview-map]').forEach((el) => initLocationPreviewMap(el));
 	initPickLocationPopup();
 	initLocationSearchFields();
 });
