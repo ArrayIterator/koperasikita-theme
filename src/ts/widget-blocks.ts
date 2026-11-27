@@ -30,7 +30,7 @@ type FieldDef =
 	| { key: string; kind: 'select'; label: string; options: OptionItem[] }
 	| { key: string; kind: 'toggle'; label: string }
 	| { key: string; kind: 'checkboxes'; label: string; options: OptionItem[] }
-	| { key: string; kind: 'multiselect'; label: string; help?: string; options: OptionItem[] }
+	| { key: string; kind: 'termsearch'; label: string; help?: string; source: 'categories' | 'options'; options: OptionItem[] }
 	| { key: string; kind: 'categories'; label: string; help?: string }
 	| { key: string; kind: 'tags'; label: string; help?: string }
 	| { key: string; kind: 'locations'; label: string; help?: string }
@@ -133,6 +133,7 @@ interface Wp {
 	};
 	i18n: {
 		__(text: string, domain?: string): string;
+		sprintf(format: string, ...args: Array<string | number>): string;
 	};
 }
 
@@ -349,6 +350,196 @@ function decodeTitle(html: string): string {
  * kk_agenda_link_search endpoint — the same search the widget form
  * uses. A real component (not a renderField branch) so it can hold
  * the search state and resolve the stored id to a title. */
+const EMPTY_RECORDS: CategoryRecord[] = [];
+
+/* Browse cap: under 50 terms the whole list shows; at 50+ only
+ * the first 10, so the panel stays scannable. 10 is the cap the
+ * user picked (20/25 would do too); typing searches the whole
+ * set either way, the cap only limits the initial browse list. */
+const BROWSE_FULL_MAX = 50;
+const BROWSE_LIMIT = 10;
+
+/* The term search field: picked terms as removable chips plus a
+ * search box. With an empty search the cached localized list
+ * shows (all of it under 50 terms, the first 10 at 50+), so the
+ * list stays browseable; typing searches the WordPress core store
+ * (categories) or filters the localized list in the browser
+ * (brands). A real component — it holds the search state. */
+function TermSearchField(props: {
+	field: { key: string; label: string; help?: string; source: 'categories' | 'options'; options: OptionItem[] };
+	value: unknown;
+	set: (key: string, value: unknown) => void;
+	api: Wp;
+}): unknown {
+	const { field, value, set, api } = props;
+	const __ = (text: string): string => api.i18n.__(text, 'koperasikita');
+	const selected: string[] = Array.isArray(value)
+		? value.filter((item): item is string => typeof item === 'string')
+		: [];
+	const [query, setQuery] = api.element.useState('');
+	const [debounced, setDebounced] = api.element.useState('');
+	const [status, setStatus] = api.element.useState('');
+	const timer = api.element.useRef<number | null>(null);
+
+	/* The core store search only runs for a real query (categories);
+	 * short queries filter the localized list in the browser instead,
+	 * so typing never waits on the network for the first characters. */
+	const trimmed = debounced.trim();
+	const searching = field.source === 'categories' && trimmed.length >= 2;
+	const records = api.data.useSelect(
+		(select) =>
+			searching
+				? select('core').getEntityRecords('taxonomy', 'category', { search: trimmed, per_page: 20 })
+				: EMPTY_RECORDS,
+		[searching, trimmed],
+	);
+
+	const selectedSet = new Set(selected);
+	const labelFor = (val: string): string => {
+		const known = field.options.find((option) => option.value === val);
+		return known !== undefined ? known.label : val;
+	};
+
+	/* Results: the cached localized list while browsing, the core
+	 * store search while typing (categories), a client-side filter
+	 * while typing (brands, or a query too short to search).
+	 * Already-picked terms never show twice.
+	 *
+	 * The browse list is the cached variable: field.options is the
+	 * localized kkWidgetBlocks list — one PHP get_terms per editor
+	 * page load, no cap — so the component never refetches it.
+	 * Its length is the true total (the list is never truncated
+	 * upstream), which is what the capped count line reports. The
+	 * search path is cached the same way: the core store keeps
+	 * each resolved query, the selector only re-runs when the
+	 * debounced query changes, and the 300ms debounce means one
+	 * request per pause, never one per keystroke. */
+	let results: OptionItem[] = [];
+	let waiting = false;
+	let browseCapped = false;
+	let browseShown = 0;
+	let browseTotal = 0;
+	if (trimmed === '') {
+		const available = field.options.filter((option) => !selectedSet.has(option.value));
+		browseTotal = field.options.length;
+		if (browseTotal < BROWSE_FULL_MAX) {
+			results = available;
+		} else {
+			results = available.slice(0, BROWSE_LIMIT);
+			browseCapped = true;
+		}
+		browseShown = results.length;
+	} else if (field.source === 'options' || trimmed.length < 2) {
+		const needle = trimmed.toLowerCase();
+		results = field.options.filter(
+			(option) => !selectedSet.has(option.value) && option.label.toLowerCase().includes(needle),
+		);
+	} else if (records === null) {
+		waiting = true;
+	} else {
+		results = records
+			.filter((record) => !selectedSet.has(String(record.id)))
+			.map((record) => ({ value: String(record.id), label: record.name }));
+	}
+
+	const onQueryChange = (next: string): void => {
+		setQuery(next);
+		if (timer.current !== null) {
+			window.clearTimeout(timer.current);
+			timer.current = null;
+		}
+		timer.current = window.setTimeout(() => setDebounced(next), 300);
+	};
+
+	const add = (option: OptionItem): void => {
+		if (selected.includes(option.value)) {
+			setStatus(`${option.label} ${__('is already in the list.')}`);
+			return;
+		}
+		set(field.key, [...selected, option.value]);
+		setQuery('');
+		setDebounced('');
+		setStatus(`${option.label} ${__('added.')}`);
+	};
+
+	const remove = (val: string): void => {
+		set(field.key, selected.filter((item) => item !== val));
+	};
+
+	const chips = selected.map((val) => {
+		const label = labelFor(val);
+		return api.element.createElement(
+			'li',
+			{ key: val, className: 'kk-termsearch-row' },
+			api.element.createElement('span', { className: 'kk-termsearch-name' }, label),
+			api.element.createElement(
+				'button',
+				{
+					type: 'button',
+					className: 'kk-termsearch-remove',
+					'aria-label': `${__('Remove')} ${label}`,
+					onClick: () => remove(val),
+				},
+				'×',
+			),
+		);
+	});
+
+	const resultButtons = results.map((option) =>
+		api.element.createElement(
+			'li',
+			{ key: option.value },
+			api.element.createElement(
+				'button',
+				{
+					type: 'button',
+					className: 'kk-termsearch-result',
+					onClick: () => add(option),
+				},
+				option.label,
+			),
+		),
+	);
+
+	return api.element.createElement(
+		'div',
+		{ key: field.key, className: 'kk-termsearch-field' },
+		api.element.createElement('p', { className: 'kk-termsearch-label' }, field.label),
+		api.element.createElement('ul', { className: 'kk-termsearch-list' }, ...chips),
+		api.element.createElement(api.components.TextControl, {
+			label: __('Search terms'),
+			help: field.help ?? '',
+			value: query,
+			onChange: (next: string) => onQueryChange(next),
+		}),
+		waiting ? api.element.createElement(api.components.Spinner, null) : null,
+		resultButtons.length > 0
+			? api.element.createElement('ul', { className: 'kk-termsearch-results' }, ...resultButtons)
+			: null,
+		browseCapped && resultButtons.length > 0
+			? api.element.createElement(
+					'p',
+					{ className: 'components-base-control__help' },
+					api.i18n.sprintf(
+						__('Showing %1$s of %2$s — type to search.'),
+						String(browseShown),
+						String(browseTotal),
+					),
+				)
+			: null,
+		resultButtons.length === 0 && !waiting
+			? api.element.createElement(
+					'p',
+					{ className: 'components-base-control__help' },
+					trimmed === '' ? __('No terms found.') : __('No terms match your search.'),
+				)
+			: null,
+		status !== ''
+			? api.element.createElement('p', { className: 'components-base-control__help' }, status)
+			: null,
+	);
+}
+
 function PostSearchField(props: {
 	field: { key: string; label: string; help?: string };
 	value: unknown;
@@ -572,26 +763,12 @@ function renderField(
 				...boxes,
 			);
 		}
-		case 'multiselect': {
-			/* A real multi-select dropdown (WordPress SelectControl
-			 * with multiple): all options visible at once, proper
-			 * value/label mapping, stored as an array of slugs.
-			 * An empty selection means "all" — same as the checkbox
-			 * list it replaces. */
-			const selected: string[] = Array.isArray(value)
-				? value.filter((item): item is string => typeof item === 'string')
-				: [];
-			return api.element.createElement(api.components.SelectControl, {
-				key,
-				label: field.label,
-				help: field.help ?? '',
-				multiple: true,
-				value: selected,
-				options: field.options,
-				onChange: (next: string[] | string) => {
-					set(key, Array.isArray(next) ? next : [next]);
-				},
-			});
+		case 'termsearch': {
+			/* Searchable term picker: picked terms as chips plus a
+			 * search box — the core store for categories, the
+			 * localized list for brands. A real component, so it
+			 * can hold the search state. */
+			return api.element.createElement(TermSearchField, { key, field, value, set, api });
 		}
 		case 'categories': {
 			/* Checkbox list, not a token field: every category shows
@@ -989,9 +1166,10 @@ function buildDefinitions(api: Wp): BlockDef[] {
 				{ key: 'title', kind: 'text', label: __('Title') },
 				{
 					key: 'categoryIds',
-					kind: 'multiselect',
+					kind: 'termsearch',
 					label: __('Categories to show'),
 					help: __('Leave empty to show the three categories with the most posts.'),
+					source: 'categories',
 					options: kkWidgetBlocks?.categories ?? [],
 				},
 				{ key: 'count', kind: 'number', label: __('Posts per category'), min: 1, max: 5 },
@@ -1016,9 +1194,10 @@ function buildDefinitions(api: Wp): BlockDef[] {
 				headerStyleField,
 				{
 					key: 'brands',
-					kind: 'multiselect',
+					kind: 'termsearch',
 					label: __('Brands to show'),
 					help: __('Leave empty to show all brands.'),
+					source: 'options',
 					options: kkWidgetBlocks?.goldBrands ?? [],
 				},
 			],
