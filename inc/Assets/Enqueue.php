@@ -502,6 +502,8 @@ final class Enqueue
                         'syncStepLatest' => __(' (latest %s)', 'koperasikita'),
                         'syncDone' => __('Done — inserted %s, skipped %s (already in database). Reloading…', 'koperasikita'),
                         'loadingPreview' => __('Loading preview…', 'koperasikita'),
+                        'editKickerHint' => __('Click to edit the kicker.', 'koperasikita'),
+                        'editTitleHint' => __('Click to edit the title.', 'koperasikita'),
                     ],
                 ]);
             }

@@ -55,6 +55,7 @@ final class DataDesk
         'dark-green' => 'Dark Green',
         'light' => 'Light',
         'dark' => 'Dark',
+        'auto' => 'Follow site theme',
     ];
 
     public const DEFAULT_PALETTE = 'dark-green';
@@ -113,6 +114,7 @@ final class DataDesk
                 'palette' => $template['palette'] ?? self::DEFAULT_PALETTE,
                 'days' => (int) ($template['days'] ?? self::DEFAULT_DAYS),
                 'title' => $template['title'] ?? '',
+                'kicker' => $template['kicker'] ?? '',
                 'preview' => true,
             ]);
         }
@@ -231,7 +233,7 @@ final class DataDesk
      * template's preview HTML for the current form values. Either
      * a saved template id (`template`) or the raw form fields
      * (`kind`, `symbol`, `brands` as a comma-separated list,
-     * `palette`, `days`, `title`) — the form sends fields, the
+     * `palette`, `days`, `title`, `kicker`) — the form sends fields, the
      * widget forms send an id.
      *
      * @return array{html: string}
@@ -264,6 +266,7 @@ final class DataDesk
                 'palette' => self::sanitizePalette(isset($raw['palette']) ? (string) $raw['palette'] : self::DEFAULT_PALETTE),
                 'days' => isset($raw['days']) ? max(3, min(30, (int) $raw['days'])) : self::DEFAULT_DAYS,
                 'title' => isset($raw['title']) ? sanitize_text_field((string) $raw['title']) : '',
+                'kicker' => isset($raw['kicker']) ? sanitize_text_field((string) $raw['kicker']) : '',
             ];
             $template = self::sanitizeTemplate('', $template);
         }
@@ -276,7 +279,7 @@ final class DataDesk
      * are no built-in defaults: with no stored templates the list
      * is empty.
      *
-     * @return array<string, array{id: string, name: string, kind: string, symbol: string, brands: array<int, string>, palette: string, days: int, title: string}>
+     * @return array<string, array{id: string, name: string, kind: string, symbol: string, brands: array<int, string>, palette: string, days: int, title: string, kicker: string}>
      */
     public static function templates(): array
     {
@@ -303,7 +306,7 @@ final class DataDesk
      * templates(). The widget pickers use this so a panel widget
      * never offers a table template and vice versa.
      *
-     * @return array<string, array{id: string, name: string, kind: string, symbol: string, brands: array<int, string>, palette: string, days: int, title: string}>
+     * @return array<string, array{id: string, name: string, kind: string, symbol: string, brands: array<int, string>, palette: string, days: int, title: string, kicker: string}>
      */
     public static function templatesOfKind(string $kind): array
     {
@@ -320,7 +323,7 @@ final class DataDesk
      * exists. Widgets fall back to this when the template they
      * point at is gone — never to a built-in.
      *
-     * @return array{id: string, name: string, kind: string, symbol: string, brands: array<int, string>, palette: string, days: int, title: string}|null
+     * @return array{id: string, name: string, kind: string, symbol: string, brands: array<int, string>, palette: string, days: int, title: string, kicker: string}|null
      */
     public static function firstTemplateOfKind(string $kind): ?array
     {
@@ -395,7 +398,7 @@ final class DataDesk
      * the enabled brands so a disabled brand never renders.
      *
      * @param array<string, mixed> $row
-     * @return array{id: string, name: string, kind: string, symbol: string, brands: array<int, string>, palette: string, days: int, title: string}
+     * @return array{id: string, name: string, kind: string, symbol: string, brands: array<int, string>, palette: string, days: int, title: string, kicker: string}
      */
     private static function sanitizeTemplate(string $id, array $row): array
     {
@@ -413,6 +416,7 @@ final class DataDesk
             'palette' => self::sanitizePalette(isset($row['palette']) ? (string) $row['palette'] : self::DEFAULT_PALETTE),
             'days' => isset($row['days']) ? max(3, min(30, (int) $row['days'])) : self::DEFAULT_DAYS,
             'title' => isset($row['title']) ? sanitize_text_field((string) $row['title']) : '',
+            'kicker' => isset($row['kicker']) ? sanitize_text_field((string) $row['kicker']) : '',
         ];
     }
 
@@ -441,6 +445,22 @@ final class DataDesk
     public static function sanitizePalette(string $value): string
     {
         return isset(self::PALETTES[$value]) ? $value : self::DEFAULT_PALETTE;
+    }
+
+    /**
+     * The translated label for a palette id, for the edit-form
+     * select and the list page. PALETTES itself stays plain strings
+     * (a const cannot call __()), so the translation lives here.
+     */
+    public static function paletteLabel(string $value): string
+    {
+        return match ($value) {
+            'dark-green' => __('Dark Green', 'koperasikita'),
+            'light' => __('Light', 'koperasikita'),
+            'dark' => __('Dark', 'koperasikita'),
+            'auto' => __('Follow site theme', 'koperasikita'),
+            default => $value,
+        };
     }
 
     /**

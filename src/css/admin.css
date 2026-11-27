@@ -384,15 +384,34 @@
 }
 /* Template form live preview + classic widget preview boxes: the
  * real layout at full size, in a bordered box so it reads as a
- * preview, not page content. */
+ * preview, not page content. The templates preview is full width
+ * (the panel is the editor there); widget previews stay narrow. */
 #kk-data-desk-live-preview,
 .kk-data-desk-widget-preview {
-	max-width: 720px;
 	margin: 16px 0;
 	padding: 16px;
 	border: 1px solid #dcdcde;
 	border-radius: 3px;
 	background: #fff;
+}
+.kk-data-desk-widget-preview {
+	max-width: 720px;
+}
+/* Inline editing of the preview kicker/title (templates page
+ * only): hover shows the text is editable, editing shows a focus
+ * outline. Scoped to the live preview container — the frontend
+ * panel never gets these. */
+#kk-data-desk-live-preview .kk-data-desk-kicker:hover,
+#kk-data-desk-live-preview .kk-data-desk-title:hover {
+	cursor: text;
+	outline: 1px dashed #646970;
+	outline-offset: 2px;
+}
+#kk-data-desk-live-preview .kk-data-desk-kicker.is-editing,
+#kk-data-desk-live-preview .kk-data-desk-title.is-editing {
+	cursor: text;
+	outline: 2px solid #0b6b3a;
+	outline-offset: 2px;
 }
 #kk-data-desk-live-preview.is-loading,
 .kk-data-desk-widget-preview.is-loading {
@@ -405,4 +424,102 @@
 	letter-spacing: 0.04em;
 	text-transform: uppercase;
 	color: #646970;
+}
+/* Template editor top bar: every setting in one sticky row over
+ * the live preview (which is the editor). The bar sticks under
+ * the WP admin bar (32px desktop, 46px below 782px) so Save is
+ * always reachable. Fields are labelled columns; the bar wraps
+ * on narrow screens. */
+.kk-data-desk-topbar {
+	position: sticky;
+	top: 32px;
+	z-index: 100;
+	display: flex;
+	flex-wrap: wrap;
+	align-items: flex-end;
+	gap: 12px 16px;
+	margin: 12px 0 16px;
+	padding: 12px 16px;
+	background: #fff;
+	border: 1px solid #dcdcde;
+	border-radius: 3px;
+}
+@media screen and (max-width: 782px) {
+	.kk-data-desk-topbar {
+		top: 46px;
+	}
+}
+.kk-data-desk-topbar-field {
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+	min-width: 0;
+}
+.kk-data-desk-topbar-field > label,
+.kk-data-desk-topbar-label {
+	font-size: 11px;
+	font-weight: 600;
+	letter-spacing: 0.04em;
+	text-transform: uppercase;
+	color: #646970;
+}
+.kk-data-desk-topbar-field--name {
+	flex: 1 1 180px;
+}
+.kk-data-desk-topbar-field--name input {
+	width: 100%;
+}
+.kk-data-desk-topbar-field--days input {
+	width: 4.5em;
+}
+.kk-data-desk-topbar-field--brands {
+	flex: 2 1 260px;
+}
+.kk-data-desk-topbar-actions {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	margin-left: auto;
+}
+/* Palette segmented control: one radio per segment, Green first.
+ * The radios are visually hidden (kept focusable); the labels are
+ * the segments, the checked one reads as the active button. */
+.kk-segmented {
+	position: relative;
+	display: inline-flex;
+	border: 1px solid var(--kk-border, #ddd);
+	border-radius: 3px;
+	overflow: hidden;
+	background: #fff;
+}
+.kk-segmented input {
+	position: absolute;
+	width: 1px;
+	height: 1px;
+	overflow: hidden;
+	clip: rect(0 0 0 0);
+	white-space: nowrap;
+}
+.kk-segmented label {
+	padding: 4px 12px;
+	font-size: 13px;
+	line-height: 1.6;
+	color: var(--kk-ink, #1a1a1a);
+	background: #fff;
+	cursor: pointer;
+}
+.kk-segmented label:not(:first-of-type) {
+	border-left: 1px solid var(--kk-border, #ddd);
+}
+.kk-segmented input:checked + label {
+	color: #fff;
+	background: var(--kk-green, #0b6b3a);
+}
+.kk-segmented input:focus-visible + label {
+	outline: 2px solid var(--kk-green, #0b6b3a);
+	outline-offset: -2px;
+}
+/* Hint line above the preview editor. */
+.kk-data-desk-editor-hint {
+	margin: 0 0 8px;
 }
