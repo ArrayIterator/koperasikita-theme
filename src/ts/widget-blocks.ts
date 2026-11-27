@@ -532,9 +532,9 @@ function TermSearchField(props: {
 			setOpen(false);
 		} else {
 			set(field.key, [...selected, option.value]);
-			/* Multi picks stay open for the next pick: the option
-			 * unmounts once picked, so the search takes focus back
-			 * or the list would close with it. */
+			/* Multi picks stay open for the next pick; the search
+			 * keeps focus so the list cannot close with the picked
+			 * option (see the result button mousedown handler). */
 			fieldRef.current?.querySelector('input')?.focus();
 		}
 		setQuery('');
@@ -578,6 +578,14 @@ function TermSearchField(props: {
 				{
 					type: 'button',
 					className: 'kk-termsearch-result',
+					/* A mousedown on the button would move focus off
+					 * the search input, and the picked option
+					 * unmounts on click: focus would land on the
+					 * body, the field would read that as leaving,
+					 * and the picker (and, in the editor, the block
+					 * selection) would drop. Keeping focus in the
+					 * input means the unmount can never strand it. */
+					onMouseDown: (event: MouseEvent): void => event.preventDefault(),
 					onClick: () => add(option),
 				},
 				option.label,
@@ -588,7 +596,10 @@ function TermSearchField(props: {
 	/* The dropdown renders only while open, anchored under the
 	 * search box, so a closed picker shows just chips and search.
 	 * The help line sits outside the anchor: the list must open
-	 * tight under the input, not below the help text. */
+	 * tight under the input, not below the help text. The pick
+	 * note lives inside the dropdown too: as an in-flow line under
+	 * the control it grew the field on every pick and pushed the
+	 * fields below down with it. */
 	const dropdown = open
 		? api.element.createElement(
 				'div',
@@ -614,6 +625,9 @@ function TermSearchField(props: {
 							{ className: 'components-base-control__help' },
 							trimmed === '' ? __('No terms found.') : __('No terms match your search.'),
 						)
+					: null,
+				status !== ''
+					? api.element.createElement('p', { className: 'components-base-control__help' }, status)
 					: null,
 			)
 		: null;
@@ -651,9 +665,6 @@ function TermSearchField(props: {
 		),
 		field.help !== undefined && field.help !== ''
 			? api.element.createElement('p', { className: 'components-base-control__help' }, field.help)
-			: null,
-		status !== ''
-			? api.element.createElement('p', { className: 'components-base-control__help' }, status)
 			: null,
 	);
 }
