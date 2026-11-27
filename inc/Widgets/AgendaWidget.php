@@ -337,11 +337,13 @@ final class AgendaWidget extends WP_Widget
             $status = 'upcoming';
         }
 
+        $displayTs = Agenda::eventTimestamp($meta['start']);
+
         return [
             'title' => get_the_title($postId),
             'url' => (string) get_permalink($postId),
-            'day' => date_i18n('d', $startTs),
-            'month' => date_i18n('M', $startTs),
+            'day' => $displayTs > 0 ? date_i18n('d', $displayTs) : '',
+            'month' => $displayTs > 0 ? date_i18n('M', $displayTs) : '',
             'location' => (string) $meta['location'],
             'status' => $status,
         ];

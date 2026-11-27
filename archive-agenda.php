@@ -13,8 +13,8 @@ get_header();
 		<?php get_template_part('template-parts/content/breadcrumb'); ?>
 
 		<header class="kk-archive-header">
+			<h1 class="kk-page-title"><?php esc_html_e('Agenda', 'koperasikita'); ?></h1>
 			<?php
-			the_archive_title('<h1 class="kk-page-title">', '</h1>');
 			the_archive_description('<div class="kk-archive-description">', '</div>');
 			?>
 		</header>
