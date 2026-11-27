@@ -2306,6 +2306,47 @@ msgid "The newsletter subscribe form, for any widget area."
 msgstr "Formulir berlangganan buletin, untuk area widget mana pun."
 
 #: inc/Widgets/Blocks.php
+#: inc/Widgets/QuoteWidget.php
+#: src/ts/widget-blocks.ts
+msgid "KK Quote"
+msgstr "KK Kutipan"
+
+#: inc/Widgets/Blocks.php
+#: inc/Widgets/QuoteWidget.php
+#: src/ts/widget-blocks.ts
+msgid "A single quote card, for any widget area."
+msgstr "Satu kartu kutipan, untuk area widget mana pun."
+
+#: inc/Widgets/QuoteWidget.php
+#: src/ts/widget-blocks.ts
+msgid "Quote"
+msgstr "Kutipan"
+
+#: inc/Widgets/QuoteWidget.php
+#: src/ts/widget-blocks.ts
+msgid "Author"
+msgstr "Penulis"
+
+#: inc/Widgets/QuoteWidget.php
+#: src/ts/widget-blocks.ts
+msgid "Role"
+msgstr "Peran"
+
+#: inc/Widgets/QuoteWidget.php
+#: src/ts/widget-blocks.ts
+msgid "Link URL"
+msgstr "URL Tautan"
+
+#: inc/Widgets/QuoteWidget.php
+#: src/ts/widget-blocks.ts
+msgid "Link label"
+msgstr "Label Tautan"
+
+#: src/ts/widget-blocks.ts
+msgid "Leave empty to hide the link."
+msgstr "Biarkan kosong untuk menyembunyikan tautan."
+
+#: inc/Widgets/Blocks.php
 msgid "Popular News"
 msgstr "Berita Populer"
 
