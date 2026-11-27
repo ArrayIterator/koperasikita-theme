@@ -148,7 +148,6 @@ declare const kkWidgetBlocks:
 			categories?: OptionItem[];
 			tags?: OptionItem[];
 			dataDeskTemplates?: OptionItem[];
-			dataDeskTableTemplates?: OptionItem[];
 			icons?: OptionItem[];
 			ajaxUrl?: string;
 			nonce?: string;
@@ -1218,27 +1217,6 @@ function buildDefinitions(api: Wp): BlockDef[] {
 				{ key: 'autoplay', kind: 'toggle', label: __('Autoplay') },
 				{ key: 'showDots', kind: 'toggle', label: __('Show dots') },
 				{ key: 'interval', kind: 'number', label: __('Autoplay interval (seconds)'), min: 2, max: 30 },
-			],
-		},
-		{
-			slug: 'gold-data-desk',
-			title: __('KK Gold Data Desk'),
-			description: __('Gold prices for Indonesian gold brands as a data table. Pick a template.'),
-			icon: 'editor-table',
-			attributes: {
-				title: { type: 'string', default: '' },
-				headerStyle: { type: 'string', default: 'classic-top' },
-				template: { type: 'string', default: '' },
-			},
-			fields: [
-				{ key: 'title', kind: 'text', label: __('Title'), help: __('Leave empty to use the template title.') },
-				headerStyleField,
-				{
-					key: 'template',
-					kind: 'select',
-					label: __('Template'),
-					options: kkWidgetBlocks?.dataDeskTableTemplates ?? [],
-				},
 			],
 		},
 		{

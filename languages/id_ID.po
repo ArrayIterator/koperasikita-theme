@@ -780,20 +780,9 @@ msgstr "Harga Emas"
 msgid "KK Gold Prices"
 msgstr "KK Harga Emas"
 
-#: inc/Widgets/GoldDataDeskWidget.php
-msgid "Gold Data Desk"
-msgstr "Data Desk Emas"
-
-msgid "KK Gold Data Desk"
-msgstr "KK Data Desk Emas"
-
 #: inc/Widgets/GoldWidget.php
 msgid "Gold prices for Indonesian gold brands in an auto-scrolling slider. Prices are edited in Settings -> Markets."
 msgstr "Harga emas untuk merek emas Indonesia dalam slider gulir otomatis. Harga diedit di Pengaturan -> Pasar."
-
-#: inc/Widgets/GoldDataDeskWidget.php
-msgid "Gold prices for Indonesian gold brands as a data table. Prices are edited in Settings -> Markets."
-msgstr "Harga emas untuk merek emas Indonesia sebagai tabel data. Harga diedit di Pengaturan -> Pasar."
 
 #: inc/Widgets/GoldWidget.php
 msgid "Koperasi Kita Gold Prices"
@@ -846,10 +835,6 @@ msgstr "Tampilkan dot"
 #: inc/Widgets/GoldWidget.php src/ts/widget-blocks.ts
 msgid "Autoplay interval (seconds)"
 msgstr "Interval Autoplay (detik)"
-
-#: inc/Widgets/GoldDataDeskWidget.php
-msgid "Koperasi Kita Gold Data Desk"
-msgstr "Koperasi Kita Data Desk Emas"
 
 #: inc/Widgets/AgendaWidget.php
 msgid "Koperasi Kita Agenda"
@@ -2262,10 +2247,6 @@ msgstr "Atur widget ini di pengaturan blok."
 #: inc/Widgets/Blocks.php
 msgid "Gold prices for Indonesian gold brands in an auto-scrolling slider."
 msgstr "Harga emas untuk merek emas Indonesia dalam slider gulir otomatis."
-
-#: inc/Widgets/Blocks.php
-msgid "Gold prices for Indonesian gold brands as a data table."
-msgstr "Harga emas untuk merek emas Indonesia sebagai tabel data."
 
 #: inc/Widgets/Blocks.php
 msgid "Gold, stock, forex, commodity and crypto prices from the Markets providers."
@@ -3700,9 +3681,6 @@ msgstr "Ubah"
 msgid "Edit Template"
 msgstr "Ubah Template"
 
-msgid "Gold prices for Indonesian gold brands as a data table. Pick a template."
-msgstr "Harga emas untuk brand emas Indonesia dalam bentuk tabel data. Pilih template."
-
 msgid "Harga %1$s, %2$d Hari Terakhir"
 msgstr "Harga %1$s, %2$d Hari Terakhir"
 
@@ -3744,9 +3722,6 @@ msgstr "Koperasi Kita Data Desk"
 
 msgid "Leave empty for the automatic title."
 msgstr "Biarkan kosong untuk judul otomatis."
-
-msgid "Leave empty to use the template title."
-msgstr "Biarkan kosong untuk memakai judul template."
 
 msgid "Manage templates on the Data Desk Templates page."
 msgstr "Kelola template di halaman Template Data Desk."

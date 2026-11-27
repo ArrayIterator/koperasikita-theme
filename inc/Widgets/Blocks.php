@@ -294,22 +294,6 @@ final class Blocks
                     'showDots' => 'show_dots',
                 ],
             ];
-            $definitions['gold-data-desk'] = [
-                'class' => GoldDataDeskWidget::class,
-                'icon' => 'editor-table',
-                'title' => __('KK Gold Data Desk', 'koperasikita'),
-                'description' => __('Gold prices for Indonesian gold brands as a data table. Pick a template.', 'koperasikita'),
-                'attributes' => [
-                    'title' => ['type' => 'string', 'default' => ''],
-                    'headerStyle' => ['type' => 'string', 'default' => 'classic-top'],
-                    'template' => ['type' => 'string', 'default' => ''],
-                ],
-                'map' => [
-                    'title' => 'title',
-                    'headerStyle' => 'header_style',
-                    'template' => 'template',
-                ],
-            ];
             $definitions['data-desk'] = [
                 'class' => DataDeskWidget::class,
                 'icon' => 'chart-bar',
@@ -462,7 +446,6 @@ final class Blocks
                 'categories' => self::termOptions('category'),
                 'tags' => self::termOptions('post_tag'),
                 'dataDeskTemplates' => self::templateOptions(DataDesk::KIND_PANEL),
-                'dataDeskTableTemplates' => self::templateOptions(DataDesk::KIND_TABLE),
                 // The agenda block's icon picker lists every icon.
                 'icons' => self::optionList(array_combine(Icon::names(), Icon::names())),
                 // The locations field searches places through the
@@ -529,7 +512,7 @@ final class Blocks
 
     /**
      * Data Desk templates of one kind as select options (id => name),
-     * for the Data Desk / Gold Data Desk block template pickers.
+     * for the Data Desk block template picker.
      *
      * @return array<int, array{value: string, label: string}>
      */
