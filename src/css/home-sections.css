@@ -218,6 +218,9 @@
 	scroll-snap-type: x mandatory;
 	scrollbar-width: none;
 	padding-bottom: 0.25rem;
+	/* pan-x, same as the highlights rows: a horizontal swipe
+	 * scrolls the row instead of fighting the page scroll. */
+	touch-action: pan-x;
 }
 
 .kk-category-block-items.kk-layout-list-columns.kk-category-block-list--slider::-webkit-scrollbar {
@@ -512,6 +515,27 @@
  * per slide, a small thumbnail + title like a widget row. List:
  * widget-like rows split into columns. Every flex row here aligns
  * its items to the top (flex-start), never vertically centered. */
+
+/* Drag to scroll: every [data-kk-slider] row is grabbable - the
+ * pointer drag in main.ts moves it for mouse/pen, touch scrolls
+ * natively. The grabbing state also kills text selection while
+ * the row is pulled. */
+[data-kk-slider] {
+	cursor: grab;
+}
+
+/* The attribute twice lifts this rule to the same weight as the
+ * category row's three-class snap rule, so the off-switch wins
+ * on every slider row. */
+[data-kk-slider][data-kk-slider].is-dragging {
+	cursor: grabbing;
+	user-select: none;
+	/* Snap off while the row is pulled: mandatory snap (hero and
+	 * category rows) yanks every scrollLeft set back to a snap
+	 * point, so a drag cannot move at all. Off during the drag,
+	 * back on release so the row settles on a card or slide. */
+	scroll-snap-type: none;
+}
 
 .kk-highlights-slider,
 .kk-highlights-scroll {
