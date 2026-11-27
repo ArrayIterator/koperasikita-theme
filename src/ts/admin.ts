@@ -41,6 +41,7 @@ interface AdminStrings {
 	syncStepLatest: string;
 	syncDone: string;
 	loadingPreview: string;
+	loadingChart: string;
 	editKickerHint: string;
 	editTitleHint: string;
 	previewFailed: string;
@@ -99,11 +100,12 @@ const FALLBACK_STRINGS: AdminStrings = {
 	notDownloaded: 'Not downloaded yet',
 	downloadFailed: 'Download failed.',
 	adminDataMissing: 'Admin data is not available.',
-	syncingSource: 'Syncing %s…',
+	syncingSource: 'Scraping %s…',
 	syncStepDone: '%s: inserted %s, skipped %s',
 	syncStepLatest: ' (latest %s)',
 	syncDone: 'Done — inserted %s, skipped %s (already in database). Reloading…',
 	loadingPreview: 'Loading preview…',
+	loadingChart: 'Loading chart…',
 	editKickerHint: 'Click to edit the kicker.',
 	editTitleHint: 'Click to edit the title.',
 	previewFailed: 'Could not load the preview.',
@@ -134,6 +136,7 @@ function adminStrings(): AdminStrings {
 		syncStepLatest: strings?.syncStepLatest ?? FALLBACK_STRINGS.syncStepLatest,
 		syncDone: strings?.syncDone ?? FALLBACK_STRINGS.syncDone,
 		loadingPreview: strings?.loadingPreview ?? FALLBACK_STRINGS.loadingPreview,
+		loadingChart: strings?.loadingChart ?? FALLBACK_STRINGS.loadingChart,
 		editKickerHint: strings?.editKickerHint ?? FALLBACK_STRINGS.editKickerHint,
 		editTitleHint: strings?.editTitleHint ?? FALLBACK_STRINGS.editTitleHint,
 		previewFailed: strings?.previewFailed ?? FALLBACK_STRINGS.previewFailed,
@@ -342,6 +345,7 @@ function initAdmin(): void {
 		initProviderPickers,
 		initMenuIconPickers,
 		initGoldSync,
+		initGoldSummaryChart,
 		initDataDeskPreview,
 		initDataDeskAjaxSave,
 		initDataDeskWidgetPreview,
@@ -1017,6 +1021,87 @@ function initGoldSync(): void {
 			setRunning(false);
 		}
 	});
+}
+
+/*
+ * Summary tab chart (Gold Prices page): the brand picker + days
+ * selector re-render the chart through kk_gold_chart without a
+ * page reload. Mirrors the Data Desk preview refresh: debounced,
+ * loading state, last-good kept on failure. The brand search
+ * filters the checkbox list in place — the list is six brands,
+ * so no server round-trip is needed for it. No box checked means
+ * the enabled brands (the server falls back the same way), so
+ * the chart never goes empty from unchecking alone.
+ */
+function initGoldSummaryChart(): void {
+	const container = document.querySelector<HTMLElement>('[data-kk-gold-summary-chart]');
+	const days = document.querySelector<HTMLSelectElement>('[data-kk-gold-summary-days]');
+	const search = document.querySelector<HTMLInputElement>('[data-kk-gold-summary-search]');
+	const status = document.querySelector<HTMLElement>('[data-kk-gold-summary-status]');
+	if (!container || !days) {
+		return;
+	}
+
+	const config = adminData();
+	const boxes = Array.from(document.querySelectorAll<HTMLInputElement>('[data-kk-gold-summary-brand]'));
+
+	const filterBrands = (): void => {
+		const query = (search?.value ?? '').trim().toLowerCase();
+		for (const box of boxes) {
+			const row = box.closest<HTMLElement>('[data-kk-gold-summary-brand-row]');
+			if (row) {
+				row.hidden = query !== '' && !(row.textContent ?? '').toLowerCase().includes(query);
+			}
+		}
+	};
+	search?.addEventListener('input', filterBrands);
+
+	let timer: number | null = null;
+	let lastGood = container.innerHTML;
+	const refresh = (): void => {
+		if (timer !== null) {
+			window.clearTimeout(timer);
+			timer = null;
+		}
+		timer = window.setTimeout(() => {
+			if (!config) {
+				if (status) {
+					status.textContent = adminStrings().adminDataMissing;
+				}
+				return;
+			}
+			const params: Record<string, string> = {
+				days: days.value,
+				brands: boxes.filter((box) => box.checked).map((box) => box.value).join(','),
+			};
+			container.classList.add('is-loading');
+			if (status) {
+				status.textContent = adminStrings().loadingChart;
+			}
+			void postAjax<{ html: string }>(config, 'kk_gold_chart', params)
+				.then((data) => {
+					container.innerHTML = data.html;
+					lastGood = data.html;
+					if (status) {
+						status.textContent = '';
+					}
+				})
+				.catch((error: unknown) => {
+					container.innerHTML = lastGood;
+					if (status) {
+						status.textContent = errorMessage(error);
+					}
+				})
+				.finally(() => {
+					container.classList.remove('is-loading');
+				});
+		}, 300);
+	};
+
+	days.addEventListener('change', refresh);
+	for (const box of boxes) {
+		box.addEventListener('change', refresh);
+	}
 }
 
 /**

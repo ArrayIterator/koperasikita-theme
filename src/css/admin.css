@@ -505,7 +505,8 @@
 	outline-offset: 2px;
 }
 #kk-data-desk-live-preview.is-loading,
-.kk-data-desk-widget-preview.is-loading {
+.kk-data-desk-widget-preview.is-loading,
+[data-kk-gold-summary-chart].is-loading {
 	opacity: 0.6;
 }
 .kk-data-desk-widget-preview-label {

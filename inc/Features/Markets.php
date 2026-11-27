@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace KoperasiKita\Features;
 
+use KoperasiKita\Admin\GoldPricesPage;
 use KoperasiKita\Admin\MarketsSettings;
 use KoperasiKita\Api\Ajax;
 use KoperasiKita\Api\ApiException;
@@ -689,6 +690,10 @@ final class Markets
         // feature is enabled; gold brands prefer this provider by
         // default (see Gold::brandProviders()).
         LogamMuliaApiProvider::registerSync();
+
+        // Gold Prices admin page: the Summary chart AJAX endpoint
+        // + the contextual help tabs.
+        GoldPricesPage::register();
 
         MarketsSettings::register();
     }

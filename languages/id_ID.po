@@ -4085,3 +4085,96 @@ msgstr "Klik judul atau 'Meja Data' pada pratinjau untuk mengeditnya. Pada judul
 
 msgid "Saving…"
 msgstr "Menyimpan…"
+
+msgid "Brands"
+msgstr "Merek"
+
+msgid "Choose which provider supplies the price for each brand, and which brands the site shows. Only providers that can actually supply that brand are listed. When the primary provider has no price for a brand, its fallback provider is tried automatically. A disabled brand is hidden from the Gold widget and from the widget's Brands to show picker."
+msgstr "Pilih penyedia mana yang memasok harga untuk setiap merek, dan merek mana yang ditampilkan situs. Hanya penyedia yang benar-benar dapat memasok merek tersebut yang dicantumkan. Jika penyedia utama tidak memiliki harga untuk suatu merek, penyedia cadangannya dicoba secara otomatis. Merek yang dinonaktifkan disembunyikan dari widget Emas dan dari pemilih Merek yang ditampilkan pada widget."
+
+msgid "Disabled brands"
+msgstr "Merek yang dinonaktifkan"
+
+msgid "Enabled brands"
+msgstr "Merek yang diaktifkan"
+
+msgid "Enabled: %s"
+msgstr "Diaktifkan: %s"
+
+msgid "Galeri 24, UBS, Antam and Lotus Archi 1-gram prices come from Galeri 24. The Pegadaian 0.01-gram price, scaled to 1 gram, comes from Pegadaian. The Antam 1-gram fallback price comes from Harga Emas.net. Enable or disable sources on the Setting tab; the default source is scraped first."
+msgstr "Harga 1 gram Galeri 24, UBS, Antam, dan Lotus Archi berasal dari Galeri 24. Harga 0,01 gram Pegadaian, diskalakan ke 1 gram, berasal dari Pegadaian. Harga 1 gram Antam cadangan berasal dari Harga Emas.net. Aktifkan atau nonaktifkan sumber pada tab Pengaturan; sumber default di-scraping pertama."
+
+msgid "Gold Brands"
+msgstr "Merek Emas"
+
+msgid "Gold brands saved."
+msgstr "Merek emas tersimpan."
+
+msgid "Last update"
+msgstr "Pembaruan terakhir"
+
+msgid "Loading chart…"
+msgstr "Memuat grafik…"
+
+msgid "Manual scraping"
+msgstr "Scraping manual"
+
+msgid "No data"
+msgstr "Tidak ada data"
+
+msgid "No scraping source is enabled. Enable one on the Setting tab."
+msgstr "Tidak ada sumber scraping yang diaktifkan. Aktifkan satu sumber pada tab Pengaturan."
+
+msgid "Price chart"
+msgstr "Grafik harga"
+
+msgid "Save gold brands"
+msgstr "Simpan merek emas"
+
+msgid "Schedule"
+msgstr "Jadwal"
+
+msgid "Scrape now"
+msgstr "Scrape sekarang"
+
+msgid "Scraping"
+msgstr "Scraping"
+
+msgid "Scraping %s…"
+msgstr "Scraping %s…"
+
+msgid "Scraping fetches the daily gold prices and stores one row per brand per day — only rows that are not in the database yet. It runs automatically via WP-Cron on the schedule on the Setting tab. Use the button below to scrape on demand."
+msgstr "Scraping mengambil harga emas harian dan menyimpan satu baris per merek per hari — hanya baris yang belum ada di basis data. Proses ini berjalan otomatis melalui WP-Cron sesuai jadwal pada tab Pengaturan. Gunakan tombol di bawah untuk melakukan scraping sesuai permintaan."
+
+msgid "Scraping fetches the gold prices from the sources below. Only enabled sources are scraped, manually and automatically. The default source is scraped first."
+msgstr "Scraping mengambil harga emas dari sumber-sumber di bawah. Hanya sumber yang diaktifkan yang di-scraping, manual maupun otomatis. Sumber default di-scraping pertama."
+
+msgid "Scraping fetches the gold prices from the web and stores one row per brand per day. Two parts do it: a GitHub Actions scraper that collects the prices, and the Logam Mulia API sync on this site that imports them into the price history. Only rows that are not in the database yet are inserted."
+msgstr "Scraping mengambil harga emas dari web dan menyimpan satu baris per merek per hari. Dua bagian yang melakukannya: scraper GitHub Actions yang mengumpulkan harga, dan sinkronisasi Logam Mulia API di situs ini yang mengimpornya ke riwayat harga. Hanya baris yang belum ada di basis data yang dimasukkan."
+
+msgid "Scraping sources"
+msgstr "Sumber scraping"
+
+msgid "Search brands"
+msgstr "Cari merek"
+
+msgid "Sources"
+msgstr "Sumber"
+
+msgid "Summary"
+msgstr "Ringkasan"
+
+msgid "Summary is the overview: the price chart with live filters, the sync facts, and the enabled and disabled brands. Gold Brands is where you pick each brand’s provider and switch brands on or off. Sync shows the scraping status and the manual scrape button. History is the stored price list with filters. Setting holds the sync settings only."
+msgstr "Ringkasan adalah gambaran umum: grafik harga dengan filter langsung, fakta sinkronisasi, serta daftar merek yang diaktifkan dan dinonaktifkan. Merek Emas adalah tempat Anda memilih penyedia tiap merek dan mengaktifkan atau menonaktifkan merek. Sinkronisasi menampilkan status scraping dan tombol scrape manual. Riwayat adalah daftar harga tersimpan dengan filter. Pengaturan hanya berisi pengaturan sinkronisasi."
+
+msgid "Tabs"
+msgstr "Tab"
+
+msgid "The sync runs automatically on a schedule (WP-Cron). Turn it on or off, and pick how often, on the Setting tab — the next automatic run is shown there. You can also scrape on demand from the Sync tab."
+msgstr "Sinkronisasi berjalan otomatis sesuai jadwal (WP-Cron). Nyalakan atau matikan, dan pilih seberapa sering, pada tab Pengaturan — jadwal berjalan otomatis berikutnya ditampilkan di sana. Anda juga dapat melakukan scraping sesuai permintaan dari tab Sinkronisasi."
+
+msgid "All brands are disabled."
+msgstr "Semua merek dinonaktifkan."
+
+msgid "No disabled brands."
+msgstr "Tidak ada merek yang dinonaktifkan."

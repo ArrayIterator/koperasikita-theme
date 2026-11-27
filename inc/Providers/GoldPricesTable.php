@@ -173,12 +173,15 @@ final class GoldPricesTable
      * through here, so the chart and the list can never disagree
      * about the filter. An empty $provider means "all providers".
      *
-     * Filters: ['symbol' => slug or '', 'from' => 'Y-m-d' or '',
-     * 'to' => 'Y-m-d' or '']. Empty values mean "no filter".
-     * Dates that are not real Y-m-d dates are ignored here too,
-     * so a hand-made URL can never break the query.
+     * Filters: ['symbol' => slug or '', 'symbols' => [slugs] or [],
+     * 'from' => 'Y-m-d' or '', 'to' => 'Y-m-d' or '']. Empty values
+     * mean "no filter". Dates that are not real Y-m-d dates are
+     * ignored here too, so a hand-made URL can never break the
+     * query. 'symbols' filters to any of the listed symbols; it
+     * is ignored when empty or when 'symbol' already filters to
+     * one.
      *
-     * @param array{symbol?: string, from?: string, to?: string} $filters
+     * @param array{symbol?: string, symbols?: array<int, string>, from?: string, to?: string} $filters
      * @return array<int, array{symbol: string, sell_price: float, buyback_price: float|null, currency: string, recorded_date: string, fetched_at: int}>
      */
     public static function historyFiltered(string $provider, array $filters, int $limit = 200, int $offset = 0): array
@@ -220,7 +223,7 @@ final class GoldPricesTable
      * sync only ever inserts valid rows, so the count matches
      * what the table shows.
      *
-     * @param array{symbol?: string, from?: string, to?: string} $filters
+     * @param array{symbol?: string, symbols?: array<int, string>, from?: string, to?: string} $filters
      */
     public static function historyCount(string $provider, array $filters): int
     {
@@ -244,7 +247,7 @@ final class GoldPricesTable
      * provider first (omitted when empty — "all providers"),
      * then the optional symbol and date filters.
      *
-     * @param array{symbol?: string, from?: string, to?: string} $filters
+     * @param array{symbol?: string, symbols?: array<int, string>, from?: string, to?: string} $filters
      * @return array{string, array<int, string|int>}
      */
     private static function historyWhere(string $provider, array $filters): array
@@ -261,6 +264,19 @@ final class GoldPricesTable
         if ($symbol !== '') {
             $where .= ' AND symbol = %s';
             $params[] = $symbol;
+        }
+
+        $symbols = $filters['symbols'] ?? [];
+        if ($symbol === '' && is_array($symbols) && $symbols !== []) {
+            $clean = array_values(array_unique(array_filter(
+                array_map(static fn($slug): string => (string) $slug, $symbols),
+                static fn(string $slug): bool => $slug !== ''
+            )));
+            if ($clean !== []) {
+                $placeholders = implode(', ', array_fill(0, count($clean), '%s'));
+                $where .= " AND symbol IN ({$placeholders})";
+                array_push($params, ...$clean);
+            }
         }
 
         $from = self::historyDate((string) ($filters['from'] ?? ''));

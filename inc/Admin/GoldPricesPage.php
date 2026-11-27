@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace KoperasiKita\Admin;
 
+use KoperasiKita\Api\Ajax;
 use KoperasiKita\Features\Gold;
 use KoperasiKita\Features\Markets;
 use KoperasiKita\Providers\GoldPricesTable;
@@ -11,26 +12,26 @@ use KoperasiKita\Providers\LogamMuliaApiProvider;
 
 /**
  * Settings -> Gold Prices: the management page for the Logam Mulia
- * gold price sync, with four tabs.
+ * gold price sync, with five tabs.
  *
- * "Status" is the per-brand price table: one row per gold brand
- * (plus spot), each with its current price, which provider
- * supplies it, and the provider / fallback picks — only
- * providers that can actually supply that brand are listed.
- * "Setting" holds the automatic sync schedule (how often, days
- * per run, timeout), the sync source list (which Logam Mulia CSV
- * sources the sync imports, with a default source that runs
- * first — manual and automatic sync both follow it), and the
- * enabled-brands master switch (a disabled brand is hidden from
- * the Gold widget and from the widget's Brands to show picker).
- * "History" shows the stored price history as both a list
- * (table) and a dependency-free inline SVG line chart (one line
- * per brand). "Sync" gathers everything sync-related: the sync
- * status (last sync, latest recorded date, which symbols are
- * stored, the failure backlog), a manual sync button that steps
- * through the enabled sources one at a time via AJAX with a real
- * progress bar, and the per-source status table. Uses WP admin
- * styles only — no heavy custom CSS.
+ * "Summary" (the default) is the overview: the price chart with
+ * live brand + days filters, the sync facts (last sync, last run,
+ * last update), and the enabled / disabled brand lists with their
+ * current prices. "Gold Brands" holds the per-brand provider picks
+ * and the per-brand Enabled switch in one form, one save.
+ * "Sync" gathers everything sync-related: the sync status (last
+ * sync, latest recorded date, which symbols are stored, the
+ * failure backlog), a manual sync button that steps through the
+ * enabled sources one at a time via AJAX with a real progress
+ * bar, and the per-source status table (read-only — the sources'
+ * enable/default switches live on Setting). "History" shows the
+ * stored price history as both a list (table) and a dependency-free
+ * inline SVG line chart (one line per brand), with a brand +
+ * date-range filter and paging. "Setting" holds only the sync
+ * settings: the sync source list (which Logam Mulia CSV sources
+ * the sync imports, with a default source that runs first) and
+ * the automatic sync schedule (how often, days per run, timeout).
+ * Uses WP admin styles only — no heavy custom CSS.
  */
 final class GoldPricesPage
 {
@@ -66,56 +67,171 @@ final class GoldPricesPage
         'hartadinata' => '#2563eb',
     ];
 
+    /**
+     * Register the Summary chart endpoint and the contextual help
+     * tabs. The Summary tab re-renders its chart through the
+     * endpoint, so the chart follows the brand picker + days
+     * selector without a page reload. The help tabs (the "Help"
+     * tab at the top right, like the Pages screen) hook onto this
+     * page's load hook, so get_current_screen() is the Gold
+     * Prices screen when they are added.
+     */
+    public static function register(): void
+    {
+        Ajax::add('kk_gold_chart', [self::class, 'ajaxChart'], false, 'manage_options');
+
+        add_action('load-' . AdminMenu::submenuHookSuffix(self::PAGE_SLUG), [self::class, 'addHelpTabs']);
+    }
+
+    /**
+     * Contextual help tabs for this page: what Scraping is, what
+     * each source provides, the schedule, and what each tab is
+     * for. Short and plain — the tabs answer, they do not lecture.
+     */
+    public static function addHelpTabs(): void
+    {
+        $screen = get_current_screen();
+
+        if (!$screen instanceof \WP_Screen) {
+            return;
+        }
+
+        $screen->add_help_tab([
+            'id' => 'kk-gold-scraping',
+            'title' => __('Scraping', 'koperasikita'),
+            'content' => '<p>' . esc_html__('Scraping fetches the gold prices from the web and stores one row per brand per day. Two parts do it: a GitHub Actions scraper that collects the prices, and the Logam Mulia API sync on this site that imports them into the price history. Only rows that are not in the database yet are inserted.', 'koperasikita') . '</p>',
+        ]);
+
+        $screen->add_help_tab([
+            'id' => 'kk-gold-sources',
+            'title' => __('Sources', 'koperasikita'),
+            'content' => '<p>' . esc_html__('Galeri 24, UBS, Antam and Lotus Archi 1-gram prices come from Galeri 24. The Pegadaian 0.01-gram price, scaled to 1 gram, comes from Pegadaian. The Antam 1-gram fallback price comes from Harga Emas.net. Enable or disable sources on the Setting tab; the default source is scraped first.', 'koperasikita') . '</p>',
+        ]);
+
+        $screen->add_help_tab([
+            'id' => 'kk-gold-schedule',
+            'title' => __('Schedule', 'koperasikita'),
+            'content' => '<p>' . esc_html__('The sync runs automatically on a schedule (WP-Cron). Turn it on or off, and pick how often, on the Setting tab — the next automatic run is shown there. You can also scrape on demand from the Sync tab.', 'koperasikita') . '</p>',
+        ]);
+
+        $screen->add_help_tab([
+            'id' => 'kk-gold-tabs',
+            'title' => __('Tabs', 'koperasikita'),
+            'content' => '<p>' . esc_html__('Summary is the overview: the price chart with live filters, the sync facts, and the enabled and disabled brands. Gold Brands is where you pick each brand’s provider and switch brands on or off. Sync shows the scraping status and the manual scrape button. History is the stored price list with filters. Setting holds the sync settings only.', 'koperasikita') . '</p>',
+        ]);
+    }
+
+    /**
+     * The chart endpoint (kk_gold_chart): the chart HTML for the
+     * picked brands over the picked days. `brands` is a
+     * comma-separated list of brand slugs — empty means the
+     * enabled brands (see summaryChartBrands). `days` is clamped
+     * to 1–90 (default 7). Reuses renderChart + the History query,
+     * so the Summary chart can never disagree with History.
+     *
+     * @return array{html: string}
+     */
+    public static function ajaxChart(): array
+    {
+        // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- sanitised below.
+        $raw = wp_unslash($_POST);
+
+        $brands = [];
+        if (isset($raw['brands']) && is_string($raw['brands']) && trim($raw['brands']) !== '') {
+            $brands = array_values(array_filter(array_map('sanitize_key', explode(',', $raw['brands']))));
+        }
+
+        $days = isset($raw['days']) ? (int) $raw['days'] : 7;
+        $days = max(1, min(90, $days));
+
+        $from = date_i18n('Y-m-d', current_time('timestamp') - ($days - 1) * DAY_IN_SECONDS);
+        $rows = GoldPricesTable::historyFiltered('', ['symbols' => self::summaryChartBrands($brands), 'from' => $from], self::HISTORY_CHART_CAP, 0);
+
+        ob_start();
+        self::renderChart($rows, Gold::brands(), true);
+        $html = (string) ob_get_clean();
+
+        return ['html' => $html];
+    }
+
+    /**
+     * The brands a Summary chart query covers: the picked slugs
+     * (unknown ones dropped), or the enabled brands when nothing
+     * is picked, or every brand when none is enabled — an empty
+     * filter never means an empty chart, same as History.
+     *
+     * @param array<int, string> $picked
+     * @return array<int, string>
+     */
+    private static function summaryChartBrands(array $picked): array
+    {
+        $known = array_keys(Gold::brands());
+        $brands = array_values(array_intersect($picked, $known));
+
+        if ($brands === []) {
+            $brands = Gold::enabledBrands();
+        }
+
+        return $brands === [] ? $known : $brands;
+    }
+
     public static function render(): void
     {
         if (!current_user_can('manage_options')) {
             wp_die(esc_html__('You do not have permission to access this page.', 'koperasikita'));
         }
 
-        self::handleBrandsSave();
-        self::handleBrandProvidersSave();
+        self::handleGoldBrandsSave();
         self::handleSyncSettingsSave();
 
         // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- tab is display-only.
-        $tab = isset($_GET['tab']) ? sanitize_key((string) wp_unslash($_GET['tab'])) : 'status';
+        $tab = isset($_GET['tab']) ? sanitize_key((string) wp_unslash($_GET['tab'])) : 'summary';
         // Old slugs keep working as aliases, so bookmarks and
         // saved links land on the right new tab.
-        $aliases = ['prices' => 'status', 'settings' => 'setting', 'brands' => 'setting'];
+        $aliases = ['prices' => 'summary', 'status' => 'summary', 'settings' => 'setting', 'brands' => 'gold-brands'];
         $tab = $aliases[$tab] ?? $tab;
-        $tab = in_array($tab, ['status', 'setting', 'history', 'sync'], true) ? $tab : 'status';
+        $tab = in_array($tab, ['summary', 'gold-brands', 'sync', 'history', 'setting'], true) ? $tab : 'summary';
         $brands = Gold::brands();
         $pageUrl = admin_url('admin.php?page=' . self::PAGE_SLUG);
         ?>
         <div class="wrap" data-kk-gold-prices-page>
             <h1><?php esc_html_e('Gold Prices', 'koperasikita'); ?></h1>
             <h2 class="nav-tab-wrapper">
-                <a href="<?php echo esc_url(add_query_arg('tab', 'status', $pageUrl)); ?>" class="nav-tab<?php echo $tab === 'status' ? ' nav-tab-active' : ''; ?>"><?php esc_html_e('Status', 'koperasikita'); ?></a>
-                <a href="<?php echo esc_url(add_query_arg('tab', 'setting', $pageUrl)); ?>" class="nav-tab<?php echo $tab === 'setting' ? ' nav-tab-active' : ''; ?>"><?php esc_html_e('Setting', 'koperasikita'); ?></a>
-                <a href="<?php echo esc_url(add_query_arg('tab', 'history', $pageUrl)); ?>" class="nav-tab<?php echo $tab === 'history' ? ' nav-tab-active' : ''; ?>"><?php esc_html_e('History', 'koperasikita'); ?></a>
+                <a href="<?php echo esc_url(add_query_arg('tab', 'summary', $pageUrl)); ?>" class="nav-tab<?php echo $tab === 'summary' ? ' nav-tab-active' : ''; ?>"><?php esc_html_e('Summary', 'koperasikita'); ?></a>
+                <a href="<?php echo esc_url(add_query_arg('tab', 'gold-brands', $pageUrl)); ?>" class="nav-tab<?php echo $tab === 'gold-brands' ? ' nav-tab-active' : ''; ?>"><?php esc_html_e('Gold Brands', 'koperasikita'); ?></a>
                 <a href="<?php echo esc_url(add_query_arg('tab', 'sync', $pageUrl)); ?>" class="nav-tab<?php echo $tab === 'sync' ? ' nav-tab-active' : ''; ?>"><?php esc_html_e('Sync', 'koperasikita'); ?></a>
+                <a href="<?php echo esc_url(add_query_arg('tab', 'history', $pageUrl)); ?>" class="nav-tab<?php echo $tab === 'history' ? ' nav-tab-active' : ''; ?>"><?php esc_html_e('History', 'koperasikita'); ?></a>
+                <a href="<?php echo esc_url(add_query_arg('tab', 'setting', $pageUrl)); ?>" class="nav-tab<?php echo $tab === 'setting' ? ' nav-tab-active' : ''; ?>"><?php esc_html_e('Setting', 'koperasikita'); ?></a>
             </h2>
-            <?php if ($tab === 'setting') : ?>
-                <?php self::renderSettingsTab(); ?>
-                <?php self::renderBrandsTab($brands); ?>
-            <?php elseif ($tab === 'history') : ?>
-                <?php self::renderHistoryTab($brands); ?>
+            <?php if ($tab === 'gold-brands') : ?>
+                <?php self::renderGoldBrandsTab($brands); ?>
             <?php elseif ($tab === 'sync') : ?>
                 <?php self::renderSyncTab(); ?>
+            <?php elseif ($tab === 'history') : ?>
+                <?php self::renderHistoryTab($brands); ?>
+            <?php elseif ($tab === 'setting') : ?>
+                <?php self::renderSettingsTab(); ?>
             <?php else : ?>
-                <?php self::renderStatusTab(); ?>
+                <?php self::renderSummaryTab($brands); ?>
             <?php endif; ?>
         </div>
         <?php
     }
 
     /**
-     * Save the enabled-brands form (Setting tab, brands section):
-     * nonce + capability checked, then redirect back with a saved
-     * flag so a refresh never resubmits the form.
+     * Save the Gold Brands form (Gold Brands tab): the per-brand
+     * provider/fallback picks AND the enabled-brands switch, in
+     * one form, one save. Nonce + capability checked, then redirect
+     * back with a saved flag so a refresh never resubmits the form.
+     * Validation lives in Gold::setBrandProviders() — a provider
+     * that cannot supply its brand is dropped to Manual there —
+     * and in Gold::setEnabledBrands(), which drops unknown slugs.
+     * The enabled checkboxes submit only when ticked, so an absent
+     * list means "none enabled" on purpose, not "unchanged".
      */
-    private static function handleBrandsSave(): void
+    private static function handleGoldBrandsSave(): void
     {
-        if (!isset($_POST['kk_enabled_brands_nonce'])) {
+        if (!isset($_POST['kk_gold_brands_nonce'])) {
             return;
         }
 
@@ -123,41 +239,7 @@ final class GoldPricesPage
             wp_die(esc_html__('You do not have permission to access this page.', 'koperasikita'));
         }
 
-        check_admin_referer('kk_enabled_brands', 'kk_enabled_brands_nonce');
-
-        // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- sanitised below.
-        $raw = isset($_POST['kk_enabled_brands']) ? wp_unslash($_POST['kk_enabled_brands']) : [];
-        $slugs = is_array($raw)
-            ? array_values(array_map('sanitize_key', $raw))
-            : [];
-
-        Gold::setEnabledBrands($slugs);
-
-        wp_safe_redirect(add_query_arg(
-            ['tab' => 'setting', 'saved' => '1'],
-            admin_url('admin.php?page=' . self::PAGE_SLUG)
-        ));
-        exit;
-    }
-
-    /**
-     * Save the per-brand provider form (Status tab): nonce + capability
-     * checked, then redirect back with a saved flag so a refresh
-     * never resubmits the form. Validation lives in
-     * Gold::setBrandProviders() — a provider that cannot supply its
-     * brand is dropped to Manual there.
-     */
-    private static function handleBrandProvidersSave(): void
-    {
-        if (!isset($_POST['kk_gold_brand_providers_nonce'])) {
-            return;
-        }
-
-        if (!current_user_can('manage_options')) {
-            wp_die(esc_html__('You do not have permission to access this page.', 'koperasikita'));
-        }
-
-        check_admin_referer('kk_gold_brand_providers', 'kk_gold_brand_providers_nonce');
+        check_admin_referer('kk_gold_brands', 'kk_gold_brands_nonce');
 
         // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- sanitised below.
         $rawProviders = isset($_POST['kk_brand_provider']) && is_array($_POST['kk_brand_provider'])
@@ -180,8 +262,16 @@ final class GoldPricesPage
 
         Gold::setBrandProviders($providers, $fallbacks);
 
+        // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- sanitised below.
+        $raw = isset($_POST['kk_enabled_brands']) ? wp_unslash($_POST['kk_enabled_brands']) : [];
+        $slugs = is_array($raw)
+            ? array_values(array_map('sanitize_key', $raw))
+            : [];
+
+        Gold::setEnabledBrands($slugs);
+
         wp_safe_redirect(add_query_arg(
-            ['tab' => 'status', 'brand_providers_saved' => '1'],
+            ['tab' => 'gold-brands', 'gold_brands_saved' => '1'],
             admin_url('admin.php?page=' . self::PAGE_SLUG)
         ));
         exit;
@@ -236,87 +326,198 @@ final class GoldPricesPage
     }
 
     /**
-     * Setting tab, brands section: the master switch for which
-     * gold brands the site shows. A disabled brand is hidden from
-     * the Gold widget and from the widget's "Brands to show"
-     * picker. Unchecking every brand disables the gold slider on
-     * purpose.
+     * Summary tab (the default): the price chart with live
+     * filters, the sync facts, and the enabled / disabled brand
+     * lists. The chart re-renders via AJAX (kk_gold_chart) when
+     * the brand picker or the days selector changes — no page
+     * reload. The old Status price table lives here as the two
+     * brand lists; there is no Status tab anymore.
      *
      * @param array<string, string> $brands Slug => label.
      */
-    private static function renderBrandsTab(array $brands): void
+    private static function renderSummaryTab(array $brands): void
     {
+        $status = LogamMuliaApiProvider::status();
         $enabled = Gold::enabledBrands();
-        // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- saved flag is display-only.
-        $saved = isset($_GET['saved']) && $_GET['saved'] === '1';
+        $days = 7;
+        $chart = GoldPricesTable::historyFiltered('', ['symbols' => self::summaryChartBrands($enabled), 'from' => date_i18n('Y-m-d', current_time('timestamp') - ($days - 1) * DAY_IN_SECONDS)], self::HISTORY_CHART_CAP, 0);
+        $lastSync = $status['synced_at'] !== null
+            ? date_i18n(get_option('date_format', 'Y-m-d') . ' ' . get_option('time_format', 'H:i'), (int) $status['synced_at'])
+            : __('Never', 'koperasikita');
         ?>
-        <h2><?php esc_html_e('Enabled Gold Brands', 'koperasikita'); ?></h2>
+        <h2><?php esc_html_e('Price chart', 'koperasikita'); ?></h2>
+        <p>
+            <label for="kk-summary-search"><?php esc_html_e('Brands', 'koperasikita'); ?></label>
+            <input type="search" id="kk-summary-search" data-kk-gold-summary-search placeholder="<?php esc_attr_e('Search brands', 'koperasikita'); ?>">
+            <label for="kk-summary-days"><?php esc_html_e('Days', 'koperasikita'); ?></label>
+            <select id="kk-summary-days" data-kk-gold-summary-days>
+                <?php foreach ([7, 14, 30, 60, 90] as $option) : ?>
+                    <option value="<?php echo esc_attr((string) $option); ?>" <?php selected($days, $option); ?>><?php echo esc_html((string) $option); ?></option>
+                <?php endforeach; ?>
+            </select>
+        </p>
+        <fieldset data-kk-gold-summary-brands>
+            <legend class="screen-reader-text"><?php esc_html_e('Brands to show', 'koperasikita'); ?></legend>
+            <?php foreach ($brands as $slug => $label) : ?>
+                <label data-kk-gold-summary-brand-row>
+                    <input type="checkbox" data-kk-gold-summary-brand value="<?php echo esc_attr($slug); ?>" <?php checked(in_array($slug, $enabled, true)); ?>>
+                    <?php echo esc_html($label); ?>
+                </label>
+            <?php endforeach; ?>
+        </fieldset>
+        <p data-kk-gold-summary-status role="status" aria-live="polite"></p>
+        <div data-kk-gold-summary-chart>
+            <?php self::renderChart($chart, $brands, true); ?>
+        </div>
+
+        <h2><?php esc_html_e('Sync status', 'koperasikita'); ?></h2>
+        <table class="form-table" role="presentation">
+            <tbody>
+                <tr>
+                    <th scope="row"><?php esc_html_e('Last sync', 'koperasikita'); ?></th>
+                    <td><?php echo esc_html($lastSync); ?></td>
+                </tr>
+                <tr>
+                    <th scope="row"><?php esc_html_e('Last run', 'koperasikita'); ?></th>
+                    <td>
+                        <?php
+                        printf(
+                            /* translators: %1$d: rows inserted, %2$d: rows skipped (already in database). */
+                            esc_html__('Inserted %1$d, skipped %2$d (already in database).', 'koperasikita'),
+                            (int) $status['inserted'],
+                            (int) $status['skipped']
+                        );
+                        ?>
+                    </td>
+                </tr>
+                <tr>
+                    <th scope="row"><?php esc_html_e('Last update', 'koperasikita'); ?></th>
+                    <td><?php echo esc_html($status['latest_date'] ?? __('None yet', 'koperasikita')); ?></td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h2><?php esc_html_e('Enabled brands', 'koperasikita'); ?></h2>
+        <?php self::renderSummaryBrandList($brands, $enabled, true); ?>
+
+        <h2><?php esc_html_e('Disabled brands', 'koperasikita'); ?></h2>
+        <?php self::renderSummaryBrandList($brands, $enabled, false); ?>
+        <?php
+    }
+
+    /**
+     * One brand list for the Summary tab: the enabled brands, or
+     * the disabled ones. Each row shows the brand name, its current
+     * price, and the provider supplying it (the configured provider
+     * when there is no price yet). An empty list says so honestly
+     * instead of rendering an empty table.
+     *
+     * @param array<string, string> $brands Slug => label.
+     * @param array<int, string> $enabled Enabled brand slugs.
+     */
+    private static function renderSummaryBrandList(array $brands, array $enabled, bool $showEnabled): void
+    {
+        $slugs = array_values(array_filter(
+            array_keys($brands),
+            static fn(string $slug): bool => in_array($slug, $enabled, true) === $showEnabled
+        ));
+
+        if ($slugs === []) {
+            echo '<p>' . esc_html__($showEnabled ? 'All brands are disabled.' : 'No disabled brands.', 'koperasikita') . '</p>';
+
+            return;
+        }
+
+        $prices = Markets::prices('gold');
+        $configured = Gold::brandProviders();
+        ?>
+        <table class="widefat striped">
+            <thead>
+                <tr>
+                    <th><?php esc_html_e('Brand', 'koperasikita'); ?></th>
+                    <th><?php esc_html_e('Current price', 'koperasikita'); ?></th>
+                    <th><?php esc_html_e('Provider', 'koperasikita'); ?></th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php foreach ($slugs as $slug) : ?>
+                    <?php
+                    $price = $prices[$slug] ?? null;
+                    $provider = ($price !== null && $price->hasData() && $price->provider !== '')
+                        ? Gold::providerLabel($price->provider)
+                        : Gold::providerLabel($configured[$slug] ?? 'manual');
+                    ?>
+                    <tr>
+                        <td><strong><?php echo esc_html($brands[$slug]); ?></strong></td>
+                        <td>
+                            <?php if ($price !== null && $price->hasData()) : ?>
+                                <?php echo esc_html(Markets::formatPrice((float) $price->price, $price->currency)); ?>
+                            <?php else : ?>
+                                <?php esc_html_e('No data', 'koperasikita'); ?>
+                            <?php endif; ?>
+                        </td>
+                        <td><?php echo esc_html($provider); ?></td>
+                    </tr>
+                <?php endforeach; ?>
+            </tbody>
+        </table>
+        <?php
+    }
+
+    /**
+     * Gold Brands tab: the per-brand provider table (brand →
+     * provider + fallback) with the per-brand Enabled switch in
+     * the same table — one form, one save. The Enabled switch is
+     * the old "Enabled Gold Brands" form consolidated here; the
+     * Setting tab no longer carries it.
+     *
+     * @param array<string, string> $brands Slug => label.
+     */
+    private static function renderGoldBrandsTab(array $brands): void
+    {
+        // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- saved flag is display-only.
+        $saved = isset($_GET['gold_brands_saved']) && $_GET['gold_brands_saved'] === '1';
+        ?>
+        <h2><?php esc_html_e('Gold Brands', 'koperasikita'); ?></h2>
         <?php if ($saved) : ?>
-            <div class="notice notice-success is-dismissible"><p><?php esc_html_e('Enabled brands saved.', 'koperasikita'); ?></p></div>
+            <div class="notice notice-success inline"><p><?php esc_html_e('Gold brands saved.', 'koperasikita'); ?></p></div>
         <?php endif; ?>
-        <p><?php esc_html_e('Choose which gold brands are shown on the site. Disabled brands are hidden from the Gold widget and from the widget\'s Brands to show picker. The widget\'s own Brands to show setting then picks from the enabled brands only.', 'koperasikita'); ?></p>
-        <form method="post" action="<?php echo esc_url(add_query_arg('tab', 'setting', admin_url('admin.php?page=' . self::PAGE_SLUG))); ?>">
-            <?php wp_nonce_field('kk_enabled_brands', 'kk_enabled_brands_nonce'); ?>
-            <table class="form-table" role="presentation">
-                <tbody>
-                    <?php foreach ($brands as $slug => $label) : ?>
-                        <tr>
-                            <th scope="row"><?php echo esc_html($label); ?></th>
-                            <td>
-                                <label>
-                                    <input type="checkbox" name="kk_enabled_brands[]" value="<?php echo esc_attr($slug); ?>" <?php checked(in_array($slug, $enabled, true)); ?>>
-                                    <?php esc_html_e('Enabled', 'koperasikita'); ?>
-                                </label>
-                            </td>
-                        </tr>
-                    <?php endforeach; ?>
-                </tbody>
-            </table>
-            <?php submit_button(__('Save brands', 'koperasikita')); ?>
+        <p><?php esc_html_e('Choose which provider supplies the price for each brand, and which brands the site shows. Only providers that can actually supply that brand are listed. When the primary provider has no price for a brand, its fallback provider is tried automatically. A disabled brand is hidden from the Gold widget and from the widget\'s Brands to show picker.', 'koperasikita'); ?></p>
+        <form method="post" action="<?php echo esc_url(admin_url('admin.php?page=' . self::PAGE_SLUG . '&tab=gold-brands')); ?>">
+            <?php wp_nonce_field('kk_gold_brands', 'kk_gold_brands_nonce'); ?>
+            <?php self::renderBrandProvidersTable(); ?>
+            <?php submit_button(__('Save gold brands', 'koperasikita'), 'secondary'); ?>
         </form>
         <?php
     }
 
     /**
-     * Status tab: the per-brand provider table — current price
-     * per brand, which provider supplies it, and the provider /
-     * fallback picks. Sync status, manual sync and the per-source
-     * table live on their own Sync tab.
-     */
-    private static function renderStatusTab(): void
-    {
-        ?>
-        <h2><?php esc_html_e('Gold price providers', 'koperasikita'); ?></h2>
-        <?php self::renderBrandProvidersTable(); ?>
-        <?php
-    }
-
-    /**
-     * Sync tab: everything sync-related in one place — what the
-     * sync does, the sync status (last sync, latest date, symbols
-     * stored, last run), the manual sync button with progress,
-     * and the per-source status table.
+     * Sync tab: everything about Scraping in one place — what it
+     * does, the sync status (last sync, latest date, symbols
+     * stored, the failure backlog), a manual scrape button that
+     * steps through the enabled sources one at a time via AJAX with
+     * a real progress bar, and the per-source status table.
      */
     private static function renderSyncTab(): void
     {
         $status = LogamMuliaApiProvider::status();
         ?>
-        <p><?php esc_html_e('Daily gold prices from the Logam Mulia API price history (backup/prices CSV on GitHub). The sync runs automatically via WP-Cron on the schedule on the Setting tab and only inserts rows that are not in the database yet — one row per brand per day. Use the button below to sync on demand.', 'koperasikita'); ?></p>
+        <p><?php esc_html_e('Scraping fetches the daily gold prices and stores one row per brand per day — only rows that are not in the database yet. It runs automatically via WP-Cron on the schedule on the Setting tab. Use the button below to scrape on demand.', 'koperasikita'); ?></p>
 
         <h2><?php esc_html_e('Sync status', 'koperasikita'); ?></h2>
         <?php self::renderStatus($status); ?>
 
-        <h2><?php esc_html_e('Manual sync', 'koperasikita'); ?></h2>
+        <h2><?php esc_html_e('Manual scraping', 'koperasikita'); ?></h2>
         <?php self::renderManualSync(); ?>
 
-        <h2><?php esc_html_e('Sync sources', 'koperasikita'); ?></h2>
+        <h2><?php esc_html_e('Scraping sources', 'koperasikita'); ?></h2>
         <?php self::renderSourceTable($status); ?>
         <?php
     }
 
     /**
-     * The manual sync block, on the Sync tab only. The button
-     * syncs ONLY the enabled sources, default first — see
+     * The manual scrape block, on the Sync tab only. The button
+     * scrapes ONLY the enabled sources, default first — see
      * LogamMuliaApiProvider::enabledSyncSources(). With no source
      * enabled the button is disabled with an honest note, so it
      * can never be clicked to no effect. The progress bar + step
@@ -329,10 +530,10 @@ final class GoldPricesPage
         $enabled = LogamMuliaApiProvider::enabledSyncSources();
         ?>
         <p>
-            <button type="button" class="button button-primary" data-kk-gold-sync <?php disabled(empty($enabled)); ?>><?php esc_html_e('Sync now', 'koperasikita'); ?></button>
+            <button type="button" class="button button-primary" data-kk-gold-sync <?php disabled(empty($enabled)); ?>><?php esc_html_e('Scrape now', 'koperasikita'); ?></button>
         </p>
         <?php if ($enabled === []) : ?>
-            <p><?php esc_html_e('No sync source is enabled. Enable one on the Setting tab.', 'koperasikita'); ?></p>
+            <p><?php esc_html_e('No scraping source is enabled. Enable one on the Setting tab.', 'koperasikita'); ?></p>
         <?php endif; ?>
         <div data-kk-gold-sync-progress hidden>
             <p><progress data-kk-gold-sync-bar max="100" value="0" style="width: 100%; max-width: 30rem;"></progress></p>
@@ -344,13 +545,13 @@ final class GoldPricesPage
     }
 
     /**
-     * Setting tab: the sync source list (which Logam Mulia
-     * CSV sources the sync imports, and which one runs first) and
-     * the automatic sync schedule — one form, one save. Manual
-     * and automatic sync both follow the same enabled list.
-     * Manual sync itself, and the sync status, live on the Sync
-     * tab; the enabled-brands switch follows below as its own
-     * section.
+     * Setting tab: ONLY the sync settings — the scraping source
+     * list (which sources Scraping imports, and which one runs
+     * first) and the automatic sync schedule — one form, one save.
+     * Manual and automatic scraping both follow the same enabled
+     * list. Manual scraping itself, and the sync status, live on
+     * the Sync tab; the per-brand Enabled switch lives on the
+     * Gold Brands tab.
      */
     private static function renderSettingsTab(): void
     {
@@ -362,9 +563,9 @@ final class GoldPricesPage
         // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- saved flag is display-only.
         $syncSettingsSaved = isset($_GET['sync_settings_saved']) && $_GET['sync_settings_saved'] === '1';
         ?>
-        <p><?php esc_html_e('Choose which Logam Mulia sources the sync imports. Only enabled sources are synced, manually and automatically. The default source is synced first.', 'koperasikita'); ?></p>
+        <p><?php esc_html_e('Scraping fetches the gold prices from the sources below. Only enabled sources are scraped, manually and automatically. The default source is scraped first.', 'koperasikita'); ?></p>
 
-        <h2><?php esc_html_e('Sync sources', 'koperasikita'); ?></h2>
+        <h2><?php esc_html_e('Scraping sources', 'koperasikita'); ?></h2>
         <?php if ($syncSettingsSaved) : ?>
             <div class="notice notice-success inline"><p><?php esc_html_e('Automatic sync settings saved.', 'koperasikita'); ?></p></div>
         <?php endif; ?>
@@ -375,7 +576,6 @@ final class GoldPricesPage
                 <thead>
                     <tr>
                         <th><?php esc_html_e('Source', 'koperasikita'); ?></th>
-                        <th><?php esc_html_e('Imports', 'koperasikita'); ?></th>
                         <th><?php esc_html_e('Enabled', 'koperasikita'); ?></th>
                         <th><?php esc_html_e('Default', 'koperasikita'); ?></th>
                         <th><?php esc_html_e('Last sync', 'koperasikita'); ?></th>
@@ -390,8 +590,7 @@ final class GoldPricesPage
                             : __('Never', 'koperasikita');
                         ?>
                         <tr>
-                            <td><strong><?php echo esc_html($labels[$source] ?? $source); ?></strong></td>
-                            <td><?php echo esc_html($descriptions[$source] ?? ''); ?></td>
+                            <td><strong><?php echo esc_html($descriptions[$source] ?? $source); ?></strong><br><span class="description"><?php echo esc_html($labels[$source] ?? $source); ?></span></td>
                             <td>
                                 <input type="checkbox" name="kk_sync_sources[]" value="<?php echo esc_attr($source); ?>" <?php checked(in_array($source, $sync['sync_sources'], true)); ?> aria-label="<?php echo esc_attr(sprintf(__('Sync %s', 'koperasikita'), $labels[$source] ?? $source)); ?>">
                             </td>
@@ -472,96 +671,98 @@ final class GoldPricesPage
      * A select only lists providers that can actually supply that
      * brand. When the primary has no price, the fallback is tried
      * automatically. A brand with a description shows it as one
-     * muted line under the brand name.
+     * muted line under the brand name. Brand rows also carry the
+     * Enabled switch (the spot row has none — spot is not a brand);
+     * the table submits as one form with the Gold Brands tab.
      */
     private static function renderBrandProvidersTable(): void
     {
-        // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- saved flag is display-only.
-        $saved = isset($_GET['brand_providers_saved']) && $_GET['brand_providers_saved'] === '1';
         $symbols = Gold::goldSymbols();
         $primaries = Gold::brandProviders();
         $fallbacks = Gold::brandFallbackProviders();
         $prices = Markets::prices('gold');
+        $enabled = Gold::enabledBrands();
+        $brands = Gold::brands();
         ?>
-        <?php if ($saved) : ?>
-            <div class="notice notice-success inline"><p><?php esc_html_e('Brand providers saved.', 'koperasikita'); ?></p></div>
-        <?php endif; ?>
-        <p><?php esc_html_e('Choose which provider supplies the price for each brand. Only providers that can actually supply that brand are listed. When the primary provider has no price for a brand, its fallback provider is tried automatically. A brand neither provider can price shows no price on the site.', 'koperasikita'); ?></p>
-        <form method="post" action="<?php echo esc_url(admin_url('admin.php?page=' . self::PAGE_SLUG . '&tab=status')); ?>">
-            <?php wp_nonce_field('kk_gold_brand_providers', 'kk_gold_brand_providers_nonce'); ?>
-            <div class="kk-gold-brand-providers-wrap">
-            <table class="widefat striped kk-gold-brand-providers">
-                <thead>
+        <div class="kk-gold-brand-providers-wrap">
+        <table class="widefat striped kk-gold-brand-providers">
+            <thead>
+                <tr>
+                    <th><?php esc_html_e('Brand', 'koperasikita'); ?></th>
+                    <th><?php esc_html_e('Current price', 'koperasikita'); ?></th>
+                    <th><?php esc_html_e('Updated', 'koperasikita'); ?></th>
+                    <th><?php esc_html_e('Provider', 'koperasikita'); ?></th>
+                    <th><?php esc_html_e('Fallback', 'koperasikita'); ?></th>
+                    <th><?php esc_html_e('Supplied by', 'koperasikita'); ?></th>
+                    <th><?php esc_html_e('Enabled', 'koperasikita'); ?></th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php foreach ($symbols as $symbol => $label) : ?>
+                    <?php
+                    $price = $prices[$symbol] ?? null;
+                    $primary = $primaries[$symbol] ?? 'manual';
+                    $fallback = $fallbacks[$symbol] ?? '';
+                    ?>
                     <tr>
-                        <th><?php esc_html_e('Brand', 'koperasikita'); ?></th>
-                        <th><?php esc_html_e('Current price', 'koperasikita'); ?></th>
-                        <th><?php esc_html_e('Updated', 'koperasikita'); ?></th>
-                        <th><?php esc_html_e('Provider', 'koperasikita'); ?></th>
-                        <th><?php esc_html_e('Fallback', 'koperasikita'); ?></th>
-                        <th><?php esc_html_e('Supplied by', 'koperasikita'); ?></th>
+                        <td>
+                            <strong><?php echo esc_html($label); ?></strong>
+                            <?php $description = Gold::brandDescription($symbol); ?>
+                            <?php if ($description !== '') : ?>
+                                <br><span class="description"><?php echo esc_html($description); ?></span>
+                            <?php endif; ?>
+                        </td>
+                        <td>
+                            <?php if ($price !== null && $price->hasData()) : ?>
+                                <?php echo esc_html(Markets::formatPrice((float) $price->price, $price->currency)); ?>
+                            <?php else : ?>
+                                <?php esc_html_e('No data', 'koperasikita'); ?>
+                            <?php endif; ?>
+                        </td>
+                        <td>
+                            <?php if ($price !== null && $price->hasData() && $price->updated > 0) : ?>
+                                <?php echo esc_html(date_i18n(get_option('date_format', 'Y-m-d') . ' ' . get_option('time_format', 'H:i'), $price->updated)); ?>
+                            <?php else : ?>
+                                —
+                            <?php endif; ?>
+                        </td>
+                        <td>
+                            <select name="kk_brand_provider[<?php echo esc_attr($symbol); ?>]" aria-label="<?php echo esc_attr(sprintf(__('Provider for %s', 'koperasikita'), $label)); ?>">
+                                <?php foreach (Gold::providerChoicesForBrand($symbol) as $id => $choiceLabel) : ?>
+                                    <option value="<?php echo esc_attr($id); ?>" <?php selected($primary, $id); ?>>
+                                        <?php echo esc_html($choiceLabel); ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            </select>
+                        </td>
+                        <td>
+                            <select name="kk_brand_fallback[<?php echo esc_attr($symbol); ?>]" aria-label="<?php echo esc_attr(sprintf(__('Fallback provider for %s', 'koperasikita'), $label)); ?>">
+                                <?php foreach (Gold::fallbackChoicesForBrand($symbol, $primary) as $id => $choiceLabel) : ?>
+                                    <option value="<?php echo esc_attr($id); ?>" <?php selected($fallback, $id); ?>>
+                                        <?php echo esc_html($choiceLabel); ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            </select>
+                        </td>
+                        <td>
+                            <?php if ($price !== null && $price->hasData() && $price->provider !== '') : ?>
+                                <?php echo esc_html(Gold::providerLabel($price->provider)); ?>
+                            <?php else : ?>
+                                —
+                            <?php endif; ?>
+                        </td>
+                        <td>
+                            <?php if (isset($brands[$symbol])) : ?>
+                                <input type="checkbox" name="kk_enabled_brands[]" value="<?php echo esc_attr($symbol); ?>" <?php checked(in_array($symbol, $enabled, true)); ?> aria-label="<?php echo esc_attr(sprintf(__('Enabled: %s', 'koperasikita'), $label)); ?>">
+                            <?php else : ?>
+                                —
+                            <?php endif; ?>
+                        </td>
                     </tr>
-                </thead>
-                <tbody>
-                    <?php foreach ($symbols as $symbol => $label) : ?>
-                        <?php
-                        $price = $prices[$symbol] ?? null;
-                        $primary = $primaries[$symbol] ?? 'manual';
-                        $fallback = $fallbacks[$symbol] ?? '';
-                        ?>
-                        <tr>
-                            <td>
-                                <strong><?php echo esc_html($label); ?></strong>
-                                <?php $description = Gold::brandDescription($symbol); ?>
-                                <?php if ($description !== '') : ?>
-                                    <br><span class="description"><?php echo esc_html($description); ?></span>
-                                <?php endif; ?>
-                            </td>
-                            <td>
-                                <?php if ($price !== null && $price->hasData()) : ?>
-                                    <?php echo esc_html(Markets::formatPrice((float) $price->price, $price->currency)); ?>
-                                <?php else : ?>
-                                    <?php esc_html_e('No data', 'koperasikita'); ?>
-                                <?php endif; ?>
-                            </td>
-                            <td>
-                                <?php if ($price !== null && $price->hasData() && $price->updated > 0) : ?>
-                                    <?php echo esc_html(date_i18n(get_option('date_format', 'Y-m-d') . ' ' . get_option('time_format', 'H:i'), $price->updated)); ?>
-                                <?php else : ?>
-                                    —
-                                <?php endif; ?>
-                            </td>
-                            <td>
-                                <select name="kk_brand_provider[<?php echo esc_attr($symbol); ?>]" aria-label="<?php echo esc_attr(sprintf(__('Provider for %s', 'koperasikita'), $label)); ?>">
-                                    <?php foreach (Gold::providerChoicesForBrand($symbol) as $id => $choiceLabel) : ?>
-                                        <option value="<?php echo esc_attr($id); ?>" <?php selected($primary, $id); ?>>
-                                            <?php echo esc_html($choiceLabel); ?>
-                                        </option>
-                                    <?php endforeach; ?>
-                                </select>
-                            </td>
-                            <td>
-                                <select name="kk_brand_fallback[<?php echo esc_attr($symbol); ?>]" aria-label="<?php echo esc_attr(sprintf(__('Fallback provider for %s', 'koperasikita'), $label)); ?>">
-                                    <?php foreach (Gold::fallbackChoicesForBrand($symbol, $primary) as $id => $choiceLabel) : ?>
-                                        <option value="<?php echo esc_attr($id); ?>" <?php selected($fallback, $id); ?>>
-                                            <?php echo esc_html($choiceLabel); ?>
-                                        </option>
-                                    <?php endforeach; ?>
-                                </select>
-                            </td>
-                            <td>
-                                <?php if ($price !== null && $price->hasData() && $price->provider !== '') : ?>
-                                    <?php echo esc_html(Gold::providerLabel($price->provider)); ?>
-                                <?php else : ?>
-                                    —
-                                <?php endif; ?>
-                            </td>
-                        </tr>
-                    <?php endforeach; ?>
-                </tbody>
-            </table>
-            </div>
-            <?php submit_button(__('Save brand providers', 'koperasikita'), 'secondary'); ?>
-        </form>
+                <?php endforeach; ?>
+            </tbody>
+        </table>
+        </div>
         <?php
     }
 
@@ -749,12 +950,16 @@ final class GoldPricesPage
      * Per-source table: latest date, inserted/skipped, and the
      * backlog note (a failed source stays in the backlog and is
      * retried later; after 3 failures it drops to lowest
-     * priority — weekly retry only).
+     * priority — weekly retry only). Each row leads with what the
+     * source imports; the site name sits below it, muted — the
+     * table is about the scraping, not about the sites.
      *
      * @param array{sources: array<string, array{synced_at: int|null, inserted: int, skipped: int, latest_date: string|null, error: string|null, failures: int, next_retry: int|null, deprioritised: bool}>} $status
      */
     private static function renderSourceTable(array $status): void
     {
+        $labels = LogamMuliaApiProvider::sourceLabels();
+        $descriptions = LogamMuliaApiProvider::sourceDescriptions();
         $rows = '';
         foreach (LogamMuliaApiProvider::SOURCES as $source) {
             $s = $status['sources'][$source] ?? [];
@@ -783,7 +988,7 @@ final class GoldPricesPage
             }
 
             $rows .= '<tr>'
-                . '<td><strong>' . esc_html($source) . '</strong></td>'
+                . '<td><strong>' . esc_html($descriptions[$source] ?? $source) . '</strong><br><span class="description">' . esc_html($labels[$source] ?? $source) . '</span></td>'
                 . '<td>' . esc_html($s['latest_date'] ?? '—') . '</td>'
                 . '<td>' . esc_html((string) ($s['inserted'] ?? 0)) . '</td>'
                 . '<td>' . esc_html((string) ($s['skipped'] ?? 0)) . '</td>'
@@ -811,10 +1016,9 @@ final class GoldPricesPage
      * sell price (per gram, IDR) over recorded date. Empty history
      * renders a short note instead of an empty chart — a different
      * note when a filter is active, so the page never suggests
-     * syncing for rows the filter simply excluded. The figure is
-     * capped at the design width, so the chart renders ~260px
-     * tall on desktop and scales down proportionally on narrow
-     * screens (aspect ratio kept, never stretched).
+     * syncing for rows the filter simply excluded. The figure spans
+     * the full tab width (wide aspect, so the full-width render
+     * stays short).
      *
      * @param array<int, array{symbol: string, sell_price: float, buyback_price: float|null, currency: string, recorded_date: string|null, fetched_at: int}> $history
      * @param array<string, string> $brands Slug => label.
