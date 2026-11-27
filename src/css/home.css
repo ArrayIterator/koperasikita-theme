@@ -143,8 +143,11 @@
 /* The section is a grid; the mode class sets the columns. Widget
  * areas render nothing when empty, so a widget mode falls back to
  * the hero alone until a widget is added. The lead + cards inside
- * .kk-hero-main form their own grid (lead beside cards, or cards
- * on both sides for Grid Center). Grid Left is the default and
+ * .kk-hero-main form their own grid: lead beside cards for the
+ * grid modes (or cards on both sides for Grid Center), but Leads
+ * Widgets stacks them - the lead is full width on top and the
+ * cards sit below it, because the middle column is too narrow
+ * for the lead beside the cards. Grid Left is the default and
  * matches the original hero: lead on the left (wider, 1.6fr) and
  * the cards in a 2x2 grid on the right (1fr). */
 
@@ -160,10 +163,20 @@
 
 .kk-hero--grid-left .kk-hero-main,
 .kk-hero--grid-left-widget .kk-hero-main,
-.kk-hero--grid-right-widget .kk-hero-main,
-.kk-hero--leads-widgets .kk-hero-main {
+.kk-hero--grid-right-widget .kk-hero-main {
 	display: grid;
 	grid-template-columns: 1.6fr 1fr;
+	gap: 20px;
+	align-items: start;
+}
+
+/* Leads Widgets stacks the middle column: the lead is full width
+ * on top, the cards below it in their own grid. The section
+ * columns (1fr 2fr 1fr) and the no-widget fallbacks are untouched,
+ * and the cards keep their two-column grid from responsive.css. */
+.kk-hero--leads-widgets .kk-hero-main {
+	display: grid;
+	grid-template-columns: 1fr;
 	gap: 20px;
 	align-items: start;
 }
@@ -294,25 +307,24 @@
 /* A widget mode whose widget area is empty falls back to the hero
  * alone (full width) - no blank column. The template adds
  * kk-hero--no-left-widget / kk-hero--no-right-widget when the
- * matching sidebar has no widgets. */
+ * matching sidebar has no widgets. Leads Widgets is the exception:
+ * its side columns stay even when empty, so the leads stay centered
+ * in the middle column - it never gets these modifiers. */
 .kk-hero--grid-left-widget.kk-hero--no-right-widget,
 .kk-hero--grid-right-widget.kk-hero--no-left-widget,
 .kk-hero--slider-one-left-widget.kk-hero--no-left-widget,
 .kk-hero--slider-one-right-widget.kk-hero--no-right-widget,
 .kk-hero--slider-left-widget.kk-hero--no-left-widget,
 .kk-hero--slider-right-widget.kk-hero--no-right-widget,
-.kk-hero--leads-widgets.kk-hero--no-left-widget.kk-hero--no-right-widget,
 .kk-hero--slider-center.kk-hero--no-left-widget.kk-hero--no-right-widget {
 	grid-template-columns: 1fr;
 }
 
 /* One widget present: the hero + the one widget. */
-.kk-hero--leads-widgets.kk-hero--no-left-widget,
 .kk-hero--slider-center.kk-hero--no-left-widget {
 	grid-template-columns: 2fr 1fr;
 }
 
-.kk-hero--leads-widgets.kk-hero--no-right-widget,
 .kk-hero--slider-center.kk-hero--no-right-widget {
 	grid-template-columns: 1fr 2fr;
 }
@@ -323,7 +335,6 @@
 	.kk-hero--grid-right .kk-hero-main,
 	.kk-hero--grid-left-widget .kk-hero-main,
 	.kk-hero--grid-right-widget .kk-hero-main,
-	.kk-hero--leads-widgets .kk-hero-main,
 	.kk-hero--grid-center .kk-hero-main,
 	.kk-hero--grid-left-widget,
 	.kk-hero--grid-right-widget,
