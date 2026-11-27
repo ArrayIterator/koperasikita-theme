@@ -313,7 +313,7 @@ final class DataDeskTemplatesPage
                     <th scope="row"><label for="kk-template-title"><?php esc_html_e('Title', 'koperasikita'); ?></label></th>
                     <td>
                         <input type="text" id="kk-template-title" name="kk_template_title" value="<?php echo esc_attr($template['title']); ?>" class="regular-text">
-                        <p class="description"><?php esc_html_e('Leave empty for the automatic title.', 'koperasikita'); ?></p>
+                        <p class="description"><?php esc_html_e('Leave empty for the automatic title. Use {label} for the symbol name and {day} for the number of days.', 'koperasikita'); ?></p>
                     </td>
                 </tr>
             </table>
