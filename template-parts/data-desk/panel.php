@@ -254,9 +254,8 @@ $polyline = implode(' ', array_map(static fn(array $c): string => number_format(
 							echo (float) $data['week_change'] >= 0 ? '&uarr; ' : '&darr; ';
 							echo esc_html(Markets::formatPrice(abs($price - (float) $points[0]['price']), $currency));
 							?>
-						</span>
-						<?php
-						/* translators: %s: whole-period change in percent. */
+						</span> <?php
+						/* translators: %s: whole-period change in percent. The space after the span is the separator between the amount and this text - a literal character here, not template indentation, so the note can never lose it. */
 						printf(esc_html__('dari awal periode (%s)', 'koperasikita'), esc_html(Markets::formatChange((float) $data['week_change'])));
 						?>
 					<?php elseif (isset($data['change']) && $data['change'] !== null && isset($data['change_abs']) && $data['change_abs'] !== null) : ?>
@@ -265,9 +264,8 @@ $polyline = implode(' ', array_map(static fn(array $c): string => number_format(
 							echo (float) $data['change'] >= 0 ? '&uarr; ' : '&darr; ';
 							echo esc_html(Markets::formatPrice(abs((float) $data['change_abs']), $currency));
 							?>
-						</span>
-						<?php
-						/* translators: %s: day change in percent. */
+						</span> <?php
+						/* translators: %s: day change in percent. The space after the span is the separator between the amount and this text - a literal character here, not template indentation, so the note can never lose it. */
 						printf(esc_html__('dari kemarin (%s)', 'koperasikita'), esc_html(Markets::formatChange((float) $data['change'])));
 						?>
 					<?php else : ?>

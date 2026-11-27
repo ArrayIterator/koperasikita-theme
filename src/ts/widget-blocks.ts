@@ -27,9 +27,10 @@ type ShowWhen = { key: string; value: string | boolean };
 
 type FieldDef =
 	| { key: string; kind: 'text'; label: string; help?: string }
+	| { key: string; kind: 'data-desk-title'; label: string; help?: string }
 	| { key: string; kind: 'textarea'; label: string; help?: string }
 	| { key: string; kind: 'number'; label: string; help?: string; min: number; max: number; fallback?: number }
-	| { key: string; kind: 'select'; label: string; options: OptionItem[]; showWhen?: ShowWhen; disabledWhenEmpty?: { key: string }; disabledHelp?: string }
+	| { key: string; kind: 'select'; label: string; options: OptionItem[]; showWhen?: ShowWhen }
 	| { key: string; kind: 'toggle'; label: string }
 	| { key: string; kind: 'checkboxes'; label: string; options: OptionItem[] }
 	| { key: string; kind: 'termsearch'; label: string; help?: string; source: 'categories' | 'tags' | 'options'; options: OptionItem[]; single?: boolean }
@@ -886,6 +887,50 @@ function DataDeskOverridesField(props: {
 	);
 }
 
+/* The Data Desk block's Title: a wrapping textarea (a token
+ * title is longer than the inspector is wide) that shows the
+ * RAW stored tokens while focused, for editing, and the
+ * RESOLVED title on blur, like the Templates editor's preview
+ * title. The attribute always holds the raw tokens; only the
+ * display swaps. The resolution mirrors
+ * DataDesk::replaceTitleTokens on the server: {label} is the
+ * effective symbol's label, {day} the effective day count,
+ * both from the picked template plus the widget's own
+ * overrides. A real component because it holds the focus
+ * state. */
+function DataDeskTitleField(props: {
+	field: { key: string; label: string; help?: string };
+	attributes: Record<string, unknown>;
+	set: (key: string, value: unknown) => void;
+	api: Wp;
+}): unknown {
+	const { field, attributes, set, api } = props;
+	const [focused, setFocused] = api.element.useState(false);
+	const raw = typeof attributes.title === 'string' ? attributes.title : '';
+	const meta = kkWidgetBlocks?.dataDeskTemplateMeta ?? {};
+	const templateId =
+		typeof attributes.template === 'string' && attributes.template !== '' && meta[attributes.template] !== undefined
+			? (attributes.template as string)
+			: (Object.keys(meta)[0] ?? '');
+	const templateMeta = meta[templateId];
+	const symbolOverride = typeof attributes.symbolOverride === 'string' ? attributes.symbolOverride : '';
+	const daysOverride = typeof attributes.daysOverride === 'number' ? attributes.daysOverride : 0;
+	const symbol = symbolOverride !== '' ? symbolOverride : (templateMeta?.symbol ?? '');
+	const label = (kkWidgetBlocks?.dataDeskSymbols ?? []).find((option) => option.value === symbol)?.label ?? symbol;
+	const days = daysOverride > 0 ? daysOverride : (templateMeta?.days ?? 7);
+	const resolved = raw.replace(/\{label\}/g, label).replace(/\{day\}/g, String(days));
+	return api.element.createElement(api.components.TextareaControl, {
+		key: field.key,
+		label: field.label,
+		help: field.help ?? '',
+		rows: 2,
+		value: focused ? raw : resolved,
+		onChange: (next: string) => set(field.key, next),
+		onFocus: () => setFocused(true),
+		onBlur: () => setFocused(false),
+	});
+}
+
 function renderField(
 	field: FieldDef,
 	attributes: Record<string, unknown>,
@@ -904,6 +949,9 @@ function renderField(
 				value: typeof value === 'string' ? value : '',
 				onChange: (next: string) => set(key, next),
 			});
+		case 'data-desk-title': {
+			return api.element.createElement(DataDeskTitleField, { key, field, attributes, set, api });
+		}
 		case 'textarea':
 			return api.element.createElement(api.components.TextareaControl, {
 				key,
@@ -923,21 +971,9 @@ function renderField(
 				onChange: (next: number | undefined) => set(key, next ?? (field.fallback ?? 5)),
 			});
 		case 'select': {
-			/* A select that only means something while another
-			 * attribute holds a value (the header style needs a
-			 * title) is disabled with a hint while that attribute
-			 * is empty, instead of sitting there pretending to
-			 * work. */
-			const gated = field.disabledWhenEmpty?.key;
-			const gatedValue = gated === undefined ? undefined : attributes[gated];
-			const disabled =
-				gated !== undefined &&
-				(typeof gatedValue !== 'string' || gatedValue.trim() === '');
 			return api.element.createElement(api.components.SelectControl, {
 				key,
 				label: field.label,
-				help: disabled ? (field.disabledHelp ?? '') : '',
-				disabled,
 				value: typeof value === 'string' ? value : '',
 				options: field.options,
 				onChange: (next: string) => set(key, next),
@@ -1104,11 +1140,10 @@ function buildDefinitions(api: Wp): BlockDef[] {
 		marginTop: { type: 'number', default: 0 },
 		marginBottom: { type: 'number', default: 10 },
 	};
-	/* The header style field, shared by every block with a title.
-	 * Only the data-desk block gates its copy on the title (see
-	 * below): its widget renders no header without one. The other
-	 * blocks keep today's behaviour - their title fallbacks are
-	 * their own business. */
+	/* The header style field, shared by every block with a
+	 * title. The data-desk block has none: it renders no
+	 * separate widget header (its title lives inside the
+	 * panel), so there is no header to style. */
 	const headerStyleField: Extract<FieldDef, { kind: 'select' }> = {
 		key: 'headerStyle',
 		kind: 'select',
@@ -1502,17 +1537,7 @@ function buildDefinitions(api: Wp): BlockDef[] {
 				hidePerformance: { type: 'boolean', default: false },
 			},
 			fields: [
-				{ key: 'title', kind: 'text', label: __('Title') },
-				{
-					...headerStyleField,
-					/* With no title there is no header to style:
-					 * WidgetHeader renders nothing, so every style
-					 * looks identical. The field stays visible but
-					 * disabled, saying why, instead of letting the
-					 * choice pretend to do something. */
-					disabledWhenEmpty: { key: 'title' },
-					disabledHelp: __('Set a title first - the header style only applies to the widget title.'),
-				},
+				{ key: 'title', kind: 'data-desk-title', label: __('Title') },
 				marginTopField,
 				marginBottomField,
 				{

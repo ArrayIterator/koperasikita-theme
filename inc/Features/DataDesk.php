@@ -633,6 +633,8 @@ final class DataDesk
             // A widget-form preview may carry per-instance overrides
             // (symbol/days/hidden stats) alongside the template id;
             // the preview renders the template with them applied.
+            // A widget title overrides the template title, the
+            // same rule widget() applies.
             $template = self::applyWidgetOverrides($template, [
                 'symbol_override' => $raw['symbol_override'] ?? '',
                 'days_override' => $raw['days_override'] ?? 0,
@@ -640,6 +642,9 @@ final class DataDesk
                 'hide_buyback' => !empty($raw['hide_buyback']),
                 'hide_performance' => !empty($raw['hide_performance']),
             ]);
+            if (isset($raw['title']) && trim((string) $raw['title']) !== '') {
+                $template['title'] = sanitize_text_field((string) $raw['title']);
+            }
         } else {
             $brands = [];
             if (isset($raw['brands']) && is_string($raw['brands']) && trim($raw['brands']) !== '') {
