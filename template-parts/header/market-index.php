@@ -24,6 +24,7 @@ if ($items === []) {
 		get_template_part('template-parts/markets/index-strip', null, [
 			'items' => $items,
 			'show_change' => true,
+			'cycle' => true,
 		]);
 		?>
 		<?php if ($snapshot !== null) : ?>

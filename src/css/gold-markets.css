@@ -508,6 +508,62 @@
 	white-space: nowrap;
 }
 
+/* Market header index: mobile ticker rotation
+ * Below 767px the row fits about one item, so the strip cycles one
+ * item at a time with the news ticker's bouncing fade (the same
+ * kk-ticker-in / kk-ticker-out keyframes from header.css: the new
+ * item bounces up from below, the old one fades up and out). The
+ * strip takes the full row and the snapshot wraps below it, so the
+ * cycling item always has the whole width and the snapshot stays
+ * visible. Desktop keeps the plain horizontal row. */
+@media (max-width: 767px) {
+	.kk-market-header .kk-index-strip {
+		flex: 1 1 100%;
+		position: relative;
+		height: 1.5em;
+		overflow: hidden;
+	}
+
+	.kk-market-header .kk-index-item {
+		position: absolute;
+		inset: 0;
+		opacity: 0;
+		visibility: hidden;
+	}
+
+	.kk-market-header .kk-index-item.is-active {
+		opacity: 1;
+		visibility: visible;
+		animation: kk-ticker-in 0.5s ease;
+	}
+
+	.kk-market-header .kk-index-item.is-leaving {
+		animation: kk-ticker-out 0.4s ease forwards;
+	}
+}
+
+/* Reduced motion: no cycling, the plain swipeable row instead, so
+ * every item stays reachable without the animation. */
+@media (prefers-reduced-motion: reduce) {
+	.kk-market-header .kk-index-strip {
+		position: static;
+		height: auto;
+		overflow-x: auto;
+		flex: 1 1 0;
+	}
+
+	.kk-market-header .kk-index-item {
+		position: static;
+		opacity: 1;
+		visibility: visible;
+	}
+
+	.kk-market-header .kk-index-item.is-active,
+	.kk-market-header .kk-index-item.is-leaving {
+		animation: none;
+	}
+}
+
 /* Markets marquee
    Continuously scrolling ticker. The track holds two identical sets and
    translates -50% on a linear loop, so the seam never shows. Each item
