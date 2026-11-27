@@ -249,8 +249,8 @@ async function hartadinataPrice() {
 /**
  * King Halim 1-gram sell price from kinghalim.com/goldbarwithamala.
  * The page lists one card per weight: the "1 Gr" heading followed
- * by its "Rp 2,264,000.00" price. The brand price is that 1 Gr
- * JUAL price — NOT the buyback ("Harga Buyback : Rp 2,130,000.00
+ * by its "Rp 2,275,000.00" price. The brand price is that 1 Gr
+ * JUAL price — NOT the buyback ("Harga Buyback : Rp 2,140,000.00
  * / Gr"). Prices there use US formatting with a ".00" decimal, so
  * they are parsed as floats, not with parseIdr (which would read
  * the ".00" as more digits). Returns null when the 1-gram card or
