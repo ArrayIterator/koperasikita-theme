@@ -4957,3 +4957,21 @@ msgstr "Warna hex, mis. #0B3D24. Kosong memakai warna palet."
 #: inc/Admin/DataDeskTemplatesPage.php
 msgid "Edit the title in the top bar above. In the title you can use {label} for the first brand and {day} for the number of days. Click a column header in the preview to edit it."
 msgstr "Edit judul di bilah atas. Di judul Anda dapat memakai {label} untuk merek pertama dan {day} untuk jumlah hari. Klik header kolom di pratinjau untuk mengeditnya."
+
+#: inc/Widgets/WeatherWidget.php
+#: src/ts/widget-blocks.ts
+msgid "Style"
+msgstr "Gaya"
+
+#: template-parts/weather/location-picker.php
+msgid "Location name"
+msgstr "Nama lokasi"
+
+#: template-parts/weather/location-picker.php
+msgid "Click the map to place the marker, or drag it."
+msgstr "Klik peta untuk menaruh penanda, atau seret penanda."
+
+#: inc/Widgets/WeatherWidget.php
+#: src/ts/widget-blocks.ts
+msgid "Show condition icon"
+msgstr "Tampilkan ikon kondisi"

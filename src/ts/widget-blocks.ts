@@ -1670,8 +1670,10 @@ function buildDefinitions(api: Wp): BlockDef[] {
 			attributes: {
 				title: { type: 'string', default: '' },
 				headerStyle: { type: 'string', default: 'classic-top' },
+				style: { type: 'string', default: 'auto' },
 				defaultCity: { type: 'string', default: 'Padang' },
 				showDetails: { type: 'boolean', default: false },
+				showIcon: { type: 'boolean', default: true },
 				locations: { type: 'array', default: [] },
 			},
 			fields: [
@@ -1679,6 +1681,17 @@ function buildDefinitions(api: Wp): BlockDef[] {
 				headerStyleField,
 				marginTopField,
 				marginBottomField,
+				{
+					key: 'style',
+					kind: 'select',
+					label: __('Style'),
+					options: [
+						{ value: 'auto', label: __('Auto') },
+						{ value: 'dark-green', label: __('Dark Green') },
+						{ value: 'light', label: __('Light') },
+						{ value: 'dark', label: __('Dark') },
+					],
+				},
 				{
 					key: 'locations',
 					kind: 'locations',
@@ -1689,6 +1702,11 @@ function buildDefinitions(api: Wp): BlockDef[] {
 					key: 'showDetails',
 					kind: 'toggle',
 					label: __('Show details (feels like, high/low, humidity, wind)'),
+				},
+				{
+					key: 'showIcon',
+					kind: 'toggle',
+					label: __('Show condition icon'),
 				},
 			],
 		},

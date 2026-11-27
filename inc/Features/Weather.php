@@ -320,13 +320,16 @@ final class Weather
      * script re-renders the same shape when the visitor picks another
      * location. Keep the two in sync.
      *
-     * @param array{temperature: float, feels_like: float|null, humidity: int|null, wind_speed: float|null, high: float|null, low: float|null, condition: string} $weather
+     * @param array{temperature: float, feels_like: float|null, humidity: int|null, wind_speed: float|null, high: float|null, low: float|null, code: int, condition: string} $weather
      */
-    public static function renderCurrentHtml(array $weather, bool $showDetails): string
+    public static function renderCurrentHtml(array $weather, bool $showDetails, bool $showIcon = true): string
     {
         $temperature = number_format_i18n((float) $weather['temperature'], 0);
 
-        $html = '<p class="kk-weather-temp">' . esc_html($temperature) . '<span aria-hidden="true">&deg;C</span></p>';
+        $icon = $showIcon
+            ? '<span class="kk-weather-icon" aria-hidden="true">' . Icon::svg(self::codeIcon((int) ($weather['code'] ?? 3)), 28) . '</span>'
+            : '';
+        $html = '<div class="kk-weather-now">' . $icon . '<p class="kk-weather-temp">' . esc_html($temperature) . '<span aria-hidden="true">&deg;C</span></p></div>';
         $html .= '<p class="kk-weather-condition">' . esc_html((string) $weather['condition']) . '</p>';
 
         if ($showDetails) {

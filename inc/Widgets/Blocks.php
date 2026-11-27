@@ -424,8 +424,10 @@ final class Blocks
                 'attributes' => [
                     'title' => ['type' => 'string', 'default' => ''],
                     'headerStyle' => ['type' => 'string', 'default' => 'classic-top'],
+                    'style' => ['type' => 'string', 'default' => 'auto'],
                     'defaultCity' => ['type' => 'string', 'default' => 'Padang'],
                     'showDetails' => ['type' => 'boolean', 'default' => false],
+                    'showIcon' => ['type' => 'boolean', 'default' => true],
                     'locations' => [
                         'type' => 'array',
                         'default' => [],
@@ -442,8 +444,10 @@ final class Blocks
                 'map' => [
                     'title' => 'title',
                     'headerStyle' => 'header_style',
+                    'style' => 'style',
                     'defaultCity' => 'default_city',
                     'showDetails' => 'show_details',
+                    'showIcon' => 'show_icon',
                     'locations' => 'locations',
                 ],
             ];
