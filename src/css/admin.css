@@ -549,6 +549,44 @@
 	opacity: 0.6;
 }
 
+/* Placeholders section under the live preview (panel templates
+ * only): the token table lists what each placeholder resolves
+ * to, and the settings popup groups the three choices as radio
+ * rows with a sample after the date-format label. */
+.kk-data-desk-placeholders {
+	margin-top: 16px;
+}
+
+.kk-data-desk-placeholders .kk-data-desk-table-wrap {
+	margin-top: 12px;
+}
+
+.kk-data-desk-placeholders table code {
+	font-size: 13px;
+}
+
+.kk-data-desk-placeholder-group {
+	margin: 16px 0 0;
+	padding: 0;
+	border: 0;
+}
+
+.kk-data-desk-placeholder-group legend {
+	padding: 0;
+	font-size: 14px;
+	font-weight: 600;
+}
+
+.kk-data-desk-placeholder-option {
+	display: block;
+	margin-top: 8px;
+	font-size: 14px;
+}
+
+.kk-data-desk-placeholder-option input {
+	accent-color: #0b6b3a;
+}
+
 /* Sidebar Settings popup (Setup page): same shape as the Data Desk
  * popup — centered panel over a blurred backdrop — narrower, since
  * it holds a short settings form instead of a full preview. */

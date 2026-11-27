@@ -265,8 +265,14 @@ final class DataDeskTemplatesPage
                 'stats' => DataDesk::sanitizeStats([]),
                 'headers' => [],
                 'hidden_blocks' => [],
+                'placeholders' => DataDesk::sanitizePlaceholders([]),
             ];
         }
+
+        // Placeholder settings for this template, sanitised once
+        // here: the hidden fields, the placeholders section and the
+        // settings popup below all read these values.
+        $placeholders = DataDesk::sanitizePlaceholders($template['placeholders'] ?? []);
 
         // Palette segments in the top bar, in the user's order:
         // Green is the dark-green palette, Auto follows the site
@@ -311,6 +317,14 @@ final class DataDeskTemplatesPage
             <input type="hidden" id="kk-template-header-<?php echo esc_attr($headerKey); ?>" name="kk_template_header_<?php echo esc_attr($headerKey); ?>" value="<?php echo esc_attr($template['headers'][$headerKey] ?? ''); ?>">
             <?php endforeach; ?>
             <input type="hidden" id="kk-template-hidden-blocks" name="kk_template_hidden_blocks" value="<?php echo esc_attr(implode(',', $template['hidden_blocks'] ?? [])); ?>">
+            <?php /* Placeholder settings: the date format, the
+             * percent type and the zone colour. Edited in the
+             * settings popup below (admin.ts), which writes into
+             * these hidden fields; the save flow reads them
+             * exactly as the stat texts. */ ?>
+            <input type="hidden" id="kk-template-placeholder-date-format" name="kk_template_placeholder_date_format" value="<?php echo esc_attr($placeholders['date_format']); ?>">
+            <input type="hidden" id="kk-template-placeholder-percent" name="kk_template_placeholder_percent" value="<?php echo esc_attr($placeholders['percent']); ?>">
+            <input type="hidden" id="kk-template-placeholder-zone-color" name="kk_template_placeholder_zone_color" value="<?php echo esc_attr($placeholders['zone_color']); ?>">
             <div class="kk-data-desk-topbar">
                 <div class="kk-data-desk-topbar-field kk-data-desk-topbar-field--name">
                     <label for="kk-template-name"><?php esc_html_e('Name', 'koperasikita'); ?></label>
@@ -409,7 +423,108 @@ final class DataDeskTemplatesPage
                 echo DataDesk::renderPreview($template, true);
                 ?>
             </div>
+            <?php /* Placeholders for the date line and the stat
+             * notes: each resolves from the panel's own data, and
+             * the samples below come from this template's preview
+             * series. Panel only: a table has no date line or stat
+             * notes to put them in. */ ?>
+            <?php
+            $sampleData = DataDesk::previewData($template);
+            $placeholderTokens = [
+                ['token' => '{start}', 'desc' => __('First date of the chart range', 'koperasikita')],
+                ['token' => '{end}', 'desc' => __('Last date of the chart range', 'koperasikita')],
+                ['token' => '{date}', 'desc' => __('Last date (today)', 'koperasikita')],
+                ['token' => '{label}', 'desc' => __('Symbol name', 'koperasikita')],
+                ['token' => '{days}', 'desc' => __('Number of days in the chart', 'koperasikita')],
+                ['token' => '{arrow}', 'desc' => __('Direction arrow (up or down)', 'koperasikita')],
+                ['token' => '{delta}', 'desc' => __('Change amount', 'koperasikita')],
+                ['token' => '{delta_pct}', 'desc' => __('Change in percent', 'koperasikita')],
+                ['token' => '{spread}', 'desc' => __('Sell–buyback spread', 'koperasikita')],
+                ['token' => '{streak}', 'desc' => __('Consecutive up days', 'koperasikita')],
+                ['token' => '{zone}', 'desc' => __('Zone name, in the chosen zone colour', 'koperasikita')],
+            ];
+            ?>
+            <section class="kk-data-desk-card kk-data-desk-placeholders" id="kk-data-desk-placeholders" data-kk-template-panel-control>
+                <h2 class="kk-data-desk-card-title"><?php esc_html_e('Placeholders', 'koperasikita'); ?></h2>
+                <p class="description">
+                    <?php esc_html_e("Placeholders resolve from the panel's own data. Click the date line or a stat note in the preview first, then Insert, otherwise the placeholder goes into the date line. The title's {label} and {day} work here too.", 'koperasikita'); ?>
+                </p>
+                <div class="kk-data-desk-table-wrap">
+                    <table class="widefat striped kk-data-desk-table">
+                        <thead>
+                            <tr>
+                                <th><?php esc_html_e('Placeholder', 'koperasikita'); ?></th>
+                                <th><?php esc_html_e('Resolves to', 'koperasikita'); ?></th>
+                                <th><?php esc_html_e('Sample', 'koperasikita'); ?></th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php foreach ($placeholderTokens as $row) : ?>
+                            <tr>
+                                <td><code><?php echo esc_html($row['token']); ?></code></td>
+                                <td><?php echo esc_html($row['desc']); ?></td>
+                                <td><?php echo esc_html(wp_strip_all_tags(DataDesk::replacePlaceholders($row['token'], $sampleData, (int) $template['days'], $placeholders))); ?></td>
+                                <td><button type="button" class="kk-data-desk-button" data-kk-placeholder-insert="<?php echo esc_attr($row['token']); ?>"><?php esc_html_e('Insert', 'koperasikita'); ?></button></td>
+                            </tr>
+                            <?php endforeach; ?>
+                        </tbody>
+                    </table>
+                </div>
+                <p>
+                    <button type="button" class="kk-data-desk-button kk-data-desk-button--primary" data-kk-placeholder-configure><?php esc_html_e('Configure placeholders', 'koperasikita'); ?></button>
+                </p>
+            </section>
         </form>
+        <?php /* Placeholder settings popup: centered panel over a
+         * blurred backdrop, like the list preview popup. The radios
+         * are UI controls only (admin.ts writes the choice into the
+         * hidden fields above); the popup itself never submits. */ ?>
+        <div class="kk-data-desk-popup" id="kk-data-desk-placeholders-popup" hidden role="dialog" aria-modal="true" aria-labelledby="kk-data-desk-placeholders-popup-title">
+            <div class="kk-data-desk-popup-backdrop" data-kk-placeholder-popup-close></div>
+            <div class="kk-data-desk-popup-panel" role="document">
+                <div class="kk-data-desk-popup-head">
+                    <h2 id="kk-data-desk-placeholders-popup-title"><?php esc_html_e('Placeholder settings', 'koperasikita'); ?></h2>
+                    <div class="kk-data-desk-popup-actions">
+                        <button type="button" class="kk-data-desk-button" data-kk-placeholder-popup-close><?php esc_html_e('Close', 'koperasikita'); ?></button>
+                    </div>
+                </div>
+                <div class="kk-data-desk-popup-body">
+                    <p class="description">
+                        <?php esc_html_e('These settings change how placeholders resolve in the date line and the stat notes. They apply to the preview immediately and are saved with the template.', 'koperasikita'); ?>
+                    </p>
+                    <fieldset class="kk-data-desk-placeholder-group">
+                        <legend><?php esc_html_e('Date format', 'koperasikita'); ?></legend>
+                        <?php foreach (DataDesk::DATE_FORMATS as $value => $label) : ?>
+                        <label class="kk-data-desk-placeholder-option">
+                            <input type="radio" name="kk_placeholder_date_format_ui" value="<?php echo esc_attr($value); ?>" <?php checked($placeholders['date_format'], $value); ?>>
+                            <?php echo esc_html(DataDesk::dateFormatLabel($value)); ?> &ndash; <?php echo esc_html(DataDesk::formatPlaceholderDate('2026-11-21', $value)); ?>
+                        </label>
+                        <?php endforeach; ?>
+                    </fieldset>
+                    <fieldset class="kk-data-desk-placeholder-group">
+                        <legend><?php esc_html_e('Percent type', 'koperasikita'); ?></legend>
+                        <label class="kk-data-desk-placeholder-option">
+                            <input type="radio" name="kk_placeholder_percent_ui" value="daily" <?php checked($placeholders['percent'], 'daily'); ?>>
+                            <?php esc_html_e('Daily change (today vs yesterday)', 'koperasikita'); ?>
+                        </label>
+                        <label class="kk-data-desk-placeholder-option">
+                            <input type="radio" name="kk_placeholder_percent_ui" value="period" <?php checked($placeholders['percent'], 'period'); ?>>
+                            <?php esc_html_e('Whole period (first day to today)', 'koperasikita'); ?>
+                        </label>
+                    </fieldset>
+                    <fieldset class="kk-data-desk-placeholder-group">
+                        <legend><?php esc_html_e('Zone colour', 'koperasikita'); ?></legend>
+                        <?php foreach (DataDesk::ZONE_COLORS as $value => $label) : ?>
+                        <label class="kk-data-desk-placeholder-option">
+                            <input type="radio" name="kk_placeholder_zone_color_ui" value="<?php echo esc_attr($value); ?>" <?php checked($placeholders['zone_color'], $value); ?>>
+                            <?php echo esc_html(DataDesk::zoneColorLabel($value)); ?>
+                        </label>
+                        <?php endforeach; ?>
+                    </fieldset>
+                </div>
+            </div>
+        </div>
         <script>
         (function () {
             var kind = document.getElementById('kk-template-kind');

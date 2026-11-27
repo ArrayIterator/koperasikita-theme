@@ -74,6 +74,7 @@ final class DataDeskWidget extends WP_Widget
             'date_line' => $template['date_line'] ?? '',
             'stats' => $template['stats'] ?? [],
             'hidden_blocks' => $template['hidden_blocks'] ?? [],
+            'placeholders' => $template['placeholders'] ?? [],
         ]);
 
         echo $args['after_widget'] ?? '';

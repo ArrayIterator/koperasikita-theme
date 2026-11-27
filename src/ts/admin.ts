@@ -459,7 +459,10 @@ function initDataDeskPreview(): void {
 	const kicker = document.getElementById('kk-template-kicker') as HTMLInputElement | null;
 	const dateLine = document.getElementById('kk-template-date-line') as HTMLInputElement | null;
 	const hiddenBlocks = document.getElementById('kk-template-hidden-blocks') as HTMLInputElement | null;
-	if (!kind || !symbol || !days || !brands || !palette || !title || !kicker || !dateLine || !hiddenBlocks) {
+	const placeholderDateFormat = document.getElementById('kk-template-placeholder-date-format') as HTMLInputElement | null;
+	const placeholderPercent = document.getElementById('kk-template-placeholder-percent') as HTMLInputElement | null;
+	const placeholderZoneColor = document.getElementById('kk-template-placeholder-zone-color') as HTMLInputElement | null;
+	if (!kind || !symbol || !days || !brands || !palette || !title || !kicker || !dateLine || !hiddenBlocks || !placeholderDateFormat || !placeholderPercent || !placeholderZoneColor) {
 		return;
 	}
 	/* Per-block stat texts, one hidden input per label + sub-line.
@@ -543,6 +546,9 @@ function initDataDeskPreview(): void {
 					.map((option) => option.value)
 					.join(','),
 				hidden_blocks: hiddenBlocks.value,
+				placeholder_date_format: placeholderDateFormat.value,
+				placeholder_percent: placeholderPercent.value,
+				placeholder_zone_color: placeholderZoneColor.value,
 			};
 			for (const [key, input] of Object.entries(statInputs)) {
 				params[`stat_${key.replace('-', '_')}`] = input.value;
@@ -721,6 +727,77 @@ function initDataDeskPreview(): void {
 			palette.dispatchEvent(new Event('change'));
 		});
 	});
+	/* Placeholders: the section under the preview lists the tokens
+	 * with an Insert button each, and the settings popup holds the
+	 * three choices (date format, percent type, zone colour).
+	 * Insert goes into the text being edited inline, or into the
+	 * date line when nothing is. A choice writes into its hidden
+	 * field and refreshes the preview at once. */
+	const placeholderSection = document.getElementById('kk-data-desk-placeholders');
+	const placeholderPopup = document.getElementById('kk-data-desk-placeholders-popup');
+	if (placeholderSection && placeholderPopup) {
+		const closeButton = placeholderPopup.querySelector<HTMLButtonElement>(
+			'[data-kk-placeholder-popup-close]',
+		);
+		let placeholderOpener: HTMLElement | null = null;
+		const closePlaceholderPopup = (): void => {
+			placeholderPopup.hidden = true;
+			placeholderOpener?.focus();
+			placeholderOpener = null;
+		};
+		placeholderSection.querySelectorAll<HTMLButtonElement>('[data-kk-placeholder-insert]').forEach((button) => {
+			button.addEventListener('mousedown', (event) => {
+				/* Keep the focus (and selection) in the text being
+				 * edited: a plain click would blur it first and the
+				 * edit would commit before the token lands. */
+				event.preventDefault();
+				const token = button.getAttribute('data-kk-placeholder-insert') ?? '';
+				if (token === '') {
+					return;
+				}
+				if (editing) {
+					const selection = window.getSelection();
+					if (selection && selection.rangeCount > 0) {
+						const range = selection.getRangeAt(0);
+						range.deleteContents();
+						range.insertNode(document.createTextNode(token));
+						range.collapse(false);
+						selection.removeAllRanges();
+						selection.addRange(range);
+					} else {
+						editing.append(document.createTextNode(token));
+					}
+					return;
+				}
+				dateLine.value = dateLine.value === '' ? token : `${dateLine.value} ${token}`;
+				refresh();
+			});
+		});
+		placeholderSection.querySelector('[data-kk-placeholder-configure]')?.addEventListener('click', (event) => {
+			placeholderOpener = event.currentTarget as HTMLElement;
+			placeholderPopup.hidden = false;
+			closeButton?.focus();
+		});
+		placeholderPopup.querySelectorAll('[data-kk-placeholder-popup-close]').forEach((el) => {
+			el.addEventListener('click', closePlaceholderPopup);
+		});
+		document.addEventListener('keydown', (event) => {
+			if (event.key === 'Escape' && !placeholderPopup.hidden) {
+				closePlaceholderPopup();
+			}
+		});
+		const placeholderChoice = (name: string, input: HTMLInputElement): void => {
+			document.querySelectorAll<HTMLInputElement>(`input[name="${name}"]`).forEach((radio) => {
+				radio.addEventListener('change', () => {
+					input.value = radio.value;
+					refresh();
+				});
+			});
+		};
+		placeholderChoice('kk_placeholder_date_format_ui', placeholderDateFormat);
+		placeholderChoice('kk_placeholder_percent_ui', placeholderPercent);
+		placeholderChoice('kk_placeholder_zone_color_ui', placeholderZoneColor);
+	}
 	[days, title, kicker].forEach((el) => {
 		el.addEventListener('input', refresh);
 	});
