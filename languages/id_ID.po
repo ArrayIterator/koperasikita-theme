@@ -1247,6 +1247,14 @@ msgstr "Utama"
 msgid "Search"
 msgstr "Cari"
 
+#: template-parts/header/site-nav.php
+msgid "See all results"
+msgstr "Lihat semua hasil"
+
+#: template-parts/header/site-nav.php
+msgid "See all results for \"%s\""
+msgstr "Lihat semua hasil untuk \"%s\""
+
 #: template-parts/header/ticker.php
 msgid "Breaking"
 msgstr "Terkini"
@@ -1399,6 +1407,10 @@ msgid "Use these coordinates"
 msgstr "Gunakan koordinat ini"
 
 #: inc/Setup/Setup.php
+msgid "1 post indexed."
+msgstr "1 pos terindeks."
+
+#: inc/Setup/Setup.php
 msgid "Activate TrayDigita Stack"
 msgstr "Aktifkan TrayDigita Stack"
 
@@ -1467,6 +1479,10 @@ msgid "Koperasi Kita theme"
 msgstr "Tema Koperasi Kita"
 
 #: inc/Setup/Setup.php
+msgid "Live search answers from a search index instead of scanning every post. New and edited posts are indexed on save; rebuild here to index the posts already published."
+msgstr "Pencarian langsung menjawab dari indeks pencarian, bukan memindai setiap pos. Pos baru dan yang diubah diindeks saat disimpan; bangun ulang di sini untuk mengindeks pos yang sudah diterbitkan."
+
+#: inc/Setup/Setup.php
 msgid "Logo, colours, layout and typography, with live preview."
 msgstr "Logo, warna, tata letak, dan tipografi, dengan pratinjau live."
 
@@ -1523,6 +1539,22 @@ msgid "Requirements"
 msgstr "Persyaratan"
 
 #: inc/Setup/Setup.php
+msgid "Rebuild search index"
+msgstr "Bangun ulang indeks pencarian"
+
+#: inc/Setup/Setup.php
+msgid "Search index"
+msgstr "Indeks pencarian"
+
+#: inc/Setup/Setup.php
+msgid "Search index: %d posts."
+msgstr "Indeks pencarian: %d pos."
+
+#: inc/Setup/Setup.php
+msgid "Search index rebuilt."
+msgstr "Indeks pencarian berhasil dibangun ulang."
+
+#: inc/Setup/Setup.php
 msgid "Something went wrong."
 msgstr "Terjadi kesalahan."
 
@@ -1565,6 +1597,14 @@ msgstr "URL unduhan rilis ditolak."
 #: inc/Setup/Setup.php
 msgid "The saved-articles page. Bookmarks live in the browser, per reader."
 msgstr "Halaman artikel tersimpan. Bookmark hidup di browser, per pembaca."
+
+#: inc/Setup/Setup.php
+msgid "The search index could not be rebuilt."
+msgstr "Indeks pencarian tidak dapat dibangun ulang."
+
+#: inc/Setup/Setup.php
+msgid "The search index has not been built yet."
+msgstr "Indeks pencarian belum dibuat."
 
 #: inc/Setup/Setup.php
 msgid "Theme options"
