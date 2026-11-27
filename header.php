@@ -107,7 +107,7 @@ get_template_part( 'template-parts/header/site-nav' );
 <?php get_template_part( 'template-parts/header/ticker' ); ?>
 
 <?php
-// Market header index: the dark strip below the ticker, above the
+// Market header index: the strip below the ticker, above the
 // hero (and the Below Header area). Renders nothing when disabled
 // or when no picked item has data.
 \KoperasiKita\Features\MarketHeaderIndex::render();
