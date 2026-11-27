@@ -180,6 +180,44 @@
 	color: var(--kk-muted);
 }
 
+/* Badge placement: the badge is a direct child of the card, so the
+ * grid areas place it instead of the body flow. In grid it overlays
+ * the thumbnail, top-left, clear of the label baked into the bottom
+ * of the image - the same media-cell overlay the bookmark already
+ * uses, top-right. In list it takes its own side column. */
+.kk-agenda-card .kk-agenda-date-badge {
+	grid-area: media;
+	justify-self: start;
+	align-self: start;
+	z-index: 1;
+	margin: 12px;
+}
+
+.kk-card-grid.kk-layout-list .kk-card.kk-agenda-card {
+	grid-template-columns: auto var(--kk-list-thumb-size, 180px) 1fr auto;
+	grid-template-areas:
+		"badge media body bookmark"
+		"excerpt excerpt excerpt excerpt";
+}
+
+.kk-card-grid.kk-layout-list .kk-agenda-card .kk-agenda-date-badge {
+	grid-area: badge;
+	align-self: start;
+	margin: 0;
+}
+
+@media (max-width: 719px) {
+	/* The side badge column would squeeze the body to a sliver next
+	 * to the 180px thumbnail, so the thumbnail shrinks to the 120px
+	 * mobile width the related rows already use. The badge column
+	 * plus the extra gutter still overflow a 390px viewport by a
+	 * few pixels, so the column gap tightens from 16px to 12px. */
+	.kk-card-grid.kk-layout-list .kk-card.kk-agenda-card {
+		grid-template-columns: auto 120px 1fr auto;
+		column-gap: 12px;
+	}
+}
+
 /* Event details */
 /* Flat, not a box: the old grey surface fill + border + radius read as
  * a slab. The details are rows under a 2px rule (like a widget title),
