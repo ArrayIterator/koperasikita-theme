@@ -78,6 +78,7 @@ final class GoldDataDeskWidget extends WP_Widget
             'brands' => $prices,
             'client' => Markets::clientInfo('gold'),
             'palette' => $template['palette'],
+            'headers' => $template['headers'] ?? [],
         ]);
 
         echo $args['after_widget'] ?? '';

@@ -48,6 +48,7 @@ interface AdminStrings {
 	savingTemplate: string;
 	editDateLineHint: string;
 	editStatHint: string;
+	editHeaderHint: string;
 	close: string;
 	searching: string;
 	noResults: string;
@@ -116,6 +117,7 @@ const FALLBACK_STRINGS: AdminStrings = {
 	savingTemplate: 'Saving…',
 	editDateLineHint: 'Click to edit the date line.',
 	editStatHint: 'Click to edit this stat.',
+	editHeaderHint: 'Click to edit this header.',
 	close: 'Close',
 	searching: 'Searching…',
 	noResults: 'No results.',
@@ -152,6 +154,7 @@ function adminStrings(): AdminStrings {
 		close: strings?.close ?? FALLBACK_STRINGS.close,
 		editDateLineHint: strings?.editDateLineHint ?? FALLBACK_STRINGS.editDateLineHint,
 		editStatHint: strings?.editStatHint ?? FALLBACK_STRINGS.editStatHint,
+		editHeaderHint: strings?.editHeaderHint ?? FALLBACK_STRINGS.editHeaderHint,
 		searching: strings?.searching ?? FALLBACK_STRINGS.searching,
 		noResults: strings?.noResults ?? FALLBACK_STRINGS.noResults,
 	};
@@ -424,7 +427,10 @@ function resolveAdminScheme(): 'light' | 'dark' {
  * The three stat blocks work the same way (their label and note
  * write into hidden stat_* fields), and each carries an eye
  * toggle that hides the block (dimmed in the editor, gone on the
- * frontend) or shows it again. The container carries
+ * frontend) or shows it again. A table template's three column
+ * headers work the same way again (they write into hidden
+ * header_* fields); clearing a header means empty (the default
+ * label). The container carries
  * data-color-scheme so the 'auto' palette follows the site scheme
  * in the admin preview too.
  */
@@ -463,6 +469,18 @@ function initDataDeskPreview(): void {
 			statInputs[`${block}-${field}`] = input;
 		}
 	}
+	/* Per-header table texts, one hidden input per column. The
+	 * keys match the data-kk-header-field attributes the table
+	 * template renders (brand, price, updated). */
+	const headerFields = ['brand', 'price', 'updated'];
+	const headerInputs: Record<string, HTMLInputElement> = {};
+	for (const field of headerFields) {
+		const input = document.getElementById(`kk-template-header-${field}`) as HTMLInputElement | null;
+		if (!input) {
+			return;
+		}
+		headerInputs[field] = input;
+	}
 
 	const status = document.createElement('p');
 	status.className = 'description';
@@ -495,6 +513,9 @@ function initDataDeskPreview(): void {
 		container.querySelectorAll('[data-kk-stat-field]').forEach((el) => {
 			el.setAttribute('title', adminStrings().editStatHint);
 		});
+		container.querySelectorAll('[data-kk-header-field]').forEach((el) => {
+			el.setAttribute('title', adminStrings().editHeaderHint);
+		});
 	};
 
 	const refresh = (): void => {
@@ -518,6 +539,9 @@ function initDataDeskPreview(): void {
 			};
 			for (const [key, input] of Object.entries(statInputs)) {
 				params[`stat_${key.replace('-', '_')}`] = input.value;
+			}
+			for (const [key, input] of Object.entries(headerInputs)) {
+				params[`header_${key}`] = input.value;
 			}
 			container.classList.add('is-loading');
 			status.textContent = adminStrings().loadingPreview;
@@ -554,7 +578,8 @@ function initDataDeskPreview(): void {
 
 	/* Which hidden input an inline-edited element writes into:
 	 * kicker / title / date line by class, a stat label or note
-	 * by its data-kk-stat-field attribute. */
+	 * by its data-kk-stat-field attribute, a table header by its
+	 * data-kk-header-field attribute. */
 	const fieldForEdit = (el: HTMLElement): HTMLInputElement | null => {
 		if (el.classList.contains('kk-data-desk-kicker')) {
 			return kicker;
@@ -566,7 +591,11 @@ function initDataDeskPreview(): void {
 			return dateLine;
 		}
 		const statField = el.getAttribute('data-kk-stat-field');
-		return statField ? statInputs[statField] ?? null : null;
+		if (statField) {
+			return statInputs[statField] ?? null;
+		}
+		const headerField = el.getAttribute('data-kk-header-field');
+		return headerField ? headerInputs[headerField] ?? null : null;
 	};
 
 	const finishEdit = (commit: boolean): void => {
@@ -591,7 +620,7 @@ function initDataDeskPreview(): void {
 
 	container.addEventListener('click', (event) => {
 		const target = (event.target as HTMLElement | null)?.closest?.(
-			'.kk-data-desk-kicker, .kk-data-desk-title, .kk-data-desk-subtitle[data-kk-date-line], .kk-data-desk-stat-label[data-kk-stat-field], .kk-data-desk-stat-note[data-kk-stat-field]',
+			'.kk-data-desk-kicker, .kk-data-desk-title, .kk-data-desk-subtitle[data-kk-date-line], .kk-data-desk-stat-label[data-kk-stat-field], .kk-data-desk-stat-note[data-kk-stat-field], th[data-kk-header-field]',
 		) as HTMLElement | null;
 		if (!target || editing === target) {
 			return;

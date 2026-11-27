@@ -638,6 +638,18 @@
 	outline: 2px solid #0b6b3a;
 	outline-offset: 2px;
 }
+/* Table column headers in the editor preview are inline-editable
+ * like the stat labels (same hover + editing affordance). */
+#kk-data-desk-live-preview .kk-data-desk-table th[data-kk-header-field]:hover {
+	cursor: text;
+	outline: 1px dashed #646970;
+	outline-offset: 2px;
+}
+#kk-data-desk-live-preview .kk-data-desk-table th[data-kk-header-field].is-editing {
+	cursor: text;
+	outline: 2px solid #0b6b3a;
+	outline-offset: 2px;
+}
 #kk-data-desk-live-preview .kk-data-desk-stat {
 	position: relative;
 	padding-right: 26px;
