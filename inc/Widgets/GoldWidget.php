@@ -66,7 +66,7 @@ final class GoldWidget extends WP_Widget
 
         $prices = Gold::brandPrices($brands);
 
-        echo WidgetHeader::beforeWidget($args, WidgetHeader::style($instance));
+        echo WidgetSpacing::apply(WidgetHeader::beforeWidget($args, WidgetHeader::style($instance)), WidgetSpacing::margins($instance));
 
         WidgetHeader::render($args, $title, WidgetHeader::style($instance));
 
@@ -170,6 +170,7 @@ final class GoldWidget extends WP_Widget
             >
         </p>
         <?php WidgetHeader::field($this, $instance); ?>
+        <?php WidgetSpacing::field($this, $instance); ?>
         <p>
             <label for="<?php echo esc_attr($this->get_field_id('brands')); ?>">
                 <?php esc_html_e('Brands to show:', 'koperasikita'); ?>
@@ -299,6 +300,7 @@ final class GoldWidget extends WP_Widget
         $instance['interval'] = self::sanitizeInterval(isset($new['interval']) ? (int) $new['interval'] : self::DEFAULT_INTERVAL);
         $instance['items_per_view'] = self::sanitizeItemsPerView(isset($new['items_per_view']) ? (int) $new['items_per_view'] : self::DEFAULT_ITEMS_PER_VIEW);
         $instance['show_dots'] = !empty($new['show_dots']);
+        $instance = array_merge($instance, WidgetSpacing::sanitizeInstance($new, $old));
 
         return $instance;
     }

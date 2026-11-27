@@ -63,7 +63,7 @@ final class YahooFinanceWidget extends WP_Widget
             ],
         ];
 
-        echo WidgetHeader::beforeWidget($args, WidgetHeader::style($instance));
+        echo WidgetSpacing::apply(WidgetHeader::beforeWidget($args, WidgetHeader::style($instance)), WidgetSpacing::margins($instance));
 
         WidgetHeader::render($args, $title, WidgetHeader::style($instance));
 
@@ -114,6 +114,7 @@ final class YahooFinanceWidget extends WP_Widget
             >
         </p>
         <?php WidgetHeader::field($this, $instance); ?>
+        <?php WidgetSpacing::field($this, $instance); ?>
         <p>
             <label for="<?php echo esc_attr($this->get_field_id('layout')); ?>">
                 <?php esc_html_e('Layout', 'koperasikita'); ?>
@@ -177,6 +178,7 @@ final class YahooFinanceWidget extends WP_Widget
         $instance['header_style'] = WidgetHeader::sanitize($new['header_style'] ?? WidgetHeader::CLASSIC_TOP);
         $instance['layout'] = MarketsWidget::sanitizeLayout($new['layout'] ?? MarketsWidget::LAYOUT_LIST);
         $instance['visible'] = MarketsWidget::sanitizeVisible($new['visible'] ?? 1);
+        $instance = array_merge($instance, WidgetSpacing::sanitizeInstance($new, $old));
 
         return $instance;
     }

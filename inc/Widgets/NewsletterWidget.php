@@ -40,7 +40,7 @@ final class NewsletterWidget extends WP_Widget
         $title = isset($instance['title']) ? (string) $instance['title'] : '';
         $text = isset($instance['text']) ? (string) $instance['text'] : '';
 
-        echo WidgetHeader::beforeWidget($args, WidgetHeader::style($instance));
+        echo WidgetSpacing::apply(WidgetHeader::beforeWidget($args, WidgetHeader::style($instance)), WidgetSpacing::margins($instance));
 
         WidgetHeader::render($args, $title, WidgetHeader::style($instance));
 
@@ -74,6 +74,7 @@ final class NewsletterWidget extends WP_Widget
             >
         </p>
         <?php WidgetHeader::field($this, $instance); ?>
+        <?php WidgetSpacing::field($this, $instance); ?>
         <p>
             <label for="<?php echo esc_attr($this->get_field_id('text')); ?>">
                 <?php esc_html_e('Text', 'koperasikita'); ?>
@@ -99,6 +100,7 @@ final class NewsletterWidget extends WP_Widget
         $instance['title'] = isset($new['title']) ? sanitize_text_field((string) $new['title']) : '';
         $instance['text'] = isset($new['text']) ? sanitize_textarea_field((string) $new['text']) : '';
         $instance['header_style'] = WidgetHeader::sanitize($new['header_style'] ?? WidgetHeader::CLASSIC_TOP);
+        $instance = array_merge($instance, WidgetSpacing::sanitizeInstance($new, $old));
 
         return $instance;
     }

@@ -108,7 +108,7 @@ final class EditorsPicksWidget extends AbstractStoryWidget
                 return;
             }
 
-            echo WidgetHeader::beforeWidget($args, $settings['header_style']);
+            echo WidgetSpacing::apply(WidgetHeader::beforeWidget($args, $settings['header_style']), $settings['margins']);
 
             WidgetHeader::render($args, $settings['title'], $settings['header_style']);
 
@@ -121,7 +121,7 @@ final class EditorsPicksWidget extends AbstractStoryWidget
             return;
         }
 
-        echo WidgetHeader::beforeWidget($args, $settings['header_style']);
+        echo WidgetSpacing::apply(WidgetHeader::beforeWidget($args, $settings['header_style']), $settings['margins']);
 
         WidgetHeader::render($args, $settings['title'], $settings['header_style']);
 

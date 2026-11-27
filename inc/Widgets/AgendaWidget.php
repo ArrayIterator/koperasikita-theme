@@ -71,7 +71,7 @@ final class AgendaWidget extends WP_Widget
 
         $items = self::items($count, $showPast);
 
-        echo WidgetHeader::beforeWidget($args, WidgetHeader::NO_BORDER);
+        echo WidgetSpacing::apply(WidgetHeader::beforeWidget($args, WidgetHeader::NO_BORDER), WidgetSpacing::margins($instance));
 
         // The title lives inside the card (icon + "AGENDA KOPERASI"),
         // so this widget deliberately skips WidgetHeader::render(). The
@@ -396,6 +396,7 @@ final class AgendaWidget extends WP_Widget
             >
         </p>
         <?php // No header-style field: the title renders inside the card. ?>
+        <?php WidgetSpacing::field($this, $instance); ?>
         <p>
             <label for="<?php echo esc_attr($this->get_field_id('count')); ?>">
                 <?php esc_html_e('Number of items', 'koperasikita'); ?>
@@ -539,6 +540,7 @@ final class AgendaWidget extends WP_Widget
         // A link that no longer resolves is stored as none - the
         // widget never keeps a dead id.
         $instance['link_to'] = isset($new['link_to']) && self::resolveLink((int) $new['link_to']) !== '' ? (int) $new['link_to'] : 0;
+        $instance = array_merge($instance, WidgetSpacing::sanitizeInstance($new, $old));
 
         return $instance;
     }

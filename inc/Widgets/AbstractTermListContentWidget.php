@@ -62,7 +62,7 @@ abstract class AbstractTermListContentWidget extends WP_Widget
     }
 
     /**
-     * @return array{title: string, link_to: bool, term_id: int, layout: string, count: int, header_style: string}
+     * @return array{title: string, link_to: bool, term_id: int, layout: string, count: int, header_style: string, margins: array{top: int, bottom: int}}
      */
     protected function settings(array $instance): array
     {
@@ -73,6 +73,7 @@ abstract class AbstractTermListContentWidget extends WP_Widget
             'layout' => self::sanitizeLayout($instance['layout'] ?? 'featured'),
             'count' => isset($instance['count']) ? max(1, min(self::MAX_COUNT, (int) $instance['count'])) : self::DEFAULT_COUNT,
             'header_style' => WidgetHeader::style($instance),
+            'margins' => WidgetSpacing::margins($instance),
         ];
     }
 
@@ -90,7 +91,7 @@ abstract class AbstractTermListContentWidget extends WP_Widget
                 return;
             }
 
-            echo WidgetHeader::beforeWidget($args, $settings['header_style']);
+            echo WidgetSpacing::apply(WidgetHeader::beforeWidget($args, $settings['header_style']), $settings['margins']);
 
             WidgetHeader::render($args, $settings['title'], $settings['header_style']);
 
@@ -107,7 +108,7 @@ abstract class AbstractTermListContentWidget extends WP_Widget
         $title = $settings['title'] !== '' ? $settings['title'] : $term->name;
         $titleUrl = $settings['link_to'] ? (string) get_term_link($term) : '';
 
-        echo WidgetHeader::beforeWidget($args, $settings['header_style']);
+        echo WidgetSpacing::apply(WidgetHeader::beforeWidget($args, $settings['header_style']), $settings['margins']);
 
         WidgetHeader::render($args, $title, $settings['header_style'], $titleUrl);
 
@@ -172,6 +173,7 @@ abstract class AbstractTermListContentWidget extends WP_Widget
             </span>
         </p>
         <?php WidgetHeader::field($this, $instance); ?>
+        <?php WidgetSpacing::field($this, $instance); ?>
         <p>
             <label for="<?php echo esc_attr($this->get_field_id('term_id')); ?>">
                 <?php echo esc_html($this->termLabel()); ?>
@@ -257,6 +259,7 @@ abstract class AbstractTermListContentWidget extends WP_Widget
             ? max(1, min(self::MAX_COUNT, (int) $new['count']))
             : self::DEFAULT_COUNT;
         $instance['header_style'] = WidgetHeader::sanitize($new['header_style'] ?? WidgetHeader::CLASSIC_TOP);
+        $instance = array_merge($instance, WidgetSpacing::sanitizeInstance($new, $old));
 
         return $instance;
     }

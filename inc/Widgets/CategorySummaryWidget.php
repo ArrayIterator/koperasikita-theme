@@ -30,7 +30,7 @@ final class CategorySummaryWidget extends WP_Widget
     public const MAX_COUNT = 5;
     public const DEFAULT_COLUMNS = 3;
 
-    /** @return array{title: string, category_ids: array<int, int>, count: int, show_excerpt: bool, show_time: bool, index_label: string, index_url: string} */
+    /** @return array{title: string, category_ids: array<int, int>, count: int, show_excerpt: bool, show_time: bool, index_label: string, index_url: string, margins: array{top: int, bottom: int}} */
     private function settings(array $instance): array
     {
         $categoryIds = [];
@@ -51,6 +51,7 @@ final class CategorySummaryWidget extends WP_Widget
             'show_time' => isset($instance['show_time']) ? (bool) $instance['show_time'] : true,
             'index_label' => isset($instance['index_label']) ? (string) $instance['index_label'] : __('Indeks Berita', 'koperasikita'),
             'index_url' => isset($instance['index_url']) ? (string) $instance['index_url'] : '',
+            'margins' => WidgetSpacing::margins($instance),
         ];
     }
 
@@ -78,7 +79,7 @@ final class CategorySummaryWidget extends WP_Widget
                 return;
             }
 
-            echo WidgetHeader::beforeWidget($args, WidgetHeader::NO_BORDER);
+            echo WidgetSpacing::apply(WidgetHeader::beforeWidget($args, WidgetHeader::NO_BORDER), $settings['margins']);
             ?>
             <p class="kk-widget-empty"><?php esc_html_e('No posts to show yet.', 'koperasikita'); ?></p>
             <?php
@@ -89,7 +90,7 @@ final class CategorySummaryWidget extends WP_Widget
 
         // The section header carries its own top rule, and the widget
         // has no title style - so the container carries no top border.
-        echo WidgetHeader::beforeWidget($args, WidgetHeader::NO_BORDER);
+        echo WidgetSpacing::apply(WidgetHeader::beforeWidget($args, WidgetHeader::NO_BORDER), $settings['margins']);
 
         get_template_part('template-parts/content/category-summary', null, [
             'title' => $settings['title'],
@@ -185,6 +186,7 @@ final class CategorySummaryWidget extends WP_Widget
                 value="<?php echo esc_attr($settings['title']); ?>"
             >
         </p>
+        <?php WidgetSpacing::field($this, $instance); ?>
         <p>
             <label for="<?php echo esc_attr($this->get_field_id('category_ids')); ?>">
                 <?php esc_html_e('Categories to show', 'koperasikita'); ?>
@@ -305,6 +307,7 @@ final class CategorySummaryWidget extends WP_Widget
         $instance['show_time'] = !empty($new['show_time']);
         $instance['index_label'] = isset($new['index_label']) ? sanitize_text_field((string) $new['index_label']) : __('Indeks Berita', 'koperasikita');
         $instance['index_url'] = isset($new['index_url']) ? esc_url_raw((string) $new['index_url']) : '';
+        $instance = array_merge($instance, WidgetSpacing::sanitizeInstance($new, $old));
 
         return $instance;
     }
