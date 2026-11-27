@@ -13,29 +13,34 @@ use KoperasiKita\Providers\LogamMuliaApiProvider;
  * Settings -> Gold Prices: the management page for the Logam Mulia
  * gold price sync, with four tabs.
  *
- * "Prices" shows the sync status (last sync, latest recorded date,
- * which symbols are stored, the failure backlog), a manual sync
- * button that steps through the enabled sources one at a time via
- * AJAX with a real progress bar, and the per-brand provider table:
- * one row per gold brand (plus spot), each with its own provider
- * and fallback provider — only providers that can actually supply
- * that brand are listed. "Settings" holds the automatic sync
- * schedule (how often, days per run, timeout) and the sync source
- * list: which Logam Mulia CSV sources the sync imports, with a
- * default source that runs first — manual and automatic sync both
- * follow it. "Enabled Gold Brands" is the master switch for which
- * gold brands the site shows — a disabled brand is hidden from the
- * Gold widget and from the widget's Brands to show picker.
- * "History" shows the stored price history as both a list (table)
- * and a dependency-free inline SVG line chart (one line per
- * brand). Uses WP admin styles only — no heavy custom CSS.
+ * "Status" is the per-brand price table: one row per gold brand
+ * (plus spot), each with its current price, which provider
+ * supplies it, and the provider / fallback picks — only
+ * providers that can actually supply that brand are listed.
+ * "Setting" holds the automatic sync schedule (how often, days
+ * per run, timeout), the sync source list (which Logam Mulia CSV
+ * sources the sync imports, with a default source that runs
+ * first — manual and automatic sync both follow it), and the
+ * enabled-brands master switch (a disabled brand is hidden from
+ * the Gold widget and from the widget's Brands to show picker).
+ * "History" shows the stored price history as both a list
+ * (table) and a dependency-free inline SVG line chart (one line
+ * per brand). "Sync" gathers everything sync-related: the sync
+ * status (last sync, latest recorded date, which symbols are
+ * stored, the failure backlog), a manual sync button that steps
+ * through the enabled sources one at a time via AJAX with a real
+ * progress bar, and the per-source status table. Uses WP admin
+ * styles only — no heavy custom CSS.
  */
 final class GoldPricesPage
 {
     public const PAGE_SLUG = 'kk-gold-prices';
 
-    /** Rows shown in the history list. */
-    private const HISTORY_ROWS = 60;
+    /** Rows per page in the history list. */
+    private const HISTORY_PER_PAGE = 20;
+
+    /** Rows the history chart reads at most (filter applies, page does not). */
+    private const HISTORY_CHART_CAP = 200;
 
     /** Chart geometry (viewBox units, scales to the container). */
     private const CHART_WIDTH = 720;
@@ -71,36 +76,41 @@ final class GoldPricesPage
         self::handleSyncSettingsSave();
 
         // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- tab is display-only.
-        $tab = isset($_GET['tab']) ? sanitize_key((string) wp_unslash($_GET['tab'])) : 'prices';
-        $tab = in_array($tab, ['prices', 'brands', 'history', 'settings'], true) ? $tab : 'prices';
+        $tab = isset($_GET['tab']) ? sanitize_key((string) wp_unslash($_GET['tab'])) : 'status';
+        // Old slugs keep working as aliases, so bookmarks and
+        // saved links land on the right new tab.
+        $aliases = ['prices' => 'status', 'settings' => 'setting', 'brands' => 'setting'];
+        $tab = $aliases[$tab] ?? $tab;
+        $tab = in_array($tab, ['status', 'setting', 'history', 'sync'], true) ? $tab : 'status';
         $brands = Gold::brands();
         $pageUrl = admin_url('admin.php?page=' . self::PAGE_SLUG);
         ?>
         <div class="wrap" data-kk-gold-prices-page>
             <h1><?php esc_html_e('Gold Prices', 'koperasikita'); ?></h1>
             <h2 class="nav-tab-wrapper">
-                <a href="<?php echo esc_url(add_query_arg('tab', 'prices', $pageUrl)); ?>" class="nav-tab<?php echo $tab === 'prices' ? ' nav-tab-active' : ''; ?>"><?php esc_html_e('Prices', 'koperasikita'); ?></a>
-                <a href="<?php echo esc_url(add_query_arg('tab', 'settings', $pageUrl)); ?>" class="nav-tab<?php echo $tab === 'settings' ? ' nav-tab-active' : ''; ?>"><?php esc_html_e('Settings', 'koperasikita'); ?></a>
-                <a href="<?php echo esc_url(add_query_arg('tab', 'brands', $pageUrl)); ?>" class="nav-tab<?php echo $tab === 'brands' ? ' nav-tab-active' : ''; ?>"><?php esc_html_e('Enabled Gold Brands', 'koperasikita'); ?></a>
+                <a href="<?php echo esc_url(add_query_arg('tab', 'status', $pageUrl)); ?>" class="nav-tab<?php echo $tab === 'status' ? ' nav-tab-active' : ''; ?>"><?php esc_html_e('Status', 'koperasikita'); ?></a>
+                <a href="<?php echo esc_url(add_query_arg('tab', 'setting', $pageUrl)); ?>" class="nav-tab<?php echo $tab === 'setting' ? ' nav-tab-active' : ''; ?>"><?php esc_html_e('Setting', 'koperasikita'); ?></a>
                 <a href="<?php echo esc_url(add_query_arg('tab', 'history', $pageUrl)); ?>" class="nav-tab<?php echo $tab === 'history' ? ' nav-tab-active' : ''; ?>"><?php esc_html_e('History', 'koperasikita'); ?></a>
+                <a href="<?php echo esc_url(add_query_arg('tab', 'sync', $pageUrl)); ?>" class="nav-tab<?php echo $tab === 'sync' ? ' nav-tab-active' : ''; ?>"><?php esc_html_e('Sync', 'koperasikita'); ?></a>
             </h2>
-            <?php if ($tab === 'brands') : ?>
+            <?php if ($tab === 'setting') : ?>
+                <?php self::renderSettingsTab(); ?>
                 <?php self::renderBrandsTab($brands); ?>
             <?php elseif ($tab === 'history') : ?>
                 <?php self::renderHistoryTab($brands); ?>
-            <?php elseif ($tab === 'settings') : ?>
-                <?php self::renderSettingsTab(); ?>
+            <?php elseif ($tab === 'sync') : ?>
+                <?php self::renderSyncTab(); ?>
             <?php else : ?>
-                <?php self::renderPricesTab($brands); ?>
+                <?php self::renderStatusTab(); ?>
             <?php endif; ?>
         </div>
         <?php
     }
 
     /**
-     * Save the enabled-brands form (Brands tab): nonce + capability
-     * checked, then redirect back with a saved flag so a refresh
-     * never resubmits the form.
+     * Save the enabled-brands form (Setting tab, brands section):
+     * nonce + capability checked, then redirect back with a saved
+     * flag so a refresh never resubmits the form.
      */
     private static function handleBrandsSave(): void
     {
@@ -123,14 +133,14 @@ final class GoldPricesPage
         Gold::setEnabledBrands($slugs);
 
         wp_safe_redirect(add_query_arg(
-            ['tab' => 'brands', 'saved' => '1'],
+            ['tab' => 'setting', 'saved' => '1'],
             admin_url('admin.php?page=' . self::PAGE_SLUG)
         ));
         exit;
     }
 
     /**
-     * Save the per-brand provider form (Prices tab): nonce + capability
+     * Save the per-brand provider form (Status tab): nonce + capability
      * checked, then redirect back with a saved flag so a refresh
      * never resubmits the form. Validation lives in
      * Gold::setBrandProviders() — a provider that cannot supply its
@@ -170,14 +180,14 @@ final class GoldPricesPage
         Gold::setBrandProviders($providers, $fallbacks);
 
         wp_safe_redirect(add_query_arg(
-            ['tab' => 'prices', 'brand_providers_saved' => '1'],
+            ['tab' => 'status', 'brand_providers_saved' => '1'],
             admin_url('admin.php?page=' . self::PAGE_SLUG)
         ));
         exit;
     }
 
     /**
-     * Save the sync settings form (Settings tab): nonce +
+     * Save the sync settings form (Setting tab): nonce +
      * capability checked, then redirect back with a saved flag so
      * a refresh never resubmits the form. Saving reschedules the
      * WP-Cron event to match (see LogamMuliaApiProvider). The
@@ -218,17 +228,18 @@ final class GoldPricesPage
         ]);
 
         wp_safe_redirect(add_query_arg(
-            ['tab' => 'settings', 'sync_settings_saved' => '1'],
+            ['tab' => 'setting', 'sync_settings_saved' => '1'],
             admin_url('admin.php?page=' . self::PAGE_SLUG)
         ));
         exit;
     }
 
     /**
-     * Brands tab: the master switch for which gold brands the site
-     * shows. A disabled brand is hidden from the Gold widget and
-     * from the widget's "Brands to show" picker. Unchecking every
-     * brand disables the gold slider on purpose.
+     * Setting tab, brands section: the master switch for which
+     * gold brands the site shows. A disabled brand is hidden from
+     * the Gold widget and from the widget's "Brands to show"
+     * picker. Unchecking every brand disables the gold slider on
+     * purpose.
      *
      * @param array<string, string> $brands Slug => label.
      */
@@ -238,11 +249,12 @@ final class GoldPricesPage
         // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- saved flag is display-only.
         $saved = isset($_GET['saved']) && $_GET['saved'] === '1';
         ?>
+        <h2><?php esc_html_e('Enabled Gold Brands', 'koperasikita'); ?></h2>
         <?php if ($saved) : ?>
             <div class="notice notice-success is-dismissible"><p><?php esc_html_e('Enabled brands saved.', 'koperasikita'); ?></p></div>
         <?php endif; ?>
         <p><?php esc_html_e('Choose which gold brands are shown on the site. Disabled brands are hidden from the Gold widget and from the widget\'s Brands to show picker. The widget\'s own Brands to show setting then picks from the enabled brands only.', 'koperasikita'); ?></p>
-        <form method="post" action="<?php echo esc_url(add_query_arg('tab', 'brands', admin_url('admin.php?page=' . self::PAGE_SLUG))); ?>">
+        <form method="post" action="<?php echo esc_url(add_query_arg('tab', 'setting', admin_url('admin.php?page=' . self::PAGE_SLUG))); ?>">
             <?php wp_nonce_field('kk_enabled_brands', 'kk_enabled_brands_nonce'); ?>
             <table class="form-table" role="presentation">
                 <tbody>
@@ -265,18 +277,30 @@ final class GoldPricesPage
     }
 
     /**
-     * Prices tab: the sync status, manual sync with progress, and
-     * the per-brand provider table. The automatic sync schedule
-     * and the sync source list live on their own Settings
-     * tab. The price history lives on its own History tab.
-     *
-     * @param array<string, string> $brands Slug => label.
+     * Status tab: the per-brand provider table — current price
+     * per brand, which provider supplies it, and the provider /
+     * fallback picks. Sync status, manual sync and the per-source
+     * table live on their own Sync tab.
      */
-    private static function renderPricesTab(array $brands): void
+    private static function renderStatusTab(): void
+    {
+        ?>
+        <h2><?php esc_html_e('Gold price providers', 'koperasikita'); ?></h2>
+        <?php self::renderBrandProvidersTable(); ?>
+        <?php
+    }
+
+    /**
+     * Sync tab: everything sync-related in one place — what the
+     * sync does, the sync status (last sync, latest date, symbols
+     * stored, last run), the manual sync button with progress,
+     * and the per-source status table.
+     */
+    private static function renderSyncTab(): void
     {
         $status = LogamMuliaApiProvider::status();
         ?>
-        <p><?php esc_html_e('Daily gold prices from the Logam Mulia API price history (backup/prices CSV on GitHub). The sync runs automatically via WP-Cron on the schedule in Settings and only inserts rows that are not in the database yet — one row per brand per day. Use the button below to sync on demand.', 'koperasikita'); ?></p>
+        <p><?php esc_html_e('Daily gold prices from the Logam Mulia API price history (backup/prices CSV on GitHub). The sync runs automatically via WP-Cron on the schedule on the Setting tab and only inserts rows that are not in the database yet — one row per brand per day. Use the button below to sync on demand.', 'koperasikita'); ?></p>
 
         <h2><?php esc_html_e('Sync status', 'koperasikita'); ?></h2>
         <?php self::renderStatus($status); ?>
@@ -284,16 +308,14 @@ final class GoldPricesPage
         <h2><?php esc_html_e('Manual sync', 'koperasikita'); ?></h2>
         <?php self::renderManualSync(); ?>
 
-        <h2><?php esc_html_e('Gold price providers', 'koperasikita'); ?></h2>
-        <?php self::renderBrandProvidersTable(); ?>
+        <h2><?php esc_html_e('Sync sources', 'koperasikita'); ?></h2>
+        <?php self::renderSourceTable($status); ?>
         <?php
     }
 
     /**
-     * The manual sync block, shared by the Prices tab and the
-     * Settings tab (only one tab renders per page load, so
-     * there is ever one button on the page). The button syncs
-     * ONLY the enabled sources, default first — see
+     * The manual sync block, on the Sync tab only. The button
+     * syncs ONLY the enabled sources, default first — see
      * LogamMuliaApiProvider::enabledSyncSources(). With no source
      * enabled the button is disabled with an honest note, so it
      * can never be clicked to no effect. The progress bar + step
@@ -309,7 +331,7 @@ final class GoldPricesPage
             <button type="button" class="button button-primary" data-kk-gold-sync <?php disabled(empty($enabled)); ?>><?php esc_html_e('Sync now', 'koperasikita'); ?></button>
         </p>
         <?php if ($enabled === []) : ?>
-            <p><?php esc_html_e('No sync source is enabled. Enable one in Settings.', 'koperasikita'); ?></p>
+            <p><?php esc_html_e('No sync source is enabled. Enable one on the Setting tab.', 'koperasikita'); ?></p>
         <?php endif; ?>
         <div data-kk-gold-sync-progress hidden>
             <p><progress data-kk-gold-sync-bar max="100" value="0" style="width: 100%; max-width: 30rem;"></progress></p>
@@ -321,10 +343,13 @@ final class GoldPricesPage
     }
 
     /**
-     * Settings tab: the sync source list (which Logam Mulia
+     * Setting tab: the sync source list (which Logam Mulia
      * CSV sources the sync imports, and which one runs first) and
      * the automatic sync schedule — one form, one save. Manual
      * and automatic sync both follow the same enabled list.
+     * Manual sync itself, and the sync status, live on the Sync
+     * tab; the enabled-brands switch follows below as its own
+     * section.
      */
     private static function renderSettingsTab(): void
     {
@@ -338,15 +363,12 @@ final class GoldPricesPage
         ?>
         <p><?php esc_html_e('Choose which Logam Mulia sources the sync imports. Only enabled sources are synced, manually and automatically. The default source is synced first.', 'koperasikita'); ?></p>
 
-        <h2><?php esc_html_e('Manual sync', 'koperasikita'); ?></h2>
-        <?php self::renderManualSync(); ?>
-
         <h2><?php esc_html_e('Sync sources', 'koperasikita'); ?></h2>
         <?php if ($syncSettingsSaved) : ?>
             <div class="notice notice-success inline"><p><?php esc_html_e('Automatic sync settings saved.', 'koperasikita'); ?></p></div>
         <?php endif; ?>
         <p data-kk-gold-sync-running hidden><em><?php esc_html_e('A manual sync is running. Automatic sync settings are paused until it finishes.', 'koperasikita'); ?></em></p>
-        <form method="post" data-kk-gold-sync-settings action="<?php echo esc_url(admin_url('admin.php?page=' . self::PAGE_SLUG . '&tab=settings')); ?>">
+        <form method="post" data-kk-gold-sync-settings action="<?php echo esc_url(admin_url('admin.php?page=' . self::PAGE_SLUG . '&tab=setting')); ?>">
             <?php wp_nonce_field('kk_gold_sync_settings', 'kk_gold_sync_settings_nonce'); ?>
             <table class="widefat striped">
                 <thead>
@@ -464,7 +486,7 @@ final class GoldPricesPage
             <div class="notice notice-success inline"><p><?php esc_html_e('Brand providers saved.', 'koperasikita'); ?></p></div>
         <?php endif; ?>
         <p><?php esc_html_e('Choose which provider supplies the price for each brand. Only providers that can actually supply that brand are listed. When the primary provider has no price for a brand, its fallback provider is tried automatically. A brand neither provider can price shows no price on the site.', 'koperasikita'); ?></p>
-        <form method="post" action="<?php echo esc_url(admin_url('admin.php?page=' . self::PAGE_SLUG . '&tab=prices')); ?>">
+        <form method="post" action="<?php echo esc_url(admin_url('admin.php?page=' . self::PAGE_SLUG . '&tab=status')); ?>">
             <?php wp_nonce_field('kk_gold_brand_providers', 'kk_gold_brand_providers_nonce'); ?>
             <div class="kk-gold-brand-providers-wrap">
             <table class="widefat striped kk-gold-brand-providers">
@@ -543,26 +565,139 @@ final class GoldPricesPage
     }
 
     /**
-     * History tab: the stored price history as a chart and a list.
+     * History tab: the stored price history as a chart and a
+     * list, with a brand + date-range filter and paging. The
+     * filter is GET-based, so the URL stays linkable and the
+     * filter survives refresh and paging. The chart follows the
+     * filter (same filtered set, capped) but never the page
+     * number; only the table paginates.
      *
      * @param array<string, string> $brands Slug => label.
      */
     private static function renderHistoryTab(array $brands): void
     {
-        $history = GoldPricesTable::history(LogamMuliaApiProvider::PROVIDER_ID, 200);
+        // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- filter and paging are display-only.
+        $brand = isset($_GET['brand']) ? sanitize_key((string) wp_unslash($_GET['brand'])) : '';
+        if ($brand !== '' && !isset($brands[$brand])) {
+            $brand = '';
+        }
+        // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- filter is display-only.
+        $from = self::historyDate(isset($_GET['from']) ? (string) wp_unslash($_GET['from']) : '');
+        // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- filter is display-only.
+        $to = self::historyDate(isset($_GET['to']) ? (string) wp_unslash($_GET['to']) : '');
+        if ($from !== '' && $to !== '' && $from > $to) {
+            [$from, $to] = [$to, $from];
+        }
+        // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- paging is display-only.
+        $page = isset($_GET['paged']) ? max(1, absint((string) wp_unslash($_GET['paged']))) : 1;
+
+        // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- filter is display-only.
+        $provider = isset($_GET['provider']) ? sanitize_key((string) wp_unslash($_GET['provider'])) : '';
+        $knownProviders = GoldPricesTable::providers();
+        if ($provider !== '' && !in_array($provider, $knownProviders, true)) {
+            $provider = '';
+        }
+
+        $filters = ['symbol' => $brand, 'from' => $from, 'to' => $to];
+        $filtered = $brand !== '' || $from !== '' || $to !== '' || $provider !== '';
+
+        $chart = GoldPricesTable::historyFiltered($provider, $filters, self::HISTORY_CHART_CAP, 0);
+
+        $total = GoldPricesTable::historyCount($provider, $filters);
+        $pages = max(1, (int) ceil($total / self::HISTORY_PER_PAGE));
+        $page = min($page, $pages);
+        $rows = GoldPricesTable::historyFiltered(
+            $provider,
+            $filters,
+            self::HISTORY_PER_PAGE,
+            ($page - 1) * self::HISTORY_PER_PAGE
+        );
+
+        $pageUrl = admin_url('admin.php?page=' . self::PAGE_SLUG);
+        $filterUrl = add_query_arg('tab', 'history', $pageUrl);
+        if ($provider !== '') {
+            $filterUrl = add_query_arg('provider', $provider, $filterUrl);
+        }
+        if ($brand !== '') {
+            $filterUrl = add_query_arg('brand', $brand, $filterUrl);
+        }
+        if ($from !== '') {
+            $filterUrl = add_query_arg('from', $from, $filterUrl);
+        }
+        if ($to !== '') {
+            $filterUrl = add_query_arg('to', $to, $filterUrl);
+        }
+        $enabled = Gold::enabledBrands();
         ?>
         <h2><?php esc_html_e('Price history', 'koperasikita'); ?></h2>
-        <?php self::renderChart($history, $brands); ?>
-        <?php self::renderHistoryTable($history, $brands); ?>
+        <form method="get" action="<?php echo esc_url(admin_url('admin.php')); ?>">
+            <input type="hidden" name="page" value="<?php echo esc_attr(self::PAGE_SLUG); ?>">
+            <input type="hidden" name="tab" value="history">
+            <p>
+                <label for="kk-history-provider"><?php esc_html_e('Provider', 'koperasikita'); ?></label>
+                <select id="kk-history-provider" name="provider">
+                    <option value=""><?php esc_html_e('All providers', 'koperasikita'); ?></option>
+                    <?php foreach ($knownProviders as $known) : ?>
+                        <option value="<?php echo esc_attr($known); ?>" <?php selected($provider, $known); ?>><?php echo esc_html($known); ?></option>
+                    <?php endforeach; ?>
+                </select>
+                <label for="kk-history-brand"><?php esc_html_e('Brand', 'koperasikita'); ?></label>
+                <select id="kk-history-brand" name="brand">
+                    <option value=""><?php esc_html_e('All brands', 'koperasikita'); ?></option>
+                    <?php foreach ($enabled as $slug) : ?>
+                        <?php if (!isset($brands[$slug])) : continue; endif; ?>
+                        <option value="<?php echo esc_attr($slug); ?>" <?php selected($brand, $slug); ?>><?php echo esc_html($brands[$slug]); ?></option>
+                    <?php endforeach; ?>
+                </select>
+                <label for="kk-history-from"><?php esc_html_e('From', 'koperasikita'); ?></label>
+                <input type="date" id="kk-history-from" name="from" value="<?php echo esc_attr($from); ?>">
+                <label for="kk-history-to"><?php esc_html_e('To', 'koperasikita'); ?></label>
+                <input type="date" id="kk-history-to" name="to" value="<?php echo esc_attr($to); ?>">
+                <input type="submit" class="button" value="<?php esc_attr_e('Filter', 'koperasikita'); ?>">
+                <?php if ($filtered) : ?>
+                    <a class="button" href="<?php echo esc_url(add_query_arg('tab', 'history', $pageUrl)); ?>"><?php esc_html_e('Clear filters', 'koperasikita'); ?></a>
+                <?php endif; ?>
+            </p>
+        </form>
+        <?php self::renderChart($chart, $brands, $filtered); ?>
+        <?php self::renderHistoryTable($rows, $brands, $filtered); ?>
+        <?php if ($pages > 1) : ?>
+            <div class="tablenav">
+                <div class="tablenav-pages">
+                    <?php
+                    echo paginate_links([ // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+                        'base' => add_query_arg('paged', '%#%', $filterUrl),
+                        'format' => '',
+                        'total' => $pages,
+                        'current' => $page,
+                    ]);
+                    ?>
+                </div>
+            </div>
+        <?php endif; ?>
         <?php
     }
 
     /**
+     * A real Y-m-d filter date, or '' — anything else (garbage, a
+     * wrong format, an impossible date) means "no filter".
+     */
+    private static function historyDate(string $value): string
+    {
+        if (!preg_match('/^(\d{4})-(\d{2})-(\d{2})$/', $value, $m)) {
+            return '';
+        }
+
+        return checkdate((int) $m[2], (int) $m[3], (int) $m[1]) ? $value : '';
+    }
+
+    /**
      * Status block: last sync, latest recorded date, symbols
-     * present, inserted vs skipped, last error, and the per-source
-     * table (with the failure backlog / lowest-priority note).
+     * present, inserted vs skipped, and last error. The
+     * per-source table lives beside it on the Sync tab (see
+     * renderSourceTable).
      *
-     * @param array{synced_at: int|null, latest_date: string|null, symbols: array<int, string>, inserted: int, skipped: int, error: string|null, sources: array<string, array{synced_at: int|null, inserted: int, skipped: int, latest_date: string|null, error: string|null, failures: int, next_retry: int|null, deprioritised: bool}>, backlog: array<string, array{failures: int, last_error: string|null, last_attempt: int|null, next_retry: int|null, deprioritised: bool}>} $status
+     * @param array{synced_at: int|null, latest_date: string|null, symbols: array<int, string>, inserted: int, skipped: int, error: string|null} $status
      */
     private static function renderStatus(array $status): void
     {
@@ -607,7 +742,6 @@ final class GoldPricesPage
             </tbody>
         </table>
         <?php
-        self::renderSourceTable($status);
     }
 
     /**
@@ -674,12 +808,17 @@ final class GoldPricesPage
     /**
      * Dependency-free inline SVG line chart: one line per brand,
      * sell price (per gram, IDR) over recorded date. Empty history
-     * renders a short note instead of an empty chart.
+     * renders a short note instead of an empty chart — a different
+     * note when a filter is active, so the page never suggests
+     * syncing for rows the filter simply excluded. The figure is
+     * capped at the design width, so the chart renders ~260px
+     * tall on desktop and scales down proportionally on narrow
+     * screens (aspect ratio kept, never stretched).
      *
      * @param array<int, array{symbol: string, sell_price: float, buyback_price: float|null, currency: string, recorded_date: string|null, fetched_at: int}> $history
      * @param array<string, string> $brands Slug => label.
      */
-    private static function renderChart(array $history, array $brands): void
+    private static function renderChart(array $history, array $brands, bool $filtered = false): void
     {
         // Group by symbol, oldest first, keeping only rows with a
         // date and a positive price.
@@ -702,7 +841,7 @@ final class GoldPricesPage
         }
 
         if ($series === []) {
-            echo '<p>' . esc_html__('No prices stored yet. Run a sync to fill the chart.', 'koperasikita') . '</p>';
+            echo '<p>' . esc_html__($filtered ? 'No prices match the selected filters.' : 'No prices stored yet. Run a sync to fill the chart.', 'koperasikita') . '</p>';
 
             return;
         }
@@ -756,7 +895,7 @@ final class GoldPricesPage
                 . '</span>';
         }
         ?>
-        <figure style="margin:0 0 1rem">
+        <figure style="margin:0 0 1rem;max-width:<?php echo (int) self::CHART_WIDTH; ?>px">
             <svg viewBox="0 0 <?php echo (int) self::CHART_WIDTH; ?> <?php echo (int) self::CHART_HEIGHT; ?>" width="100%" role="img" aria-label="<?php esc_attr_e('Gold price history per brand', 'koperasikita'); ?>">
                 <line x1="<?php echo (int) self::CHART_PAD_LEFT; ?>" y1="<?php echo (int) self::CHART_PAD_TOP; ?>" x2="<?php echo (int) self::CHART_PAD_LEFT; ?>" y2="<?php echo (int) (self::CHART_HEIGHT - self::CHART_PAD_BOTTOM); ?>" stroke="#d1d5db" />
                 <line x1="<?php echo (int) self::CHART_PAD_LEFT; ?>" y1="<?php echo (int) (self::CHART_HEIGHT - self::CHART_PAD_BOTTOM); ?>" x2="<?php echo (int) (self::CHART_WIDTH - self::CHART_PAD_RIGHT); ?>" y2="<?php echo (int) (self::CHART_HEIGHT - self::CHART_PAD_BOTTOM); ?>" stroke="#d1d5db" />
@@ -774,21 +913,22 @@ final class GoldPricesPage
     /**
      * History list: latest per brand first (the table order is
      * recorded_date DESC), with date, brand, sell and buyback
-     * price per gram in IDR.
+     * price per gram in IDR. The rows arrive already paged from
+     * the query — this only renders them.
      *
      * @param array<int, array{symbol: string, sell_price: float, buyback_price: float|null, currency: string, recorded_date: string|null, fetched_at: int}> $history
      * @param array<string, string> $brands Slug => label.
      */
-    private static function renderHistoryTable(array $history, array $brands): void
+    private static function renderHistoryTable(array $history, array $brands, bool $filtered = false): void
     {
         if ($history === []) {
-            echo '<p>' . esc_html__('No prices stored yet. Run a sync to fill the table.', 'koperasikita') . '</p>';
+            echo '<p>' . esc_html__($filtered ? 'No prices match the selected filters.' : 'No prices stored yet. Run a sync to fill the table.', 'koperasikita') . '</p>';
 
             return;
         }
 
         $rows = '';
-        foreach (array_slice($history, 0, self::HISTORY_ROWS) as $row) {
+        foreach ($history as $row) {
             $symbol = (string) ($row['symbol'] ?? '');
             $label = $brands[$symbol] ?? $symbol;
             $sell = number_format_i18n((float) ($row['sell_price'] ?? 0), 0);
