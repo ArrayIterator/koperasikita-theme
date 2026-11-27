@@ -611,12 +611,13 @@ final class Enqueue
             }
         }
 
-        /* Subscribers page: server-rendered, no admin script, but
-         * its card, title, button and table chrome lives in
-         * admin.css. */
+        /* Subscribers + Market Header Index pages: server-rendered,
+         * no admin script, but their card, title, button and table
+         * chrome lives in admin.css. */
         $isSubscribers = $hookSuffix === AdminMenu::submenuHookSuffix(\KoperasiKita\Admin\SubscribersPage::PAGE_SLUG);
+        $isMarketHeader = $hookSuffix === AdminMenu::submenuHookSuffix(\KoperasiKita\Admin\MarketHeaderPage::PAGE_SLUG);
 
-        if ($isSubscribers) {
+        if ($isSubscribers || $isMarketHeader) {
             $css = ViteLoader::css('src/ts/admin.ts');
 
             if ($css !== '') {

@@ -107,6 +107,13 @@ get_template_part( 'template-parts/header/site-nav' );
 <?php get_template_part( 'template-parts/header/ticker' ); ?>
 
 <?php
+// Market header index: the dark strip below the ticker, above the
+// hero (and the Below Header area). Renders nothing when disabled
+// or when no picked item has data.
+\KoperasiKita\Features\MarketHeaderIndex::render();
+?>
+
+<?php
 // Below Header widget area: full-width strip directly below the
 // breaking-news ticker, above the main content. Shown on every page.
 // Renders nothing when empty. NOT a sidebar, so it never gets a

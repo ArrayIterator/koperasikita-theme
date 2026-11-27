@@ -595,6 +595,16 @@ function initCustomizerControls(): void {
 				/* A single broken picker must not kill the rest. */
 			}
 		});
+	document
+		.querySelectorAll<HTMLElement>('[data-kk-market-items]:not([data-kk-init])')
+		.forEach((container) => {
+			container.dataset.kkInit = '1';
+			try {
+				initMarketItems(container);
+			} catch {
+				/* A single broken picker must not kill the rest. */
+			}
+		});
 }
 
 if (document.readyState === 'loading') {
@@ -765,4 +775,122 @@ function initMultiImage(container: HTMLElement): void {
 		});
 		frame.open();
 	});
+}
+
+/* Market header index items: an ordered list of market|symbol rows
+ * with move up/down, hide/show and remove buttons, plus an add
+ * select for the items not picked yet. The picked set syncs into
+ * the hidden, setting-linked input as a JSON array of {item,
+ * hidden} pairs - the same JSON-in-a-hidden-input pattern as the
+ * term multiselect. Rows added after load come from the <template>
+ * row in the control markup, so the button icons stay
+ * server-rendered. */
+const MAX_MARKET_ITEMS = 16;
+
+function initMarketItems(container: HTMLElement): void {
+	const list = container.querySelector<HTMLElement>('.kk-market-items-list');
+	const empty = container.querySelector<HTMLElement>('.kk-market-items-empty');
+	const select = container.querySelector<HTMLSelectElement>('.kk-market-items-select');
+	const addButton = container.querySelector<HTMLButtonElement>('.kk-market-items-add-button');
+	const template = container.querySelector<HTMLTemplateElement>('.kk-market-items-template');
+	const hidden = container.querySelector<HTMLInputElement>(
+		'input[type="hidden"][data-customize-setting-link]',
+	);
+	if (!list || !select || !addButton || !template || !hidden) {
+		return;
+	}
+
+	const hideLabel = container.dataset.hideLabel ?? 'Hide item';
+	const showLabel = container.dataset.showLabel ?? 'Show item';
+
+	const rows = (): HTMLElement[] =>
+		Array.from(list.querySelectorAll<HTMLElement>('.kk-market-items-row'));
+
+	const sync = (): void => {
+		const next = JSON.stringify(
+			rows()
+				.map((row) => ({
+					item: row.dataset.item ?? '',
+					hidden: row.dataset.hidden === '1',
+				}))
+				.filter((row) => row.item !== ''),
+		);
+		if (hidden.value !== next) {
+			hidden.value = next;
+			hidden.dispatchEvent(new Event('change', { bubbles: true }));
+		}
+		if (empty) {
+			empty.hidden = rows().length !== 0;
+		}
+		const full = rows().length >= MAX_MARKET_ITEMS;
+		addButton.disabled = full || select.value === '';
+		select.disabled = full;
+	};
+
+	list.addEventListener('click', (event) => {
+		const button = (event.target as HTMLElement).closest('button');
+		if (!button) {
+			return;
+		}
+		const row = button.closest<HTMLElement>('.kk-market-items-row');
+		if (!row) {
+			return;
+		}
+		if (button.classList.contains('kk-market-items-up')) {
+			const prev = row.previousElementSibling;
+			if (prev) {
+				list.insertBefore(row, prev);
+			}
+		} else if (button.classList.contains('kk-market-items-down')) {
+			const next = row.nextElementSibling;
+			if (next) {
+				list.insertBefore(next, row);
+			}
+		} else if (button.classList.contains('kk-market-items-hide')) {
+			const isHidden = row.dataset.hidden !== '1';
+			row.dataset.hidden = isHidden ? '1' : '0';
+			row.classList.toggle('is-hidden', isHidden);
+			button.setAttribute('aria-label', isHidden ? showLabel : hideLabel);
+		} else if (button.classList.contains('kk-market-items-remove')) {
+			const value = row.dataset.item ?? '';
+			const label =
+				row.querySelector('.kk-market-items-label')?.textContent ?? value;
+			row.remove();
+			if (value !== '') {
+				const option = document.createElement('option');
+				option.value = value;
+				option.textContent = label;
+				select.appendChild(option);
+			}
+		}
+		sync();
+	});
+
+	addButton.addEventListener('click', () => {
+		const value = select.value;
+		if (value === '' || rows().length >= MAX_MARKET_ITEMS) {
+			return;
+		}
+		const label = select.options[select.selectedIndex]?.textContent ?? value;
+		const fragment = template.content.cloneNode(true) as DocumentFragment;
+		const row = fragment.querySelector<HTMLElement>('.kk-market-items-row');
+		if (!row) {
+			return;
+		}
+		row.dataset.item = value;
+		const labelEl = row.querySelector<HTMLElement>('.kk-market-items-label');
+		if (labelEl) {
+			labelEl.textContent = label;
+		}
+		list.appendChild(fragment);
+		select.remove(select.selectedIndex);
+		select.value = '';
+		sync();
+	});
+
+	select.addEventListener('change', () => {
+		addButton.disabled = rows().length >= MAX_MARKET_ITEMS || select.value === '';
+	});
+
+	sync();
 }

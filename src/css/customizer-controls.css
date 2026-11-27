@@ -315,3 +315,103 @@
 .kk-multi-image-remove:hover {
 	background: #b32d2e;
 }
+
+/* Market header index items: an ordered row per picked item with
+ * move up/down, hide/show and remove buttons, plus an add row.
+ * Rows follow the term multiselect's chip language (green accent,
+ * 3px radius); a hidden row dims like a disabled option, and the
+ * hide button swaps its eye icon for the eye-off one. */
+.kk-market-items-list {
+	margin: 0 0 8px;
+	padding: 0;
+	list-style: none;
+}
+
+.kk-market-items-row {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	padding: 4px 4px 4px 8px;
+	margin-bottom: 4px;
+	border: 1px solid #dcdcde;
+	border-radius: 3px;
+	background: #fff;
+}
+
+.kk-market-items-row.is-hidden {
+	opacity: 0.55;
+}
+
+.kk-market-items-label {
+	flex: 1 1 auto;
+	min-width: 0;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	font-size: 13px;
+	font-weight: 600;
+	color: #1d2327;
+}
+
+.kk-market-items-actions {
+	display: flex;
+	align-items: center;
+	gap: 2px;
+	flex: none;
+}
+
+.kk-market-items-actions button {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 22px;
+	height: 22px;
+	padding: 0;
+	border: 0;
+	border-radius: 3px;
+	background: transparent;
+	color: #50575e;
+	line-height: 1;
+	cursor: pointer;
+}
+
+.kk-market-items-actions button:hover {
+	background: #f0f6fc;
+	color: #0B6B3A;
+}
+
+.kk-market-items-actions button svg {
+	display: block;
+}
+
+.kk-market-items-remove {
+	font-size: 16px;
+}
+
+.kk-market-items-eye-off {
+	display: none;
+}
+
+.kk-market-items-row.is-hidden .kk-market-items-eye {
+	display: none;
+}
+
+.kk-market-items-row.is-hidden .kk-market-items-eye-off {
+	display: inline-flex;
+}
+
+.kk-market-items-empty {
+	margin: 0 0 8px;
+	color: #50575e;
+	font-style: italic;
+}
+
+.kk-market-items-add {
+	display: flex;
+	gap: 6px;
+}
+
+.kk-market-items-select {
+	flex: 1 1 auto;
+	min-width: 0;
+}

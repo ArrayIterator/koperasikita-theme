@@ -2733,6 +2733,7 @@ msgstr "Pilihan Editor Koperasi Kita"
 msgid "Posts from the categories and tags you pick, in your chosen order."
 msgstr "Posting dari kategori dan tag yang Anda pilih, sesuai urutan pilihan Anda."
 
+#: inc/Admin/MarketHeaderPage.php
 msgid "Order"
 msgstr "Urutan"
 
@@ -4772,3 +4773,90 @@ msgstr "Gagal"
 #: inc/Setup/Setup.php
 msgid "Fast Search settings could not be saved."
 msgstr "Pengaturan Fast Search tidak dapat disimpan."
+#: inc/Customizer/Customizer.php
+#: inc/Admin/AdminMenu.php
+#: inc/Admin/MarketHeaderPage.php
+msgid "Market Header Index"
+msgstr "Indeks Header Pasar"
+
+#: inc/Customizer/Customizer.php
+#: inc/Admin/MarketHeaderPage.php
+msgid "Show the market index strip"
+msgstr "Tampilkan strip indeks pasar"
+
+#: inc/Customizer/Customizer.php
+msgid "Shows the picked market indices in a dark strip below the header. Requires the Markets feature."
+msgstr "Menampilkan indeks pasar yang dipilih dalam strip gelap di bawah header. Membutuhkan fitur Markets."
+
+#: inc/Customizer/Customizer.php
+msgid "Market items"
+msgstr "Item pasar"
+
+#: inc/Customizer/Customizer.php
+msgid "Pick up to 16 items, in the order they show. Empty means the default set (IHSG, USD/IDR, Antam, Brent)."
+msgstr "Pilih hingga 16 item, sesuai urutan tampil. Kosong berarti set default (IHSG, USD/IDR, Antam, Brent)."
+
+#: template-parts/header/market-index.php
+msgid "Market Snapshot · %s"
+msgstr "Snapshot Pasar · %s"
+
+#: inc/Customizer/MarketItemsControl.php
+msgid "No items picked. The default set shows instead."
+msgstr "Tidak ada item yang dipilih. Set default yang ditampilkan."
+
+#: inc/Customizer/MarketItemsControl.php
+#: inc/Admin/MarketHeaderPage.php
+msgid "Add item…"
+msgstr "Tambah item…"
+
+#: inc/Customizer/MarketItemsControl.php
+#: inc/Admin/MarketHeaderPage.php
+msgid "Add item"
+msgstr "Tambah item"
+
+#: inc/Customizer/MarketItemsControl.php
+#: inc/Admin/MarketHeaderPage.php
+msgid "Add"
+msgstr "Tambah"
+
+#: inc/Customizer/MarketItemsControl.php
+#: inc/Admin/MarketHeaderPage.php
+msgid "Move up"
+msgstr "Pindah ke atas"
+
+#: inc/Customizer/MarketItemsControl.php
+#: inc/Admin/MarketHeaderPage.php
+msgid "Move down"
+msgstr "Pindah ke bawah"
+
+#: inc/Customizer/MarketItemsControl.php
+msgid "Hide item"
+msgstr "Sembunyikan item"
+
+#: inc/Customizer/MarketItemsControl.php
+msgid "Show item"
+msgstr "Tampilkan item"
+
+#: inc/Admin/MarketHeaderPage.php
+msgid "The market index strip below the header shows the picked market indices - symbol, price and day change - with a snapshot timestamp. Data comes only from the Markets providers; an item with no price is skipped, never invented."
+msgstr "Strip indeks pasar di bawah header menampilkan indeks pasar yang dipilih - simbol, harga, dan perubahan harian - dengan stempel waktu snapshot. Data hanya berasal dari provider Markets; item tanpa harga dilewati, tidak pernah dibuat-buat."
+
+#: inc/Admin/MarketHeaderPage.php
+msgid "Item"
+msgstr "Item"
+
+#: inc/Admin/MarketHeaderPage.php
+msgid "Show"
+msgstr "Tampilkan"
+
+#: inc/Admin/MarketHeaderPage.php
+msgid "Maximum 16 items."
+msgstr "Maksimal 16 item."
+
+#: inc/Admin/MarketHeaderPage.php
+msgid "Settings saved."
+msgstr "Pengaturan disimpan."
+
+#: inc/Admin/MarketHeaderPage.php
+msgid "Remove this item from the strip?"
+msgstr "Hapus item ini dari strip?"

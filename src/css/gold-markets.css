@@ -450,6 +450,120 @@
 	flex-shrink: 0;
 }
 
+/* Market header index
+ * The dark strip below the header: the index strip's row inside a
+ * full-width dark bar, with the snapshot label at the right. The
+ * row scrolls sideways on narrow screens (same as the index strip),
+ * so the bar never pushes the page wider than the viewport. The
+ * change chips use the light up/down colours from the dark data
+ * desk palette - the global --kk-success / --kk-error are ~1.9:1
+ * on dark and unreadable there (see --dd-up / --dd-down).
+ */
+
+.kk-market-header {
+	background: #1b1b1b;
+	color: #f2f2f2;
+	border-bottom: 1px solid rgb(255 255 255 / 0.12);
+}
+
+.kk-market-header-inner {
+	display: flex;
+	align-items: center;
+	gap: 8px 24px;
+	flex-wrap: wrap;
+	padding-top: 8px;
+	padding-bottom: 8px;
+}
+
+.kk-market-header .kk-index-strip {
+	flex: 1 1 0;
+	min-width: 0;
+	padding: 0;
+	border-top: 0;
+	border-bottom: 0;
+}
+
+.kk-market-header .kk-index-name {
+	color: rgb(255 255 255 / 0.72);
+}
+
+.kk-market-header .kk-index-value {
+	color: #fff;
+}
+
+.kk-market-header .kk-market-change-up {
+	color: #8ce99a;
+}
+
+.kk-market-header .kk-market-change-down {
+	color: #ffa8a8;
+}
+
+.kk-market-header-snapshot {
+	flex: none;
+	font-size: 12px;
+	letter-spacing: 0.08em;
+	text-transform: uppercase;
+	color: rgb(255 255 255 / 0.6);
+	white-space: nowrap;
+}
+
+/* Market header index: mobile ticker rotation
+ * Below 767px the row fits about one item, so the strip cycles one
+ * item at a time with the news ticker's bouncing fade (the same
+ * kk-ticker-in / kk-ticker-out keyframes from header.css: the new
+ * item bounces up from below, the old one fades up and out). The
+ * strip takes the full row and the snapshot wraps below it, so the
+ * cycling item always has the whole width and the snapshot stays
+ * visible. Desktop keeps the plain horizontal row. */
+@media (max-width: 767px) {
+	.kk-market-header .kk-index-strip {
+		flex: 1 1 100%;
+		position: relative;
+		height: 1.5em;
+		overflow: hidden;
+	}
+
+	.kk-market-header .kk-index-item {
+		position: absolute;
+		inset: 0;
+		opacity: 0;
+		visibility: hidden;
+	}
+
+	.kk-market-header .kk-index-item.is-active {
+		opacity: 1;
+		visibility: visible;
+		animation: kk-ticker-in 0.5s ease;
+	}
+
+	.kk-market-header .kk-index-item.is-leaving {
+		animation: kk-ticker-out 0.4s ease forwards;
+	}
+}
+
+/* Reduced motion: no cycling, the plain swipeable row instead, so
+ * every item stays reachable without the animation. */
+@media (prefers-reduced-motion: reduce) {
+	.kk-market-header .kk-index-strip {
+		position: static;
+		height: auto;
+		overflow-x: auto;
+		flex: 1 1 0;
+	}
+
+	.kk-market-header .kk-index-item {
+		position: static;
+		opacity: 1;
+		visibility: visible;
+	}
+
+	.kk-market-header .kk-index-item.is-active,
+	.kk-market-header .kk-index-item.is-leaving {
+		animation: none;
+	}
+}
+
 /* Markets marquee
    Continuously scrolling ticker. The track holds two identical sets and
    translates -50% on a linear loop, so the seam never shows. Each item
