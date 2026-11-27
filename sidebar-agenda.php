@@ -2,18 +2,14 @@
 /**
  * The agenda sidebar.
  *
- * Renders nothing when the Agenda Sidebar has no widgets. Falls back
- * to the Article Sidebar so agenda pages are never bare just because
- * the editor only filled one sidebar.
+ * Renders the Agenda Sidebar widgets only — no fallback to any other
+ * sidebar, so an agenda page shows exactly what the editor placed in
+ * the Agenda Sidebar, and nothing at all while it is empty.
  *
  * @package KoperasiKita
  */
 
 $sidebar = 'sidebar-agenda';
-
-if ( ! is_active_sidebar( $sidebar ) && is_active_sidebar( 'sidebar-single' ) ) {
-	$sidebar = 'sidebar-single';
-}
 
 if ( ! is_active_sidebar( $sidebar ) ) {
 	return;
