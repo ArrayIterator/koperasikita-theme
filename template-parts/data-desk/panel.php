@@ -40,6 +40,8 @@ $hasHistory = !empty($data['has_history']) && $points !== [];
 
 // The widget title travels in $args['title'] when the widget set one;
 // otherwise the automatic title names the symbol and the window.
+// A saved template title may use {label} (symbol label) and {day}
+// (chart window in days) placeholders — see DataDesk::replaceTitleTokens().
 $title = isset($args['title']) && trim((string) $args['title']) !== '' ? (string) $args['title'] : '';
 if ($title === '') {
 	$title = $isGold
@@ -51,6 +53,8 @@ if ($title === '') {
 			$label,
 			$days
 		);
+} else {
+	$title = DataDesk::replaceTitleTokens($title, $label, $days);
 }
 
 $subtitle = '';

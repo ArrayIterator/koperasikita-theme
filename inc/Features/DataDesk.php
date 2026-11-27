@@ -78,6 +78,23 @@ final class DataDesk
     }
 
     /**
+     * Replace {label} / {day} placeholders in a Data Desk template title.
+     *
+     * {label} is the symbol label (e.g. "Antam"), {day} is the chart
+     * window in days — the two values the automatic title is built
+     * from. Unknown placeholders are left untouched, so a typo never
+     * eats text. NOTE: this {day} is NOT the footer's {day} (day of
+     * the month) — the two token systems must not be "unified".
+     */
+    public static function replaceTitleTokens(string $title, string $label, int $days): string
+    {
+        return strtr($title, [
+            '{label}' => $label,
+            '{day}'   => (string) $days,
+        ]);
+    }
+
+    /**
      * The preview for one template (panel or table), rendered
      * through the real template files with clearly-labelled SAMPLE
      * data — never real prices presented as live. The templates

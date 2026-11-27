@@ -3989,3 +3989,6 @@ msgstr "Lokal"
 #: inc/Admin/SubscribersPage.php
 msgid "Confirm delete?"
 msgstr "Konfirmasi hapus?"
+
+msgid "Leave empty for the automatic title. Use {label} for the symbol name and {day} for the number of days."
+msgstr "Biarkan kosong untuk judul otomatis. Gunakan {label} untuk nama simbol dan {day} untuk jumlah hari."
