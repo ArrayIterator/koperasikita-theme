@@ -28,6 +28,16 @@ get_header();
 
 			<article class="kk-article kk-agenda-single" style="--article-font-size: <?php echo esc_attr((string) $font_size); ?>px">
 				<header class="kk-article-header">
+					<?php
+					$kk_agenda_start = \KoperasiKita\Features\Agenda::getMeta(get_the_ID())['start'];
+					$kk_agenda_ts = \KoperasiKita\Features\Agenda::eventTimestamp($kk_agenda_start);
+					if ($kk_agenda_ts > 0) :
+						?>
+						<p class="kk-agenda-date-badge" aria-hidden="true">
+							<span class="kk-agenda-date-day"><?php echo esc_html(date_i18n('j', $kk_agenda_ts)); ?></span>
+							<span class="kk-agenda-date-month"><?php echo esc_html(date_i18n('M', $kk_agenda_ts)); ?></span>
+						</p>
+					<?php endif; ?>
 					<h1 class="kk-article-title"><?php the_title(); ?></h1>
 					<?php
 					if ($kk_location_enabled && $kk_location_position === 'above-info') {

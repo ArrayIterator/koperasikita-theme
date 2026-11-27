@@ -421,6 +421,27 @@ final class Agenda
     }
 
     /**
+     * Timestamp for a stored `Y-m-d H:i` event string, parsed in the
+     * site timezone. The stored strings are the wall-clock times the
+     * editor entered; parsing and formatting in the same timezone
+     * round-trips them exactly, so a displayed date or time never
+     * shifts when the site timezone differs from the one the stored
+     * timestamp was computed in. Display values (date, time, badge)
+     * use this; instant comparisons (ordering, live/done status) keep
+     * using start_ts.
+     */
+    public static function eventTimestamp(string $datetime): int
+    {
+        if ($datetime === '') {
+            return 0;
+        }
+
+        $parsed = date_create_immutable_from_format('Y-m-d H:i', $datetime, wp_timezone());
+
+        return $parsed !== false ? (int) $parsed->getTimestamp() : 0;
+    }
+
+    /**
      * AJAX: search places for the agenda location picker.
      *
      * Saved locations match first (instant, no network), then the
@@ -1033,7 +1054,8 @@ final class Agenda
     {
         if ($column === 'kk_agenda_date') {
             $meta = self::getMeta($postId);
-            echo $meta['start'] !== '' ? esc_html(date_i18n(get_option('date_format') . ' ' . get_option('time_format'), $meta['start_ts'])) : '&mdash;';
+            $eventTs = self::eventTimestamp($meta['start']);
+            echo $meta['start'] !== '' ? esc_html(date_i18n(get_option('date_format') . ' ' . get_option('time_format'), $eventTs)) : '&mdash;';
         }
 
         if ($column === 'kk_agenda_location') {

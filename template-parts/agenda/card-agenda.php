@@ -13,8 +13,9 @@
 
 $meta = \KoperasiKita\Features\Agenda::getMeta(get_the_ID());
 $thumb_url = \KoperasiKita\Images\FeaturedImage::url(get_the_ID(), 'medium');
-$day = $meta['start_ts'] > 0 ? date_i18n('j', $meta['start_ts']) : '';
-$month = $meta['start_ts'] > 0 ? date_i18n('M', $meta['start_ts']) : '';
+$eventTs = \KoperasiKita\Features\Agenda::eventTimestamp($meta['start']);
+$day = $eventTs > 0 ? date_i18n('j', $eventTs) : '';
+$month = $eventTs > 0 ? date_i18n('M', $eventTs) : '';
 ?>
 
 <article class="kk-card kk-agenda-card">

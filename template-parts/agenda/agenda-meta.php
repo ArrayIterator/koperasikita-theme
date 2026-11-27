@@ -15,15 +15,20 @@ if ($meta['start'] === '' && $meta['location'] === '') {
 }
 
 $dateFormat = get_option('date_format');
-$timeFormat = get_option('time_format');
-$dateLabel = $meta['start_ts'] > 0 ? date_i18n($dateFormat, $meta['start_ts']) : '';
-$startLabel = $meta['start_ts'] > 0 ? date_i18n($timeFormat, $meta['start_ts']) : '';
-$endLabel = '';
-if ($meta['end'] !== '') {
-    $endParsed = date_create_immutable_from_format('Y-m-d H:i', $meta['end'], wp_timezone());
-    $endLabel = $endParsed !== false ? date_i18n($timeFormat, (int) $endParsed->getTimestamp()) : '';
+$startTs = \KoperasiKita\Features\Agenda::eventTimestamp($meta['start']);
+$endTs = \KoperasiKita\Features\Agenda::eventTimestamp($meta['end']);
+$dateLabel = $startTs > 0 ? date_i18n($dateFormat, $startTs) : '';
+$startLabel = $startTs > 0 ? date_i18n('H.i', $startTs) : '';
+$endLabel = $endTs > 0 ? date_i18n('H.i', $endTs) : '';
+// Event times are WIB wall-clock times: 24-hour with a dot, and the
+// zone abbreviation, so the header reads the same as the body text.
+$timeLabel = $startLabel;
+if ($startLabel !== '' && $endLabel !== '') {
+    $timeLabel .= ' &ndash; ' . $endLabel;
 }
-$timeLabel = $startLabel !== '' && $endLabel !== '' ? $startLabel . ' &ndash; ' . $endLabel : $startLabel;
+if ($timeLabel !== '') {
+    $timeLabel .= ' WIB';
+}
 ?>
 
 <dl class="kk-agenda-meta">
