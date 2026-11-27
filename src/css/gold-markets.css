@@ -469,7 +469,11 @@
 .kk-market-header-inner {
 	display: flex;
 	align-items: center;
-	gap: 8px 24px;
+	/* Tight gaps (16px, not the 24px of the widget strip): the four
+	 * items plus the snapshot label fill the 1240px shell exactly at
+	 * live values, so the roomier gaps pushed the strip 12px past
+	 * its box and the strip's overflow-x clipped Brent's change. */
+	gap: 8px 16px;
 	flex-wrap: wrap;
 	padding-top: 8px;
 	padding-bottom: 8px;
@@ -478,9 +482,23 @@
 .kk-market-header .kk-index-strip {
 	flex: 1 1 0;
 	min-width: 0;
+	/* Same tight column gap as the inner row: the strip's own gaps
+	 * are part of the 12px overflow, so they tighten together.
+	 * 15px, not the 16px body size: a dense data bar reads fine a
+	 * step smaller, and the narrower glyphs are the headroom a long
+	 * Wednesday label plus two-digit moves need. */
+	font-size: 15px;
+	gap: 8px 16px;
 	padding: 0;
 	border-top: 0;
 	border-bottom: 0;
+}
+
+/* Tight within-item gap (6px, not the shared 8px): name, value and
+ * change sit closer in the header bar, buying the headroom a long
+ * Wednesday label plus a two-digit move needs. */
+.kk-market-header .kk-index-item {
+	gap: 6px;
 }
 
 .kk-market-header .kk-index-name {
@@ -502,7 +520,10 @@
 .kk-market-header-snapshot {
 	flex: none;
 	font-size: 12px;
-	letter-spacing: 0.08em;
+	/* 0.05em, not 0.08em: the label is the longest single element
+	 * in the row, and the wider tracking was part of the 12px
+	 * overflow that clipped Brent's change. */
+	letter-spacing: 0.05em;
 	text-transform: uppercase;
 	color: rgb(255 255 255 / 0.6);
 	white-space: nowrap;
