@@ -3985,3 +3985,7 @@ msgstr "Berhenti berlangganan"
 #: inc/Admin/SubscribersPage.php
 msgid "Local"
 msgstr "Lokal"
+
+#: inc/Admin/SubscribersPage.php
+msgid "Confirm delete?"
+msgstr "Konfirmasi hapus?"

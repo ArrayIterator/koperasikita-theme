@@ -237,6 +237,37 @@ final class Subscribers
     }
 
     /**
+     * Change one subscriber's source (where the address actually
+     * landed). Returns false when the address has no row or the
+     * write failed — so a failed MailPoet sync can never flip a
+     * row to 'mailpoet' by accident.
+     */
+    public static function setSource(string $email, string $source): bool
+    {
+        global $wpdb;
+
+        $email = sanitize_email($email);
+
+        if ($email === '' || !is_email($email) || !self::tableExists()) {
+            return false;
+        }
+
+        if (!in_array($source, [self::SOURCE_LOCAL, self::SOURCE_MAILPOET], true)) {
+            return false;
+        }
+
+        $updated = $wpdb->update(
+            self::table(),
+            ['source' => $source, 'updated_at' => current_time('mysql')],
+            ['email' => $email],
+            ['%s', '%s'],
+            ['%s']
+        );
+
+        return $updated !== false && $updated > 0;
+    }
+
+    /**
      * Every subscriber, newest first, for the CSV export. Capped so
      * a very large list cannot exhaust memory.
      *
