@@ -997,6 +997,74 @@
 	gap: 8px;
 	margin-left: auto;
 }
+/* Table display settings: a second settings row under the top
+ * bar, table kind only (the toggle script hides it for panels).
+ * Same white card + labelled columns as the top bar; the colour
+ * rows are inline label + swatch pairs. */
+.kk-data-desk-table-settings {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: flex-end;
+	gap: 12px 20px;
+	margin: 0 0 16px;
+	padding: 12px 16px;
+	background: #fff;
+	border: 1px solid #dcdcde;
+	border-radius: 3px;
+}
+.kk-data-desk-table-settings-field {
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+	min-width: 0;
+}
+.kk-data-desk-table-settings-field > label {
+	font-size: 11px;
+	font-weight: 600;
+	letter-spacing: 0.04em;
+	text-transform: uppercase;
+	color: #646970;
+}
+.kk-data-desk-table-settings-field--number input {
+	width: 4.5em;
+}
+.kk-data-desk-table-settings-field--check {
+	flex-direction: row;
+	align-items: center;
+	gap: 8px;
+}
+.kk-data-desk-table-settings-field--check > label {
+	font-size: 13px;
+	font-weight: 600;
+	letter-spacing: 0;
+	text-transform: none;
+	color: #1d2327;
+}
+.kk-data-desk-table-settings-field--colors {
+	flex-direction: row;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 6px 12px;
+}
+.kk-data-desk-chart-color {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	font-size: 13px;
+	color: #1d2327;
+}
+.kk-data-desk-chart-color input[type="color"] {
+	width: 32px;
+	height: 28px;
+	padding: 2px;
+	border: 1px solid #8c8f94;
+	border-radius: 3px;
+	background: #fff;
+	cursor: pointer;
+}
+.kk-data-desk-chart-color input[type="text"] {
+	width: 7em;
+}
 /* Palette segmented control: one radio per segment, Green first.
  * The radios are visually hidden (kept focusable); the labels are
  * the segments, the checked one reads as the active button. */

@@ -108,6 +108,167 @@ final class DataDesk
     public const HEADER_FIELDS = ['brand', 'price', 'updated'];
 
     /**
+     * Table styles: how a table template renders. Flat is the
+     * table as shipped (plain rows, palette thead band); striped
+     * bands alternate rows; cards renders each row as a separated
+     * card; chart draws the brands' price history as a multiline
+     * chart above the table. Stored per template in `table_style`.
+     */
+    public const TABLE_STYLES = [
+        'flat' => 'Flat',
+        'striped' => 'Striped',
+        'cards' => 'Cards',
+        'chart' => 'Chart',
+    ];
+
+    public const DEFAULT_TABLE_STYLE = 'flat';
+
+    /**
+     * Where a table template's title renders: above the table as
+     * its own heading, or inline with the table as a caption bar
+     * (title left, latest update right). Stored per template in
+     * `title_display`.
+     */
+    public const TITLE_DISPLAYS = [
+        'above' => 'Above the table',
+        'inline' => 'Inline with the table',
+    ];
+
+    public const DEFAULT_TITLE_DISPLAY = 'above';
+
+    /** Table type size, in px. The shipped table is 14px. */
+    public const DEFAULT_FONT_SIZE = 14;
+    public const MIN_FONT_SIZE = 12;
+    public const MAX_FONT_SIZE = 18;
+
+    /** Table cell vertical padding, in px. The shipped table is 8px. */
+    public const DEFAULT_CELL_PADDING = 8;
+    public const MIN_CELL_PADDING = 4;
+    public const MAX_CELL_PADDING = 16;
+
+    /**
+     * Default line colours for the multiline chart, one per brand
+     * in Gold::brands() order, cycling when there are more brands
+     * than colours. Theme greens and golds only, so the lines read
+     * as the theme's own palette: Antam green, UBS gold, Galeri 24
+     * dark green, Lotus Archi dark gold, King Halim leaf green,
+     * Emasku bronze. A stored per-brand colour in `chart_colors`
+     * wins over these.
+     */
+    public const DEFAULT_CHART_COLORS = [
+        '#0B6B3A',
+        '#C9962E',
+        '#0B3D24',
+        '#8D6E00',
+        '#2E7D32',
+        '#6D4C41',
+    ];
+
+    /** @return array<string, string> */
+    public static function tableStyles(): array
+    {
+        return [
+            'flat' => __('Flat', 'koperasikita'),
+            'striped' => __('Striped', 'koperasikita'),
+            'cards' => __('Cards', 'koperasikita'),
+            'chart' => __('Chart', 'koperasikita'),
+        ];
+    }
+
+    public static function sanitizeTableStyle(mixed $value): string
+    {
+        $value = is_string($value) ? $value : '';
+
+        return isset(self::TABLE_STYLES[$value]) ? $value : self::DEFAULT_TABLE_STYLE;
+    }
+
+    /** @return array<string, string> */
+    public static function titleDisplays(): array
+    {
+        return [
+            'above' => __('Above the table', 'koperasikita'),
+            'inline' => __('Inline with the table', 'koperasikita'),
+        ];
+    }
+
+    public static function sanitizeTitleDisplay(mixed $value): string
+    {
+        $value = is_string($value) ? $value : '';
+
+        return isset(self::TITLE_DISPLAYS[$value]) ? $value : self::DEFAULT_TITLE_DISPLAY;
+    }
+
+    public static function sanitizeFontSize(mixed $value): int
+    {
+        return max(self::MIN_FONT_SIZE, min(self::MAX_FONT_SIZE, (int) $value));
+    }
+
+    public static function sanitizeCellPadding(mixed $value): int
+    {
+        return max(self::MIN_CELL_PADDING, min(self::MAX_CELL_PADDING, (int) $value));
+    }
+
+    /**
+     * A #rrggbb colour, or '' (no override). Anything else - a
+     * named colour, a short hex, a non-colour string - is not a
+     * colour the chart or the thead can paint, so it is dropped.
+     */
+    public static function sanitizeHexColor(mixed $value): string
+    {
+        $value = is_string($value) ? strtolower(trim($value)) : '';
+
+        return preg_match('/^#[0-9a-f]{6}$/', $value) === 1 ? $value : '';
+    }
+
+    /**
+     * Per-brand chart line colours into canonical shape: brand
+     * slug => #rrggbb. Unknown brands and bad colours are
+     * dropped, so a stored row can never paint a line a colour
+     * that does not exist.
+     *
+     * @param mixed $value
+     * @return array<string, string>
+     */
+    public static function sanitizeChartColors(mixed $value): array
+    {
+        $colors = [];
+
+        if (!is_array($value)) {
+            return $colors;
+        }
+
+        foreach (Gold::brands() as $slug => $label) {
+            $color = self::sanitizeHexColor($value[$slug] ?? '');
+
+            if ($color !== '') {
+                $colors[$slug] = $color;
+            }
+        }
+
+        return $colors;
+    }
+
+    /**
+     * The chart line colour for one brand: the stored per-brand
+     * colour wins, otherwise the palette default for the brand's
+     * position in Gold::brands() order.
+     */
+    public static function chartColorFor(string $slug, array $template): string
+    {
+        $stored = self::sanitizeChartColors($template['chart_colors'] ?? []);
+
+        if (isset($stored[$slug])) {
+            return $stored[$slug];
+        }
+
+        $brands = array_keys(Gold::brands());
+        $index = array_search($slug, $brands, true);
+        $index = $index === false ? 0 : $index;
+
+        return self::DEFAULT_CHART_COLORS[$index % count(self::DEFAULT_CHART_COLORS)];
+    }
+
+    /**
      * Register the admin preview endpoint. The templates page and
      * the widget forms re-render their preview through it, so the
      * preview always uses the real panel / table templates.
@@ -474,6 +635,17 @@ final class DataDesk
                 'preview' => true,
                 'headers' => $template['headers'] ?? [],
                 'editable' => $editable,
+                'title' => $template['title'] ?? '',
+                'days' => (int) ($template['days'] ?? self::DEFAULT_DAYS),
+                'table_style' => self::sanitizeTableStyle($template['table_style'] ?? self::DEFAULT_TABLE_STYLE),
+                'title_display' => self::sanitizeTitleDisplay($template['title_display'] ?? self::DEFAULT_TITLE_DISPLAY),
+                'font_size' => self::sanitizeFontSize($template['font_size'] ?? self::DEFAULT_FONT_SIZE),
+                'cell_padding' => self::sanitizeCellPadding($template['cell_padding'] ?? self::DEFAULT_CELL_PADDING),
+                'chart_animate' => !isset($template['chart_animate']) || (bool) $template['chart_animate'],
+                'chart' => self::previewTableChartData($template),
+                'chart_colors' => self::sanitizeChartColors($template['chart_colors'] ?? []),
+                'header_bg' => self::sanitizeHexColor($template['header_bg'] ?? ''),
+                'header_text' => self::sanitizeHexColor($template['header_text'] ?? ''),
             ]);
         } else {
             get_template_part('template-parts/data-desk/panel', null, [
@@ -601,6 +773,136 @@ final class DataDesk
     }
 
     /**
+     * The multiline chart series for a table template: one series
+     * per brand with at least two days of stored history in the
+     * window, oldest first. The rows come from the history table
+     * through historyFiltered() with the official-provider map,
+     * so each brand+date keeps one row (the same dedup the
+     * History tab reads). A brand with fewer than two points is
+     * not a line - it is left out, never padded with an invented
+     * point. With no plotted brand at all the series is empty and
+     * the template renders the honest empty state instead.
+     *
+     * @return array{series: array<int, array{slug: string, label: string, color: string, points: array<int, array{date: string, short: string, price: float}>}>, days: int, date_range: string, has_history: bool}
+     */
+    public static function tableChartData(array $template): array
+    {
+        $days = isset($template['days']) ? max(3, min(30, (int) $template['days'])) : self::DEFAULT_DAYS;
+        $brands = isset($template['brands']) && is_array($template['brands']) && $template['brands'] !== []
+            ? array_values(array_intersect(array_map('sanitize_key', $template['brands']), Gold::enabledBrands()))
+            : Gold::enabledBrands();
+
+        $rows = GoldPricesTable::historyFiltered('', ['symbols' => $brands], 400, 0, Gold::officialProviders());
+
+        $byBrand = [];
+        foreach ($rows as $row) {
+            $slug = (string) ($row['symbol'] ?? '');
+            $date = (string) ($row['recorded_date'] ?? '');
+            $sell = (float) ($row['sell_price'] ?? 0);
+
+            if ($slug === '' || $date === '' || $sell <= 0) {
+                continue;
+            }
+
+            $byBrand[$slug][] = ['date' => $date, 'price' => $sell];
+        }
+
+        return self::buildChartSeries($template, $brands, $byBrand, $days);
+    }
+
+    /**
+     * Sample chart series for a template preview: the same shape
+     * as tableChartData(), but a fixed gentle slope per brand
+     * (a round base stepping down per row, like
+     * previewTablePrices) instead of stored history. The preview
+     * badge says the data is sample, so the layout is what the
+     * chart previews - never a live price presented as real.
+     *
+     * @return array{series: array<int, array{slug: string, label: string, color: string, points: array<int, array{date: string, short: string, price: float}>}>, days: int, date_range: string, has_history: bool}
+     */
+    public static function previewTableChartData(array $template): array
+    {
+        $days = isset($template['days']) ? max(3, min(30, (int) $template['days'])) : self::DEFAULT_DAYS;
+        $brands = isset($template['brands']) && is_array($template['brands']) && $template['brands'] !== []
+            ? array_values(array_intersect(array_map('sanitize_key', $template['brands']), Gold::enabledBrands()))
+            : Gold::enabledBrands();
+
+        $byBrand = [];
+        foreach ($brands as $index => $slug) {
+            $base = 2400000.0 - ($index * 25000.0);
+            $points = [];
+            for ($i = 0; $i < $days; $i++) {
+                $offset = -0.8 + (1.7 * $i) / max(1, $days - 1) + ($i % 2 === 0 ? 0.15 : -0.15);
+                $date = date('Y-m-d', strtotime('-' . ($days - 1 - $i) . ' days'));
+                $points[] = ['date' => $date, 'price' => round($base * (1 + $offset / 100))];
+            }
+            $byBrand[$slug] = $points;
+        }
+
+        return self::buildChartSeries($template, $brands, $byBrand, $days);
+    }
+
+    /**
+     * One chart series per brand from date=>price rows: oldest
+     * first, last N days only, two points minimum. The series
+     * carry their line colour and a short date label per point,
+     * and the shared date range across every plotted brand.
+     *
+     * @param array<int, string> $brands
+     * @param array<string, array<int, array{date: string, price: float}>> $byBrand
+     * @return array{series: array<int, array{slug: string, label: string, color: string, points: array<int, array{date: string, short: string, price: float}>}>, days: int, date_range: string, has_history: bool}
+     */
+    private static function buildChartSeries(array $template, array $brands, array $byBrand, int $days): array
+    {
+        $labels = Gold::brands();
+        $series = [];
+        $firstDate = '';
+        $lastDate = '';
+
+        foreach ($brands as $slug) {
+            $rows = $byBrand[$slug] ?? [];
+
+            // Newest first in the table, so reverse to oldest
+            // first and keep only the last N days.
+            $rows = array_reverse($rows);
+            $rows = array_slice($rows, -$days);
+
+            if (count($rows) < 2) {
+                continue;
+            }
+
+            $points = array_map(static fn(array $row): array => [
+                'date' => $row['date'],
+                'short' => date_i18n('D d', strtotime($row['date'])),
+                'price' => (float) $row['price'],
+            ], $rows);
+
+            $series[] = [
+                'slug' => $slug,
+                'label' => $labels[$slug] ?? $slug,
+                'color' => self::chartColorFor($slug, $template),
+                'points' => $points,
+            ];
+
+            $first = $points[0]['date'];
+            $last = $points[count($points) - 1]['date'];
+            $firstDate = $firstDate === '' || $first < $firstDate ? $first : $firstDate;
+            $lastDate = $last > $lastDate ? $last : $lastDate;
+        }
+
+        return [
+            'series' => $series,
+            'days' => $days,
+            'date_range' => $firstDate !== '' && $lastDate !== ''
+                ? ($firstDate === $lastDate
+                    ? date_i18n(get_option('date_format'), strtotime($firstDate))
+                    : date_i18n('j F Y', strtotime($firstDate)) . ' - ' . date_i18n('j F Y', strtotime($lastDate)))
+                : '',
+            'has_history' => $series !== [],
+        ];
+    }
+
+    /**
      * The preview endpoint (kk_data_desk_preview): renders one
      * template's preview HTML for the current form values. Either
      * a saved template id (`template`) or the raw form fields
@@ -666,6 +968,14 @@ final class DataDesk
                 'headers' => self::headersFromFields($raw),
                 'hidden_blocks' => self::hiddenBlocksFromFields($raw),
                 'placeholders' => self::placeholdersFromFields($raw),
+                'table_style' => self::sanitizeTableStyle($raw['table_style'] ?? self::DEFAULT_TABLE_STYLE),
+                'title_display' => self::sanitizeTitleDisplay($raw['title_display'] ?? self::DEFAULT_TITLE_DISPLAY),
+                'font_size' => self::sanitizeFontSize($raw['font_size'] ?? self::DEFAULT_FONT_SIZE),
+                'cell_padding' => self::sanitizeCellPadding($raw['cell_padding'] ?? self::DEFAULT_CELL_PADDING),
+                'chart_animate' => !isset($raw['chart_animate']) || (string) $raw['chart_animate'] !== '0',
+                'chart_colors' => self::chartColorsFromFields($raw),
+                'header_bg' => self::sanitizeHexColor($raw['header_bg'] ?? ''),
+                'header_text' => self::sanitizeHexColor($raw['header_text'] ?? ''),
             ];
             $template = self::sanitizeTemplate('', $template);
 
@@ -683,7 +993,7 @@ final class DataDesk
      * kk_template_brands[]) or as a comma-separated list (AJAX).
      *
      * @param array<string, mixed> $raw
-     * @return array{name: string, kind: string, symbol: string, brands: array<int, string>, palette: string, days: int, title: string, kicker: string, date_line: string, stats: array<string, array{label: string, sub: string}>, headers: array<string, string>, hidden_blocks: array<int, string>, placeholders: array{date_format: string, percent: string, zone_color: string}}
+     * @return array{name: string, kind: string, symbol: string, brands: array<int, string>, palette: string, days: int, title: string, kicker: string, date_line: string, stats: array<string, array{label: string, sub: string}>, headers: array<string, string>, hidden_blocks: array<int, string>, placeholders: array{date_format: string, percent: string, zone_color: string}, table_style: string, title_display: string, font_size: int, cell_padding: int, chart_animate: bool, chart_colors: array<string, string>, header_bg: string, header_text: string}}
      */
     public static function templateDataFromRequest(array $raw): array
     {
@@ -708,6 +1018,17 @@ final class DataDesk
             'headers' => self::headersFromFields($raw, 'kk_template_'),
             'hidden_blocks' => self::hiddenBlocksFromFields($raw, 'kk_template_'),
             'placeholders' => self::placeholdersFromFields($raw, 'kk_template_'),
+            'table_style' => self::sanitizeTableStyle($raw['kk_template_table_style'] ?? self::DEFAULT_TABLE_STYLE),
+            'title_display' => self::sanitizeTitleDisplay($raw['kk_template_title_display'] ?? self::DEFAULT_TITLE_DISPLAY),
+            'font_size' => self::sanitizeFontSize($raw['kk_template_font_size'] ?? self::DEFAULT_FONT_SIZE),
+            'cell_padding' => self::sanitizeCellPadding($raw['kk_template_cell_padding'] ?? self::DEFAULT_CELL_PADDING),
+            // A checkbox: present when checked, absent when not.
+            // The AJAX save sends the whole form, so the same
+            // rule holds there.
+            'chart_animate' => isset($raw['kk_template_chart_animate']),
+            'chart_colors' => self::chartColorsFromFields($raw, 'kk_template_'),
+            'header_bg' => self::sanitizeHexColor($raw['kk_template_header_bg'] ?? ''),
+            'header_text' => self::sanitizeHexColor($raw['kk_template_header_text'] ?? ''),
         ];
     }
 
@@ -779,6 +1100,32 @@ final class DataDesk
         }
 
         return $headers;
+    }
+
+    /**
+     * The per-brand chart line colours out of a form submission:
+     * one flat `chart_color_{slug}` field per brand. Empty or
+     * invalid means "use the palette default". $prefix is the
+     * form's field prefix ('kk_template_' for the save POST, ''
+     * for the AJAX refresh params) - the same shape as
+     * headersFromFields().
+     *
+     * @param array<string, mixed> $raw
+     * @return array<string, string>
+     */
+    public static function chartColorsFromFields(array $raw, string $prefix = ''): array
+    {
+        $colors = [];
+
+        foreach (Gold::brands() as $slug => $label) {
+            $color = self::sanitizeHexColor($raw[$prefix . 'chart_color_' . $slug] ?? '');
+
+            if ($color !== '') {
+                $colors[$slug] = $color;
+            }
+        }
+
+        return $colors;
     }
 
     /**
@@ -855,7 +1202,7 @@ final class DataDesk
      * it stores an override under its id, and Restore deletes that
      * override - the built-in itself is never deleted.
      *
-     * @return array{id: string, name: string, kind: string, symbol: string, brands: array<int, string>, palette: string, days: int, title: string, kicker: string, date_line: string, stats: array<string, array{label: string, sub: string}>, headers: array<string, string>, hidden_blocks: array<int, string>, placeholders: array{date_format: string, percent: string, zone_color: string}}
+     * @return array{id: string, name: string, kind: string, symbol: string, brands: array<int, string>, palette: string, days: int, title: string, kicker: string, date_line: string, stats: array<string, array{label: string, sub: string}>, headers: array<string, string>, hidden_blocks: array<int, string>, placeholders: array{date_format: string, percent: string, zone_color: string}, table_style: string, title_display: string, font_size: int, cell_padding: int, chart_animate: bool, chart_colors: array<string, string>, header_bg: string, header_text: string}}
      */
     public static function defaultTemplate(): array
     {
@@ -874,6 +1221,14 @@ final class DataDesk
             'headers' => self::sanitizeHeaders([]),
             'hidden_blocks' => [],
             'placeholders' => self::sanitizePlaceholders([]),
+            'table_style' => self::DEFAULT_TABLE_STYLE,
+            'title_display' => self::DEFAULT_TITLE_DISPLAY,
+            'font_size' => self::DEFAULT_FONT_SIZE,
+            'cell_padding' => self::DEFAULT_CELL_PADDING,
+            'chart_animate' => true,
+            'chart_colors' => [],
+            'header_bg' => '',
+            'header_text' => '',
         ];
     }
 
@@ -891,7 +1246,7 @@ final class DataDesk
      * editing it stores an override under its id, and Restore
      * deletes that override - the built-in itself is never deleted.
      *
-     * @return array{id: string, name: string, kind: string, symbol: string, brands: array<int, string>, palette: string, days: int, title: string, kicker: string, date_line: string, stats: array<string, array{label: string, sub: string}>, headers: array<string, string>, hidden_blocks: array<int, string>, placeholders: array{date_format: string, percent: string, zone_color: string}}
+     * @return array{id: string, name: string, kind: string, symbol: string, brands: array<int, string>, palette: string, days: int, title: string, kicker: string, date_line: string, stats: array<string, array{label: string, sub: string}>, headers: array<string, string>, hidden_blocks: array<int, string>, placeholders: array{date_format: string, percent: string, zone_color: string}, table_style: string, title_display: string, font_size: int, cell_padding: int, chart_animate: bool, chart_colors: array<string, string>, header_bg: string, header_text: string}}
      */
     public static function antamTemplate(): array
     {
@@ -914,6 +1269,14 @@ final class DataDesk
             'headers' => self::sanitizeHeaders([]),
             'hidden_blocks' => [],
             'placeholders' => self::sanitizePlaceholders([]),
+            'table_style' => self::DEFAULT_TABLE_STYLE,
+            'title_display' => self::DEFAULT_TITLE_DISPLAY,
+            'font_size' => self::DEFAULT_FONT_SIZE,
+            'cell_padding' => self::DEFAULT_CELL_PADDING,
+            'chart_animate' => true,
+            'chart_colors' => [],
+            'header_bg' => '',
+            'header_text' => '',
         ];
     }
 
@@ -942,7 +1305,7 @@ final class DataDesk
      * template's override - it replaces the code-defined values
      * with the user's edited ones.
      *
-     * @return array<string, array{id: string, name: string, kind: string, symbol: string, brands: array<int, string>, palette: string, days: int, title: string, kicker: string, date_line: string, stats: array<string, array{label: string, sub: string}>, headers: array<string, string>, hidden_blocks: array<int, string>, placeholders: array{date_format: string, percent: string, zone_color: string}}>
+     * @return array<string, array{id: string, name: string, kind: string, symbol: string, brands: array<int, string>, palette: string, days: int, title: string, kicker: string, date_line: string, stats: array<string, array{label: string, sub: string}>, headers: array<string, string>, hidden_blocks: array<int, string>, placeholders: array{date_format: string, percent: string, zone_color: string}, table_style: string, title_display: string, font_size: int, cell_padding: int, chart_animate: bool, chart_colors: array<string, string>, header_bg: string, header_text: string}}>
      */
     public static function templates(): array
     {
@@ -972,7 +1335,7 @@ final class DataDesk
      * templates(). The widget pickers use this so a panel widget
      * never offers a table template and vice versa.
      *
-     * @return array<string, array{id: string, name: string, kind: string, symbol: string, brands: array<int, string>, palette: string, days: int, title: string, kicker: string, date_line: string, stats: array<string, array{label: string, sub: string}>, headers: array<string, string>, hidden_blocks: array<int, string>, placeholders: array{date_format: string, percent: string, zone_color: string}}>
+     * @return array<string, array{id: string, name: string, kind: string, symbol: string, brands: array<int, string>, palette: string, days: int, title: string, kicker: string, date_line: string, stats: array<string, array{label: string, sub: string}>, headers: array<string, string>, hidden_blocks: array<int, string>, placeholders: array{date_format: string, percent: string, zone_color: string}, table_style: string, title_display: string, font_size: int, cell_padding: int, chart_animate: bool, chart_colors: array<string, string>, header_bg: string, header_text: string}}>
      */
     public static function templatesOfKind(string $kind): array
     {
@@ -989,7 +1352,7 @@ final class DataDesk
      * template of that kind exists. Widgets fall back to this when
      * the template they point at is gone.
      *
-     * @return array{id: string, name: string, kind: string, symbol: string, brands: array<int, string>, palette: string, days: int, title: string, kicker: string, date_line: string, stats: array<string, array{label: string, sub: string}>, headers: array<string, string>, hidden_blocks: array<int, string>, placeholders: array{date_format: string, percent: string, zone_color: string}}|null
+     * @return array{id: string, name: string, kind: string, symbol: string, brands: array<int, string>, palette: string, days: int, title: string, kicker: string, date_line: string, stats: array<string, array{label: string, sub: string}>, headers: array<string, string>, hidden_blocks: array<int, string>, placeholders: array{date_format: string, percent: string, zone_color: string}, table_style: string, title_display: string, font_size: int, cell_padding: int, chart_animate: bool, chart_colors: array<string, string>, header_bg: string, header_text: string}}|null
      */
     public static function firstTemplateOfKind(string $kind): ?array
     {
@@ -1009,7 +1372,7 @@ final class DataDesk
      * stored) has that id. Callers fall back to the first template
      * of the matching kind.
      *
-     * @return array{id: string, name: string, kind: string, symbol: string, brands: array<int, string>, palette: string, days: int, title: string, kicker: string, date_line: string, stats: array<string, array{label: string, sub: string}>, headers: array<string, string>, hidden_blocks: array<int, string>, placeholders: array{date_format: string, percent: string, zone_color: string}}|null
+     * @return array{id: string, name: string, kind: string, symbol: string, brands: array<int, string>, palette: string, days: int, title: string, kicker: string, date_line: string, stats: array<string, array{label: string, sub: string}>, headers: array<string, string>, hidden_blocks: array<int, string>, placeholders: array{date_format: string, percent: string, zone_color: string}, table_style: string, title_display: string, font_size: int, cell_padding: int, chart_animate: bool, chart_colors: array<string, string>, header_bg: string, header_text: string}}|null
      */
     public static function getTemplate(string $id): ?array
     {
@@ -1095,7 +1458,7 @@ final class DataDesk
      * the enabled brands so a disabled brand never renders.
      *
      * @param array<string, mixed> $row
-     * @return array{id: string, name: string, kind: string, symbol: string, brands: array<int, string>, palette: string, days: int, title: string, kicker: string, date_line: string, stats: array<string, array{label: string, sub: string}>, headers: array<string, string>, hidden_blocks: array<int, string>, placeholders: array{date_format: string, percent: string, zone_color: string}}
+     * @return array{id: string, name: string, kind: string, symbol: string, brands: array<int, string>, palette: string, days: int, title: string, kicker: string, date_line: string, stats: array<string, array{label: string, sub: string}>, headers: array<string, string>, hidden_blocks: array<int, string>, placeholders: array{date_format: string, percent: string, zone_color: string}, table_style: string, title_display: string, font_size: int, cell_padding: int, chart_animate: bool, chart_colors: array<string, string>, header_bg: string, header_text: string}}
      */
     private static function sanitizeTemplate(string $id, array $row): array
     {
@@ -1121,6 +1484,14 @@ final class DataDesk
                 ? array_values(array_intersect(array_map('sanitize_key', $row['hidden_blocks']), self::STAT_BLOCKS))
                 : [],
             'placeholders' => self::sanitizePlaceholders($row['placeholders'] ?? []),
+            'table_style' => self::sanitizeTableStyle($row['table_style'] ?? self::DEFAULT_TABLE_STYLE),
+            'title_display' => self::sanitizeTitleDisplay($row['title_display'] ?? self::DEFAULT_TITLE_DISPLAY),
+            'font_size' => self::sanitizeFontSize($row['font_size'] ?? self::DEFAULT_FONT_SIZE),
+            'cell_padding' => self::sanitizeCellPadding($row['cell_padding'] ?? self::DEFAULT_CELL_PADDING),
+            'chart_animate' => !isset($row['chart_animate']) || (bool) $row['chart_animate'],
+            'chart_colors' => self::sanitizeChartColors($row['chart_colors'] ?? []),
+            'header_bg' => self::sanitizeHexColor($row['header_bg'] ?? ''),
+            'header_text' => self::sanitizeHexColor($row['header_text'] ?? ''),
         ];
     }
 
