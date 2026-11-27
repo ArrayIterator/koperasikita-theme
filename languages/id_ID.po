@@ -4381,8 +4381,39 @@ msgid "Placeholders"
 msgstr "Placeholder"
 
 #: inc/Admin/DataDeskTemplatesPage.php
-msgid "Placeholders resolve from the panel's own data. Click the date line or a stat note in the preview first, then Insert, otherwise the placeholder goes into the date line. The title's {label} and {day} work here too."
-msgstr "Placeholder diisi dari data panel itu sendiri. Klik baris tanggal atau catatan stat pada pratinjau dulu, lalu Sisipkan; kalau tidak, placeholder masuk ke baris tanggal. {label} dan {day} milik judul juga bisa dipakai di sini."
+msgid "Placeholders resolve from the panel's own data. Insert opens a popup showing what the placeholder resolves to - pick the field it goes into. You can also right-click a title, date line or stat note, or type { while editing one. The title takes {label} and {day} only."
+msgstr "Placeholder diisi dari data panel itu sendiri. Insert membuka popup yang menunjukkan nilai placeholder tersebut - pilih kolom tujuannya. Anda juga bisa klik kanan pada judul, baris tanggal, atau catatan stat, atau ketik { saat mengeditnya. Judul hanya menerima {label} dan {day}."
+
+#: inc/Admin/DataDeskTemplatesPage.php
+msgid "Insert placeholder"
+msgstr "Sisipkan placeholder"
+
+msgid "Insert into"
+msgstr "Sisipkan ke"
+
+msgid "Date line"
+msgstr "Baris tanggal"
+
+msgid "Sell note"
+msgstr "Catatan jual"
+
+msgid "Buyback note"
+msgstr "Catatan buyback"
+
+msgid "Performance note"
+msgstr "Catatan kinerja"
+
+msgid "This placeholder does not resolve in a table template."
+msgstr "Placeholder ini tidak berubah menjadi nilai dalam template tabel."
+
+msgid "Cut"
+msgstr "Potong"
+
+msgid "Copy"
+msgstr "Salin"
+
+msgid "Select all"
+msgstr "Pilih semua"
 
 #: inc/Admin/DataDeskTemplatesPage.php
 msgid "First date of the chart range"
@@ -4395,6 +4426,10 @@ msgstr "Tanggal terakhir rentang grafik"
 #: inc/Admin/DataDeskTemplatesPage.php
 msgid "Last date (today)"
 msgstr "Tanggal terakhir (hari ini)"
+
+#: inc/Admin/DataDeskTemplatesPage.php
+msgid "Year of the last date"
+msgstr "Tahun dari tanggal terakhir"
 
 #: inc/Admin/DataDeskTemplatesPage.php
 msgid "Symbol name"
