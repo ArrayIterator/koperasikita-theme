@@ -791,17 +791,21 @@ function initDataDeskAjaxSave(): void {
 		submit.disabled = true;
 		submit.value = adminStrings().savingTemplate;
 		const formData = new FormData(form);
-		const params: Record<string, string> = {
-			kk_template_id: String(formData.get('kk_template_id') ?? ''),
-			kk_template_name: String(formData.get('kk_template_name') ?? ''),
-			kk_template_kind: String(formData.get('kk_template_kind') ?? ''),
-			kk_template_symbol: String(formData.get('kk_template_symbol') ?? ''),
-			kk_template_palette: String(formData.get('kk_template_palette') ?? ''),
-			kk_template_days: String(formData.get('kk_template_days') ?? ''),
-			kk_template_title: String(formData.get('kk_template_title') ?? ''),
-			kk_template_kicker: String(formData.get('kk_template_kicker') ?? ''),
-			kk_template_brands: formData.getAll('kk_template_brands[]').map(String).join(','),
-		};
+		/* Every field in the form, not a fixed list: the stat
+		 * labels + sub-lines, the table headers, the date line
+		 * and the hidden-blocks list are hidden inputs the save
+		 * must carry, and a fixed list silently dropped them
+		 * (the save reported success while the overrides
+		 * reverted on reload). Brands stay a comma list: the
+		 * shared reader accepts an array or a comma list. */
+		const params: Record<string, string> = {};
+		formData.forEach((value, key) => {
+			if (key === 'kk_template_brands[]' || typeof value !== 'string') {
+				return;
+			}
+			params[key] = value;
+		});
+		params.kk_template_brands = formData.getAll('kk_template_brands[]').map(String).join(',');
 		void postAjax<{ id: string; message: string }>(config, 'kk_data_desk_save_template', params)
 			.then((data) => {
 				idInput.value = data.id;
