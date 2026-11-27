@@ -380,6 +380,9 @@
 	overflow-x: auto;
 	scroll-snap-type: x mandatory;
 	scrollbar-width: none;
+	/* pan-x, same as the highlights rows: a horizontal swipe
+	 * scrolls the row instead of fighting the page scroll. */
+	touch-action: pan-x;
 }
 
 .kk-hero-slider::-webkit-scrollbar {

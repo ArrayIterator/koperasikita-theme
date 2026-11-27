@@ -458,6 +458,8 @@ function initExpandingSearch(): void {
  * hero, one card for highlights). The buttons live in the section
  * head, so the slider is found via the closest section.
  */
+const SLIDER_DRAG_THRESHOLD_PX = 4;
+
 function initSliders(): void {
 	document.querySelectorAll<HTMLElement>('[data-kk-slider]').forEach((slider) => {
 		const section = slider.closest('section');
@@ -466,6 +468,7 @@ function initSliders(): void {
 		}
 		const prev = section.querySelector<HTMLButtonElement>('.kk-slider-prev');
 		const next = section.querySelector<HTMLButtonElement>('.kk-slider-next');
+		let dragging = false;
 		const step = (): number => {
 			const first = slider.firstElementChild as HTMLElement | null;
 			if (!first) {
@@ -482,6 +485,79 @@ function initSliders(): void {
 				slider.scrollBy({ left: step(), behavior: 'smooth' });
 			});
 		}
+		// Drag to scroll: a mouse (or pen) has no native drag-scroll,
+		// so pointer events move the row. Touch keeps the browser's
+		// native scroll with momentum and is left alone - a touch
+		// gesture is cancelled (pointercancel) once the browser takes
+		// it over as a scroll, so engaging only on mouse/pen never
+		// fights it. Capture starts only past the threshold:
+		// capturing on press would retarget the click to the row
+		// and break the card links. A drag that actually moves the
+		// row is not a click, so the card link under the pointer
+		// never opens.
+		let dragged = false;
+		let suppressClick = false;
+		let dragStartX = 0;
+		let dragStartScroll = 0;
+		const endDrag = (): void => {
+			if (!dragging) {
+				return;
+			}
+			dragging = false;
+			slider.classList.remove('is-dragging');
+			if (dragged) {
+				suppressClick = true;
+				window.setTimeout(() => {
+					suppressClick = false;
+				}, 100);
+			}
+		};
+		slider.addEventListener('pointerdown', (event) => {
+			if (event.pointerType !== 'mouse' && event.pointerType !== 'pen') {
+				return;
+			}
+			if (event.button !== 0) {
+				return;
+			}
+			dragging = true;
+			dragged = false;
+			dragStartX = event.clientX;
+			dragStartScroll = slider.scrollLeft;
+		});
+		slider.addEventListener('pointermove', (event) => {
+			if (!dragging) {
+				return;
+			}
+			const dx = event.clientX - dragStartX;
+			if (Math.abs(dx) <= SLIDER_DRAG_THRESHOLD_PX) {
+				return;
+			}
+			if (!slider.classList.contains('is-dragging')) {
+				slider.setPointerCapture(event.pointerId);
+				slider.classList.add('is-dragging');
+			}
+			slider.scrollLeft = dragStartScroll - dx;
+			if (slider.scrollLeft !== dragStartScroll) {
+				dragged = true;
+			}
+		});
+		slider.addEventListener('pointerup', endDrag);
+		slider.addEventListener('pointercancel', endDrag);
+		slider.addEventListener(
+			'click',
+			(event) => {
+				if (!suppressClick) {
+					return;
+				}
+				suppressClick = false;
+				event.preventDefault();
+				event.stopPropagation();
+			},
+			true,
+		);
+		slider.addEventListener('dragstart', (event) => {
+			event.preventDefault();
+		});
 		// Auto slide: data-kk-auto-slide="ms" advances one step on a
 		// timer and loops back to the start; pauses while the
 		// pointer is over the slider so it can be read.
@@ -489,7 +565,7 @@ function initSliders(): void {
 		if (autoMs >= 1000) {
 			let paused = false;
 			const advance = (): void => {
-				if (paused || document.hidden) {
+				if (paused || dragging || document.hidden) {
 					return;
 				}
 				const max = slider.scrollWidth - slider.clientWidth;
