@@ -702,20 +702,6 @@ final class Customizer
             'taxonomy' => 'post_tag',
         ]));
 
-        self::addSetting(
-            $wpCustomize,
-            'kk_latest_count',
-            10,
-            static fn ($value) => self::clampInt($value, 5, 20),
-            'refresh'
-        );
-        $wpCustomize->add_control('kk_latest_count', [
-            'label' => esc_html__('Latest Posts', 'koperasikita'),
-            'section' => 'koperasikita_homepage',
-            'type' => 'number',
-            'input_attrs' => ['min' => 5, 'max' => 20],
-        ]);
-
         /* Latest-news heading: an editable title and eyebrow for the
          * Latest News section (was a hardcoded "Latest News"). */
         self::addSetting(

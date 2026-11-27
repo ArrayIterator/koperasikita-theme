@@ -1,12 +1,15 @@
 <?php
 /**
- * Latest news: list or grid per kk_homepage_layout, kk_latest_count posts.
+ * Latest news: list or grid per kk_homepage_layout, showing the
+ * Reading Settings post count (posts_per_page), the same number
+ * archives use.
  *
  * @package KoperasiKita
  */
 
-$latest_count = (int) get_theme_mod( 'kk_latest_count', 10 );
-$latest_count = max( 1, $latest_count );
+/* The count comes from Reading Settings, not a Customizer setting:
+ * the homepage grid must show the number the user sets there. */
+$latest_count = max( 1, (int) get_option( 'posts_per_page', 10 ) );
 
 /* The homepage is a static front page, so the current page lives
  * in the `page` query var (not `paged`, which is for the posts
