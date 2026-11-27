@@ -61,13 +61,19 @@ $showTime = (bool) ($args['show_time'] ?? true);
                     $timeLabel = $isToday
                         ? date_i18n('H.i', $timestamp) . ' ' . date_i18n('T', $timestamp)
                         : get_the_date('', $post);
+                    // The excerpt is generated from the post content
+                    // when the author wrote no manual excerpt, so
+                    // gating on has_excerpt() hid it for most posts.
+                    // Follow the card templates: show the generated
+                    // excerpt whenever one exists.
+                    $excerpt = trim((string) get_the_excerpt($post));
                     ?>
                     <article class="kk-category-summary-item">
                         <h3 class="kk-category-summary-item-title">
                             <a href="<?php echo esc_url((string) get_permalink($post)); ?>"><?php echo esc_html((string) get_the_title($post)); ?></a>
                         </h3>
-                        <?php if ($showExcerpt && has_excerpt($post)) : ?>
-                            <p class="kk-category-summary-item-excerpt"><?php echo esc_html((string) get_the_excerpt($post)); ?></p>
+                        <?php if ($showExcerpt && $excerpt !== '') : ?>
+                            <p class="kk-category-summary-item-excerpt"><?php echo esc_html($excerpt); ?></p>
                         <?php endif; ?>
                         <?php if ($showTime) : ?>
                             <time class="kk-category-summary-item-time" datetime="<?php echo esc_attr($timestamp !== false ? date_i18n('c', $timestamp) : ''); ?>"><?php echo esc_html($timeLabel); ?></time>
