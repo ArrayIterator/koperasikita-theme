@@ -51,6 +51,18 @@ interface AdminStrings {
 	editDateLineHint: string;
 	editStatHint: string;
 	editHeaderHint: string;
+	insertResolvesTo: string;
+	insertInto: string;
+	insertTargetDateLine: string;
+	insertTargetTitle: string;
+	insertTargetSellNote: string;
+	insertTargetBuybackNote: string;
+	insertTargetPerformanceNote: string;
+	insertNoTableTarget: string;
+	insertConfirm: string;
+	menuCut: string;
+	menuCopy: string;
+	menuSelectAll: string;
 	close: string;
 	searching: string;
 	noResults: string;
@@ -122,6 +134,18 @@ const FALLBACK_STRINGS: AdminStrings = {
 	editDateLineHint: 'Click to edit the date line.',
 	editStatHint: 'Click to edit this stat.',
 	editHeaderHint: 'Click to edit this header.',
+	insertResolvesTo: 'Resolves to',
+	insertInto: 'Insert into',
+	insertTargetDateLine: 'Date line',
+	insertTargetTitle: 'Title',
+	insertTargetSellNote: 'Sell note',
+	insertTargetBuybackNote: 'Buyback note',
+	insertTargetPerformanceNote: 'Performance note',
+	insertNoTableTarget: 'This placeholder does not resolve in a table template.',
+	insertConfirm: 'Insert',
+	menuCut: 'Cut',
+	menuCopy: 'Copy',
+	menuSelectAll: 'Select all',
 	close: 'Close',
 	searching: 'Searching...',
 	noResults: 'No results.',
@@ -161,6 +185,18 @@ function adminStrings(): AdminStrings {
 		editDateLineHint: strings?.editDateLineHint ?? FALLBACK_STRINGS.editDateLineHint,
 		editStatHint: strings?.editStatHint ?? FALLBACK_STRINGS.editStatHint,
 		editHeaderHint: strings?.editHeaderHint ?? FALLBACK_STRINGS.editHeaderHint,
+		insertResolvesTo: strings?.insertResolvesTo ?? FALLBACK_STRINGS.insertResolvesTo,
+		insertInto: strings?.insertInto ?? FALLBACK_STRINGS.insertInto,
+		insertTargetDateLine: strings?.insertTargetDateLine ?? FALLBACK_STRINGS.insertTargetDateLine,
+		insertTargetTitle: strings?.insertTargetTitle ?? FALLBACK_STRINGS.insertTargetTitle,
+		insertTargetSellNote: strings?.insertTargetSellNote ?? FALLBACK_STRINGS.insertTargetSellNote,
+		insertTargetBuybackNote: strings?.insertTargetBuybackNote ?? FALLBACK_STRINGS.insertTargetBuybackNote,
+		insertTargetPerformanceNote: strings?.insertTargetPerformanceNote ?? FALLBACK_STRINGS.insertTargetPerformanceNote,
+		insertNoTableTarget: strings?.insertNoTableTarget ?? FALLBACK_STRINGS.insertNoTableTarget,
+		insertConfirm: strings?.insertConfirm ?? FALLBACK_STRINGS.insertConfirm,
+		menuCut: strings?.menuCut ?? FALLBACK_STRINGS.menuCut,
+		menuCopy: strings?.menuCopy ?? FALLBACK_STRINGS.menuCopy,
+		menuSelectAll: strings?.menuSelectAll ?? FALLBACK_STRINGS.menuSelectAll,
 		searching: strings?.searching ?? FALLBACK_STRINGS.searching,
 		noResults: strings?.noResults ?? FALLBACK_STRINGS.noResults,
 		showingOf: strings?.showingOf ?? FALLBACK_STRINGS.showingOf,
@@ -557,8 +593,15 @@ function initDataDeskPreview(): void {
 			for (const [key, input] of Object.entries(headerInputs)) {
 				params[`header_${key}`] = input.value;
 			}
-			container.classList.add('is-loading');
-			status.textContent = adminStrings().loadingPreview;
+			/* Quiet refresh: the loading dim + status line only
+			 * appear when the request actually takes a while, so
+			 * a fast focusout refresh never flashes the preview
+			 * or shifts the page below it. */
+			let slowTimer: number | null = null;
+			slowTimer = window.setTimeout(() => {
+				container.classList.add('is-loading');
+				status.textContent = adminStrings().loadingPreview;
+			}, 500);
 			void postAjax<{ html: string }>(config, 'kk_data_desk_preview', params)
 				.then((data) => {
 					container.innerHTML = data.html;
@@ -572,6 +615,10 @@ function initDataDeskPreview(): void {
 					status.textContent = errorMessage(error);
 				})
 				.finally(() => {
+					if (slowTimer !== null) {
+						window.clearTimeout(slowTimer);
+						slowTimer = null;
+					}
 					container.classList.remove('is-loading');
 				});
 		}, 300);
@@ -616,6 +663,8 @@ function initDataDeskPreview(): void {
 		if (!editing) {
 			return;
 		}
+		closePlaceholderMenu();
+		closePlaceholderSuggest();
 		const el = editing;
 		editing = null;
 		const field = fieldForEdit(el);
@@ -731,9 +780,10 @@ function initDataDeskPreview(): void {
 	/* Placeholders: the section under the preview lists the tokens
 	 * with an Insert button each, and the settings popup holds the
 	 * three choices (date format, percent type, zone colour).
-	 * Insert goes into the text being edited inline, or into the
-	 * date line when nothing is. A choice writes into its hidden
-	 * field and refreshes the preview at once. */
+	 * Insert opens a popup (see below) that shows what the token
+	 * resolves to and asks which field it goes into, instead of
+	 * inserting blindly. A choice writes into its hidden field
+	 * and refreshes the preview at once. */
 	const placeholderSection = document.getElementById('kk-data-desk-placeholders');
 	const placeholderPopup = document.getElementById('kk-data-desk-placeholders-popup');
 	if (placeholderSection && placeholderPopup) {
@@ -746,34 +796,6 @@ function initDataDeskPreview(): void {
 			placeholderOpener?.focus();
 			placeholderOpener = null;
 		};
-		placeholderSection.querySelectorAll<HTMLButtonElement>('[data-kk-placeholder-insert]').forEach((button) => {
-			button.addEventListener('mousedown', (event) => {
-				/* Keep the focus (and selection) in the text being
-				 * edited: a plain click would blur it first and the
-				 * edit would commit before the token lands. */
-				event.preventDefault();
-				const token = button.getAttribute('data-kk-placeholder-insert') ?? '';
-				if (token === '') {
-					return;
-				}
-				if (editing) {
-					const selection = window.getSelection();
-					if (selection && selection.rangeCount > 0) {
-						const range = selection.getRangeAt(0);
-						range.deleteContents();
-						range.insertNode(document.createTextNode(token));
-						range.collapse(false);
-						selection.removeAllRanges();
-						selection.addRange(range);
-					} else {
-						editing.append(document.createTextNode(token));
-					}
-					return;
-				}
-				dateLine.value = dateLine.value === '' ? token : `${dateLine.value} ${token}`;
-				refresh();
-			});
-		});
 		placeholderSection.querySelector('[data-kk-placeholder-configure]')?.addEventListener('click', (event) => {
 			placeholderOpener = event.currentTarget as HTMLElement;
 			placeholderPopup.hidden = false;
@@ -798,6 +820,716 @@ function initDataDeskPreview(): void {
 		placeholderChoice('kk_placeholder_date_format_ui', placeholderDateFormat);
 		placeholderChoice('kk_placeholder_percent_ui', placeholderPercent);
 		placeholderChoice('kk_placeholder_zone_color_ui', placeholderZoneColor);
+	}
+	/* Placeholder menu + autocomplete on the capable fields only:
+	 * the title ({label} and {day}), the date line and the stat
+	 * notes (all tokens). The kicker, stat labels and table
+	 * headers resolve no tokens, so no menu or list ever opens
+	 * on them. The token list comes from the Placeholders card
+	 * table on this page (token + resolved sample per row), so
+	 * there is no second list to drift; {day} is title-only and
+	 * is not in that table, its sample is the days field. */
+	interface PlaceholderToken {
+		token: string;
+		sample: string;
+	}
+	type PlaceholderMenuTarget = { kind: 'editable'; el: HTMLElement; isTitle: boolean };
+	type PlaceholderSuggestTarget = { kind: 'editable'; el: HTMLElement };
+	const placeholderMenu = document.createElement('div');
+	placeholderMenu.className = 'kk-data-desk-placeholder-menu';
+	placeholderMenu.setAttribute('role', 'menu');
+	placeholderMenu.hidden = true;
+	placeholderMenu.addEventListener('contextmenu', (event) => {
+		event.preventDefault();
+	});
+	document.body.append(placeholderMenu);
+	const placeholderSuggest = document.createElement('div');
+	placeholderSuggest.className = 'kk-data-desk-placeholder-suggest';
+	placeholderSuggest.setAttribute('role', 'listbox');
+	placeholderSuggest.hidden = true;
+	placeholderSuggest.addEventListener('contextmenu', (event) => {
+		event.preventDefault();
+	});
+	document.body.append(placeholderSuggest);
+	let menuTarget: PlaceholderMenuTarget | null = null;
+	let suggestTarget: PlaceholderSuggestTarget | null = null;
+	let suggestItems: PlaceholderToken[] = [];
+	let suggestActive = 0;
+	let longPressTimer: number | null = null;
+	let longPressPoint: { x: number; y: number } | null = null;
+	const readPlaceholderTokens = (): PlaceholderToken[] => {
+		const tokens: PlaceholderToken[] = [];
+		if (!placeholderSection) {
+			return tokens;
+		}
+		placeholderSection.querySelectorAll('tbody tr').forEach((row) => {
+			const token = row.querySelector('code')?.textContent?.trim() ?? '';
+			const sample = row.children.length > 2 ? row.children[2].textContent?.trim() ?? '' : '';
+			if (token !== '') {
+				tokens.push({ token, sample });
+			}
+		});
+		return tokens;
+	};
+	const tokensForField = (isTitle: boolean): PlaceholderToken[] => {
+		const all = readPlaceholderTokens();
+		if (!isTitle) {
+			return all;
+		}
+		const tokens: PlaceholderToken[] = [];
+		const label = all.find((entry) => entry.token === '{label}');
+		if (label) {
+			tokens.push(label);
+		}
+		tokens.push({ token: '{day}', sample: days.value });
+		return tokens;
+	};
+	const filterTokens = (tokens: PlaceholderToken[], prefix: string): PlaceholderToken[] => {
+		const needle = prefix.toLowerCase();
+		return tokens.filter((entry) => entry.token.slice(1, -1).toLowerCase().startsWith(needle));
+	};
+	const capableInlineTarget = (el: HTMLElement | null): { el: HTMLElement; isTitle: boolean } | null => {
+		if (!el) {
+			return null;
+		}
+		if (el.classList.contains('kk-data-desk-title')) {
+			return { el, isTitle: true };
+		}
+		if (el.classList.contains('kk-data-desk-subtitle') && el.hasAttribute('data-kk-date-line')) {
+			return { el, isTitle: false };
+		}
+		const statField = el.getAttribute('data-kk-stat-field');
+		if (el.classList.contains('kk-data-desk-stat-note') && statField && statField.endsWith('-sub')) {
+			return { el, isTitle: false };
+		}
+		return null;
+	};
+	const placeCaretAtPoint = (target: HTMLElement, x: number, y: number): void => {
+		const selection = window.getSelection();
+		if (!selection) {
+			return;
+		}
+		let range = document.caretRangeFromPoint(x, y);
+		if (!range) {
+			const position = document.caretPositionFromPoint(x, y);
+			if (position) {
+				range = document.createRange();
+				range.setStart(position.offsetNode, position.offset);
+				range.collapse(true);
+			}
+		}
+		if (range && target.contains(range.startContainer)) {
+			/* A right-click inside the current selection keeps
+			 * it, so Cut / Copy act on what the user selected
+			 * instead of on a caret the click just placed. */
+			if (!selection.isCollapsed && selection.rangeCount > 0) {
+				const selected = selection.getRangeAt(0);
+				if (selected.isPointInRange(range.startContainer, range.startOffset)) {
+					return;
+				}
+			}
+			range.collapse(true);
+			selection.removeAllRanges();
+			selection.addRange(range);
+			return;
+		}
+		const end = document.createRange();
+		end.selectNodeContents(target);
+		end.collapse(false);
+		selection.removeAllRanges();
+		selection.addRange(end);
+	};
+	const beginInlineEdit = (target: HTMLElement, atPoint: { x: number; y: number } | null): void => {
+		/* A pending refresh would replace the node mid-edit. */
+		if (timer !== null) {
+			window.clearTimeout(timer);
+			timer = null;
+		}
+		if (editing) {
+			finishEdit(true);
+		}
+		editing = target;
+		editingOriginal = target.textContent ?? '';
+		target.setAttribute('contenteditable', 'true');
+		target.classList.add('is-editing');
+		target.focus();
+		if (atPoint) {
+			placeCaretAtPoint(target, atPoint.x, atPoint.y);
+		} else {
+			window.getSelection()?.selectAllChildren(target);
+		}
+	};
+	const prefixRangeInEditable = (el: HTMLElement): { range: Range; prefix: string } | null => {
+		const selection = window.getSelection();
+		if (!selection || selection.rangeCount === 0) {
+			return null;
+		}
+		const caret = selection.getRangeAt(0);
+		if (!caret.collapsed || !el.contains(caret.startContainer)) {
+			return null;
+		}
+		const before = document.createRange();
+		before.selectNodeContents(el);
+		before.setEnd(caret.startContainer, caret.startOffset);
+		const textBefore = before.toString();
+		const match = /\{([A-Za-z0-9_]*)$/.exec(textBefore);
+		if (!match) {
+			return null;
+		}
+		const tokenStart = textBefore.length - match[0].length;
+		const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
+		let seen = 0;
+		let current = walker.nextNode() as Text | null;
+		while (current) {
+			if (seen + current.length >= tokenStart) {
+				const range = document.createRange();
+				range.setStart(current, tokenStart - seen);
+				range.setEnd(caret.startContainer, caret.startOffset);
+				return { range, prefix: match[1] };
+			}
+			seen += current.length;
+			current = walker.nextNode() as Text | null;
+		}
+		return null;
+	};
+	/* A pick replaces a half-typed "{prefix" at the caret instead
+	 * of leaving it in front of the token; with no prefix it
+	 * replaces the selection, like the Insert buttons. */
+	const insertTokenAtCaret = (token: string): void => {
+		if (!editing) {
+			return;
+		}
+		const selection = window.getSelection();
+		const prefixed = prefixRangeInEditable(editing);
+		if (prefixed && selection) {
+			prefixed.range.deleteContents();
+			prefixed.range.insertNode(document.createTextNode(token));
+			prefixed.range.collapse(false);
+			selection.removeAllRanges();
+			selection.addRange(prefixed.range);
+			return;
+		}
+		if (selection && selection.rangeCount > 0) {
+			const range = selection.getRangeAt(0);
+			if (editing.contains(range.commonAncestorContainer)) {
+				range.deleteContents();
+				range.insertNode(document.createTextNode(token));
+				range.collapse(false);
+				selection.removeAllRanges();
+				selection.addRange(range);
+				return;
+			}
+		}
+		editing.append(document.createTextNode(token));
+	};
+	const closePlaceholderMenu = (): void => {
+		if (placeholderMenu.hidden) {
+			return;
+		}
+		placeholderMenu.hidden = true;
+		menuTarget = null;
+	};
+	const closePlaceholderSuggest = (): void => {
+		if (placeholderSuggest.hidden) {
+			return;
+		}
+		placeholderSuggest.hidden = true;
+		suggestTarget = null;
+		suggestItems = [];
+	};
+	const showPopoverAt = (el: HTMLElement, x: number, y: number): void => {
+		el.style.left = `${x}px`;
+		el.style.top = `${y}px`;
+		el.hidden = false;
+		const rect = el.getBoundingClientRect();
+		el.style.left = `${Math.max(8, Math.min(x, window.innerWidth - rect.width - 8))}px`;
+		el.style.top = `${Math.max(8, Math.min(y, window.innerHeight - rect.height - 8))}px`;
+	};
+	const placeholderItemButton = (
+		entry: PlaceholderToken,
+		itemClass: string,
+		sampleClass: string,
+		role: string,
+		onPick: (token: string) => void,
+	): HTMLButtonElement => {
+		const item = document.createElement('button');
+		item.type = 'button';
+		item.className = itemClass;
+		item.setAttribute('role', role);
+		const code = document.createElement('code');
+		code.textContent = entry.token;
+		const sample = document.createElement('span');
+		sample.className = sampleClass;
+		sample.textContent = entry.sample;
+		item.append(code, sample);
+		item.addEventListener('mousedown', (event) => {
+			/* Keep the focus (and selection) in the field: a plain
+			 * click would blur it first and the edit would commit
+			 * before the token lands. */
+			event.preventDefault();
+			event.stopPropagation();
+			onPick(entry.token);
+		});
+		return item;
+	};
+	const copyText = (text: string): void => {
+		if (text === '') {
+			return;
+		}
+		/* The async clipboard API is the current way to write; the
+		 * old execCommand path covers browsers that refuse it. */
+		if (navigator.clipboard?.writeText) {
+			navigator.clipboard.writeText(text).catch(() => {
+				document.execCommand('copy');
+			});
+			return;
+		}
+		document.execCommand('copy');
+	};
+	const menuHasSelection = (target: PlaceholderMenuTarget): boolean => {
+		const selection = window.getSelection();
+		if (!selection || selection.rangeCount === 0 || selection.isCollapsed) {
+			return false;
+		}
+		return target.el.contains(selection.getRangeAt(0).commonAncestorContainer);
+	};
+	const menuActionButton = (label: string, action: 'cut' | 'copy' | 'select-all', disabled: boolean): HTMLButtonElement => {
+		const item = document.createElement('button');
+		item.type = 'button';
+		item.className = 'kk-data-desk-placeholder-menu-item';
+		item.setAttribute('role', 'menuitem');
+		item.textContent = label;
+		item.disabled = disabled;
+		item.addEventListener('mousedown', (event) => {
+			event.preventDefault();
+			event.stopPropagation();
+			runMenuAction(action);
+		});
+		return item;
+	};
+	const runMenuAction = (action: 'cut' | 'copy' | 'select-all'): void => {
+		const target = menuTarget;
+		closePlaceholderMenu();
+		if (!target) {
+			return;
+		}
+		const el = target.el;
+		if (action === 'select-all') {
+			window.getSelection()?.selectAllChildren(el);
+			el.focus();
+			return;
+		}
+		const selection = window.getSelection();
+		if (!selection || selection.rangeCount === 0 || selection.isCollapsed) {
+			return;
+		}
+		const range = selection.getRangeAt(0);
+		if (!el.contains(range.commonAncestorContainer)) {
+			return;
+		}
+		copyText(selection.toString());
+		if (action === 'cut') {
+			range.deleteContents();
+			range.collapse(true);
+		}
+		el.focus();
+	};
+	const pickMenuToken = (token: string): void => {
+		const target = menuTarget;
+		closePlaceholderMenu();
+		if (!target) {
+			return;
+		}
+		if (editing === target.el) {
+			insertTokenAtCaret(token);
+			target.el.focus();
+			return;
+		}
+		/* The edit ended while the menu was open (the node was
+		 * replaced by a refresh): the token still lands, appended
+		 * to the stored text, and the preview re-renders. */
+		const field = fieldForEdit(target.el);
+		if (field) {
+			field.value = field.value === '' ? token : `${field.value} ${token}`;
+			refresh();
+		}
+	};
+	const pickSuggestToken = (token: string): void => {
+		const target = suggestTarget;
+		closePlaceholderSuggest();
+		if (!target) {
+			return;
+		}
+		if (editing === target.el) {
+			insertTokenAtCaret(token);
+			target.el.focus();
+		}
+	};
+	const openPlaceholderMenu = (target: PlaceholderMenuTarget, x: number, y: number): void => {
+		const tokens = tokensForField(target.isTitle);
+		if (tokens.length === 0) {
+			return;
+		}
+		closePlaceholderSuggest();
+		menuTarget = target;
+		placeholderMenu.replaceChildren();
+		/* The native menu is suppressed on these fields, so the
+		 * standard edit actions come first here: Cut and Copy
+		 * act on the selection (disabled with none), Select All
+		 * on the whole field. Paste is left out on purpose: the
+		 * async clipboard read needs a permission the browser
+		 * may prompt for or refuse, and a menu item that
+		 * silently fails is worse than none - Ctrl+V still works. */
+		const hasSelection = menuHasSelection(target);
+		placeholderMenu.append(
+			menuActionButton(adminStrings().menuCut, 'cut', !hasSelection),
+			menuActionButton(adminStrings().menuCopy, 'copy', !hasSelection),
+			menuActionButton(adminStrings().menuSelectAll, 'select-all', false),
+		);
+		const separator = document.createElement('div');
+		separator.className = 'kk-data-desk-placeholder-menu-separator';
+		separator.setAttribute('role', 'separator');
+		placeholderMenu.append(separator);
+		tokens.forEach((entry) => {
+			placeholderMenu.append(
+				placeholderItemButton(entry, 'kk-data-desk-placeholder-menu-item', 'kk-data-desk-placeholder-menu-sample', 'menuitem', pickMenuToken),
+			);
+		});
+		showPopoverAt(placeholderMenu, x, y);
+	};
+	const markSuggestActive = (): void => {
+		Array.from(placeholderSuggest.children).forEach((child, index) => {
+			child.classList.toggle('is-active', index === suggestActive);
+			child.setAttribute('aria-selected', index === suggestActive ? 'true' : 'false');
+		});
+	};
+	const showSuggest = (items: PlaceholderToken[], anchor: DOMRect): void => {
+		closePlaceholderMenu();
+		suggestItems = items;
+		suggestActive = 0;
+		placeholderSuggest.replaceChildren();
+		items.forEach((entry, index) => {
+			const item = placeholderItemButton(entry, 'kk-data-desk-placeholder-suggest-item', 'kk-data-desk-placeholder-suggest-sample', 'option', pickSuggestToken);
+			item.addEventListener('mouseenter', () => {
+				suggestActive = index;
+				markSuggestActive();
+			});
+			placeholderSuggest.append(item);
+		});
+		placeholderSuggest.style.left = `${anchor.left}px`;
+		placeholderSuggest.style.top = `${anchor.bottom + 4}px`;
+		placeholderSuggest.hidden = false;
+		const rect = placeholderSuggest.getBoundingClientRect();
+		let top = anchor.bottom + 4;
+		if (top + rect.height > window.innerHeight - 8) {
+			const above = anchor.top - rect.height - 4;
+			top = above >= 8 ? above : Math.max(8, window.innerHeight - rect.height - 8);
+		}
+		placeholderSuggest.style.left = `${Math.max(8, Math.min(anchor.left, window.innerWidth - rect.width - 8))}px`;
+		placeholderSuggest.style.top = `${top}px`;
+		markSuggestActive();
+	};
+	const caretRect = (): DOMRect | null => {
+		const selection = window.getSelection();
+		if (!selection || selection.rangeCount === 0) {
+			return null;
+		}
+		const range = selection.getRangeAt(0).cloneRange();
+		range.collapse(false);
+		const rect = range.getBoundingClientRect();
+		return rect.height === 0 ? null : rect;
+	};
+	const refreshSuggestFromEditable = (): void => {
+		if (!editing) {
+			closePlaceholderSuggest();
+			return;
+		}
+		const capable = capableInlineTarget(editing);
+		if (!capable) {
+			closePlaceholderSuggest();
+			return;
+		}
+		const found = prefixRangeInEditable(editing);
+		if (!found) {
+			closePlaceholderSuggest();
+			return;
+		}
+		const items = filterTokens(tokensForField(capable.isTitle), found.prefix);
+		if (items.length === 0) {
+			closePlaceholderSuggest();
+			return;
+		}
+		suggestTarget = { kind: 'editable', el: editing };
+		showSuggest(items, caretRect() ?? editing.getBoundingClientRect());
+	};
+	document.addEventListener('mousedown', (event) => {
+		if (placeholderMenu.hidden) {
+			return;
+		}
+		const target = event.target as Node | null;
+		if (target && placeholderMenu.contains(target)) {
+			return;
+		}
+		closePlaceholderMenu();
+	});
+	/* Capture phase, so Enter / Tab / Escape reach here before
+	 * the container keydown handler that commits the inline edit
+	 * on Enter and cancels it on Escape: while the list is open,
+	 * Enter picks instead of committing. */
+	document.addEventListener('keydown', (event) => {
+		if (!placeholderSuggest.hidden) {
+			if (event.key === 'Enter' || event.key === 'Tab') {
+				event.preventDefault();
+				event.stopPropagation();
+				const entry = suggestItems[suggestActive];
+				if (entry) {
+					pickSuggestToken(entry.token);
+				}
+			} else if (event.key === 'Escape') {
+				event.preventDefault();
+				event.stopPropagation();
+				closePlaceholderSuggest();
+			} else if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
+				event.preventDefault();
+				event.stopPropagation();
+				const step = event.key === 'ArrowDown' ? 1 : -1;
+				suggestActive = (suggestActive + step + suggestItems.length) % suggestItems.length;
+				markSuggestActive();
+			}
+			return;
+		}
+		if (!placeholderMenu.hidden && event.key === 'Escape') {
+			event.preventDefault();
+			event.stopPropagation();
+			closePlaceholderMenu();
+		}
+	}, true);
+	container.addEventListener('contextmenu', (event) => {
+		const target = (event.target as HTMLElement | null)?.closest?.(
+			'.kk-data-desk-title, .kk-data-desk-subtitle[data-kk-date-line], .kk-data-desk-stat-note[data-kk-stat-field]',
+		) as HTMLElement | null;
+		const capable = capableInlineTarget(target);
+		if (!capable) {
+			return;
+		}
+		event.preventDefault();
+		if (editing !== capable.el) {
+			beginInlineEdit(capable.el, { x: event.clientX, y: event.clientY });
+		} else {
+			placeCaretAtPoint(capable.el, event.clientX, event.clientY);
+		}
+		openPlaceholderMenu({ kind: 'editable', el: capable.el, isTitle: capable.isTitle }, event.clientX, event.clientY);
+	});
+	container.addEventListener('input', () => {
+		if (editing) {
+			refreshSuggestFromEditable();
+		}
+	});
+	/* Long-press opens the same menu as a right-click: a hold
+	 * with no movement, short enough that a normal tap (which
+	 * ends before the timer) still starts the inline edit. */
+	const clearLongPress = (): void => {
+		if (longPressTimer !== null) {
+			window.clearTimeout(longPressTimer);
+			longPressTimer = null;
+		}
+		longPressPoint = null;
+	};
+	const cancelLongPressOnMove = (event: TouchEvent): void => {
+		if (longPressTimer === null || !longPressPoint || event.touches.length === 0) {
+			return;
+		}
+		const touch = event.touches[0];
+		if (Math.abs(touch.clientX - longPressPoint.x) > 10 || Math.abs(touch.clientY - longPressPoint.y) > 10) {
+			clearLongPress();
+		}
+	};
+	container.addEventListener('touchstart', (event) => {
+		if (event.touches.length !== 1) {
+			return;
+		}
+		const touch = event.touches[0];
+		const target = (event.target as HTMLElement | null)?.closest?.(
+			'.kk-data-desk-title, .kk-data-desk-subtitle[data-kk-date-line], .kk-data-desk-stat-note[data-kk-stat-field]',
+		) as HTMLElement | null;
+		const capable = capableInlineTarget(target);
+		if (!capable) {
+			return;
+		}
+		longPressPoint = { x: touch.clientX, y: touch.clientY };
+		longPressTimer = window.setTimeout(() => {
+			longPressTimer = null;
+			if (editing !== capable.el) {
+				beginInlineEdit(capable.el, { x: touch.clientX, y: touch.clientY });
+			} else {
+				placeCaretAtPoint(capable.el, touch.clientX, touch.clientY);
+			}
+			openPlaceholderMenu({ kind: 'editable', el: capable.el, isTitle: capable.isTitle }, touch.clientX, touch.clientY);
+		}, 500);
+	}, { passive: true });
+	container.addEventListener('touchmove', cancelLongPressOnMove, { passive: true });
+	container.addEventListener('touchend', clearLongPress);
+	container.addEventListener('touchcancel', clearLongPress);
+	/* Insert popup: an Insert button in the Placeholders card
+	 * opens this instead of inserting blindly. It shows the
+	 * token, what it resolves to right now, and the fields the
+	 * token resolves in, so the user picks a field that really
+	 * renders the value. Confirm is the only path that inserts;
+	 * Escape, the backdrop and Close all close without inserting
+	 * and return focus to the Insert button. */
+	type InsertTarget = 'title' | 'date-line' | 'sell-sub' | 'buyback-sub' | 'performance-sub';
+	interface InsertTargetOption {
+		value: InsertTarget;
+		label: string;
+	}
+	const insertPopup = document.getElementById('kk-data-desk-placeholders-insert-popup');
+	const insertPopupBody = insertPopup?.querySelector('[data-kk-placeholder-insert-popup-body]');
+	if (placeholderSection && insertPopup && insertPopupBody) {
+		const closeButton = insertPopup.querySelector<HTMLButtonElement>(
+			'.kk-data-desk-popup-actions [data-kk-placeholder-insert-popup-close]',
+		);
+		let insertOpener: HTMLButtonElement | null = null;
+		let insertToken: string | null = null;
+		const closePlaceholderInsertPopup = (): void => {
+			insertPopup.hidden = true;
+			insertOpener?.focus();
+			insertOpener = null;
+			insertToken = null;
+		};
+		/* Only fields where the token resolves, for the current
+		 * kind. A table has no date line or stat notes, and its
+		 * title is printed literally (the widget header never
+		 * resolves tokens), so no token has a target there and
+		 * the popup says so instead of offering a dead field. */
+		const insertTargetsFor = (token: string): InsertTargetOption[] => {
+			if (kind.value !== 'panel') {
+				return [];
+			}
+			const targets: InsertTargetOption[] = [
+				{ value: 'date-line', label: adminStrings().insertTargetDateLine },
+			];
+			if (token === '{label}' || token === '{day}') {
+				targets.push({ value: 'title', label: adminStrings().insertTargetTitle });
+			}
+			targets.push(
+				{ value: 'sell-sub', label: adminStrings().insertTargetSellNote },
+				{ value: 'buyback-sub', label: adminStrings().insertTargetBuybackNote },
+				{ value: 'performance-sub', label: adminStrings().insertTargetPerformanceNote },
+			);
+			return targets;
+		};
+		const insertTokenIntoTarget = (target: InsertTarget, token: string): void => {
+			if (target === 'title') {
+				const titleEl = container.querySelector('.kk-data-desk-title');
+				if (titleEl instanceof HTMLElement && editing === titleEl) {
+					insertTokenAtCaret(token);
+					finishEdit(true);
+					return;
+				}
+				title.value = title.value === '' ? token : `${title.value} ${token}`;
+				title.setSelectionRange(title.value.length, title.value.length);
+				title.dispatchEvent(new Event('input', { bubbles: true }));
+				return;
+			}
+			const field = target === 'date-line' ? dateLine : statInputs[target];
+			const selector = target === 'date-line'
+				? '.kk-data-desk-subtitle[data-kk-date-line]'
+				: `[data-kk-stat-field="${target}"]`;
+			const el = container.querySelector(selector);
+			if (el instanceof HTMLElement && editing === el) {
+				insertTokenAtCaret(token);
+				finishEdit(true);
+				return;
+			}
+			if (field) {
+				field.value = field.value === '' ? token : `${field.value} ${token}`;
+				refresh();
+			}
+		};
+		const confirmPlaceholderInsert = (): void => {
+			if (!insertToken) {
+				return;
+			}
+			const token = insertToken;
+			const chosen = insertPopupBody.querySelector<HTMLInputElement>(
+				'input[name="kk_placeholder_insert_target"]:checked',
+			);
+			const value = chosen?.value ?? '';
+			if (!insertTargetsFor(token).some((target) => target.value === value)) {
+				return;
+			}
+			closePlaceholderInsertPopup();
+			insertTokenIntoTarget(value as InsertTarget, token);
+		};
+		const openPlaceholderInsertPopup = (button: HTMLButtonElement): void => {
+			const token = button.getAttribute('data-kk-placeholder-insert') ?? '';
+			if (token === '') {
+				return;
+			}
+			const entry = readPlaceholderTokens().find((row) => row.token === token);
+			insertToken = token;
+			insertOpener = button;
+			insertPopupBody.replaceChildren();
+			const tokenLine = document.createElement('p');
+			const tokenCode = document.createElement('code');
+			tokenCode.textContent = token;
+			tokenLine.append(tokenCode);
+			const sampleLine = document.createElement('p');
+			const sampleLabel = document.createElement('span');
+			sampleLabel.textContent = `${adminStrings().insertResolvesTo}: `;
+			const sampleValue = document.createElement('strong');
+			sampleValue.textContent = entry ? entry.sample : '';
+			sampleLine.append(sampleLabel, sampleValue);
+			insertPopupBody.append(tokenLine, sampleLine);
+			const targets = insertTargetsFor(token);
+			if (targets.length === 0) {
+				const note = document.createElement('p');
+				note.textContent = adminStrings().insertNoTableTarget;
+				insertPopupBody.append(note);
+			} else {
+				const group = document.createElement('fieldset');
+				group.className = 'kk-data-desk-placeholder-group';
+				const legend = document.createElement('legend');
+				legend.textContent = adminStrings().insertInto;
+				group.append(legend);
+				targets.forEach((target, index) => {
+					const label = document.createElement('label');
+					label.className = 'kk-data-desk-placeholder-option';
+					const radio = document.createElement('input');
+					radio.type = 'radio';
+					radio.name = 'kk_placeholder_insert_target';
+					radio.value = target.value;
+					if (index === 0) {
+						radio.checked = true;
+					}
+					label.append(radio, document.createTextNode(` ${target.label}`));
+					group.append(label);
+				});
+				const confirmLine = document.createElement('p');
+				const confirm = document.createElement('button');
+				confirm.type = 'button';
+				confirm.className = 'kk-data-desk-button kk-data-desk-button--primary';
+				confirm.textContent = adminStrings().insertConfirm;
+				confirm.addEventListener('click', confirmPlaceholderInsert);
+				confirmLine.append(confirm);
+				insertPopupBody.append(group, confirmLine);
+			}
+			insertPopup.hidden = false;
+			closeButton?.focus();
+		};
+		placeholderSection.querySelectorAll<HTMLButtonElement>('[data-kk-placeholder-insert]').forEach((button) => {
+			button.addEventListener('click', () => {
+				openPlaceholderInsertPopup(button);
+			});
+		});
+		insertPopup.querySelectorAll('[data-kk-placeholder-insert-popup-close]').forEach((el) => {
+			el.addEventListener('click', closePlaceholderInsertPopup);
+		});
+		document.addEventListener('keydown', (event) => {
+			if (event.key === 'Escape' && !insertPopup.hidden) {
+				closePlaceholderInsertPopup();
+			}
+		});
 	}
 	[days, title, kicker].forEach((el) => {
 		el.addEventListener('input', refresh);

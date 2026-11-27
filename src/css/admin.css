@@ -586,6 +586,93 @@
 	accent-color: #0b6b3a;
 }
 
+/* Placeholder right-click menu + "{" autocomplete list on the
+ * Data Desk editor: small popovers anchored to the click point
+ * or the caret, not centered popups, with no backdrop. Same
+ * radii, border and shadow weight as the editor popup. */
+.kk-data-desk-placeholder-menu,
+.kk-data-desk-placeholder-suggest {
+	position: fixed;
+	z-index: 100002;
+	min-width: 16rem;
+	max-width: 20rem;
+	max-height: 16rem;
+	padding: 4px;
+	overflow: auto;
+	scrollbar-width: none;
+	background: #fff;
+	border: 1px solid #dcdcde;
+	border-radius: 4px;
+	box-shadow: 0 4px 16px rgb(0 0 0 / 0.2);
+}
+
+.kk-data-desk-placeholder-menu[hidden],
+.kk-data-desk-placeholder-suggest[hidden] {
+	display: none;
+}
+
+.kk-data-desk-placeholder-menu::-webkit-scrollbar,
+.kk-data-desk-placeholder-suggest::-webkit-scrollbar {
+	display: none;
+}
+
+.kk-data-desk-placeholder-menu-item,
+.kk-data-desk-placeholder-suggest-item {
+	display: flex;
+	align-items: baseline;
+	gap: 8px;
+	width: 100%;
+	padding: 6px 8px;
+	background: transparent;
+	border: 0;
+	border-radius: 4px;
+	cursor: pointer;
+	font-size: 13px;
+	line-height: 1.4;
+	text-align: left;
+	color: #1d2327;
+}
+
+.kk-data-desk-placeholder-menu-item:hover,
+.kk-data-desk-placeholder-menu-item:focus-visible,
+.kk-data-desk-placeholder-menu-item.is-active,
+.kk-data-desk-placeholder-suggest-item:hover,
+.kk-data-desk-placeholder-suggest-item:focus-visible,
+.kk-data-desk-placeholder-suggest-item.is-active {
+	background: #f0f0f1;
+	outline: none;
+}
+
+.kk-data-desk-placeholder-menu-item:disabled {
+	opacity: 0.5;
+	cursor: default;
+}
+
+.kk-data-desk-placeholder-menu-item:disabled:hover,
+.kk-data-desk-placeholder-menu-item:disabled:focus-visible {
+	background: transparent;
+}
+
+.kk-data-desk-placeholder-menu-separator {
+	height: 1px;
+	margin: 4px 8px;
+	background: #dcdcde;
+}
+
+.kk-data-desk-placeholder-menu-item code,
+.kk-data-desk-placeholder-suggest-item code {
+	flex: none;
+	font-size: 13px;
+}
+
+.kk-data-desk-placeholder-menu-sample,
+.kk-data-desk-placeholder-suggest-sample {
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	color: #646970;
+}
+
 /* Sidebar Settings popup (Setup page): same shape as the Data Desk
  * popup - centered panel over a blurred backdrop - narrower, since
  * it holds a short settings form instead of a full preview. */

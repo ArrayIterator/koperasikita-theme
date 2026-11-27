@@ -283,11 +283,12 @@ final class DataDesk
      * Replace the date-line / stat-note placeholders in a panel
      * format string with values from the panel's own data. {start}
      * / {end} / {date} are the chart range ends in the configured
-     * date format, {day} / {days} the chart window, {label} the
-     * symbol name, {arrow} / {delta} / {delta_pct} the change
-     * (daily or whole period, per the configured percent type),
-     * {spread} the sell-buyback spread, {streak} the up-streak in
-     * days and {zone} the zone name in the configured zone colour.
+     * date format, {year} the year of the last date, {day} / {days}
+     * the chart window, {label} the symbol name, {arrow} / {delta}
+     * / {delta_pct} the change (daily or whole period, per the
+     * configured percent type), {spread} the sell-buyback spread,
+     * {streak} the up-streak in days and {zone} the zone name in
+     * the configured zone colour.
      * Unknown placeholders stay literal, so a typo never eats
      * text, the same rule as the title tokens. The literal text
      * is escaped here, so the result is safe to print as-is; the
@@ -307,6 +308,11 @@ final class DataDesk
         $firstDate = is_array($first) && isset($first['date']) ? (string) $first['date'] : '';
         $lastDate = is_array($last) && isset($last['date']) ? (string) $last['date'] : '';
         $firstPrice = is_array($first) && isset($first['price']) ? (float) $first['price'] : null;
+        $lastYear = '';
+        if ($lastDate !== '') {
+            $lastTs = strtotime($lastDate);
+            $lastYear = $lastTs === false ? '' : date_i18n('Y', $lastTs);
+        }
 
         if ($placeholders['percent'] === 'period') {
             $changePct = isset($data['week_change']) && $data['week_change'] !== null ? (float) $data['week_change'] : null;
@@ -328,6 +334,7 @@ final class DataDesk
             '{start}' => esc_html(self::formatPlaceholderDate($firstDate, $placeholders['date_format'])),
             '{end}' => esc_html(self::formatPlaceholderDate($lastDate, $placeholders['date_format'])),
             '{date}' => esc_html(self::formatPlaceholderDate($lastDate, $placeholders['date_format'])),
+            '{year}' => esc_html($lastYear),
             '{arrow}' => esc_html($arrow),
             '{delta}' => $changeAbs === null ? '' : esc_html(Markets::formatPrice(abs($changeAbs), $currency)),
             '{delta_pct}' => $changePct === null ? '' : esc_html(Markets::formatChange($changePct)),

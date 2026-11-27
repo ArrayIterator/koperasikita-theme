@@ -531,6 +531,7 @@ final class DataDeskTemplatesPage
                 ['token' => '{start}', 'desc' => __('First date of the chart range', 'koperasikita')],
                 ['token' => '{end}', 'desc' => __('Last date of the chart range', 'koperasikita')],
                 ['token' => '{date}', 'desc' => __('Last date (today)', 'koperasikita')],
+                ['token' => '{year}', 'desc' => __('Year of the last date', 'koperasikita')],
                 ['token' => '{label}', 'desc' => __('Symbol name', 'koperasikita')],
                 ['token' => '{days}', 'desc' => __('Number of days in the chart', 'koperasikita')],
                 ['token' => '{arrow}', 'desc' => __('Direction arrow (up or down)', 'koperasikita')],
@@ -544,7 +545,7 @@ final class DataDeskTemplatesPage
             <section class="kk-data-desk-card kk-data-desk-placeholders" id="kk-data-desk-placeholders" data-kk-template-panel-control>
                 <h2 class="kk-data-desk-card-title"><?php esc_html_e('Placeholders', 'koperasikita'); ?></h2>
                 <p class="description">
-                    <?php esc_html_e("Placeholders resolve from the panel's own data. Click the date line or a stat note in the preview first, then Insert, otherwise the placeholder goes into the date line. The title's {label} and {day} work here too.", 'koperasikita'); ?>
+                    <?php esc_html_e("Placeholders resolve from the panel's own data. Insert opens a popup showing what the placeholder resolves to - pick the field it goes into. You can also right-click a title, date line or stat note, or type { while editing one. The title takes {label} and {day} only.", 'koperasikita'); ?>
                 </p>
                 <div class="kk-data-desk-table-wrap">
                     <table class="widefat striped kk-data-desk-table">
@@ -620,6 +621,23 @@ final class DataDeskTemplatesPage
                         <?php endforeach; ?>
                     </fieldset>
                 </div>
+            </div>
+        </div>
+        <?php /* Insert popup: the Placeholders card's Insert
+         * buttons open this instead of inserting blindly. The
+         * body is filled by admin.ts (token, resolved sample,
+         * target picker) because the targets depend on the token
+         * and the template kind. */ ?>
+        <div class="kk-data-desk-popup" id="kk-data-desk-placeholders-insert-popup" hidden role="dialog" aria-modal="true" aria-labelledby="kk-data-desk-placeholders-insert-popup-title">
+            <div class="kk-data-desk-popup-backdrop" data-kk-placeholder-insert-popup-close></div>
+            <div class="kk-data-desk-popup-panel" role="document">
+                <div class="kk-data-desk-popup-head">
+                    <h2 id="kk-data-desk-placeholders-insert-popup-title"><?php esc_html_e('Insert placeholder', 'koperasikita'); ?></h2>
+                    <div class="kk-data-desk-popup-actions">
+                        <button type="button" class="kk-data-desk-button" data-kk-placeholder-insert-popup-close><?php esc_html_e('Close', 'koperasikita'); ?></button>
+                    </div>
+                </div>
+                <div class="kk-data-desk-popup-body" data-kk-placeholder-insert-popup-body></div>
             </div>
         </div>
         <script>
