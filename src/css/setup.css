@@ -306,6 +306,54 @@
 	color: #666;
 }
 
+/* Fast Search: status badges, index table and behaviour rows.
+ * The table itself is WP widefat/striped; only the badges and
+ * the checkbox rows need theme rules. */
+
+.kk-setup-fast-search-badge {
+	display: inline-block;
+	padding: 2px 8px;
+	font-size: 12px;
+	font-weight: 600;
+	line-height: 1.5;
+	border-radius: 999px;
+	white-space: nowrap;
+}
+
+.kk-setup-fast-search-badge--ready {
+	color: #07522c;
+	background: #eaf4ee;
+}
+
+.kk-setup-fast-search-badge--fallback {
+	color: #7a5b00;
+	background: #fbf3df;
+}
+
+.kk-setup-fast-search-table {
+	margin: 0 0 16px;
+}
+
+.kk-setup-fast-search-table td code {
+	font-size: 13px;
+}
+
+.kk-setup-fast-search-sql {
+	margin: 0 0 16px;
+}
+
+.kk-setup-fast-search-check {
+	margin: 0 0 16px;
+}
+
+.kk-setup-fast-search-check label {
+	font-weight: 600;
+}
+
+.kk-setup-fast-search-check input[type="checkbox"] {
+	margin-right: 6px;
+}
+
 /* Footnote. */
 
 .kk-setup-footnote {

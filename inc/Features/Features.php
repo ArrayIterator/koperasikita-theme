@@ -43,6 +43,6 @@ final class Features
         Performance::register();
         FeaturedImage::register();
         ArticleFontSize::register();
-        SearchIndex::register();
+        FastSearch::register();
     }
 }

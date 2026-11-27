@@ -67,6 +67,15 @@ interface AdminStrings {
 	searching: string;
 	noResults: string;
 	showingOf: string;
+	fastSearchStarting: string;
+	fastSearchBuilding: string;
+	fastSearchProgress: string;
+	fastSearchDone: string;
+	fastSearchDoneErrors: string;
+	fastSearchRunning: string;
+	fastSearchError: string;
+	fastSearchInstalled: string;
+	fastSearchFailed: string;
 }
 
 interface AdminData {
@@ -150,6 +159,15 @@ const FALLBACK_STRINGS: AdminStrings = {
 	searching: 'Searching...',
 	noResults: 'No results.',
 	showingOf: 'Showing %s of %s - type to search.',
+	fastSearchStarting: 'Starting index build...',
+	fastSearchBuilding: 'Building search indexes...',
+	fastSearchProgress: 'Building search indexes... %s of %s done.',
+	fastSearchDone: 'All search indexes are installed.',
+	fastSearchDoneErrors: 'Index build finished with errors. See the index status below.',
+	fastSearchRunning: 'An index build is already running.',
+	fastSearchError: 'The index build could not run. Please try again.',
+	fastSearchInstalled: 'Installed',
+	fastSearchFailed: 'Failed',
 };
 
 function adminData(): AdminData | null {
@@ -200,6 +218,15 @@ function adminStrings(): AdminStrings {
 		searching: strings?.searching ?? FALLBACK_STRINGS.searching,
 		noResults: strings?.noResults ?? FALLBACK_STRINGS.noResults,
 		showingOf: strings?.showingOf ?? FALLBACK_STRINGS.showingOf,
+		fastSearchStarting: strings?.fastSearchStarting ?? FALLBACK_STRINGS.fastSearchStarting,
+		fastSearchBuilding: strings?.fastSearchBuilding ?? FALLBACK_STRINGS.fastSearchBuilding,
+		fastSearchProgress: strings?.fastSearchProgress ?? FALLBACK_STRINGS.fastSearchProgress,
+		fastSearchDone: strings?.fastSearchDone ?? FALLBACK_STRINGS.fastSearchDone,
+		fastSearchDoneErrors: strings?.fastSearchDoneErrors ?? FALLBACK_STRINGS.fastSearchDoneErrors,
+		fastSearchRunning: strings?.fastSearchRunning ?? FALLBACK_STRINGS.fastSearchRunning,
+		fastSearchError: strings?.fastSearchError ?? FALLBACK_STRINGS.fastSearchError,
+		fastSearchInstalled: strings?.fastSearchInstalled ?? FALLBACK_STRINGS.fastSearchInstalled,
+		fastSearchFailed: strings?.fastSearchFailed ?? FALLBACK_STRINGS.fastSearchFailed,
 	};
 }
 
@@ -405,6 +432,7 @@ function initAdmin(): void {
 		initAgendaWidgetFields,
 		initGoldSync,
 		initGoldSummaryChart,
+		initFastSearchBuild,
 		initDataDeskPreview,
 		initDataDeskAjaxSave,
 		initDataDeskWidgetPreview,
@@ -2383,6 +2411,194 @@ function initGoldSync(): void {
 			const line = document.createElement('div');
 			line.textContent = errorMessage(error);
 			result.appendChild(line);
+			setRunning(false);
+		}
+	});
+}
+
+interface FastSearchProgressStep {
+	key: string;
+	name: string;
+	installed: boolean;
+	message: string;
+}
+
+interface FastSearchProgress {
+	running: boolean;
+	done: boolean;
+	total: number;
+	completed: number;
+	failed: number;
+	results: FastSearchProgressStep[];
+	message?: string;
+}
+
+interface FastSearchStart {
+	already_installed: boolean;
+	job_token?: string;
+	total?: number;
+	message: string;
+}
+
+interface FastSearchStatus {
+	running: boolean;
+	progress?: FastSearchProgress;
+	ready: boolean;
+}
+
+/*
+ * Fast Search index build (Setup page): the Build indexes button
+ * opens a popup and runs the build inside it, one index per AJAX
+ * call (kk_fast_search_start, then kk_fast_search_chunk until
+ * done), with a progress bar and one line per finished index.
+ * The popup is the same centered + blurred-backdrop pattern as
+ * the gold sync popup; closing it reloads the page so the index
+ * status table behind it shows the new state.
+ */
+function initFastSearchBuild(): void {
+	const button = document.querySelector<HTMLButtonElement>('[data-kk-fast-search-build]');
+	const popup = document.getElementById('kk-fast-search-popup');
+	if (!button || !popup) {
+		return;
+	}
+	const bar = popup.querySelector<HTMLProgressElement>('[data-kk-fast-search-bar]');
+	const statusEl = popup.querySelector<HTMLElement>('[data-kk-fast-search-status]');
+	const stepsEl = popup.querySelector<HTMLElement>('[data-kk-fast-search-steps]');
+	const result = popup.querySelector<HTMLElement>('[data-kk-fast-search-result]');
+	const closeButton = popup.querySelector<HTMLButtonElement>('[data-kk-fast-search-popup-close]');
+	if (!bar || !statusEl || !stepsEl || !result || !closeButton) {
+		return;
+	}
+	const settingsForm = document.querySelector<HTMLFormElement>('[data-kk-fast-search-settings]');
+
+	let running = false;
+
+	/* Every close path reloads: the index status behind the popup
+	 * is stale once a build has run, and the popup itself says so. */
+	const close = (): void => {
+		popup.hidden = true;
+		button.focus();
+		window.location.reload();
+	};
+
+	popup.querySelectorAll('[data-kk-fast-search-popup-close]').forEach((el) => {
+		el.addEventListener('click', close);
+	});
+
+	document.addEventListener('keydown', (event) => {
+		if (event.key === 'Escape' && !popup.hidden) {
+			close();
+		}
+	});
+
+	const setRunning = (isRunning: boolean): void => {
+		running = isRunning;
+		button.disabled = isRunning;
+		if (isRunning) {
+			button.setAttribute('aria-busy', 'true');
+		} else {
+			button.removeAttribute('aria-busy');
+		}
+		if (settingsForm) {
+			settingsForm.querySelectorAll<HTMLInputElement | HTMLSelectElement | HTMLButtonElement>('input, select, button').forEach((el) => {
+				el.disabled = isRunning;
+			});
+		}
+	};
+
+	const renderProgress = (progress: FastSearchProgress): void => {
+		const strings = adminStrings();
+		bar.max = progress.total;
+		bar.value = progress.completed;
+		statusEl.textContent = formatTemplate(strings.fastSearchProgress, progress.completed, progress.total);
+		stepsEl.replaceChildren();
+		progress.results.forEach((step) => {
+			const line = document.createElement('li');
+			line.textContent = step.installed
+				? `${step.name}: ${strings.fastSearchInstalled}`
+				: `${step.name}: ${strings.fastSearchFailed}${step.message ? ` - ${step.message}` : ''}`;
+			stepsEl.appendChild(line);
+		});
+	};
+
+	/* Localize data missing (stale page, cached markup, blocked
+	 * script): never leave a dead button - a click opens the popup
+	 * and says so honestly instead of doing nothing. */
+	const config = adminData();
+	if (!config) {
+		button.addEventListener('click', () => {
+			statusEl.textContent = '';
+			stepsEl.replaceChildren();
+			result.textContent = adminStrings().adminDataMissing;
+			popup.hidden = false;
+			closeButton.focus();
+		});
+		return;
+	}
+
+	button.addEventListener('click', async () => {
+		if (running) {
+			return;
+		}
+		const strings = adminStrings();
+		setRunning(true);
+		result.textContent = '';
+		stepsEl.replaceChildren();
+		bar.max = 100;
+		bar.value = 0;
+		statusEl.textContent = strings.fastSearchStarting;
+		popup.hidden = false;
+		closeButton.focus();
+
+		try {
+			const started = await postAjax<FastSearchStart>(config, 'kk_fast_search_start', {});
+			if (started.already_installed) {
+				bar.value = bar.max;
+				statusEl.textContent = started.message;
+				setRunning(false);
+				return;
+			}
+			const token = started.job_token ?? '';
+			if (token === '') {
+				throw new Error(strings.fastSearchError);
+			}
+			statusEl.textContent = strings.fastSearchBuilding;
+			/* One chunk call per index; the cap is a guard against
+			 * a server that ever returns done: false forever. */
+			const maxSteps = (started.total ?? 0) + 2;
+			for (let step = 0; step < maxSteps; step += 1) {
+				const progress = await postAjax<FastSearchProgress>(config, 'kk_fast_search_chunk', { job_token: token });
+				renderProgress(progress);
+				if (progress.done) {
+					bar.value = bar.max;
+					statusEl.textContent = progress.failed > 0 ? strings.fastSearchDoneErrors : strings.fastSearchDone;
+					if (progress.message) {
+						result.textContent = progress.message;
+					}
+					setRunning(false);
+					return;
+				}
+			}
+			throw new Error(strings.fastSearchError);
+		} catch (error) {
+			/* A build started in another tab between page load and
+			 * click answers 409: show its progress instead of a
+			 * dead end. Any other failure shows the error. */
+			try {
+				const state = await postAjax<FastSearchStatus>(config, 'kk_fast_search_status', {});
+				if (state.running && state.progress) {
+					renderProgress(state.progress);
+					statusEl.textContent = strings.fastSearchRunning;
+				} else {
+					const line = document.createElement('div');
+					line.textContent = errorMessage(error);
+					result.appendChild(line);
+				}
+			} catch {
+				const line = document.createElement('div');
+				line.textContent = errorMessage(error);
+				result.appendChild(line);
+			}
 			setRunning(false);
 		}
 	});
