@@ -170,8 +170,8 @@ final class AgendaLocationsSettings
 
         $pageUrl = admin_url('admin.php?page=' . Agenda::LOCATIONS_PAGE_SLUG);
         ?>
-        <div class="wrap">
-            <h1><?php esc_html_e('Locations', 'koperasikita'); ?></h1>
+        <div class="wrap kk-locations-page">
+            <h1 class="kk-locations-title"><?php esc_html_e('Locations', 'koperasikita'); ?></h1>
             <?php if ($result['notice'] !== '') : ?>
                 <div class="notice notice-success inline"><p><?php echo esc_html($result['notice']); ?></p></div>
             <?php endif; ?>
@@ -181,12 +181,14 @@ final class AgendaLocationsSettings
             <?php if ($action === 'new' || ($action === 'edit' && $id !== '')) : ?>
                 <?php self::renderForm($action === 'edit' ? $id : '', $pageUrl, $result['values']); ?>
             <?php else : ?>
-                <p>
-                    <a href="<?php echo esc_url(add_query_arg('action', 'new', $pageUrl)); ?>" class="button button-primary">
-                        <?php esc_html_e('Add New Location', 'koperasikita'); ?>
-                    </a>
-                </p>
-                <?php self::renderList($pageUrl); ?>
+                <section class="kk-locations-card">
+                    <p class="kk-locations-card-actions">
+                        <a href="<?php echo esc_url(add_query_arg('action', 'new', $pageUrl)); ?>" class="kk-locations-button kk-locations-button--primary">
+                            <?php esc_html_e('Add New Location', 'koperasikita'); ?>
+                        </a>
+                    </p>
+                    <?php self::renderList($pageUrl); ?>
+                </section>
             <?php endif; ?>
         </div>
         <?php
@@ -342,9 +344,11 @@ final class AgendaLocationsSettings
         <form method="get" action="<?php echo esc_url($pageUrl); ?>">
             <input type="hidden" name="page" value="<?php echo esc_attr(Agenda::LOCATIONS_PAGE_SLUG); ?>">
             <?php $table->search_box(__('Search Locations', 'koperasikita'), 'kk-location'); ?>
-            <?php $table->display(); ?>
+            <div class="kk-locations-table-wrap">
+                <?php $table->display(); ?>
+            </div>
         </form>
-        <p class="description">
+        <p class="description kk-locations-note">
             <?php esc_html_e('Save the places you use often. They appear in the Pick Location popup, so you can reuse a place instead of searching for it again.', 'koperasikita'); ?>
         </p>
         <?php
@@ -362,8 +366,10 @@ final class AgendaLocationsSettings
 
         if ($id !== '' && $stored === null && $values === null) {
             ?>
-            <div class="notice notice-error inline"><p><?php esc_html_e('Location not found.', 'koperasikita'); ?></p></div>
-            <p><a href="<?php echo esc_url($pageUrl); ?>" class="button"><?php esc_html_e('Back to Locations', 'koperasikita'); ?></a></p>
+            <section class="kk-locations-card">
+                <div class="notice notice-error inline"><p><?php esc_html_e('Location not found.', 'koperasikita'); ?></p></div>
+                <p><a href="<?php echo esc_url($pageUrl); ?>" class="kk-locations-button"><?php esc_html_e('Back to Locations', 'koperasikita'); ?></a></p>
+            </section>
             <?php
             return;
         }
@@ -379,7 +385,8 @@ final class AgendaLocationsSettings
             ? $form['lat'] . ', ' . $form['lng']
             : __('No pin placed', 'koperasikita');
         ?>
-        <h2><?php echo $id !== '' ? esc_html__('Edit Location', 'koperasikita') : esc_html__('Add New Location', 'koperasikita'); ?></h2>
+        <section class="kk-locations-card">
+        <h2 class="kk-locations-card-title"><?php echo $id !== '' ? esc_html__('Edit Location', 'koperasikita') : esc_html__('Add New Location', 'koperasikita'); ?></h2>
         <form method="post" action="<?php echo esc_url(add_query_arg(['action' => $id !== '' ? 'edit' : 'new', 'id' => $id], $pageUrl)); ?>">
             <?php wp_nonce_field('kk_agenda_location', 'kk_agenda_location_nonce'); ?>
             <input type="hidden" name="kk_location_id" value="<?php echo esc_attr($id); ?>">
@@ -446,7 +453,7 @@ final class AgendaLocationsSettings
                         <div class="kk-agenda-map-picker" data-kk-agenda-map-picker data-kk-agenda-default-lat="<?php echo esc_attr((string) Agenda::DEFAULT_LAT); ?>" data-kk-agenda-default-lng="<?php echo esc_attr((string) Agenda::DEFAULT_LNG); ?>" data-kk-agenda-no-pin="<?php esc_attr_e('No pin placed', 'koperasikita'); ?>">
                             <div class="kk-agenda-map" data-kk-location-preview-map></div>
                             <p>
-                                <button type="button" class="button" data-kk-agenda-pick><?php esc_html_e('Pick Location', 'koperasikita'); ?></button>
+                                <button type="button" class="kk-locations-button" data-kk-agenda-pick><?php esc_html_e('Pick Location', 'koperasikita'); ?></button>
                             </p>
                             <p class="kk-agenda-coords" data-kk-agenda-coords><?php echo esc_html($coords); ?></p>
                         </div>
@@ -460,9 +467,10 @@ final class AgendaLocationsSettings
                     </td>
                 </tr>
             </table>
-            <?php submit_button($id !== '' ? __('Update Location', 'koperasikita') : __('Add Location', 'koperasikita')); ?>
-            <a href="<?php echo esc_url($pageUrl); ?>" class="button"><?php esc_html_e('Cancel', 'koperasikita'); ?></a>
+            <p class="submit"><input type="submit" name="submit" id="submit" class="kk-locations-button kk-locations-button--primary" value="<?php echo esc_attr($id !== '' ? __('Update Location', 'koperasikita') : __('Add Location', 'koperasikita')); ?>"></p>
+            <a href="<?php echo esc_url($pageUrl); ?>" class="kk-locations-button"><?php esc_html_e('Cancel', 'koperasikita'); ?></a>
         </form>
+        </section>
         <?php
     }
 }

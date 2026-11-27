@@ -559,6 +559,15 @@ final class Enqueue
                     wp_enqueue_style('kk-agenda', $agendaCss, [], KK_VERSION);
                 }
 
+                /* The Locations page chrome (card, title, buttons,
+                 * table) lives in admin.css; the agenda bundle only
+                 * carries the map and picker styles. */
+                $adminCss = ViteLoader::css('src/ts/admin.ts');
+
+                if ($adminCss !== '') {
+                    wp_enqueue_style('kk-admin', $adminCss, [], KK_VERSION);
+                }
+
                 $agendaJs = ViteLoader::js('src/ts/agenda.ts');
 
                 if ($agendaJs !== '') {
@@ -576,6 +585,21 @@ final class Enqueue
 
                 return;
             }
+        }
+
+        /* Subscribers page: server-rendered, no admin script, but
+         * its card, title, button and table chrome lives in
+         * admin.css. */
+        $isSubscribers = $hookSuffix === AdminMenu::submenuHookSuffix(\KoperasiKita\Admin\SubscribersPage::PAGE_SLUG);
+
+        if ($isSubscribers) {
+            $css = ViteLoader::css('src/ts/admin.ts');
+
+            if ($css !== '') {
+                wp_enqueue_style('kk-admin', $css, [], KK_VERSION);
+            }
+
+            return;
         }
 
         if (!$isWidgets && !$isCustomizer) {

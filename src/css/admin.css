@@ -1342,3 +1342,248 @@
 		padding: 20px 16px;
 	}
 }
+
+/* Agenda Locations + Subscribers pages: the Setup card language,
+ * full width like Gold and Data Desk since the tables need the room.
+ * WP classes are restyled here rather than replaced, so the markup
+ * stays familiar and the JS hooks are untouched. */
+.kk-locations-page,
+.kk-subscribers-page {
+	padding: 8px 0 32px;
+	font-size: 15px;
+	line-height: 1.55;
+	color: #1a1a1a;
+}
+
+.kk-locations-page p,
+.kk-subscribers-page p {
+	margin: 0 0 12px;
+}
+
+.kk-locations-page p:last-child,
+.kk-subscribers-page p:last-child {
+	margin-bottom: 0;
+}
+
+.kk-locations-title,
+.kk-subscribers-title {
+	margin: 0 0 24px;
+	font-size: 28px;
+	line-height: 1.2;
+	letter-spacing: -0.01em;
+	color: #07522c;
+}
+
+.kk-locations-card,
+.kk-subscribers-card {
+	margin-bottom: 24px;
+	padding: 24px;
+	background: #fff;
+	border: 1px solid #e5e5e5;
+	border-radius: 12px;
+}
+
+.kk-locations-card > :last-child,
+.kk-subscribers-card > :last-child {
+	margin-bottom: 0;
+}
+
+.kk-locations-card-title,
+.kk-subscribers-card-title {
+	margin: 0 0 16px;
+	padding-bottom: 12px;
+	font-size: 18px;
+	line-height: 1.3;
+	color: #07522c;
+	border-bottom: 1px solid #e5e5e5;
+}
+
+.kk-locations-card-actions,
+.kk-subscribers-card-actions {
+	margin: 0 0 16px;
+}
+
+/* The scoped .button rules are only a safety net for chrome WP
+ * itself renders (List Table bulk and search buttons). */
+.kk-locations-button,
+.kk-subscribers-button,
+.kk-locations-page .button,
+.kk-subscribers-page .button {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 8px;
+	min-height: 44px;
+	padding: 0 20px;
+	font-family: inherit;
+	font-size: 15px;
+	font-weight: 600;
+	line-height: 1.2;
+	color: #0b6b3a;
+	background: #fff;
+	border: 1px solid #0b6b3a;
+	border-radius: 8px;
+	text-decoration: none;
+	cursor: pointer;
+}
+
+.kk-locations-button:hover,
+.kk-subscribers-button:hover,
+.kk-locations-page .button:hover,
+.kk-subscribers-page .button:hover {
+	background: #eaf4ee;
+	border-color: #0b6b3a;
+	color: #0b6b3a;
+}
+
+.kk-locations-button:focus-visible,
+.kk-subscribers-button:focus-visible,
+.kk-locations-page .button:focus-visible,
+.kk-subscribers-page .button:focus-visible {
+	outline: 2px solid #c9962e;
+	outline-offset: 2px;
+}
+
+.kk-locations-button--primary,
+.kk-subscribers-button--primary,
+.kk-locations-page .button-primary,
+.kk-subscribers-page .button-primary {
+	color: #fff;
+	background: #0b6b3a;
+	border-color: #0b6b3a;
+}
+
+.kk-locations-button--primary:hover,
+.kk-subscribers-button--primary:hover,
+.kk-locations-page .button-primary:hover,
+.kk-subscribers-page .button-primary:hover {
+	background: #07522c;
+	border-color: #07522c;
+	color: #fff;
+}
+
+.kk-locations-button:disabled,
+.kk-subscribers-button:disabled,
+.kk-locations-page .button:disabled,
+.kk-subscribers-page .button:disabled {
+	opacity: 0.55;
+	cursor: not-allowed;
+}
+
+.kk-locations-table-wrap,
+.kk-subscribers-table-wrap {
+	overflow: hidden;
+	border: 1px solid #e5e5e5;
+	border-radius: 12px;
+}
+
+.kk-locations-table,
+.kk-subscribers-table {
+	margin: 0;
+	border: 0;
+}
+
+.kk-locations-table thead th,
+.kk-subscribers-table thead th {
+	background: #f8f9f8;
+	color: #07522c;
+	font-weight: 600;
+	border-bottom: 1px solid #e5e5e5;
+}
+
+.kk-locations-table th,
+.kk-locations-table td,
+.kk-subscribers-table th,
+.kk-subscribers-table td {
+	padding: 12px 16px;
+}
+
+.kk-locations-card .form-table {
+	margin: 0;
+}
+
+.kk-locations-card .form-table th {
+	padding: 12px 16px 12px 0;
+	font-weight: 600;
+	color: #1a1a1a;
+}
+
+.kk-locations-card .form-table td {
+	padding: 12px 0;
+}
+
+.kk-locations-card .form-table tbody tr + tr th,
+.kk-locations-card .form-table tbody tr + tr td {
+	border-top: 1px solid #e5e5e5;
+}
+
+.kk-locations-card .form-table .description {
+	margin-top: 4px;
+	font-size: 13px;
+	color: #666;
+}
+
+.kk-locations-note {
+	margin: 16px 0 0;
+	font-size: 13px;
+	color: #666;
+}
+
+.kk-locations-page .notice,
+.kk-subscribers-page .notice {
+	margin: 0 0 16px;
+	padding: 12px 16px;
+	border: 1px solid transparent;
+	border-left-width: 4px;
+	border-radius: 8px;
+	box-shadow: none;
+}
+
+.kk-locations-page .notice.notice-success,
+.kk-subscribers-page .notice.notice-success {
+	border-left-color: #0b6b3a;
+	background: #eaf4ee;
+	color: #07522c;
+}
+
+.kk-locations-page .notice p,
+.kk-subscribers-page .notice p {
+	margin: 0;
+}
+
+.kk-locations-page input[type="search"],
+.kk-locations-page input[type="text"],
+.kk-locations-page input[type="number"],
+.kk-locations-page textarea,
+.kk-locations-page select,
+.kk-subscribers-page input[type="search"],
+.kk-subscribers-page select {
+	min-height: 40px;
+	border-radius: 8px;
+}
+
+.kk-locations-page input[type="checkbox"],
+.kk-subscribers-page input[type="checkbox"] {
+	accent-color: #0b6b3a;
+}
+
+@media (max-width: 782px) {
+	.kk-locations-title,
+	.kk-subscribers-title {
+		font-size: 24px;
+	}
+}
+
+@media (max-width: 480px) {
+	.kk-locations-card,
+	.kk-subscribers-card {
+		padding: 20px 16px;
+	}
+
+	.kk-locations-button,
+	.kk-subscribers-button,
+	.kk-locations-page .button,
+	.kk-subscribers-page .button {
+		width: 100%;
+	}
+}

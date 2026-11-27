@@ -58,11 +58,12 @@ final class SubscribersPage
             self::NONCE_EXPORT
         );
         ?>
-        <div class="wrap">
-            <h1><?php esc_html_e('Subscribers', 'koperasikita'); ?></h1>
+        <div class="wrap kk-subscribers-page">
+            <h1 class="kk-subscribers-title"><?php esc_html_e('Subscribers', 'koperasikita'); ?></h1>
             <?php if ($deleted) : ?>
                 <div class="notice notice-success is-dismissible"><p><?php esc_html_e('Subscriber deleted.', 'koperasikita'); ?></p></div>
             <?php endif; ?>
+            <section class="kk-subscribers-card">
             <p><?php
                 // translators: %d is the number of subscribers.
                 printf(esc_html__('Total: %d subscribers', 'koperasikita'), (int) $total);
@@ -72,16 +73,17 @@ final class SubscribersPage
                 <p class="search-box">
                     <label class="screen-reader-text" for="kk-subscribers-search"><?php esc_html_e('Search by email', 'koperasikita'); ?></label>
                     <input type="search" id="kk-subscribers-search" name="s" value="<?php echo esc_attr($search); ?>">
-                    <input type="submit" class="button" value="<?php esc_attr_e('Search Subscribers', 'koperasikita'); ?>">
+                    <input type="submit" class="kk-subscribers-button" value="<?php esc_attr_e('Search Subscribers', 'koperasikita'); ?>">
                 </p>
             </form>
-            <p>
-                <a class="button" href="<?php echo esc_url($exportUrl); ?>"><?php esc_html_e('Export CSV', 'koperasikita'); ?></a>
+            <p class="kk-subscribers-card-actions">
+                <a class="kk-subscribers-button kk-subscribers-button--primary" href="<?php echo esc_url($exportUrl); ?>"><?php esc_html_e('Export CSV', 'koperasikita'); ?></a>
             </p>
             <?php if ($rows === []) : ?>
                 <p><?php esc_html_e('No subscribers yet.', 'koperasikita'); ?></p>
             <?php else : ?>
-                <table class="wp-list-table widefat fixed striped">
+                <div class="kk-subscribers-table-wrap">
+                <table class="wp-list-table widefat fixed striped kk-subscribers-table">
                     <thead>
                         <tr>
                             <th scope="col"><?php esc_html_e('Email', 'koperasikita'); ?></th>
@@ -110,6 +112,7 @@ final class SubscribersPage
                         <?php endforeach; ?>
                     </tbody>
                 </table>
+                </div>
                 <?php if ($pages > 1) : ?>
                     <div class="tablenav">
                         <div class="tablenav-pages">
@@ -125,6 +128,7 @@ final class SubscribersPage
                     </div>
                 <?php endif; ?>
             <?php endif; ?>
+            </section>
         </div>
         <script>
         // Two-step delete: the first click arms the button

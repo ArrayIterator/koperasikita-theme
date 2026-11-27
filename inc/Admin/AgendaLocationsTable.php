@@ -37,6 +37,12 @@ final class AgendaLocationsTable extends \WP_List_Table
         $this->locations = $locations;
     }
 
+    /** @return array<int, string> */
+    protected function get_table_classes(): array
+    {
+        return array_merge(parent::get_table_classes(), ['kk-locations-table']);
+    }
+
     /** @return array<string, string> */
     public function get_columns(): array
     {
