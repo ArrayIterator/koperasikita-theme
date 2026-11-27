@@ -759,7 +759,7 @@ function initDataDeskPreview(): void {
 					const selection = window.getSelection();
 					if (selection && selection.rangeCount > 0) {
 						const range = selection.getRangeAt(0);
-						range.deleteFromDocument();
+						range.deleteContents();
 						range.insertNode(document.createTextNode(token));
 						range.collapse(false);
 						selection.removeAllRanges();
