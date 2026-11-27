@@ -553,6 +553,7 @@ function updatePriceDom(container: HTMLElement, prices: LivePriceMap): void {
 		if (changeEl) {
 			if (entry.change === null || !Number.isFinite(entry.change)) {
 				changeEl.textContent = '';
+				changeEl.classList.remove('kk-market-change-up', 'kk-market-change-down');
 			} else {
 				changeEl.textContent = formatChange(entry.change);
 				changeEl.classList.toggle('kk-market-change-up', entry.change >= 0);

@@ -133,6 +133,37 @@ abstract class AbstractLiveProvider implements MarketPriceProvider
     }
 
     /**
+     * Stored prices only: the fresh transient, else the last-good
+     * option. Never fetches upstream, so a page render that serves
+     * stored prices never stalls on the network - a cold transient
+     * used to block the whole render on an 8-second upstream call,
+     * which is what left the gold slider empty on the first load
+     * and made the data arrive late, like a debounce. Callers that
+     * need a value on the first paint use this; the live fetch is
+     * the last resort when nothing is stored at all (see prices()).
+     *
+     * @return array<string, MarketPrice>
+     */
+    public function storedPrices(string $market): array
+    {
+        if (!$this->supports($market)) {
+            return [];
+        }
+
+        $cached = get_transient($this->transientKey());
+        if (is_array($cached) && $cached !== []) {
+            return $this->toMarketPrices($market, $cached);
+        }
+
+        $last = get_option($this->lastGoodOption());
+        if (is_array($last) && $last !== []) {
+            return $this->toMarketPrices($market, $last);
+        }
+
+        return [];
+    }
+
+    /**
      * Turn a fetched symbol map into MarketPrice objects, keeping
      * only symbols the market actually defines and rows that carry
      * a positive price.
