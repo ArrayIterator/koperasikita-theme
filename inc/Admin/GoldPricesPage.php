@@ -42,8 +42,9 @@ final class GoldPricesPage
     /** Rows the history chart reads at most (filter applies, page does not). */
     private const HISTORY_CHART_CAP = 200;
 
-    /** Chart geometry (viewBox units, scales to the container). */
-    private const CHART_WIDTH = 720;
+    /** Chart geometry (viewBox units, scales to the container). Wide
+     * aspect so the full-width render stays short. */
+    private const CHART_WIDTH = 1200;
     private const CHART_HEIGHT = 260;
     private const CHART_PAD_LEFT = 84;
     private const CHART_PAD_RIGHT = 16;
@@ -895,7 +896,7 @@ final class GoldPricesPage
                 . '</span>';
         }
         ?>
-        <figure style="margin:0 0 1rem;max-width:<?php echo (int) self::CHART_WIDTH; ?>px">
+        <figure style="margin:0 0 1rem">
             <svg viewBox="0 0 <?php echo (int) self::CHART_WIDTH; ?> <?php echo (int) self::CHART_HEIGHT; ?>" width="100%" role="img" aria-label="<?php esc_attr_e('Gold price history per brand', 'koperasikita'); ?>">
                 <line x1="<?php echo (int) self::CHART_PAD_LEFT; ?>" y1="<?php echo (int) self::CHART_PAD_TOP; ?>" x2="<?php echo (int) self::CHART_PAD_LEFT; ?>" y2="<?php echo (int) (self::CHART_HEIGHT - self::CHART_PAD_BOTTOM); ?>" stroke="#d1d5db" />
                 <line x1="<?php echo (int) self::CHART_PAD_LEFT; ?>" y1="<?php echo (int) (self::CHART_HEIGHT - self::CHART_PAD_BOTTOM); ?>" x2="<?php echo (int) (self::CHART_WIDTH - self::CHART_PAD_RIGHT); ?>" y2="<?php echo (int) (self::CHART_HEIGHT - self::CHART_PAD_BOTTOM); ?>" stroke="#d1d5db" />
