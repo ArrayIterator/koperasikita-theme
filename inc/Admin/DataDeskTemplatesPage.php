@@ -304,13 +304,15 @@ final class DataDeskTemplatesPage
                     <label for="kk-template-name"><?php esc_html_e('Name', 'koperasikita'); ?></label>
                     <input type="text" id="kk-template-name" name="kk_template_name" value="<?php echo esc_attr($template['name']); ?>" required>
                 </div>
-                <div class="kk-data-desk-topbar-field kk-data-desk-topbar-field--title">
+                <div class="kk-data-desk-topbar-field kk-data-desk-topbar-field--title" data-kk-template-table-control>
                     <label for="kk-template-title"><?php esc_html_e('Title', 'koperasikita'); ?></label>
-                    <?php /* The visible title field IS the save field
-                     * (same id + name the inline preview edit writes
-                     * into), so typing here refreshes the preview live
-                     * and an inline edit in the preview updates this
-                     * input — one field, two ways to edit it. */ ?>
+                    <?php /* The title field IS the save field (same id +
+                     * name the inline preview edit writes into), so
+                     * typing here refreshes the preview live and an
+                     * inline edit in the preview updates this input —
+                     * one field, two ways to edit it. Table-only: a
+                     * panel's title is edited inline in the preview,
+                     * so the top bar does not need this field. */ ?>
                     <input type="text" id="kk-template-title" name="kk_template_title" value="<?php echo esc_attr($template['title']); ?>">
                 </div>
                 <div class="kk-data-desk-topbar-field">
