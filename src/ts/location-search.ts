@@ -292,9 +292,11 @@ export function initLocationSearch(root: HTMLElement, config: AjaxConfig | null)
 	function clearPick(): void {
 		if (latInput) {
 			latInput.value = '';
+			latInput.dispatchEvent(new Event('change', { bubbles: true }));
 		}
 		if (lngInput) {
 			lngInput.value = '';
+			lngInput.dispatchEvent(new Event('change', { bubbles: true }));
 		}
 		if (descInput) {
 			descInput.value = '';
@@ -332,9 +334,16 @@ export function initLocationSearch(root: HTMLElement, config: AjaxConfig | null)
 			}
 			if (latField) {
 				latField.value = String(place.latitude);
+				// A programmatic value set fires no event, so announce
+				// it: the form's preview map follows these fields.
+				latField.dispatchEvent(new Event('change', { bubbles: true }));
 			}
 			if (lngField) {
 				lngField.value = String(place.longitude);
+				lngField.dispatchEvent(new Event('change', { bubbles: true }));
+			}
+			if (coordsEl) {
+				coordsEl.textContent = `${place.latitude}, ${place.longitude}`;
 			}
 			return;
 		}

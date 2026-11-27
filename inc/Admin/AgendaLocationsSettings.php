@@ -375,6 +375,9 @@ final class AgendaLocationsSettings
             'lng' => isset($stored['lng']) ? (string) $stored['lng'] : '',
             'description' => $stored['description'] ?? '',
         ];
+        $coords = ($form['lat'] !== '' && $form['lng'] !== '')
+            ? $form['lat'] . ', ' . $form['lng']
+            : __('No pin placed', 'koperasikita');
         ?>
         <h2><?php echo $id !== '' ? esc_html__('Edit Location', 'koperasikita') : esc_html__('Add New Location', 'koperasikita'); ?></h2>
         <form method="post" action="<?php echo esc_url(add_query_arg(['action' => $id !== '' ? 'edit' : 'new', 'id' => $id], $pageUrl)); ?>">
@@ -421,16 +424,38 @@ final class AgendaLocationsSettings
                 </tr>
                 <tr>
                     <th scope="row"><label for="kk-location-lat"><?php esc_html_e('Latitude', 'koperasikita'); ?></label></th>
-                    <td><input type="number" id="kk-location-lat" name="kk_location_lat" value="<?php echo esc_attr($form['lat']); ?>" step="any" min="-90" max="90" inputmode="decimal" class="regular-text" required></td>
+                    <td><input type="number" id="kk-location-lat" name="kk_location_lat" value="<?php echo esc_attr($form['lat']); ?>" step="any" min="-90" max="90" inputmode="decimal" class="regular-text" data-kk-agenda-lat required></td>
                 </tr>
                 <tr>
                     <th scope="row"><label for="kk-location-lng"><?php esc_html_e('Longitude', 'koperasikita'); ?></label></th>
-                    <td><input type="number" id="kk-location-lng" name="kk_location_lng" value="<?php echo esc_attr($form['lng']); ?>" step="any" min="-180" max="180" inputmode="decimal" class="regular-text" required></td>
+                    <td><input type="number" id="kk-location-lng" name="kk_location_lng" value="<?php echo esc_attr($form['lng']); ?>" step="any" min="-180" max="180" inputmode="decimal" class="regular-text" data-kk-agenda-lng required></td>
+                </tr>
+                <tr>
+                    <th scope="row"><?php esc_html_e('Map', 'koperasikita'); ?></th>
+                    <td>
+                        <?php /* The Leaflet preview map + Pick Location button:
+                         * the map shows the pin from the Latitude /
+                         * Longitude fields above (centred on the
+                         * default location with no pin until both hold
+                         * a coordinate); the button opens the same
+                         * shared popup the agenda editor uses, and
+                         * "Use this location" writes back into these
+                         * visible fields. The map container is display:
+                         * none until the script marks it ready, so
+                         * without JavaScript there is no empty box. */ ?>
+                        <div class="kk-agenda-map-picker" data-kk-agenda-map-picker data-kk-agenda-default-lat="<?php echo esc_attr((string) Agenda::DEFAULT_LAT); ?>" data-kk-agenda-default-lng="<?php echo esc_attr((string) Agenda::DEFAULT_LNG); ?>" data-kk-agenda-no-pin="<?php esc_attr_e('No pin placed', 'koperasikita'); ?>">
+                            <div class="kk-agenda-map" data-kk-location-preview-map></div>
+                            <p>
+                                <button type="button" class="button" data-kk-agenda-pick><?php esc_html_e('Pick Location', 'koperasikita'); ?></button>
+                            </p>
+                            <p class="kk-agenda-coords" data-kk-agenda-coords><?php echo esc_html($coords); ?></p>
+                        </div>
+                    </td>
                 </tr>
                 <tr>
                     <th scope="row"><label for="kk-location-description"><?php esc_html_e('Location description', 'koperasikita'); ?></label></th>
                     <td>
-                        <textarea id="kk-location-description" name="kk_location_description" rows="3" maxlength="<?php echo (int) Agenda::LOCATION_DESC_MAX; ?>" class="large-text"><?php echo esc_textarea($form['description']); ?></textarea>
+                        <textarea id="kk-location-description" name="kk_location_description" rows="3" maxlength="<?php echo (int) Agenda::LOCATION_DESC_MAX; ?>" class="large-text" data-kk-agenda-location-desc><?php echo esc_textarea($form['description']); ?></textarea>
                         <p class="description"><?php esc_html_e('Shown in the map marker popup for the event.', 'koperasikita'); ?></p>
                     </td>
                 </tr>

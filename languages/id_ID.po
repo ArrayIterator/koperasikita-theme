@@ -2807,8 +2807,8 @@ msgid "Search for a place…"
 msgstr "Cari tempat…"
 
 #: inc/Features/Agenda.php
-msgid "Click the map to place the pin, or drag the pin to move it. The coordinates are saved with the event."
-msgstr "Klik peta untuk menaruh pin, atau seret pin untuk memindahkannya. Koordinat tersimpan bersama acara."
+msgid "Click the map to place the pin, or drag the pin to move it. The coordinates are saved with the location."
+msgstr "Klik peta untuk menaruh pin, atau seret pin untuk memindahkannya. Koordinat tersimpan bersama lokasi."
 
 #: inc/Features/Agenda.php
 msgid "No pin placed"

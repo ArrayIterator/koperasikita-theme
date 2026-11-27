@@ -55,7 +55,7 @@ $locations = \KoperasiKita\Features\Agenda::savedLocations();
 		</p>
 		<ul class="kk-agenda-popup-results" data-kk-agenda-popup-results hidden></ul>
 		<div class="kk-agenda-map" data-kk-agenda-popup-map></div>
-		<p class="kk-agenda-hint"><?php esc_html_e('Click the map to place the pin, or drag the pin to move it. The coordinates are saved with the event.', 'koperasikita'); ?></p>
+		<p class="kk-agenda-hint"><?php esc_html_e('Click the map to place the pin, or drag the pin to move it. The coordinates are saved with the location.', 'koperasikita'); ?></p>
 		<div class="kk-agenda-popup-coords">
 			<p class="kk-agenda-popup-field">
 				<label for="kk-agenda-popup-lat"><?php esc_html_e('Latitude', 'koperasikita'); ?></label>
