@@ -799,6 +799,34 @@ msgstr "Harga emas untuk merek emas Indonesia sebagai tabel data. Harga diedit d
 msgid "Koperasi Kita Gold Prices"
 msgstr "Harga Emas Koperasi Kita"
 
+#: inc/Widgets/GoldWidget.php src/ts/widget-blocks.ts
+msgid "Vertical Carousel"
+msgstr "Carousel Vertikal"
+
+#: inc/Widgets/GoldWidget.php src/ts/widget-blocks.ts
+msgid "Horizontal Carousel"
+msgstr "Carousel Horizontal"
+
+#: inc/Widgets/GoldWidget.php src/ts/widget-blocks.ts
+msgid "Slider Horizontal"
+msgstr "Slider Horizontal"
+
+#: inc/Widgets/GoldWidget.php src/ts/widget-blocks.ts
+msgid "Slider style"
+msgstr "Gaya Slider"
+
+#: inc/Widgets/GoldWidget.php src/ts/widget-blocks.ts
+msgid "Colour style"
+msgstr "Gaya Warna"
+
+#: inc/Widgets/GoldWidget.php src/ts/widget-blocks.ts
+msgid "Autoplay"
+msgstr "Autoplay"
+
+#: inc/Widgets/GoldWidget.php src/ts/widget-blocks.ts
+msgid "Autoplay interval (seconds)"
+msgstr "Interval Autoplay (detik)"
+
 #: inc/Widgets/GoldDataDeskWidget.php
 msgid "Koperasi Kita Gold Data Desk"
 msgstr "Koperasi Kita Data Desk Emas"

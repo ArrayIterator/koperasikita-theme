@@ -1193,6 +1193,10 @@ function buildDefinitions(api: Wp): BlockDef[] {
 				title: { type: 'string', default: '' },
 				headerStyle: { type: 'string', default: 'classic-top' },
 				brands: { type: 'array', default: [], items: { type: 'string' } },
+				style: { type: 'string', default: 'vertical-carousel' },
+				colorStyle: { type: 'string', default: 'auto' },
+				autoplay: { type: 'boolean', default: true },
+				interval: { type: 'number', default: 5 },
 			},
 			fields: [
 				{ key: 'title', kind: 'text', label: __('Title') },
@@ -1205,6 +1209,28 @@ function buildDefinitions(api: Wp): BlockDef[] {
 					source: 'options',
 					options: kkWidgetBlocks?.goldBrands ?? [],
 				},
+				{
+					key: 'style',
+					kind: 'select',
+					label: __('Slider style'),
+					options: [
+						{ value: 'vertical-carousel', label: __('Vertical Carousel') },
+						{ value: 'horizontal-carousel', label: __('Horizontal Carousel') },
+						{ value: 'slider-horizontal', label: __('Slider Horizontal') },
+					],
+				},
+				{
+					key: 'colorStyle',
+					kind: 'select',
+					label: __('Colour style'),
+					options: [
+						{ value: 'auto', label: __('Auto') },
+						{ value: 'dark', label: __('Dark Green') },
+						{ value: 'light', label: __('Light') },
+					],
+				},
+				{ key: 'autoplay', kind: 'toggle', label: __('Autoplay') },
+				{ key: 'interval', kind: 'number', label: __('Autoplay interval (seconds)'), min: 2, max: 30 },
 			],
 		},
 		{

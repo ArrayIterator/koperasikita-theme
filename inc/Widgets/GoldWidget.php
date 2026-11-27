@@ -21,6 +21,15 @@ use WP_Widget;
  */
 final class GoldWidget extends WP_Widget
 {
+    private const DEFAULT_STYLE = 'vertical-carousel';
+    private const DEFAULT_COLOR_STYLE = 'auto';
+    private const DEFAULT_AUTOPLAY = true;
+    private const DEFAULT_INTERVAL = 5;
+    private const MIN_INTERVAL = 2;
+    private const MAX_INTERVAL = 30;
+    private const STYLES = ['vertical-carousel', 'horizontal-carousel', 'slider-horizontal'];
+    private const COLOR_STYLES = ['auto', 'dark', 'light'];
+
     public function __construct()
     {
         parent::__construct(
@@ -45,6 +54,10 @@ final class GoldWidget extends WP_Widget
         $brands = isset($instance['brands']) && is_array($instance['brands'])
             ? array_values(array_intersect($instance['brands'], Gold::enabledBrands()))
             : Gold::enabledBrands();
+        $style = self::sanitizeStyle(isset($instance['style']) ? (string) $instance['style'] : self::DEFAULT_STYLE);
+        $colorStyle = self::sanitizeColorStyle(isset($instance['color_style']) ? (string) $instance['color_style'] : self::DEFAULT_COLOR_STYLE);
+        $autoplay = !isset($instance['autoplay']) || (bool) $instance['autoplay'];
+        $interval = self::sanitizeInterval(isset($instance['interval']) ? (int) $instance['interval'] : self::DEFAULT_INTERVAL);
 
         $prices = Gold::brandPrices($brands);
 
@@ -54,9 +67,56 @@ final class GoldWidget extends WP_Widget
 
         get_template_part('template-parts/gold/slider', null, [
             'brands' => $prices,
+            'style' => $style,
+            'color_style' => $colorStyle,
+            'autoplay' => $autoplay,
+            'interval' => $interval,
         ]);
 
         echo $args['after_widget'] ?? '';
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    public static function styleOptions(): array
+    {
+        return [
+            'vertical-carousel' => __('Vertical Carousel', 'koperasikita'),
+            'horizontal-carousel' => __('Horizontal Carousel', 'koperasikita'),
+            'slider-horizontal' => __('Slider Horizontal', 'koperasikita'),
+        ];
+    }
+
+    public static function sanitizeStyle(string $style): string
+    {
+        return in_array($style, self::STYLES, true) ? $style : self::DEFAULT_STYLE;
+    }
+
+    /**
+     * Auto follows the site colour scheme; Dark and Light force the
+     * theme's dark and light card colours, the same rule as the
+     * Agenda card.
+     *
+     * @return array<string, string>
+     */
+    public static function colorStyleOptions(): array
+    {
+        return [
+            'auto' => __('Auto', 'koperasikita'),
+            'dark' => __('Dark Green', 'koperasikita'),
+            'light' => __('Light', 'koperasikita'),
+        ];
+    }
+
+    public static function sanitizeColorStyle(string $style): string
+    {
+        return in_array($style, self::COLOR_STYLES, true) ? $style : self::DEFAULT_COLOR_STYLE;
+    }
+
+    public static function sanitizeInterval(int $interval): int
+    {
+        return max(self::MIN_INTERVAL, min(self::MAX_INTERVAL, $interval));
     }
 
     /** @param array<string, mixed> $instance Widget settings. */
@@ -66,6 +126,10 @@ final class GoldWidget extends WP_Widget
         $selected = isset($instance['brands']) && is_array($instance['brands'])
             ? array_values(array_intersect($instance['brands'], Gold::enabledBrands()))
             : Gold::enabledBrands();
+        $style = self::sanitizeStyle(isset($instance['style']) ? (string) $instance['style'] : self::DEFAULT_STYLE);
+        $colorStyle = self::sanitizeColorStyle(isset($instance['color_style']) ? (string) $instance['color_style'] : self::DEFAULT_COLOR_STYLE);
+        $autoplay = !isset($instance['autoplay']) || (bool) $instance['autoplay'];
+        $interval = self::sanitizeInterval(isset($instance['interval']) ? (int) $instance['interval'] : self::DEFAULT_INTERVAL);
         ?>
         <p>
             <label for="<?php echo esc_attr($this->get_field_id('title')); ?>">
@@ -104,6 +168,61 @@ final class GoldWidget extends WP_Widget
             </select>
             <span class="description"><?php esc_html_e('Leave empty to show all brands.', 'koperasikita'); ?></span>
         </p>
+        <p>
+            <label for="<?php echo esc_attr($this->get_field_id('style')); ?>">
+                <?php esc_html_e('Slider style', 'koperasikita'); ?>
+            </label>
+            <select
+                class="widefat"
+                id="<?php echo esc_attr($this->get_field_id('style')); ?>"
+                name="<?php echo esc_attr($this->get_field_name('style')); ?>"
+            >
+                <?php foreach (self::styleOptions() as $value => $label) : ?>
+                    <option value="<?php echo esc_attr($value); ?>" <?php selected($style, $value); ?>><?php echo esc_html($label); ?></option>
+                <?php endforeach; ?>
+            </select>
+        </p>
+        <p>
+            <label for="<?php echo esc_attr($this->get_field_id('color_style')); ?>">
+                <?php esc_html_e('Colour style', 'koperasikita'); ?>
+            </label>
+            <select
+                class="widefat"
+                id="<?php echo esc_attr($this->get_field_id('color_style')); ?>"
+                name="<?php echo esc_attr($this->get_field_name('color_style')); ?>"
+            >
+                <?php foreach (self::colorStyleOptions() as $value => $label) : ?>
+                    <option value="<?php echo esc_attr($value); ?>" <?php selected($colorStyle, $value); ?>><?php echo esc_html($label); ?></option>
+                <?php endforeach; ?>
+            </select>
+        </p>
+        <p>
+            <label for="<?php echo esc_attr($this->get_field_id('autoplay')); ?>">
+                <input
+                    type="checkbox"
+                    id="<?php echo esc_attr($this->get_field_id('autoplay')); ?>"
+                    name="<?php echo esc_attr($this->get_field_name('autoplay')); ?>"
+                    value="1"
+                    <?php checked($autoplay); ?>
+                >
+                <?php esc_html_e('Autoplay', 'koperasikita'); ?>
+            </label>
+        </p>
+        <p>
+            <label for="<?php echo esc_attr($this->get_field_id('interval')); ?>">
+                <?php esc_html_e('Autoplay interval (seconds)', 'koperasikita'); ?>
+            </label>
+            <input
+                class="widefat"
+                type="number"
+                min="<?php echo esc_attr((string) self::MIN_INTERVAL); ?>"
+                max="<?php echo esc_attr((string) self::MAX_INTERVAL); ?>"
+                step="1"
+                id="<?php echo esc_attr($this->get_field_id('interval')); ?>"
+                name="<?php echo esc_attr($this->get_field_name('interval')); ?>"
+                value="<?php echo esc_attr((string) $interval); ?>"
+            >
+        </p>
         <?php
     }
 
@@ -122,6 +241,10 @@ final class GoldWidget extends WP_Widget
             : [];
         $instance['brands'] = $brands !== [] ? $brands : Gold::enabledBrands();
         $instance['header_style'] = WidgetHeader::sanitize($new['header_style'] ?? WidgetHeader::CLASSIC);
+        $instance['style'] = self::sanitizeStyle(isset($new['style']) ? sanitize_text_field((string) $new['style']) : self::DEFAULT_STYLE);
+        $instance['color_style'] = self::sanitizeColorStyle(isset($new['color_style']) ? sanitize_text_field((string) $new['color_style']) : self::DEFAULT_COLOR_STYLE);
+        $instance['autoplay'] = !empty($new['autoplay']);
+        $instance['interval'] = self::sanitizeInterval(isset($new['interval']) ? (int) $new['interval'] : self::DEFAULT_INTERVAL);
 
         return $instance;
     }

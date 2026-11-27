@@ -58,25 +58,45 @@ function initAutoSlider(slider: HTMLElement, kind: 'gold' | 'markets', label: st
 	const parsedInterval = Number(slider.dataset.interval ?? 5000);
 	const interval = Number.isFinite(parsedInterval) && parsedInterval >= 2000 ? parsedInterval : 5000;
 
+	// Horizontal styles keep every slide visible in a swipeable row
+	// and scroll the active one into view; the vertical slider
+	// toggles a single active slide. The markets slider has no style
+	// attribute, so it stays vertical. data-autoplay="0" disables
+	// the timer.
+	const style = slider.dataset.style ?? 'vertical-carousel';
+	const horizontal = style === 'horizontal-carousel' || style === 'slider-horizontal';
+	const autoplay = slider.dataset.autoplay !== '0';
+	const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
 	let current = 0;
 	let timer: number | null = null;
 	let userPaused = false;
 	let hoverPaused = false;
 
-	function show(index: number): void {
-		const previous = slides[current];
-		current = (index + slides.length) % slides.length;
-		const next = slides[current];
-		if (previous === next) {
-			return;
-		}
-		previous.classList.remove('is-active');
-		next.classList.add('is-active');
+	function syncDots(): void {
 		dots.forEach((dot, dotIndex) => {
 			const active = dotIndex === current;
 			dot.classList.toggle('is-active', active);
 			dot.setAttribute('aria-current', active ? 'true' : 'false');
 		});
+	}
+
+	function show(index: number): void {
+		const next = (index + slides.length) % slides.length;
+		if (next === current) {
+			return;
+		}
+		slides[current].classList.remove('is-active');
+		current = next;
+		slides[current].classList.add('is-active');
+		syncDots();
+		if (horizontal) {
+			slides[current].scrollIntoView({
+				behavior: reducedMotion ? 'auto' : 'smooth',
+				inline: 'start',
+				block: 'nearest',
+			});
+		}
 	}
 
 	function stop(): void {
@@ -87,7 +107,7 @@ function initAutoSlider(slider: HTMLElement, kind: 'gold' | 'markets', label: st
 	}
 
 	function start(): void {
-		if (userPaused || hoverPaused || document.hidden) {
+		if (!autoplay || userPaused || hoverPaused || document.hidden) {
 			return;
 		}
 		stop();
@@ -157,35 +177,71 @@ function initAutoSlider(slider: HTMLElement, kind: 'gold' | 'markets', label: st
 		}
 	});
 
-	// Horizontal swipe: a short horizontal drag changes slides, a mostly
-	// vertical drag is left alone so the page can still scroll.
-	let touchStartX = 0;
-	let touchStartY = 0;
-	slider.addEventListener(
-		'touchstart',
-		(event) => {
-			const touch = event.changedTouches[0];
-			touchStartX = touch.clientX;
-			touchStartY = touch.clientY;
-		},
-		{ passive: true },
-	);
-	slider.addEventListener(
-		'touchend',
-		(event) => {
-			const touch = event.changedTouches[0];
-			const deltaX = touch.clientX - touchStartX;
-			const deltaY = touch.clientY - touchStartY;
-			if (Math.abs(deltaX) < 40 || Math.abs(deltaX) < Math.abs(deltaY)) {
-				return;
-			}
-			show(current + (deltaX < 0 ? 1 : -1));
-			start();
-		},
-		{ passive: true },
-	);
+	if (horizontal) {
+		// The row scrolls natively on swipe; sync the active card
+		// and dots to where the track stopped.
+		const track = slides[0].parentElement;
+		if (track !== null) {
+			let scrollRaf = 0;
+			track.addEventListener(
+				'scroll',
+				() => {
+					if (scrollRaf !== 0) {
+						return;
+					}
+					scrollRaf = window.requestAnimationFrame(() => {
+						scrollRaf = 0;
+						const trackLeft = track.getBoundingClientRect().left;
+						let best = current;
+						let bestDist = Number.POSITIVE_INFINITY;
+						slides.forEach((slide, slideIndex) => {
+							const dist = Math.abs(slide.getBoundingClientRect().left - trackLeft);
+							if (dist < bestDist) {
+								bestDist = dist;
+								best = slideIndex;
+							}
+						});
+						if (best !== current) {
+							slides[current].classList.remove('is-active');
+							current = best;
+							slides[current].classList.add('is-active');
+							syncDots();
+						}
+					});
+				},
+				{ passive: true },
+			);
+		}
+	} else {
+		// Horizontal swipe: a short horizontal drag changes slides, a mostly
+		// vertical drag is left alone so the page can still scroll.
+		let touchStartX = 0;
+		let touchStartY = 0;
+		slider.addEventListener(
+			'touchstart',
+			(event) => {
+				const touch = event.changedTouches[0];
+				touchStartX = touch.clientX;
+				touchStartY = touch.clientY;
+			},
+			{ passive: true },
+		);
+		slider.addEventListener(
+			'touchend',
+			(event) => {
+				const touch = event.changedTouches[0];
+				const deltaX = touch.clientX - touchStartX;
+				const deltaY = touch.clientY - touchStartY;
+				if (Math.abs(deltaX) < 40 || Math.abs(deltaX) < Math.abs(deltaY)) {
+					return;
+				}
+				show(current + (deltaX < 0 ? 1 : -1));
+				start();
+			},
+			{ passive: true },
+		);
+	}
 
-	const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 	if (!reducedMotion) {
 		start();
 	}
