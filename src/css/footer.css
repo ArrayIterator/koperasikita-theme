@@ -31,15 +31,6 @@
 	overflow-wrap: break-word;
 }
 
-.kk-footer-heading {
-	font-size: 12px;
-	font-weight: 700;
-	letter-spacing: 0.14em;
-	text-transform: uppercase;
-	color: var(--kk-green, #0B6B3A);
-	margin-bottom: 12px;
-}
-
 /* A widget placed in a footer column titles itself like the
  * built-in footer headings, so a custom footer column keeps the
  * same look as the default one. The base .kk-widget-title is a
@@ -70,26 +61,29 @@
 	margin-top: 32px;
 }
 
-.kk-footer-site-name {
-	font-family: var(--kk-serif);
-	font-size: 22px;
-	font-weight: 700;
+/* The footer menu lives in the bottom bar now, not in a widget
+ * column: a horizontal row on its own line directly above the
+ * copyright, following the bottom bar's alignment. */
+.kk-footer-bottom-nav {
+	flex: 1 1 100%;
 }
 
-.kk-footer-description,
-.kk-footer-note {
-	font-size: 14px;
-	color: var(--kk-muted);
-	margin-top: 8px;
+.kk-footer-menu {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 4px 24px;
 }
 
-.kk-footer-logo .custom-logo {
-	max-height: 48px;
-	width: auto;
+.kk-footer-bottom--center .kk-footer-menu {
+	justify-content: center;
+}
+
+.kk-footer-bottom--right .kk-footer-menu {
+	justify-content: flex-end;
 }
 
 .kk-footer-menu li {
-	padding: 6px 0;
+	padding: 0;
 }
 
 .kk-footer-menu a {
