@@ -87,8 +87,8 @@ final class CategorySummaryWidget extends WP_Widget
             return;
         }
 
-        // No-border: the section header carries its own top rule, so
-        // the sidebar container's rule must not double it.
+        // The section header carries its own top rule, and the widget
+        // has no title style - so the container carries no top border.
         echo WidgetHeader::beforeWidget($args, WidgetHeader::NO_BORDER);
 
         get_template_part('template-parts/content/category-summary', null, [

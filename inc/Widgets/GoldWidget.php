@@ -61,7 +61,7 @@ final class GoldWidget extends WP_Widget
 
         $prices = Gold::brandPrices($brands);
 
-        echo $args['before_widget'] ?? '';
+        echo WidgetHeader::beforeWidget($args, WidgetHeader::style($instance));
 
         WidgetHeader::render($args, $title, WidgetHeader::style($instance));
 

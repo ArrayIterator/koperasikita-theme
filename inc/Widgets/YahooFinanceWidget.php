@@ -63,7 +63,7 @@ final class YahooFinanceWidget extends WP_Widget
             ],
         ];
 
-        echo $args['before_widget'] ?? '';
+        echo WidgetHeader::beforeWidget($args, WidgetHeader::style($instance));
 
         WidgetHeader::render($args, $title, WidgetHeader::style($instance));
 

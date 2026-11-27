@@ -100,16 +100,13 @@ html[data-color-scheme="system"] .kk-pick-number {
 }
 
 /* Widget shell: the_widget() has no .kk-sidebar ancestor in the
- * editor, so the canvas wrapper carries the same top rule the
- * sidebar gives the widget on the frontend (content.css). */
-.kk-widget-block-canvas .widget {
+ * editor, so the canvas wrapper carries the same style-driven top
+ * rule the sidebar gives the widget on the frontend (content.css):
+ * only classic-top and classic-top-bottom carry it; by default a
+ * widget has no top border. */
+.kk-widget-block-canvas .widget.kk-widget--top-border {
 	border-top: 2px solid var(--kk-ink);
 	padding-top: 12px;
-}
-
-.kk-widget-block-canvas .widget.kk-widget--no-border {
-	border-top: 0;
-	padding-top: 0;
 }
 
 /* The No Margin markets style, same as the frontend rule. */

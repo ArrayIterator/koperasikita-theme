@@ -49,7 +49,7 @@ final class WeatherWidget extends WP_Widget
         $location = $locations[0];
         $weather = Weather::current($location);
 
-        echo $args['before_widget'] ?? ''; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+        echo WidgetHeader::beforeWidget($args, WidgetHeader::style($instance)); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 
         WidgetHeader::render($args, $title, WidgetHeader::style($instance));
 
