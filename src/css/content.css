@@ -51,11 +51,15 @@
 /* Widget areas */
 /* Full-width content strips (Below Header, Before Latest News, Before
  * Highlights, Block Area). They render in the normal flow and vanish
- * entirely when empty. Widgets inside get the standard widget
- * treatment (title) from .kk-sidebar .widget. The top rule comes
+ * entirely when empty. Widgets inside get the sidebar-style title
+ * treatment from the shared title rule below, and stack with the
+ * same 32px grid gap as a sidebar. The top rule comes
  * from the widget's title style, never from the area: by default a
  * widget has no top border at all. */
 .kk-widget-area {
+	display: grid;
+	gap: 32px;
+	align-content: start;
 	margin-bottom: 32px;
 }
 
@@ -81,8 +85,14 @@
 	align-content: start;
 }
 
+/* Front-page strips carry no .kk-sidebar wrapper, so the sidebar
+ * rule below would never match their titles. The selector list
+ * covers them too, so a title there renders exactly like a sidebar
+ * title. (Hero asides carry the kk-sidebar class themselves.) */
 .kk-sidebar .widget-title,
-.kk-sidebar .widgettitle {
+.kk-sidebar .widgettitle,
+.kk-widget-area .widget-title,
+.kk-widget-area .widgettitle {
 	font-family: var(--kk-serif);
 	font-size: 20px;
 	margin-bottom: 12px;
