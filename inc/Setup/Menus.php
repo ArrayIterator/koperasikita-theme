@@ -13,6 +13,35 @@ final class Menus
     public static function register(): void
     {
         add_filter('wp_nav_menu_objects', [self::class, 'limitBottomNavItems'], 10, 2);
+        add_filter('wp_nav_menu_items', [self::class, 'appendBookmarksLink'], 10, 2);
+    }
+
+    /**
+     * The bookmarks page has no menu of its own, so the footer nav
+     * links to it: appended as a plain menu item (same markup and
+     * classes as the items the user adds), so it looks like part of
+     * the menu. Nothing is appended when no page uses the Bookmarks
+     * template yet, or to any other menu location.
+     */
+    public static function appendBookmarksLink(string $items, object $args): string
+    {
+        if (($args->theme_location ?? '') !== 'footer') {
+            return $items;
+        }
+
+        $page = \KoperasiKita\Features\Bookmarks::page();
+
+        if ($page === null) {
+            return $items;
+        }
+
+        $items .= sprintf(
+            '<li class="menu-item"><a href="%s">%s</a></li>',
+            esc_url((string) get_permalink($page->ID)),
+            esc_html((string) get_the_title($page->ID))
+        );
+
+        return $items;
     }
 
     /**

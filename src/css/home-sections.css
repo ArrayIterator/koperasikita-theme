@@ -281,15 +281,19 @@
 	grid-area: bookmark;
 	align-self: start;
 	margin: 0;
-	/* Own column on a light background: ink, not the white glyph
-	 * meant for over a thumbnail (invisible here); no circle. */
-	background: transparent;
-	border-radius: 0;
-	color: var(--kk-ink);
-}
-
-.kk-category-block-list-column .kk-bookmark-button[aria-pressed="true"] {
-	color: var(--kk-green, #0B6B3A);
+	width: 36px;
+	height: 36px;
+	min-height: 0;
+	padding: 0;
+	justify-content: center;
+	/* Same rule as the grid variant: the same dark translucent
+	 * circle in both states, the icon alone is the state (line
+	 * outline unsaved, solid fill saved) - never a green glyph. */
+	border: 0;
+	border-radius: 50%;
+	background: rgb(0 0 0 / 0.45);
+	box-shadow: none;
+	color: #fff;
 }
 
 .kk-layout-switcher {

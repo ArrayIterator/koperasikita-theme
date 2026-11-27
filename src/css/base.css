@@ -14,6 +14,38 @@ body {
 	background: var(--kk-paper);
 }
 
+/* Scroll offset for the sticky nav: without it, any scroll-to
+ * (anchor, focus, find-in-page) lands its target under the sticky
+ * bar, so titles and controls read sliced in half. The offset is
+ * the same token the sticky sidebars use to clear the nav (~48px
+ * bar + gap). The admin-bar height lives on body, so :has()
+ * carries it onto the root for the logged-in case (same 32/46/0
+ * values as header.css); with the sticky header off, only the
+ * admin bar needs clearing. */
+html {
+	scroll-padding-top: calc(var(--kk-sidebar-sticky-offset, 64px) + var(--kk-admin-bar-height, 0px));
+}
+
+html:has(body.admin-bar) {
+	--kk-admin-bar-height: 32px;
+}
+
+@media (max-width: 782px) {
+	html:has(body.admin-bar) {
+		--kk-admin-bar-height: 46px;
+	}
+}
+
+@media (max-width: 600px) {
+	html:has(body.admin-bar) {
+		--kk-admin-bar-height: 0px;
+	}
+}
+
+html:has(body.kk-sticky-off) {
+	scroll-padding-top: var(--kk-admin-bar-height, 0px);
+}
+
 body.font-georgia {
 	font-family: var(--kk-serif);
 }

@@ -1016,6 +1016,10 @@ msgid "Results for \"%s\""
 msgstr "Hasil untuk \"%s\""
 
 #: search.php
+msgid "Results: %s"
+msgstr "Hasil: %s"
+
+#: search.php
 msgid "Search results"
 msgstr "Hasil pencarian"
 

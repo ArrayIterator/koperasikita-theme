@@ -229,21 +229,26 @@
 
 /* List rows: the bookmark takes its own column at the right edge of
  * the row, pinned to the top corner (level with the date) - centred
- * vertically it floats oddly in the middle of a tall row. The row is
- * flat on a light background, so the white glyph (meant for over a
- * thumbnail) is invisible here - ink, so the icon reads, and no
- * circle background (that belongs over a thumbnail only). */
+ * vertically it floats oddly in the middle of a tall row. The icon
+ * follows the same rule as the grid variant: the same dark
+ * translucent circle in both states, the icon alone is the state
+ * (line outline unsaved, solid fill saved) - never a green glyph
+ * or a bare icon on the row. The dark circle reads on the light
+ * row background just as it reads over a thumbnail. */
 .kk-layout-list .kk-card .kk-bookmark-button {
 	grid-area: bookmark;
 	align-self: start;
 	margin: 0;
-	background: transparent;
-	border-radius: 0;
-	color: var(--kk-ink);
-}
-
-.kk-layout-list .kk-card .kk-bookmark-button[aria-pressed="true"] {
-	color: var(--kk-green, #0B6B3A);
+	width: 36px;
+	height: 36px;
+	min-height: 0;
+	padding: 0;
+	justify-content: center;
+	border: 0;
+	border-radius: 50%;
+	background: rgb(0 0 0 / 0.45);
+	box-shadow: none;
+	color: #fff;
 }
 
 /* Desktop: the bookmark is a hover reveal - it appears only while the

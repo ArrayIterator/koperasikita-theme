@@ -28,6 +28,17 @@ $kk_has_sidebar = is_active_sidebar( $kk_sidebar_id );
 				printf( esc_html__( 'Results for "%s"', 'koperasikita' ), esc_html( get_search_query() ) );
 				?>
 			</h1>
+			<?php if ( ! $kk_no_results ) : ?>
+				<p class="kk-search-count">
+					<?php
+					/* translators: %s: Number of search results. No plural
+					 * form: the count stands on its own, so one string
+					 * covers every count in every language. */
+					$kk_found = isset( $GLOBALS['wp_query'] ) && $GLOBALS['wp_query'] instanceof WP_Query ? (int) $GLOBALS['wp_query']->found_posts : 0;
+					printf( esc_html__( 'Results: %s', 'koperasikita' ), esc_html( number_format_i18n( $kk_found ) ) );
+					?>
+				</p>
+			<?php endif; ?>
 			<?php get_search_form(); ?>
 		</header>
 

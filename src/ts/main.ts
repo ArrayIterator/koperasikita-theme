@@ -83,12 +83,12 @@ function getStoredScheme(): ColorScheme {
 		return stored;
 	}
 	// No stored choice: the Customizer default scheme (set on <html>
-	// as data-kk-default-scheme by header.php) wins over "system".
+	// as data-kk-default-scheme by header.php) wins over "light".
 	const fallback = document.documentElement.getAttribute('data-kk-default-scheme');
 	if (fallback === 'light' || fallback === 'dark' || fallback === 'system') {
 		return fallback;
 	}
-	return 'system';
+	return 'light';
 }
 
 function resolveScheme(scheme: ColorScheme): 'light' | 'dark' {
