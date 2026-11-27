@@ -28,7 +28,11 @@
 	}
 
 	.kk-footer-grid {
-		grid-template-columns: 1fr 1fr;
+		/* minmax(0, ...) like the mobile base rule (footer.css):
+		 * without it a track sizes to its widest min-content and a
+		 * long unbroken string in a footer widget pushes the whole
+		 * page past the viewport (measured +69px at 1280px). */
+		grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
 	}
 }
 
@@ -215,7 +219,11 @@
 	}
 
 	.kk-footer-grid {
-		grid-template-columns: 1.4fr 1fr 1.2fr;
+		/* minmax(0, ...) like the mobile base rule (footer.css):
+		 * without it a track sizes to its widest min-content and a
+		 * long unbroken string in a footer widget pushes the whole
+		 * page past the viewport (measured +69px at 1280px). */
+		grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr) minmax(0, 1.2fr);
 	}
 }
 
