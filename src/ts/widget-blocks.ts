@@ -397,7 +397,9 @@ function TermSearchField(props: {
 	const selectedSet = new Set(selected);
 	const labelFor = (val: string): string => {
 		const known = field.options.find((option) => option.value === val);
-		return known !== undefined ? known.label : val;
+		// Decode too: a localized label carrying an entity would
+		// otherwise show raw on the chip ("&amp;").
+		return known !== undefined ? decodeTitle(known.label) : val;
 	};
 
 	/* Results: the cached localized list while browsing, the core
@@ -437,9 +439,12 @@ function TermSearchField(props: {
 	} else if (records === null) {
 		waiting = true;
 	} else {
+		/* The core store returns term names entity-escaped
+		 * ("Bisnis &amp; Keuangan"), so decode them — the browse
+		 * list is already plain text and decoding it is a no-op. */
 		results = records
 			.filter((record) => !selectedSet.has(String(record.id)))
-			.map((record) => ({ value: String(record.id), label: record.name }));
+			.map((record) => ({ value: String(record.id), label: decodeTitle(record.name) }));
 	}
 
 	const onQueryChange = (next: string): void => {

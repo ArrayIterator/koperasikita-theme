@@ -262,6 +262,10 @@ function initLocationPreviewMap(el: HTMLElement): void {
 	const picker = el.closest<HTMLElement>('[data-kk-agenda-map-picker]');
 	const defaultLat = parseCoord(picker?.dataset.kkAgendaDefaultLat ?? '', -90, 90) ?? -0.9471;
 	const defaultLng = parseCoord(picker?.dataset.kkAgendaDefaultLng ?? '', -180, 180) ?? 100.4172;
+	// The coords line under the button shows what the fields hold, so
+	// it has to follow manual typing too — not just picks.
+	const coordsEl = picker?.querySelector<HTMLElement>('[data-kk-agenda-coords]') ?? null;
+	const noPin = picker?.dataset.kkAgendaNoPin ?? 'No pin placed';
 
 	// Same rule as the display map: the container is display: none
 	// until .is-ready, so show it before Leaflet measures it.
@@ -283,6 +287,9 @@ function initLocationPreviewMap(el: HTMLElement): void {
 				marker.remove();
 				marker = null;
 			}
+			if (coordsEl !== null) {
+				coordsEl.textContent = noPin;
+			}
 			return;
 		}
 
@@ -292,6 +299,9 @@ function initLocationPreviewMap(el: HTMLElement): void {
 			marker.setLatLng([lat, lng]);
 		}
 
+		if (coordsEl !== null) {
+			coordsEl.textContent = `${lat}, ${lng}`;
+		}
 		map.setView([lat, lng], map.getZoom());
 	};
 
