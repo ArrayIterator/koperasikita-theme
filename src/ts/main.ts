@@ -1005,7 +1005,11 @@ function syncBookmarkButton(button: HTMLButtonElement, saved: boolean): void {
 	button.setAttribute('aria-label', saved ? 'Remove bookmark' : 'Save bookmark');
 	const label = button.querySelector('.kk-bookmark-label');
 	if (label) {
-		label.textContent = saved ? 'Saved' : 'Save';
+		// The labels are rendered translated on the button itself, so
+		// the toggled text matches the site language.
+		label.textContent = saved
+			? (button.dataset.labelBookmarked ?? 'Bookmarked')
+			: (button.dataset.labelBookmark ?? 'Bookmark');
 	}
 }
 
@@ -1040,10 +1044,13 @@ async function initBookmarkButtons(): Promise<void> {
 		}
 		button.addEventListener('click', async () => {
 			const saved = button.getAttribute('aria-pressed') === 'true';
+			// Optimistic: the visual state flips with the click, before
+			// the IndexedDB write. A failed write reverts it, so the
+			// button never claims a state the store does not have.
+			syncBookmarkButton(button, !saved);
 			try {
 				if (saved) {
 					await deleteBookmark(postId);
-					syncBookmarkButton(button, false);
 				} else {
 					const existing = await getBookmark(postId);
 					const entry = entryFromButton(button);
@@ -1052,10 +1059,9 @@ async function initBookmarkButtons(): Promise<void> {
 						entry.createdAt = existing.createdAt;
 					}
 					await putBookmark(entry);
-					syncBookmarkButton(button, true);
 				}
 			} catch {
-				// Fail silently: the button simply does not change state.
+				syncBookmarkButton(button, saved);
 			}
 		});
 	}

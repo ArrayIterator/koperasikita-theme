@@ -152,10 +152,9 @@
 	color: var(--kk-ink);
 }
 
-.kk-bookmark-button:hover {
-	border-color: var(--kk-green, #0B6B3A);
-	color: var(--kk-green, #0B6B3A);
-}
+/* No hover style on purpose, same as the card button: a tap on
+ * touch screens triggers :hover, so green text/border would read
+ * as bookmarked on an unsaved post. Only the saved state is green. */
 
 .kk-bookmark-button[aria-pressed="true"] {
 	background: var(--kk-green, #0B6B3A);
@@ -169,12 +168,12 @@
 
 /* Bookmark on the card: an icon-only circle over the thumbnail (grid)
  * or a trailing action at the right edge of the row (list) - never a
- * stray button under the text. The "Save" label is hidden; the button
- * keeps its "Save bookmark" aria-label, and the saved state is the
- * green fill, same as before. Over a thumbnail the glyph sits on a
- * dark translucent circle, so the white icon reads on ANY thumbnail -
- * including the light default placeholder, where a bare white glyph
- * is invisible. */
+ * stray button under the text. The "Bookmark" label is hidden; the
+ * button keeps its "Save bookmark" aria-label, and the saved state is
+ * the green fill with a solid icon (the unsaved icon is an outline).
+ * Over a thumbnail the glyph sits on a dark translucent circle, so the
+ * white icon reads on ANY thumbnail - including the light default
+ * placeholder, where a bare white glyph is invisible. */
 .kk-card .kk-bookmark-button {
 	grid-area: media;
 	justify-self: end;
@@ -199,26 +198,22 @@
 	display: none;
 }
 
-/* The card bookmark is a solid fill (not a hollow outline), so the
- * icon reads as a bold shape on the circle - white over a thumbnail,
- * ink in a list row. The fill follows the button colour. */
+/* The card bookmark is a hollow outline until saved, then a solid
+ * fill (see the [aria-pressed="true"] rule below). A solid fill in
+ * both states reads as "already bookmarked" before the first click,
+ * so the unsaved icon stays an outline - the fill is the state. */
 .kk-card .kk-bookmark-button svg {
-	fill: currentColor;
+	fill: none;
 }
 
-.kk-card .kk-bookmark-button:hover {
-	background: var(--kk-green, #0B6B3A);
-	color: #fff;
-}
+/* No hover style on purpose: a tap on touch screens triggers :hover,
+ * so a green hover would read as bookmarked on an unsaved post.
+ * The button only ever shows the icon state - hover changes nothing. */
 
-.kk-card .kk-bookmark-button[aria-pressed="true"] {
-	background: var(--kk-green, #0B6B3A);
-	color: #fff;
-}
-
-/* Saved: the bookmark is a solid white fill on the green circle.
- * The svg is stroke-based (Feather), so both fill and stroke follow
- * the button colour - fill alone would leave a hollow outline. */
+/* Saved: only the icon changes - a solid fill instead of the line
+ * outline. The background stays the same dark circle as unsaved,
+ * so the fill alone is the state; a green background would read
+ * as bookmarked before the state is real. */
 .kk-card .kk-bookmark-button[aria-pressed="true"] svg {
 	fill: currentColor;
 	stroke: currentColor;
@@ -256,9 +251,10 @@
  * thumbnail stays clean. Touch devices have no hover, so the button
  * is always visible there. */
 @media (hover: hover) and (pointer: fine) {
+	/* The reveal is instant: no transition, the button only ever
+	 * marks saved vs unsaved and never animates between states. */
 	.kk-card .kk-bookmark-button {
 		opacity: 0;
-		transition: opacity 0.18s ease;
 	}
 
 	.kk-card:hover .kk-bookmark-button,
