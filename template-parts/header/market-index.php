@@ -1,30 +1,35 @@
 <?php
 /**
- * Market header index: the dark strip below the header.
+ * Market header index: the strip below the header.
  *
  * Expects $args['items'] as MarketPrice[] (only items with a real
  * price) and $args['snapshot'] as the latest updated timestamp (or
- * null). Renders nothing when the list is empty - the caller
- * (MarketHeaderIndex::render) already guarantees that, this is a
- * second guard for direct template use.
+ * null). $args['style'] is 'dark' (default) or 'light'; $args
+ * ['cycle_interval'] is the seconds between items when the strip
+ * cycles on small screens (7 by default). Renders nothing when the
+ * list is empty - the caller (MarketHeaderIndex::render) already
+ * guarantees that, this is a second guard for direct template use.
  *
  * @package KoperasiKita
  */
 
 $items = isset($args['items']) && is_array($args['items']) ? array_values($args['items']) : [];
 $snapshot = isset($args['snapshot']) && is_int($args['snapshot']) && $args['snapshot'] > 0 ? $args['snapshot'] : null;
+$style = isset($args['style']) && $args['style'] === 'light' ? 'light' : 'dark';
+$cycleInterval = isset($args['cycle_interval']) && is_numeric($args['cycle_interval']) ? max(2, min(120, (int) $args['cycle_interval'])) : 7;
 
 if ($items === []) {
 	return;
 }
 ?>
-<div class="kk-market-header" role="region" aria-label="<?php esc_attr_e('Market index', 'koperasikita'); ?>">
+<div class="kk-market-header<?php echo $style === 'light' ? ' kk-market-header--light' : ''; ?>" role="region" aria-label="<?php esc_attr_e('Market index', 'koperasikita'); ?>">
 	<div class="kk-shell kk-market-header-inner">
 		<?php
 		get_template_part('template-parts/markets/index-strip', null, [
 			'items' => $items,
 			'show_change' => true,
 			'cycle' => true,
+			'cycle_interval' => $cycleInterval,
 		]);
 		?>
 		<?php if ($snapshot !== null) : ?>

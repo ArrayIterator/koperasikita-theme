@@ -20,7 +20,13 @@ use KoperasiKita\Widgets\MarketsWidget;
  *
  * One option holds the whole configuration, shared by the
  * Customizer section and the Koperasi Kita -> Market Header Index
- * admin page: ['enabled' => bool, 'items' => [{item, hidden}]].
+ * admin page: ['enabled' => bool, 'items' => [{item, hidden}],
+ * 'style' => 'dark'|'light', 'cycle_interval' => int]. `style`
+ * is the strip look (dark by default, light is the white
+ * variant); `cycle_interval` is the seconds between items when
+ * the strip cycles one item at a time on small screens - 7 by
+ * default, deliberately not the news ticker's 5, so the two
+ * rotations never step together.
  * `items` is the picked set in picked order (max 16, market|symbol
  * values from MarketsWidget::allItems()); `hidden` flags items the
  * admin page hid - hidden items stay stored so they can be shown
@@ -30,6 +36,15 @@ use KoperasiKita\Widgets\MarketsWidget;
 final class MarketHeaderIndex
 {
     public const OPTION = 'kk_market_header_index';
+
+    public const DEFAULT_STYLE = 'dark';
+
+    /** @var string[] */
+    public const STYLES = ['dark', 'light'];
+
+    public const DEFAULT_CYCLE_INTERVAL = 7;
+    public const MIN_CYCLE_INTERVAL = 2;
+    public const MAX_CYCLE_INTERVAL = 120;
 
     /** @return array<int, array{item: string, hidden: bool}> */
     public static function defaultItems(): array
@@ -42,13 +57,18 @@ final class MarketHeaderIndex
         ];
     }
 
-    /** @return array{enabled: bool, items: array<int, array{item: string, hidden: bool}>} */
+    /** @return array{enabled: bool, items: array<int, array{item: string, hidden: bool}>, style: string, cycle_interval: int} */
     public static function settings(): array
     {
         $stored = get_option(self::OPTION, []);
 
         if (!is_array($stored)) {
-            return ['enabled' => true, 'items' => self::defaultItems()];
+            return [
+                'enabled' => true,
+                'items' => self::defaultItems(),
+                'style' => self::DEFAULT_STYLE,
+                'cycle_interval' => self::DEFAULT_CYCLE_INTERVAL,
+            ];
         }
 
         $items = self::sanitizeItems($stored['items'] ?? []);
@@ -56,12 +76,30 @@ final class MarketHeaderIndex
         return [
             'enabled' => isset($stored['enabled']) ? (bool) $stored['enabled'] : true,
             'items' => $items !== [] ? $items : self::defaultItems(),
+            'style' => self::sanitizeStyle($stored['style'] ?? self::DEFAULT_STYLE),
+            'cycle_interval' => self::sanitizeCycleInterval($stored['cycle_interval'] ?? self::DEFAULT_CYCLE_INTERVAL),
         ];
     }
 
     public static function sanitizeEnabled(mixed $value): bool
     {
         return (bool) $value;
+    }
+
+    public static function sanitizeStyle(mixed $value): string
+    {
+        $style = is_string($value) ? $value : '';
+
+        return in_array($style, self::STYLES, true) ? $style : self::DEFAULT_STYLE;
+    }
+
+    public static function sanitizeCycleInterval(mixed $value): int
+    {
+        if (!is_numeric($value)) {
+            return self::DEFAULT_CYCLE_INTERVAL;
+        }
+
+        return max(self::MIN_CYCLE_INTERVAL, min(self::MAX_CYCLE_INTERVAL, (int) $value));
     }
 
     /**
@@ -184,13 +222,15 @@ final class MarketHeaderIndex
 
     /**
      * @param array<string, mixed> $settings
-     * @return array{enabled: bool, items: array<int, array{item: string, hidden: bool}>}
+     * @return array{enabled: bool, items: array<int, array{item: string, hidden: bool}>, style: string, cycle_interval: int}
      */
     public static function update(array $settings): array
     {
         $saved = [
             'enabled' => self::sanitizeEnabled($settings['enabled'] ?? true),
             'items' => self::sanitizeItems($settings['items'] ?? []),
+            'style' => self::sanitizeStyle($settings['style'] ?? self::DEFAULT_STYLE),
+            'cycle_interval' => self::sanitizeCycleInterval($settings['cycle_interval'] ?? self::DEFAULT_CYCLE_INTERVAL),
         ];
 
         update_option(self::OPTION, $saved);
@@ -214,6 +254,8 @@ final class MarketHeaderIndex
         get_template_part('template-parts/header/market-index', null, [
             'items' => $items,
             'snapshot' => self::snapshotTime($items),
+            'style' => self::settings()['style'],
+            'cycle_interval' => self::settings()['cycle_interval'],
         ]);
     }
 }

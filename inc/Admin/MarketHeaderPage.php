@@ -62,6 +62,20 @@ final class MarketHeaderPage
                         </label>
                     </p>
 
+                    <p>
+                        <label for="kk-market-header-style"><?php esc_html_e('Strip style', 'koperasikita'); ?></label>
+                        <select id="kk-market-header-style" name="kk_market_header_style">
+                            <option value="dark" <?php selected($settings['style'], 'dark'); ?>><?php esc_html_e('Dark', 'koperasikita'); ?></option>
+                            <option value="light" <?php selected($settings['style'], 'light'); ?>><?php esc_html_e('Light', 'koperasikita'); ?></option>
+                        </select>
+                    </p>
+
+                    <p>
+                        <label for="kk-market-header-cycle-interval"><?php esc_html_e('Seconds between items on mobile', 'koperasikita'); ?></label>
+                        <input type="number" id="kk-market-header-cycle-interval" name="kk_market_header_cycle_interval" min="2" max="120" step="1" value="<?php echo esc_attr((string) $settings['cycle_interval']); ?>">
+                        <span class="description"><?php esc_html_e('On small screens the strip shows one item at a time; this is how long each item shows.', 'koperasikita'); ?></span>
+                    </p>
+
                     <div class="kk-market-header-table-wrap">
                         <table class="wp-list-table widefat fixed striped">
                             <thead>
@@ -142,6 +156,9 @@ final class MarketHeaderPage
 
         $enabled = isset($raw['kk_market_header_enabled']) && $raw['kk_market_header_enabled'] === '1';
 
+        $style = isset($raw['kk_market_header_style']) && is_string($raw['kk_market_header_style']) ? $raw['kk_market_header_style'] : MarketHeaderIndex::DEFAULT_STYLE;
+        $cycleInterval = $raw['kk_market_header_cycle_interval'] ?? MarketHeaderIndex::DEFAULT_CYCLE_INTERVAL;
+
         $ordered = [];
 
         if (isset($raw['kk_market_header_items']) && is_array($raw['kk_market_header_items'])) {
@@ -198,7 +215,12 @@ final class MarketHeaderPage
             }
         }
 
-        MarketHeaderIndex::update(['enabled' => $enabled, 'items' => $items]);
+        MarketHeaderIndex::update([
+            'enabled' => $enabled,
+            'items' => $items,
+            'style' => $style,
+            'cycle_interval' => $cycleInterval,
+        ]);
 
         wp_safe_redirect(add_query_arg('saved', '1', admin_url('admin.php?page=' . self::PAGE_SLUG)));
         exit;

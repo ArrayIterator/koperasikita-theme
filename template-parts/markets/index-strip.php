@@ -24,9 +24,11 @@ $items = isset($args['items']) && is_array($args['items']) ? array_values($args[
 $show_change = !isset($args['show_change']) || (bool) $args['show_change'];
 $cycle = !empty($args['cycle']);
 // The header strip cycles one item at a time on mobile, like the
-// news ticker; data-speed is the seconds between items (5 is the
-// ticker's default speed, Ticker::speed()).
-$strip_attrs = $cycle ? ' id="kk-market-header-strip" data-speed="5"' : '';
+// news ticker; data-speed is the seconds between items, from the
+// strip's cycle interval setting (7 by default, not the ticker's
+// 5, so the two rotations never step together).
+$cycleInterval = isset($args['cycle_interval']) && is_numeric($args['cycle_interval']) ? max(2, min(120, (int) $args['cycle_interval'])) : 7;
+$strip_attrs = $cycle ? ' id="kk-market-header-strip" data-speed="' . $cycleInterval . '"' : '';
 
 if ($items === []) {
 	return;
