@@ -45,6 +45,7 @@ const LAYOUT_KEY = 'kk-layout';
 const DB_NAME = 'koperasikita';
 const DB_VERSION = 1;
 const STORE_NAME = 'kk-bookmarks';
+const BOOKMARKS_PAGE_SIZE = 10;
 const INSTALL_SEEN_KEY = 'kk-install-prompt-seen';
 
 interface BookmarkEntry {
@@ -1085,31 +1086,8 @@ function escapeHtml(value: string): string {
 		.replace(/'/g, '&#39;');
 }
 
-async function renderBookmarksPage(): Promise<void> {
-	const list = $('#kk-bookmarks');
-	const empty = $('#kk-bookmarks-empty');
-	if (!list) {
-		return;
-	}
-	let entries: BookmarkEntry[] = [];
-	try {
-		entries = await getAllBookmarks();
-	} catch {
-		entries = [];
-	}
-	if (entries.length === 0) {
-		list.innerHTML = '';
-		if (empty) {
-			empty.hidden = false;
-		}
-		return;
-	}
-	if (empty) {
-		empty.hidden = true;
-	}
-	list.innerHTML = entries
-		.map(
-			(entry) => `
+function bookmarkItemHtml(entry: BookmarkEntry): string {
+	return `
 			<article class="kk-bookmark-item" data-post-id="${entry.postId}">
 				${entry.thumbnail ? `<a class="kk-bookmark-item-media" href="${escapeHtml(entry.url)}"><img src="${escapeHtml(entry.thumbnail)}" alt="" loading="lazy"></a>` : '<span class="kk-bookmark-item-media"></span>'}
 				<div class="kk-bookmark-item-body">
@@ -1121,28 +1099,131 @@ async function renderBookmarksPage(): Promise<void> {
 						<button type="button" class="kk-icon-button" data-kk-note-remove>Remove</button>
 					</div>
 				</div>
-			</article>`,
-		)
-		.join('');
+			</article>`;
+}
 
-	$all<HTMLElement>('.kk-bookmark-item', list).forEach((item) => {
+/* The bookmarks page renders in batches: the list is long when the
+ * reader saved hundreds of entries, so only one page shows at first
+ * and Load more appends the next batch. */
+let bookmarksLoadingMore = false;
+
+async function loadMoreBookmarks(list: HTMLElement, more: HTMLElement): Promise<void> {
+	if (bookmarksLoadingMore || more.hidden) {
+		return;
+	}
+	bookmarksLoadingMore = true;
+	try {
+		const entries = await getAllBookmarks();
+		const shown = list.querySelectorAll('.kk-bookmark-item').length;
+		const next = entries.slice(shown, shown + BOOKMARKS_PAGE_SIZE);
+		if (next.length === 0) {
+			more.hidden = true;
+			return;
+		}
+		list.insertAdjacentHTML('beforeend', next.map(bookmarkItemHtml).join(''));
+		more.hidden = list.querySelectorAll('.kk-bookmark-item').length >= entries.length;
+	} catch {
+		// IndexedDB unavailable: leave the button so the reader can retry.
+	} finally {
+		bookmarksLoadingMore = false;
+	}
+}
+
+/* One delegated click handler for the whole bookmarks page, living
+ * on the document: the list is re-rendered and appended to, so a
+ * listener bound to a button or an item would be lost with the
+ * element it was bound to. closest() finds the button no matter
+ * when it was rendered. */
+let bookmarksPageClicksInstalled = false;
+
+function installBookmarksPageClicks(list: HTMLElement, empty: HTMLElement | null, more: HTMLElement | null): void {
+	if (bookmarksPageClicksInstalled) {
+		return;
+	}
+	bookmarksPageClicksInstalled = true;
+	document.addEventListener('click', (event) => {
+		const target = event.target as HTMLElement | null;
+		if (!target) {
+			return;
+		}
+		if (target.closest('[data-kk-bookmarks-more]')) {
+			if (more) {
+				void loadMoreBookmarks(list, more);
+			}
+			return;
+		}
+		const item = target.closest<HTMLElement>('.kk-bookmark-item');
+		if (!item) {
+			return;
+		}
+		const saveButton = target.closest('[data-kk-note-save]');
+		const removeButton = target.closest('[data-kk-note-remove]');
+		if (!saveButton && !removeButton) {
+			return;
+		}
 		const postId = Number(item.dataset.postId ?? 0);
-		const noteField = item.querySelector<HTMLTextAreaElement>('[data-kk-note]');
-		item.querySelector('[data-kk-note-save]')?.addEventListener('click', async () => {
-			const current = await getBookmark(postId);
-			if (current && noteField) {
-				current.note = noteField.value;
-				await putBookmark(current);
+		if (!postId) {
+			return;
+		}
+		void (async () => {
+			try {
+				if (saveButton) {
+					const noteField = item.querySelector<HTMLTextAreaElement>('[data-kk-note]');
+					const current = await getBookmark(postId);
+					if (current && noteField) {
+						current.note = noteField.value;
+						await putBookmark(current);
+					}
+					return;
+				}
+				await deleteBookmark(postId);
+				item.remove();
+				if (list.querySelectorAll('.kk-bookmark-item').length === 0) {
+					if (empty) {
+						empty.hidden = false;
+					}
+					if (more) {
+						more.hidden = true;
+					}
+				}
+			} catch {
+				// IndexedDB unavailable: the item simply stays.
 			}
-		});
-		item.querySelector('[data-kk-note-remove]')?.addEventListener('click', async () => {
-			await deleteBookmark(postId);
-			item.remove();
-			if (list.querySelectorAll('.kk-bookmark-item').length === 0 && empty) {
-				empty.hidden = false;
-			}
-		});
+		})();
 	});
+}
+
+async function renderBookmarksPage(): Promise<void> {
+	const list = $('#kk-bookmarks');
+	const empty = $('#kk-bookmarks-empty');
+	const more = $('[data-kk-bookmarks-more]');
+	if (!list) {
+		return;
+	}
+	installBookmarksPageClicks(list, empty, more);
+	let entries: BookmarkEntry[] = [];
+	try {
+		entries = await getAllBookmarks();
+	} catch {
+		entries = [];
+	}
+	if (entries.length === 0) {
+		list.innerHTML = '';
+		if (empty) {
+			empty.hidden = false;
+		}
+		if (more) {
+			more.hidden = true;
+		}
+		return;
+	}
+	if (empty) {
+		empty.hidden = true;
+	}
+	list.innerHTML = entries.slice(0, BOOKMARKS_PAGE_SIZE).map(bookmarkItemHtml).join('');
+	if (more) {
+		more.hidden = entries.length <= BOOKMARKS_PAGE_SIZE;
+	}
 }
 
 function initBookmarks(): void {

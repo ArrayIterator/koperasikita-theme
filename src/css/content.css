@@ -926,6 +926,12 @@
 	margin-top: 24px;
 }
 
+/* Load more sits below the list, centred. */
+.kk-bookmarks-more {
+	text-align: center;
+	margin-top: 24px;
+}
+
 /* Flat ruled rows, no boxed card: the item is a hairline separator
  * with vertical padding, like the news cards - no background fill,
  * no border box. */

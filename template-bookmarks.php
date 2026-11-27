@@ -22,6 +22,10 @@ get_header();
 			<!-- Filled by main.ts from the kk-bookmarks IndexedDB store. -->
 		</div>
 
+		<div class="kk-bookmarks-more">
+			<button type="button" class="kk-button" data-kk-bookmarks-more hidden><?php esc_html_e( 'Load more', 'koperasikita' ); ?></button>
+		</div>
+
 		<div id="kk-bookmarks-empty" class="kk-bookmarks-empty" hidden>
 			<p class="kk-bookmarks-empty-title"><?php esc_html_e( 'No bookmarks yet', 'koperasikita' ); ?></p>
 			<p><?php esc_html_e( 'Tap the bookmark button on any article to save it here for later reading.', 'koperasikita' ); ?></p>
