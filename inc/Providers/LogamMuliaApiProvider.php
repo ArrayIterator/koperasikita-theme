@@ -27,8 +27,7 @@ use KoperasiKita\Features\Markets;
  * recordedDates count, with weight 1 (0.01 for Pegadaian), material
  * gold, and a positive sell price — zero prices are skipped.
  * Logam Mulia's CSV is stale (latest 2026-10-23, its Jina key is
- * dead), so it is not used. EmasKita is not in the upstream at
- * all and stays manual. Spot is NOT supplied: none of these files
+ * dead), so it is not used. Spot is NOT supplied: none of these files
  * is a spot price (they are retail brand prices); spot stays
  * with Xaus.
  *
@@ -133,7 +132,7 @@ final class LogamMuliaApiProvider extends AbstractLiveProvider
 
     public function label(): string
     {
-        return 'Logam Mulia API (live Antam, Galeri 24, UBS, Pegadaian, Lotus Archi)';
+        return 'Logam Mulia API (live Antam, Galeri 24, UBS, Lotus Archi)';
     }
 
     public function supports(string $market): bool
@@ -150,7 +149,7 @@ final class LogamMuliaApiProvider extends AbstractLiveProvider
         $symbols = Markets::symbols('gold');
         $supplied = [];
 
-        foreach (['antam', 'ubs', 'galeri-24', 'pegadaian', 'lotus-archi'] as $symbol) {
+        foreach (['antam', 'ubs', 'galeri-24', 'lotus-archi'] as $symbol) {
             if (isset($symbols[$symbol])) {
                 $supplied[$symbol] = $symbols[$symbol];
             }

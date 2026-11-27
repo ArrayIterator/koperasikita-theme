@@ -17,11 +17,11 @@ use KoperasiKita\Features\Markets;
  * Caching and the stale-value fallback live in AbstractLiveProvider
  * (15-minute transient + last good value in an option).
  *
- * This provider only supplies the `spot` symbol. The five retail
- * brands (Antam, UBS, Galeri 24, Pegadaian, EmasKita) stay manual:
- * a brand's sell price is not the spot price, so no API can supply
- * it. Set the gold provider back to Manual in Settings -> Markets
- * to return to fully manual prices.
+ * This provider only supplies the `spot` symbol. The six retail
+ * brands are supplied by the other live providers (or Manual):
+ * a brand's sell price is not the spot price, so Xaus can never
+ * supply one. Set the gold provider back to Manual in Settings
+ * -> Markets to return to fully manual prices.
  */
 final class XausProvider extends AbstractLiveProvider
 {
