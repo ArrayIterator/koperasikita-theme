@@ -3661,14 +3661,35 @@ msgstr "Hari di grafik"
 msgid "Default"
 msgstr "Bawaan"
 
-msgid "Default Table"
-msgstr "Tabel Bawaan"
+msgid "Built-in"
+msgstr "Bawaan"
 
 msgid "Delete"
 msgstr "Hapus"
 
 msgid "Delete this template?"
 msgstr "Hapus template ini?"
+
+msgid "Use"
+msgstr "Gunakan"
+
+msgid "Use template"
+msgstr "Gunakan template"
+
+msgid "Or start from an existing template:"
+msgstr "Atau mulai dari template yang sudah ada:"
+
+msgid "Restore"
+msgstr "Pulihkan"
+
+msgid "Restore this template to its built-in values?"
+msgstr "Pulihkan template ini ke nilai bawaannya?"
+
+msgid "Revert to default"
+msgstr "Kembalikan ke bawaan"
+
+msgid "Discard your changes and restore this template to its built-in values?"
+msgstr "Buang perubahan Anda dan pulihkan template ini ke nilai bawaannya?"
 
 msgid "Duplicate"
 msgstr "Duplikat"
@@ -3780,6 +3801,12 @@ msgstr "Template dihapus."
 
 msgid "Template saved."
 msgstr "Template disimpan."
+
+msgid "Template restored to its built-in values."
+msgstr "Template dipulihkan ke nilai bawaannya."
+
+msgid "This is a built-in template. Saving stores your changes as an override; Restore on the list brings back the built-in values."
+msgstr "Ini template bawaan. Menyimpan akan menyimpan perubahan Anda sebagai override; Pulihkan di daftar akan mengembalikan nilai bawaan."
 
 msgid "Untitled template"
 msgstr "Template tanpa nama"

@@ -538,7 +538,7 @@ final class Blocks
         $list = [];
 
         foreach (DataDesk::templatesOfKind($kind) as $id => $template) {
-            $list[] = ['value' => (string) $id, 'label' => (string) $template['name']];
+            $list[] = ['value' => (string) $id, 'label' => DataDesk::displayName($template)];
         }
 
         return $list;

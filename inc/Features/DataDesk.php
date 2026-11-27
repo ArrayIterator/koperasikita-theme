@@ -31,6 +31,31 @@ final class DataDesk
     /** Option holding the custom Data Desk templates (id => template). */
     public const TEMPLATES_OPTION = 'kk_data_desk_templates';
 
+    /** The built-in default panel template id. It is code, not a stored row. */
+    public const DEFAULT_TEMPLATE_ID = 'default';
+
+    /** A template id belongs to a built-in when it is the code-defined default id. */
+    public static function isBuiltIn(string $id): bool
+    {
+        return $id === self::DEFAULT_TEMPLATE_ID;
+    }
+
+    /**
+     * A built-in is overridden when a stored row exists under its
+     * id. The row holds the user's edited values; Restore deletes
+     * it and the template renders its code-defined values again.
+     */
+    public static function isOverridden(string $id): bool
+    {
+        if (!self::isBuiltIn($id)) {
+            return false;
+        }
+
+        $stored = get_option(self::TEMPLATES_OPTION, []);
+
+        return is_array($stored) && isset($stored[$id]) && is_array($stored[$id]);
+    }
+
     public const KIND_PANEL = 'panel';
     public const KIND_TABLE = 'table';
 
@@ -698,15 +723,65 @@ final class DataDesk
     }
 
     /**
-     * All stored templates, in the order they were created. There
-     * are no built-in defaults: with no stored templates the list
-     * is empty.
+     * The built-in default template (a panel): Antam over 7 days
+     * in the dark-green palette, the same shape as the live
+     * "ANTAM 7 Hari" user template. It is defined in code; editing
+     * it stores an override under its id, and Restore deletes that
+     * override - the built-in itself is never deleted.
+     *
+     * @return array{id: string, name: string, kind: string, symbol: string, brands: array<int, string>, palette: string, days: int, title: string, kicker: string, date_line: string, stats: array<string, array{label: string, sub: string}>, headers: array<string, string>, hidden_blocks: array<int, string>, placeholders: array{date_format: string, percent: string, zone_color: string}}
+     */
+    public static function defaultTemplate(): array
+    {
+        return [
+            'id' => self::DEFAULT_TEMPLATE_ID,
+            'name' => __('Default', 'koperasikita'),
+            'kind' => self::KIND_PANEL,
+            'symbol' => 'gold:antam',
+            'brands' => [],
+            'palette' => self::DEFAULT_PALETTE,
+            'days' => self::DEFAULT_DAYS,
+            'title' => '',
+            'kicker' => '',
+            'date_line' => '',
+            'stats' => self::sanitizeStats([]),
+            'headers' => self::sanitizeHeaders([]),
+            'hidden_blocks' => [],
+            'placeholders' => self::sanitizePlaceholders([]),
+        ];
+    }
+
+    /**
+     * The name a template shows in a picker: the stored name, with
+     * a Built-in marker on the code-defined template, so a
+     * widget form can tell them apart from user templates.
+     */
+    public static function displayName(array $template): string
+    {
+        $name = (string) ($template['name'] ?? '');
+
+        if ($name === '') {
+            $name = __('Untitled template', 'koperasikita');
+        }
+
+        return self::isBuiltIn((string) ($template['id'] ?? ''))
+            ? $name . ' (' . __('Built-in', 'koperasikita') . ')'
+            : $name;
+    }
+
+    /**
+     * All templates: the built-in first, then the stored user
+     * templates in the order they were created. A stored row under
+     * a built-in id is that template's override - it replaces the
+     * code-defined values with the user's edited ones.
      *
      * @return array<string, array{id: string, name: string, kind: string, symbol: string, brands: array<int, string>, palette: string, days: int, title: string, kicker: string, date_line: string, stats: array<string, array{label: string, sub: string}>, headers: array<string, string>, hidden_blocks: array<int, string>, placeholders: array{date_format: string, percent: string, zone_color: string}}>
      */
     public static function templates(): array
     {
-        $templates = [];
+        $templates = [
+            self::DEFAULT_TEMPLATE_ID => self::defaultTemplate(),
+        ];
         $stored = get_option(self::TEMPLATES_OPTION, []);
 
         if (!is_array($stored)) {
@@ -742,9 +817,9 @@ final class DataDesk
     }
 
     /**
-     * The first stored template of one kind, or null when none
-     * exists. Widgets fall back to this when the template they
-     * point at is gone - never to a built-in.
+     * The first template of one kind - the built-in when no user
+     * template of that kind exists. Widgets fall back to this when
+     * the template they point at is gone.
      *
      * @return array{id: string, name: string, kind: string, symbol: string, brands: array<int, string>, palette: string, days: int, title: string, kicker: string, date_line: string, stats: array<string, array{label: string, sub: string}>, headers: array<string, string>, hidden_blocks: array<int, string>, placeholders: array{date_format: string, percent: string, zone_color: string}}|null
      */
@@ -762,9 +837,9 @@ final class DataDesk
     }
 
     /**
-     * One template by id, or null when no stored template has that
-     * id. Callers fall back to the first stored template of the
-     * matching kind - never to a built-in.
+     * One template by id, or null when no template (built-in or
+     * stored) has that id. Callers fall back to the first template
+     * of the matching kind.
      *
      * @return array{id: string, name: string, kind: string, symbol: string, brands: array<int, string>, palette: string, days: int, title: string, kicker: string, date_line: string, stats: array<string, array{label: string, sub: string}>, headers: array<string, string>, hidden_blocks: array<int, string>, placeholders: array{date_format: string, percent: string, zone_color: string}}|null
      */
@@ -777,8 +852,10 @@ final class DataDesk
 
     /**
      * Save a template. An empty id mints a fresh one; an existing
-     * id updates that template in place. Returns the id the
-     * template was saved under.
+     * id updates that template in place. Saving a built-in id
+     * stores the values as that template's override - the
+     * code-defined values come back when the override is restored.
+     * Returns the id the template was saved under.
      *
      * @param array<string, mixed> $data
      */
@@ -798,10 +875,39 @@ final class DataDesk
     }
 
     /**
-     * Delete a template. Returns true when a template was removed.
+     * Delete a template. Built-ins can never be deleted - they are
+     * restored instead. Returns true when a template was removed.
      */
     public static function deleteTemplate(string $id): bool
     {
+        if (self::isBuiltIn($id)) {
+            return false;
+        }
+
+        $stored = get_option(self::TEMPLATES_OPTION, []);
+
+        if (!is_array($stored) || !isset($stored[$id])) {
+            return false;
+        }
+
+        unset($stored[$id]);
+        update_option(self::TEMPLATES_OPTION, $stored);
+
+        return true;
+    }
+
+    /**
+     * Restore a built-in template: delete the stored override, so
+     * the template renders its code-defined values again. Returns
+     * true when an override was removed. User templates are never
+     * restored - they are deleted instead.
+     */
+    public static function restoreTemplate(string $id): bool
+    {
+        if (!self::isBuiltIn($id)) {
+            return false;
+        }
+
         $stored = get_option(self::TEMPLATES_OPTION, []);
 
         if (!is_array($stored) || !isset($stored[$id])) {

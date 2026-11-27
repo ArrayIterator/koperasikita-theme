@@ -1300,6 +1300,19 @@
 	margin: 0 0 16px;
 }
 
+/* Start from an existing template: label + select + button in
+ * one row, wrapping on narrow screens. */
+.kk-data-desk-start-from {
+	display: flex;
+	align-items: center;
+	flex-wrap: wrap;
+	gap: 8px;
+}
+
+.kk-data-desk-start-from select {
+	min-height: 44px;
+}
+
 /* Buttons: the Setup button language - green outline by default,
  * filled green primary. The blue WP button-primary is gone from
  * this page entirely. */
@@ -1372,6 +1385,27 @@
 .kk-data-desk-table th,
 .kk-data-desk-table td {
 	padding: 12px 16px;
+}
+
+/* Built-in marker on the template list: a small green pill with
+ * the lock icon, so a code-defined template reads as built-in
+ * at a glance. */
+.kk-data-desk-built-in {
+	display: inline-flex;
+	align-items: center;
+	gap: 4px;
+	margin-left: 8px;
+	padding: 2px 8px;
+	border-radius: 999px;
+	background: #e6f2ea;
+	color: #07522c;
+	font-size: 12px;
+	font-weight: 600;
+	white-space: nowrap;
+}
+
+.kk-data-desk-built-in svg {
+	flex: none;
 }
 
 .kk-data-desk-note {

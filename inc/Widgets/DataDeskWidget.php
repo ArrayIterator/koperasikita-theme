@@ -44,9 +44,9 @@ final class DataDeskWidget extends WP_Widget
         $templateId = isset($instance['template']) ? sanitize_key((string) $instance['template']) : '';
         $template = $templateId !== '' ? DataDesk::getTemplate($templateId) : null;
         // A table template picked here (its kind was changed after the
-        // widget picked it) falls back to the first stored panel
-        // template - this widget only ever renders panels. With no
-        // panel template at all the widget renders nothing.
+        // widget picked it) falls back to the first panel template -
+        // this widget only ever renders panels. With no panel template
+        // at all the widget renders nothing.
         if ($template === null || $template['kind'] !== DataDesk::KIND_PANEL) {
             $template = DataDesk::firstTemplateOfKind(DataDesk::KIND_PANEL);
         }
@@ -86,9 +86,9 @@ final class DataDeskWidget extends WP_Widget
         $title = isset($instance['title']) ? (string) $instance['title'] : '';
         $templateId = isset($instance['template']) ? sanitize_key((string) $instance['template']) : '';
         // The preview shows what the widget will render: a table
-        // template picked here falls back to the first stored panel,
+        // template picked here falls back to the first panel template,
         // the same fallback widget() applies. With no panel template
-        // the preview says so instead of showing a built-in.
+        // the preview says so instead of rendering.
         $previewTemplate = $templateId !== '' ? DataDesk::getTemplate($templateId) : null;
         if ($previewTemplate === null || $previewTemplate['kind'] !== DataDesk::KIND_PANEL) {
             $previewTemplate = DataDesk::firstTemplateOfKind(DataDesk::KIND_PANEL);
@@ -119,7 +119,7 @@ final class DataDeskWidget extends WP_Widget
             >
                 <?php foreach (DataDesk::templatesOfKind(DataDesk::KIND_PANEL) as $id => $template) : ?>
                     <option value="<?php echo esc_attr($id); ?>" <?php selected($templateId, $id); ?>>
-                        <?php echo esc_html($template['name']); ?>
+                        <?php echo esc_html(DataDesk::displayName($template)); ?>
                     </option>
                 <?php endforeach; ?>
             </select>
