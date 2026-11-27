@@ -12,7 +12,7 @@
 
 $newsletter_hidden = isset( $args['hidden'] ) && $args['hidden'];
 ?>
-<div class="kk-newsletter-subscribe"<?php echo $newsletter_hidden ? ' hidden' : ''; ?>>
+<div class="kk-newsletter-subscribe mb-2 mt-6 rounded-kk border border-kk-border border-t-2 border-t-kk-gold bg-kk-surface px-6 py-7 text-center"<?php echo $newsletter_hidden ? ' hidden' : ''; ?>>
 	<p class="kk-newsletter-subscribe-icon" aria-hidden="true"><?php echo \KoperasiKita\Icons\Icon::svg( 'mail', 24 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></p>
 	<h3 class="kk-newsletter-subscribe-title"><?php esc_html_e( 'Get the newsletter', 'koperasikita' ); ?></h3>
 	<p class="kk-newsletter-subscribe-copy"><?php esc_html_e( 'News, announcements and market updates from the cooperative, delivered to your inbox.', 'koperasikita' ); ?></p>

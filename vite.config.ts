@@ -1,6 +1,13 @@
 import { defineConfig } from 'vite';
+import tailwindcss from '@tailwindcss/vite';
 
 export default defineConfig({
+	// Tailwind v4 (real, not hand-written lookalikes): the plugin only
+	// transforms stylesheets that import "tailwindcss" — today that is
+	// ONLY src/css/newsletter.css, so every other entry keeps its
+	// hand-written CSS untouched. Do not add the import to another
+	// entry without deciding that entry is a Tailwind entry too.
+	plugins: [tailwindcss()],
   server: {
     host: 'localhost',
     port: 5173,

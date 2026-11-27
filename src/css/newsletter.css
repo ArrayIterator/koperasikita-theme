@@ -1,10 +1,17 @@
-/* Koperasi Kita — newsletter homepage layout styles.
+/* Koperasi Kita — newsletter homepage layout styles (REAL Tailwind v4).
  *
- * Only loaded on the front page when kk_homepage_layout is 'newsletter'
- * (see Enqueue). All colours come from the theme tokens in app.css, so
- * light and dark schemes follow automatically; every colour below carries
- * its light-mode fallback. This layout adds no motion of its own, so
- * there is nothing for prefers-reduced-motion to disable.
+ * This is the theme's ONLY Tailwind entry: the Vite plugin (see
+ * vite.config.ts) transforms this file because it imports tailwindcss
+ * below; no other stylesheet does, so the rest of the theme stays
+ * hand-written. Preflight is deliberately NOT imported — a global
+ * reset would restyle the whole front page; only the theme tokens and
+ * the utilities are imported, scoped by the kk-* selectors and the
+ * utility classes used in the newsletter markup.
+ *
+ * Colours resolve through the theme tokens (var(--kk-*)), so light
+ * and dark schemes follow automatically: variants.css remaps the
+ * --kk-* vars for html[data-color-scheme="dark"], and the Tailwind
+ * colours below are var() references to them, not fixed hexes.
  *
  * The layout works on two markups with the same rules:
  *  - the server-rendered newsletter.php markup (lead card, subscribe
@@ -13,13 +20,37 @@
  *    switcher (first card becomes the lead, the rest become rows, and
  *    the subscribe block latest-news.php renders hidden is revealed).
  * Flex order keeps the subscribe block after the lead in both cases.
+ *
+ * Layer note: Tailwind utilities live in @layer utilities, but the
+ * theme's hand-written stylesheets are unlayered — and unlayered
+ * author styles beat layered ones whatever the specificity. That is
+ * why the overrides that must beat cards.css / base.css are written
+ * as scoped kk-* selectors with @apply here (the declarations are
+ * inlined into the unlayered rule), while the plain utilities in the
+ * markup are only used where no unlayered rule sets the same
+ * property. Do not move a scoped override into the markup.
  */
+
+@import "tailwindcss/theme" layer(theme);
+@import "tailwindcss/utilities" layer(utilities);
+
+@theme {
+	--color-kk-green: var(--kk-green);
+	--color-kk-green-dark: var(--kk-green-dark);
+	--color-kk-gold: var(--kk-gold);
+	--color-kk-gold-dark: var(--kk-gold-dark);
+	--color-kk-ink: var(--kk-ink);
+	--color-kk-muted: var(--kk-muted);
+	--color-kk-paper: var(--kk-paper);
+	--color-kk-surface: var(--kk-surface);
+	--color-kk-border: var(--kk-border);
+	--radius-kk: var(--kk-radius);
+}
 
 /* --- Container ------------------------------------------------------------ */
 
 .kk-latest-items.kk-layout-newsletter {
-	display: flex;
-	flex-direction: column;
+	@apply flex flex-col;
 }
 
 /* Explicit order for every child: the DOM order already matches in the
@@ -27,23 +58,23 @@
  * child of plain card markup) after the lead when switched client-side.
  */
 .kk-latest-items.kk-layout-newsletter > .kk-card:first-child {
-	order: 1;
+	@apply order-1;
 }
 
 .kk-latest-items.kk-layout-newsletter > .kk-newsletter-subscribe {
-	order: 2;
+	@apply order-2;
 }
 
 .kk-latest-items.kk-layout-newsletter > .kk-newsletter-rule {
-	order: 3;
+	@apply order-3;
 }
 
 .kk-latest-items.kk-layout-newsletter > .kk-newsletter-more {
-	order: 4;
+	@apply order-4;
 }
 
 .kk-latest-items.kk-layout-newsletter > .kk-card {
-	order: 5;
+	@apply order-5;
 }
 
 /* --- Lead story (first card) ---------------------------------------------- */
@@ -54,21 +85,19 @@
  * as a grid, the bookmark overlays the lead image top-right, like
  * the grid layout. */
 .kk-latest-items.kk-layout-newsletter > .kk-card:first-child {
-	border-top: 0;
-	padding-top: 0;
+	@apply border-t-0 pt-0;
 }
 
 .kk-latest-items.kk-layout-newsletter > .kk-card:first-child .kk-card-media img {
-	aspect-ratio: 16 / 9;
+	@apply aspect-video;
 }
 
 .kk-latest-items.kk-layout-newsletter > .kk-card:first-child .kk-card-title {
-	font-size: clamp(26px, 4vw, 34px);
-	margin-top: 8px;
+	@apply mt-2 text-[clamp(26px,4vw,34px)];
 }
 
 .kk-latest-items.kk-layout-newsletter > .kk-card:first-child .kk-card-excerpt {
-	font-size: 15px;
+	@apply text-[15px];
 	-webkit-line-clamp: var(--kk-excerpt-clamp, 2);
 }
 
@@ -79,48 +108,39 @@
  * grid as the list layout. Without the bookmark area the button
  * auto-places into a stray row below the thumbnail. */
 .kk-latest-items.kk-layout-newsletter > .kk-card:not(:first-child) {
-	display: grid;
-	grid-template-columns: 144px 1fr auto;
+	@apply mb-[0.3rem] grid gap-4 border-t border-kk-border pt-5 pb-5;
 	/* The excerpt (when shown) spans the full width below, like
 	 * the list layout — never a stray auto-placed row. */
+	grid-template-columns: 144px 1fr auto;
 	grid-template-areas:
 		"media body bookmark"
 		"excerpt excerpt excerpt";
-	gap: 16px;
-	padding-top: 20px;
-	padding-bottom: 20px;
 	/* A real gap between the list items (not taller padding inside
 	 * them): the divider of the next card sits .3rem below the
 	 * previous card, so the borders never read as touching. */
-	margin-bottom: 0.3rem;
-	border-top: 1px solid var(--kk-border, #E6E3DE);
 }
 
 .kk-latest-items.kk-layout-newsletter > .kk-card:not(:first-child) .kk-bookmark-button {
+	@apply m-0 self-start rounded-none bg-transparent text-kk-ink;
 	grid-area: bookmark;
-	align-self: start;
-	margin: 0;
 	/* Own column on a light background: ink, not the white glyph
 	 * meant for over a thumbnail (invisible here); no circle. */
-	background: transparent;
-	border-radius: 0;
-	color: var(--kk-ink);
 }
 
 .kk-latest-items.kk-layout-newsletter > .kk-card:not(:first-child) .kk-bookmark-button[aria-pressed="true"] {
-	color: var(--kk-green, #0B6B3A);
+	@apply text-kk-green;
 }
 
 .kk-latest-items.kk-layout-newsletter > .kk-card:not(:first-child) .kk-card-media img {
-	aspect-ratio: 4 / 3;
+	@apply aspect-[4/3];
 }
 
 .kk-latest-items.kk-layout-newsletter > .kk-card:not(:first-child) .kk-card-body {
-	padding-top: 0;
+	@apply pt-0;
 }
 
 .kk-latest-items.kk-layout-newsletter > .kk-card:not(:first-child) .kk-card-title {
-	margin-top: 4px;
+	@apply mt-1;
 }
 
 /* --- Gold rule and feed label --------------------------------------------- */
@@ -136,51 +156,50 @@
 	display: none;
 }
 
+/* The `hidden` attribute (toggled by main.ts applyLayout) must win
+ * over any display the utilities set: the UA [hidden] rule loses to
+ * an author display declaration, so this explicit rule is required
+ * (same lesson as the admin/menu-icon grids). */
+.kk-newsletter-subscribe[hidden],
+.kk-newsletter-rule[hidden],
+.kk-newsletter-more[hidden] {
+	display: none;
+}
+
 .kk-newsletter-rule {
-	width: 100%;
-	margin: 4px 0 0;
+	/* border: 0 first — the @apply below only re-adds the top
+	 * border, so the hr keeps no side/bottom border (the UA hr
+	 * default is a 1px inset border on all sides). */
 	border: 0;
-	border-top: 1px solid var(--kk-gold, #C9962E);
+	@apply mt-1 w-full border-t border-kk-gold;
 }
 
 .kk-newsletter-more {
-	margin-top: 20px;
-	font-size: 12px;
-	font-weight: 700;
-	letter-spacing: 0.14em;
-	text-transform: uppercase;
-	color: var(--kk-green, #0B6B3A);
+	@apply mt-5 text-xs font-bold tracking-[0.14em] text-kk-green uppercase;
 }
 
 /* --- Subscribe call to action --------------------------------------------- */
 
-.kk-newsletter-subscribe {
-	margin: 24px 0 8px;
-	padding: 28px 24px;
-	text-align: center;
-	background: var(--kk-surface, #F7F7F5);
-	border: 1px solid var(--kk-border, #E6E3DE);
-	border-top: 2px solid var(--kk-gold, #C9962E);
-	border-radius: var(--kk-radius, 3px);
-}
-
+/* The subscribe block itself, the gold rule and the "More stories"
+ * label carry their layout utilities in the markup
+ * (newsletter-subscribe.php, newsletter.php, latest-news.php); the
+ * rules below cover what the markup cannot: the icon/title/copy
+ * inside the block, the form that arrives from the [kk_subscribe]
+ * shortcode, and the email input. */
 .kk-newsletter-subscribe-icon {
-	color: var(--kk-green, #0B6B3A);
+	@apply text-kk-green;
 }
 
 .kk-newsletter-subscribe-icon svg {
-	margin: 0 auto;
+	@apply mx-auto;
 }
 
 .kk-newsletter-subscribe-title {
-	font-size: 24px;
-	margin-top: 8px;
+	@apply mt-2 text-2xl;
 }
 
 .kk-newsletter-subscribe-copy {
-	max-width: 560px;
-	margin: 8px auto 0;
-	color: var(--kk-muted, #5B6470);
+	@apply mx-auto mt-2 max-w-[560px] text-kk-muted;
 }
 
 /* The [kk_subscribe] form: email field and button side by side on
@@ -188,25 +207,15 @@
  */
 .kk-newsletter-subscribe .kk-subscribe-form,
 .kk-newsletter-subscribe form {
-	display: flex;
-	gap: 12px;
-	max-width: 560px;
-	margin: 20px auto 0;
+	@apply mx-auto mt-5 flex max-w-[560px] gap-3;
 }
 
 .kk-newsletter-subscribe input[type="email"] {
-	flex: 1;
-	min-width: 0;
-	min-height: 44px;
-	padding: 10px 12px;
-	border: 1px solid var(--kk-border, #E6E3DE);
-	border-radius: var(--kk-radius, 3px);
-	background: var(--kk-paper, #FFFFFF);
-	color: var(--kk-ink, #1B1B1B);
+	@apply min-h-11 min-w-0 flex-1 rounded-kk border border-kk-border bg-kk-paper px-3 py-2.5 text-kk-ink;
 }
 
 .kk-newsletter-subscribe-fallback {
-	margin-top: 20px;
+	@apply mt-5;
 }
 
 /* --- Small screens -------------------------------------------------------- */
@@ -216,40 +225,37 @@
 	 * goes back to the base placement — overlaid on the thumbnail
 	 * top-right — instead of a stray row of its own. */
 	.kk-latest-items.kk-layout-newsletter > .kk-card:not(:first-child) {
+		@apply grid-cols-1 gap-0;
 		grid-template-columns: 1fr;
 		grid-template-areas: "media" "body" "excerpt";
-		gap: 0;
 	}
 
 	.kk-latest-items.kk-layout-newsletter > .kk-card:not(:first-child) .kk-bookmark-button {
+		@apply m-2.5 rounded-full bg-black/45 text-white;
 		grid-area: media;
-		margin: 10px;
 		/* Back over the thumbnail: dark circle + white again (the
 		 * desktop rule made it ink for its own column). */
-		background: rgb(0 0 0 / 0.45);
-		border-radius: 50%;
-		color: #fff;
 	}
 
 	.kk-latest-items.kk-layout-newsletter > .kk-card:not(:first-child) .kk-card-media img {
-		aspect-ratio: 16 / 9;
+		@apply aspect-video;
 	}
 
 	.kk-latest-items.kk-layout-newsletter > .kk-card:not(:first-child) .kk-card-body {
-		padding-top: 12px;
+		@apply pt-3;
 	}
 
 	.kk-newsletter-subscribe {
-		padding: 24px 16px;
+		@apply px-4 py-6;
 	}
 
 	.kk-newsletter-subscribe .kk-subscribe-form,
 	.kk-newsletter-subscribe form {
-		flex-direction: column;
+		@apply flex-col;
 	}
 
 	.kk-newsletter-subscribe .kk-subscribe-submit,
 	.kk-newsletter-subscribe-fallback .kk-button {
-		width: 100%;
+		@apply w-full;
 	}
 }
