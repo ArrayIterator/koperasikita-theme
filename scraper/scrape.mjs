@@ -17,11 +17,29 @@
  *    headless Chrome), so the Pegadaian 1-gram price comes from
  *    the Logam Mulia backup CSV (pegadaian.csv) instead — only the
  *    latest date's 0.01-gram row, scaled x100 to 1 gram.
- *    Hartadinata, King Halim and EmasKita have no public live
- *    price source and stay manual in the theme. Mini gold
- *    (MiniGold, EOA Gold, IGS Gold, Waris Sampoerna) is a separate
- *    category — small denominations, not gram bars — so it is not
- *    scraped here.
+ *  - Hartadinata 1-gram buy price: hrtagold.id/en/gold-price —
+ *    the price is in the SSR HTML and the meta description
+ *    ("Beli: Rp 2.275.000 | Jual Rp 2.139.000"); the Jual
+ *    (buyback) price is never used.
+ *  - King Halim 1-gram sell price: kinghalim.com/goldbarwithamala
+ *    — the "1 Gr" card's price (not the "Harga Buyback" line).
+ *    Prices there use US formatting with a ".00" decimal, so they
+ *    are parsed as floats, not with parseIdr.
+ *    EmasKita stays manual: it is Hartadinata's Antam-collab
+ *    brand (PT Hartadinata Abadi Tbk with PT Emas Antam
+ *    Indonesia, Antam-certified) — a separate product line from
+ *    HRTA's own EMASKU kilobars, with its own price, so the two
+ *    brand rows must never be merged — and its price page is
+ *    stamped "Updated June 09 2026 08:51 WIB" (checked
+ *    2026-11-27) with no API and no fresher signal — the
+ *    `api/filedrives/show/` reference in its HTML is a
+ *    product-image URL, not a price feed. The June 16 2026
+ *    Wayback snapshot shows the identical stamp and the
+ *    identical 1 gr price (Rp 2,673,600), so the page has not
+ *    moved in five months; publishing it as live would present
+ *    a June price as today's. Mini gold (MiniGold, EOA Gold,
+ *    IGS Gold, Waris Sampoerna) is a separate category — small
+ *    denominations, not gram bars — so it is not scraped here.
  *  - Gold spot per gram (IDR): xaus.com public API, no key.
  *
  * Only the important data is taken: the 1-gram sell price per
@@ -59,6 +77,18 @@ function parseIdr(raw) {
 	if (digits === '') return null;
 	const value = Number(digits);
 	return Number.isFinite(value) && value > 0 ? value : null;
+}
+
+/**
+ * A 1-gram IDR price must be plausible (500 ribu – 10 juta):
+ * catches a wrong-row parse (e.g. a 100-gram price) without ever
+ * inventing a value. Out-of-band means "no usable number", so the
+ * caller keeps the last good value.
+ */
+function saneGramPrice(value) {
+	if (typeof value !== 'number' || !Number.isFinite(value)) return null;
+	if (value < 500000 || value > 10000000) return null;
+	return Math.round(value);
 }
 
 async function fetchText(url) {
@@ -198,6 +228,43 @@ async function pegadaianPrice() {
 	return price;
 }
 
+/**
+ * Hartadinata (HRTA) 1-gram buy price from hrtagold.id/en/gold-price.
+ * The price is in the SSR HTML and in the meta description
+ * ("Beli: Rp 2.275.000 | Jual Rp 2.139.000. Update terakhir
+ * 27/11/2026"). Prefer the meta description; fall back to the
+ * headline ("Harga Emas Hari Ini: Rp 2.275.000"). The Jual
+ * (buyback) price is NOT the brand price. Returns null when
+ * neither pattern matches or the value is implausible.
+ */
+async function hartadinataPrice() {
+	const html = await fetchText('https://hrtagold.id/en/gold-price');
+	const meta = html.match(/Beli:\s*Rp\s*([0-9.]+)/i);
+	if (meta) return saneGramPrice(parseIdr(meta[1]));
+	const head = html.match(/Harga Emas Hari Ini:\s*Rp\s*([0-9.]+)/i);
+	if (!head) return null;
+	return saneGramPrice(parseIdr(head[1]));
+}
+
+/**
+ * King Halim 1-gram sell price from kinghalim.com/goldbarwithamala.
+ * The page lists one card per weight: the "1 Gr" heading followed
+ * by its "Rp 2,275,000.00" price. The brand price is that 1 Gr
+ * JUAL price — NOT the buyback ("Harga Buyback : Rp 2,140,000.00
+ * / Gr"). Prices there use US formatting with a ".00" decimal, so
+ * they are parsed as floats, not with parseIdr (which would read
+ * the ".00" as more digits). Returns null when the 1-gram card or
+ * its price is missing, or the value is implausible.
+ */
+async function kingHalimPrice() {
+	const html = await fetchText('https://kinghalim.com/goldbarwithamala');
+	const head = html.indexOf('>1 Gr<');
+	if (head === -1) return null;
+	const row = html.slice(head, head + 2000).match(/Rp\s*([0-9,]+(?:\.[0-9]{2})?)/);
+	if (!row) return null;
+	return saneGramPrice(Number(row[1].replace(/,/g, '')));
+}
+
 function readPrevious() {
 	try {
 		const raw = readFileSync(OUT, 'utf8');
@@ -320,6 +387,32 @@ async function main() {
 		sources.pegadaian = prev?.sources?.pegadaian ?? 'logam-mulia-api (stale)';
 	}
 
+	// Hartadinata (HRTA) 1g buy price (brand price, scraped).
+	const hartadinata = await hartadinataPrice().catch((err) => {
+		console.error('hartadinata failed:', err.message);
+		return null;
+	});
+	if (hartadinata !== null) {
+		prices.hartadinata = { price: hartadinata, currency: 'IDR', updated: now };
+		sources.hartadinata = 'hrtagold.id';
+	} else if (prevPrices.hartadinata?.price) {
+		prices.hartadinata = { ...prevPrices.hartadinata };
+		sources.hartadinata = prev?.sources?.hartadinata ?? 'hrtagold.id (stale)';
+	}
+
+	// King Halim 1g sell price (brand price, scraped).
+	const kingHalim = await kingHalimPrice().catch((err) => {
+		console.error('king-halim failed:', err.message);
+		return null;
+	});
+	if (kingHalim !== null) {
+		prices['king-halim'] = { price: kingHalim, currency: 'IDR', updated: now };
+		sources['king-halim'] = 'kinghalim.com';
+	} else if (prevPrices['king-halim']?.price) {
+		prices['king-halim'] = { ...prevPrices['king-halim'] };
+		sources['king-halim'] = prev?.sources?.['king-halim'] ?? 'kinghalim.com (stale)';
+	}
+
 	if (Object.keys(prices).length === 0) {
 		console.error('no prices at all — refusing to write an empty file');
 		process.exit(1);
@@ -329,7 +422,7 @@ async function main() {
 		updated: now,
 		prices,
 		sources,
-		note: 'Free, self-hosted gold prices for the Koperasi Kita theme. Antam is the 1-gram retail price scraped from harga-emas.net; Galeri 24, UBS and Lotus Archi are the 1-gram sell prices scraped from galeri24.co.id; Pegadaian is the 1-gram price from the Logam Mulia backup CSV (pegadaian.csv, latest date only); spot is the live XAU price per gram in IDR from xaus.com. Hartadinata, King Halim and EmasKita stay manual — they have no public live price source. Mini gold is a separate category and is not scraped here.',
+		note: 'Free, self-hosted gold prices for the Koperasi Kita theme. Antam is the 1-gram retail price scraped from harga-emas.net; Galeri 24, UBS and Lotus Archi are the 1-gram sell prices scraped from galeri24.co.id; Pegadaian is the 1-gram price from the Logam Mulia backup CSV (pegadaian.csv, latest date only); Hartadinata is the 1-gram buy price scraped from hrtagold.id; King Halim is the 1-gram sell price scraped from kinghalim.com; spot is the live XAU price per gram in IDR from xaus.com. EmasKita stays manual — its price page is stamped June 09 2026 with no fresher source. Mini gold is a separate category and is not scraped here.',
 	};
 
 	writeFileSync(OUT, JSON.stringify(out, null, 2) + '\n', 'utf8');

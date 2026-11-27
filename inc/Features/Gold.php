@@ -16,10 +16,11 @@ use KoperasiKita\Providers\MarketPrice;
  * and a slider with no priced brands at all renders an honest empty state.
  *
  * Live prices come from the scraper for Antam, UBS, Galeri 24, Lotus
- * Archi and Pegadaian (+ spot). Hartadinata, King Halim and
- * EmasKita have no public live price source, so they show only
- * when a manual snapshot price exists. Mini gold (MiniGold, EOA
- * Gold, IGS Gold, Waris Sampoerna) is a separate category — small
+ * Archi, Pegadaian, Hartadinata and King Halim (+ spot). EmasKita
+ * has no public live price source — its price page is stamped
+ * June 09 2026 with no fresher signal — so it shows only when a
+ * manual snapshot price exists. Mini gold (MiniGold, EOA Gold, IGS
+ * Gold, Waris Sampoerna) is a separate category — small
  * denominations, not gram bars — so it is not in this registry.
  *
  * Third parties may add or rename brands through the
