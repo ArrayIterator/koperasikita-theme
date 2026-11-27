@@ -4178,3 +4178,6 @@ msgstr "Semua merek dinonaktifkan."
 
 msgid "No disabled brands."
 msgstr "Tidak ada merek yang dinonaktifkan."
+
+msgid "Edit the title in the top bar above."
+msgstr "Ubah judul di bilah atas."

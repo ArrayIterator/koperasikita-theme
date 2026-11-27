@@ -40,11 +40,18 @@
 }
 
 .kk-term-picker-list {
+	display: none;
 	max-height: 10rem;
 	overflow: auto;
 	border: 1px solid var(--kk-border, #ddd);
 	border-radius: 3px;
 	background: #fff;
+}
+
+/* Collapsed by default: the list opens (see admin.ts) when the
+ * search is focused or clicked, so the picker stays compact. */
+.kk-term-picker.is-open .kk-term-picker-list {
+	display: block;
 }
 
 .kk-term-picker-option {
@@ -566,6 +573,12 @@
 	flex: 1 1 180px;
 }
 .kk-data-desk-topbar-field--name input {
+	width: 100%;
+}
+.kk-data-desk-topbar-field--title {
+	flex: 2 1 220px;
+}
+.kk-data-desk-topbar-field--title input {
 	width: 100%;
 }
 .kk-data-desk-topbar-field--days input {

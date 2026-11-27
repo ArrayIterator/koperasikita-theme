@@ -1519,6 +1519,42 @@ function initTermPickers(): void {
 		list.className = 'kk-term-picker-list';
 		wrapper.append(chips, search, list);
 
+		/* The option list is a dropdown, not a permanently open
+		 * list: collapsed until the search is used, so a picker in
+		 * a crowded form (the Data Desk top bar) stays compact.
+		 * Focus or click on the search opens it; Escape closes it;
+		 * a click outside closes it. Focus moving inside the
+		 * wrapper (chips, options) keeps it open, so picking with
+		 * the mouse or keyboard never collapses the list
+		 * mid-pick — a null relatedTarget (e.g. a Safari click)
+		 * leaves it alone and the outside-click handler decides. */
+		const setOpen = (open: boolean): void => {
+			wrapper.classList.toggle('is-open', open);
+		};
+		search.addEventListener('focus', () => {
+			setOpen(true);
+		});
+		search.addEventListener('click', () => {
+			setOpen(true);
+		});
+		search.addEventListener('keydown', (event) => {
+			if (event.key === 'Escape') {
+				setOpen(false);
+				search.blur();
+			}
+		});
+		wrapper.addEventListener('focusout', (event) => {
+			const next = event.relatedTarget as Node | null;
+			if (next && !wrapper.contains(next)) {
+				setOpen(false);
+			}
+		});
+		document.addEventListener('pointerdown', (event) => {
+			if (!wrapper.contains(event.target as Node)) {
+				setOpen(false);
+			}
+		});
+
 		const options = Array.from(select.options).map((option) => ({
 			value: option.value,
 			label: option.text,

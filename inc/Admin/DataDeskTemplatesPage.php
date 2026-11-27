@@ -275,16 +275,26 @@ final class DataDeskTemplatesPage
         <form method="post" action="<?php echo esc_url($pageUrl); ?>" id="kk-data-desk-template-form">
             <?php wp_nonce_field('kk_data_desk_template', 'kk_data_desk_template_nonce'); ?>
             <input type="hidden" name="kk_template_id" value="<?php echo esc_attr($id); ?>">
-            <?php /* Title and kicker have no visible rows: both are
-             * edited inline in the live preview below, which writes
-             * into these hidden fields (admin.ts) — the save flow
-             * reads them exactly as before. */ ?>
-            <input type="hidden" id="kk-template-title" name="kk_template_title" value="<?php echo esc_attr($template['title']); ?>">
+            <?php /* The kicker has no visible row: it is edited
+             * inline in the live preview below, which writes into
+             * this hidden field (admin.ts) — the save flow reads it
+             * exactly as before. The title DOES have a visible row
+             * in the top bar (below): the table preview has no title
+             * to click, so the header is where its title is edited. */ ?>
             <input type="hidden" id="kk-template-kicker" name="kk_template_kicker" value="<?php echo esc_attr($template['kicker']); ?>">
             <div class="kk-data-desk-topbar">
                 <div class="kk-data-desk-topbar-field kk-data-desk-topbar-field--name">
                     <label for="kk-template-name"><?php esc_html_e('Name', 'koperasikita'); ?></label>
                     <input type="text" id="kk-template-name" name="kk_template_name" value="<?php echo esc_attr($template['name']); ?>" required>
+                </div>
+                <div class="kk-data-desk-topbar-field kk-data-desk-topbar-field--title">
+                    <label for="kk-template-title"><?php esc_html_e('Title', 'koperasikita'); ?></label>
+                    <?php /* The visible title field IS the save field
+                     * (same id + name the inline preview edit writes
+                     * into), so typing here refreshes the preview live
+                     * and an inline edit in the preview updates this
+                     * input — one field, two ways to edit it. */ ?>
+                    <input type="text" id="kk-template-title" name="kk_template_title" value="<?php echo esc_attr($template['title']); ?>">
                 </div>
                 <div class="kk-data-desk-topbar-field">
                     <label for="kk-template-kind"><?php esc_html_e('Kind', 'koperasikita'); ?></label>
@@ -315,7 +325,6 @@ final class DataDeskTemplatesPage
                         data-kk-term-picker
                         id="kk-template-brands"
                         name="kk_template_brands[]"
-                        style="min-height: 120px;"
                     >
                         <?php $allBrands = Gold::brands(); ?>
                         <?php foreach (Gold::enabledBrands() as $slug) : ?>
@@ -349,8 +358,16 @@ final class DataDeskTemplatesPage
              * (kk_data_desk_preview) whenever a top-bar field
              * changes. The server renders the first preview so the
              * section is never empty. */ ?>
-            <p class="description kk-data-desk-editor-hint">
+            <?php /* Kind-aware hint: the panel preview has a title
+             * to click, the table preview has none — its title is
+             * edited in the top bar above, so the table hint must
+             * never promise a clickable preview title. The toggle
+             * script below shows the matching hint. */ ?>
+            <p class="description kk-data-desk-editor-hint" data-kk-template-panel-hint>
                 <?php esc_html_e("Click the title or 'Meja Data' in the preview to edit them. In the title you can use {label} for the symbol name and {day} for the number of days.", 'koperasikita'); ?>
+            </p>
+            <p class="description kk-data-desk-editor-hint" data-kk-template-table-hint>
+                <?php esc_html_e('Edit the title in the top bar above.', 'koperasikita'); ?>
             </p>
             <div id="kk-data-desk-live-preview" data-kk-data-desk-preview>
                 <?php
@@ -370,6 +387,12 @@ final class DataDeskTemplatesPage
                 });
                 document.querySelectorAll('[data-kk-template-table-control]').forEach(function (control) {
                     control.style.display = isPanel ? 'none' : '';
+                });
+                document.querySelectorAll('[data-kk-template-panel-hint]').forEach(function (hint) {
+                    hint.style.display = isPanel ? '' : 'none';
+                });
+                document.querySelectorAll('[data-kk-template-table-hint]').forEach(function (hint) {
+                    hint.style.display = isPanel ? 'none' : '';
                 });
             };
             kind.addEventListener('change', toggle);
