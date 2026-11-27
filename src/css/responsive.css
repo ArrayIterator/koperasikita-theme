@@ -36,7 +36,7 @@
 	}
 }
 
-@media (max-width: 1023px) {
+@media (max-width: 899px) {
 	/* The sticky nav bar is the whole header once the masthead has
 	 * scrolled away - give it real presence: a taller bar, bigger
 	 * touch targets and bigger icons. */
@@ -63,7 +63,14 @@
 	 * icon stays beside it. */
 }
 
-@media (min-width: 1024px) {
+/* The desktop bar takes over at 900px, not 1024px: the hero stacks
+ * below 900px (home.css), so above it the page is the desktop
+ * layout - and a desktop layout with a mobile hamburger is exactly
+ * what a phone in desktop-site mode showed (Chrome reports a 980px
+ * viewport there). The bar, the drawer and the dropdowns all switch
+ * here; the page grids (home/archive/single, footer) stay at
+ * 1024px, so only the nav moves. */
+@media (min-width: 900px) {
 	.kk-menu-toggle {
 		display: none;
 	}
@@ -165,7 +172,9 @@
 	.kk-primary-menu .sub-menu a {
 		padding: 10px 16px;
 	}
+}
 
+@media (min-width: 1024px) {
 	/* The old hero split (lead 1.6fr + cards 1fr) only applies to a
 	 * hero without a presentation-mode class. Mode heroes set
 	 * their own columns in home.css (Grid Left keeps the same

@@ -121,18 +121,21 @@ function applyScheme(scheme: ColorScheme): void {
 	}
 	// Every toggle (header on desktop, drawer footer on mobile) stays
 	// in sync. aria-pressed reflects the resolved scheme (is the page
-	// dark right now); the label names the next mode in the cycle,
-	// which depends on the stored preference.
+	// dark right now); the label names the current preference, like
+	// the icon does (sun = pinned light, moon = pinned dark, monitor
+	// = system). Naming the next mode instead read as inverted
+	// whenever the page already rendered it - system on a light OS
+	// announced "Switch to light mode" on an already-light page.
 	const isDark = resolveScheme(scheme) === 'dark';
 	$all<HTMLButtonElement>('[data-kk-scheme-toggle]').forEach((toggle) => {
 		toggle.setAttribute('aria-pressed', isDark ? 'true' : 'false');
 		toggle.setAttribute(
 			'aria-label',
 			scheme === 'system'
-				? 'Switch to light mode'
+				? 'System theme'
 				: scheme === 'light'
-					? 'Switch to dark mode'
-					: 'Switch to system mode',
+					? 'Light mode'
+					: 'Dark mode',
 		);
 	});
 }
@@ -163,7 +166,11 @@ function initMobileNav(): void {
 		return;
 	}
 
-	const desktopQuery = window.matchMedia('(min-width: 1024px)');
+	// The desktop breakpoint must match the CSS nav breakpoint
+	// (responsive.css, 900px - the hero stacks below it, so the page
+	// is the desktop layout above it, including a phone in
+	// desktop-site mode at a 980px viewport).
+	const desktopQuery = window.matchMedia('(min-width: 900px)');
 	const isDesktop = (): boolean => desktopQuery.matches;
 	let drillToggle: HTMLButtonElement | null = null;
 

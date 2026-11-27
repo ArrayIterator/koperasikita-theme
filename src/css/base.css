@@ -97,13 +97,19 @@ a:focus-visible {
 	color: var(--kk-green-dark, #07522C);
 }
 
-a:focus-visible,
-button:focus-visible,
 input:focus-visible,
 textarea:focus-visible,
 select:focus-visible {
 	outline: 2px solid var(--kk-gold, #C9962E);
 	outline-offset: 2px;
+}
+
+/* Links and buttons show no outline on focus: the browser's own
+ * default focus ring would still draw without this, so it is turned
+ * off explicitly. Form fields above keep their gold outline. */
+a:focus-visible,
+button:focus-visible {
+	outline: none;
 }
 
 /* Visually-hidden text (WordPress .screen-reader-text): the search
@@ -269,8 +275,7 @@ select:focus-visible {
 	display: none;
 }
 
-.kk-button:hover,
-.kk-button:focus-visible {
+.kk-button:hover {
 	background: var(--kk-green-dark, #07522C);
 	color: #fff;
 }
@@ -281,8 +286,7 @@ select:focus-visible {
 	border-color: var(--kk-border);
 }
 
-.kk-button-ghost:hover,
-.kk-button-ghost:focus-visible {
+.kk-button-ghost:hover {
 	background: var(--kk-surface);
 	color: var(--kk-ink);
 	border-color: var(--kk-muted);

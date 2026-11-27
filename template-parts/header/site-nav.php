@@ -3,8 +3,8 @@
  * Header navigation: desktop bar + mobile drawer + header actions
  * + search dialog.
  *
- * Two menus, one bar: the desktop bar (1024px and up) is the Primary
- * menu, and the mobile drawer (below 1024px) is the Sidebar menu -
+ * Two menus, one bar: the desktop bar (900px and up) is the Primary
+ * menu, and the mobile drawer (below 900px) is the Sidebar menu -
  * the hamburger opens the drawer sliding in from the left, over a
  * blurred backdrop. The drawer falls back to the Primary menu when
  * no menu is assigned to the sidebar location, so it is never empty
@@ -32,7 +32,7 @@
 			<?php echo \KoperasiKita\Icons\Icon::svg( 'menu', 20 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 		</button>
 
-		<!-- Desktop bar: the Primary menu. Hidden below 1024px. -->
+		<!-- Desktop bar: the Primary menu. Hidden below 900px. -->
 		<nav class="kk-desktop-nav" aria-label="<?php esc_attr_e( 'Primary', 'koperasikita' ); ?>">
 			<?php
 			// Depth 0 (unlimited): the desktop dropdown supports any
@@ -53,7 +53,7 @@
 		<!-- Mobile drawer: the Sidebar menu. Falls back to the Primary
 		     menu when no menu is assigned to the sidebar location, so
 		     the drawer is never empty on a fresh install. Hidden at
-		     1024px and up. -->
+		     900px and up. -->
 		<nav id="kk-primary-nav" class="kk-primary-nav<?php echo 'right' === get_theme_mod( 'kk_mobile_menu_side', 'left' ) ? ' kk-nav-right' : ''; ?>" aria-label="<?php esc_attr_e( 'Sidebar Menu', 'koperasikita' ); ?>">
 			<div class="kk-drawer-head">
 				<?php echo \KoperasiKita\Features\Logo::drawerBrand(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
