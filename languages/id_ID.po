@@ -4176,11 +4176,14 @@ msgstr "Semua merek dinonaktifkan."
 msgid "No disabled brands."
 msgstr "Tidak ada merek yang dinonaktifkan."
 
-msgid "Edit the title in the top bar above."
-msgstr "Ubah judul di bilah atas."
+msgid "Edit the title in the top bar above. Click a column header in the preview to edit it."
+msgstr "Ubah judul di bilah atas. Klik header kolom pada pratinjau untuk mengeditnya."
 
 msgid "Click to edit this stat."
 msgstr "Klik untuk mengedit stat ini."
+
+msgid "Click to edit this header."
+msgstr "Klik untuk mengedit header ini."
 
 msgid "Hide this stat"
 msgstr "Sembunyikan stat ini"

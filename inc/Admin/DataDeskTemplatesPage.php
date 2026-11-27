@@ -263,6 +263,7 @@ final class DataDeskTemplatesPage
                 'kicker' => '',
                 'date_line' => '',
                 'stats' => DataDesk::sanitizeStats([]),
+                'headers' => [],
                 'hidden_blocks' => [],
             ];
         }
@@ -301,6 +302,13 @@ final class DataDeskTemplatesPage
             <?php foreach (DataDesk::STAT_BLOCKS as $blockKey) : ?>
             <input type="hidden" id="kk-template-stat-<?php echo esc_attr($blockKey); ?>-label" name="kk_template_stat_<?php echo esc_attr($blockKey); ?>_label" value="<?php echo esc_attr($template['stats'][$blockKey]['label'] ?? ''); ?>">
             <input type="hidden" id="kk-template-stat-<?php echo esc_attr($blockKey); ?>-sub" name="kk_template_stat_<?php echo esc_attr($blockKey); ?>_sub" value="<?php echo esc_attr($template['stats'][$blockKey]['sub'] ?? ''); ?>">
+            <?php endforeach; ?>
+            <?php /* Table column header overrides: edited inline in
+             * the live preview below (click a header to edit it),
+             * which writes into these hidden fields (admin.ts) —
+             * the save flow reads them exactly as the stat texts. */ ?>
+            <?php foreach (DataDesk::HEADER_FIELDS as $headerKey) : ?>
+            <input type="hidden" id="kk-template-header-<?php echo esc_attr($headerKey); ?>" name="kk_template_header_<?php echo esc_attr($headerKey); ?>" value="<?php echo esc_attr($template['headers'][$headerKey] ?? ''); ?>">
             <?php endforeach; ?>
             <input type="hidden" id="kk-template-hidden-blocks" name="kk_template_hidden_blocks" value="<?php echo esc_attr(implode(',', $template['hidden_blocks'] ?? [])); ?>">
             <div class="kk-data-desk-topbar">
@@ -390,7 +398,7 @@ final class DataDeskTemplatesPage
                 <?php esc_html_e("Click the title or 'Meja Data' in the preview to edit them. In the title you can use {label} for the symbol name and {day} for the number of days. Click the date line under the title to edit it. Click a stat label or note to edit it, or the eye button on a stat to hide it or show it again.", 'koperasikita'); ?>
             </p>
             <p class="description kk-data-desk-editor-hint" data-kk-template-table-hint>
-                <?php esc_html_e('Edit the title in the top bar above.', 'koperasikita'); ?>
+                <?php esc_html_e('Edit the title in the top bar above. Click a column header in the preview to edit it.', 'koperasikita'); ?>
             </p>
             <div id="kk-data-desk-live-preview" data-kk-data-desk-preview>
                 <?php

@@ -509,6 +509,7 @@ final class Enqueue
                         'savingTemplate' => __('Saving…', 'koperasikita'),
                         'editDateLineHint' => __('Click to edit the date line.', 'koperasikita'),
                         'editStatHint' => __('Click to edit this stat.', 'koperasikita'),
+                        'editHeaderHint' => __('Click to edit this header.', 'koperasikita'),
                         'close' => __('Close', 'koperasikita'),
                     ],
                 ]);
