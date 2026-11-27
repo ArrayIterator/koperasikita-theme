@@ -31,7 +31,17 @@ final class TermSearch
     }
 
     /**
-     * @return array{results: list<array{id: int, text: string}>}
+     * Search the terms of a taxonomy, for the Select2 term pickers
+     * in the classic widget forms.
+     *
+     * The request may carry a `q` (search string) and a `page`.
+     * The browse cap matches the term pickers: with no search
+     * string a small taxonomy returns every term, a large one
+     * only the first ten, and the rest comes from searching; a
+     * search returns 20 matches per page, with `pagination.more`
+     * telling the picker whether another page exists.
+     *
+     * @return array{results: list<array{id: int, text: string}>, pagination: array{more: bool}}
      */
     public static function ajaxSearchTerms(): array
     {
@@ -42,18 +52,43 @@ final class TermSearch
         }
 
         $query = isset($_POST['q']) ? sanitize_text_field(wp_unslash($_POST['q'])) : '';
+        $page = isset($_POST['page']) ? max(1, (int) $_POST['page']) : 1;
 
+        /* The browse cap matches the term pickers: a small
+         * taxonomy opens with every term, a large one with the
+         * first ten. */
+        $total = wp_count_terms(['taxonomy' => $taxonomy, 'hide_empty' => false]);
+        $total = is_int($total) ? $total : 0;
+
+        if ($query === '') {
+            $number = $total < 50 ? 50 : 10;
+            $offset = 0;
+        } else {
+            $number = 20;
+            $offset = ($page - 1) * $number;
+        }
+
+        /* One extra row tells the picker whether another page
+         * exists; it is dropped before the response is built. */
         $terms = get_terms([
             'taxonomy' => $taxonomy,
             'hide_empty' => false,
             'search' => $query,
-            'number' => 20,
+            'number' => $number + 1,
+            'offset' => $offset,
             'orderby' => 'name',
             'order' => 'ASC',
         ]);
 
         if ($terms instanceof WP_Error) {
             throw new ApiException(Response::ERR_INTERNAL, __('Could not load the terms.', 'koperasikita'), 500);
+        }
+
+        /* The first page of a browse is never paged further -
+         * the rest of a large taxonomy comes from searching. */
+        $more = $query !== '' && count($terms) > $number;
+        if (count($terms) > $number) {
+            $terms = array_slice($terms, 0, $number);
         }
 
         $results = [];
@@ -66,7 +101,10 @@ final class TermSearch
             ];
         }
 
-        return ['results' => $results];
+        return [
+            'results' => $results,
+            'pagination' => ['more' => $more],
+        ];
     }
 
     /**

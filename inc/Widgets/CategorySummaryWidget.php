@@ -166,13 +166,6 @@ final class CategorySummaryWidget extends WP_Widget
     public function form($instance): void
     {
         $settings = $this->settings($instance);
-        $terms = get_terms([
-            'taxonomy' => 'category',
-            'hide_empty' => false,
-            'orderby' => 'name',
-            'order' => 'ASC',
-        ]);
-        $terms = is_array($terms) ? $terms : [];
         ?>
         <p>
             <label for="<?php echo esc_attr($this->get_field_id('title')); ?>">
@@ -187,29 +180,9 @@ final class CategorySummaryWidget extends WP_Widget
             >
         </p>
         <?php WidgetSpacing::field($this, $instance); ?>
-        <p>
-            <label for="<?php echo esc_attr($this->get_field_id('category_ids')); ?>">
-                <?php esc_html_e('Categories to show', 'koperasikita'); ?>
-            </label>
-            <?php /* Select2-style picker (see admin.ts): a searchable multi-select, not a checkbox list. */ ?>
-            <select
-                multiple
-                class="widefat"
-                data-kk-term-picker
-                id="<?php echo esc_attr($this->get_field_id('category_ids')); ?>"
-                name="<?php echo esc_attr($this->get_field_name('category_ids')); ?>[]"
-                style="min-height: 120px;"
-            >
-                <?php foreach ($terms as $term) : ?>
-                    <?php if (!$term instanceof WP_Term) { continue; } ?>
-                    <option value="<?php echo esc_attr((string) $term->term_id); ?>" <?php selected(in_array($term->term_id, $settings['category_ids'], true)); ?>>
-                        <?php echo esc_html($term->name); ?>
-                    </option>
-                <?php endforeach; ?>
-            </select>
-            <span class="description">
-                <?php esc_html_e('Leave empty to show the three categories with the most posts.', 'koperasikita'); ?>
-            </span>
+        <?php Select2TermField::render($this, 'category_ids', __('Categories to show', 'koperasikita'), 'category', $settings['category_ids'], true, __('Search terms…', 'koperasikita')); ?>
+        <p class="description">
+            <?php esc_html_e('Leave empty to show the three categories with the most posts.', 'koperasikita'); ?>
         </p>
         <p>
             <label for="<?php echo esc_attr($this->get_field_id('count')); ?>">
