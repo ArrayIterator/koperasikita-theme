@@ -42,20 +42,22 @@ final class DataDeskTemplatesPage
             $action = 'list';
         }
         ?>
-        <div class="wrap">
-            <h1><?php esc_html_e('Data Desk Templates', 'koperasikita'); ?></h1>
+        <div class="wrap kk-data-desk-page">
+            <h1 class="kk-data-desk-title"><?php esc_html_e('Data Desk Templates', 'koperasikita'); ?></h1>
             <?php if ($notice !== '') : ?>
                 <div class="notice notice-success inline"><p><?php echo esc_html($notice); ?></p></div>
             <?php endif; ?>
             <?php if ($action === 'new' || ($action === 'edit' && $id !== '')) : ?>
                 <?php self::renderForm($action === 'edit' ? $id : '', $pageUrl); ?>
             <?php else : ?>
-                <p>
-                    <a href="<?php echo esc_url(add_query_arg('action', 'new', $pageUrl)); ?>" class="button button-primary">
-                        <?php esc_html_e('Add New Template', 'koperasikita'); ?>
-                    </a>
-                </p>
-                <?php self::renderList($pageUrl); ?>
+                <section class="kk-data-desk-card">
+                    <p class="kk-data-desk-card-actions">
+                        <a href="<?php echo esc_url(add_query_arg('action', 'new', $pageUrl)); ?>" class="kk-data-desk-button kk-data-desk-button--primary">
+                            <?php esc_html_e('Add New Template', 'koperasikita'); ?>
+                        </a>
+                    </p>
+                    <?php self::renderList($pageUrl); ?>
+                </section>
             <?php endif; ?>
         </div>
         <?php
@@ -169,7 +171,8 @@ final class DataDeskTemplatesPage
         $templates = DataDesk::templates();
         $kinds = DataDesk::kinds();
         ?>
-        <table class="widefat striped">
+        <div class="kk-data-desk-table-wrap">
+        <table class="widefat striped kk-data-desk-table">
             <thead>
                 <tr>
                     <th><?php esc_html_e('Name', 'koperasikita'); ?></th>
@@ -208,6 +211,7 @@ final class DataDeskTemplatesPage
                 <?php endforeach; ?>
             </tbody>
         </table>
+        </div>
         <?php /* One shared preview popup, reused by every row's Preview
          * link. The panel is filled by admin.ts (kk_data_desk_preview
          * by template id); without JS the link does nothing and the
@@ -218,13 +222,13 @@ final class DataDeskTemplatesPage
                 <div class="kk-data-desk-popup-head">
                     <h2 id="kk-data-desk-popup-title"></h2>
                     <div class="kk-data-desk-popup-actions">
-                        <button type="button" class="button" data-kk-data-desk-popup-close><?php esc_html_e('Close', 'koperasikita'); ?></button>
+                        <button type="button" class="kk-data-desk-button" data-kk-data-desk-popup-close><?php esc_html_e('Close', 'koperasikita'); ?></button>
                     </div>
                 </div>
                 <div class="kk-data-desk-popup-body" data-kk-data-desk-popup-body></div>
             </div>
         </div>
-        <p class="description">
+        <p class="description kk-data-desk-note">
             <?php esc_html_e('Widgets pick a template instead of carrying their own settings.', 'koperasikita'); ?>
         </p>
         <?php
@@ -274,7 +278,7 @@ final class DataDeskTemplatesPage
             'auto' => __('Auto', 'koperasikita'),
         ];
         ?>
-        <h2><?php echo $id !== '' ? esc_html__('Edit Template', 'koperasikita') : esc_html__('Add New Template', 'koperasikita'); ?></h2>
+        <h2 class="kk-data-desk-card-title"><?php echo $id !== '' ? esc_html__('Edit Template', 'koperasikita') : esc_html__('Add New Template', 'koperasikita'); ?></h2>
         <form method="post" action="<?php echo esc_url($pageUrl); ?>" id="kk-data-desk-template-form">
             <?php wp_nonce_field('kk_data_desk_template', 'kk_data_desk_template_nonce'); ?>
             <input type="hidden" name="kk_template_id" value="<?php echo esc_attr($id); ?>">
@@ -368,8 +372,8 @@ final class DataDeskTemplatesPage
                     <input type="hidden" id="kk-template-palette" name="kk_template_palette" value="<?php echo esc_attr($template['palette']); ?>">
                 </div>
                 <div class="kk-data-desk-topbar-actions">
-                    <input type="submit" name="submit" class="button button-primary" value="<?php echo esc_attr($id !== '' ? __('Update Template', 'koperasikita') : __('Add Template', 'koperasikita')); ?>">
-                    <a href="<?php echo esc_url($pageUrl); ?>" class="button"><?php esc_html_e('Cancel', 'koperasikita'); ?></a>
+                    <input type="submit" name="submit" class="kk-data-desk-button kk-data-desk-button--primary" value="<?php echo esc_attr($id !== '' ? __('Update Template', 'koperasikita') : __('Add Template', 'koperasikita')); ?>">
+                    <a href="<?php echo esc_url($pageUrl); ?>" class="kk-data-desk-button"><?php esc_html_e('Cancel', 'koperasikita'); ?></a>
                 </div>
             </div>
             <?php /* The live preview IS the editor: the real panel /
