@@ -730,6 +730,9 @@ msgstr "Langganan tidak tersedia saat ini. Silakan coba lagi nanti."
 msgid "Thank you for subscribing. Please check your inbox to confirm your subscription."
 msgstr "Terima kasih sudah berlangganan. Periksa kotak masuk Anda untuk mengonfirmasi langganan."
 
+msgid "Thank you for subscribing."
+msgstr "Terima kasih sudah berlangganan."
+
 #: inc/Features/Subscribe.php
 msgid "Too many subscription attempts. Please try again later."
 msgstr "Terlalu banyak percobaan berlangganan. Silakan coba lagi nanti."

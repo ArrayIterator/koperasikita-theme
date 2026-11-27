@@ -36,8 +36,6 @@ final class SubscribersPage
             wp_die(esc_html__('You do not have permission to access this page.', 'koperasikita'));
         }
 
-        self::handleDelete();
-
         // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- search and paging are display-only.
         $search = isset($_GET['s']) ? sanitize_text_field((string) wp_unslash($_GET['s'])) : '';
         // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- search and paging are display-only.
@@ -101,7 +99,8 @@ final class SubscribersPage
                                 <td><?php echo esc_html(self::statusLabel($row['status'])); ?></td>
                                 <td><?php echo esc_html(self::sourceLabel($row['source'])); ?></td>
                                 <td>
-                                    <form method="post" action="<?php echo esc_url($pageUrl); ?>" style="display:inline;">
+                                    <form method="post" action="<?php echo esc_url(admin_url('admin-post.php')); ?>" style="display:inline;">
+                                        <input type="hidden" name="action" value="kk_delete_subscriber">
                                         <?php wp_nonce_field(self::NONCE_DELETE, 'kk_subscribers_delete_nonce'); ?>
                                         <input type="hidden" name="subscriber_id" value="<?php echo esc_attr((string) $row['id']); ?>">
                                         <input type="submit" class="button-link-delete" value="<?php esc_attr_e('Delete', 'koperasikita'); ?>" onclick="return confirm('<?php echo esc_js(__('Are you sure you want to delete this subscriber?', 'koperasikita')); ?>');">
@@ -166,16 +165,14 @@ final class SubscribersPage
     }
 
     /**
-     * Delete one subscriber (list-page POST): nonce + capability
+     * Delete one subscriber (admin-post.php): nonce + capability
      * checked, then redirect back with a deleted flag so a refresh
-     * never resubmits the form.
+     * never resubmits the form. Runs on admin-post.php, before any
+     * output — handling the POST inside render() would redirect
+     * after the admin headers are already sent.
      */
-    private static function handleDelete(): void
+    public static function handleDelete(): void
     {
-        if (!isset($_POST['kk_subscribers_delete_nonce'])) {
-            return;
-        }
-
         if (!current_user_can('manage_options')) {
             wp_die(esc_html__('You do not have permission to access this page.', 'koperasikita'));
         }
