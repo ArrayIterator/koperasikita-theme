@@ -152,10 +152,9 @@
 	color: var(--kk-ink);
 }
 
-.kk-bookmark-button:hover {
-	border-color: var(--kk-green, #0B6B3A);
-	color: var(--kk-green, #0B6B3A);
-}
+/* No hover style on purpose, same as the card button: a tap on
+ * touch screens triggers :hover, so green text/border would read
+ * as bookmarked on an unsaved post. Only the saved state is green. */
 
 .kk-bookmark-button[aria-pressed="true"] {
 	background: var(--kk-green, #0B6B3A);
