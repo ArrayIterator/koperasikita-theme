@@ -6,6 +6,7 @@
  */
 
 .kk-term-picker {
+	position: relative;
 	display: grid;
 	gap: 0.5rem;
 	margin-top: 0.25rem;
@@ -39,13 +40,23 @@
 	border-color: var(--kk-green, #0b6b3a);
 }
 
+/* The list is an overlay, not in-flow content: when it opens it
+ * must float over the form below instead of pushing it down.
+ * (In-flow it grew the Data Desk top bar and shoved the Name /
+ * Title / Kind inputs up.) The wrapper above is the anchor. */
 .kk-term-picker-list {
+	position: absolute;
+	top: calc(100% + 2px);
+	left: 0;
+	right: 0;
+	z-index: 10;
 	display: none;
 	max-height: 10rem;
 	overflow: auto;
 	border: 1px solid var(--kk-border, #ddd);
 	border-radius: 3px;
 	background: #fff;
+	box-shadow: 0 4px 12px rgb(0 0 0 / 0.15);
 }
 
 /* Collapsed by default: the list opens (see admin.ts) when the
