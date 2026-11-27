@@ -26,6 +26,17 @@
 	border-top: 1px solid var(--kk-ink);
 }
 
+/* Block-widget titles carry `widgettitle`, not `kk-widget-title`
+ * (the_widget() default args), so the base rule above never
+ * matches them - without this they sit flush on the content below
+ * everywhere outside a sidebar. Same 12px a block title already
+ * gets inside a sidebar and in the editor canvas, so the gap under
+ * a block title is identical in every area. No existing title
+ * margin value changes here. */
+.widgettitle {
+	margin-bottom: 12px;
+}
+
 .kk-widget-title--no-border::after {
 	display: none;
 }
