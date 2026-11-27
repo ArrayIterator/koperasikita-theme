@@ -10,8 +10,9 @@
  *
  * Also wires the manual gold sync on Settings -> Gold Prices
  * ([data-kk-gold-sync]): one AJAX call per source, in order, with a
- * progress line per step and a page reload at the end so the status,
- * history list and chart refresh.
+ * progress line per step inside a popup that stays open with the
+ * full result until closed; closing the popup reloads the page so
+ * the status, history list and chart refresh.
  *
  * The control renders one status row per selected Google font, in the
  * same order as the space-separated ids in the download button's
@@ -110,7 +111,7 @@ const FALLBACK_STRINGS: AdminStrings = {
 	syncingSource: 'Scraping %s...',
 	syncStepDone: '%s: inserted %s, skipped %s',
 	syncStepLatest: ' (latest %s)',
-	syncDone: 'Done - inserted %s, skipped %s (already in database). Reloading...',
+	syncDone: 'Done - inserted %s, skipped %s (already in database).',
 	loadingPreview: 'Loading preview...',
 	loadingChart: 'Loading chart...',
 	editKickerHint: 'Click to edit the kicker.',
@@ -1178,80 +1179,112 @@ function initSidebarSettingsPopup(): void {
 }
 
 /**
- * Manual gold sync on Settings -> Gold Prices, with real progress.
+ * Manual gold sync on Settings -> Gold Prices, inside a popup.
  *
  * One AJAX call per enabled source, in run order (the default
  * source first, then the rest - see
  * LogamMuliaApiProvider::enabledSyncSources()): the first call
  * carries no source, each step returns `next` (the following
  * source, or null when done) plus `step`/`total` for the progress
- * bar. While a sync runs the Sync now button is disabled
- * (aria-busy), the progress bar + status line show which source
- * is syncing ("Syncing galeri24... 1/3"), each finished source gets
- * its own line in the step list, and the automatic-sync form is
- * disabled with a note saying it is paused. A per-source failure
- * is reported as its own line and does not stop the remaining
- * sources. At the end the page reloads so the status, history
- * list and chart show the new rows. Without the button (any other
- * admin screen) this does nothing. With no source enabled the
- * button is disabled server-side, and a step that reports no
- * source shows the server's error instead of reloading.
+ * bar. Clicking Scrape now opens the popup (same centered +
+ * blurred-backdrop pattern as the Data Desk preview popup) and
+ * runs the sync inside it: while a sync runs the Scrape now button
+ * is disabled (aria-busy), the progress bar + status line show
+ * which source is scraping ("Scraping galeri24... 1/3"), each
+ * finished source gets its own line in the step list, and the
+ * automatic-sync form is disabled with a note saying it is paused.
+ * A per-source failure is reported as its own line and does not
+ * stop the remaining sources. The popup stays open with the full
+ * result until the user closes it (Close, backdrop, Escape); the
+ * close reloads the page, so the status, history list and chart
+ * show the new rows. Without the button (any other admin screen)
+ * this does nothing. With no source enabled the button is disabled
+ * server-side, and a step that reports no source shows the
+ * server's error instead of finishing as if a sync had run.
  */
 function initGoldSync(): void {
 	const button = document.querySelector<HTMLButtonElement>('[data-kk-gold-sync]');
-	const result = document.querySelector<HTMLElement>('[data-kk-gold-sync-result]');
-	if (!button || !result) {
+	const popup = document.getElementById('kk-gold-sync-popup');
+	if (!button || !popup) {
 		return;
 	}
-
-	/* Localize data missing (stale page, cached markup, blocked
-	 * script): never leave a dead button - a click says so
-	 * honestly instead of doing nothing. */
-	const config = adminData();
-	if (!config) {
-		button.addEventListener('click', () => {
-			result.textContent = adminStrings().adminDataMissing;
-		});
+	const bar = popup.querySelector<HTMLProgressElement>('[data-kk-gold-sync-bar]');
+	const statusEl = popup.querySelector<HTMLElement>('[data-kk-gold-sync-status]');
+	const stepsEl = popup.querySelector<HTMLElement>('[data-kk-gold-sync-steps]');
+	const result = popup.querySelector<HTMLElement>('[data-kk-gold-sync-result]');
+	const closeButton = popup.querySelector<HTMLButtonElement>('[data-kk-gold-sync-popup-close]');
+	if (!bar || !statusEl || !stepsEl || !result || !closeButton) {
 		return;
 	}
-
-	const progressWrap = document.querySelector<HTMLElement>('[data-kk-gold-sync-progress]');
-	const bar = document.querySelector<HTMLProgressElement>('[data-kk-gold-sync-bar]');
-	const statusEl = document.querySelector<HTMLElement>('[data-kk-gold-sync-status]');
-	const stepsEl = document.querySelector<HTMLElement>('[data-kk-gold-sync-steps]');
 	const settingsForm = document.querySelector<HTMLFormElement>('[data-kk-gold-sync-settings]');
 	const runningNote = document.querySelector<HTMLElement>('[data-kk-gold-sync-running]');
 
-	const setRunning = (running: boolean): void => {
-		button.disabled = running;
-		if (running) {
+	let running = false;
+
+	/* Every close path reloads: the numbers behind the popup are
+	 * stale once a scrape has run, and the popup itself says so. */
+	const close = (): void => {
+		popup.hidden = true;
+		button.focus();
+		window.location.reload();
+	};
+
+	popup.querySelectorAll('[data-kk-gold-sync-popup-close]').forEach((el) => {
+		el.addEventListener('click', close);
+	});
+
+	document.addEventListener('keydown', (event) => {
+		if (event.key === 'Escape' && !popup.hidden) {
+			close();
+		}
+	});
+
+	const setRunning = (isRunning: boolean): void => {
+		running = isRunning;
+		button.disabled = isRunning;
+		if (isRunning) {
 			button.setAttribute('aria-busy', 'true');
 		} else {
 			button.removeAttribute('aria-busy');
 		}
-		if (progressWrap) {
-			progressWrap.hidden = !running;
-		}
 		if (runningNote) {
-			runningNote.hidden = !running;
+			runningNote.hidden = !isRunning;
 		}
 		if (settingsForm) {
 			settingsForm.querySelectorAll<HTMLInputElement | HTMLSelectElement | HTMLButtonElement>('input, select, button').forEach((el) => {
-				el.disabled = running;
+				el.disabled = isRunning;
 			});
 		}
 	};
 
+	/* Localize data missing (stale page, cached markup, blocked
+	 * script): never leave a dead button - a click opens the popup
+	 * and says so honestly instead of doing nothing. */
+	const config = adminData();
+	if (!config) {
+		button.addEventListener('click', () => {
+			statusEl.textContent = '';
+			stepsEl.textContent = '';
+			result.textContent = adminStrings().adminDataMissing;
+			popup.hidden = false;
+			closeButton.focus();
+		});
+		return;
+	}
+
 	button.addEventListener('click', async () => {
+		if (running) {
+			return;
+		}
 		const strings = adminStrings();
 		setRunning(true);
 		result.textContent = '';
-		if (stepsEl) {
-			stepsEl.textContent = '';
-		}
-		if (bar) {
-			bar.value = 0;
-		}
+		stepsEl.textContent = '';
+		statusEl.textContent = '';
+		bar.max = 100;
+		bar.value = 0;
+		popup.hidden = false;
+		closeButton.focus();
 
 		let totalInserted = 0;
 		let totalSkipped = 0;
@@ -1264,21 +1297,19 @@ function initGoldSync(): void {
 			for (let step = 0; step < 10; step += 1) {
 				const params: Record<string, string> = source === null ? {} : { source };
 				const current = source ?? '';
-				/* The step line appears first as "Syncing <source>..."
+				/* The step line appears first as "Scraping <source>..."
 				 * and is rewritten with its result when the call
 				 * returns, so the list always shows live progress. */
 				const line = document.createElement('li');
-				if (stepsEl) {
-					line.textContent = formatTemplate(strings.syncingSource, current);
-					stepsEl.appendChild(line);
-				}
+				line.textContent = formatTemplate(strings.syncingSource, current);
+				stepsEl.appendChild(line);
 
 				const data: GoldSyncStep = await postAjax<GoldSyncStep>(config, 'kk_logam_mulia_sync', params);
 
 				/* No source in the step: either nothing is enabled
 				 * at all (total 0 - show the server's honest error
-				 * and stop, never reload as if a sync had run), or
-				 * the remaining sources were disabled mid-run
+				 * and stop, never finishing as if a sync had run),
+				 * or the remaining sources were disabled mid-run
 				 * (total > 0 - finish with what already synced). */
 				if (!data.source) {
 					if (data.total === 0) {
@@ -1297,13 +1328,9 @@ function initGoldSync(): void {
 
 				const total = typeof data.total === 'number' && data.total > 0 ? data.total : 3;
 				const done = typeof data.step === 'number' && data.step > 0 ? data.step : step + 1;
-				if (bar) {
-					bar.max = total;
-					bar.value = done;
-				}
-				if (statusEl) {
-					statusEl.textContent = `${formatTemplate(strings.syncingSource, data.source)} (${done}/${total})`;
-				}
+				bar.max = total;
+				bar.value = done;
+				statusEl.textContent = `${formatTemplate(strings.syncingSource, data.source)} (${done}/${total})`;
 
 				line.textContent = data.error
 					? formatTemplate(strings.failed, `${data.source}: ${data.error}`)
@@ -1316,16 +1343,12 @@ function initGoldSync(): void {
 				source = data.next;
 			}
 
-			if (bar) {
-				bar.value = bar.max;
-			}
-			if (statusEl) {
-				statusEl.textContent = formatTemplate(strings.syncDone, totalInserted, totalSkipped);
-			}
+			bar.value = bar.max;
+			statusEl.textContent = formatTemplate(strings.syncDone, totalInserted, totalSkipped);
 			const summary = document.createElement('div');
 			summary.textContent = formatTemplate(strings.syncDone, totalInserted, totalSkipped);
 			result.appendChild(summary);
-			window.setTimeout(() => window.location.reload(), 1500);
+			setRunning(false);
 		} catch (error) {
 			const line = document.createElement('div');
 			line.textContent = errorMessage(error);

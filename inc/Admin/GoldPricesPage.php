@@ -552,10 +552,14 @@ final class GoldPricesPage
      * scrapes ONLY the enabled sources, default first - see
      * LogamMuliaApiProvider::enabledSyncSources(). With no source
      * enabled the button is disabled with an honest note, so it
-     * can never be clicked to no effect. The progress bar + step
-     * list are filled by admin.ts (initGoldSync) as each source
-     * finishes; a failed source is reported on its own line and
-     * does not stop the rest.
+     * can never be clicked to no effect. The scrape runs inside
+     * the popup below (same centered + blurred-backdrop pattern as
+     * the Data Desk preview popup): progress bar + per-source
+     * lines, filled by admin.ts (initGoldSync) as each source
+     * finishes. A failed source is reported on its own line and
+     * does not stop the rest. The popup stays open with the full
+     * result until closed; closing it reloads the page, so the
+     * status, history list and chart show the new rows.
      */
     private static function renderManualSync(): void
     {
@@ -567,12 +571,24 @@ final class GoldPricesPage
         <?php if ($enabled === []) : ?>
             <p><?php esc_html_e('No scraping source is enabled. Enable one on the Setting tab.', 'koperasikita'); ?></p>
         <?php endif; ?>
-        <div data-kk-gold-sync-progress hidden>
-            <p><progress data-kk-gold-sync-bar max="100" value="0" style="width: 100%; max-width: 30rem;"></progress></p>
-            <p data-kk-gold-sync-status role="status" aria-live="polite"></p>
-            <ul data-kk-gold-sync-steps></ul>
+        <div class="kk-data-desk-popup" id="kk-gold-sync-popup" hidden role="dialog" aria-modal="true" aria-labelledby="kk-gold-sync-popup-title">
+            <div class="kk-data-desk-popup-backdrop" data-kk-gold-sync-popup-close></div>
+            <div class="kk-data-desk-popup-panel" role="document">
+                <div class="kk-data-desk-popup-head">
+                    <h2 id="kk-gold-sync-popup-title"><?php esc_html_e('Manual scraping', 'koperasikita'); ?></h2>
+                    <div class="kk-data-desk-popup-actions">
+                        <button type="button" class="kk-gold-button" data-kk-gold-sync-popup-close><?php esc_html_e('Close', 'koperasikita'); ?></button>
+                    </div>
+                </div>
+                <div class="kk-data-desk-popup-body">
+                    <p><progress data-kk-gold-sync-bar max="100" value="0" style="width: 100%; max-width: 30rem;"></progress></p>
+                    <p data-kk-gold-sync-status role="status" aria-live="polite"></p>
+                    <ul data-kk-gold-sync-steps aria-live="polite"></ul>
+                    <div data-kk-gold-sync-result role="status" aria-live="polite"></div>
+                    <p class="description"><?php esc_html_e('Closing this popup reloads the page so the status, history list and chart show the new prices.', 'koperasikita'); ?></p>
+                </div>
+            </div>
         </div>
-        <div data-kk-gold-sync-result role="status" aria-live="polite"></div>
         <?php
     }
 
