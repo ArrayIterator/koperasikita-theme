@@ -63,18 +63,23 @@ final class DataDeskWidget extends WP_Widget
         $parsed = DataDesk::parseSymbol($template['symbol']);
         $parsed = $parsed ?? ['market' => 'gold', 'symbol' => 'antam'];
 
+        // The widget title IS the panel title: it travels into the
+        // panel, where {label} / {day} resolve, and no separate
+        // widget heading renders above it - one title, resolved,
+        // inside the panel. An empty widget title leaves the
+        // template title in place. (A widget heading here used to
+        // print the raw tokens a second time, above the panel.)
         $title = isset($instance['title']) ? (string) $instance['title'] : '';
+        $panelTitle = trim($title) !== '' ? $title : (string) ($template['title'] ?? '');
         $data = DataDesk::panelData($parsed['market'], $parsed['symbol'], (int) $template['days']);
 
         echo WidgetSpacing::apply(WidgetHeader::beforeWidget($args, WidgetHeader::style($instance)), WidgetSpacing::margins($instance));
-
-        WidgetHeader::render($args, $title, WidgetHeader::style($instance));
 
         get_template_part('template-parts/data-desk/panel', null, [
             'data' => $data,
             'palette' => $template['palette'],
             'days' => (int) $template['days'],
-            'title' => $template['title'],
+            'title' => $panelTitle,
             'kicker' => $template['kicker'] ?? '',
             'date_line' => $template['date_line'] ?? '',
             'stats' => $template['stats'] ?? [],
@@ -115,12 +120,12 @@ final class DataDeskWidget extends WP_Widget
             <input
                 class="widefat"
                 type="text"
+                data-kk-data-desk-title
                 id="<?php echo esc_attr($this->get_field_id('title')); ?>"
                 name="<?php echo esc_attr($this->get_field_name('title')); ?>"
                 value="<?php echo esc_attr($title); ?>"
             >
         </p>
-        <?php WidgetHeader::field($this, $instance, true); ?>
         <?php WidgetSpacing::field($this, $instance); ?>
         <p>
             <label for="<?php echo esc_attr($this->get_field_id('template')); ?>">
@@ -223,8 +228,16 @@ final class DataDeskWidget extends WP_Widget
             <div data-kk-data-desk-widget-preview-body>
                 <?php if ($previewTemplate !== null) : ?>
                     <?php
+                    // The preview shows what the widget will render:
+                    // the template with the widget's overrides, and
+                    // the widget title in place of the template
+                    // title when one is set (see widget()).
+                    $preview = DataDesk::applyWidgetOverrides($previewTemplate, $instance);
+                    if (trim($title) !== '') {
+                        $preview['title'] = $title;
+                    }
                     // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- renderPreview returns the theme's own template markup.
-                    echo DataDesk::renderPreview(DataDesk::applyWidgetOverrides($previewTemplate, $instance));
+                    echo DataDesk::renderPreview($preview);
                     ?>
                 <?php else : ?>
                     <p class="description"><?php esc_html_e('No templates yet. Create one on the Data Desk Templates page.', 'koperasikita'); ?></p>

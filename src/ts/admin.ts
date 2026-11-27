@@ -597,8 +597,11 @@ function initDataDeskPreview(): void {
 	 * immediately; the 300ms debounce is only for focusout and
 	 * typing, where a request per keystroke would spam the
 	 * server. A debounced save left the preview showing the old
-	 * text while the user was already looking at it. */
-	const refresh = (immediate = false): void => {
+	 * text while the user was already looking at it. A quiet
+	 * refresh skips the slow-loading dim and status line: the
+	 * caller already patched the preview in place, so there is
+	 * nothing to wait on visibly. */
+	const refresh = (immediate = false, quiet = false): void => {
 		if (timer !== null) {
 			window.clearTimeout(timer);
 			timer = null;
@@ -629,12 +632,16 @@ function initDataDeskPreview(): void {
 			/* Quiet refresh: the loading dim + status line only
 			 * appear when the request actually takes a while, so
 			 * a fast focusout refresh never flashes the preview
-			 * or shifts the page below it. */
+			 * or shifts the page below it. A quiet refresh (the
+			 * popup Save, whose in-place patch already shows
+			 * the new text) never shows them at all. */
 			let slowTimer: number | null = null;
-			slowTimer = window.setTimeout(() => {
-				container.classList.add('is-loading');
-				status.textContent = adminStrings().loadingPreview;
-			}, 500);
+			if (!quiet) {
+				slowTimer = window.setTimeout(() => {
+					container.classList.add('is-loading');
+					status.textContent = adminStrings().loadingPreview;
+				}, 500);
+			}
 			void postAjax<{ html: string }>(config, 'kk_data_desk_preview', params)
 				.then((data) => {
 					container.innerHTML = data.html;
@@ -1518,10 +1525,76 @@ function initDataDeskPreview(): void {
 	const fieldPopupZone = fieldPopup?.querySelector<HTMLSelectElement>('[data-kk-field-popup-zone]');
 	const fieldPopupDateLine = fieldPopup?.querySelector<HTMLElement>('[data-kk-field-popup-date-line]');
 	let fieldPopupOpener: HTMLElement | null = null;
+	/* Resolve a raw token format against the token blob's
+	 * samples: the blob carries each token's resolved value
+	 * for the current template and sample data, so this returns
+	 * what the server renders for the same input - unless the
+	 * percent or zone setting changed with it, which the
+	 * samples predate. Unknown tokens stay literal. */
+	const resolveWithSamples = (raw: string): string => {
+		const samples = new Map<string, string>();
+		for (const entry of readPlaceholderTokens()) {
+			samples.set(entry.token, entry.sample);
+		}
+		samples.set('{day}', days.value);
+		return raw.replace(/\{[A-Za-z0-9_]+\}/g, (token) => samples.get(token) ?? token);
+	};
+	/* The Save's visible half: write the saved values into the
+	 * preview DOM at once, resolved against the token samples,
+	 * so the user sees the new text immediately instead of
+	 * waiting on the server round-trip. The confirm refresh
+	 * still runs and replaces the preview with the server's
+	 * render; this patch only bridges the gap. A field the
+	 * client cannot resolve is left alone for the refresh: an
+	 * emptied sub or label falls back to its computed text,
+	 * {zone} renders as a coloured span the plain samples
+	 * cannot reproduce, and a percent/zone change predates
+	 * the {delta} / {delta_pct} samples. */
+	const patchPreviewFromPopup = (block: string | null): void => {
+		if (block === null || !fieldPopupPercent || !fieldPopupZone) {
+			return;
+		}
+		const staleSamples =
+			placeholderPercent.value !== fieldPopupPercent.value ||
+			placeholderZoneColor.value !== fieldPopupZone.value;
+		if (block === 'date-line') {
+			const raw = dateLine.value;
+			const line = container.querySelector('.kk-data-desk-subtitle[data-kk-date-line]');
+			if (raw !== '' && line) {
+				line.textContent = resolveWithSamples(raw);
+			}
+			return;
+		}
+		const blockEl = container.querySelector(`[data-kk-stat-block="${block}"]`);
+		if (!blockEl) {
+			return;
+		}
+		const labelInput = statInputs[`${block}-label`];
+		const subInput = statInputs[`${block}-sub`];
+		const labelEl = blockEl.querySelector('.kk-data-desk-stat-label');
+		if (labelInput && labelEl && labelInput.value !== '') {
+			labelEl.textContent = labelInput.value;
+		}
+		const subEl = blockEl.querySelector('.kk-data-desk-stat-note');
+		if (!subInput || !subEl || subInput.value === '') {
+			return;
+		}
+		const raw = subInput.value;
+		if (raw.includes('{zone}')) {
+			return;
+		}
+		if (staleSamples && (raw.includes('{delta}') || raw.includes('{delta_pct}'))) {
+			return;
+		}
+		subEl.textContent = resolveWithSamples(raw);
+	};
 	const closeFieldPopup = (save: boolean): void => {
 		if (!fieldPopup || !fieldPopupLabel || !fieldPopupSub || !fieldPopupPercent || !fieldPopupZone || !fieldPopupDateLine) {
 			return;
 		}
+		/* The patch below runs after the popup closes, when the
+		 * block is already cleared - keep it to pass in. */
+		const savedBlock = fieldPopupBlock;
 		if (save && fieldPopupBlock !== null) {
 			if (fieldPopupBlock === 'date-line') {
 				dateLine.value = fieldPopupDateLine.textContent?.trim() ?? '';
@@ -1551,7 +1624,14 @@ function initDataDeskPreview(): void {
 		fieldPopupOpener?.focus();
 		fieldPopupOpener = null;
 		if (save) {
-			refresh(true);
+			/* The preview shows the saved text at once (see
+			 * patchPreviewFromPopup); the refresh only confirms
+			 * it from the server, quietly, and a failed confirm
+			 * keeps the patched preview instead of reverting
+			 * it to the old text. */
+			patchPreviewFromPopup(savedBlock);
+			lastGood = container.innerHTML;
+			refresh(true, true);
 		}
 	};
 	const openFieldPopup = (target: HTMLElement, clicked: HTMLElement | null): void => {
@@ -1987,6 +2067,9 @@ function initDataDeskWidgetPreview(): void {
 		}
 		const symbolOverride = form?.querySelector<HTMLSelectElement>('[data-kk-data-desk-symbol-override]');
 		const daysOverride = form?.querySelector<HTMLInputElement>('[data-kk-data-desk-days-override]');
+		/* The widget title overrides the template title in the
+		 * preview, the same rule the widget itself applies. */
+		const titleInput = form?.querySelector<HTMLInputElement>('[data-kk-data-desk-title]');
 		const showInputs: Record<string, HTMLInputElement | null> = {
 			sell: form?.querySelector<HTMLInputElement>('[data-kk-data-desk-show-sell]') ?? null,
 			buyback: form?.querySelector<HTMLInputElement>('[data-kk-data-desk-show-buyback]') ?? null,
@@ -2007,6 +2090,9 @@ function initDataDeskWidgetPreview(): void {
 			box.classList.add('is-loading');
 			status.textContent = adminStrings().loadingPreview;
 			const params: Record<string, string> = { template: select.value };
+			if (titleInput && titleInput.value.trim() !== '') {
+				params.title = titleInput.value;
+			}
 			if (symbolOverride && symbolOverride.value !== '') {
 				params.symbol_override = symbolOverride.value;
 			}
@@ -2034,6 +2120,7 @@ function initDataDeskWidgetPreview(): void {
 		};
 
 		select.addEventListener('change', refreshPreview);
+		titleInput?.addEventListener('change', refreshPreview);
 		symbolOverride?.addEventListener('change', refreshPreview);
 		daysOverride?.addEventListener('change', refreshPreview);
 		for (const input of Object.values(showInputs)) {
