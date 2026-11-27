@@ -2563,12 +2563,48 @@ final class Customizer
             'transport' => 'refresh',
         ]);
 
+        $wpCustomize->add_setting('kk_market_header_index[style]', [
+            'type' => 'option',
+            'default' => MarketHeaderIndex::DEFAULT_STYLE,
+            'sanitize_callback' => [MarketHeaderIndex::class, 'sanitizeStyle'],
+            'transport' => 'refresh',
+        ]);
+
+        $wpCustomize->add_setting('kk_market_header_index[cycle_interval]', [
+            'type' => 'option',
+            'default' => MarketHeaderIndex::DEFAULT_CYCLE_INTERVAL,
+            'sanitize_callback' => [MarketHeaderIndex::class, 'sanitizeCycleInterval'],
+            'transport' => 'refresh',
+        ]);
+
         $wpCustomize->add_control('kk_market_header_enabled', [
             'label' => esc_html__('Show the market index strip', 'koperasikita'),
-            'description' => esc_html__('Shows the picked market indices in a dark strip below the header. Requires the Markets feature.', 'koperasikita'),
+            'description' => esc_html__('Shows the picked market indices in a strip below the header. Requires the Markets feature.', 'koperasikita'),
             'section' => 'koperasikita_market_header',
             'settings' => 'kk_market_header_index[enabled]',
             'type' => 'checkbox',
+        ]);
+
+        $wpCustomize->add_control('kk_market_header_style', [
+            'label' => esc_html__('Strip style', 'koperasikita'),
+            'section' => 'koperasikita_market_header',
+            'settings' => 'kk_market_header_index[style]',
+            'type' => 'select',
+            'choices' => [
+                'dark' => esc_html__('Dark', 'koperasikita'),
+                'light' => esc_html__('Light', 'koperasikita'),
+            ],
+            'active_callback' => [self::class, 'isMarketHeaderEnabled'],
+        ]);
+
+        $wpCustomize->add_control('kk_market_header_cycle_interval', [
+            'label' => esc_html__('Seconds between items on mobile', 'koperasikita'),
+            'description' => esc_html__('On small screens the strip shows one item at a time; this is how long each item shows.', 'koperasikita'),
+            'section' => 'koperasikita_market_header',
+            'settings' => 'kk_market_header_index[cycle_interval]',
+            'type' => 'number',
+            'input_attrs' => ['min' => 2, 'max' => 120],
+            'active_callback' => [self::class, 'isMarketHeaderEnabled'],
         ]);
 
         $wpCustomize->add_control(new MarketItemsControl($wpCustomize, 'kk_market_header_items', [

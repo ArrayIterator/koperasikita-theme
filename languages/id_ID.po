@@ -4793,8 +4793,23 @@ msgid "Show the market index strip"
 msgstr "Tampilkan strip indeks pasar"
 
 #: inc/Customizer/Customizer.php
-msgid "Shows the picked market indices in a dark strip below the header. Requires the Markets feature."
-msgstr "Menampilkan indeks pasar yang dipilih dalam strip gelap di bawah header. Membutuhkan fitur Markets."
+msgid "Shows the picked market indices in a strip below the header. Requires the Markets feature."
+msgstr "Menampilkan indeks pasar yang dipilih dalam strip di bawah header. Membutuhkan fitur Markets."
+
+#: inc/Customizer/Customizer.php
+#: inc/Admin/MarketHeaderPage.php
+msgid "Strip style"
+msgstr "Gaya strip"
+
+#: inc/Customizer/Customizer.php
+#: inc/Admin/MarketHeaderPage.php
+msgid "Seconds between items on mobile"
+msgstr "Detik antar item di ponsel"
+
+#: inc/Customizer/Customizer.php
+#: inc/Admin/MarketHeaderPage.php
+msgid "On small screens the strip shows one item at a time; this is how long each item shows."
+msgstr "Di layar kecil, strip menampilkan satu item setiap kalinya; ini lamanya setiap item tampil."
 
 #: inc/Customizer/Customizer.php
 msgid "Market items"

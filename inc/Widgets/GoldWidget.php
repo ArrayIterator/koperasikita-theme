@@ -24,7 +24,7 @@ final class GoldWidget extends WP_Widget
     private const DEFAULT_STYLE = 'vertical-carousel';
     private const DEFAULT_COLOR_STYLE = 'auto';
     private const DEFAULT_AUTOPLAY = true;
-    private const DEFAULT_INTERVAL = 5;
+    private const DEFAULT_INTERVAL = 6;
     private const MIN_INTERVAL = 2;
     private const MAX_INTERVAL = 30;
     private const DEFAULT_ITEMS_PER_VIEW = 1;

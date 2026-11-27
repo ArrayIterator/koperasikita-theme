@@ -313,7 +313,7 @@ final class Blocks
                     'style' => ['type' => 'string', 'default' => 'vertical-carousel'],
                     'colorStyle' => ['type' => 'string', 'default' => 'auto'],
                     'autoplay' => ['type' => 'boolean', 'default' => true],
-                    'interval' => ['type' => 'number', 'default' => 5],
+                    'interval' => ['type' => 'number', 'default' => 6],
                     'itemsPerView' => ['type' => 'number', 'default' => 1],
                     'showDots' => ['type' => 'boolean', 'default' => false],
                 ],
