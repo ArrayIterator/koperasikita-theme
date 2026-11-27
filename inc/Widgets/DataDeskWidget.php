@@ -71,6 +71,8 @@ final class DataDeskWidget extends WP_Widget
             'days' => (int) $template['days'],
             'title' => $template['title'],
             'kicker' => $template['kicker'] ?? '',
+            'stats' => $template['stats'] ?? [],
+            'hidden_blocks' => $template['hidden_blocks'] ?? [],
         ]);
 
         echo $args['after_widget'] ?? '';

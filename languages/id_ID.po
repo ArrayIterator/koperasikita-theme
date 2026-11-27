@@ -4181,3 +4181,15 @@ msgstr "Tidak ada merek yang dinonaktifkan."
 
 msgid "Edit the title in the top bar above."
 msgstr "Ubah judul di bilah atas."
+
+msgid "Click to edit this stat."
+msgstr "Klik untuk mengedit stat ini."
+
+msgid "Hide this stat"
+msgstr "Sembunyikan stat ini"
+
+msgid "Show this stat"
+msgstr "Tampilkan stat ini"
+
+msgid "Click the title or 'Meja Data' in the preview to edit them. In the title you can use {label} for the symbol name and {day} for the number of days. Click a stat label or note to edit it, or the eye button on a stat to hide it or show it again."
+msgstr "Klik judul atau 'Meja Data' pada pratinjau untuk mengeditnya. Pada judul, gunakan {label} untuk nama simbol dan {day} untuk jumlah hari. Klik label atau catatan stat untuk mengeditnya, atau tombol mata pada stat untuk menyembunyikan atau menampilkannya lagi."

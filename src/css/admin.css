@@ -511,6 +511,53 @@
 	outline: 2px solid #0b6b3a;
 	outline-offset: 2px;
 }
+/* Stat blocks in the editor preview are inline-editable like the
+ * kicker/title (same hover + editing affordance), and each carries
+ * an eye toggle. A hidden block stays visible in the editor, dimmed,
+ * so it can be un-hidden; on the frontend it is not rendered at
+ * all. The toggle sits top-right of the block, clear of the label. */
+#kk-data-desk-live-preview .kk-data-desk-stat-label:hover,
+#kk-data-desk-live-preview .kk-data-desk-stat-note:hover {
+	cursor: text;
+	outline: 1px dashed #646970;
+	outline-offset: 2px;
+}
+#kk-data-desk-live-preview .kk-data-desk-stat-label.is-editing,
+#kk-data-desk-live-preview .kk-data-desk-stat-note.is-editing {
+	cursor: text;
+	outline: 2px solid #0b6b3a;
+	outline-offset: 2px;
+}
+#kk-data-desk-live-preview .kk-data-desk-stat {
+	position: relative;
+	padding-right: 26px;
+}
+#kk-data-desk-live-preview .kk-data-desk-stat--hidden {
+	opacity: 0.4;
+}
+#kk-data-desk-live-preview .kk-data-desk-stat-toggle {
+	position: absolute;
+	top: 0;
+	right: 0;
+	padding: 2px;
+	border: 0;
+	border-radius: 3px;
+	background: transparent;
+	color: #646970;
+	cursor: pointer;
+	line-height: 0;
+}
+#kk-data-desk-live-preview .kk-data-desk-stat-toggle:hover {
+	color: #0b6b3a;
+	background: #f0f0f1;
+}
+#kk-data-desk-live-preview .kk-data-desk-stat-toggle:focus-visible {
+	outline: 2px solid #0b6b3a;
+	outline-offset: 1px;
+}
+#kk-data-desk-live-preview .kk-data-desk-stat-toggle svg {
+	display: block;
+}
 #kk-data-desk-live-preview.is-loading,
 .kk-data-desk-widget-preview.is-loading,
 [data-kk-gold-summary-chart].is-loading {

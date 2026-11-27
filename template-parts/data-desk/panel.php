@@ -10,15 +10,22 @@
  * "Harga {label}, {N} Hari Terakhir" for stocks; a widget title
  * overrides it. The right column holds three stats: the price with
  * its day change, the buyback with its spread (gold only), and the
- * weekly performance with its up-streak. A symbol with no usable
- * history gets a placeholder chart and honest empty stats instead
- * of invented numbers.
+ * weekly performance with its up-streak. Each stat's label and
+ * sub-line can be overridden per template via $args['stats']
+ * (block => ['label', 'sub'], empty = the computed text), and a
+ * block can be hidden via $args['hidden_blocks'] — hidden blocks
+ * are not rendered at all, except in the template editor's preview
+ * ($args['editable']), where they stay visible, dimmed, with an eye
+ * toggle to bring them back. A symbol with no usable history gets a
+ * placeholder chart and honest empty stats instead of invented
+ * numbers.
  *
  * @package KoperasiKita
  */
 
 use KoperasiKita\Features\DataDesk;
 use KoperasiKita\Features\Markets;
+use KoperasiKita\Icons\Icon;
 
 $data = isset($args['data']) && is_array($args['data']) ? $args['data'] : null;
 $palette = DataDesk::sanitizePalette(isset($args['palette']) ? (string) $args['palette'] : DataDesk::DEFAULT_PALETTE);
@@ -27,6 +34,14 @@ $days = isset($args['days']) ? max(3, min(30, (int) $args['days'])) : DataDesk::
 // true: the data is a fixed sample series, never live prices, and
 // the badge says so.
 $preview = !empty($args['preview']);
+// The template editor's preview (editable) renders the stat
+// blocks with their eye toggles + edit hooks; every other render
+// (frontend, widget previews) does not.
+$editable = $preview && !empty($args['editable']);
+$stats = isset($args['stats']) && is_array($args['stats']) ? $args['stats'] : [];
+$hiddenBlocks = isset($args['hidden_blocks']) && is_array($args['hidden_blocks'])
+	? array_values(array_intersect(array_map('sanitize_key', $args['hidden_blocks']), DataDesk::STAT_BLOCKS))
+	: [];
 
 if ($data === null) {
 	return;
@@ -146,21 +161,70 @@ $polyline = implode(' ', array_map(static fn(array $c): string => number_format(
 				<p class="kk-data-desk-placeholder"><?php esc_html_e('Riwayat harga belum tersedia.', 'koperasikita'); ?></p>
 			<?php endif; ?>
 		</div>
+		<?php
+		// Per-block text: a stored override wins, empty means the
+		// computed text. A sub-line override is plain text; without
+		// one the block renders its computed note markup (day
+		// change, spread, streak) as before — so the $*Sub values
+		// are null when there is no override.
+		$statOverride = static function (string $key, string $field) use ($stats): string {
+			$row = isset($stats[$key]) && is_array($stats[$key]) ? $stats[$key] : [];
+			return isset($row[$field]) ? sanitize_text_field((string) $row[$field]) : '';
+		};
+		$sellLabelOverride = $statOverride('sell', 'label');
+		$sellLabel = $sellLabelOverride !== '' ? $sellLabelOverride : ($isGold
+			/* translators: %s: brand label. */
+			? sprintf(__('Harga Jual %s / Gram', 'koperasikita'), $label)
+			/* translators: %s: symbol label. */
+			: sprintf(__('Harga %s', 'koperasikita'), $label));
+		$sellSubOverride = $statOverride('sell', 'sub');
+		$sellSub = $sellSubOverride !== '' ? $sellSubOverride : null;
+		$buybackLabelOverride = $statOverride('buyback', 'label');
+		$buybackLabel = $buybackLabelOverride !== '' ? $buybackLabelOverride : __('Buyback / Gram', 'koperasikita');
+		$buybackSubOverride = $statOverride('buyback', 'sub');
+		$buybackSub = $buybackSubOverride !== '' ? $buybackSubOverride : null;
+		$performanceLabelOverride = $statOverride('performance', 'label');
+		$performanceLabel = $performanceLabelOverride !== '' ? $performanceLabelOverride : __('Kinerja Sepekan', 'koperasikita');
+		$performanceSubOverride = $statOverride('performance', 'sub');
+		$performanceSub = $performanceSubOverride !== '' ? $performanceSubOverride : null;
+		$hiddenSell = in_array('sell', $hiddenBlocks, true);
+		$hiddenBuyback = in_array('buyback', $hiddenBlocks, true);
+		$hiddenPerformance = in_array('performance', $hiddenBlocks, true);
+		// The eye toggle (template editor only): hides the block on
+		// the frontend, dims it in the editor so it can be
+		// un-hidden. The icon swaps on the next preview refresh
+		// (admin.ts), after the toggle has dimmed the block live.
+		$statToggle = static function (string $key, bool $hidden) use ($editable): string {
+			if (!$editable) {
+				return '';
+			}
+			$label = $hidden ? __('Show this stat', 'koperasikita') : __('Hide this stat', 'koperasikita');
+			$icon = $hidden ? Icon::svg('eye-off', 16) : Icon::svg('eye', 16);
+			return sprintf(
+				'<button type="button" class="kk-data-desk-stat-toggle" data-kk-stat-toggle="%s" aria-pressed="%s" title="%s" aria-label="%s">%s</button>',
+				esc_attr($key),
+				$hidden ? 'true' : 'false',
+				esc_attr($label),
+				esc_attr($label),
+				$icon
+			);
+		};
+		?>
 		<div class="kk-data-desk-stats">
-			<div class="kk-data-desk-stat">
+			<?php if ($editable || !$hiddenSell) : ?>
+			<div class="kk-data-desk-stat<?php echo $hiddenSell ? ' kk-data-desk-stat--hidden' : ''; ?>"<?php echo $editable ? ' data-kk-stat-block="sell"' : ''; ?>>
 				<?php
-				$stat1Label = $isGold
-					/* translators: %s: brand label. */
-					? sprintf(__('Harga Jual %s / Gram', 'koperasikita'), $label)
-					/* translators: %s: symbol label. */
-					: sprintf(__('Harga %s', 'koperasikita'), $label);
+				// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- the toggle is built from escaped values + the theme's own icon SVG.
+				echo $statToggle('sell', $hiddenSell);
 				?>
-				<p class="kk-data-desk-stat-label"><?php echo esc_html($stat1Label); ?></p>
+				<p class="kk-data-desk-stat-label"<?php echo $editable ? ' data-kk-stat-field="sell-label"' : ''; ?>><?php echo esc_html($sellLabel); ?></p>
 				<p class="kk-data-desk-stat-value">
 					<?php echo $price !== null ? esc_html(Markets::formatPrice($price, $currency)) : '&mdash;'; ?>
 				</p>
-				<p class="kk-data-desk-stat-note">
-					<?php if (isset($data['change']) && $data['change'] !== null && isset($data['change_abs']) && $data['change_abs'] !== null) : ?>
+				<p class="kk-data-desk-stat-note"<?php echo $editable ? ' data-kk-stat-field="sell-sub"' : ''; ?>>
+					<?php if ($sellSub !== null) : ?>
+						<?php echo esc_html($sellSub); ?>
+					<?php elseif (isset($data['change']) && $data['change'] !== null && isset($data['change_abs']) && $data['change_abs'] !== null) : ?>
 						<span class="kk-market-change <?php echo (float) $data['change'] >= 0 ? 'kk-market-change-up' : 'kk-market-change-down'; ?>">
 							<?php
 							echo (float) $data['change'] >= 0 ? '&uarr; ' : '&darr; ';
@@ -176,13 +240,21 @@ $polyline = implode(' ', array_map(static fn(array $c): string => number_format(
 					<?php endif; ?>
 				</p>
 			</div>
-			<div class="kk-data-desk-stat">
-				<p class="kk-data-desk-stat-label"><?php esc_html_e('Buyback / Gram', 'koperasikita'); ?></p>
+			<?php endif; ?>
+			<?php if ($editable || !$hiddenBuyback) : ?>
+			<div class="kk-data-desk-stat<?php echo $hiddenBuyback ? ' kk-data-desk-stat--hidden' : ''; ?>"<?php echo $editable ? ' data-kk-stat-block="buyback"' : ''; ?>>
+				<?php
+				// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- the toggle is built from escaped values + the theme's own icon SVG.
+				echo $statToggle('buyback', $hiddenBuyback);
+				?>
+				<p class="kk-data-desk-stat-label"<?php echo $editable ? ' data-kk-stat-field="buyback-label"' : ''; ?>><?php echo esc_html($buybackLabel); ?></p>
 				<p class="kk-data-desk-stat-value">
 					<?php echo isset($data['buyback']) && $data['buyback'] !== null ? esc_html(Markets::formatPrice((float) $data['buyback'], $currency)) : '&mdash;'; ?>
 				</p>
-				<p class="kk-data-desk-stat-note">
-					<?php if (isset($data['spread']) && $data['spread'] !== null) : ?>
+				<p class="kk-data-desk-stat-note"<?php echo $editable ? ' data-kk-stat-field="buyback-sub"' : ''; ?>>
+					<?php if ($buybackSub !== null) : ?>
+						<?php echo esc_html($buybackSub); ?>
+					<?php elseif (isset($data['spread']) && $data['spread'] !== null) : ?>
 						<?php
 						/* translators: %s: sell-buyback spread in percent. */
 						printf(esc_html__('Spread jual–buyback %s', 'koperasikita'), esc_html(number_format_i18n((float) $data['spread'], 1) . '%'));
@@ -192,13 +264,21 @@ $polyline = implode(' ', array_map(static fn(array $c): string => number_format(
 					<?php endif; ?>
 				</p>
 			</div>
-			<div class="kk-data-desk-stat">
-				<p class="kk-data-desk-stat-label"><?php esc_html_e('Kinerja Sepekan', 'koperasikita'); ?></p>
+			<?php endif; ?>
+			<?php if ($editable || !$hiddenPerformance) : ?>
+			<div class="kk-data-desk-stat<?php echo $hiddenPerformance ? ' kk-data-desk-stat--hidden' : ''; ?>"<?php echo $editable ? ' data-kk-stat-block="performance"' : ''; ?>>
+				<?php
+				// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- the toggle is built from escaped values + the theme's own icon SVG.
+				echo $statToggle('performance', $hiddenPerformance);
+				?>
+				<p class="kk-data-desk-stat-label"<?php echo $editable ? ' data-kk-stat-field="performance-label"' : ''; ?>><?php echo esc_html($performanceLabel); ?></p>
 				<p class="kk-data-desk-stat-value">
 					<?php echo isset($data['week_change']) && $data['week_change'] !== null ? esc_html(Markets::formatChange((float) $data['week_change'])) : '&mdash;'; ?>
 				</p>
-				<p class="kk-data-desk-stat-note">
-					<?php if (isset($data['streak']) && (int) $data['streak'] > 0) : ?>
+				<p class="kk-data-desk-stat-note"<?php echo $editable ? ' data-kk-stat-field="performance-sub"' : ''; ?>>
+					<?php if ($performanceSub !== null) : ?>
+						<?php echo esc_html($performanceSub); ?>
+					<?php elseif (isset($data['streak']) && (int) $data['streak'] > 0) : ?>
 						<?php
 						/* translators: %d: consecutive up days. (Plain __() — the theme's po2mo has no plural support.) */
 						printf(esc_html__('%d hari beruntun di zona hijau', 'koperasikita'), (int) $data['streak']);
@@ -208,6 +288,7 @@ $polyline = implode(' ', array_map(static fn(array $c): string => number_format(
 					<?php endif; ?>
 				</p>
 			</div>
+			<?php endif; ?>
 		</div>
 	</div>
 </section>

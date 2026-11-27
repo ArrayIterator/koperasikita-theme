@@ -63,6 +63,14 @@ final class DataDesk
     public const DEFAULT_DAYS = 7;
 
     /**
+     * The three stat blocks under a panel's chart, in display
+     * order: sell price, buyback, weekly performance. Each block
+     * has an editable label + sub-line (stored per template in
+     * `stats`) and can be hidden (stored in `hidden_blocks`).
+     */
+    public const STAT_BLOCKS = ['sell', 'buyback', 'performance'];
+
+    /**
      * Register the admin preview endpoint. The templates page and
      * the widget forms re-render their preview through it, so the
      * preview always uses the real panel / table templates.
@@ -97,8 +105,15 @@ final class DataDesk
      * page list, the template form and the widget forms all use
      * this one path, so the preview is always the layout the
      * widget will actually render.
+     *
+     * $editable is true only for the template editor's own preview
+     * (the templates page form + its AJAX refresh): there the stat
+     * blocks are inline-editable and carry their eye toggles, and
+     * a hidden block stays visible, dimmed, so it can be
+     * un-hidden. Widget-form previews and the frontend never get
+     * those — a hidden block simply does not render there.
      */
-    public static function renderPreview(array $template): string
+    public static function renderPreview(array $template, bool $editable = false): string
     {
         ob_start();
 
@@ -116,7 +131,10 @@ final class DataDesk
                 'days' => (int) ($template['days'] ?? self::DEFAULT_DAYS),
                 'title' => $template['title'] ?? '',
                 'kicker' => $template['kicker'] ?? '',
+                'stats' => $template['stats'] ?? [],
+                'hidden_blocks' => $template['hidden_blocks'] ?? [],
                 'preview' => true,
+                'editable' => $editable,
             ]);
         }
 
@@ -234,8 +252,13 @@ final class DataDesk
      * template's preview HTML for the current form values. Either
      * a saved template id (`template`) or the raw form fields
      * (`kind`, `symbol`, `brands` as a comma-separated list,
-     * `palette`, `days`, `title`, `kicker`) — the form sends fields, the
-     * widget forms send an id.
+     * `palette`, `days`, `title`, `kicker`, the per-block stat
+     * texts `stat_{block}_label` / `stat_{block}_sub`, and
+     * `hidden_blocks` as a comma-separated list) — the form sends
+     * fields, the widget forms send an id. A fields preview is
+     * the template editor's own, so it renders editable
+     * (inline-editable stats + eye toggles); an id preview is a
+     * widget-form preview, so it does not.
      *
      * @return array{html: string}
      */
@@ -268,8 +291,12 @@ final class DataDesk
                 'days' => isset($raw['days']) ? max(3, min(30, (int) $raw['days'])) : self::DEFAULT_DAYS,
                 'title' => isset($raw['title']) ? sanitize_text_field((string) $raw['title']) : '',
                 'kicker' => isset($raw['kicker']) ? sanitize_text_field((string) $raw['kicker']) : '',
+                'stats' => self::statsFromFields($raw),
+                'hidden_blocks' => self::hiddenBlocksFromFields($raw),
             ];
             $template = self::sanitizeTemplate('', $template);
+
+            return ['html' => self::renderPreview($template, true)];
         }
 
         return ['html' => self::renderPreview($template)];
@@ -283,7 +310,7 @@ final class DataDesk
      * kk_template_brands[]) or as a comma-separated list (AJAX).
      *
      * @param array<string, mixed> $raw
-     * @return array{name: string, kind: string, symbol: string, brands: array<int, string>, palette: string, days: int, title: string, kicker: string}
+     * @return array{name: string, kind: string, symbol: string, brands: array<int, string>, palette: string, days: int, title: string, kicker: string, stats: array<string, array{label: string, sub: string}>, hidden_blocks: array<int, string>}
      */
     public static function templateDataFromRequest(array $raw): array
     {
@@ -303,8 +330,11 @@ final class DataDesk
             'days' => isset($raw['kk_template_days']) ? (int) $raw['kk_template_days'] : self::DEFAULT_DAYS,
             'title' => isset($raw['kk_template_title']) ? sanitize_text_field((string) $raw['kk_template_title']) : '',
             'kicker' => isset($raw['kk_template_kicker']) ? sanitize_text_field((string) $raw['kk_template_kicker']) : '',
+            'stats' => self::statsFromFields($raw, 'kk_template_'),
+            'hidden_blocks' => self::hiddenBlocksFromFields($raw, 'kk_template_'),
         ];
     }
+
 
     /**
      * The save endpoint (kk_data_desk_save_template): saves one
@@ -329,11 +359,83 @@ final class DataDesk
     }
 
     /**
+     * The per-block stat texts out of a form submission: the six
+     * flat `stat_{block}_label` / `stat_{block}_sub` fields the
+     * template form (and its AJAX refresh) sends. Empty means
+     * "use the computed text". Unknown blocks are dropped.
+     * $prefix is the form's field prefix ('kk_template_' for the
+     * save POST, '' for the AJAX refresh params).
+     *
+     * @param array<string, mixed> $raw
+     * @return array<string, array{label: string, sub: string}>
+     */
+    public static function statsFromFields(array $raw, string $prefix = ''): array
+    {
+        $stats = [];
+
+        foreach (self::STAT_BLOCKS as $key) {
+            $stats[$key] = [
+                'label' => isset($raw[$prefix . 'stat_' . $key . '_label']) ? sanitize_text_field((string) $raw[$prefix . 'stat_' . $key . '_label']) : '',
+                'sub' => isset($raw[$prefix . 'stat_' . $key . '_sub']) ? sanitize_text_field((string) $raw[$prefix . 'stat_' . $key . '_sub']) : '',
+            ];
+        }
+
+        return $stats;
+    }
+
+    /**
+     * The hidden stat blocks out of a form submission: the
+     * `hidden_blocks` field as a comma-separated list of block
+     * keys. Unknown keys are dropped. $prefix is the form's field
+     * prefix ('kk_template_' for the save POST, '' for the AJAX
+     * refresh params).
+     *
+     * @param array<string, mixed> $raw
+     * @return array<int, string>
+     */
+    public static function hiddenBlocksFromFields(array $raw, string $prefix = ''): array
+    {
+        $field = $prefix . 'hidden_blocks';
+
+        if (!isset($raw[$field]) || !is_string($raw[$field]) || trim($raw[$field]) === '') {
+            return [];
+        }
+
+        return array_values(array_intersect(
+            array_filter(array_map('sanitize_key', explode(',', $raw[$field]))),
+            self::STAT_BLOCKS
+        ));
+    }
+
+    /**
+     * Clean the per-block stat text overrides into their canonical
+     * shape: one label + sub-line per block, '' meaning "use the
+     * computed text". Unknown blocks are dropped.
+     *
+     * @param mixed $value
+     * @return array<string, array{label: string, sub: string}>
+     */
+    public static function sanitizeStats(mixed $value): array
+    {
+        $stats = [];
+
+        foreach (self::STAT_BLOCKS as $key) {
+            $row = is_array($value) && isset($value[$key]) && is_array($value[$key]) ? $value[$key] : [];
+            $stats[$key] = [
+                'label' => isset($row['label']) ? sanitize_text_field((string) $row['label']) : '',
+                'sub' => isset($row['sub']) ? sanitize_text_field((string) $row['sub']) : '',
+            ];
+        }
+
+        return $stats;
+    }
+
+    /**
      * All stored templates, in the order they were created. There
      * are no built-in defaults: with no stored templates the list
      * is empty.
      *
-     * @return array<string, array{id: string, name: string, kind: string, symbol: string, brands: array<int, string>, palette: string, days: int, title: string, kicker: string}>
+     * @return array<string, array{id: string, name: string, kind: string, symbol: string, brands: array<int, string>, palette: string, days: int, title: string, kicker: string, stats: array<string, array{label: string, sub: string}>, hidden_blocks: array<int, string>}>
      */
     public static function templates(): array
     {
@@ -360,7 +462,7 @@ final class DataDesk
      * templates(). The widget pickers use this so a panel widget
      * never offers a table template and vice versa.
      *
-     * @return array<string, array{id: string, name: string, kind: string, symbol: string, brands: array<int, string>, palette: string, days: int, title: string, kicker: string}>
+     * @return array<string, array{id: string, name: string, kind: string, symbol: string, brands: array<int, string>, palette: string, days: int, title: string, kicker: string, stats: array<string, array{label: string, sub: string}>, hidden_blocks: array<int, string>}>
      */
     public static function templatesOfKind(string $kind): array
     {
@@ -377,7 +479,7 @@ final class DataDesk
      * exists. Widgets fall back to this when the template they
      * point at is gone — never to a built-in.
      *
-     * @return array{id: string, name: string, kind: string, symbol: string, brands: array<int, string>, palette: string, days: int, title: string, kicker: string}|null
+     * @return array{id: string, name: string, kind: string, symbol: string, brands: array<int, string>, palette: string, days: int, title: string, kicker: string, stats: array<string, array{label: string, sub: string}>, hidden_blocks: array<int, string>}|null
      */
     public static function firstTemplateOfKind(string $kind): ?array
     {
@@ -397,7 +499,7 @@ final class DataDesk
      * id. Callers fall back to the first stored template of the
      * matching kind — never to a built-in.
      *
-     * @return array{id: string, name: string, kind: string, symbol: string, brands: array<int, string>, palette: string, days: int, title: string}|null
+     * @return array{id: string, name: string, kind: string, symbol: string, brands: array<int, string>, palette: string, days: int, title: string, kicker: string, stats: array<string, array{label: string, sub: string}>, hidden_blocks: array<int, string>}|null
      */
     public static function getTemplate(string $id): ?array
     {
@@ -452,7 +554,7 @@ final class DataDesk
      * the enabled brands so a disabled brand never renders.
      *
      * @param array<string, mixed> $row
-     * @return array{id: string, name: string, kind: string, symbol: string, brands: array<int, string>, palette: string, days: int, title: string, kicker: string}
+     * @return array{id: string, name: string, kind: string, symbol: string, brands: array<int, string>, palette: string, days: int, title: string, kicker: string, stats: array<string, array{label: string, sub: string}>, hidden_blocks: array<int, string>}
      */
     private static function sanitizeTemplate(string $id, array $row): array
     {
@@ -471,6 +573,10 @@ final class DataDesk
             'days' => isset($row['days']) ? max(3, min(30, (int) $row['days'])) : self::DEFAULT_DAYS,
             'title' => isset($row['title']) ? sanitize_text_field((string) $row['title']) : '',
             'kicker' => isset($row['kicker']) ? sanitize_text_field((string) $row['kicker']) : '',
+            'stats' => self::sanitizeStats($row['stats'] ?? []),
+            'hidden_blocks' => isset($row['hidden_blocks']) && is_array($row['hidden_blocks'])
+                ? array_values(array_intersect(array_map('sanitize_key', $row['hidden_blocks']), self::STAT_BLOCKS))
+                : [],
         ];
     }
 

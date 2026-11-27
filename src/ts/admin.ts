@@ -46,6 +46,7 @@ interface AdminStrings {
 	editTitleHint: string;
 	previewFailed: string;
 	savingTemplate: string;
+	editStatHint: string;
 	close: string;
 }
 
@@ -110,6 +111,7 @@ const FALLBACK_STRINGS: AdminStrings = {
 	editTitleHint: 'Click to edit the title.',
 	previewFailed: 'Could not load the preview.',
 	savingTemplate: 'Saving…',
+	editStatHint: 'Click to edit this stat.',
 	close: 'Close',
 };
 
@@ -394,21 +396,25 @@ function resolveAdminScheme(): 'light' | 'dark' {
  * editor: the kicker and title are edited inline there. The preview
  * shows the real panel / table markup with sample data (the server
  * renders the first one). Every field change — kind, symbol, days,
- * brands, palette, title, kicker — re-renders it through
- * kk_data_desk_preview, debounced so typing does not fire a request
- * per keystroke. The brands picker is a chip UI over the hidden
- * select and never fires `change` on it, so clicks in its wrapper
- * refresh too. The palette is a segmented control of radios synced
- * into the hidden #kk-template-palette input. A failed refresh keeps
- * the last good preview and reports the error under the box.
+ * brands, palette, title, kicker, stat texts, hidden blocks —
+ * re-renders it through kk_data_desk_preview, debounced so typing
+ * does not fire a request per keystroke. The brands picker is a chip
+ * UI over the hidden select and never fires `change` on it, so clicks
+ * in its wrapper refresh too. The palette is a segmented control of
+ * radios synced into the hidden #kk-template-palette input. A failed
+ * refresh keeps the last good preview and reports the error under
+ * the box.
  *
  * The preview kicker and title are edited inline: neither has a
  * visible form row (both are hidden inputs) — the preview IS the
  * editor. Clicking either text edits it in place; Enter or blur
  * commits into the hidden field and refreshes the preview, Escape
- * cancels and restores the text. The container carries
- * data-color-scheme so the 'auto' palette follows the site scheme
- * in the admin preview too.
+ * cancels and restores the text. The three stat blocks work the
+ * same way (their label and note write into hidden stat_* fields),
+ * and each carries an eye toggle that hides the block (dimmed in
+ * the editor, gone on the frontend) or shows it again. The
+ * container carries data-color-scheme so the 'auto' palette
+ * follows the site scheme in the admin preview too.
  */
 function initDataDeskPreview(): void {
 	const config = adminData();
@@ -426,8 +432,23 @@ function initDataDeskPreview(): void {
 	const palette = document.getElementById('kk-template-palette') as HTMLInputElement | null;
 	const title = document.getElementById('kk-template-title') as HTMLInputElement | null;
 	const kicker = document.getElementById('kk-template-kicker') as HTMLInputElement | null;
-	if (!kind || !symbol || !days || !brands || !palette || !title || !kicker) {
+	const hiddenBlocks = document.getElementById('kk-template-hidden-blocks') as HTMLInputElement | null;
+	if (!kind || !symbol || !days || !brands || !palette || !title || !kicker || !hiddenBlocks) {
 		return;
+	}
+	/* Per-block stat texts, one hidden input per label + sub-line.
+	 * The keys match the data-kk-stat-field attributes the panel
+	 * template renders (sell-label, sell-sub, ...). */
+	const statBlocks = ['sell', 'buyback', 'performance'];
+	const statInputs: Record<string, HTMLInputElement> = {};
+	for (const block of statBlocks) {
+		for (const field of ['label', 'sub']) {
+			const input = document.getElementById(`kk-template-stat-${block}-${field}`) as HTMLInputElement | null;
+			if (!input) {
+				return;
+			}
+			statInputs[`${block}-${field}`] = input;
+		}
 	}
 
 	const status = document.createElement('p');
@@ -454,6 +475,9 @@ function initDataDeskPreview(): void {
 		if (titleEl) {
 			titleEl.setAttribute('title', adminStrings().editTitleHint);
 		}
+		container.querySelectorAll('[data-kk-stat-field]').forEach((el) => {
+			el.setAttribute('title', adminStrings().editStatHint);
+		});
 	};
 
 	const refresh = (): void => {
@@ -472,7 +496,11 @@ function initDataDeskPreview(): void {
 				brands: Array.from(brands.selectedOptions)
 					.map((option) => option.value)
 					.join(','),
+				hidden_blocks: hiddenBlocks.value,
 			};
+			for (const [key, input] of Object.entries(statInputs)) {
+				params[`stat_${key.replace('-', '_')}`] = input.value;
+			}
 			container.classList.add('is-loading');
 			status.textContent = adminStrings().loadingPreview;
 			void postAjax<{ html: string }>(config, 'kk_data_desk_preview', params)
@@ -493,15 +521,30 @@ function initDataDeskPreview(): void {
 		}, 300);
 	};
 
-	/* Inline editing of the preview kicker + title, delegated on the
-	 * container because every refresh replaces the preview DOM.
-	 * Click to edit (text selected), Enter or blur commits the text
-	 * into the hidden field and refreshes the preview, Escape
-	 * cancels and restores the previous text. Clearing the title
-	 * means empty (automatic title); clearing the kicker means
-	 * empty (default 'Meja Data'). */
+	/* Inline editing of the preview kicker + title + stat texts,
+	 * delegated on the container because every refresh replaces
+	 * the preview DOM. Click to edit (text selected), Enter or blur
+	 * commits the text into the hidden field and refreshes the
+	 * preview, Escape cancels and restores the previous text.
+	 * Clearing the title means empty (automatic title); clearing
+	 * the kicker means empty (default 'Meja Data'); clearing a
+	 * stat label or note means empty (the computed text). */
 	let editing: HTMLElement | null = null;
 	let editingOriginal = '';
+
+	/* Which hidden input an inline-edited element writes into:
+	 * kicker / title by class, a stat label or note by its
+	 * data-kk-stat-field attribute. */
+	const fieldForEdit = (el: HTMLElement): HTMLInputElement | null => {
+		if (el.classList.contains('kk-data-desk-kicker')) {
+			return kicker;
+		}
+		if (el.classList.contains('kk-data-desk-title')) {
+			return title;
+		}
+		const statField = el.getAttribute('data-kk-stat-field');
+		return statField ? statInputs[statField] ?? null : null;
+	};
 
 	const finishEdit = (commit: boolean): void => {
 		if (!editing) {
@@ -509,8 +552,8 @@ function initDataDeskPreview(): void {
 		}
 		const el = editing;
 		editing = null;
-		const field = el.classList.contains('kk-data-desk-kicker') ? kicker : title;
-		if (commit) {
+		const field = fieldForEdit(el);
+		if (commit && field) {
 			field.value = el.textContent?.trim() ?? '';
 		} else {
 			el.textContent = editingOriginal;
@@ -518,14 +561,14 @@ function initDataDeskPreview(): void {
 		el.removeAttribute('contenteditable');
 		el.classList.remove('is-editing');
 		el.blur();
-		if (commit) {
+		if (commit && field) {
 			refresh();
 		}
 	};
 
 	container.addEventListener('click', (event) => {
 		const target = (event.target as HTMLElement | null)?.closest?.(
-			'.kk-data-desk-kicker, .kk-data-desk-title',
+			'.kk-data-desk-kicker, .kk-data-desk-title, .kk-data-desk-stat-label[data-kk-stat-field], .kk-data-desk-stat-note[data-kk-stat-field]',
 		) as HTMLElement | null;
 		if (!target || editing === target) {
 			return;
@@ -566,6 +609,44 @@ function initDataDeskPreview(): void {
 		if (editing) {
 			finishEdit(true);
 		}
+	});
+
+	/* Eye toggle on each stat block: hides the block on the
+	 * frontend, dims it in the editor so it can be un-hidden.
+	 * The hidden list lives in #kk-template-hidden-blocks; the
+	 * block dims immediately and the debounced refresh re-renders
+	 * the preview (which swaps the eye icon) from the server. */
+	container.addEventListener('click', (event) => {
+		const button = (event.target as HTMLElement | null)?.closest?.(
+			'[data-kk-stat-toggle]',
+		) as HTMLButtonElement | null;
+		if (!button) {
+			return;
+		}
+		/* A pending refresh would replace the node mid-toggle. */
+		if (timer !== null) {
+			window.clearTimeout(timer);
+			timer = null;
+		}
+		const key = button.getAttribute('data-kk-stat-toggle') ?? '';
+		if (!statBlocks.includes(key)) {
+			return;
+		}
+		const hidden = hiddenBlocks.value
+			.split(',')
+			.map((part) => part.trim())
+			.filter((part) => part !== '');
+		const at = hidden.indexOf(key);
+		if (at >= 0) {
+			hidden.splice(at, 1);
+		} else {
+			hidden.push(key);
+		}
+		hiddenBlocks.value = hidden.join(',');
+		container
+			.querySelector(`[data-kk-stat-block="${key}"]`)
+			?.classList.toggle('kk-data-desk-stat--hidden', at < 0);
+		refresh();
 	});
 
 	[kind, symbol, days, palette].forEach((el) => {

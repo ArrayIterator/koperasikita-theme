@@ -257,6 +257,8 @@ final class DataDeskTemplatesPage
                 'days' => DataDesk::DEFAULT_DAYS,
                 'title' => '',
                 'kicker' => '',
+                'stats' => DataDesk::sanitizeStats([]),
+                'hidden_blocks' => [],
             ];
         }
 
@@ -282,6 +284,17 @@ final class DataDeskTemplatesPage
              * in the top bar (below): the table preview has no title
              * to click, so the header is where its title is edited. */ ?>
             <input type="hidden" id="kk-template-kicker" name="kk_template_kicker" value="<?php echo esc_attr($template['kicker']); ?>">
+            <?php /* Stat label + sub-line overrides and the hidden
+             * stat blocks: edited inline in the live preview below
+             * (click a label or note to edit it, eye button per
+             * block to hide or show it), which writes into these
+             * hidden fields (admin.ts) — the save flow reads them
+             * exactly as the title/kicker. */ ?>
+            <?php foreach (DataDesk::STAT_BLOCKS as $blockKey) : ?>
+            <input type="hidden" id="kk-template-stat-<?php echo esc_attr($blockKey); ?>-label" name="kk_template_stat_<?php echo esc_attr($blockKey); ?>_label" value="<?php echo esc_attr($template['stats'][$blockKey]['label'] ?? ''); ?>">
+            <input type="hidden" id="kk-template-stat-<?php echo esc_attr($blockKey); ?>-sub" name="kk_template_stat_<?php echo esc_attr($blockKey); ?>_sub" value="<?php echo esc_attr($template['stats'][$blockKey]['sub'] ?? ''); ?>">
+            <?php endforeach; ?>
+            <input type="hidden" id="kk-template-hidden-blocks" name="kk_template_hidden_blocks" value="<?php echo esc_attr(implode(',', $template['hidden_blocks'] ?? [])); ?>">
             <div class="kk-data-desk-topbar">
                 <div class="kk-data-desk-topbar-field kk-data-desk-topbar-field--name">
                     <label for="kk-template-name"><?php esc_html_e('Name', 'koperasikita'); ?></label>
@@ -364,7 +377,7 @@ final class DataDeskTemplatesPage
              * never promise a clickable preview title. The toggle
              * script below shows the matching hint. */ ?>
             <p class="description kk-data-desk-editor-hint" data-kk-template-panel-hint>
-                <?php esc_html_e("Click the title or 'Meja Data' in the preview to edit them. In the title you can use {label} for the symbol name and {day} for the number of days.", 'koperasikita'); ?>
+                <?php esc_html_e("Click the title or 'Meja Data' in the preview to edit them. In the title you can use {label} for the symbol name and {day} for the number of days. Click a stat label or note to edit it, or the eye button on a stat to hide it or show it again.", 'koperasikita'); ?>
             </p>
             <p class="description kk-data-desk-editor-hint" data-kk-template-table-hint>
                 <?php esc_html_e('Edit the title in the top bar above.', 'koperasikita'); ?>
