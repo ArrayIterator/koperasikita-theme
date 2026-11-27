@@ -520,10 +520,6 @@ msgid "Mobile navigation"
 msgstr "Navigasi seluler"
 
 #: footer.php
-msgid "Navigation"
-msgstr "Navigasi"
-
-#: footer.php
 msgid "News, announcements and market updates from the cooperative, delivered to your inbox."
 msgstr "Berita, pengumuman, dan kabar pasar dari koperasi, dikirim ke kotak masuk Anda."
 

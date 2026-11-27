@@ -10,61 +10,42 @@
 
 <footer class="kk-site-footer">
 	<div class="kk-shell">
+		<?php if ( is_active_sidebar( 'kk-footer-1' ) || is_active_sidebar( 'kk-footer-2' ) || is_active_sidebar( 'kk-footer-3' ) ) : ?>
 		<div class="kk-footer-grid">
+			<?php if ( is_active_sidebar( 'kk-footer-1' ) ) : ?>
 			<div class="kk-footer-col kk-footer-about">
-				<?php if ( is_active_sidebar( 'kk-footer-1' ) ) : ?>
-					<?php dynamic_sidebar( 'kk-footer-1' ); ?>
-				<?php else : ?>
-					<?php if ( has_custom_logo() ) : ?>
-						<div class="kk-footer-logo"><?php the_custom_logo(); ?></div>
-					<?php endif; ?>
-					<p class="kk-footer-site-name"><?php bloginfo( 'name' ); ?></p>
-					<?php
-					$description = get_bloginfo( 'description', 'display' );
-					if ( $description ) {
-						?>
-						<p class="kk-footer-description"><?php echo esc_html( $description ); ?></p>
-						<?php
-					}
-					?>
-				<?php endif; ?>
+				<?php dynamic_sidebar( 'kk-footer-1' ); ?>
 			</div>
-
+			<?php endif; ?>
+			<?php if ( is_active_sidebar( 'kk-footer-2' ) ) : ?>
 			<div class="kk-footer-col kk-footer-nav">
-				<?php if ( is_active_sidebar( 'kk-footer-2' ) ) : ?>
-					<?php dynamic_sidebar( 'kk-footer-2' ); ?>
-				<?php else : ?>
-					<nav aria-label="<?php esc_attr_e( 'Footer', 'koperasikita' ); ?>">
-						<p class="kk-footer-heading"><?php esc_html_e( 'Navigation', 'koperasikita' ); ?></p>
-						<?php
-						wp_nav_menu(
-							array(
-								'theme_location' => 'footer',
-								'menu_class'     => 'kk-footer-menu',
-								'container'      => false,
-								'fallback_cb'    => false,
-								'depth'          => 1,
-							)
-						);
-						?>
-					</nav>
-				<?php endif; ?>
+				<?php dynamic_sidebar( 'kk-footer-2' ); ?>
 			</div>
-
+			<?php endif; ?>
+			<?php if ( is_active_sidebar( 'kk-footer-3' ) ) : ?>
 			<div class="kk-footer-col kk-footer-subscribe" id="kk-subscribe">
-				<?php if ( is_active_sidebar( 'kk-footer-3' ) ) : ?>
-					<?php dynamic_sidebar( 'kk-footer-3' ); ?>
-				<?php else : ?>
-					<p class="kk-footer-heading"><?php esc_html_e( 'Stay informed', 'koperasikita' ); ?></p>
-					<p class="kk-footer-note">
-						<?php esc_html_e( 'News, announcements and market updates from the cooperative, delivered to your inbox.', 'koperasikita' ); ?>
-					</p>
-					<?php echo \KoperasiKita\Features\Subscribe::renderForm(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
-				<?php endif; ?>
+				<?php dynamic_sidebar( 'kk-footer-3' ); ?>
 			</div>
+			<?php endif; ?>
 		</div>
+		<?php endif; ?>
 
 		<div class="kk-footer-bottom kk-footer-bottom--<?php echo esc_attr( \KoperasiKita\Features\Footer::alignment() ); ?>">
+			<?php if ( has_nav_menu( 'footer' ) ) : ?>
+			<nav class="kk-footer-bottom-nav" aria-label="<?php esc_attr_e( 'Footer', 'koperasikita' ); ?>">
+				<?php
+				wp_nav_menu(
+					array(
+						'theme_location' => 'footer',
+						'menu_class'     => 'kk-footer-menu',
+						'container'      => false,
+						'fallback_cb'    => false,
+						'depth'          => 1,
+					)
+				);
+				?>
+			</nav>
+			<?php endif; ?>
 			<p class="kk-copyright" data-kk-footer-tokens="<?php echo esc_attr( wp_json_encode( \KoperasiKita\Features\Footer::tokens() ) ); ?>" data-kk-footer-default="<?php echo esc_attr( \KoperasiKita\Features\Footer::defaultCopyrightText() ); ?>">
 				<?php echo esc_html( \KoperasiKita\Features\Footer::copyrightText() ); ?>
 			</p>
