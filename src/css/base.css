@@ -260,6 +260,15 @@ select:focus-visible {
 	border: 1px solid var(--kk-green, #0B6B3A);
 }
 
+/* The inline-flex above beats the user-agent [hidden] rule, so a
+ * button hidden with the hidden attribute (the bookmarks Load more
+ * button, hidden once every entry is shown) would stay on screen.
+ * An explicit [hidden] rule is required — same gotcha as the menu
+ * icon grid and the agenda location picker. */
+.kk-button[hidden] {
+	display: none;
+}
+
 .kk-button:hover,
 .kk-button:focus-visible {
 	background: var(--kk-green-dark, #07522C);
