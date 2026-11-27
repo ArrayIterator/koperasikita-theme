@@ -27,7 +27,7 @@ if ($items === []) {
 		]);
 		?>
 		<?php if ($snapshot !== null) : ?>
-			<span class="kk-market-header-snapshot"><?php echo esc_html(sprintf('%s · %s', __('Market Snapshot', 'koperasikita'), date_i18n('l H.i T', $snapshot))); ?></span>
+			<span class="kk-market-header-snapshot"><?php echo esc_html(sprintf(__('Market Snapshot · %s', 'koperasikita'), date_i18n('l H.i T', $snapshot))); ?></span>
 		<?php endif; ?>
 	</div>
 </div>

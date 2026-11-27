@@ -4797,8 +4797,8 @@ msgid "Pick up to 16 items, in the order they show. Empty means the default set 
 msgstr "Pilih hingga 16 item, sesuai urutan tampil. Kosong berarti set default (IHSG, USD/IDR, Antam, Brent)."
 
 #: template-parts/header/market-index.php
-msgid "Market Snapshot"
-msgstr "Snapshot Pasar"
+msgid "Market Snapshot · %s"
+msgstr "Snapshot Pasar · %s"
 
 #: inc/Customizer/MarketItemsControl.php
 msgid "No items picked. The default set shows instead."
