@@ -1390,7 +1390,13 @@
 	padding: 8px 0 32px;
 }
 
-.kk-data-desk-title {
+/* The Templates page heading only: the panel title shares the
+ * class name, so a bare rule here would recolour it wherever the
+ * admin stylesheet loads (widgets.php, Customizer) and turn it
+ * unreadable on the dark palettes. The heading is a direct child
+ * of the page wrapper; the panel title sits deeper, inside the
+ * preview, and keeps the panel's own colour. */
+.kk-data-desk-page > .kk-data-desk-title {
 	margin: 0 0 24px;
 	font-size: 28px;
 	line-height: 1.2;

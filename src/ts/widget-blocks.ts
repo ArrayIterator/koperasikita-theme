@@ -29,7 +29,7 @@ type FieldDef =
 	| { key: string; kind: 'text'; label: string; help?: string }
 	| { key: string; kind: 'textarea'; label: string; help?: string }
 	| { key: string; kind: 'number'; label: string; help?: string; min: number; max: number; fallback?: number }
-	| { key: string; kind: 'select'; label: string; options: OptionItem[]; showWhen?: ShowWhen }
+	| { key: string; kind: 'select'; label: string; options: OptionItem[]; showWhen?: ShowWhen; disabledWhenEmpty?: { key: string }; disabledHelp?: string }
 	| { key: string; kind: 'toggle'; label: string }
 	| { key: string; kind: 'checkboxes'; label: string; options: OptionItem[] }
 	| { key: string; kind: 'termsearch'; label: string; help?: string; source: 'categories' | 'tags' | 'options'; options: OptionItem[]; single?: boolean }
@@ -922,14 +922,27 @@ function renderField(
 				max: field.max,
 				onChange: (next: number | undefined) => set(key, next ?? (field.fallback ?? 5)),
 			});
-		case 'select':
+		case 'select': {
+			/* A select that only means something while another
+			 * attribute holds a value (the header style needs a
+			 * title) is disabled with a hint while that attribute
+			 * is empty, instead of sitting there pretending to
+			 * work. */
+			const gated = field.disabledWhenEmpty?.key;
+			const gatedValue = gated === undefined ? undefined : attributes[gated];
+			const disabled =
+				gated !== undefined &&
+				(typeof gatedValue !== 'string' || gatedValue.trim() === '');
 			return api.element.createElement(api.components.SelectControl, {
 				key,
 				label: field.label,
+				help: disabled ? (field.disabledHelp ?? '') : '',
+				disabled,
 				value: typeof value === 'string' ? value : '',
 				options: field.options,
 				onChange: (next: string) => set(key, next),
 			});
+		}
 		case 'toggle':
 			return api.element.createElement(api.components.ToggleControl, {
 				key,
@@ -1091,7 +1104,12 @@ function buildDefinitions(api: Wp): BlockDef[] {
 		marginTop: { type: 'number', default: 0 },
 		marginBottom: { type: 'number', default: 10 },
 	};
-	const headerStyleField: FieldDef = {
+	/* The header style field, shared by every block with a title.
+	 * Only the data-desk block gates its copy on the title (see
+	 * below): its widget renders no header without one. The other
+	 * blocks keep today's behaviour - their title fallbacks are
+	 * their own business. */
+	const headerStyleField: Extract<FieldDef, { kind: 'select' }> = {
 		key: 'headerStyle',
 		kind: 'select',
 		label: __('Header Style'),
@@ -1485,7 +1503,16 @@ function buildDefinitions(api: Wp): BlockDef[] {
 			},
 			fields: [
 				{ key: 'title', kind: 'text', label: __('Title') },
-				headerStyleField,
+				{
+					...headerStyleField,
+					/* With no title there is no header to style:
+					 * WidgetHeader renders nothing, so every style
+					 * looks identical. The field stays visible but
+					 * disabled, saying why, instead of letting the
+					 * choice pretend to do something. */
+					disabledWhenEmpty: { key: 'title' },
+					disabledHelp: __('Set a title first - the header style only applies to the widget title.'),
+				},
 				marginTopField,
 				marginBottomField,
 				{

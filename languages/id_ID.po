@@ -2617,6 +2617,9 @@ msgstr "Sembunyikan"
 msgid "Header Style"
 msgstr "Gaya Header"
 
+msgid "Set a title first - the header style only applies to the widget title."
+msgstr "Isi judul dulu - gaya header hanya berlaku untuk judul widget."
+
 msgid "Show Time on Article List & Archive"
 msgstr "Tampilkan Jam di Daftar Artikel & Arsip"
 

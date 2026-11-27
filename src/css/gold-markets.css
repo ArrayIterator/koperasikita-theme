@@ -778,13 +778,15 @@ html[data-color-scheme="dark"] .kk-data-desk-panel--auto .kk-data-desk-preview-b
 	color: var(--dd-kicker);
 }
 
-.kk-data-desk-title {
+.kk-data-desk-panel .kk-data-desk-title {
 	margin: 8px 0 0;
 	font-size: 22px;
 	line-height: 1.25;
 	font-weight: 700;
-	/* Explicit: the base heading colour would beat the panel's
-	 * inherited --dd-ink and turn the title unreadable on dark
+	/* Explicit, scoped to the panel: the Templates page heading
+	 * shares this class name with a different colour, and the
+	 * base heading colour would beat the panel's inherited
+	 * --dd-ink - either turns the title unreadable on dark
 	 * palettes. */
 	color: var(--dd-ink);
 }
@@ -926,7 +928,7 @@ html[data-color-scheme="dark"] .kk-data-desk-panel--auto .kk-data-desk-preview-b
 		grid-template-columns: minmax(0, 1fr);
 	}
 
-	.kk-data-desk-title {
+	.kk-data-desk-panel .kk-data-desk-title {
 		font-size: 20px;
 	}
 }
