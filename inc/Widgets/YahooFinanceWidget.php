@@ -11,11 +11,12 @@ use WP_Widget;
  * Yahoo Finance widget: live stock / index prices from Yahoo Finance.
  *
  * Always uses the Yahoo provider (not the configured Markets provider):
- * IHSG (^JKSE) live from Yahoo Finance's public chart endpoint, free,
- * no API key. Unofficial and undocumented — Yahoo can change or block
- * it at any time — so a failed fetch falls back to the cached last
- * good value and then to an honest empty state, never an invented
- * number. Only IHSG is supplied (LQ45 has no Yahoo Finance symbol).
+ * the default Yahoo set — IHSG (^JKSE), LQ45 (^JKLQ45) and the 12
+ * heaviest LQ45 constituents, 14 symbols — live from Yahoo Finance's
+ * public spark endpoint, free, no API key. Unofficial and undocumented
+ * — Yahoo can change or block it at any time — so a failed fetch falls
+ * back to the cached last good value and then to an honest empty state,
+ * never an invented number.
  *
  * Layout reuses the Markets widget layouts (Vertical List, Grid,
  * Horizontal Slider, Vertical Slider, Full-width Strip, Marquee),

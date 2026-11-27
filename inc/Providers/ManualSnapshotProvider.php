@@ -10,9 +10,10 @@ use KoperasiKita\Features\Markets;
  * Manual snapshot provider: prices typed in by an admin on the
  * Settings -> Markets screen and stored in the `kk_markets_settings` option.
  *
- * This is the v1 default for gold, stock and crypto. A market with no saved
- * snapshot returns no prices at all, so the frontend shows an honest
- * "no data" state instead of inventing numbers.
+ * This is the default for gold, and the fallback for stock and crypto
+ * wherever an admin typed a snapshot (see Markets::providerFor()).
+ * A market with no saved snapshot returns no prices at all, so the
+ * frontend shows an honest "no data" state instead of inventing numbers.
  */
 final class ManualSnapshotProvider implements MarketPriceProvider
 {

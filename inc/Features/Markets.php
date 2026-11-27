@@ -231,8 +231,14 @@ final class Markets
         $defaults = [
             'providers' => [
                 'gold' => 'manual',
-                'stock' => 'manual',
-                'crypto' => 'manual',
+                // Stock and crypto default to their live providers:
+                // Yahoo (IDX) and CoinGecko. Manual only wins for a
+                // market where an admin typed a snapshot — see
+                // providerFor(). Gold stays manual by default because
+                // each brand resolves its own provider (see
+                // Gold::brandProviders()).
+                'stock' => 'yahoo',
+                'crypto' => 'coingecko',
             ],
             'snapshots' => [],
             'enabled' => [],
@@ -337,13 +343,57 @@ final class Markets
         return $valid;
     }
 
+    /**
+     * The preferred live provider per market, in order, when the
+     * stored choice is Manual with no snapshot behind it (see
+     * providerFor()). Yahoo is the only stock provider; CoinGecko
+     * is the preferred crypto one — Indodax is deliberately not
+     * listed: it timed out from the web process, so it must never
+     * become the automatic choice. Gold is per-brand (see
+     * Gold::brandProviders()) and has no entry here.
+     *
+     * @var array<string, array<int, string>>
+     */
+    private const LIVE_PROVIDER_ORDER = [
+        'stock' => ['yahoo'],
+        'crypto' => ['coingecko'],
+    ];
+
+    /**
+     * The provider that supplies a market.
+     *
+     * An explicit non-manual choice that supports the market wins.
+     * Manual only wins when it actually prices something for the
+     * market: it supplies every symbol on paper but prices only
+     * the ones an admin typed a snapshot for, so a bare 'manual'
+     * — the old default, with no snapshots — must not blank the
+     * market while a live provider has data. Same carve-out as
+     * Gold::brandProviders(). Otherwise the first live provider
+     * for the market (LIVE_PROVIDER_ORDER) supplies it; with no
+     * live provider available, any registered provider that
+     * supports the market, else Manual.
+     *
+     * Nothing is written on read — the fallback is computed, so a
+     * fresh install and an upgraded install behave the same
+     * without a data migration.
+     */
     public static function providerFor(string $market): MarketPriceProvider
     {
         $providers = self::providers();
         $chosen = self::settings()['providers'][$market] ?? 'manual';
 
-        if (isset($providers[$chosen]) && $providers[$chosen]->supports($market)) {
+        if ($chosen !== 'manual' && isset($providers[$chosen]) && $providers[$chosen]->supports($market)) {
             return $providers[$chosen];
+        }
+
+        if ($chosen === 'manual' && self::manualHasSnapshotPrice($market)) {
+            return $providers['manual'];
+        }
+
+        foreach (self::LIVE_PROVIDER_ORDER[$market] ?? [] as $live) {
+            if (isset($providers[$live]) && $providers[$live]->supports($market)) {
+                return $providers[$live];
+            }
         }
 
         foreach ($providers as $provider) {
@@ -356,9 +406,32 @@ final class Markets
     }
 
     /**
+     * Whether the admin typed a manual snapshot price for any
+     * symbol of the market. A snapshot row only counts with a
+     * positive price (the sanitizer drops the rest, see
+     * MarketsSettings::sanitizeSettings()).
+     */
+    private static function manualHasSnapshotPrice(string $market): bool
+    {
+        $snapshots = self::settings()['snapshots'][$market] ?? [];
+
+        if (!is_array($snapshots)) {
+            return false;
+        }
+
+        foreach ($snapshots as $row) {
+            if (is_array($row) && isset($row['price']) && (float) $row['price'] > 0) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
      * Choices for a provider select: every registered provider that
-     * supports the market, id => label. Manual is always first (it is
-     * the default and the fallback).
+     * supports the market, id => label. Manual is always first (it
+     * is the fallback wherever an admin typed a snapshot).
      *
      * @return array<string, string>
      */
@@ -570,10 +643,11 @@ final class Markets
         // Live price providers (all free, no API key). Registered
         // through the providers filter so they appear in the
         // Settings -> Markets provider dropdown for their market,
-        // next to Manual. The default stays Manual until the admin
-        // picks one. Each provider caches in a transient (15 min)
-        // and falls back to its last good value when the upstream
-        // is unreachable.
+        // next to Manual. Stock defaults to Yahoo and crypto to
+        // CoinGecko (see settings()); Manual wins only where an
+        // admin typed a snapshot (see providerFor()). Each
+        // provider caches in a transient (15 min) and falls back
+        // to its last good value when the upstream is unreachable.
         add_filter(Hooks::MARKETS_PROVIDERS, static function (array $providers): array {
             $providers['xaus'] = new XausProvider();
             $providers['scraped-gold'] = new ScrapedGoldProvider();
@@ -612,8 +686,8 @@ final class Markets
 
         // Logam Mulia daily sync (WP-Cron) + the manual sync AJAX
         // endpoint (one source per call). Only when the Markets
-        // feature is enabled; the provider itself stays Manual
-        // until the admin picks it.
+        // feature is enabled; gold brands prefer this provider by
+        // default (see Gold::brandProviders()).
         LogamMuliaApiProvider::registerSync();
 
         MarketsSettings::register();
