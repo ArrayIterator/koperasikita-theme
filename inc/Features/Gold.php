@@ -42,7 +42,7 @@ final class Gold
      * Live providers in the order a never-configured brand prefers
      * them. Logam Mulia API first: it reads the synced table (a
      * local database read - fast, and the prices the site's own
-     * sync pipeline curates). Scraped second: the 15-minute scrape,
+     * sync pipeline curates). Scrapping second: the 15-minute scrape,
      * a network fetch, so it stays the fallback rather than the hot
      * path. Xaus last: spot only. Manual is not in this list - it
      * supplies every symbol on paper but only prices the ones an
@@ -166,7 +166,7 @@ final class Gold
      * Providers that can actually supply one gold symbol, id => label,
      * derived from each provider's own supplies() - never a hardcoded
      * list in the template. Manual can supply everything; Xaus only
-     * spot; Scraped covers spot + all six brands; Logam Mulia API
+     * spot; Scrapping covers spot + all six brands; Logam Mulia API
      * covers four brands (Antam, UBS, Galeri 24, Lotus Archi), no
      * spot. Every brand has a live source, so Manual is never the
      * only choice.

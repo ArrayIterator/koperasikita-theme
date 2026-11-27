@@ -760,7 +760,7 @@ final class Markets
      *
      * Gold is per-brand: the direct client API is the one provider
      * with a browser-callable URL among the brands' effective
-     * providers - Scraped (prices.json, covers six symbols) first,
+     * providers - Scrapping (prices.json, covers six symbols) first,
      * then Xaus (spot only). The browser refresh only updates the
      * symbols that provider covers; the rest stay server-rendered
      * and refresh through the backend endpoint.

@@ -43,7 +43,7 @@ final class ScrapedGoldProvider extends AbstractLiveProvider
 
     public function label(): string
     {
-        return 'Scraped (live Antam, Galeri 24, UBS, Lotus Archi, Hartadinata, King Halim + spot, free)';
+        return 'Scrapping (live Antam, Galeri 24, UBS, Lotus Archi, Hartadinata, King Halim + spot, free)';
     }
 
     public function supports(string $market): bool

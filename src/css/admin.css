@@ -474,7 +474,7 @@
 
 /*
  * Gold Prices per-brand provider table: the provider labels are long
- * ("Scraped (live Antam, Galeri 24, ...)"), so uncapped selects would
+ * ("Scrapping (live Antam, Galeri 24, ...)"), so uncapped selects would
  * blow the table wider than the admin page and cut the Supplied by
  * column off. The selects cap at 15rem; the wrapper scrolls
  * horizontally only when the viewport is still too narrow.
