@@ -57,10 +57,6 @@ html[data-color-scheme="dark"] .kk-ticker-label {
 	color: #121212;
 }
 
-html[data-color-scheme="dark"] .kk-pick-number {
-	color: var(--kk-gold-light, #F6D365);
-}
-
 /* Elevated homepage cards need a hairline in dark mode: the soft
  * shadow cannot define a dark card on a dark page. */
 html[data-color-scheme="dark"] .kk-home .kk-card {
@@ -129,10 +125,6 @@ html[data-color-scheme="dark"] .kk-logo--dark {
 
 	html[data-color-scheme="system"] .kk-ticker-label {
 		color: #121212;
-	}
-
-	html[data-color-scheme="system"] .kk-pick-number {
-		color: var(--kk-gold-light, #F6D365);
 	}
 
 	html[data-color-scheme="system"] .kk-home .kk-card {
@@ -298,19 +290,6 @@ body.kk-variant-compact .kk-category-block {
 	margin-top: 20px;
 }
 
-body.kk-variant-compact .kk-pick {
-	padding: 10px 0;
-}
-
-body.kk-variant-compact .kk-pick-number {
-	font-size: 26px;
-}
-
-body.kk-variant-compact .kk-pick-title {
-	font-size: 16px;
-	margin-bottom: 4px;
-}
-
 body.kk-variant-compact .kk-sidebar .widget {
 	padding-top: 8px;
 }
@@ -418,7 +397,6 @@ body.kk-variant-bold .kk-hero-title,
 body.kk-variant-bold .kk-card-title,
 body.kk-variant-bold .kk-article-title,
 body.kk-variant-bold .kk-page-title,
-body.kk-variant-bold .kk-pick-title,
 body.kk-variant-bold .kk-author-name,
 body.kk-variant-bold .kk-bookmark-item-title {
 	font-weight: 800;
@@ -454,7 +432,6 @@ body.kk-variant-bold .kk-card {
 	border-top-width: 2px;
 }
 
-body.kk-variant-bold .kk-picks-list,
 body.kk-variant-bold .kk-sidebar .widget,
 body.kk-variant-bold .kk-comments {
 	border-top-width: 3px;
@@ -465,7 +442,6 @@ body.kk-variant-bold .kk-search-header {
 	border-bottom-width: 4px;
 }
 
-body.kk-variant-bold .kk-pick,
 body.kk-variant-bold .kk-sidebar .widget ul li,
 body.kk-variant-bold .kk-plain-list li,
 body.kk-variant-bold .kk-comment-list .comment {
@@ -488,14 +464,6 @@ body.kk-variant-bold .kk-primary-menu a:hover,
 body.kk-variant-bold .kk-primary-menu .current-menu-item > a,
 body.kk-variant-bold .kk-primary-menu .current-menu-ancestor > a {
 	box-shadow: inset 0 -3px 0 var(--kk-gold, #C9962E);
-}
-
-body.kk-variant-bold .kk-pick-number {
-	font-size: 38px;
-}
-
-body.kk-variant-bold .kk-pick-title {
-	font-size: 20px;
 }
 
 body.kk-variant-bold .kk-button {

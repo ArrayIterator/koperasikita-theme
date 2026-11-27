@@ -75,15 +75,6 @@ html[data-color-scheme="system"] {
 	--kk-surface-muted: #f2f2f2;
 }
 
-/* variants.css colours a few widget parts directly (not via vars),
- * so the token reset above does not reach them. Force those back to
- * their light values too - today the only widget-visible one is the
- * Editor's Picks number. */
-html[data-color-scheme="dark"] .kk-pick-number,
-html[data-color-scheme="system"] .kk-pick-number {
-	color: #8a6d1b;
-}
-
 /* Slider slide-in animations re-run on every ServerSideRender
  * refresh in the editor, so the preview would fade in (and read as
  * washed out) on each settings change. Show the active slide
