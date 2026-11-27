@@ -17,9 +17,12 @@ if ($meta['start'] === '' && $meta['location'] === '') {
 $dateFormat = get_option('date_format');
 $startTs = \KoperasiKita\Features\Agenda::eventTimestamp($meta['start']);
 $endTs = \KoperasiKita\Features\Agenda::eventTimestamp($meta['end']);
-$dateLabel = $startTs > 0 ? date_i18n($dateFormat, $startTs) : '';
-$startLabel = $startTs > 0 ? date_i18n('H.i', $startTs) : '';
-$endLabel = $endTs > 0 ? date_i18n('H.i', $endTs) : '';
+// wp_date, not date_i18n: date_i18n expects a timestamp summed with
+// the timezone offset (legacy quirk), so a true Unix timestamp renders
+// shifted by the offset. wp_date takes a true timestamp.
+$dateLabel = $startTs > 0 ? wp_date($dateFormat, $startTs) : '';
+$startLabel = $startTs > 0 ? wp_date('H.i', $startTs) : '';
+$endLabel = $endTs > 0 ? wp_date('H.i', $endTs) : '';
 // Event times are WIB wall-clock times: 24-hour with a dot, and the
 // zone abbreviation, so the header reads the same as the body text.
 $timeLabel = $startLabel;
