@@ -549,6 +549,13 @@ function TermSearchField(props: {
 		} else {
 			set(field.key, selected.filter((item) => item !== val));
 		}
+		/* The search keeps focus, so a removed chip can never strand
+		 * it: a keyboard-activated remove unmounts the focused
+		 * button, and focus would land on the body and the editor
+		 * would drop the block selection. (A mouse click never
+		 * moves focus off the input at all — see the remove button
+		 * mousedown handler.) */
+		fieldRef.current?.querySelector('input')?.focus();
 	};
 
 	const chips = selected.map((val) => {
@@ -563,6 +570,14 @@ function TermSearchField(props: {
 					type: 'button',
 					className: 'kk-termsearch-remove',
 					'aria-label': `${__('Remove')} ${label}`,
+					/* Same as the result buttons: a mousedown on the
+					 * button would move focus off the search input,
+					 * and the removed chip unmounts on click: focus
+					 * would land on the body, the field would read
+					 * that as leaving, and the editor would drop the
+					 * block selection. Keeping focus in the input
+					 * means the unmount can never strand it. */
+					onMouseDown: (event: MouseEvent): void => event.preventDefault(),
 					onClick: () => remove(val),
 				},
 				'x',
