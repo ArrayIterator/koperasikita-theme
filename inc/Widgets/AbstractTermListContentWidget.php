@@ -176,8 +176,10 @@ abstract class AbstractTermListContentWidget extends WP_Widget
             <label for="<?php echo esc_attr($this->get_field_id('term_id')); ?>">
                 <?php echo esc_html($this->termLabel()); ?>
             </label>
+            <?php /* Searchable picker (see admin.ts), not a long plain dropdown. */ ?>
             <select
                 class="widefat"
+                data-kk-term-picker
                 id="<?php echo esc_attr($this->get_field_id('term_id')); ?>"
                 name="<?php echo esc_attr($this->get_field_name('term_id')); ?>"
             >

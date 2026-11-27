@@ -147,8 +147,8 @@ final class Blocks
                 'title' => __('KK Post By Terms', 'koperasikita'),
                 'description' => __('Numbered list of posts from the categories and tags you pick, newest first.', 'koperasikita'),
                 'attributes' => array_merge($storyAttributes, [
-                    'categoryIds' => ['type' => 'array', 'default' => [], 'items' => ['type' => 'number']],
-                    'tagIds' => ['type' => 'array', 'default' => [], 'items' => ['type' => 'number']],
+                    'categoryIds' => ['type' => 'array', 'default' => [], 'items' => ['type' => 'string']],
+                    'tagIds' => ['type' => 'array', 'default' => [], 'items' => ['type' => 'string']],
                     'showNumeric' => ['type' => 'boolean', 'default' => true],
                     'showDate' => ['type' => 'boolean', 'default' => true],
                     'showCategories' => ['type' => 'boolean', 'default' => false],

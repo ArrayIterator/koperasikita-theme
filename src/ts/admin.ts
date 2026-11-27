@@ -53,6 +53,7 @@ interface AdminStrings {
 	close: string;
 	searching: string;
 	noResults: string;
+	showingOf: string;
 }
 
 interface AdminData {
@@ -123,6 +124,7 @@ const FALLBACK_STRINGS: AdminStrings = {
 	close: 'Close',
 	searching: 'Searching…',
 	noResults: 'No results.',
+	showingOf: 'Showing %s of %s — type to search.',
 };
 
 function adminData(): AdminData | null {
@@ -160,6 +162,7 @@ function adminStrings(): AdminStrings {
 		editHeaderHint: strings?.editHeaderHint ?? FALLBACK_STRINGS.editHeaderHint,
 		searching: strings?.searching ?? FALLBACK_STRINGS.searching,
 		noResults: strings?.noResults ?? FALLBACK_STRINGS.noResults,
+		showingOf: strings?.showingOf ?? FALLBACK_STRINGS.showingOf,
 	};
 }
 
@@ -2064,24 +2067,34 @@ function initAgendaWidgetFields(): void {
 /**
  * Select2-style term pickers for widget forms.
  *
- * A `<select multiple data-kk-term-picker>` (rendered by the
+ * A `<select data-kk-term-picker>` (rendered by the
  * widget form with every term as an option) becomes a searchable
  * picker: a search box filters the option list, picked terms show
  * as removable chips, and the underlying select stays in sync so
- * the widget form submits the picked term IDs. The select keeps
- * working without JS (a plain multi-select), so the picker is
- * progressive enhancement, not a requirement.
+ * the widget form submits the picked term IDs. A multiple select
+ * picks many; a single select picks one (its empty option is the
+ * "none" state). The select keeps working without JS (a plain
+ * multi-select), so the picker is progressive enhancement, not a
+ * requirement.
  *
  * Widget forms are added dynamically (Customizer, Legacy Widget
  * block), so a MutationObserver picks up selects that appear
  * after the first pass.
  */
 function initTermPickers(): void {
+	/* Same browse cap as the block editor's TermSearchField. */
+	const BROWSE_FULL_MAX = 50;
+	const BROWSE_LIMIT = 10;
+
 	const initOne = (select: HTMLSelectElement): void => {
 		if (select.dataset.kkPickerInit === '1') {
 			return;
 		}
 		select.dataset.kkPickerInit = '1';
+
+		const single = !select.multiple;
+		const emptyValue =
+			Array.from(select.options).find((option) => option.value === '' || option.value === '0')?.value ?? '';
 
 		const wrapper = document.createElement('div');
 		wrapper.className = 'kk-term-picker';
@@ -2137,10 +2150,13 @@ function initTermPickers(): void {
 			}
 		});
 
-		const options = Array.from(select.options).map((option) => ({
-			value: option.value,
-			label: option.text,
-		}));
+		/* Read once, reused for every render. */
+		const options = Array.from(select.options)
+			.filter((option) => option.value !== '' && option.value !== '0')
+			.map((option) => ({
+				value: option.value,
+				label: option.text,
+			}));
 
 		const render = (): void => {
 			const query = search.value.trim().toLowerCase();
@@ -2161,14 +2177,15 @@ function initTermPickers(): void {
 				});
 				chips.append(chip);
 			}
+			const matching = options.filter(
+				(option) =>
+					!selected.has(option.value) &&
+					(query === '' || option.label.toLowerCase().includes(query)),
+			);
+			const capped = query === '' && options.length >= BROWSE_FULL_MAX;
+			const shown = capped ? matching.slice(0, BROWSE_LIMIT) : matching;
 			list.innerHTML = '';
-			for (const option of options) {
-				if (selected.has(option.value)) {
-					continue;
-				}
-				if (query !== '' && !option.label.toLowerCase().includes(query)) {
-					continue;
-				}
+			for (const option of shown) {
 				const row = document.createElement('button');
 				row.type = 'button';
 				row.className = 'kk-term-picker-option';
@@ -2176,10 +2193,22 @@ function initTermPickers(): void {
 				row.addEventListener('click', () => {
 					setSelected(option.value, true);
 					search.value = '';
-					search.focus();
+					if (!single) {
+						search.focus();
+					}
 					render();
 				});
 				list.append(row);
+			}
+			if (capped && shown.length > 0) {
+				const count = document.createElement('p');
+				count.className = 'description kk-term-picker-count';
+				count.textContent = formatTemplate(
+					adminStrings().showingOf,
+					shown.length,
+					options.length,
+				);
+				list.append(count);
 			}
 			if (list.childElementCount === 0) {
 				const empty = document.createElement('p');
@@ -2190,10 +2219,18 @@ function initTermPickers(): void {
 		};
 
 		const setSelected = (value: string, next: boolean): void => {
-			for (const option of Array.from(select.options)) {
-				if (option.value === value) {
-					option.selected = next;
+			if (single) {
+				select.value = next ? value : emptyValue;
+			} else {
+				for (const option of Array.from(select.options)) {
+					if (option.value === value) {
+						option.selected = next;
+					}
 				}
+			}
+			/* The choice is made; nothing left to pick. */
+			if (single && next) {
+				setOpen(false);
 			}
 			render();
 		};
