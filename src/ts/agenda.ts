@@ -242,14 +242,16 @@ function initDisplayMap(el: HTMLElement): void {
 	requestAnimationFrame(() => map.invalidateSize());
 }
 
-/* Location preview map (Locations admin form) */
-/* The form's own Leaflet map: the pin follows the Latitude /
- * Longitude fields - typed by hand, picked from a search result, or
- * applied from the Pick Location popup - and the map is centred on
- * the picker's default location with no pin until both fields hold a
- * valid coordinate. The fields are the source of truth, so a
- * programmatic fill announces itself with a change event the map
- * listens for, exactly like a manual edit. */
+/* Location map picker (Locations admin form) */
+/* The form's own Leaflet map is a picker, not a preview: a click
+ * places the pin and a drag moves it, writing the coordinates into
+ * the Latitude / Longitude fields - the same fields the search and
+ * the Pick Location popup fill, so the one save flow takes them all.
+ * The fields stay the source of truth the other way: typed, searched
+ * or popup-applied coordinates move the pin, so a programmatic fill
+ * announces itself with a change event the map listens for, exactly
+ * like a manual edit. Centred on the picker's default location with
+ * no pin until both fields hold a valid coordinate. */
 function initLocationPreviewMap(el: HTMLElement): void {
 	const form = el.closest('form');
 	const latInput = form?.querySelector<HTMLInputElement>('[data-kk-agenda-lat]') ?? null;
@@ -275,6 +277,15 @@ function initLocationPreviewMap(el: HTMLElement): void {
 
 	let marker: L.Marker | null = null;
 
+	// A programmatic value set fires no event, so announce it: the
+	// pin follows these inputs, and so does the coords line.
+	const writeCoords = (lat: number, lng: number): void => {
+		latInput.value = String(lat);
+		lngInput.value = String(lng);
+		latInput.dispatchEvent(new Event('change', { bubbles: true }));
+		lngInput.dispatchEvent(new Event('change', { bubbles: true }));
+	};
+
 	// Arrow function, not a hoisted declaration: the null guard above
 	// narrows latInput/lngInput, and only a non-hoisted closure keeps
 	// that narrowing (a function declaration would lose it).
@@ -294,7 +305,13 @@ function initLocationPreviewMap(el: HTMLElement): void {
 		}
 
 		if (marker === null) {
-			marker = L.marker([lat, lng], { icon: makePin() }).addTo(map);
+			marker = L.marker([lat, lng], { icon: makePin(), draggable: true }).addTo(map);
+			marker.on('dragend', () => {
+				const pos = marker?.getLatLng();
+				if (pos) {
+					writeCoords(pos.lat, pos.lng);
+				}
+			});
 		} else {
 			marker.setLatLng([lat, lng]);
 		}
@@ -308,6 +325,12 @@ function initLocationPreviewMap(el: HTMLElement): void {
 	[latInput, lngInput].forEach((input) => {
 		input.addEventListener('input', syncPin);
 		input.addEventListener('change', syncPin);
+	});
+
+	// Clicking the map places the pin there: the click writes the
+	// fields, and the change events move the pin onto the click.
+	map.on('click', (event: L.LeafletMouseEvent) => {
+		writeCoords(event.latlng.lat, event.latlng.lng);
 	});
 
 	syncPin();

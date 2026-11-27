@@ -440,8 +440,9 @@ final class AgendaLocationsSettings
                 <tr>
                     <th scope="row"><?php esc_html_e('Map', 'koperasikita'); ?></th>
                     <td>
-                        <?php /* The Leaflet preview map + Pick Location button:
-                         * the map shows the pin from the Latitude /
+                        <?php /* The Leaflet map picker + Pick Location button:
+                         * the map is a picker - a click places the pin
+                         * and a drag moves it, writing the Latitude /
                          * Longitude fields above (centred on the
                          * default location with no pin until both hold
                          * a coordinate); the button opens the same
@@ -456,6 +457,7 @@ final class AgendaLocationsSettings
                                 <button type="button" class="kk-locations-button" data-kk-agenda-pick><?php esc_html_e('Pick Location', 'koperasikita'); ?></button>
                             </p>
                             <p class="kk-agenda-coords" data-kk-agenda-coords><?php echo esc_html($coords); ?></p>
+                            <p class="description"><?php esc_html_e('Click the map to place the marker, or drag it.', 'koperasikita'); ?></p>
                         </div>
                     </td>
                 </tr>
