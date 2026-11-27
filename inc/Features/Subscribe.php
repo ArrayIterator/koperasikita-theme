@@ -32,9 +32,11 @@ namespace KoperasiKita\Features;
  * MailPoet is optional. When it is active the address is subscribed to
  * every MailPoet list through MailPoet's own public API (v1), with
  * confirmation and welcome mail left on so double opt-in keeps working.
- * When MailPoet is not active, or it has no lists configured, the form
- * still renders and the submit shows an honest "unavailable" message —
- * it never fakes a success and never fatals.
+ * Either way the address is stored in the theme's own subscriber
+ * table first (Subscribers::record), so the site keeps its own list
+ * even when MailPoet is not active or has no lists configured — a
+ * submit only fails when the local record itself could not be
+ * stored. It never fakes a success and never fatals.
  */
 final class Subscribe
 {
@@ -113,21 +115,34 @@ final class Subscribe
 
         self::recordAttempt();
 
-        $result = self::subscribeWithMailPoet($email);
+        // The local record comes first: the site keeps its own list
+        // whether MailPoet is there or not. A failed local write is
+        // the only case where the submit itself fails.
+        $source = class_exists(\MailPoet\API\API::class)
+            ? Subscribers::SOURCE_MAILPOET
+            : Subscribers::SOURCE_LOCAL;
 
-        if ($result === 'ok') {
-            self::redirectWithSuccess();
-        }
-
-        if ($result === 'unavailable') {
+        if (!Subscribers::record($email, $source, Subscribers::STATUS_SUBSCRIBED)) {
             self::$notice = [
                 'type' => 'error',
-                'message' => __('Subscriptions are unavailable right now. Please try again later.', 'koperasikita'),
+                'message' => __('Something went wrong. Please try again later.', 'koperasikita'),
             ];
 
             return;
         }
 
+        $result = self::subscribeWithMailPoet($email);
+
+        if ($result === 'ok' || $result === 'unavailable') {
+            // 'unavailable' means MailPoet is not active or has no
+            // lists — the address is already stored locally, so the
+            // submit still succeeds.
+            self::redirectWithSuccess();
+        }
+
+        // MailPoet is active but its call failed. The address stays
+        // stored locally, but the submit is not reported as a
+        // success — the sync did not go through.
         self::$notice = [
             'type' => 'error',
             'message' => __('Something went wrong. Please try again later.', 'koperasikita'),

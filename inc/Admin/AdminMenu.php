@@ -17,7 +17,8 @@ use KoperasiKita\Setup\Setup;
  *   ├─ Sidebar Settings (sticky sidebars)
  *   ├─ Gold Prices      (Logam Mulia sync status + history)
  *   ├─ Data Desk Templates (panel + table templates)
- *   └─ Locations        (Agenda locations)
+ *   ├─ Locations        (Agenda locations)
+ *   └─ Subscribers      (newsletter subscriber list)
  *
  * The pages keep their own slugs, so existing bookmarks keep
  * working. Note the hook-suffix trap, documented on
@@ -113,6 +114,15 @@ final class AdminMenu
             'manage_options',
             Agenda::LOCATIONS_PAGE_SLUG,
             [AgendaLocationsSettings::class, 'renderSettingsPage']
+        );
+
+        add_submenu_page(
+            self::MENU_SLUG,
+            esc_html__('Subscribers', 'koperasikita'),
+            esc_html__('Subscribers', 'koperasikita'),
+            'manage_options',
+            SubscribersPage::PAGE_SLUG,
+            [SubscribersPage::class, 'render']
         );
     }
 }

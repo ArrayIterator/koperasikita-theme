@@ -6,6 +6,7 @@ namespace KoperasiKita;
 
 use KoperasiKita\Admin\AdminMenu;
 use KoperasiKita\Admin\SidebarSettings;
+use KoperasiKita\Admin\SubscribersPage;
 use KoperasiKita\Api\Api;
 use KoperasiKita\Assets\Enqueue;
 use KoperasiKita\Breadcrumb\Breadcrumb;
@@ -87,5 +88,6 @@ final class Theme
         add_action('admin_post_kk_setup_install', [Setup::class, 'handleInstall']);
         add_action('admin_post_kk_setup_upload', [Setup::class, 'handleUpload']);
         add_action('admin_post_kk_setup_activate', [Setup::class, 'handleActivate']);
+        add_action('admin_post_kk_export_subscribers', [SubscribersPage::class, 'handleExport']);
     }
 }
