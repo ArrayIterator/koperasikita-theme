@@ -501,8 +501,9 @@ final class Enqueue
 
             // The Data Desk Templates page renders live template
             // previews (the real panel / table markup), so it needs
-            // the same styles the editor canvas uses - tokens,
-            // widgets, gold-markets and the rest.
+            // the outer preview bundle - the same widget styles the
+            // editor canvas uses, with the base rules scoped to the
+            // preview containers instead of bare on the page.
             self::enqueueEditorStyles();
 
             $js = ViteLoader::js('src/ts/admin.ts');
@@ -628,8 +629,9 @@ final class Enqueue
 
         // Classic widget forms on widgets.php / the Customizer show
         // a live Data Desk preview under the template select; the
-        // preview markup needs the editor bundle's styles here too
-        // (the form itself lives in the outer page, not the canvas).
+        // preview markup needs the outer preview bundle's styles
+        // here too (the form itself lives in the outer page, not
+        // the canvas).
         self::enqueueEditorStyles();
 
         $js = ViteLoader::js('src/ts/admin.ts');
@@ -695,31 +697,34 @@ final class Enqueue
      * (.kk-widget-title--*, .kk-widget) only match the preview
      * markup, not the editor chrome.
      *
-     * These styles load in the OUTER admin page only - the canvas
-     * is an iframe, and `enqueue_block_editor_assets` never enters
-     * it. The canvas gets its styles from the blocks' `editor_style`
-     * instead: see Blocks::registerAssets(), which registers the
-     * editor bundle (src/css/editor.css - tokens, base, content,
-     * widgets, gold-markets, weather, variants, plus the canvas
-     * shell/title rules) for every Koperasi Kita block. The bundle
-     * is enqueued here too, so any block rendered inline in the
-     * outer page (widgets.php without an iframe, the Customizer
-     * panel) is styled as well.
+     * The canvas is an iframe, and `enqueue_block_editor_assets`
+     * never enters it. The canvas gets its styles from the blocks'
+     * `editor_style` instead: see Blocks::registerAssets(), which
+     * registers the editor bundle (src/css/editor.css - tokens,
+     * base, content, widgets, gold-markets, weather, variants,
+     * plus the canvas shell/title rules) for every Koperasi Kita
+     * block. The outer page gets the outer bundle
+     * (src/css/editor-outer.css) instead: the same widget styles,
+     * but the base rules scoped to the preview containers. Loading
+     * the canvas bundle here would restyle the WordPress frame
+     * itself - its bare `body` / `h1-h3` rules are correct inside
+     * the iframe document and a leak on the outer page.
      */
     /**
-     * Enqueue the editor bundle (src/css/editor.css) on an admin
-     * screen that renders widget / Data Desk preview markup outside
-     * the editor canvas - the Data Desk Templates page and the
-     * classic widget forms. The handle is registered by
-     * Blocks::registerAssets() for the canvas; wp_enqueue_style
-     * on an already-registered handle is enough here.
+     * Enqueue the outer preview bundle (src/css/editor-outer.css)
+     * on an admin screen that renders widget / Data Desk preview
+     * markup outside the editor canvas - the Data Desk Templates
+     * page and the classic widget forms. The handle is distinct
+     * from `kk-editor` on purpose: that handle is registered by
+     * Blocks::registerAssets() for the canvas bundle, and
+     * re-registering it here would swap the canvas stylesheet too.
      */
     private static function enqueueEditorStyles(): void
     {
-        $editor = ViteLoader::css('src/css/editor.css');
+        $editor = ViteLoader::css('src/css/editor-outer.css');
 
         if ($editor !== '') {
-            wp_enqueue_style('kk-editor', $editor, [], KK_VERSION);
+            wp_enqueue_style('kk-editor-outer', $editor, [], KK_VERSION);
         }
     }
 
@@ -737,10 +742,12 @@ final class Enqueue
             wp_enqueue_style('kk-widgets-editor', $widgets, ['kk-tokens-editor'], KK_VERSION);
         }
 
-        $editor = ViteLoader::css('src/css/editor.css');
+        // Outer page only: the outer preview bundle, never the
+        // canvas bundle - see enqueueEditorStyles().
+        $editor = ViteLoader::css('src/css/editor-outer.css');
 
         if ($editor !== '') {
-            wp_enqueue_style('kk-editor', $editor, ['kk-widgets-editor'], KK_VERSION);
+            wp_enqueue_style('kk-editor-outer', $editor, ['kk-widgets-editor'], KK_VERSION);
         }
     }
 }

@@ -1,0 +1,100 @@
+/*
+   Koperasi Kita - editor-outer.css - outer admin page preview styles
+
+   WHY THIS FILE EXISTS: editor.css is the block-editor canvas
+   bundle, registered as the blocks' `editor_style` - its bare
+   `body` / `h1-h3` / reset rules are correct inside the canvas
+   iframe, where the document IS the preview. The same preview
+   markup also renders inline on the outer admin page (widgets.php
+   without an iframe, the Customizer widget panel, the classic
+   widget forms' Data Desk preview, the Data Desk Templates page),
+   and loading editor.css there restyled the WordPress frame itself
+   - the Customizer controls in the theme's 16px sans on white with
+   Georgia headings. This bundle is the outer-page twin: the same
+   widget styles in the same cascade order, but the bare rules come
+   from editor-outer-base.css scoped to the preview containers
+   instead of app.css and base.css. It must never import app.css or
+   base.css bare.
+
+   The canvas shell/title rules at the bottom are the outer-page
+   half of editor.css's editor-only section (the inline block
+   previews need them too). They mirror editor.css - when that
+   section changes, mirror it here. The `html` rules and the
+   `.editor-styles-wrapper` rule stay out: they target the canvas
+   document, and the outer document is WordPress, not the preview.
+ */
+
+@import './tokens.css';
+@import './editor-outer-base.css';
+@import './content.css';
+@import './widgets.css';
+@import './cards.css';
+@import './gold-markets.css';
+@import './weather.css';
+@import './variants.css';
+
+/* Editor-only rules (outer-page half) */
+
+/* Slider slide-in animations re-run on every ServerSideRender
+ * refresh in the editor, so the preview would fade in (and read as
+ * washed out) on each settings change. Show the active slide
+ * instantly in the canvas; the frontend keeps its animation. */
+.kk-widget-block-canvas .kk-gold-slide.is-active,
+.kk-widget-block-canvas .kk-markets-slide.is-active {
+	animation: none;
+}
+
+/* Widget shell: the_widget() has no .kk-sidebar ancestor in the
+ * editor, so the canvas wrapper carries the same style-driven top
+ * rule the sidebar gives the widget on the frontend (content.css):
+ * only classic-top and classic-top-bottom carry it; by default a
+ * widget has no top border. */
+.kk-widget-block-canvas .widget.kk-widget--top-border {
+	border-top: 2px solid var(--kk-ink);
+	padding-top: 12px;
+}
+
+/* The No Margin markets style, same as the frontend rule. */
+.kk-widget-block-canvas .widget.kk-markets-widget--no-margin {
+	border-top: 0;
+	padding-top: 0;
+	margin-bottom: 0;
+}
+
+/* Widget title: the_widget() titles carry `widgettitle`, not
+ * `kk-widget-title`, so the frontend title rule (widgets.css) never
+ * matches them. Mirror it here - the serif size from content.css
+ * (.kk-sidebar .widgettitle), the flex layout and the extending
+ * rule from .kk-widget-title - so the preview title looks exactly
+ * like the sidebar title. The no-border modifier drops the rule,
+ * like the frontend. */
+.kk-widget-block-canvas .widgettitle {
+	display: flex;
+	align-items: baseline;
+	gap: 1rem;
+	margin-bottom: 12px;
+	font-family: var(--kk-serif);
+	font-size: 20px;
+	font-weight: 500;
+	line-height: 1.2;
+}
+
+.kk-widget-block-canvas .widgettitle::after {
+	content: "";
+	flex: 1;
+	border-top: 1px solid var(--kk-ink);
+}
+
+.kk-widget-block-canvas .widgettitle.kk-widget-title--no-border::after {
+	display: none;
+}
+
+/* Plain lists inside a widget get the sidebar treatment too. */
+.kk-widget-block-canvas .widget ul li {
+	padding: 8px 0;
+	border-bottom: 1px solid var(--kk-border);
+}
+
+.kk-widget-block-canvas .widget ul li:last-child {
+	border-bottom: 0;
+}
