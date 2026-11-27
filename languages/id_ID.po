@@ -1827,6 +1827,10 @@ msgid "Breaking News Headlines"
 msgstr "Judul Berita Terkini"
 
 #: inc/Customizer/Customizer.php
+msgid "Date Format"
+msgstr "Format Tanggal"
+
+#: inc/Customizer/Customizer.php
 msgid "Clock Time Zone"
 msgstr "Zona Waktu Jam"
 
@@ -1873,6 +1877,10 @@ msgstr "Tampilkan Detik pada Jam"
 #: inc/Customizer/Customizer.php
 msgid "Use the 24-Hour Clock"
 msgstr "Gunakan Jam 24 Jam"
+
+#: inc/Customizer/Customizer.php
+msgid "Show Date on the Clock"
+msgstr "Tampilkan Tanggal pada Jam"
 
 #: inc/Customizer/Customizer.php
 msgid "Sticky Header Navigation"

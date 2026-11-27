@@ -679,7 +679,10 @@ function initTicker(): void {
  * keeps it ticking. In "device" mode the time zone is the visitor's
  * own, so no timeZone option is passed. The separator replaces only
  * the colon literals between the time parts, never the space before
- * an AM/PM marker.
+ * an AM/PM marker. The date span updates only when the rendered
+ * date changes, so midnight rolls the date over without a re-render
+ * of the time. Markup without the spans (cached from before the
+ * date) still ticks: the whole element gets the time, no date.
  */
 function initClock(): void {
 	const clock = $('#kk-clock') as HTMLTimeElement | null;
@@ -691,9 +694,34 @@ function initClock(): void {
 	const seconds = clock.getAttribute('data-seconds') === '1';
 	const hour12 = clock.getAttribute('data-24h') !== '1';
 	const separator = clock.getAttribute('data-separator') === '.' ? '.' : ':';
+	const showDate = clock.getAttribute('data-show-date') === '1';
+	const dateFormat = clock.getAttribute('data-date-format') ?? 'full';
+	const timeSpan = clock.querySelector<HTMLSpanElement>('.kk-topbar-clock-time');
+	const dateSpan = clock.querySelector<HTMLSpanElement>('.kk-topbar-clock-date');
+	const timeZone = mode !== 'device' && zone !== '' ? zone : undefined;
 
+	/* The month name follows the visitor locale, like the time's
+	 * AM/PM marker, but the order stays day-month-year so a tick
+	 * never reorders the server-rendered date. */
+	const formatDate = (now: Date): string => {
+		const parts = new Intl.DateTimeFormat(undefined, {
+			day: 'numeric',
+			month: dateFormat === 'short' ? 'short' : 'long',
+			year: 'numeric',
+			...(timeZone ? { timeZone } : {}),
+		}).formatToParts(now);
+		const value = (type: Intl.DateTimeFormatPartTypes): string =>
+			parts.find((part) => part.type === type)?.value ?? '';
+		if (dateFormat === 'numeric') {
+			return `${value('day')}/${value('month')}/${value('year')}`;
+		}
+		return `${value('day')} ${value('month')} ${value('year')}`;
+	};
+
+	let lastDate = '';
 	const render = (): void => {
 		try {
+			const now = new Date();
 			const options: Intl.DateTimeFormatOptions = {
 				hour: 'numeric',
 				minute: '2-digit',
@@ -702,13 +730,25 @@ function initClock(): void {
 			if (seconds) {
 				options.second = '2-digit';
 			}
-			if (mode !== 'device' && zone !== '') {
-				options.timeZone = zone;
+			if (timeZone) {
+				options.timeZone = timeZone;
 			}
-			const parts = new Intl.DateTimeFormat(undefined, options).formatToParts(new Date());
-			clock.textContent = parts
+			const parts = new Intl.DateTimeFormat(undefined, options).formatToParts(now);
+			const time = parts
 				.map((part) => (part.type === 'literal' && part.value === ':' ? separator : part.value))
 				.join('');
+			if (timeSpan) {
+				timeSpan.textContent = time;
+			} else {
+				clock.textContent = time;
+			}
+			if (showDate && dateSpan) {
+				const date = formatDate(now);
+				if (date !== lastDate) {
+					dateSpan.textContent = date;
+					lastDate = date;
+				}
+			}
 		} catch {
 			// An unusable time zone leaves the server-rendered time in place.
 		}

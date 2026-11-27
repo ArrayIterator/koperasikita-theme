@@ -7,7 +7,8 @@
  * The clock is server-rendered in the resolved time zone so the first
  * paint is correct, then main.ts keeps it ticking. In "device" mode the
  * server renders the site time and the script replaces it with the
- * visitor's local time on load.
+ * visitor's local time on load. The date rides in the same element
+ * when kk_clock_show_date is on, in the kk_clock_date_format format.
  *
  * @package KoperasiKita
  */
@@ -40,18 +41,33 @@ if ( $show_clock ) {
 	$clock_separator = \KoperasiKita\Customizer\Customizer::sanitizeClockSeparator( get_theme_mod( 'kk_clock_separator', 'colon' ) );
 	$separator = 'dot' === $clock_separator ? '.' : ':';
 
+	$show_date = (bool) get_theme_mod( 'kk_clock_show_date', true );
+	$date_format = \KoperasiKita\Customizer\Customizer::sanitizeClockDateFormat( get_theme_mod( 'kk_clock_date_format', 'full' ) );
+	$date_php_format = match ( $date_format ) {
+		'short' => 'j M Y',
+		'numeric' => 'd/m/Y',
+		default => 'j F Y',
+	};
+
 	$now = new DateTimeImmutable( 'now', $clock_zone );
 	$clock_format = ( $clock_24h ? 'H' : 'g' ) . $separator . 'i' . ( $clock_seconds ? $separator . 's' : '' ) . ( $clock_24h ? '' : ' A' );
 
+	$clock_inner = '<span class="kk-topbar-clock-time">' . esc_html( $now->format( $clock_format ) ) . '</span>';
+	if ( $show_date ) {
+		$clock_inner = '<span class="kk-topbar-clock-date">' . esc_html( wp_date( $date_php_format, $now->getTimestamp(), $clock_zone ) ) . '</span>, ' . $clock_inner;
+	}
+
 	$clock_html = sprintf(
-		'<time id="kk-clock" class="kk-topbar-clock" datetime="%s" data-mode="%s" data-timezone="%s" data-seconds="%s" data-24h="%s" data-separator="%s">%s</time>',
+		'<time id="kk-clock" class="kk-topbar-clock" datetime="%s" data-mode="%s" data-timezone="%s" data-seconds="%s" data-24h="%s" data-separator="%s" data-show-date="%s" data-date-format="%s">%s</time>',
 		esc_attr( $now->format( 'c' ) ),
 		esc_attr( $clock_mode ),
 		esc_attr( 'device' === $clock_mode ? '' : $clock_zone_name ),
 		esc_attr( $clock_seconds ? '1' : '0' ),
 		esc_attr( $clock_24h ? '1' : '0' ),
 		esc_attr( $separator ),
-		esc_html( $now->format( $clock_format ) )
+		esc_attr( $show_date ? '1' : '0' ),
+		esc_attr( $date_format ),
+		$clock_inner
 	);
 }
 ?>
