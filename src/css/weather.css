@@ -1,8 +1,12 @@
+@import 'leaflet/dist/leaflet.css';
+
 /* Koperasi Kita - weather module styles.
  *
  * Uses the theme tokens from app.css, so light/dark schemes follow
- * automatically. All tap targets are at least 44px; the picker dialog
- * fits a 390px viewport without horizontal overflow.
+ * automatically. All tap targets are at least 44px, except the
+ * widget's Change location link, which is a text action by design.
+ * The picker dialog fits a 390px viewport without horizontal
+ * overflow.
  */
 
 /* Top bar */
@@ -41,6 +45,28 @@
 	margin-top: 8px;
 }
 
+.kk-weather-now {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	margin-top: 8px;
+}
+
+.kk-weather-now .kk-weather-temp {
+	margin-top: 0;
+}
+
+.kk-weather-icon {
+	display: inline-flex;
+	flex: 0 0 auto;
+	color: var(--kk-muted);
+}
+
+.kk-weather-icon svg {
+	width: 28px;
+	height: 28px;
+}
+
 .kk-weather-condition {
 	color: var(--kk-muted);
 	margin-top: 2px;
@@ -72,8 +98,114 @@
 }
 
 .kk-weather-change {
-	width: 100%;
+	display: inline-flex;
+	align-items: center;
 	margin-top: 16px;
+	padding: 2px 0;
+	background: none;
+	border: 0;
+	font-size: 13px;
+	font-weight: 600;
+	color: var(--kk-muted);
+	cursor: pointer;
+	text-align: left;
+}
+
+.kk-weather-change:hover,
+.kk-weather-change:focus-visible {
+	color: var(--kk-green, #0b6b3a);
+	text-decoration: underline;
+}
+
+/* Widget styles: auto is the plain look above. The other three paint
+ * the widget as a card, so the choice is visible at a glance. The
+ * light and dark variants pin their own colours instead of following
+ * the site scheme, so light stays light in dark mode and vice versa. */
+
+.kk-weather-widget--dark-green,
+.kk-weather-widget--light,
+.kk-weather-widget--dark {
+	padding: 20px;
+	border-radius: var(--kk-radius);
+}
+
+.kk-weather-widget--dark-green {
+	background: var(--kk-green, #0b6b3a);
+	color: #fff;
+}
+
+.kk-weather-widget--dark-green .kk-weather-place,
+.kk-weather-widget--dark-green .kk-weather-condition,
+.kk-weather-widget--dark-green .kk-weather-details li span {
+	color: rgba(255, 255, 255, 0.75);
+}
+
+.kk-weather-widget--dark-green .kk-weather-icon {
+	color: #fff;
+}
+
+.kk-weather-widget--dark-green .kk-weather-details {
+	border-top-color: rgba(255, 255, 255, 0.25);
+}
+
+.kk-weather-widget--dark-green .kk-weather-change {
+	color: rgba(255, 255, 255, 0.85);
+}
+
+.kk-weather-widget--dark-green .kk-weather-change:hover,
+.kk-weather-widget--dark-green .kk-weather-change:focus-visible {
+	color: #fff;
+}
+
+.kk-weather-widget--light {
+	background: #fff;
+	color: #1b1b1b;
+	border: 1px solid #e6e3de;
+}
+
+.kk-weather-widget--light .kk-weather-place,
+.kk-weather-widget--light .kk-weather-condition,
+.kk-weather-widget--light .kk-weather-details li span,
+.kk-weather-widget--light .kk-weather-icon,
+.kk-weather-widget--light .kk-weather-change {
+	color: #5b6470;
+}
+
+.kk-weather-widget--light .kk-weather-details {
+	border-top-color: #e6e3de;
+}
+
+.kk-weather-widget--light .kk-weather-change:hover,
+.kk-weather-widget--light .kk-weather-change:focus-visible {
+	color: var(--kk-green, #0b6b3a);
+}
+
+.kk-weather-widget--dark {
+	background: #171717;
+	color: #f5f5f5;
+}
+
+.kk-weather-widget--dark .kk-weather-place,
+.kk-weather-widget--dark .kk-weather-condition,
+.kk-weather-widget--dark .kk-weather-details li span {
+	color: rgba(245, 245, 245, 0.7);
+}
+
+.kk-weather-widget--dark .kk-weather-icon {
+	color: #f5f5f5;
+}
+
+.kk-weather-widget--dark .kk-weather-details {
+	border-top-color: rgba(255, 255, 255, 0.2);
+}
+
+.kk-weather-widget--dark .kk-weather-change {
+	color: rgba(245, 245, 245, 0.75);
+}
+
+.kk-weather-widget--dark .kk-weather-change:hover,
+.kk-weather-widget--dark .kk-weather-change:focus-visible {
+	color: #fff;
 }
 
 /* Picker modal: always centered, blurred backdrop (popup standard).
@@ -91,23 +223,106 @@
  * edge. The page behind is scroll-locked while the picker is open
  * (see openPicker in weather.ts), so no section below can peek out. */
 
-/* Dark mode: keep ghost-button text readable inside weather surfaces.
+/* Dark mode: keep ghost-button text readable inside the picker.
  *
  * variants.css forces `color: #121212` on every `.kk-button` under
  * `html[data-color-scheme="dark"]` - meant for the solid green primary
  * button, whose dark-mode background is the light green. But the rule
  * also matches `.kk-button-ghost` (transparent background), so the
  * picker's "Use these coordinates" / "Use my location" / "Reset to
- * default" buttons and the widget's "Change location" button render
- * near-black text on the near-black dialog: invisible. This override
- * (higher specificity, loaded after variants.css) restores the ink
- * colour for ghost buttons inside weather surfaces only. The same
- * variants.css rule also catches the PWA install prompt's "Not now"
- * button - that one lives outside weather CSS and needs the same
- * treatment where it is owned. */
-html[data-color-scheme="dark"] .kk-weather-modal .kk-button-ghost,
-html[data-color-scheme="dark"] .kk-weather-widget .kk-button-ghost {
+ * default" buttons render near-black text on the near-black dialog:
+ * invisible. This override (higher specificity, loaded after
+ * variants.css) restores the ink colour for ghost buttons inside the
+ * picker only. The same variants.css rule also catches the PWA install
+ * prompt's "Not now" button - that one lives outside weather CSS and
+ * needs the same treatment where it is owned. */
+html[data-color-scheme="dark"] .kk-weather-modal .kk-button-ghost {
 	color: var(--kk-ink);
+}
+
+/* Map picker: the map is the picker, the search below it only moves
+ * the marker. The coordinates line always shows where the marker
+ * sits, so the saved lat/lon come from the marker. */
+
+.kk-weather-map-wrap {
+	margin-bottom: 20px;
+	padding-bottom: 20px;
+	border-bottom: 1px solid var(--kk-border);
+}
+
+.kk-weather-map-label {
+	font-size: 12px;
+	font-weight: 700;
+	letter-spacing: 0.12em;
+	text-transform: uppercase;
+	color: var(--kk-muted);
+	margin-bottom: 8px;
+}
+
+.kk-weather-map {
+	width: 100%;
+	height: 16rem;
+	margin-bottom: 8px;
+	border: 1px solid var(--kk-border);
+	border-radius: var(--kk-radius);
+	background: var(--kk-surface);
+}
+
+.kk-weather-map-coords {
+	font-size: 14px;
+	color: var(--kk-muted);
+	margin-bottom: 12px;
+}
+
+.kk-weather-map-hint {
+	font-size: 13px;
+	color: var(--kk-muted);
+	margin-bottom: 12px;
+}
+
+.kk-weather-map-actions {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 12px;
+	justify-content: flex-end;
+}
+
+.kk-weather-pin-icon {
+	background: transparent;
+	border: none;
+}
+
+.kk-weather-pin {
+	position: relative;
+	display: block;
+	box-sizing: border-box;
+	width: 28px;
+	height: 28px;
+}
+
+.kk-weather-pin::before {
+	content: '';
+	position: absolute;
+	inset: 0;
+	box-sizing: border-box;
+	border-radius: 50% 50% 50% 0;
+	background: var(--kk-green, #0b6b3a);
+	border: 2px solid #fff;
+	box-shadow: 0 1px 4px rgba(0, 0, 0, 0.35);
+	transform: rotate(-45deg);
+}
+
+.kk-weather-pin::after {
+	content: '';
+	position: absolute;
+	left: 50%;
+	top: 50%;
+	width: 8px;
+	height: 8px;
+	margin: -4px 0 0 -4px;
+	box-sizing: border-box;
+	border-radius: 50%;
+	background: #fff;
 }
 
 .kk-weather-modal {
@@ -362,6 +577,10 @@ html[data-color-scheme="dark"] .kk-weather-widget .kk-button-ghost {
 
 	.kk-weather-coords-inputs {
 		grid-template-columns: 1fr;
+	}
+
+	.kk-weather-map {
+		height: 14rem;
 	}
 
 	.kk-weather-modal-actions {

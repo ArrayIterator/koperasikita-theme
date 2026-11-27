@@ -23,6 +23,11 @@ use WP_Widget;
  */
 final class WeatherWidget extends WP_Widget
 {
+    private const DEFAULT_STYLE = 'auto';
+
+    /** Allowed widget style values; anything else falls back to 'auto'. */
+    private const STYLES = ['auto', 'dark-green', 'light', 'dark'];
+
     public function __construct()
     {
         parent::__construct(
@@ -44,27 +49,32 @@ final class WeatherWidget extends WP_Widget
 
         $title = isset($instance['title']) ? (string) $instance['title'] : '';
         $showDetails = !empty($instance['show_details']);
+        $showIcon = !isset($instance['show_icon']) || !empty($instance['show_icon']);
+        $style = self::sanitizeStyle(isset($instance['style']) ? (string) $instance['style'] : self::DEFAULT_STYLE);
 
         $locations = $this->instanceLocations($instance);
         $location = $locations[0];
         $weather = Weather::current($location);
+        $storageKey = $this->storageKey($args);
 
         echo WidgetSpacing::apply(WidgetHeader::beforeWidget($args, WidgetHeader::style($instance)), WidgetSpacing::margins($instance)); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 
         WidgetHeader::render($args, $title, WidgetHeader::style($instance));
 
         ?>
-        <div class="kk-weather-widget" data-kk-weather-widget
+        <div class="kk-weather-widget<?php echo $style !== self::DEFAULT_STYLE ? ' kk-weather-widget--' . esc_attr($style) : ''; ?>" data-kk-weather-widget
+            data-weather-key="<?php echo esc_attr($storageKey); ?>"
             data-default-city="<?php echo esc_attr($location['name']); ?>"
             data-default-latitude="<?php echo esc_attr((string) $location['latitude']); ?>"
             data-default-longitude="<?php echo esc_attr((string) $location['longitude']); ?>"
             data-locations="<?php echo esc_attr(wp_json_encode($locations) ?: '[]'); ?>"
-            data-show-details="<?php echo $showDetails ? '1' : '0'; ?>">
+            data-show-details="<?php echo $showDetails ? '1' : '0'; ?>"
+            data-show-icon="<?php echo $showIcon ? '1' : '0'; ?>">
             <p class="kk-weather-place"><?php echo esc_html($location['name']); ?></p>
             <div class="kk-weather-body" data-kk-weather-body>
                 <?php
                 if ($weather !== null) {
-                    echo Weather::renderCurrentHtml($weather, $showDetails); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+                    echo Weather::renderCurrentHtml($weather, $showDetails, $showIcon); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
                 } else {
                     ?>
                     <p class="kk-widget-empty"><?php esc_html_e('Weather is unavailable right now.', 'koperasikita'); ?></p>
@@ -72,13 +82,60 @@ final class WeatherWidget extends WP_Widget
                 }
                 ?>
             </div>
-            <button type="button" class="kk-button kk-button-ghost kk-weather-change" data-kk-weather-open>
+            <button type="button" class="kk-weather-change" data-kk-weather-open>
                 <?php esc_html_e('Change location', 'koperasikita'); ?>
             </button>
         </div>
         <?php
 
         echo $args['after_widget'] ?? ''; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+    }
+
+    private static int $blockOrdinal = 0;
+
+    /**
+     * Per-instance storage key for the visitor's picked location.
+     *
+     * Classic widgets use their widget id (stable per instance);
+     * blocks render through the_widget(), which carries no widget id,
+     * so they fall back to a render-order ordinal that stays stable
+     * as long as the page layout does not change.
+     *
+     * @param array<string, mixed> $args
+     */
+    private function storageKey(array $args): string
+    {
+        $id = isset($args['widget_id']) && is_string($args['widget_id']) ? trim($args['widget_id']) : '';
+        $clean = $id !== '' ? (string) preg_replace('/[^a-zA-Z0-9_-]/', '-', $id) : '';
+        if ($clean !== '') {
+            return $clean;
+        }
+        $key = 'block-' . self::$blockOrdinal;
+        self::$blockOrdinal++;
+        return $key;
+    }
+
+    /**
+     * The style options for the settings select.
+     *
+     * @return array<string, string>
+     */
+    public static function styleOptions(): array
+    {
+        return [
+            'auto' => __('Auto', 'koperasikita'),
+            'dark-green' => __('Dark Green', 'koperasikita'),
+            'light' => __('Light', 'koperasikita'),
+            'dark' => __('Dark', 'koperasikita'),
+        ];
+    }
+
+    /**
+     * Clamp a saved style to the allowed list.
+     */
+    public static function sanitizeStyle(string $style): string
+    {
+        return in_array($style, self::STYLES, true) ? $style : self::DEFAULT_STYLE;
     }
 
     /**
@@ -111,6 +168,8 @@ final class WeatherWidget extends WP_Widget
         $title = isset($instance['title']) ? (string) $instance['title'] : __('Weather', 'koperasikita');
         $locationsText = Weather::locationsText($this->instanceLocations($instance));
         $showDetails = !empty($instance['show_details']);
+        $showIcon = !isset($instance['show_icon']) || !empty($instance['show_icon']);
+        $style = self::sanitizeStyle(isset($instance['style']) ? (string) $instance['style'] : self::DEFAULT_STYLE);
         ?>
         <p>
             <label for="<?php echo esc_attr($this->get_field_id('title')); ?>">
@@ -122,6 +181,17 @@ final class WeatherWidget extends WP_Widget
         </p>
         <?php WidgetHeader::field($this, $instance); ?>
         <?php WidgetSpacing::field($this, $instance); ?>
+        <p>
+            <label for="<?php echo esc_attr($this->get_field_id('style')); ?>">
+                <?php esc_html_e('Style', 'koperasikita'); ?>
+            </label>
+            <select class="widefat" id="<?php echo esc_attr($this->get_field_id('style')); ?>"
+                name="<?php echo esc_attr($this->get_field_name('style')); ?>">
+                <?php foreach (self::styleOptions() as $value => $label) : ?>
+                    <option value="<?php echo esc_attr($value); ?>" <?php selected($style, $value); ?>><?php echo esc_html($label); ?></option>
+                <?php endforeach; ?>
+            </select>
+        </p>
         <p>
             <label for="<?php echo esc_attr($this->get_field_id('locations')); ?>">
                 <?php esc_html_e('Locations', 'koperasikita'); ?>
@@ -138,6 +208,14 @@ final class WeatherWidget extends WP_Widget
                 <?php checked($showDetails); ?>>
             <label for="<?php echo esc_attr($this->get_field_id('show_details')); ?>">
                 <?php esc_html_e('Show details (feels like, high/low, humidity, wind)', 'koperasikita'); ?>
+            </label>
+        </p>
+        <p>
+            <input class="checkbox" id="<?php echo esc_attr($this->get_field_id('show_icon')); ?>"
+                name="<?php echo esc_attr($this->get_field_name('show_icon')); ?>" type="checkbox"
+                <?php checked($showIcon); ?>>
+            <label for="<?php echo esc_attr($this->get_field_id('show_icon')); ?>">
+                <?php esc_html_e('Show condition icon', 'koperasikita'); ?>
             </label>
         </p>
         <?php
@@ -181,6 +259,8 @@ final class WeatherWidget extends WP_Widget
             : (isset($newInstance['default_city']) ? sanitize_text_field((string) $newInstance['default_city']) : Weather::DEFAULT_CITY);
 
         $instance['show_details'] = !empty($newInstance['show_details']) ? 1 : 0;
+        $instance['show_icon'] = !empty($newInstance['show_icon']) ? 1 : 0;
+        $instance['style'] = self::sanitizeStyle(isset($newInstance['style']) ? (string) $newInstance['style'] : self::DEFAULT_STYLE);
         $instance['header_style'] = WidgetHeader::sanitize($newInstance['header_style'] ?? WidgetHeader::CLASSIC_TOP);
         $instance = array_merge($instance, WidgetSpacing::sanitizeInstance($newInstance, $oldInstance));
 
