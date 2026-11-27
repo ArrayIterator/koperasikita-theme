@@ -259,6 +259,34 @@
 	text-decoration: underline;
 }
 
+/* Newsletter widget: the [kk_subscribe] form, stacked for a narrow
+ * column - the footer and the section lay it out side by side, but a
+ * sidebar is 320px wide, so the field and the button stack. */
+.kk-newsletter-widget-text {
+	margin: 0 0 12px;
+	color: var(--kk-muted);
+}
+
+.kk-newsletter-widget .kk-subscribe-form {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+}
+
+.kk-newsletter-widget input[type="email"] {
+	width: 100%;
+	min-height: 44px;
+	padding: 10px 12px;
+	border: 1px solid var(--kk-border);
+	border-radius: var(--kk-radius);
+	background: var(--kk-paper);
+	color: var(--kk-ink);
+}
+
+.kk-newsletter-widget .kk-subscribe-submit {
+	width: 100%;
+}
+
 /* Empty state */
 
 .kk-widget-empty {

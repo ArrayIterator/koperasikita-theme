@@ -13,6 +13,7 @@ use KoperasiKita\Widgets\EditorsPicksWidget;
 use KoperasiKita\Widgets\GoldDataDeskWidget;
 use KoperasiKita\Widgets\GoldWidget;
 use KoperasiKita\Widgets\MarketsWidget;
+use KoperasiKita\Widgets\NewsletterWidget;
 use KoperasiKita\Widgets\PagesWidget;
 use KoperasiKita\Widgets\PopularPostsWidget;
 use KoperasiKita\Widgets\RecentPostsWidget;
@@ -32,6 +33,7 @@ final class Widgets
         register_widget(RelatedPostsWidget::class);
         register_widget(EditorsPicksWidget::class);
         register_widget(PagesWidget::class);
+        register_widget(NewsletterWidget::class);
         register_widget(CategoryListContentWidget::class);
         register_widget(TagListContentWidget::class);
         register_widget(CategorySummaryWidget::class);
