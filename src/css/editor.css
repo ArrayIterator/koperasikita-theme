@@ -93,6 +93,20 @@ html[data-color-scheme="system"] .kk-pick-number {
 	animation: none;
 }
 
+/* Previews render the widget's real frontend output, links
+ * included - a tap on a post title would follow the link and
+ * leave widgets.php. The preview is read-only (all editing is
+ * in the inspector), so links are inert here; the tap passes
+ * through to the block and selects it. The descendants need it
+ * too: a tap on the title text or thumbnail targets the span
+ * inside the link, and the click bubbles through the link, so
+ * the link alone being inert would still navigate. The frontend
+ * keeps its working links: this file loads only in the editor. */
+.kk-widget-block-canvas a,
+.kk-widget-block-canvas a * {
+	pointer-events: none;
+}
+
 /* The canvas paper: white like the frontend, not the admin grey. */
 .editor-styles-wrapper {
 	background: var(--kk-paper, #ffffff);
