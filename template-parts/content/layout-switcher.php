@@ -1,7 +1,7 @@
 <?php
 /**
  * Grid / list / newsletter layout switcher for the latest-news section.
- * Featured is NOT a latest-news layout — it belongs to the category
+ * Featured is NOT a latest-news layout - it belongs to the category
  * blocks only.
  *
  * @package KoperasiKita

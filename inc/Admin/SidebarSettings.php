@@ -11,7 +11,7 @@ use KoperasiKita\Api\Ajax;
  *
  * Sticky is a per-sidebar setting, not a global Customizer toggle:
  * each sidebar area gets its own "Sticky while scrolling" checkbox
- * here. Only true sidebars get the setting — the full-width content
+ * here. Only true sidebars get the setting - the full-width content
  * strips (Below Header, Before Latest News, Before Highlights,
  * Block Area) and the hero widget areas never stick.
  *

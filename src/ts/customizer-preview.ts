@@ -1,5 +1,5 @@
 /**
- * Koperasi Kita — Customizer live preview.
+ * Koperasi Kita - Customizer live preview.
  *
  * Binds the kk_palette_* colour settings, font and size settings, the
  * homepage layout, the dark-mode logo invert, the style variant and the
@@ -138,7 +138,7 @@ async function downloadFont(id: string): Promise<string> {
  * The local stylesheet is built by FontDownloader::buildLocalCss, whose first
  * @font-face rule carries the family name. Reading it back from the
  * downloaded file is the only way the preview can name the family in
- * the CSS variable — the localized stack only names it once the font
+ * the CSS variable - the localized stack only names it once the font
  * is already downloaded. Returns an empty string when unreadable.
  */
 async function familyFromCss(cssUrl: string): Promise<string> {
@@ -242,7 +242,7 @@ function applyHomepageLayout(next: SettingValue): void {
 function applyLogoInvert(next: SettingValue): void {
 	const inverted = next === true || next === '1' || next === 'on';
 	// The theme's own logo (K) is colourful and reads on light and dark,
-	// so it is never inverted — only a user-uploaded custom logo is.
+	// so it is never inverted - only a user-uploaded custom logo is.
 	document.querySelectorAll('.custom-logo, .kk-brand-mark:not(.kk-brand-mark--logo)').forEach((logo) => {
 		logo.classList.toggle('is-inverted', inverted);
 	});
@@ -259,7 +259,7 @@ function applyStyleVariant(next: SettingValue): void {
  * Footer copyright preview. The copyright element carries the token values
  * (data-kk-footer-tokens, JSON) and the default line (data-kk-footer-default)
  * as data attributes, so the preview can replace {tokens} in the incoming
- * text exactly the way the server does — no extra localized data needed.
+ * text exactly the way the server does - no extra localized data needed.
  * An empty text falls back to the default line, like the server render.
  */
 function footerTokens(): Record<string, string> {

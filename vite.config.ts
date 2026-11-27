@@ -3,7 +3,7 @@ import tailwindcss from '@tailwindcss/vite';
 
 export default defineConfig({
 	// Tailwind v4 (real, not hand-written lookalikes): the plugin only
-	// transforms stylesheets that import "tailwindcss" — today that is
+	// transforms stylesheets that import "tailwindcss" - today that is
 	// ONLY src/css/newsletter.css, so every other entry keeps its
 	// hand-written CSS untouched. Do not add the import to another
 	// entry without deciding that entry is a Tailwind entry too.
@@ -26,7 +26,7 @@ export default defineConfig({
     emptyOutDir: true,
     manifest: true,
     rollupOptions: {
-      // NOTE: do NOT set output.format to 'iife' here — Rollup refuses it
+      // NOTE: do NOT set output.format to 'iife' here - Rollup refuses it
       // with multiple inputs ("inlineDynamicImports" conflict). The entries
       // are ES-format bundles whose top-level names would leak into the
       // shared global scope if loaded as classic scripts (gold-markets'

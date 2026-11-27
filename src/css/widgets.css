@@ -1,11 +1,11 @@
-/* ==========================================================================
-   Koperasi Kita — widgets.css — widget lists (frontend)
+/*
+   Koperasi Kita - widgets.css - widget lists (frontend)
    Story lists (Recent / Popular / Related / Category News), the world
    clock and the pages list. Spacing in rem; 1px hairlines stay px.
-   ========================================================================== */
+   */
 
-/* --- Widget header (title) ------------------------------------------------ */
-/* Classic (default): the section-title look — lowercase title with a
+/* Widget header (title) */
+/* Classic (default): the section-title look - lowercase title with a
  * rule extending to the right (the "editor's picks" header). No Border
  * drops the rule; Hide renders no title at all (and an empty title is
  * never rendered, whatever the style). */
@@ -32,7 +32,7 @@
 
 /* Classic Top Bottom / Classic Bottom: the classic rule extending
  * to the right. The bottom "border" is the :after line itself, at
- * the text baseline — NOT a border-bottom on the title. Top Bottom
+ * the text baseline - NOT a border-bottom on the title. Top Bottom
  * keeps the container's top rule; Bottom removes it (see
  * WidgetHeader::beforeWidget). Self-contained (flex + ::after +
  * size) so they also work for block-widget titles, which carry
@@ -56,7 +56,7 @@
 	border-top: 1px solid var(--kk-ink);
 }
 
-/* --- Story lists ---------------------------------------------------------- */
+/* Story lists */
 
 .kk-widget-stories {
 	margin: 0;
@@ -120,7 +120,7 @@
 	color: var(--kk-muted);
 }
 
-/* --- Editor's Picks (numbered list) --------------------------------------- */
+/* Editor's Picks (numbered list) */
 /* The picks list moved here from home-sections.css: it is a widget
  * now, so it must render in any sidebar, not only the homepage. */
 
@@ -190,7 +190,7 @@
 	margin: 0;
 }
 
-/* --- World clock ---------------------------------------------------------- */
+/* World clock */
 
 .kk-widget-clock {
 	margin: 0;
@@ -230,7 +230,7 @@
 	color: var(--kk-muted);
 }
 
-/* --- Pages list ----------------------------------------------------------- */
+/* Pages list */
 
 .kk-widget-pages {
 	margin: 0;
@@ -259,21 +259,21 @@
 	text-decoration: underline;
 }
 
-/* --- Empty state ---------------------------------------------------------- */
+/* Empty state */
 
 .kk-widget-empty {
 	margin: 0;
 	color: var(--kk-muted);
 }
 
-/* --- Agenda card ---------------------------------------------------------- */
+/* Agenda card */
 /* A panel (the "AGENDA KOPERASI" design): a header with an icon and an
- * uppercase title, then one row per event — a date badge on the left,
+ * uppercase title, then one row per event - a date badge on the left,
  * the title and a pin + location on the right. Status stays subtle: a
  * live event gets a green dot on its date badge, a finished event is
  * dimmed, upcoming events are plain. The panel follows the site colour
- * scheme — a light card in light mode, the dark-green reference card
- * in dark mode — and the widget's Card style setting can force either
+ * scheme - a light card in light mode, the dark-green reference card
+ * in dark mode - and the widget's Card style setting can force either
  * variant regardless of scheme (see variants.css). */
 
 .kk-agenda-widget-card {
@@ -404,7 +404,7 @@
 .kk-agenda-widget-item-title {
 	display: -webkit-box;
 	/* 3 lines, not the theme-wide 2: the reference's first title
-	 * ("Musyawarah Anggota Tahunan — KSP Sejahtera Bersama") wraps
+	 * ("Musyawarah Anggota Tahunan - KSP Sejahtera Bersama") wraps
 	 * to three lines at sidebar width, and a 2-line clamp would cut
 	 * it off with an ellipsis. */
 	-webkit-line-clamp: 3;
@@ -472,7 +472,7 @@
 	border: 0;
 }
 
-/* --- Term list content (Category / Tag List Content widgets) ------------ */
+/* Term list content (Category / Tag List Content widgets) */
 /* Five layouts for posts from one term. The featured post is a large
  * card (thumbnail, title, excerpt, date); the rest are compact rows.
  * Spacing in rem; 1px hairlines stay px. */
@@ -681,7 +681,7 @@
 	gap: 0.85rem;
 }
 
-/* --- Category Summary widget ---------------------------------------------- */
+/* Category Summary widget */
 /* One column per category: a coloured top border (green, gold, green,
  * ...), the category name, the latest post title, its excerpt and its
  * time. The section header carries the title on the left and the index

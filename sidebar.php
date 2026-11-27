@@ -5,7 +5,7 @@
  * @package KoperasiKita
  */
 
-// An empty sidebar renders nothing — no placeholder box. The
+// An empty sidebar renders nothing - no placeholder box. The
 // editor adds widgets in Appearance -> Widgets. A menu assigned to
 // the Sidebar Menu location (Appearance -> Menus) also counts: the
 // sidebar renders when it has widgets, a sidebar menu, or both.

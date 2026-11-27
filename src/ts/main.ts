@@ -1,5 +1,5 @@
 /**
- * Koperasi Kita — main frontend script.
+ * Koperasi Kita - main frontend script.
  *
  * Strict TypeScript, no jQuery, no external libraries. Every feature is
  * guarded by the kkData flags localised by the theme, so a disabled
@@ -58,9 +58,7 @@ function $all<T extends Element>(selector: string, root: ParentNode = document):
 	return Array.from(root.querySelectorAll<T>(selector));
 }
 
-/* ------------------------------------------------------------------ */
 /* Colour scheme                                                       */
-/* ------------------------------------------------------------------ */
 
 // The inline script in header.php already resolved the stored
 // preference (or the OS scheme) before first paint, so the page never
@@ -95,7 +93,7 @@ function onSystemSchemeChange(event: MediaQueryListEvent): void {
 
 function applyScheme(scheme: ColorScheme): void {
 	// The attribute always carries the RESOLVED scheme (light/dark),
-	// never the literal "system" — that is what the header script set
+	// never the literal "system" - that is what the header script set
 	// before paint, and what the CSS reads.
 	document.documentElement.setAttribute('data-color-scheme', resolveScheme(scheme));
 	// The stored preference itself, for the toggle icon (a monitor
@@ -139,9 +137,7 @@ function initColorScheme(): void {
 	});
 }
 
-/* ------------------------------------------------------------------ */
 /* Mobile nav                                                          */
-/* ------------------------------------------------------------------ */
 
 function initMobileNav(): void {
 	const toggle = $('#kk-menu-toggle') as HTMLButtonElement | null;
@@ -338,9 +334,7 @@ function initMobileNav(): void {
 	});
 }
 
-/* ------------------------------------------------------------------ */
 /* Modals (centred popup + blurred backdrop)                           */
-/* ------------------------------------------------------------------ */
 
 let lastFocusedElement: HTMLElement | null = null;
 
@@ -455,9 +449,7 @@ function initExpandingSearch(): void {
 	});
 }
 
-/* ------------------------------------------------------------------ */
 /* Ticker (bouncing fade rotation)                                     */
-/* ------------------------------------------------------------------ */
 
 /**
  * Horizontal sliders (hero slider, highlights slider): every
@@ -604,9 +596,7 @@ function initTicker(): void {
 	});
 }
 
-/* ------------------------------------------------------------------ */
 /* Live clock (top bar)                                                 */
-/* ------------------------------------------------------------------ */
 
 /*
  * The server renders the first paint in the resolved time zone; this
@@ -652,10 +642,8 @@ function initClock(): void {
 	window.setInterval(render, seconds ? 1000 : 15000);
 }
 
-/* ------------------------------------------------------------------ */
-/* Layout switcher (grid / list / newsletter) — Featured is NOT a
+/* Layout switcher (grid / list / newsletter) - Featured is NOT a
  * latest-news layout; it belongs to the category blocks only.      */
-/* ------------------------------------------------------------------ */
 
 /* Read the saved layout from the `kk_layout` cookie (the value the
  * server renders from). Returns null when there is no valid cookie. */
@@ -682,7 +670,7 @@ function initLayoutSwitcher(): void {
 		// The newsletter subscribe block is rendered hidden inside the
 		// container for grid/list markup; reveal it only for newsletter.
 		// The gold rule and the "More stories" label are newsletter-only
-		// too — the server renders them in the newsletter markup, so
+		// too - the server renders them in the newsletter markup, so
 		// switching away must hide them as well, or the line stays
 		// visible under the first card in list/grid mode.
 		$all('.kk-newsletter-subscribe, .kk-newsletter-rule, .kk-newsletter-more').forEach((block) => {
@@ -696,7 +684,7 @@ function initLayoutSwitcher(): void {
 	}
 	const stored = window.localStorage.getItem(LAYOUT_KEY);
 	/* The server already rendered the saved layout from the cookie,
-	 * so on load we only sync the active button — but re-applying
+	 * so on load we only sync the active button - but re-applying
 	 * the stored layout here keeps the switcher correct even when
 	 * the server rendered the Customizer default (e.g. the cookie
 	 * was set after the HTML was cached). The cookie is the source
@@ -723,9 +711,7 @@ function initLayoutSwitcher(): void {
 	});
 }
 
-/* ------------------------------------------------------------------ */
 /* Bookmarks (IndexedDB only)                                          */
-/* ------------------------------------------------------------------ */
 
 function openBookmarksDb(): Promise<IDBDatabase> {
 	return new Promise((resolve, reject) => {
@@ -889,7 +875,7 @@ async function renderBookmarksPage(): Promise<void> {
 				<div class="kk-bookmark-item-body">
 					<h2 class="kk-bookmark-item-title"><a href="${escapeHtml(entry.url)}">${escapeHtml(entry.title)}</a></h2>
 					${entry.excerpt ? `<p class="kk-bookmark-item-excerpt">${escapeHtml(entry.excerpt)}</p>` : ''}
-					<textarea class="kk-bookmark-item-note" data-kk-note rows="2" placeholder="Add a note…" aria-label="Note for this bookmark">${escapeHtml(entry.note)}</textarea>
+					<textarea class="kk-bookmark-item-note" data-kk-note rows="2" placeholder="Add a note..." aria-label="Note for this bookmark">${escapeHtml(entry.note)}</textarea>
 					<div class="kk-bookmark-item-actions">
 						<button type="button" class="kk-icon-button" data-kk-note-save>Save note</button>
 						<button type="button" class="kk-icon-button" data-kk-note-remove>Remove</button>
@@ -931,9 +917,7 @@ function initBookmarks(): void {
 	void renderBookmarksPage();
 }
 
-/* ------------------------------------------------------------------ */
 /* PWA install                                                         */
-/* ------------------------------------------------------------------ */
 
 interface BeforeInstallPromptEvent extends Event {
 	prompt: () => Promise<void>;
@@ -953,7 +937,7 @@ function initPwa(): void {
 	let interacted = false;
 
 	/* The install banner only appears once the reader has interacted
-	 * with the page (scroll, hover, click, tap, key) — never on load.
+	 * with the page (scroll, hover, click, tap, key) - never on load.
 	 * beforeinstallprompt may fire before or after that first
 	 * interaction, so track both and show when both have happened. */
 	function showInstall(): void {
@@ -994,7 +978,7 @@ function initPwa(): void {
 	}
 
 	/* Any interaction counts: scroll, hover, click, tap, key. Once
-	 * only — after the first one the banner is either shown or armed. */
+	 * only - after the first one the banner is either shown or armed. */
 	const interactionEvents = ['scroll', 'pointerover', 'click', 'touchstart', 'keydown', 'pointerdown'];
 	interactionEvents.forEach((name) => {
 		window.addEventListener(name, onFirstInteraction, { once: true, passive: true });
@@ -1061,9 +1045,7 @@ function initPwa(): void {
 	});
 }
 
-/* ------------------------------------------------------------------ */
 /* Mobile bottom nav active state + back to top                        */
-/* ------------------------------------------------------------------ */
 
 function initBottomNav(): void {
 	const nav = document.querySelector('.kk-bottom-nav');
@@ -1096,9 +1078,7 @@ function initBackToTop(): void {
 	});
 }
 
-/* ------------------------------------------------------------------ */
 /* Article share: copy link                                            */
-/* ------------------------------------------------------------------ */
 
 function initShareCopy(): void {
 	const button = $('.kk-share-copy') as HTMLButtonElement | null;
@@ -1157,9 +1137,7 @@ function initShareCopy(): void {
 	});
 }
 
-/* ------------------------------------------------------------------ */
 /* Boot                                                                */
-/* ------------------------------------------------------------------ */
 
 document.addEventListener('DOMContentLoaded', () => {
 	initColorScheme();

@@ -13,7 +13,7 @@ use KoperasiKita\Features\Markets;
  *
  * Prices come from the upstream's backup CSV files
  * (https://raw.githubusercontent.com/iamutaki/logam-mulia-api/main/backup/prices/{source}.csv),
- * NOT the JSON API — the CSV is the source the user asked for.
+ * NOT the JSON API - the CSV is the source.
  * Three files, one per source (never all 19 upstream sources):
  *  - galeri24.csv (~1.5 MB of append-only history): 1-gram
  *    Galeri 24 + UBS sell/buyback prices.
@@ -26,17 +26,17 @@ use KoperasiKita\Features\Markets;
  *
  * Each file is append-only history; only rows at the most recent
  * recordedDates count, with weight 1 (0.01 for Pegadaian), material
- * gold, and a positive sell price — zero prices are skipped.
+ * gold, and a positive sell price - zero prices are skipped.
  * Logam Mulia's CSV is stale (latest 2026-10-23, its Jina key is
  * dead), so it is not used. Spot is NOT supplied: none of these files
  * is a spot price (they are retail brand prices); spot stays
  * with Xaus.
  *
  * SYNC MODEL (the upstream updates once a day; the sync runs on a
- * schedule the admin picks — see the sync settings on the Gold
- * Prices page — never on the live 15-minute cadence):
+ * schedule the admin picks - see the sync settings on the Gold
+ * Prices page - never on the live 15-minute cadence):
  *  - The hot path (prices()) reads the 15-minute transient, then
- *    the custom table — it never fetches a CSV.
+ *    the custom table - it never fetches a CSV.
  *  - The sync runs on WP-Cron and on demand (admin page, AJAX),
  *    ONE SOURCE AT A TIME. Each step fetches one file, checks
  *    every row against the table by (provider, symbol,
@@ -53,7 +53,7 @@ use KoperasiKita\Features\Markets;
  *    that dies mid-way leaves no half-synced state.
  *  - Every fetched price is stored in the kk_gold_prices custom
  *    table (GoldPricesTable), which is also the last-good fallback
- *    when the upstream is unreachable — so the widget keeps showing
+ *    when the upstream is unreachable - so the widget keeps showing
  *    the last real price with its real timestamp, never an invented
  *    one.
  *
@@ -90,7 +90,7 @@ final class LogamMuliaApiProvider extends AbstractLiveProvider
 
     /**
      * Human labels for the sync sources (proper nouns, not
-     * translated — same rule as the gold brand labels).
+     * translated - same rule as the gold brand labels).
      *
      * @return array<string, string>
      */
@@ -172,7 +172,7 @@ final class LogamMuliaApiProvider extends AbstractLiveProvider
     }
 
     /**
-     * Prices from the synced table — never a live CSV fetch. The
+     * Prices from the synced table - never a live CSV fetch. The
      * hot path is the 15-minute transient, then the last-good rows
      * from kk_gold_prices (with their real fetched timestamps).
      * The CSV sync (daily cron / manual) is what fills the table.
@@ -185,13 +185,13 @@ final class LogamMuliaApiProvider extends AbstractLiveProvider
             return [];
         }
 
-        // 1. Fresh cache (transient).
+        // Fresh cache (transient).
         $cached = get_transient($this->transientKey());
         if (is_array($cached) && $cached !== []) {
             return $this->toMarketPrices($market, $cached);
         }
 
-        // 2. Last-good rows from the table.
+        // Last-good rows from the table.
         $last = GoldPricesTable::lastGood($this->id());
         if ($last !== []) {
             $map = [];
@@ -208,7 +208,7 @@ final class LogamMuliaApiProvider extends AbstractLiveProvider
             return $this->toMarketPrices($market, $map);
         }
 
-        // 3. No data at all (never synced, or the table is empty).
+        // No data at all (never synced, or the table is empty).
         return [];
     }
 
@@ -299,14 +299,14 @@ final class LogamMuliaApiProvider extends AbstractLiveProvider
             return $result;
         }
 
-        // The fetch succeeded, so the source is healthy again —
+        // The fetch succeeded, so the source is healthy again -
         // clear any backlog entry (a later failure starts a fresh
         // consecutive count).
         $this->clearFailure($source);
 
         // Coarse fast-path: the file's max date is the newest date
         // in the batch. When it is strictly older than the table's
-        // max, the file holds nothing new — skip it without touching
+        // max, the file holds nothing new - skip it without touching
         // the table. When it is equal or newer, the per-row check
         // below decides (it also heals gaps at those dates).
         $fileMax = null;
@@ -385,7 +385,7 @@ final class LogamMuliaApiProvider extends AbstractLiveProvider
      * sources (see enabledSyncSources()) are never fetched, by
      * the daily cron or by a manual sync. Used by the daily cron.
      * A source that failed 3+ times is deprioritised and only
-     * retried once its backoff has elapsed (once a week) — the
+     * retried once its backoff has elapsed (once a week) - the
      * daily run skips it instead of hammering the upstream.
      * Manual sync calls syncSource() directly and bypasses the
      * backoff.
@@ -628,7 +628,7 @@ final class LogamMuliaApiProvider extends AbstractLiveProvider
      * The automatic sync settings, sanitized with the defaults
      * applied. Never saved = the defaults: auto-sync on, once a
      * day, 7 days per run, 8-second fetch timeout, ALL sources
-     * enabled with galeri24 as the default — exactly today's
+     * enabled with galeri24 as the default - exactly today's
      * behaviour, so the migration changes nothing until the admin
      * edits the Settings tab.
      *
@@ -671,7 +671,7 @@ final class LogamMuliaApiProvider extends AbstractLiveProvider
     /**
      * The sources a sync run actually fetches, in run order: the
      * default source first, then the remaining enabled sources in
-     * SOURCES order. A disabled source is never fetched — by the
+     * SOURCES order. A disabled source is never fetched - by the
      * cron, by manual sync, or by fetch(). When the default source
      * itself is disabled it is simply skipped (the first enabled
      * source in SOURCES order runs first instead); the stored
@@ -852,7 +852,7 @@ final class LogamMuliaApiProvider extends AbstractLiveProvider
         // "start from the first source"; the step returns `next`
         // (the following source, or null when done) so the page
         // can chain the calls. Every step syncs its source
-        // explicitly — the "next pending" shortcut is not used,
+        // explicitly - the "next pending" shortcut is not used,
         // because only a fetch can tell whether the CSV has a new
         // date (check-then-insert makes a re-sync harmless).
         Ajax::add(self::SYNC_ACTION, static function (): array {
@@ -862,7 +862,7 @@ final class LogamMuliaApiProvider extends AbstractLiveProvider
             $enabled = self::enabledSyncSources();
 
             // No source given means "start from the first enabled
-            // source" (the default first — see
+            // source" (the default first - see
             // enabledSyncSources()). No enabled source at all:
             // return an honest error step with no next, so the
             // admin page shows the note instead of syncing
@@ -885,7 +885,7 @@ final class LogamMuliaApiProvider extends AbstractLiveProvider
                 ];
             }
 
-            // A disabled (or unknown) source was requested — a
+            // A disabled (or unknown) source was requested - a
             // stale page, or the admin disabled it mid-run. Jump
             // to the next enabled source after it instead of
             // fetching a source the admin turned off.
@@ -962,7 +962,7 @@ final class LogamMuliaApiProvider extends AbstractLiveProvider
     /**
      * Fetch + parse + map ONE source's CSV into symbol entries,
      * grouped by recorded date (oldest first). Only the $dates most
-     * recent dates count — the batch size setting decides how many
+     * recent dates count - the batch size setting decides how many
      * days one sync run imports.
      *
      * @return array<string, array<string, array{price: float, change: float|null, updated: int, buyback: float|null, recorded_date: string|null}>>
@@ -1033,7 +1033,7 @@ final class LogamMuliaApiProvider extends AbstractLiveProvider
      * One CSV fetch (raw.githubusercontent.com), returning the raw
      * text or null on any failure. The timeout comes from the sync
      * settings (default 8 seconds, same as the other live providers)
-     * — a fetch that exceeds it fails cleanly instead of hanging
+     * - a fetch that exceeds it fails cleanly instead of hanging
      * (and the failure goes to the backlog, never a tight retry loop).
      */
     private function getCsv(string $url): ?string

@@ -1,12 +1,12 @@
-/* ==========================================================================
-   Koperasi Kita — app.css — reset only
+/*
+   Koperasi Kita - app.css - reset only
    Reset only. The rest of the old monolith now lives in the split
    stylesheets (tokens, base, header, home, cards, home-sections,
    content, footer, overlays, variants, responsive), loaded in that
-   order — the cascade depends on it.
-   ========================================================================== */
+   order - the cascade depends on it.
+   */
 
-/* --- Reset --------------------------------------------------------------- */
+/* Reset */
 
 *,
 *::before,

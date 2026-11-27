@@ -10,7 +10,7 @@ namespace KoperasiKita\Api;
  * Success:  `{"success": true, "data": {...}, "error": null}`
  * Failure:  `{"success": false, "data": null, "error": {"code": "...", "message": "..."}}`
  *
- * The error `code` is stable and machine-readable — clients branch on
+ * The error `code` is stable and machine-readable - clients branch on
  * the code, never on the message text. The message is human-readable
  * and safe to display. Both the AJAX endpoints and the REST routes use
  * this shape, so a client written against one works against the other.

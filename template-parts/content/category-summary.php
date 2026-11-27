@@ -54,7 +54,7 @@ $showTime = (bool) ($args['show_time'] ?? true);
                     <?php
                     setup_postdata($post);
                     // Today's post shows its time (08.05 WIB); an
-                    // older post shows its date instead — a bare time
+                    // older post shows its date instead - a bare time
                     // would not say which day it was.
                     $timestamp = get_post_timestamp($post);
                     $isToday = $timestamp !== false && date_i18n('Y-m-d', $timestamp) === date_i18n('Y-m-d', current_time('timestamp'));

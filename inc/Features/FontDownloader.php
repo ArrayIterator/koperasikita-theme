@@ -14,7 +14,7 @@ use KoperasiKita\Api\Response;
  * fetching the Google css2 stylesheet, parsing it into faces, downloading
  * the woff2 files and writing them (atomically) into the fonts upload
  * directory. It knows nothing about the catalogue, the download state
- * option or the Customizer — Fonts owns those and calls this engine.
+ * option or the Customizer - Fonts owns those and calls this engine.
  *
  * Failures are ApiExceptions with a stable code, so callers can report
  * them honestly: `kk_upstream_failed` when Google cannot be reached or
@@ -355,7 +355,7 @@ final class FontDownloader
     }
 
     /**
-     * Only ever https://fonts.gstatic.com/... — anything else is
+     * Only ever https://fonts.gstatic.com/... - anything else is
      * refused, so a crafted stylesheet can never turn the download
      * into a request to another host.
      */

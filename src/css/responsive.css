@@ -1,9 +1,9 @@
-/* ==========================================================================
-   Koperasi Kita — responsive.css — responsive
+/*
+   Koperasi Kita - responsive.css - responsive
    Responsive rules, reduced motion and print. Loads last.
-   ========================================================================== */
+   */
 
-/* --- Responsive ----------------------------------------------------------- */
+/* Responsive */
 
 @media (min-width: 720px) {
 	:root {
@@ -38,7 +38,7 @@
 
 @media (max-width: 1023px) {
 	/* The sticky nav bar is the whole header once the masthead has
-	 * scrolled away — give it real presence: a taller bar, bigger
+	 * scrolled away - give it real presence: a taller bar, bigger
 	 * touch targets and bigger icons. */
 	.kk-nav-inner {
 		min-height: 64px;
@@ -69,7 +69,7 @@
 	/* The desktop bar is its own nav now (Primary menu); the drawer
 	 * (Sidebar menu) is hidden at this width. The nav takes the
 	 * free row width so the search actions sit at the right edge
-	 * — and when the search opens, the nav hides and the actions
+	 * - and when the search opens, the nav hides and the actions
 	 * stretch to the full bar (header.css .kk-search-open). */
 	.kk-desktop-nav {
 		display: block;
@@ -189,12 +189,12 @@
 	/* Sticky sidebar (per-sidebar, Appearance -> Sidebar Settings):
 	 * a sidebar with .kk-sidebar--sticky sticks while the reader
 	 * scrolls. The offset clears the sticky nav (~48px) plus a gap,
-	 * and the WP admin bar when it is showing (logged-in admin) —
+	 * and the WP admin bar when it is showing (logged-in admin) -
 	 * the same --kk-admin-bar-height token the nav uses. When the
 	 * nav itself is not sticky the sidebar can sit closer to the
 	 * top. align-self keeps the grid item from stretching to the
 	 * row height, without which sticky has nothing to stick
-	 * against. Only sidebars stick — content strips never get this
+	 * against. Only sidebars stick - content strips never get this
 	 * class. */
 	.kk-sidebar--sticky {
 		position: sticky;
@@ -210,7 +210,7 @@
 		grid-template-columns: repeat(3, 1fr);
 	}
 
-	/* Uniform grid: every card the same width — the old "1 large lead
+	/* Uniform grid: every card the same width - the old "1 large lead
 	 * + 3 small" made the first card read as a grid card and the rest
 	 * as list cards. auto-fit fills the row whether the block has 3
 	 * or 4 posts. */
@@ -271,7 +271,7 @@
 		height: 16px;
 	}
 
-	/* Featured stacks: the large card on top (16:9 image again — it
+	/* Featured stacks: the large card on top (16:9 image again - it
 	 * no longer spans the right column), then the rows below it. */
 	.kk-latest-items.kk-layout-featured,
 	.kk-category-block-items.kk-layout-featured {
@@ -296,7 +296,7 @@
 	}
 
 	/* The desktop row rule carries a .kk-home prefix (to beat the
-	 * dark-mode card border), so this must too — otherwise the
+	 * dark-mode card border), so this must too - otherwise the
 	 * desktop grid-column: 2 wins and the row forces an implicit
 	 * second column, unstacking the layout. */
 	.kk-home .kk-layout-featured .kk-card:not(:first-child) {
@@ -304,7 +304,7 @@
 	}
 }
 
-/* --- Reduced motion ------------------------------------------------------- */
+/* Reduced motion */
 
 @media (prefers-reduced-motion: reduce) {
 	*,
@@ -321,7 +321,7 @@
 	}
 }
 
-/* --- Print (articles) ----------------------------------------------------- */
+/* Print (articles) */
 
 @media print {
 	.kk-topbar,

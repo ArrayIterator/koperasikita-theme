@@ -1,5 +1,5 @@
 /**
- * Koperasi Kita — weather module (standalone).
+ * Koperasi Kita - weather module (standalone).
  *
  * Guards itself on `window.kkData.isWeatherEnabled`: when the module is
  * disabled this file is not enqueued at all, and even if it were loaded
@@ -17,7 +17,7 @@ export {};
  *
  * This used to import postAjax from ./api, but Vite splits that shared
  * module into a separate chunk (api-*.js) and weather.js then starts with
- * a top-level `import` — an ES module. The theme enqueues its scripts as
+ * a top-level `import` - an ES module. The theme enqueues its scripts as
  * classic <script> tags (no type="module" anywhere), so the browser
  * throws "Uncaught SyntaxError: Cannot use import statement outside a
  * module" and this whole file never runs: the top-bar weather slot stays
@@ -75,7 +75,7 @@ interface KkData {
 // the build. Read it through a narrow cast instead.
 
 /* Temperature unit: the API returns Celsius, and Fahrenheit is a
- * display conversion (°F = °C × 9/5 + 32). */
+ * display conversion (degF = degC x 9/5 + 32). */
 function isFahrenheit(): boolean {
 	const data = window.kkData as unknown as KkData | undefined;
 	return data?.weatherUnit === 'fahrenheit';
@@ -217,9 +217,7 @@ function formatCoords(location: Location): string {
 	return `${location.latitude.toFixed(2)}, ${location.longitude.toFixed(2)}`;
 }
 
-/* ------------------------------------------------------------------ */
 /* Stored location                                                     */
-/* ------------------------------------------------------------------ */
 
 function getStoredLocation(): Location | null {
 	try {
@@ -337,9 +335,7 @@ function storeCustomCities(cities: Location[]): void {
 	}
 }
 
-/* ------------------------------------------------------------------ */
 /* Server API                                                          */
-/* ------------------------------------------------------------------ */
 
 async function fetchWeather(location: Location): Promise<WeatherData> {
 	const data = getKkData();
@@ -379,7 +375,7 @@ async function searchPlaces(query: string, signal: AbortSignal): Promise<SearchR
 /* Resolve coordinates to their area name ("Kabupaten Malang"), so a
  * GPS fix or a typed coordinate pair shows the place instead of the
  * anonymous "My location" / "Custom location". Null when the place
- * cannot be resolved — the caller keeps the generic label then. */
+ * cannot be resolved - the caller keeps the generic label then. */
 async function reverseGeocode(latitude: number, longitude: number): Promise<string | null> {
 	const data = getKkData();
 	if (!data.ajaxUrl || !data.nonce) {
@@ -398,9 +394,7 @@ async function reverseGeocode(latitude: number, longitude: number): Promise<stri
 	}
 }
 
-/* ------------------------------------------------------------------ */
 /* Rendering                                                           */
-/* ------------------------------------------------------------------ */
 
 function renderTopbar(weather: WeatherData): void {
 	const slot = $('#kk-topbar-weather');
@@ -430,7 +424,7 @@ function renderTopbar(weather: WeatherData): void {
 
 // Loading state for the top bar, shown while the first fetch runs and
 // there is no cached weather to paint. It carries the place name
-// (known immediately from the stored location) plus a "—°" temperature,
+// (known immediately from the stored location) plus a "--" temperature,
 // so the slot keeps its width and the top bar does not bounce when the
 // real numbers land.
 function renderTopbarLoading(location: Location): void {
@@ -442,7 +436,7 @@ function renderTopbarLoading(location: Location): void {
 	slot.setAttribute('aria-busy', 'true');
 	const temp = document.createElement('span');
 	temp.className = 'kk-topbar-weather-temp kk-topbar-weather-loading';
-	temp.textContent = '—°';
+	temp.textContent = '--';
 	const place = document.createElement('span');
 	place.className = 'kk-topbar-weather-place';
 	place.textContent = location.name;
@@ -451,7 +445,7 @@ function renderTopbarLoading(location: Location): void {
 }
 
 // Paint the top bar and any weather widgets from one weather object
-// (fresh fetch or browser cache — the rendering is the same).
+// (fresh fetch or browser cache - the rendering is the same).
 function renderWeatherDisplays(weather: WeatherData): void {
 	renderTopbar(weather);
 	$all<HTMLElement>('[data-kk-weather-widget]').forEach((widget) => {
@@ -535,8 +529,8 @@ async function refreshWeatherDisplays(location: Location): Promise<void> {
 		renderWeatherDisplays(weather);
 	} catch {
 		// A failed revalidation keeps a cached display (it is still
-		// fresh); only a page with no data at all — still showing the
-		// loading state — hides the slot. Widgets keep their
+		// fresh); only a page with no data at all - still showing the
+		// loading state - hides the slot. Widgets keep their
 		// server-side first paint on failure: it shows the widget's
 		// default city, labelled as such, so nothing is faked.
 		const slot = $('#kk-topbar-weather');
@@ -583,9 +577,7 @@ async function refreshWidgetsFor(location: Location): Promise<void> {
 	}
 }
 
-/* ------------------------------------------------------------------ */
 /* Location picker modal                                               */
-/* ------------------------------------------------------------------ */
 
 let currentLocation: Location = DEFAULT_LOCATION;
 let lastFocusedElement: HTMLElement | null = null;
@@ -732,7 +724,7 @@ function renderStrip(): void {
 			remove.type = 'button';
 			remove.className = 'kk-weather-chip-remove';
 			remove.setAttribute('aria-label', `Remove ${city.name} from quick picks`);
-			remove.textContent = '×';
+			remove.textContent = 'x';
 			remove.addEventListener('click', (event) => {
 				event.stopPropagation();
 				storeCustomCities(getCustomCities().filter((c) => c.name !== city.name));
@@ -847,7 +839,7 @@ function initSearch(): void {
 			setStatus('');
 			return;
 		}
-		setStatus('Searching…');
+		setStatus('Searching...');
 		timer = window.setTimeout(() => {
 			controller?.abort();
 			controller = new AbortController();
@@ -951,7 +943,7 @@ function initGeolocate(): void {
 			setStatus('Geolocation is not supported by this browser. Search for a city or enter coordinates.');
 			return;
 		}
-		setStatus('Asking for your location…');
+		setStatus('Asking for your location...');
 		navigator.geolocation.getCurrentPosition(
 			(position) => {
 				void (async () => {
@@ -967,7 +959,7 @@ function initGeolocate(): void {
 					const existing = findExistingPick(resolved);
 					if (existing) {
 						applyLocation({ ...existing, source: existing.source }, false);
-						setStatus(`You're near ${existing.name} — showing its weather.`);
+						setStatus(`You're near ${existing.name} - showing its weather.`);
 					} else {
 						// Otherwise resolve the fix to its area name so
 						// the top bar reads "Kabupaten Malang", not
@@ -1040,9 +1032,7 @@ function initPicker(): void {
 	initGeolocate();
 }
 
-/* ------------------------------------------------------------------ */
 /* Boot                                                                */
-/* ------------------------------------------------------------------ */
 
 document.addEventListener('DOMContentLoaded', () => {
 	const data = getKkData();
@@ -1053,7 +1043,7 @@ document.addEventListener('DOMContentLoaded', () => {
 	// A stored "My location" / "Custom location" predates area names:
 	// resolve it once in the background so the top bar shows the area
 	// instead of the generic label. The first paint does not wait for
-	// it — the name updates in place when the lookup returns.
+	// it - the name updates in place when the lookup returns.
 	if (currentLocation.name === 'My location' || currentLocation.name === 'Custom location') {
 		const stored = currentLocation;
 		void reverseGeocode(stored.latitude, stored.longitude).then((name) => {
@@ -1071,7 +1061,7 @@ document.addEventListener('DOMContentLoaded', () => {
 	if (topbar) {
 		// Paint instantly from the browser cache when it is fresh, or
 		// hold the slot with a loading state so the top bar does not
-		// bounce — then always revalidate in the background so the
+		// bounce - then always revalidate in the background so the
 		// numbers stay current.
 		const cached = getCachedWeather(currentLocation);
 		if (cached) {

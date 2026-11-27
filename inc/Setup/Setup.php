@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace KoperasiKita\Setup;
 
 /**
- * Setup admin page (Appearance → Koperasi Kita Setup).
+ * Setup admin page (Appearance -> Koperasi Kita Setup).
  *
  * The page shows the theme's requirements checklist, installs the
  * TrayDigita Stack companion plugin from its latest GitHub release
@@ -655,7 +655,7 @@ final class Setup
             'install_failed' => ['error', __('Installation failed.', 'koperasikita')],
             'upload_failed' => ['error', __('Upload failed.', 'koperasikita')],
             'activate_failed' => ['error', __('Activation failed.', 'koperasikita')],
-            default => ['error', __('Something went wrong.', 'koperasikita')],
+            default => ['error', __('The installation could not be completed.', 'koperasikita')],
         };
     }
 

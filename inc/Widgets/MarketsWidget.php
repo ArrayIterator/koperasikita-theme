@@ -78,7 +78,7 @@ final class MarketsWidget extends WP_Widget
 
     /**
      * How many items are visible at once on desktop, for the
-     * Horizontal Slider and Marquee layouts. Clamped to 1–4.
+     * Horizontal Slider and Marquee layouts. Clamped to 1-4.
      */
     public static function sanitizeVisible(mixed $value): int
     {
@@ -221,8 +221,8 @@ final class MarketsWidget extends WP_Widget
             ];
         }
 
-        // No Margin style: the widget sits flush — no top border, no
-        // top padding, no bottom margin — so it reads as a seamless
+        // No Margin style: the widget sits flush - no top border, no
+        // top padding, no bottom margin - so it reads as a seamless
         // strip instead of a boxed widget. The class is added to the
         // container the same way WidgetHeader::beforeWidget() adds the
         // no-border class.

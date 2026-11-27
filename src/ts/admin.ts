@@ -1,5 +1,5 @@
 /**
- * Koperasi Kita — admin script.
+ * Koperasi Kita - admin script.
  *
  * Wires the Google Fonts management control rendered by
  * FontsManagementControl in the Typography section of the Customizer
@@ -19,7 +19,7 @@
  *
  * The list also follows font changes: when the body or headings font
  * setting changes in the Customizer, the list is re-fetched from the
- * server (kk_fonts_status) and swapped in with the new selection —
+ * server (kk_fonts_status) and swapped in with the new selection -
  * no Customizer reload needed. The server renders the list, so it is
  * the source of truth; the same re-fetch runs after a download or a
  * clear, so a row the preview frame downloaded meanwhile shows up
@@ -107,24 +107,24 @@ const FALLBACK_STRINGS: AdminStrings = {
 	notDownloaded: 'Not downloaded yet',
 	downloadFailed: 'Download failed.',
 	adminDataMissing: 'Admin data is not available.',
-	syncingSource: 'Scraping %s…',
+	syncingSource: 'Scraping %s...',
 	syncStepDone: '%s: inserted %s, skipped %s',
 	syncStepLatest: ' (latest %s)',
-	syncDone: 'Done — inserted %s, skipped %s (already in database). Reloading…',
-	loadingPreview: 'Loading preview…',
-	loadingChart: 'Loading chart…',
+	syncDone: 'Done - inserted %s, skipped %s (already in database). Reloading...',
+	loadingPreview: 'Loading preview...',
+	loadingChart: 'Loading chart...',
 	editKickerHint: 'Click to edit the kicker.',
 	editTitleHint: 'Click to edit the title.',
 	previewFailed: 'Could not load the preview.',
-	savingTemplate: 'Saving…',
-	saving: 'Saving…',
+	savingTemplate: 'Saving...',
+	saving: 'Saving...',
 	editDateLineHint: 'Click to edit the date line.',
 	editStatHint: 'Click to edit this stat.',
 	editHeaderHint: 'Click to edit this header.',
 	close: 'Close',
-	searching: 'Searching…',
+	searching: 'Searching...',
 	noResults: 'No results.',
-	showingOf: 'Showing %s of %s — type to search.',
+	showingOf: 'Showing %s of %s - type to search.',
 };
 
 function adminData(): AdminData | null {
@@ -204,7 +204,7 @@ function setButtonsDisabled(downloadButton: HTMLButtonElement, clearButton: HTML
 
 /*
  * The font ids the Customizer currently holds for the two font
- * settings — including unsaved changes, which the server cannot see
+ * settings - including unsaved changes, which the server cannot see
  * yet. Null outside the Customizer (widgets screen), where
  * wp.customize does not exist.
  */
@@ -233,7 +233,7 @@ let refreshToken = 0;
 
 /*
  * Re-fetch the status list from the server and swap it in, then
- * re-wire the buttons — the server renders the list, so the markup
+ * re-wire the buttons - the server renders the list, so the markup
  * (rows, button data, translated strings) is always current.
  */
 async function refreshStatus(container: HTMLElement): Promise<void> {
@@ -287,7 +287,7 @@ async function downloadFonts(
 				}
 			}
 		}
-		/* Server state is the truth — re-fetch so the list matches it. */
+		/* Server state is the truth - re-fetch so the list matches it. */
 		await refreshStatus(container);
 	} finally {
 		setButtonsDisabled(downloadButton, clearButton, false);
@@ -308,7 +308,7 @@ async function clearFonts(
 		}
 		await postAjax(config, 'kk_clear_fonts');
 		rows.forEach((row) => setRowStatus(row, adminStrings().notDownloaded));
-		/* Server state is the truth — re-fetch so the list matches it. */
+		/* Server state is the truth - re-fetch so the list matches it. */
 		await refreshStatus(container);
 	} catch (error) {
 		console.warn('Could not clear the downloaded fonts.', error);
@@ -413,11 +413,11 @@ function resolveAdminScheme(): 'light' | 'dark' {
  * Live Data Desk preview on the Data Desk Templates form.
  *
  * The form is a top bar (name, kind, symbol/days or brands,
- * palette, Save) over the live preview — and the preview IS the
+ * palette, Save) over the live preview - and the preview IS the
  * editor: the kicker and title are edited inline there. The preview
  * shows the real panel / table markup with sample data (the server
- * renders the first one). Every field change — kind, symbol, days,
- * brands, palette, title, kicker, stat texts, hidden blocks —
+ * renders the first one). Every field change - kind, symbol, days,
+ * brands, palette, title, kicker, stat texts, hidden blocks -
  * re-renders it through kk_data_desk_preview, debounced so typing
  * does not fire a request per keystroke. The brands picker is a chip
  * UI over the hidden select and never fires `change` on it, so clicks
@@ -427,7 +427,7 @@ function resolveAdminScheme(): 'light' | 'dark' {
  * the box.
  *
  * The preview kicker, title and date line are edited inline:
- * none has a visible form row (all are hidden inputs) — the
+ * none has a visible form row (all are hidden inputs) - the
  * preview IS the editor. Clicking any of the three texts edits it
  * in place; Enter or blur commits into the hidden field and
  * refreshes the preview, Escape cancels and restores the text.
@@ -810,7 +810,7 @@ function initDataDeskPreview(): void {
  * A floating toast notice (top-right, below the WP admin bar):
  * success is KK green, errors are red. Auto-dismisses after a few
  * seconds; the close button dismisses it at once. One toast at a
- * time — a new one replaces the old.
+ * time - a new one replaces the old.
  */
 function showToast(message: string, kind: 'success' | 'error'): void {
 	document.querySelector('.kk-toast')?.remove();
@@ -824,7 +824,7 @@ function showToast(message: string, kind: 'success' | 'error'): void {
 	close.type = 'button';
 	close.className = 'kk-toast-close';
 	close.setAttribute('aria-label', adminStrings().close);
-	close.textContent = '×';
+	close.textContent = 'x';
 	close.addEventListener('click', () => {
 		toast.remove();
 	});
@@ -841,8 +841,8 @@ function showToast(message: string, kind: 'success' | 'error'): void {
  * The top-bar Save button submits the form through
  * kk_data_desk_save_template instead of a native POST, so the page
  * never reloads or redirects (the native redirect used to blank
- * the page — see DataDeskTemplatesPage::handleActionsOnLoad). While
- * saving the button is disabled with a "Saving…" label; on success
+ * the page - see DataDeskTemplatesPage::handleActionsOnLoad). While
+ * saving the button is disabled with a "Saving..." label; on success
  * a floating toast confirms and the hidden template id + the URL
  * are updated to the saved id, so a second save updates the same
  * template (matters for new templates, which get their id from
@@ -985,14 +985,14 @@ function initDataDeskWidgetPreview(): void {
 /**
  * Template preview popup on the Data Desk Templates list.
  *
- * The list shows no inline preview — each row's Preview link opens
+ * The list shows no inline preview - each row's Preview link opens
  * one shared centered popup (blurred backdrop, same pattern as the
  * menu icon picker) and fetches the real panel / table markup with
  * sample data through kk_data_desk_preview by template id. Close on
  * Close, backdrop click, or Escape; focus returns to the link that
  * opened it. A failed fetch shows an honest error line; a template
  * deleted since the list loaded answers "Template not found." from
- * the server. A second open while a fetch is in flight wins — a
+ * the server. A second open while a fetch is in flight wins - a
  * stale response never overwrites the newer popup.
  */
 function initDataDeskPopupPreview(): void {
@@ -1096,7 +1096,7 @@ function initDataDeskPopupPreview(): void {
  * never reloads: on success a floating toast confirms and the
  * popup closes, on failure the toast shows the server's message
  * and the popup stays open. While saving the button is disabled
- * with a "Saving…" label. Escape, the backdrop and the Close
+ * with a "Saving..." label. Escape, the backdrop and the Close
  * button all close the popup, and focus returns to the link.
  */
 function initSidebarSettingsPopup(): void {
@@ -1181,13 +1181,13 @@ function initSidebarSettingsPopup(): void {
  * Manual gold sync on Settings -> Gold Prices, with real progress.
  *
  * One AJAX call per enabled source, in run order (the default
- * source first, then the rest — see
+ * source first, then the rest - see
  * LogamMuliaApiProvider::enabledSyncSources()): the first call
  * carries no source, each step returns `next` (the following
  * source, or null when done) plus `step`/`total` for the progress
  * bar. While a sync runs the Sync now button is disabled
  * (aria-busy), the progress bar + status line show which source
- * is syncing ("Syncing galeri24… 1/3"), each finished source gets
+ * is syncing ("Syncing galeri24... 1/3"), each finished source gets
  * its own line in the step list, and the automatic-sync form is
  * disabled with a note saying it is paused. A per-source failure
  * is reported as its own line and does not stop the remaining
@@ -1205,7 +1205,7 @@ function initGoldSync(): void {
 	}
 
 	/* Localize data missing (stale page, cached markup, blocked
-	 * script): never leave a dead button — a click says so
+	 * script): never leave a dead button - a click says so
 	 * honestly instead of doing nothing. */
 	const config = adminData();
 	if (!config) {
@@ -1264,7 +1264,7 @@ function initGoldSync(): void {
 			for (let step = 0; step < 10; step += 1) {
 				const params: Record<string, string> = source === null ? {} : { source };
 				const current = source ?? '';
-				/* The step line appears first as "Syncing <source>…"
+				/* The step line appears first as "Syncing <source>..."
 				 * and is rewritten with its result when the call
 				 * returns, so the list always shows live progress. */
 				const line = document.createElement('li');
@@ -1276,10 +1276,10 @@ function initGoldSync(): void {
 				const data: GoldSyncStep = await postAjax<GoldSyncStep>(config, 'kk_logam_mulia_sync', params);
 
 				/* No source in the step: either nothing is enabled
-				 * at all (total 0 — show the server's honest error
+				 * at all (total 0 - show the server's honest error
 				 * and stop, never reload as if a sync had run), or
 				 * the remaining sources were disabled mid-run
-				 * (total > 0 — finish with what already synced). */
+				 * (total > 0 - finish with what already synced). */
 				if (!data.source) {
 					if (data.total === 0) {
 						if (data.error) {
@@ -1340,7 +1340,7 @@ function initGoldSync(): void {
  * selector re-render the chart through kk_gold_chart without a
  * page reload. Mirrors the Data Desk preview refresh: debounced,
  * loading state, last-good kept on failure. The brand search
- * filters the checkbox list in place — the list is six brands,
+ * filters the checkbox list in place - the list is six brands,
  * so no server round-trip is needed for it. No box checked means
  * the enabled brands (the server falls back the same way), so
  * the chart never goes empty from unchecking alone.
@@ -1537,7 +1537,7 @@ function initProviderPickers(): void {
  * an icon writes it to the item's hidden input and refreshes the
  * preview and the name; "Remove icon" clears it. The colour picker
  * writes to the item's hidden colour input, colours the preview live
- * and appends the hex to the name; the × clears back to the inherited
+ * and appends the hex to the name; the x clears back to the inherited
  * link colour. Close on Close, backdrop click, or Escape. The grid is
  * built lazily on first open. Without JS the button does nothing and
  * the saved icon (if any) stays.
@@ -1633,7 +1633,7 @@ function initMenuIconPickers(): void {
 			return;
 		}
 		const color = colorInputFor(itemId)?.value ?? '';
-		nameEl.textContent = color === '' ? name : `${name} · ${color}`;
+		nameEl.textContent = color === '' ? name : `${name} - ${color}`;
 	};
 
 	const applyColor = (itemId: string, color: string): void => {
@@ -1706,7 +1706,7 @@ function initMenuIconPickers(): void {
 
 	const open = (button: HTMLButtonElement): void => {
 		/* Menu buttons carry the item id; widget buttons carry the
-		 * widget field id — both are the key the shared setPreview /
+		 * widget field id - both are the key the shared setPreview /
 		 * setName below look the hidden input up by. */
 		currentItemId =
 			button.dataset.kkMenuIconPick ??
@@ -1828,7 +1828,7 @@ interface AgendaLinkResult {
  *   stays exactly as the server rendered it.
  *
  * Widget forms are re-rendered by the Customizer, so everything here
- * is delegated from the document — no load-time binding.
+ * is delegated from the document - no load-time binding.
  */
 function initAgendaWidgetFields(): void {
 	const config = adminData();
@@ -1853,9 +1853,9 @@ function initAgendaWidgetFields(): void {
 		}
 	});
 
-	/* A Choose Own colour row: the visible swatch is only the picker —
+	/* A Choose Own colour row: the visible swatch is only the picker -
 	 * the hidden input holds the real value (empty = fall back to the
-	 * theme colour), and the × button clears it back to empty. */
+	 * theme colour), and the x button clears it back to empty. */
 	const syncColorRow = (scope: HTMLElement | null, key: string): void => {
 		const input = scope?.querySelector<HTMLInputElement>(
 			`[data-kk-agenda-color-input="${key}"]`,
@@ -1952,7 +1952,7 @@ function initAgendaWidgetFields(): void {
 			button.dataset.kkAgendaLinkPick = String(item.id);
 			button.dataset.kkAgendaLinkTitle = item.title;
 			button.dataset.kkAgendaLinkType = item.type;
-			button.textContent = `${item.title} — ${item.type}`;
+			button.textContent = `${item.title} - ${item.type}`;
 			fragment.appendChild(button);
 		}
 		results.append(fragment);
@@ -2185,7 +2185,7 @@ function initTermPickers(): void {
 		const search = document.createElement('input');
 		search.type = 'search';
 		search.className = 'kk-term-picker-search widefat';
-		search.placeholder = 'Search…';
+		search.placeholder = 'Search...';
 		search.setAttribute('aria-label', 'Search terms');
 		const list = document.createElement('div');
 		list.className = 'kk-term-picker-list';
@@ -2198,7 +2198,7 @@ function initTermPickers(): void {
 		 * a click outside closes it. Focus moving inside the
 		 * wrapper (chips, options) keeps it open, so picking with
 		 * the mouse or keyboard never collapses the list
-		 * mid-pick — a null relatedTarget (e.g. a Safari click)
+		 * mid-pick - a null relatedTarget (e.g. a Safari click)
 		 * leaves it alone and the outside-click handler decides. */
 		const setOpen = (open: boolean): void => {
 			wrapper.classList.toggle('is-open', open);
@@ -2248,7 +2248,7 @@ function initTermPickers(): void {
 				const chip = document.createElement('button');
 				chip.type = 'button';
 				chip.className = 'kk-term-picker-chip';
-				chip.textContent = option.label + ' ×';
+				chip.textContent = option.label + ' x';
 				chip.addEventListener('click', () => {
 					setSelected(option.value, false);
 				});

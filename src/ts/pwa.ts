@@ -1,10 +1,10 @@
 /**
- * Koperasi Kita — PWA service worker registration (standalone).
+ * Koperasi Kita - PWA service worker registration (standalone).
  *
  * This module does ONE thing: register the service worker served by the
  * theme endpoint. The install flow (beforeinstallprompt, the install
  * button, the install prompt modal) already lives in main.ts and is not
- * duplicated here — two prompt handlers would fight over the same event.
+ * duplicated here - two prompt handlers would fight over the same event.
  *
  * Guards itself on `window.kkData.isPwaEnabled`: when PWA is disabled
  * this file is not enqueued at all, and even if it were loaded it would
@@ -47,7 +47,7 @@ async function registerServiceWorker(): Promise<void> {
 	try {
 		await navigator.serviceWorker.register(serviceWorkerUrl(), { scope: '/' });
 	} catch {
-		// Registration failed (offline, bad response, …): the page keeps
+		// Registration failed (offline, bad response, ...): the page keeps
 		// working without a service worker. Never throw here.
 	}
 }

@@ -11,8 +11,8 @@ use KoperasiKita\Features\Markets;
  *
  * Fetches the last price in IDR for each coin from Indodax's public
  * ticker endpoint (https://indodax.com/api/ticker/{pair}idr), one
- * request per coin. This is the local Indonesian exchange price —
- * the price an Indonesian buyer actually sees — as opposed to
+ * request per coin. This is the local Indonesian exchange price -
+ * the price an Indonesian buyer actually sees - as opposed to
  * CoinGecko's global market price.
  *
  * No 24-hour change is returned by the ticker, so change is null.

@@ -1,5 +1,5 @@
 /**
- * Koperasi Kita — agenda submission form and event maps.
+ * Koperasi Kita - agenda submission form and event maps.
  *
  * Standalone module, auto-initialised on DOMContentLoaded. It only runs
  * when a `[kk_agenda_submit]` form, an event map, a location picker or
@@ -7,8 +7,8 @@
  * never loads this file, and even if it did, there is nothing for it to
  * do.
  *
- * The form works without JavaScript — the server validates everything and
- * redirects after submit — so this is progressive enhancement only:
+ * The form works without JavaScript - the server validates everything and
+ * redirects after submit - so this is progressive enhancement only:
  * client-side checks with inline errors, today as the earliest date, the
  * end time kept after the start time, and the submit button disabled while
  * a submission is in flight so a double tap cannot send the form twice.
@@ -18,8 +18,8 @@
  * The maps are Leaflet with OpenStreetMap tiles (free, no key, no
  * billing account): the embedded map on a single event, and the Pick
  * Location popup shared by the admin meta box and the contributor form.
- * The popup stages its edits — opening copies the picker's values in,
- * "Use this location" copies them back, closing discards them — so
+ * The popup stages its edits - opening copies the picker's values in,
+ * "Use this location" copies them back, closing discards them - so
  * nothing is saved until the post is saved or the form is submitted.
  */
 
@@ -165,10 +165,10 @@ function initAgenda(): void {
 	$all<HTMLFormElement>('[data-kk-agenda-form]').forEach((form) => initAgendaForm(form));
 }
 
-/* --- Maps (Leaflet + OpenStreetMap) -------------------------------------- */
+/* Maps (Leaflet + OpenStreetMap) */
 /* Free and keyless, so no billing account and no API key: the tiles load
  * on demand and the library only loads on agenda pages. The attribution
- * is the Leaflet default ("Leaflet | © OpenStreetMap contributors") —
+ * is the Leaflet default ("Leaflet | (c) OpenStreetMap contributors") -
  * the ODbL licence requires it, so it stays. */
 
 const TILE_URL = 'https://tile.openstreetmap.org/{z}/{x}/{y}.png';
@@ -209,7 +209,7 @@ function addTileLayer(map: L.Map): void {
 	L.tileLayer(TILE_URL, { attribution: TILE_ATTRIBUTION, maxZoom: 19 }).addTo(map);
 }
 
-/* --- Display maps (single event view) ------------------------------------ */
+/* Display maps (single event view) */
 
 function initDisplayMap(el: HTMLElement): void {
 	const lat = parseCoord(el.dataset.kkAgendaLat ?? '', -90, 90);
@@ -242,10 +242,10 @@ function initDisplayMap(el: HTMLElement): void {
 	requestAnimationFrame(() => map.invalidateSize());
 }
 
-/* --- Location preview map (Locations admin form) ----------------------- */
+/* Location preview map (Locations admin form) */
 /* The form's own Leaflet map: the pin follows the Latitude /
- * Longitude fields — typed by hand, picked from a search result, or
- * applied from the Pick Location popup — and the map is centred on
+ * Longitude fields - typed by hand, picked from a search result, or
+ * applied from the Pick Location popup - and the map is centred on
  * the picker's default location with no pin until both fields hold a
  * valid coordinate. The fields are the source of truth, so a
  * programmatic fill announces itself with a change event the map
@@ -263,7 +263,7 @@ function initLocationPreviewMap(el: HTMLElement): void {
 	const defaultLat = parseCoord(picker?.dataset.kkAgendaDefaultLat ?? '', -90, 90) ?? -0.9471;
 	const defaultLng = parseCoord(picker?.dataset.kkAgendaDefaultLng ?? '', -180, 180) ?? 100.4172;
 	// The coords line under the button shows what the fields hold, so
-	// it has to follow manual typing too — not just picks.
+	// it has to follow manual typing too - not just picks.
 	const coordsEl = picker?.querySelector<HTMLElement>('[data-kk-agenda-coords]') ?? null;
 	const noPin = picker?.dataset.kkAgendaNoPin ?? 'No pin placed';
 
@@ -314,7 +314,7 @@ function initLocationPreviewMap(el: HTMLElement): void {
 	requestAnimationFrame(() => map.invalidateSize());
 }
 
-/* --- Pick Location popup -------------------------------------------------- */
+/* Pick Location popup */
 /* One popup per page, shared by every picker block (the admin meta box
  * and the contributor form never share a page, but the code does not
  * assume that). Opening stages the active block's values into the
@@ -350,7 +350,7 @@ function pickerFromBlock(block: HTMLElement): PickerBlock | null {
 	// The block's own inputs first (the agenda editor: hidden inputs
 	// inside the block). The Locations form keeps its visible
 	// Latitude / Longitude / Description fields in their own table
-	// rows, so fall back to the form that owns the block — the same
+	// rows, so fall back to the form that owns the block - the same
 	// scope location-search.ts already uses for the search field.
 	const form = block.closest('form');
 	const latInput = block.querySelector<HTMLInputElement>('[data-kk-agenda-lat]')
@@ -545,7 +545,7 @@ function initPickLocationPopup(): void {
 	// The picker blocks: each Pick Location button opens the popup
 	// for its own block. The block is display: none until .is-ready
 	// (the popup needs JavaScript, so without it the button would be
-	// dead) — mark it ready here, now that the popup is wired. Until
+	// dead) - mark it ready here, now that the popup is wired. Until
 	// this line existed the button never appeared at all: nothing
 	// ever added the class, so the Event Details box showed the
 	// location text field and nothing else.
@@ -583,7 +583,7 @@ function initPickLocationPopup(): void {
 	});
 
 	// A saved location fills the pin and the description, and fills
-	// the event's Location text only when it is still empty — never
+	// the event's Location text only when it is still empty - never
 	// overwriting what the editor or contributor already typed.
 	if (savedSelect) {
 		savedSelect.addEventListener('change', () => {

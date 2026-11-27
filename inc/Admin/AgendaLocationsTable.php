@@ -12,7 +12,7 @@ if (!class_exists('WP_List_Table')) {
 
 /**
  * The Locations list: a post-type-style table over the stored
- * `kk_agenda_locations` rows — checkboxes with bulk delete, search,
+ * `kk_agenda_locations` rows - checkboxes with bulk delete, search,
  * sortable name, pagination. Rows are keyed by their stable id, so
  * an edit / delete link never shifts when another row is removed.
  */

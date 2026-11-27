@@ -1,8 +1,8 @@
-/* ==========================================================================
-   Koperasi Kita — widget-blocks.css — widget block editor styles
+/*
+   Koperasi Kita - widget-blocks.css - widget block editor styles
    Only the placeholder a widget block shows on the canvas; the real
    markup is rendered on the server. Spacing in rem.
-   ========================================================================== */
+   */
 
 .kk-widget-block-preview {
 	padding: 1rem;
@@ -27,7 +27,7 @@
 	margin-top: 0.25rem;
 }
 
-/* --- Weather locations field ---------------------------------------------- */
+/* Weather locations field */
 
 .kk-locations-field {
 	margin-bottom: 1.5rem;
@@ -96,7 +96,7 @@
 	background: #e5e8e8;
 }
 
-/* --- Term search field -------------------------------------------------- */
+/* Term search field */
 
 .kk-termsearch-field {
 	margin-bottom: 1.5rem;

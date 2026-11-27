@@ -13,12 +13,12 @@ use KoperasiKita\Setup\Setup;
  * and Settings for them:
  *
  *   Koperasi Kita
- *   ├─ Setup            (the Stack installer / status page)
- *   ├─ Sidebar Settings (sticky sidebars)
- *   ├─ Gold Prices      (Logam Mulia sync status + history)
- *   ├─ Data Desk Templates (panel + table templates)
- *   ├─ Locations        (Agenda locations)
- *   └─ Subscribers      (newsletter subscriber list)
+ *   |- Setup            (the Stack installer / status page)
+ *   |- Sidebar Settings (sticky sidebars)
+ *   |- Gold Prices      (Logam Mulia sync status + history)
+ *   |- Data Desk Templates (panel + table templates)
+ *   |- Locations        (Agenda locations)
+ *   `- Subscribers      (newsletter subscriber list)
  *
  * The pages keep their own slugs, so existing bookmarks keep
  * working. Note the hook-suffix trap, documented on
@@ -38,7 +38,7 @@ final class AdminMenu
      * and get_plugin_page_hookname() returns
      * "$title-slug_page_$page". The title 'Koperasi Kita'
      * sanitizes to 'koperasi-kita', so the pages' hooks are
-     * 'koperasi-kita_page_<slug>' — NOT 'koperasikita_page_<slug>'.
+     * 'koperasi-kita_page_<slug>' - NOT 'koperasikita_page_<slug>'.
      * Deriving it from the same translated title string used in
      * registerMenu() keeps the two in sync in every locale.
      * The wrong prefix was used in Enqueue for Gold Prices, Data

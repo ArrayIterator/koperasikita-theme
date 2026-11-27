@@ -1,5 +1,5 @@
 /**
- * Koperasi Kita — gold prices slider and markets strip.
+ * Koperasi Kita - gold prices slider and markets strip.
  *
  * Standalone module, auto-initialised on DOMContentLoaded. It only runs
  * when the Markets feature is enabled (window.kkData.isMarketsEnabled);
@@ -8,7 +8,7 @@
  *
  * The gold slider auto-advances on a timer, pauses on hover/focus, when
  * the tab is hidden, and when the user presses pause. Prev/next wrap
- * around, dots jump to a slide, and a horizontal swipe changes slides —
+ * around, dots jump to a slide, and a horizontal swipe changes slides -
  * the controls are real buttons with 44px touch targets for Android.
  * A slider with a single slide has no controls and no timer.
  */
@@ -256,7 +256,6 @@ function initGoldMarkets(): void {
 	initLivePrices();
 }
 
-// ---------------------------------------------------------------------------
 // Live prices (client-side refresh).
 //
 // The server renders the price (from the backend provider, cached in a
@@ -266,7 +265,7 @@ function initGoldMarkets(): void {
 //    the server is not called at all.
 //  - When the cache is stale, the browser calls the public API
 //    directly for providers that support it (Xaus, CoinGecko and the
-//    scraped prices.json — all CORS-enabled and keyless). Providers
+//    scraped prices.json - all CORS-enabled and keyless). Providers
 //    without a direct client API (Indodax, Yahoo Finance, Manual)
 //    fall back to the backend endpoint `kk_markets_prices`.
 //  - A failed fetch leaves the server-rendered price in place; the
@@ -312,7 +311,7 @@ function writeLiveCache(market: string, prices: LivePriceMap): void {
 			JSON.stringify({ savedAt: Date.now(), prices }),
 		);
 	} catch {
-		// Storage full or private mode — the next load just fetches again.
+		// Storage full or private mode - the next load just fetches again.
 	}
 }
 

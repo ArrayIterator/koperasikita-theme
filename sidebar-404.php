@@ -2,7 +2,7 @@
 /**
  * The 404 / search-not-found sidebar.
  *
- * Renders nothing when the 404 Sidebar has no widgets — the page
+ * Renders nothing when the 404 Sidebar has no widgets - the page
  * then falls back to full width. No fallback to the Main Sidebar:
  * the 404 area is its own area.
  *

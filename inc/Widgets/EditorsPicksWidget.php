@@ -8,7 +8,7 @@ use KoperasiKita\Images\FeaturedImage;
 
 /**
  * Editor's Picks widget: a numbered list of posts (1, 2, 3, 4), like
- * the old hardcoded homepage section — now a proper widget, so the
+ * the old hardcoded homepage section - now a proper widget, so the
  * editor places it in any sidebar via Appearance -> Widgets.
  *
  * By terms: pick categories and/or tags to pull posts from. With

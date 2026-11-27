@@ -1,5 +1,5 @@
 /**
- * Koperasi Kita — archive pagination loader (load-more).
+ * Koperasi Kita - archive pagination loader (load-more).
  *
  * Reads the current archive query from the loader's data attributes
  * (rendered server-side by Features\Pagination), fetches the next
@@ -92,7 +92,7 @@ function initPagination(): void {
 	};
 
 	/* While loading the link shows the spinner icon and/or the
-	 * "Loading…" text, per the Customizer loading style. Restored
+	 * "Loading..." text, per the Customizer loading style. Restored
 	 * to the idle label (the custom link text) when done. */
 	const setLoading = (active: boolean): void => {
 		if (!button || !label) {
@@ -119,12 +119,12 @@ function initPagination(): void {
 			if (icon) {
 				icon.hidden = true;
 			}
-			label.textContent = 'Loading…';
+			label.textContent = 'Loading...';
 		} else {
 			if (icon) {
 				icon.hidden = false;
 			}
-			label.textContent = 'Loading…';
+			label.textContent = 'Loading...';
 		}
 	};
 
@@ -150,7 +150,7 @@ function initPagination(): void {
 		/* The cap stops AJAX loading even when more pages exist:
 		 * the link is left alone from here, so the next click
 		 * navigates to the next page instead. The click handler
-		 * below is what enforces this — loadNext never runs past
+		 * below is what enforces this - loadNext never runs past
 		 * the cap. */
 		if (loadMoreMax > 0 && page >= loadMoreMax) {
 			return;
@@ -197,7 +197,7 @@ function initPagination(): void {
 
 	if (mode === 'load-more') {
 		button?.addEventListener('click', (event) => {
-			/* Cap reached: do not intercept — the link navigates to
+			/* Cap reached: do not intercept - the link navigates to
 			 * the next page. Otherwise load it by AJAX. */
 			if (loadMoreMax > 0 && page >= loadMoreMax) {
 				return;

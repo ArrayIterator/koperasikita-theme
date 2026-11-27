@@ -32,7 +32,7 @@ if ( ! $category instanceof WP_Term ) {
 	return;
 }
 
-// The slot this block came from (1–3); the count and display style
+// The slot this block came from (1-3); the count and display style
 // are per-slot, so each block is independent of the others.
 $slot = (int) get_query_var( 'kk_category_block_slot', 1 );
 $slot = min( 3, max( 1, $slot ) );
@@ -61,7 +61,7 @@ if ( 'featured-right' === $block_layout ) {
 }
 
 // List (Columns): the rows are the OLD article list rows
-// (card-news in list mode — a 120px thumbnail, title + meta, a
+// (card-news in list mode - a 120px thumbnail, title + meta, a
 // thin divider), NOT widget-style compact rows. The posts are
 // chunked into PAGES of (columns x rows) posts; each page holds
 // that many columns, so when the slider is on, one slide shows

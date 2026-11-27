@@ -8,7 +8,7 @@ namespace KoperasiKita\Features;
  * Article text size: a visitor-facing resize control for full content.
  *
  * The default size comes from the Customizer (`kk_single_font_size`,
- * 8–24px, default 16). A visitor can change it with the A− / A+
+ * 8-24px, default 16). A visitor can change it with the A- / A+
  * control rendered before the content; the choice is stored in a
  * cookie (`koperasikita_article_font_size`) and overrides the default
  * on the next load, so the first paint is already the right size.
@@ -72,7 +72,7 @@ final class ArticleFontSize
 
     /**
      * Prepend the resize control before the content. Only on singular
-     * post/page/agenda views, in the main loop and main query — never in
+     * post/page/agenda views, in the main loop and main query - never in
      * the admin, feeds, excerpts, cards, widgets, or secondary loops.
      */
     public static function prependControl(string $content): string

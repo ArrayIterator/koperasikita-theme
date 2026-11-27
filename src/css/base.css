@@ -1,10 +1,10 @@
-/* ==========================================================================
-   Koperasi Kita — base.css — base
+/*
+   Koperasi Kita - base.css - base
    Base styles: body, fonts, links, eyebrows / section headings,
    buttons and icon buttons.
-   ========================================================================== */
+   */
 
-/* --- Base ---------------------------------------------------------------- */
+/* Base */
 
 body {
 	font-family: var(--kk-sans);
@@ -76,7 +76,7 @@ select:focus-visible {
 
 /* Visually-hidden text (WordPress .screen-reader-text): the search
  * form label and the pagination Newer/Older labels use this class,
- * and the theme must hide them itself — WP core does not guarantee
+ * and the theme must hide them itself - WP core does not guarantee
  * the class on the front end. Standard clip pattern, no layout. */
 .screen-reader-text {
 	border: 0;
@@ -121,7 +121,7 @@ select:focus-visible {
 	color: #fff;
 }
 
-/* --- Eyebrow / section headings ------------------------------------------ */
+/* Eyebrow / section headings */
 
 .kk-eyebrow {
 	font-family: var(--kk-sans);
@@ -211,7 +211,7 @@ select:focus-visible {
 	color: var(--kk-green, #0B6B3A);
 }
 
-/* --- Buttons / icon buttons ---------------------------------------------- */
+/* Buttons / icon buttons */
 
 .kk-button {
 	display: inline-flex;

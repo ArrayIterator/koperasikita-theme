@@ -1,9 +1,9 @@
-/* Koperasi Kita — newsletter homepage layout styles (REAL Tailwind v4).
+/* Koperasi Kita - newsletter homepage layout styles (REAL Tailwind v4).
  *
  * This is the theme's ONLY Tailwind entry: the Vite plugin (see
  * vite.config.ts) transforms this file because it imports tailwindcss
  * below; no other stylesheet does, so the rest of the theme stays
- * hand-written. Preflight is deliberately NOT imported — a global
+ * hand-written. Preflight is deliberately NOT imported - a global
  * reset would restyle the whole front page; only the theme tokens and
  * the utilities are imported, scoped by the kk-* selectors and the
  * utility classes used in the newsletter markup.
@@ -22,7 +22,7 @@
  * Flex order keeps the subscribe block after the lead in both cases.
  *
  * Layer note: Tailwind utilities live in @layer utilities, but the
- * theme's hand-written stylesheets are unlayered — and unlayered
+ * theme's hand-written stylesheets are unlayered - and unlayered
  * author styles beat layered ones whatever the specificity. That is
  * why the overrides that must beat cards.css / base.css are written
  * as scoped kk-* selectors with @apply here (the declarations are
@@ -47,7 +47,7 @@
 	--radius-kk: var(--kk-radius);
 }
 
-/* --- Container ------------------------------------------------------------ */
+/* Container */
 
 .kk-latest-items.kk-layout-newsletter {
 	@apply flex flex-col;
@@ -77,10 +77,10 @@
 	@apply order-5;
 }
 
-/* --- Lead story (first card) ---------------------------------------------- */
+/* Lead story (first card) */
 
 /* Lead story (first card): media on top, body below. The base card
- * grid already does exactly that — do NOT set display: block here,
+ * grid already does exactly that - do NOT set display: block here,
  * or the bookmark (a grid item) falls into flow below the body. Kept
  * as a grid, the bookmark overlays the lead image top-right, like
  * the grid layout. */
@@ -101,16 +101,16 @@
 	-webkit-line-clamp: var(--kk-excerpt-clamp, 2);
 }
 
-/* --- Feed rows (remaining cards) ------------------------------------------ */
+/* Feed rows (remaining cards) */
 
 /* Feed rows (remaining cards): thumbnail left, text middle, bookmark
- * in its own column at the top-right corner — the same three-column
+ * in its own column at the top-right corner - the same three-column
  * grid as the list layout. Without the bookmark area the button
  * auto-places into a stray row below the thumbnail. */
 .kk-latest-items.kk-layout-newsletter > .kk-card:not(:first-child) {
 	@apply mb-[0.3rem] grid gap-4 border-t border-kk-border pt-5 pb-5;
 	/* The excerpt (when shown) spans the full width below, like
-	 * the list layout — never a stray auto-placed row. */
+	 * the list layout - never a stray auto-placed row. */
 	grid-template-columns: 144px 1fr auto;
 	grid-template-areas:
 		"media body bookmark"
@@ -143,11 +143,11 @@
 	@apply mt-1;
 }
 
-/* --- Gold rule and feed label --------------------------------------------- */
+/* Gold rule and feed label */
 
 /* Newsletter-only: when the layout class switches away from
  * newsletter (client-side switcher), the rule and the label must go
- * with the subscribe block — otherwise the gold line stays visible
+ * with the subscribe block - otherwise the gold line stays visible
  * under the first card in list/grid mode. The `hidden` toggle in
  * main.ts does the same job; this rule is the backup when the class
  * is the only thing that changed. */
@@ -167,7 +167,7 @@
 }
 
 .kk-newsletter-rule {
-	/* border: 0 first — the @apply below only re-adds the top
+	/* border: 0 first - the @apply below only re-adds the top
 	 * border, so the hr keeps no side/bottom border (the UA hr
 	 * default is a 1px inset border on all sides). */
 	border: 0;
@@ -178,7 +178,7 @@
 	@apply mt-5 text-xs font-bold tracking-[0.14em] text-kk-green uppercase;
 }
 
-/* --- Subscribe call to action --------------------------------------------- */
+/* Subscribe call to action */
 
 /* The subscribe block itself, the gold rule and the "More stories"
  * label carry their layout utilities in the markup
@@ -218,12 +218,12 @@
 	@apply mt-5;
 }
 
-/* --- Small screens -------------------------------------------------------- */
+/* Small screens */
 
 @media (max-width: 640px) {
 	/* Feed rows stack: thumbnail on top, text below. The bookmark
-	 * goes back to the base placement — overlaid on the thumbnail
-	 * top-right — instead of a stray row of its own. */
+	 * goes back to the base placement - overlaid on the thumbnail
+	 * top-right - instead of a stray row of its own. */
 	.kk-latest-items.kk-layout-newsletter > .kk-card:not(:first-child) {
 		@apply grid-cols-1 gap-0;
 		grid-template-columns: 1fr;

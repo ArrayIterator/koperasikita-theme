@@ -24,7 +24,7 @@ use WP_Widget;
  * the widget fields) lives in src/ts/widget-blocks.ts.
  *
  * Gold/Markets blocks register only while the Markets feature is on,
- * Weather only while the Weather feature is on — the same gating as
+ * Weather only while the Weather feature is on - the same gating as
  * the classic widgets, so a block never appears for a feature that
  * is off.
  */
@@ -48,7 +48,7 @@ final class Blocks
                 // The inserter preview: without an `example` the
                 // inserter shows "No Preview Available" for the block.
                 // The example is just the attribute defaults, so the
-                // preview is the block as first inserted — a real
+                // preview is the block as first inserted - a real
                 // ServerSideRender preview, not a placeholder.
                 'example' => ['attributes' => self::exampleAttributes($definition['attributes'])],
                 'editor_script' => 'kk-widget-blocks',

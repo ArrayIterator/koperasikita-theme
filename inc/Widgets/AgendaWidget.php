@@ -11,13 +11,13 @@ use WP_Widget;
 
 /**
  * Agenda widget: upcoming cooperative events as a card that follows
- * the site colour scheme, matching the "AGENDA KOPERASI" design — a
+ * the site colour scheme, matching the "AGENDA KOPERASI" design - a
  * date badge (day + month) on the left, the title and a pin +
  * location on the right. Status stays subtle: a live event gets a
  * green dot on its date badge, a finished event is dimmed, upcoming
  * events are plain. Upcoming items come first, soonest first; when
  * "Show past events" is on, finished items fill the remaining slots,
- * most recent first. Items without a date are never shown — the badge
+ * most recent first. Items without a date are never shown - the badge
  * has nothing to print. The header always renders: an empty title
  * falls back to "Agenda Koperasi", so the card (and its block-editor
  * preview) never loses its header.
@@ -75,7 +75,7 @@ final class AgendaWidget extends WP_Widget
 
         // The title lives inside the card (icon + "AGENDA KOPERASI"),
         // so this widget deliberately skips WidgetHeader::render(). The
-        // template renders the card even with no items — the empty state
+        // template renders the card even with no items - the empty state
         // is an honest line inside the same card, never fake events.
         get_template_part('template-parts/agenda/widget', null, [
             'title' => $title,
@@ -116,7 +116,7 @@ final class AgendaWidget extends WP_Widget
 
     /**
      * Clamp a saved Choose Own colour to a hex colour; anything
-     * invalid (or empty) falls back to '' — unset, so the card uses
+     * invalid (or empty) falls back to '' - unset, so the card uses
      * the theme colour for that slot instead of a broken value.
      */
     public static function sanitizeColor(string $color): string
@@ -224,7 +224,7 @@ final class AgendaWidget extends WP_Widget
     }
 
     /**
-     * Upcoming items first (soonest first), then — when $showPast —
+     * Upcoming items first (soonest first), then - when $showPast -
      * finished items to fill the remaining slots (most recent first).
      * Dateless items are excluded: the stored sort key for them is the
      * far-future NO_DATE_TS sentinel, which would otherwise read as an
@@ -305,7 +305,7 @@ final class AgendaWidget extends WP_Widget
     /**
      * One item for the template. The status: "done" when the end time
      * (if any) has passed, "live" while the event is running,
-     * "upcoming" before it starts. A dateless item returns null — the
+     * "upcoming" before it starts. A dateless item returns null - the
      * caller filters it out.
      *
      * @return array{title: string, url: string, day: string, month: string, location: string, status: string}|null
@@ -377,7 +377,7 @@ final class AgendaWidget extends WP_Widget
         // The icon picker reuses the menu picker's data attributes
         // (data-kk-menu-icon-input/preview/name) with this field's id
         // as the key, so the shared popup writes here exactly like it
-        // writes a menu item — see initMenuIconPickers in admin.ts.
+        // writes a menu item - see initMenuIconPickers in admin.ts.
         $iconFieldId = $this->get_field_id('icon');
         ?>
         <p>
@@ -465,9 +465,9 @@ final class AgendaWidget extends WP_Widget
             </select>
         </p>
         <?php
-        // Choose Own colours: the visible swatch is only the picker —
+        // Choose Own colours: the visible swatch is only the picker -
         // the hidden input holds the real value (empty = fall back to
-        // the theme colour), and the × button clears it back to empty.
+        // the theme colour), and the x button clears it back to empty.
         // Same pattern as the menu icon colour in MenuIcons. The
         // whole block is hidden unless the style is Choose Own; see
         // initAgendaWidgetFields in admin.ts.
@@ -533,7 +533,7 @@ final class AgendaWidget extends WP_Widget
         $instance['style'] = self::sanitizeStyle(isset($new['style']) ? sanitize_text_field((string) $new['style']) : self::DEFAULT_STYLE);
         $instance['bg_color'] = self::sanitizeColor(isset($new['bg_color']) ? sanitize_text_field((string) $new['bg_color']) : '');
         $instance['accent_color'] = self::sanitizeColor(isset($new['accent_color']) ? sanitize_text_field((string) $new['accent_color']) : '');
-        // A link that no longer resolves is stored as none — the
+        // A link that no longer resolves is stored as none - the
         // widget never keeps a dead id.
         $instance['link_to'] = isset($new['link_to']) && self::resolveLink((int) $new['link_to']) !== '' ? (int) $new['link_to'] : 0;
 

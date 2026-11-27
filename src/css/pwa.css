@@ -1,10 +1,10 @@
-/* Koperasi Kita — PWA styles.
+/* Koperasi Kita - PWA styles.
  *
  * The install button/banner: four shapes from one template, chosen by
- * the Customizer style (kk_pwa_button_style) — a banner above the
+ * the Customizer style (kk_pwa_button_style) - a banner above the
  * header, an inline button in the top bar, or a floating button/bar
  * at the bottom. The install prompt modal reuses the shared
- * .kk-modal styles from app.css — nothing is duplicated.
+ * .kk-modal styles from app.css - nothing is duplicated.
  */
 
 /* The wrapper carries [hidden] until beforeinstallprompt fires; the
@@ -22,10 +22,10 @@
 	white-space: nowrap;
 }
 
-/* --- Banner above the header ---------------------------------------------- */
+/* Banner above the header */
 /* The banner sits in normal flow above <header>, so when it appears it
  * pushes the header down. A translateY slide-down would move only the
- * banner while the header jumps down instantly — instead the banner
+ * banner while the header jumps down instantly - instead the banner
  * grows its own grid row (0fr -> 1fr), so the header slides down
  * smoothly along with it. The inner row needs min-height: 0 +
  * overflow hidden, or the 0fr row cannot collapse it. */
@@ -80,7 +80,7 @@
 	flex: 0 0 auto;
 }
 
-/* --- Inline button in the top bar ------------------------------------------ */
+/* Inline button in the top bar */
 
 .kk-pwa-inline {
 	display: inline-flex;
@@ -110,7 +110,7 @@
 	}
 }
 
-/* --- Floating button / bottom bar ------------------------------------------- */
+/* Floating button / bottom bar */
 /* Offsets clear the mobile bottom nav (64px) and the back-to-top
  * button (bottom: 80px mobile, 84px desktop). */
 
@@ -126,7 +126,7 @@
 	border-radius: 12px;
 	box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
 	/* Boom from below: pops up when it appears (after the first
-	 * interaction — see main.ts). */
+	 * interaction - see main.ts). */
 	animation: kk-pwa-pop-up 0.35s ease;
 }
 
@@ -181,7 +181,7 @@ html.kk-nav-open .kk-pwa-float {
 .kk-pwa-float--float-bottom {
 	/* Full width like the top banner: the top PWA banner's background
 	 * spans the whole viewport (its content sits in .kk-shell), so
-	 * the bottom bar does the same — edge to edge, content spread
+	 * the bottom bar does the same - edge to edge, content spread
 	 * across the shell (text left, buttons right) instead of bunched
 	 * in the centre. The old shell max-width left white gaps at the
 	 * sides and never matched the top. The aside carries no padding
@@ -200,7 +200,7 @@ html.kk-nav-open .kk-pwa-float {
 }
 
 /* Inner row of the full-width bottom bar: same shape as the top
- * banner's inner — content on the left, actions on the right,
+ * banner's inner - content on the left, actions on the right,
  * spread across the shell. */
 .kk-pwa-float-inner {
 	display: flex;
@@ -259,7 +259,7 @@ html.kk-nav-open .kk-pwa-float {
 @media (prefers-reduced-motion: reduce) {
 	/* No entrance motion: the banner and floats just appear. The
 	 * banner's grid-rows transition is off too, so the header does
-	 * not animate — it just sits at its final position. */
+	 * not animate - it just sits at its final position. */
 	.kk-pwa-banner {
 		transition: none;
 	}

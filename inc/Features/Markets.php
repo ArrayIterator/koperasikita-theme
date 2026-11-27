@@ -24,14 +24,14 @@ use KoperasiKita\Providers\YahooStockProvider;
 /**
  * Markets data layer: gold, stock and crypto prices.
  *
- * This class is the thin data façade — catalogue (markets, labels,
+ * This class is the thin data facade - catalogue (markets, labels,
  * symbols), settings storage, provider resolution and formatting.
  * The provider contracts live in KoperasiKita\Providers, and the
  * Settings -> Markets admin screen lives in MarketsSettings.
  *
  * Provider choice (which provider supplies each market) and the manual
  * snapshots live in the `kk_markets_settings` option, edited on the
- * Settings -> Markets screen — never in the Customizer and never hardcoded
+ * Settings -> Markets screen - never in the Customizer and never hardcoded
  * in a template. Gold is the exception: each gold brand has its own
  * provider + fallback, stored in `kk_gold_brand_providers` /
  * `kk_gold_brand_fallback_providers` and edited on the Gold Prices page
@@ -108,9 +108,9 @@ final class Markets
             // the rest alphabetically. Constituents per the IDX
             // announcements Peng-00205/BEI.POP/10-2026 (27 Oct 2026)
             // and the 11 Nov 2026 revision (MAPI/NCKL/PGEO out,
-            // ERAA/GGRM/PWON in), effective 18 Nov 2026 – 29 Jan 2027.
+            // ERAA/GGRM/PWON in), effective 18 Nov 2026 - 29 Jan 2027.
             // Every code was verified live against Yahoo Finance
-            // (see ~/workspace/kk-verify-stocks/live-check.php) — a
+            // (see ~/workspace/kk-verify-stocks/live-check.php) - a
             // code that returns no Yahoo data must not be added here.
             // Labels are the tickers themselves: that is what readers
             // expect for stocks, and it matches the IHSG/LQ45 labels.
@@ -222,7 +222,7 @@ final class Markets
      * Block-editor preview mode: while true, live providers serve
      * their cached / last-good value and never fetch upstream (see
      * AbstractLiveProvider::prices()). Set only around a block
-     * render served over REST (Blocks::render) — the editor canvas
+     * render served over REST (Blocks::render) - the editor canvas
      * and the inserter preview must not stall on an upstream
      * timeout while a cold transient refetches. Frontend page
      * renders are never REST requests, so they still refresh live.
@@ -254,7 +254,7 @@ final class Markets
                 // Stock, forex and commodity default to their live
                 // provider: Yahoo (IDX, USD/IDR, Brent). Crypto
                 // defaults to CoinGecko. Manual only wins for a
-                // market where an admin typed a snapshot — see
+                // market where an admin typed a snapshot - see
                 // providerFor(). Gold stays manual by default because
                 // each brand resolves its own provider (see
                 // Gold::brandProviders()).
@@ -286,7 +286,7 @@ final class Markets
      * Symbols shown for a market.
      *
      * Gold is per-brand now (see prices()): every gold symbol has its
-     * own provider, so the shown set is the full symbol list — the
+     * own provider, so the shown set is the full symbol list - the
      * stored picker (from the removed Settings -> Markets screen) is
      * still honoured when it is non-empty, for backwards compatibility.
      * Other markets still show the current provider's symbols.
@@ -392,14 +392,14 @@ final class Markets
      * Manual only wins when it actually prices something for the
      * market: it supplies every symbol on paper but prices only
      * the ones an admin typed a snapshot for, so a bare 'manual'
-     * — the old default, with no snapshots — must not blank the
+     * - the old default, with no snapshots - must not blank the
      * market while a live provider has data. Same carve-out as
      * Gold::brandProviders(). Otherwise the first live provider
      * for the market (LIVE_PROVIDER_ORDER) supplies it; with no
      * live provider available, any registered provider that
      * supports the market, else Manual.
      *
-     * Nothing is written on read — the fallback is computed, so a
+     * Nothing is written on read - the fallback is computed, so a
      * fresh install and an upgraded install behave the same
      * without a data migration.
      */
@@ -497,7 +497,7 @@ final class Markets
 
     /**
      * Prices for one market, keyed by symbol. Only symbols with a real
-     * snapshot price are returned — an empty array means "no data", and the
+     * snapshot price are returned - an empty array means "no data", and the
      * caller renders an honest empty state. Only the symbols the admin
      * picked in the provider picker are returned (see enabledSymbols()).
      *
@@ -559,13 +559,13 @@ final class Markets
      * Each enabled symbol is priced from its own primary provider
      * (Gold::brandProvider); when the primary has no price for the
      * symbol, the symbol's fallback provider (Gold::brandFallbackProvider)
-     * is tried. A symbol neither can price is left out — the widget
+     * is tried. A symbol neither can price is left out - the widget
      * and strip show an honest empty state for it, never an invented
      * price. Every returned price carries the provider that actually
      * supplied it in MarketPrice::$provider.
      *
      * Request count: providers are grouped, so one fetch per provider
-     * serves every brand that uses it — the scraped prices.json is
+     * serves every brand that uses it - the scraped prices.json is
      * read once for all six of its symbols, the Logam Mulia table is
      * read once for all five of its brands.
      *
@@ -641,7 +641,7 @@ final class Markets
      * to template-parts/markets/strip.php. An empty array means "do not
      * render the strip at all": the Markets feature is disabled. When the
      * strip does render, the template itself shows an honest empty state
-     * if no market has data yet — the same as the widget. The strip is
+     * if no market has data yet - the same as the widget. The strip is
      * always on (there is no Customizer toggle for it).
      *
      * @return array<string, array{label: string, prices: array<string, MarketPrice>}>
@@ -760,7 +760,7 @@ final class Markets
      *
      * Gold is per-brand: the direct client API is the one provider
      * with a browser-callable URL among the brands' effective
-     * providers — Scraped (prices.json, covers six symbols) first,
+     * providers - Scraped (prices.json, covers six symbols) first,
      * then Xaus (spot only). The browser refresh only updates the
      * symbols that provider covers; the rest stay server-rendered
      * and refresh through the backend endpoint.

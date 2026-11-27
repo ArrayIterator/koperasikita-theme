@@ -13,7 +13,7 @@ use KoperasiKita\Features\Markets;
  * `kk_markets_settings` option. The data layer (Markets) only reads
  * the option; nothing about the admin screen lives there. The
  * Settings -> Markets admin screen was removed (the markets are not
- * used), so there is no menu page for this option any more — the
+ * used), so there is no menu page for this option any more - the
  * stored value stays as it is.
  */
 final class MarketsSettings

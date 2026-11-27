@@ -4,9 +4,9 @@
  *
  * Rendered once per page: by Agenda::renderPickLocationPopup() at the
  * end of the agenda editor screen, and by the [kk_agenda_submit] form
- * after the form itself. The popup stages its edits — opening copies
+ * after the form itself. The popup stages its edits - opening copies
  * the picker's values in, "Use this location" copies them back, and
- * closing (Cancel, Escape, backdrop) discards them — so nothing is
+ * closing (Cancel, Escape, backdrop) discards them - so nothing is
  * saved until the editor saves the post or the contributor submits.
  *
  * The popup's own inputs carry no name attributes, so they are never

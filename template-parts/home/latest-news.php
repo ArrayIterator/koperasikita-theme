@@ -20,7 +20,7 @@ $paged = max( 1, $paged );
 /* The visitor's saved layout wins over the Customizer default:
  * the switcher stores the choice in a `kk_layout` cookie (and in
  * localStorage), and the server reads the cookie so the list renders
- * in the right layout on first paint — no flash, no JS dependency. */
+ * in the right layout on first paint - no flash, no JS dependency. */
 $layout       = get_theme_mod( 'kk_homepage_layout', 'grid' );
 $layout       = in_array( $layout, array( 'grid', 'list', 'newsletter' ), true ) ? $layout : 'grid';
 if ( isset( $_COOKIE['kk_layout'] ) ) {
@@ -31,7 +31,7 @@ if ( isset( $_COOKIE['kk_layout'] ) ) {
 }
 
 /* The newsletter lead is a front-page feature only: on paged pages
- * (/page/2/, ...) there is no lead story and no "More stories" —
+ * (/page/2/, ...) there is no lead story and no "More stories" -
  * just the plain list. The newsletter template always renders its
  * first card as a lead, so never use it when paged; force the plain
  * list layout instead. */

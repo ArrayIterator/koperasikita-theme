@@ -20,7 +20,7 @@ use KoperasiKita\Providers\MarketPrice;
  * Live prices come from the scraper for Antam, UBS, Galeri 24, Lotus
  * Archi, King Halim and Emasku (HRTA GOLD) (+ spot). Mini gold
  * (MiniGold, EOA Gold, IGS Gold, Waris Sampoerna) is a separate
- * category — small denominations, not gram bars — so it is not in
+ * category - small denominations, not gram bars - so it is not in
  * this registry.
  *
  * Third parties may add or rename brands through the
@@ -41,10 +41,10 @@ final class Gold
     /**
      * Live providers in the order a never-configured brand prefers
      * them. Logam Mulia API first: it reads the synced table (a
-     * local database read — fast, and the prices the site's own
+     * local database read - fast, and the prices the site's own
      * sync pipeline curates). Scraped second: the 15-minute scrape,
      * a network fetch, so it stays the fallback rather than the hot
-     * path. Xaus last: spot only. Manual is not in this list — it
+     * path. Xaus last: spot only. Manual is not in this list - it
      * supplies every symbol on paper but only prices the ones an
      * admin typed a snapshot for, so preferring it first would
      * blank the widget on any site that never typed one.
@@ -83,7 +83,7 @@ final class Gold
     /**
      * One-line descriptions per brand, shown under the brand name
      * on the Gold Prices admin page (Prices tab). Only the five
-     * brands the user described have one — Emasku (HRTA GOLD) has
+     * brands the user described have one - Emasku (HRTA GOLD) has
      * none, and a brand without one renders nothing.
      *
      * @return array<string, string> Brand slug => description.
@@ -110,7 +110,7 @@ final class Gold
      *
      * Managed on the Gold Prices admin page ("Enabled Gold Brands"
      * tab). When the option has never been saved, every brand in
-     * the registry is enabled — the tab is an opt-out, not an
+     * the registry is enabled - the tab is an opt-out, not an
      * opt-in, so existing sites keep showing all their brands.
      * A saved empty list disables every brand on purpose.
      *
@@ -164,7 +164,7 @@ final class Gold
 
     /**
      * Providers that can actually supply one gold symbol, id => label,
-     * derived from each provider's own supplies() — never a hardcoded
+     * derived from each provider's own supplies() - never a hardcoded
      * list in the template. Manual can supply everything; Xaus only
      * spot; Scraped covers spot + all six brands; Logam Mulia API
      * covers four brands (Antam, UBS, Galeri 24, Lotus Archi), no
@@ -233,11 +233,11 @@ final class Gold
      * The admin picks one per brand on the Gold Prices page; a symbol
      * with no saved choice migrates from the old single global gold
      * provider (kk_markets_settings providers.gold) when that provider
-     * can supply it — except a bare 'manual' legacy, which only counts
+     * can supply it - except a bare 'manual' legacy, which only counts
      * when a manual snapshot price actually exists for the symbol.
      * Otherwise the symbol prefers a live provider (see
      * LIVE_PROVIDER_ORDER) and only falls back to Manual when no live
-     * provider can supply it. Nothing is written on read — the
+     * provider can supply it. Nothing is written on read - the
      * migration is computed, so a fresh install and an upgraded
      * install behave the same without a data migration.
      *
@@ -270,7 +270,7 @@ final class Gold
             }
 
             // The old single global provider, when it can supply the
-            // symbol — but a bare 'manual' legacy only counts when a
+            // symbol - but a bare 'manual' legacy only counts when a
             // snapshot price exists for this symbol. Manual with no
             // snapshot prices nothing, so it must not win over a live
             // provider that actually has data.
@@ -419,8 +419,8 @@ final class Gold
     /**
      * Save the per-brand provider + fallback maps. Unknown symbols
      * are dropped, a provider that cannot supply its brand falls back
-     * to Manual, and a fallback that cannot supply the brand — or
-     * that equals the primary — becomes "none".
+     * to Manual, and a fallback that cannot supply the brand - or
+     * that equals the primary - becomes "none".
      *
      * @param array<string, string> $providers Symbol => provider id.
      * @param array<string, string> $fallbacks Symbol => provider id or ''.
@@ -481,7 +481,7 @@ final class Gold
      *
      * Antam, UBS and Galeri 24 have no official logo on Commons /
      * Wikipedia, so they use a generic initials mark drawn for the
-     * theme (assets/img/brands/*.svg) — never a fabricated official
+     * theme (assets/img/brands/*.svg) - never a fabricated official
      * logo. A brand with no file returns ''.
      *
      * @return array<string, string>

@@ -15,7 +15,7 @@ use WP_REST_Response;
  * The public REST API, namespace `koperasikita/v1`.
  *
  * Read-only: every route returns data, never writes it. Every route
- * has an explicit permission callback — the public routes return true
+ * has an explicit permission callback - the public routes return true
  * by design because the data they expose (market snapshots, gold
  * brand names, weather for a place) is already shown to anonymous
  * visitors on the public site; the fonts route is limited to users
@@ -24,7 +24,7 @@ use WP_REST_Response;
  * All responses use the unified envelope (see Response): success
  * responses carry the data under `data`, errors under `error` with a
  * stable code. A disabled feature is a 404, an upstream failure is
- * a 503 — an empty result is an empty array, never fake data.
+ * a 503 - an empty result is an empty array, never fake data.
  */
 final class Rest
 {
@@ -157,7 +157,7 @@ final class Rest
     }
 
     /**
-     * GET /markets — every enabled market with its prices.
+     * GET /markets - every enabled market with its prices.
      */
     public static function markets(): WP_REST_Response
     {
@@ -171,7 +171,7 @@ final class Rest
     }
 
     /**
-     * GET /markets/{market} — one market (crypto, gold or stocks).
+     * GET /markets/{market} - one market (crypto, gold or stocks).
      */
     public static function market(WP_REST_Request $request): WP_REST_Response
     {
@@ -197,7 +197,7 @@ final class Rest
     }
 
     /**
-     * GET /gold — the gold brands and their prices per gram, where a
+     * GET /gold - the gold brands and their prices per gram, where a
      * price has been entered. Brands without a snapshot are not
      * listed, so an empty result means "no prices saved", not "gold
      * is free".
@@ -222,7 +222,7 @@ final class Rest
     }
 
     /**
-     * GET /weather?lat=&lon= or ?city= — current weather for a place.
+     * GET /weather?lat=&lon= or ?city= - current weather for a place.
      * No coordinates and no city means the default location. Only one
      * of lat/lon is a 400, out-of-range coordinates are a 400, a city
      * that cannot be found is a 400, and an upstream failure is a 503.
@@ -283,7 +283,7 @@ final class Rest
     }
 
     /**
-     * GET /posts — one more page of an archive loop, as rendered HTML.
+     * GET /posts - one more page of an archive loop, as rendered HTML.
      *
      * The query is rebuilt from an allowlist only (category, tag,
      * author, search, date parts, post type); anything else in the
@@ -372,7 +372,7 @@ final class Rest
     }
 
     /**
-     * GET /fonts — every catalogue font with its download state.
+     * GET /fonts - every catalogue font with its download state.
      * Admin only: download state is a site-management detail, not
      * public content.
      */

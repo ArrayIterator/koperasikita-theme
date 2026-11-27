@@ -9,7 +9,7 @@ use WP_Widget;
 /**
  * Pages widget: a simple list of page links, ordered by menu order,
  * date or title. Pages rarely carry a featured image, so there is no
- * thumbnail option — the list is titles only.
+ * thumbnail option - the list is titles only.
  */
 final class PagesWidget extends WP_Widget
 {

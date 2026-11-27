@@ -4,19 +4,19 @@
  * + search dialog.
  *
  * Two menus, one bar: the desktop bar (1024px and up) is the Primary
- * menu, and the mobile drawer (below 1024px) is the Sidebar menu —
+ * menu, and the mobile drawer (below 1024px) is the Sidebar menu -
  * the hamburger opens the drawer sliding in from the left, over a
  * blurred backdrop. The drawer falls back to the Primary menu when
  * no menu is assigned to the sidebar location, so it is never empty
  * on a fresh install. The drawer header carries the logo, a close
- * button and — when a sub-menu is open — a back button (drill-down).
+ * button and - when a sub-menu is open - a back button (drill-down).
  *
  * Search and the colour-scheme toggle live here in the sticky bar,
  * not in the top bar. The PWA install button never lives here either:
  * its position is a Customizer setting (footer by default).
  *
  * Search is an expanding field, not a popup: the search icon is the
- * toggle and the input grows into a FULL bar when opened — the
+ * toggle and the input grows into a FULL bar when opened - the
  * desktop menu / mobile hamburger hides and the field fills the
  * whole nav row on desktop exactly as on mobile (Escape, outside
  * click or submit closes it again).
@@ -36,7 +36,7 @@
 		<nav class="kk-desktop-nav" aria-label="<?php esc_attr_e( 'Primary', 'koperasikita' ); ?>">
 			<?php
 			// Depth 0 (unlimited): the desktop dropdown supports any
-			// nesting depth — a nested sub-menu flies out to the right
+			// nesting depth - a nested sub-menu flies out to the right
 			// of its parent item (responsive.css).
 			wp_nav_menu(
 				array(

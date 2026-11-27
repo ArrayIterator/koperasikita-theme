@@ -63,7 +63,7 @@ if ( \KoperasiKita\Features\Pwa::isButtonPosition( 'above-header' ) ) {
 				// A custom logo is the site's banner lockup (mark + wordmark
 				// as one image), so it stands alone: the text title and
 				// tagline would duplicate the wordmark baked into the
-				// image. They render only with the built-in K mark — or
+				// image. They render only with the built-in K mark - or
 				// next to the logo when "Show Title Text" is on (see
 				// Logo::brand, which appends the text brand itself).
 				if ( \KoperasiKita\Features\Logo::hasLogo() ) {
@@ -97,7 +97,7 @@ if ( \KoperasiKita\Features\Pwa::isButtonPosition( 'above-header' ) ) {
 <?php
 // The primary navigation must live outside <header>: .kk-nav-wrap is
 // position: sticky, and a sticky element can only stick within its
-// parent's box — inside the ~210px header it stuck for a few pixels
+// parent's box - inside the ~210px header it stuck for a few pixels
 // and then scrolled away with the header. As a direct child of <body>
 // it sticks to the top of the viewport for the whole page. The ticker
 // moves out with it so the visual order (nav, then ticker) is kept.

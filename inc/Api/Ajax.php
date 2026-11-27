@@ -20,7 +20,7 @@ namespace KoperasiKita\Api;
  *    when the feature explicitly opts in with `$nopriv = true`.
  *  - The handler returns the success `data` array, or throws an
  *    ApiException. Anything else thrown becomes `kk_internal_error`
- *    (500) with a generic message — internals never leak.
+ *    (500) with a generic message - internals never leak.
  *  - The answer is always the Response envelope, never the bare
  *    `wp_send_json_success` / `wp_send_json_error` shapes.
  *
@@ -105,7 +105,7 @@ final class Ajax
         } catch (\Throwable $exception) {
             // Never leak internals: log nothing here (WP already logs
             // fatals), just answer with the generic code.
-            Response::sendError(Response::ERR_INTERNAL, __('Something went wrong. Please try again later.', 'koperasikita'), 500);
+            Response::sendError(Response::ERR_INTERNAL, __('Request failed. Please try again later.', 'koperasikita'), 500);
         }
     }
 }

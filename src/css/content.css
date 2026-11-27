@@ -1,11 +1,11 @@
-/* ==========================================================================
-   Koperasi Kita — content.css — content
+/*
+   Koperasi Kita - content.css - content
    Content pages: archive / search / page layouts, sidebar and
    widget shells, single article, breadcrumb, comments, pagination,
    search form, 404 and the bookmarks page.
-   ========================================================================== */
+   */
 
-/* --- Archive / search / page layouts -------------------------------------- */
+/* Archive / search / page layouts */
 
 .kk-archive-layout,
 .kk-single-layout,
@@ -48,7 +48,7 @@
 	margin-top: 16px;
 }
 
-/* --- Widget areas ------------------------------------------------------- */
+/* Widget areas */
 /* Full-width content strips (Below Header, Before Latest News, Before
  * Highlights, Block Area). They render in the normal flow and vanish
  * entirely when empty. Widgets inside get the standard widget
@@ -67,7 +67,7 @@
 }
 
 /* No-border header style: the widget container's thick top rule is
- * part of the header style, so "no border" removes it too — the
+ * part of the header style, so "no border" removes it too - the
  * class is added to the container by WidgetHeader::beforeWidget().
  * Without this the border/no-border setting changed nothing visible. */
 .kk-widget-area .widget.kk-widget--no-border,
@@ -76,7 +76,7 @@
 	padding-top: 0;
 }
 
-/* --- Sidebar / widgets ---------------------------------------------------- */
+/* Sidebar / widgets */
 
 .kk-sidebar {
 	display: grid;
@@ -105,7 +105,7 @@
 	border-bottom: 0;
 }
 
-/* --- Sidebar menu (Appearance -> Menus -> Sidebar Menu) ------------------ */
+/* Sidebar menu (Appearance -> Menus -> Sidebar Menu) */
 /* A vertical nav list at the top of the main sidebar, shown only when a
  * menu is assigned to the Sidebar Menu location. Links are flex rows so
  * a menu icon (MenuIcons) sits beside the label; the current page's
@@ -242,7 +242,7 @@
 	padding: 16px 0;
 }
 
-/* --- Single article ------------------------------------------------------- */
+/* Single article */
 
 .kk-article-header {
 	margin-bottom: 20px;
@@ -537,7 +537,7 @@
 	color: var(--kk-muted);
 }
 
-/* --- Comments ------------------------------------------------------------- */
+/* Comments */
 
 .kk-comments {
 	margin-top: 40px;
@@ -626,7 +626,7 @@
 	margin-bottom: 16px;
 }
 
-/* --- Pagination ----------------------------------------------------------- */
+/* Pagination */
 
 .kk-pagination {
 	margin-top: 32px;
@@ -694,7 +694,7 @@
 }
 
 /* Archive list layout: horizontal cards with a small thumb, the same
- * shape as the homepage list layout. Grid mode needs no rules — it
+ * shape as the homepage list layout. Grid mode needs no rules - it
  * is the card grid as rendered today. The thumbnail width is the
  * Article List Thumbnail Size setting (--kk-list-thumb-size). The
  * container is pinned to one column: the responsive rules make
@@ -791,7 +791,7 @@
 	font-size: 14px;
 }
 
-/* --- Search form ---------------------------------------------------------- */
+/* Search form */
 
 .search-form {
 	display: flex;
@@ -832,7 +832,7 @@
 	color: #fff;
 }
 
-/* --- 404 ------------------------------------------------------------------ */
+/* 404 */
 
 .kk-not-found {
 	padding-top: 48px;
@@ -866,7 +866,7 @@
 	margin-bottom: 0;
 }
 
-/* --- Bookmarks page ------------------------------------------------------- */
+/* Bookmarks page */
 
 .kk-bookmarks-page {
 	padding-top: 24px;
@@ -879,7 +879,7 @@
 }
 
 /* Flat ruled rows, no boxed card: the item is a hairline separator
- * with vertical padding, like the news cards — no background fill,
+ * with vertical padding, like the news cards - no background fill,
  * no border box. */
 .kk-bookmark-item {
 	display: grid;
@@ -913,7 +913,7 @@
 
 /* The note reads as plain text, not a boxed field: transparent,
  * no border, same font as the rest of the item. It is still a
- * textarea — click to edit, Save note persists it. */
+ * textarea - click to edit, Save note persists it. */
 .kk-bookmark-item-note {
 	margin-top: 10px;
 	font-family: inherit;

@@ -40,7 +40,7 @@ final class Sidebars
             ],
             // 404 / search-not-found sidebar. When it has widgets the
             // 404 and no-results pages are two-column (half page);
-            // when empty they are full width — no fallback, no
+            // when empty they are full width - no fallback, no
             // hardcoded latest-news list.
             'sidebar-404' => [
                 esc_html__('404 Sidebar', 'koperasikita'),
@@ -53,7 +53,7 @@ final class Sidebars
                 esc_html__('Right column of the agenda pages (single event and agenda archive), next to the event details.', 'koperasikita'),
             ],
             // Full-width content strips. These are NOT sidebars, so
-            // they never get a sticky setting — they render in the
+            // they never get a sticky setting - they render in the
             // normal flow and disappear entirely when empty.
             'kk-below-header' => [
                 esc_html__('Below Header', 'koperasikita'),
@@ -68,7 +68,7 @@ final class Sidebars
                 esc_html__('Homepage, full-width strip directly before the Highlights (Sorotan) section.', 'koperasikita'),
             ],
             // Global block-area widget: ONE shared area for the whole
-            // category-block region, locked — not one area per block.
+            // category-block region, locked - not one area per block.
             // When empty, the homepage sidebar drops below the
             // primary content instead of sitting beside it.
             'kk-block' => [

@@ -58,7 +58,7 @@ final class Enqueue
 
         // The text-size control is injected by the `the_content` filter
         // only on singular post/page/agenda views, so its script loads
-        // only there — nowhere else on the site.
+        // only there - nowhere else on the site.
         if (is_singular(['post', 'page', 'agenda'])) {
             $fontSizeJs = ViteLoader::js('src/ts/article-font-size.ts');
 
@@ -69,7 +69,7 @@ final class Enqueue
 
         // The pagination loader only runs where an archive loop can
         // render it (archive / blog / search) and only when the mode
-        // is load-more — page numbers and next/prev need no script.
+        // is load-more - page numbers and next/prev need no script.
         if ('load-more' === \KoperasiKita\Features\Pagination::mode() && (is_archive() || is_home() || is_search())) {
             $paginationJs = ViteLoader::js('src/ts/pagination.ts');
 
@@ -106,14 +106,14 @@ final class Enqueue
      * (1) Vite's default 'es' output splits any module shared by two
      * entries (src/ts/api.ts is imported by weather, admin and
      * customizer-preview) into a separate chunk, and the entries then
-     * start with a top-level `import` — a SyntaxError as a plain
+     * start with a top-level `import` - a SyntaxError as a plain
      * <script>. (2) Even entries without imports leak their top-level
      * names into the one shared global scope, and Vite's minifier
      * reuses single-letter names across bundles: gold-markets'
      * `function I` vs main's `const I` threw "Identifier 'I' has
-     * already been declared" and killed main.js — ticker, clock,
+     * already been declared" and killed main.js - ticker, clock,
      * dark-mode toggle, search overlay, mobile nav, bookmarks, share
-     * copy — on every page. Module scope gives each entry its own
+     * copy - on every page. Module scope gives each entry its own
      * scope, so no entry can ever collide with another. Never enqueue
      * a JS entry as a classic script (see vite.config.ts).
      */
@@ -133,7 +133,7 @@ final class Enqueue
                 // output splits any module shared by two entries
                 // (src/ts/api.ts is imported by weather, admin and
                 // customizer-preview) into a separate chunk, and the
-                // entries then start with a top-level `import` — a
+                // entries then start with a top-level `import` - a
                 // SyntaxError as a plain <script>, which killed the
                 // whole file: weather.js lost the picker, the top-bar
                 // slot and the widget refresh; admin.js lost the Fonts
@@ -159,7 +159,7 @@ final class Enqueue
 
     /**
      * The split stylesheets, in the exact order of the sections in the
-     * old app.css monolith — the cascade depends on it. The shell
+     * old app.css monolith - the cascade depends on it. The shell
      * (reset, tokens, base, header, cards, footer, overlays, variants,
      * responsive) loads on every page. Home-only and content styles
      * load only where their templates can appear.
@@ -217,7 +217,7 @@ final class Enqueue
             $entries['kk-newsletter'] = 'src/css/newsletter.css';
         }
 
-        /* Feature styles, last in the cascade — exactly where they
+        /* Feature styles, last in the cascade - exactly where they
          * used to load as separate files depending on kk-app (combined
          * mode) or kk-responsive (split mode). They are part of the
          * combined file too now: "combined" means every stylesheet
@@ -250,7 +250,7 @@ final class Enqueue
      * build automatically produces a new file. The handle is kk-app,
      * so the Customizer palette/font inline styles (attached to
      * kk-app) print right after the combined file, exactly where
-     * they belong — no moveAppInlineStyles needed in combined mode.
+     * they belong - no moveAppInlineStyles needed in combined mode.
      * Returns false (and the caller falls back to split mode) when
      * the file cannot be built.
      */
@@ -326,7 +326,7 @@ final class Enqueue
 
         // Inline styles attached to kk-app (Customizer palette overrides,
         // font variables) must print after the split files, as they did
-        // when app.css was one file — otherwise the :root defaults in
+        // when app.css was one file - otherwise the :root defaults in
         // tokens.css would win over the user's font choice. The palette
         // overrides are added at priority 20, so move them late.
         add_action('wp_enqueue_scripts', [self::class, 'moveAppInlineStyles'], 30);
@@ -345,10 +345,10 @@ final class Enqueue
      * Content styles cover archive / search / page layouts, the sidebar
      * and widget shells, single articles, breadcrumbs, comments,
      * pagination, the search form, 404 and bookmarks. Every frontend
-     * template uses at least one of those — the front page renders the
+     * template uses at least one of those - the front page renders the
      * news sidebar, index/archive/search/single render cards plus the
      * sidebar, pages render breadcrumbs, and the bookmarks/404 pages
-     * are singular templates — so this is every frontend render.
+     * are singular templates - so this is every frontend render.
      */
     private static function needsContentStyles(): bool
     {
@@ -501,7 +501,7 @@ final class Enqueue
 
             // The Data Desk Templates page renders live template
             // previews (the real panel / table markup), so it needs
-            // the same styles the editor canvas uses — tokens,
+            // the same styles the editor canvas uses - tokens,
             // widgets, gold-markets and the rest.
             self::enqueueEditorStyles();
 
@@ -674,7 +674,7 @@ final class Enqueue
     /**
      * Block editor (widgets.php, Customizer widget panel, post
      * editor): the widget blocks render via ServerSideRender, so
-     * the preview HTML is the real frontend markup — but the
+     * the preview HTML is the real frontend markup - but the
      * frontend styles are never loaded in the editor canvas, so
      * the widget title (top border, :after rule) renders plain.
      * Load just the tokens (CSS variables, e.g. --kk-ink) and the
@@ -683,11 +683,11 @@ final class Enqueue
      * (.kk-widget-title--*, .kk-widget) only match the preview
      * markup, not the editor chrome.
      *
-     * These styles load in the OUTER admin page only — the canvas
+     * These styles load in the OUTER admin page only - the canvas
      * is an iframe, and `enqueue_block_editor_assets` never enters
      * it. The canvas gets its styles from the blocks' `editor_style`
      * instead: see Blocks::registerAssets(), which registers the
-     * editor bundle (src/css/editor.css — tokens, base, content,
+     * editor bundle (src/css/editor.css - tokens, base, content,
      * widgets, gold-markets, weather, variants, plus the canvas
      * shell/title rules) for every Koperasi Kita block. The bundle
      * is enqueued here too, so any block rendered inline in the
@@ -697,7 +697,7 @@ final class Enqueue
     /**
      * Enqueue the editor bundle (src/css/editor.css) on an admin
      * screen that renders widget / Data Desk preview markup outside
-     * the editor canvas — the Data Desk Templates page and the
+     * the editor canvas - the Data Desk Templates page and the
      * classic widget forms. The handle is registered by
      * Blocks::registerAssets() for the canvas; wp_enqueue_style
      * on an already-registered handle is enough here.

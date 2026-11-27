@@ -7,7 +7,7 @@ namespace KoperasiKita\Providers;
 /**
  * Custom table for fetched gold prices (`{prefix}kk_gold_prices`).
  *
- * One row per brand per day — the UNIQUE key is (provider, symbol,
+ * One row per brand per day - the UNIQUE key is (provider, symbol,
  * recorded_date), so the table keeps a per-day history (the graph on
  * the admin page reads it) and a re-run can never create duplicates.
  * The last-good fallback reads the latest row per symbol.
@@ -68,7 +68,7 @@ final class GoldPricesTable
 
     /**
      * Insert one row, ignoring it when a row with the same
-     * (provider, symbol, recorded_date) already exists — the UNIQUE
+     * (provider, symbol, recorded_date) already exists - the UNIQUE
      * key enforces it, so a re-run or a double-run can never create
      * duplicates. Returns 1 when inserted, 0 when skipped
      * (already in the DB) or when the write failed.
@@ -217,7 +217,7 @@ final class GoldPricesTable
     }
 
     /**
-     * Filtered rows for one provider, newest first — the History
+     * Filtered rows for one provider, newest first - the History
      * tab's chart (capped, page 0) and table (paged) both read
      * through here, so the chart and the list can never disagree
      * about the filter. An empty $provider means "all providers".
@@ -370,7 +370,7 @@ final class GoldPricesTable
     }
 
     /**
-     * How many rows the same filter matches — the History tab's
+     * How many rows the same filter matches - the History tab's
      * page count. An empty $provider means "all providers".
      * Counts table rows, so a row cleanRows() would
      * drop (no symbol, no positive price) is still counted; the
@@ -434,7 +434,7 @@ final class GoldPricesTable
 
     /**
      * The shared WHERE clause for the filtered history queries:
-     * provider first (omitted when empty — "all providers"),
+     * provider first (omitted when empty - "all providers"),
      * then the optional symbol and date filters.
      *
      * @param array{symbol?: string, symbols?: array<int, string>, from?: string, to?: string} $filters
@@ -515,7 +515,7 @@ final class GoldPricesTable
     }
 
     /**
-     * A real Y-m-d date, or '' — anything else (garbage, a
+     * A real Y-m-d date, or '' - anything else (garbage, a
      * wrong format, an impossible date) means "no filter".
      */
     private static function historyDate(string $value): string
@@ -530,7 +530,7 @@ final class GoldPricesTable
     /**
      * Last-good rows for one provider (the latest row per symbol),
      * keyed by symbol. An empty array means the table does not exist
-     * yet or holds no rows — never an error.
+     * yet or holds no rows - never an error.
      *
      * @return array<string, array{provider: string, sell_price: float, buyback_price: float|null, currency: string, recorded_date: string|null, fetched_at: int}>
      */

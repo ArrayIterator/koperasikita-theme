@@ -1,16 +1,16 @@
 /**
- * Koperasi Kita — article text size control.
+ * Koperasi Kita - article text size control.
  *
  * Standalone module, auto-initialised on DOMContentLoaded. It only runs
- * when a `[data-kk-font-size]` control is on the page — the control is
+ * when a `[data-kk-font-size]` control is on the page - the control is
  * injected by the `the_content` filter on singular post/page/agenda
  * views, so this file is only enqueued there. Anything else on the site
  * never loads it, and even if it did, there is nothing for it to do.
  *
  * The server renders the article with `--article-font-size` already set
  * (cookie size, or the Customizer default), so the first paint is
- * correct and this script only handles live changes: A− / A+ move the
- * size by 1px (clamped 8–24), Reset returns to the Customizer default
+ * correct and this script only handles live changes: A- / A+ move the
+ * size by 1px (clamped 8-24), Reset returns to the Customizer default
  * and clears the cookie. The choice is stored in a cookie for one
  * year, so the next page load renders it server-side. The decrease /
  * increase buttons disable at the limits, and the current size is

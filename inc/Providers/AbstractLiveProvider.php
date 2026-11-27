@@ -18,7 +18,7 @@ use KoperasiKita\Features\Markets;
  *    instead of an empty state, with its real `updated` timestamp
  *    so the age shown is honest.
  *  - When there is no cached value and no last good value, prices()
- *    returns an empty array — never an invented number.
+ *    returns an empty array - never an invented number.
  *  - A provider must never fatal on bad input; an unreachable
  *    upstream answers with an empty array, not an exception.
  *
@@ -34,7 +34,7 @@ abstract class AbstractLiveProvider implements MarketPriceProvider
     /**
      * How long a failed fetch stays "recently failed" (seconds).
      * While the backoff transient is set, prices() serves the last
-     * good value (or nothing) without touching the upstream again —
+     * good value (or nothing) without touching the upstream again -
      * a down provider must not burn a full timeout on every render.
      */
     protected function failedBackoffSeconds(): int
@@ -84,13 +84,13 @@ abstract class AbstractLiveProvider implements MarketPriceProvider
             return [];
         }
 
-        // 1. Fresh cache (transient).
+        // Fresh cache (transient).
         $cached = get_transient($this->transientKey());
         if (is_array($cached) && $cached !== []) {
             return $this->toMarketPrices($market, $cached);
         }
 
-        // 2. Live fetch — at most once per request for this provider,
+        // Live fetch - at most once per request for this provider,
         // and never while the 60-second failure backoff is set. A
         // provider that just failed answers from its last good value
         // (or nothing) instead of burning another timeout.
@@ -98,7 +98,7 @@ abstract class AbstractLiveProvider implements MarketPriceProvider
         // Never in block-editor preview mode (Markets::isPreviewMode):
         // the inserter/canvas SSR render must serve the transient or
         // the last good value, never burn an 8-second upstream
-        // timeout while a cold transient refetches — that is what
+        // timeout while a cold transient refetches - that is what
         // left the inserter preview a blank white box for ~5s.
         $key = $this->transientKey();
 
@@ -121,14 +121,14 @@ abstract class AbstractLiveProvider implements MarketPriceProvider
             set_transient($this->failedKey(), 1, $this->failedBackoffSeconds());
         }
 
-        // 3. Stale fallback: the last good value, with its real
+        // Stale fallback: the last good value, with its real
         // timestamp so the age shown is honest.
         $last = get_option($this->lastGoodOption());
         if (is_array($last) && $last !== []) {
             return $this->toMarketPrices($market, $last);
         }
 
-        // 4. No data at all.
+        // No data at all.
         return [];
     }
 

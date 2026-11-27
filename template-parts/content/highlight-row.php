@@ -1,13 +1,13 @@
 <?php
 /**
  * Highlights row: one compact row for the Slider Full slides and
- * the List columns — a small thumbnail (like a widget row), then
+ * the List columns - a small thumbnail (like a widget row), then
  * the title, with the category eyebrow and the date only when the
  * Highlights settings ask for them (Show Category / Show Date).
  *
  * The row is an <li> inside the List column <ul>, or the single
  * slide content inside a Slider Full slide. It is NOT a grid card:
- * no paper background, no shadow — the List and Slider Full
+ * no paper background, no shadow - the List and Slider Full
  * displays stay quiet so the section reads like a widget list.
  *
  * @package KoperasiKita

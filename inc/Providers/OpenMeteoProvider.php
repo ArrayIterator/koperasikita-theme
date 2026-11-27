@@ -9,7 +9,7 @@ namespace KoperasiKita\Providers;
  *
  * All remote calls go through the server so responses can be cached in
  * transients; the browser never talks to the provider directly. A failed
- * fetch answers with null (current) or an empty array (search) — never
+ * fetch answers with null (current) or an empty array (search) - never
  * an exception and never invented numbers.
  */
 final class OpenMeteoProvider implements WeatherProvider

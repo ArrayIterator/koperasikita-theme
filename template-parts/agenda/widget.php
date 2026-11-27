@@ -1,7 +1,7 @@
 <?php
 /**
  * Agenda widget card: a panel with a header (icon + the widget
- * title) and one row per event — a date badge on the left, the
+ * title) and one row per event - a date badge on the left, the
  * title and a pin + location on the right. The panel follows the
  * site colour scheme (light card in light mode, the dark-green
  * reference card in dark mode); the Card style setting can force
@@ -19,9 +19,9 @@
  * AgendaWidget::items() array, plus $args['show_icon'] (bool),
  * $args['icon'] (string), $args['style'] ('auto'|'dark'|'light'|
  * 'custom'), $args['bg_color'] and $args['accent_color'] (hex colour
- * or '' — Choose Own only) and $args['link_url'] (string, '' when no
+ * or '' - Choose Own only) and $args['link_url'] (string, '' when no
  * link). An empty list renders the same card with an honest "no
- * agenda" line — never fake events. Choose Own sets the card's
+ * agenda" line - never fake events. Choose Own sets the card's
  * --kk-agenda-bg / --kk-agenda-green as inline vars, one per colour
  * that is set; an unset colour falls back to the theme value.
  *

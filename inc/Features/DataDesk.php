@@ -12,8 +12,8 @@ use KoperasiKita\Providers\MarketPrice;
 /**
  * Data Desk panel data: the chart + three stats for one market symbol.
  *
- * A Data Desk panel shows one symbol — a gold brand (Antam, UBS, ...)
- * or a stock (IHSG, LQ45) — over the last N days: a line chart of the
+ * A Data Desk panel shows one symbol - a gold brand (Antam, UBS, ...)
+ * or a stock (IHSG, LQ45) - over the last N days: a line chart of the
  * daily price, the current price with its day change, the buyback
  * price with its spread (gold only), and the weekly performance with
  * its up-streak. Everything is computed from real stored data; a
@@ -23,7 +23,7 @@ use KoperasiKita\Providers\MarketPrice;
  * Gold history comes from the Logam Mulia price table (one row per
  * brand per day, with sell + buyback). Stocks have no history table,
  * so their chart is always a placeholder and their buyback stat is
- * empty — the current price and day change still come from the
+ * empty - the current price and day change still come from the
  * Markets provider (Yahoo).
  */
 final class DataDesk
@@ -94,10 +94,10 @@ final class DataDesk
      * Replace {label} / {day} placeholders in a Data Desk template title.
      *
      * {label} is the symbol label (e.g. "Antam"), {day} is the chart
-     * window in days — the two values the automatic title is built
+     * window in days - the two values the automatic title is built
      * from. Unknown placeholders are left untouched, so a typo never
      * eats text. NOTE: this {day} is NOT the footer's {day} (day of
-     * the month) — the two token systems must not be "unified".
+     * the month) - the two token systems must not be "unified".
      */
     public static function replaceTitleTokens(string $title, string $label, int $days): string
     {
@@ -225,7 +225,7 @@ final class DataDesk
     }
 
     /**
-     * The chart range ("21 November 2026 – 27 November 2026") in
+     * The chart range ("21 November 2026 - 27 November 2026") in
      * the configured placeholder format. The full format is the
      * range the panel data already computed, returned untouched,
      * so the default rendering never changes.
@@ -251,7 +251,7 @@ final class DataDesk
         $start = self::formatPlaceholderDate($first, $format);
         $end = self::formatPlaceholderDate($last, $format);
 
-        return $first === $last ? $start : $start . ' – ' . $end;
+        return $first === $last ? $start : $start . ' - ' . $end;
     }
 
     /**
@@ -261,7 +261,7 @@ final class DataDesk
      * date format, {day} / {days} the chart window, {label} the
      * symbol name, {arrow} / {delta} / {delta_pct} the change
      * (daily or whole period, per the configured percent type),
-     * {spread} the sell–buyback spread, {streak} the up-streak in
+     * {spread} the sell-buyback spread, {streak} the up-streak in
      * days and {zone} the zone name in the configured zone colour.
      * Unknown placeholders stay literal, so a typo never eats
      * text, the same rule as the title tokens. The literal text
@@ -315,7 +315,7 @@ final class DataDesk
     /**
      * The preview for one template (panel or table), rendered
      * through the real template files with clearly-labelled SAMPLE
-     * data — never real prices presented as live. The templates
+     * data - never real prices presented as live. The templates
      * page list, the template form and the widget forms all use
      * this one path, so the preview is always the layout the
      * widget will actually render.
@@ -325,7 +325,7 @@ final class DataDesk
      * blocks are inline-editable and carry their eye toggles, and
      * a hidden block stays visible, dimmed, so it can be
      * un-hidden. Widget-form previews and the frontend never get
-     * those — a hidden block simply does not render there.
+     * those - a hidden block simply does not render there.
      */
     public static function renderPreview(array $template, bool $editable = false): string
     {
@@ -366,7 +366,7 @@ final class DataDesk
      * panelData(), but with a fixed, clearly-labelled sample series
      * (a gentle upward slope around a round base price) instead of
      * real history. The chart, the stats and the streak all render,
-     * so the preview shows the layout — the numbers are illustrative
+     * so the preview shows the layout - the numbers are illustrative
      * only and the template marks them as a preview.
      *
      * @return array{market: string, symbol: string, label: string, market_label: string, price: float|null, currency: string, change: float|null, change_abs: float|null, buyback: float|null, spread: float|null, week_change: float|null, streak: int, points: array<int, array{date: string, short: string, price: float}>, has_history: bool, date_range: string}
@@ -428,14 +428,14 @@ final class DataDesk
             'has_history' => true,
             'date_range' => $first['date'] === $last['date']
                 ? date_i18n(get_option('date_format'), strtotime($first['date']))
-                : date_i18n('j F Y', strtotime($first['date'])) . ' – ' . date_i18n('j F Y', strtotime($last['date'])),
+                : date_i18n('j F Y', strtotime($first['date'])) . ' - ' . date_i18n('j F Y', strtotime($last['date'])),
         ];
     }
 
     /**
      * Sample table rows for a template: one MarketPrice per brand
      * the template shows (empty = all enabled brands), with fixed
-     * round sample prices — never a live snapshot. The table
+     * round sample prices - never a live snapshot. The table
      * template marks them as a preview.
      *
      * @return array<string, MarketPrice>
@@ -473,7 +473,7 @@ final class DataDesk
      * `palette`, `days`, `title`, `kicker`, `date_line`, the per-block stat
      * texts `stat_{block}_label` / `stat_{block}_sub`, the per-header
      * texts `header_{brand|price|updated}`, and
-     * `hidden_blocks` as a comma-separated list) — the form sends
+     * `hidden_blocks` as a comma-separated list) - the form sends
      * fields, the widget forms send an id. A fields preview is
      * the template editor's own, so it renders editable
      * (inline-editable stats + eye toggles); an id preview is a
@@ -525,7 +525,7 @@ final class DataDesk
     }
 
     /**
-     * The template fields, read from a request array and sanitised —
+     * The template fields, read from a request array and sanitised -
      * the one reader for the form POST (DataDeskTemplatesPage) and
      * the AJAX save below, so the two saves can never drift apart.
      * Brands arrive either as an array (native form POST, field
@@ -614,7 +614,7 @@ final class DataDesk
      * template form (and its AJAX refresh) sends. Empty means
      * "use the default label". $prefix is the form's field prefix
      * ('kk_template_' for the save POST, '' for the AJAX refresh
-     * params) — the same shape as statsFromFields().
+     * params) - the same shape as statsFromFields().
      *
      * @param array<string, mixed> $raw
      * @return array<string, string>
@@ -744,7 +744,7 @@ final class DataDesk
     /**
      * The first stored template of one kind, or null when none
      * exists. Widgets fall back to this when the template they
-     * point at is gone — never to a built-in.
+     * point at is gone - never to a built-in.
      *
      * @return array{id: string, name: string, kind: string, symbol: string, brands: array<int, string>, palette: string, days: int, title: string, kicker: string, date_line: string, stats: array<string, array{label: string, sub: string}>, headers: array<string, string>, hidden_blocks: array<int, string>, placeholders: array{date_format: string, percent: string, zone_color: string}}|null
      */
@@ -764,7 +764,7 @@ final class DataDesk
     /**
      * One template by id, or null when no stored template has that
      * id. Callers fall back to the first stored template of the
-     * matching kind — never to a built-in.
+     * matching kind - never to a built-in.
      *
      * @return array{id: string, name: string, kind: string, symbol: string, brands: array<int, string>, palette: string, days: int, title: string, kicker: string, date_line: string, stats: array<string, array{label: string, sub: string}>, headers: array<string, string>, hidden_blocks: array<int, string>, placeholders: array{date_format: string, percent: string, zone_color: string}}|null
      */
@@ -853,7 +853,7 @@ final class DataDesk
     /**
      * The symbols a Data Desk panel can show, as "market:symbol" =>
      * label. Gold brands first, then stocks. Crypto is left out on
-     * purpose — the panel is a gold / index desk, not a coin ticker.
+     * purpose - the panel is a gold / index desk, not a coin ticker.
      *
      * @return array<string, string>
      */
@@ -1014,7 +1014,7 @@ final class DataDesk
         $last = $rows[count($rows) - 1];
         $data['date_range'] = $first['date'] === $last['date']
             ? date_i18n(get_option('date_format'), strtotime($first['date']))
-            : date_i18n('j F Y', strtotime($first['date'])) . ' – ' . date_i18n('j F Y', strtotime($last['date']));
+            : date_i18n('j F Y', strtotime($first['date'])) . ' - ' . date_i18n('j F Y', strtotime($last['date']));
 
         // Current price prefers the latest history row (it carries the
         // buyback too); the Markets snapshot is the fallback.

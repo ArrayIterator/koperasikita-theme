@@ -10,12 +10,12 @@ use KoperasiKita\Features\Markets;
 use WP_Widget;
 
 /**
- * Gold Data Desk widget: the gold brands as a data table — one row
+ * Gold Data Desk widget: the gold brands as a data table - one row
  * per brand with the price per gram and the last-updated date.
  *
  * The widget renders a Data Desk template of kind "table" created
  * on the Data Desk Templates admin page. It carries no settings of
- * its own — the template picks the brands (empty = all enabled
+ * its own - the template picks the brands (empty = all enabled
  * brands) and the palette. The header title is the widget title, or
  * the template title when the widget title is empty.
  *
@@ -52,7 +52,7 @@ final class GoldDataDeskWidget extends WP_Widget
         $template = $templateId !== '' ? DataDesk::getTemplate($templateId) : null;
         // A panel template picked here (its kind was changed after the
         // widget picked it) falls back to the first stored table
-        // template — this widget only ever renders tables. With no
+        // template - this widget only ever renders tables. With no
         // table template at all the widget renders nothing.
         if ($template === null || $template['kind'] !== DataDesk::KIND_TABLE) {
             $template = DataDesk::firstTemplateOfKind(DataDesk::KIND_TABLE);
@@ -136,7 +136,7 @@ final class GoldDataDeskWidget extends WP_Widget
         </p>
         <?php /* Layout preview: the real table markup with sample data, re-rendered by admin.ts
          * (kk_data_desk_preview) when the template above changes. The block editor needs no
-         * extra box — its ServerSideRender preview below the settings is the live preview. */ ?>
+         * extra box - its ServerSideRender preview below the settings is the live preview. */ ?>
         <div class="kk-data-desk-widget-preview" data-kk-data-desk-widget-preview data-kk-kind="table">
             <p class="kk-data-desk-widget-preview-label"><?php esc_html_e('Layout preview — sample data', 'koperasikita'); ?></p>
             <div data-kk-data-desk-widget-preview-body>

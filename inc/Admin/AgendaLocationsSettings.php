@@ -43,7 +43,7 @@ final class AgendaLocationsSettings
      * coordinates is dropped, so a half-filled row can never reach
      * the picker; the description is truncated to
      * Agenda::LOCATION_DESC_MAX instead of dropping the row. The
-     * stable id is kept when the row already has one — rows saved
+     * stable id is kept when the row already has one - rows saved
      * before ids existed get theirs from locations().
      *
      * @param mixed $row Raw row.

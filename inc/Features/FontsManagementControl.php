@@ -9,7 +9,7 @@ use WP_Customize_Control;
 /**
  * Typography-section control that reports the download state of the
  * currently selected Google fonts and offers the download / clear
- * actions. It renders markup only — the buttons are wired by the
+ * actions. It renders markup only - the buttons are wired by the
  * admin bundle (src/ts/admin.ts) through the kkAdminData localize.
  */
 final class FontsManagementControl extends WP_Customize_Control

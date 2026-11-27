@@ -4,14 +4,14 @@
  *
  * Pack the Koperasi Kita theme into a production-ready install zip.
  *
- * Flow — the pack stops dead when any step fails:
- *   1. version check: package.json and style.css must agree
- *   2. install JS dependencies (plain install; this repo has no lockfile,
+ * Flow - the pack stops dead when any step fails:
+ *   version check: package.json and style.css must agree
+ *   install JS dependencies (plain install; this repo has no lockfile,
  *      so never `ci` / `--frozen-lockfile`)
- *   3. typecheck (tsc --noEmit)
- *   4. production build (vite build) + dist manifest check
- *   5. stage the shippable files under a `koperasikita/` prefix
- *   6. zip, verify with `unzip -t`, print the SHA-256
+ *   typecheck (tsc --noEmit)
+ *   production build (vite build) + dist manifest check
+ *   stage the shippable files under a `koperasikita/` prefix
+ *   zip, verify with `unzip -t`, print the SHA-256
  *
  * Usage:
  *   node release-theme.js        (or: bun run release)
@@ -19,7 +19,7 @@
  * Output:
  *   releases/koperasikita-{version}.zip
  *
- * What ships: the theme exactly as WordPress installs it — PHP templates,
+ * What ships: the theme exactly as WordPress installs it - PHP templates,
  * inc/, assets/, dist/ (the production build), languages/ (including the
  * compiled .mo), demo-content/ and README.md. Development-only files never
  * ship: TypeScript sources, package/composer metadata, CI config, docs.
@@ -42,9 +42,7 @@ import {
 import { tmpdir } from 'node:os';
 import { dirname, resolve } from 'node:path';
 
-// ---------------------------------------------------------------------------
 // Config
-// ---------------------------------------------------------------------------
 
 const THEME_DIR = resolve(import.meta.dirname);
 const THEME_SLUG = 'koperasikita';
@@ -74,12 +72,10 @@ const EXCLUDED_FILES = new Set([
 
 const RELEASES_DIR = resolve(THEME_DIR, 'releases');
 
-// ---------------------------------------------------------------------------
 // Helpers
-// ---------------------------------------------------------------------------
 
 function run(cmd, label) {
-  console.log(`\n> ${label}…`);
+  console.log(`\n> ${label}...`);
   console.log(`  $ ${cmd}`);
   execSync(cmd, { cwd: THEME_DIR, stdio: 'inherit' });
 }
@@ -117,13 +113,11 @@ function stageFile(stageTheme, relPath) {
   copyFileSync(resolve(THEME_DIR, relPath), dest);
 }
 
-// ---------------------------------------------------------------------------
 // Steps
-// ---------------------------------------------------------------------------
 
 console.log('');
 console.log('==============================================');
-console.log(`  Packing ${THEME_SLUG} — release zip`);
+console.log(`  Packing ${THEME_SLUG} - release zip`);
 console.log('==============================================');
 
 if (!hasCommand('zip') || !hasCommand('unzip')) {
@@ -133,7 +127,7 @@ if (!hasCommand('git')) {
   throw new Error('`git` is required: the shippable file list comes from `git ls-files`.');
 }
 
-// 1. Version check.
+// Version check.
 const pkg = JSON.parse(readFileSync(resolve(THEME_DIR, 'package.json'), 'utf8'));
 const styleCss = readFileSync(resolve(THEME_DIR, 'style.css'), 'utf8');
 const styleVersion = styleCss.match(/^Version:\s*(.+)$/m)?.[1].trim();
@@ -149,23 +143,23 @@ const ZIP_PATH = resolve(RELEASES_DIR, ZIP_NAME);
 // Warn (do not fail) on a dirty tree: the zip should come from a known state.
 try {
   const dirty = execSync('git status --porcelain', { cwd: THEME_DIR, encoding: 'utf8' }).trim();
-  if (dirty) console.log(`\n! Working tree has uncommitted changes:\n${dirty}\n  Continuing anyway — commit first if the zip must match HEAD.`);
+  if (dirty) console.log(`\n! Working tree has uncommitted changes:\n${dirty}\n  Continuing anyway - commit first if the zip must match HEAD.`);
 } catch {
   // Status is best-effort; a failure here must not block the pack.
 }
 
 const head = execSync('git rev-parse --short HEAD', { cwd: THEME_DIR, encoding: 'utf8' }).trim();
 
-// 2–4. Install, typecheck, build. Any failure throws and stops the pack.
+// 2-4. Install, typecheck, build. Any failure throws and stops the pack.
 const PM = hasCommand('bun') ? 'bun' : 'npm';
 run(`${PM} install`, 'Install dependencies');
 run(`${PM} run typecheck`, 'Typecheck');
 run(`${PM} run build`, 'Production build');
 if (!existsSync(resolve(THEME_DIR, 'dist/.vite/manifest.json'))) {
-  throw new Error('dist/.vite/manifest.json is missing after the build — refusing to pack.');
+  throw new Error('dist/.vite/manifest.json is missing after the build - refusing to pack.');
 }
 
-// 5. Stage the shippable files.
+// Stage the shippable files.
 const stageRoot = mkdtempSync(resolve(tmpdir(), 'kk-release-'));
 const stageTheme = resolve(stageRoot, THEME_SLUG);
 let staged = 0;
@@ -182,19 +176,19 @@ try {
     staged += 1;
   }
 
-  // dist/ is gitignored, so it is not in `git ls-files` — stage it separately.
+  // dist/ is gitignored, so it is not in `git ls-files` - stage it separately.
   for (const file of walkDir(resolve(THEME_DIR, 'dist'))) {
     stageFile(stageTheme, `dist/${file}`);
     staged += 1;
   }
 
-  // 6. Zip + verify.
+  // Zip + verify.
   mkdirSync(RELEASES_DIR, { recursive: true });
   if (existsSync(ZIP_PATH)) {
     rmSync(ZIP_PATH);
     console.log(`\nRemoved existing ${ZIP_NAME}`);
   }
-  console.log(`\n> Creating ${ZIP_NAME} (${staged} files)…`);
+  console.log(`\n> Creating ${ZIP_NAME} (${staged} files)...`);
   execFileSync('zip', ['-r', '-q', ZIP_PATH, THEME_SLUG], { cwd: stageRoot, stdio: 'inherit' });
   execFileSync('unzip', ['-t', '-q', ZIP_PATH], { stdio: 'ignore' });
 } finally {

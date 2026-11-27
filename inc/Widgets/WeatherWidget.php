@@ -17,7 +17,7 @@ use WP_Widget;
  * The widget carries a list of locations (not one city): the
  * frontend location picker offers them as quick picks, so a visitor
  * can switch between the cities the widget was set up with. An old
- * instance with only a default city keeps working — the city becomes
+ * instance with only a default city keeps working - the city becomes
  * the single location. When the weather module is disabled the
  * widget outputs nothing at all.
  */
@@ -168,7 +168,7 @@ final class WeatherWidget extends WP_Widget
         }
 
         // Backwards compat: an old instance with only a default city
-        // keeps working — the city becomes the single location.
+        // keeps working - the city becomes the single location.
         if ($locations === [] && isset($newInstance['default_city']) && trim((string) $newInstance['default_city']) !== '') {
             $found = Weather::findCity((string) $newInstance['default_city']);
             $locations = $found !== null ? [$found] : [];

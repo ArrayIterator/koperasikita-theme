@@ -14,17 +14,17 @@ use WP_Widget;
  * InspectorControls). "Classic" is the title with a rule extending
  * to the right (the "editor's picks" header); the variants only
  * differ in where the thick 2px border sits:
- * - classic-top (default): border on top only — the widget
+ * - classic-top (default): border on top only - the widget
  *   container carries the thick 2px top rule.
- * - classic-top-bottom: border on top AND bottom — the container
+ * - classic-top-bottom: border on top AND bottom - the container
  *   carries the top rule, the title carries a 2px bottom border.
- * - classic-bottom: border on bottom only — the container's top
+ * - classic-bottom: border on bottom only - the container's top
  *   rule is removed, the title carries a 2px bottom border.
  * - no-border ("Borderless"): the same title, without any border
- *   at all — no container rule, no title rule.
+ *   at all - no container rule, no title rule.
  * - hide: no header at all.
  *
- * An empty title hides the header whatever the style says — an empty
+ * An empty title hides the header whatever the style says - an empty
  * header is hidden by default.
  */
 final class WidgetHeader
@@ -68,7 +68,7 @@ final class WidgetHeader
      * The widget container opening tag, with the no-border modifier
      * when the header style has no top border. The container's top
      * rule (content.css: .kk-sidebar .widget / .kk-widget-area
-     * .widget) is part of the header style — a style with no top
+     * .widget) is part of the header style - a style with no top
      * border must remove it too, or the setting changes nothing
      * visible (the title rule alone is 1px; the container rule is
      * the thick 2px line). Classic Bottom and Borderless have no

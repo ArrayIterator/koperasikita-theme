@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace KoperasiKita\Api;
 
 /**
- * The theme's public hook names — the single source of truth.
+ * The theme's public hook names - the single source of truth.
  *
  * Every hook a third party can use starts with `koperasikita/`. The
  * constants below are the canonical names; features apply the filters
@@ -13,7 +13,7 @@ namespace KoperasiKita\Api;
  * The full list, with parameters and return shapes, is documented in
  * docs/API.md.
  *
- * Filters only — the theme exposes no custom actions in v1. A filter
+ * Filters only - the theme exposes no custom actions in v1. A filter
  * that receives something invalid (not an array, a provider that does
  * not implement its contract) is ignored defensively by the caller,
  * so a broken third-party callback can never take the site down.
@@ -56,7 +56,7 @@ final class Hooks
      * constituents), plus the market slug as the second argument.
      * Returns: the same shape; slugs that are not in the stock
      * catalogue are dropped, so a site can widen the live set up to
-     * the full LQ45 catalogue — or narrow it — without editing the
+     * the full LQ45 catalogue - or narrow it - without editing the
      * theme. A widened set fetches more symbols per refresh.
      */
     public const MARKETS_YAHOO_STOCK_SYMBOLS = 'koperasikita/markets/yahoo_stock_symbols';
@@ -88,7 +88,7 @@ final class Hooks
      * Filter: `koperasikita/gold/brands`
      * Receives: `array<string, string>` (default: the five brands).
      * Returns: the same shape; non-string values are dropped. Prices
-     * still come from the Markets snapshots — a brand added here with
+     * still come from the Markets snapshots - a brand added here with
      * no snapshot simply has no price.
      */
     public const GOLD_BRANDS = 'koperasikita/gold/brands';

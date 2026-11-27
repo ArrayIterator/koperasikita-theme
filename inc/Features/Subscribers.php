@@ -10,9 +10,9 @@ namespace KoperasiKita\Features;
  * The [kk_subscribe] form stores every valid address here first, so
  * the site keeps its own subscriber list even when MailPoet is not
  * installed. MailPoet, when active, is still synced through its own
- * API — this table is the theme's record, not a replacement for it.
+ * API - this table is the theme's record, not a replacement for it.
  *
- * One row per email address — the UNIQUE key on email means a
+ * One row per email address - the UNIQUE key on email means a
  * re-submit can never create a duplicate. record() is an upsert:
  * the first submit inserts, a later submit for the same address
  * only refreshes status, source and updated_at, so resubscribing
@@ -90,7 +90,7 @@ final class Subscribers
 
     /**
      * Store one address, or refresh the existing row for it. Returns
-     * false only when the write itself failed — a duplicate address
+     * false only when the write itself failed - a duplicate address
      * is a success, not an error.
      */
     public static function record(
@@ -239,7 +239,7 @@ final class Subscribers
     /**
      * Change one subscriber's source (where the address actually
      * landed). Returns false when the address has no row or the
-     * write failed — so a failed MailPoet sync can never flip a
+     * write failed - so a failed MailPoet sync can never flip a
      * row to 'mailpoet' by accident.
      */
     public static function setSource(string $email, string $source): bool

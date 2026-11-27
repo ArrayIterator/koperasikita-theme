@@ -36,7 +36,7 @@ final class Customizer
      * here too (same mechanism, different section: Appearance &
      * Accessibility, not Typography). So do the mobile bottom-nav sizes
      * (Mobile Menu section, not Typography) and the single-post title
-     * size (Single Post section, not Typography — it is its own
+     * size (Single Post section, not Typography - it is its own
      * setting because the article title must be sized independently
      * of the page/archive title).
      */
@@ -53,7 +53,7 @@ final class Customizer
     /**
      * Title / excerpt line clamps (Customizer -> Appearance &
      * Accessibility). Same shape as SIZE_SETTINGS but unitless line
-     * counts — the values feed --kk-title-clamp / --kk-excerpt-clamp,
+     * counts - the values feed --kk-title-clamp / --kk-excerpt-clamp,
      * which the -webkit-line-clamp rules read via var().
      */
     private const CLAMP_SETTINGS = [
@@ -207,7 +207,7 @@ final class Customizer
          * and a Latest/Category source (the category picker only
          * matters when the source is Category). No title/eyebrow
          * here: the hero renders with no heading, exactly as
-         * before — the heading belongs to the sections below it. */
+         * before - the heading belongs to the sections below it. */
         self::addSetting(
             $wpCustomize,
             'kk_hero_mode',
@@ -475,7 +475,7 @@ final class Customizer
             'type' => 'checkbox',
         ]);
 
-        /* Item Style: how each highlight looks — thumbnail with the
+        /* Item Style: how each highlight looks - thumbnail with the
          * title inside it, thumbnail with the title below, or title
          * with meta and no thumbnail. */
         self::addSetting(
@@ -496,7 +496,7 @@ final class Customizer
             ],
         ]);
 
-        /* Layout Style: the section container — classic (border top
+        /* Layout Style: the section container - classic (border top
          * and bottom), no border, or a box with a paper background. */
         self::addSetting(
             $wpCustomize,
@@ -538,7 +538,7 @@ final class Customizer
             ],
         ]);
 
-        /* Slider Grid: Autoplay (None by default — the grid slides
+        /* Slider Grid: Autoplay (None by default - the grid slides
          * on touch / prev-next, it never advances on its own) and
          * the interval, shown only while Autoplay is on. */
         self::addSetting(
@@ -949,7 +949,7 @@ final class Customizer
 
         /* How the Previous / Next links look in the numbered and
          * next-prev pagination: words ("Newer" / "Older") or just
-         * the double-chevron icons (« »). */
+         * the double-chevron icons (<< >>). */
         self::addSetting(
             $wpCustomize,
             'kk_pagination_nav_style',
@@ -1253,7 +1253,7 @@ final class Customizer
         /* Master feature toggles. The Header toggles (ticker, weather)
          * are NOT in this list: each one is registered inline, right
          * before its own settings, so the Customizer shows the toggle
-         * followed by its settings — never another checkbox. */
+         * followed by its settings - never another checkbox. */
         $toggles = [
             'kk_bookmarks_enabled' => ['koperasikita_accessibility', 'Enable Bookmarks'],
             'kk_pwa_enabled' => ['koperasikita_pwa', 'Enable Progressive Web App'],
@@ -1269,7 +1269,7 @@ final class Customizer
             ]);
         }
 
-        /* --- Header: News Ticker group -------------------------------- */
+        /* Header: News Ticker group */
         /* Toggle first, then its settings in order. Each setting hides
          * when the ticker is off (active_callback), so a disabled
          * ticker leaves no orphan settings behind. */
@@ -1281,7 +1281,7 @@ final class Customizer
             'priority' => 10,
         ]);
 
-        /* --- Header: Weather group ------------------------------------ */
+        /* Header: Weather group */
         /* Toggle first, then its settings in order. Each setting hides
          * when weather is off (active_callback). */
         self::addSetting($wpCustomize, 'kk_weather_enabled', true, [self::class, 'sanitizeBool'], 'refresh');
@@ -1317,7 +1317,7 @@ final class Customizer
         ]);
 
         /* Weather temperature unit: the top bar and the weather
-         * widget show °C by default; Fahrenheit converts the
+         * widget show degC by default; Fahrenheit converts the
          * Celsius values the API returns. */
         self::addSetting(
             $wpCustomize,
@@ -1360,7 +1360,7 @@ final class Customizer
         ]);
 
         /* Mobile bottom nav (phones only): the master switch gates every
-         * other setting in this section — while the bar is off, the
+         * other setting in this section - while the bar is off, the
          * icon size, count and title settings stay hidden. The count
          * defaults to 5 (five items fit a phone width with room for a
          * thumb; 10 is the hard ceiling before the labels crush) and
@@ -1889,7 +1889,7 @@ final class Customizer
         ]);
 
         // Whether the install prompt modal shows at all. Off leaves
-        // the install button/banner working — only the popup is gone.
+        // the install button/banner working - only the popup is gone.
         self::addSetting($wpCustomize, 'kk_pwa_prompt_enabled', true, [self::class, 'sanitizeBool'], 'refresh');
         $wpCustomize->add_control('kk_pwa_prompt_enabled', [
             'label' => esc_html__('Show Install Prompt', 'koperasikita'),
@@ -1932,7 +1932,7 @@ final class Customizer
 
         // Install screenshots for the manifest (shown by the browser
         // on the install prompt). Each slot takes MULTIPLE images: a
-        // dynamic list — add as many as needed, remove any. An empty
+        // dynamic list - add as many as needed, remove any. An empty
         // slot is skipped, and with neither set the manifest has no
         // screenshots field at all.
         $pwa_screenshots = [
@@ -2206,7 +2206,7 @@ final class Customizer
      * The overrides are also repeated under each style-variant body class.
      * The variant rules in variants.css (body.kk-variant-compact /
      * body.kk-variant-bold) have higher specificity than :root, so a bare
-     * :root rule would lose to them — while the preview's inline style on
+     * :root rule would lose to them - while the preview's inline style on
      * <html> always beats the variants, so the live site must too. When no
      * size differs from its default nothing is printed and the variant
      * values apply untouched.
@@ -2334,7 +2334,7 @@ final class Customizer
     /**
      * Advanced logo & sidebar brand controls (section
      * koperasikita_advanced_logo): a square logo/icon (SVG upload is
-     * allowed — see Logo::register, which only accepts sanitised
+     * allowed - see Logo::register, which only accepts sanitised
      * SVGs), an override that ignores the default logo, the text
      * brand (title + slogan), mobile centring / text hiding, and
      * how the drawer (mobile sidebar) brand renders. All defaults
@@ -2404,7 +2404,7 @@ final class Customizer
          * right). 'centered' / 'right' move the brand with auto
          * margins; 'hide' hides the brand (and the masthead with it,
          * so no empty band is left). This replaces the old
-         * "Center Brand on Mobile" checkbox — centered is now just
+         * "Center Brand on Mobile" checkbox - centered is now just
          * one of the mobile position choices. */
         self::addSetting($wpCustomize, 'kk_logo_position_desktop', 'left', [self::class, 'sanitizeLogoPosition'], 'refresh');
         $wpCustomize->add_control('kk_logo_position_desktop', [
@@ -2904,7 +2904,7 @@ final class Customizer
     }
 
     /* Latest-news layout: Grid / List / Newsletter only. Featured
-     * is NOT a latest-news layout — it belongs to the category
+     * is NOT a latest-news layout - it belongs to the category
      * blocks (sanitizeLayout above), so it must never be saved
      * here. */
     public static function sanitizeLatestLayout(mixed $value): string

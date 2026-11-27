@@ -13,7 +13,7 @@
  * weekly performance with its up-streak. Each stat's label and
  * sub-line can be overridden per template via $args['stats']
  * (block => ['label', 'sub'], empty = the computed text), and a
- * block can be hidden via $args['hidden_blocks'] — hidden blocks
+ * block can be hidden via $args['hidden_blocks'] - hidden blocks
  * are not rendered at all, except in the template editor's preview
  * ($args['editable']), where they stay visible, dimmed, with an eye
  * toggle to bring them back. The date-range line under the title
@@ -68,7 +68,7 @@ $kicker = isset($args['kicker']) && trim((string) $args['kicker']) !== '' ? (str
 // The widget title travels in $args['title'] when the widget set one;
 // otherwise the automatic title names the symbol and the window.
 // A saved template title may use {label} (symbol label) and {day}
-// (chart window in days) placeholders — see DataDesk::replaceTitleTokens().
+// (chart window in days) placeholders - see DataDesk::replaceTitleTokens().
 $title = isset($args['title']) && trim((string) $args['title']) !== '' ? (string) $args['title'] : '';
 if ($title === '') {
 	$title = $isGold
@@ -94,7 +94,7 @@ if ($dateLineOverride !== '') {
 	$subtitle = DataDesk::replacePlaceholders($dateLineOverride, $data, $days, $placeholders);
 } elseif ($hasHistory && !empty($data['date_range'])) {
 	$subtitle = $isGold
-		/* translators: %s: date range, e.g. 15–21 November 2026. */
+		/* translators: %s: date range, e.g. 15-21 November 2026. */
 		? sprintf(__('Harga jual per gram · %s', 'koperasikita'), DataDesk::formatDateRange($data, $placeholders['date_format']))
 		: sprintf(
 			/* translators: %s: date range. */
@@ -321,7 +321,7 @@ $polyline = implode(' ', array_map(static fn(array $c): string => number_format(
 						?>
 					<?php elseif (isset($data['streak']) && (int) $data['streak'] > 0) : ?>
 						<?php
-						/* translators: %d: consecutive up days. (Plain __() — the theme's po2mo has no plural support.) */
+						/* translators: %d: consecutive up days. (Plain __() - the theme's po2mo has no plural support.) */
 						printf(esc_html__('%d hari beruntun di zona hijau', 'koperasikita'), (int) $data['streak']);
 						?>
 					<?php else : ?>

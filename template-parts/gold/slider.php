@@ -7,7 +7,7 @@
  *
  * Expects $args['brands'] as array<string, \KoperasiKita\Providers\MarketPrice>
  * keyed by brand slug. Brands without a saved snapshot price are never
- * passed in here — see Gold::brandPrices(). When the array is empty this
+ * passed in here - see Gold::brandPrices(). When the array is empty this
  * template renders an honest empty state and no slider markup at all, so
  * the frontend script has nothing to initialise.
  *

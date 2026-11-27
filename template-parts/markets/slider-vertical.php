@@ -1,7 +1,7 @@
 <?php
 /**
  * Markets vertical slider: one slide per market group, auto-scrolling
- * vertically — the markets counterpart of the gold slider
+ * vertically - the markets counterpart of the gold slider
  * (template-parts/gold/slider.php). One slide per market group (gold
  * spot, stocks, crypto) so the live-price refresh keeps working: each
  * slide keeps its own data-kk-market-prices container and per-row

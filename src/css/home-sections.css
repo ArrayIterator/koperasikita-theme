@@ -1,7 +1,7 @@
-/* ==========================================================================
-   Koperasi Kita — home-sections.css — home sections
+/*
+   Koperasi Kita - home-sections.css - home sections
    Home sections: latest-news layouts, editor picks, category blocks.
-   ========================================================================== */
+   */
 
 /* Latest news layouts */
 .kk-latest {
@@ -13,7 +13,7 @@
 	gap: 0.85rem;
 }
 
-/* List rows are flat, not cards: no background and no shadow — the
+/* List rows are flat, not cards: no background and no shadow - the
  * rows are separated by a thin divider, not by boxes. The gap is
  * small (12px) because the divider does the separating. Applies to
  * the latest news and to the category blocks, which share the list
@@ -24,7 +24,7 @@
 	/* One column of rows: the category-block responsive rule makes
 	 * the grid multi-column at tablet width, so this pins the list
 	 * back to a single vertical stack. The rows carry their own
-	 * vertical padding, so the container gap is 0 — one single
+	 * vertical padding, so the container gap is 0 - one single
 	 * 16px rhythm (row padding + internal gap) instead of two
 	 * competing values (container gap + row padding). */
 	grid-template-columns: 1fr;
@@ -67,7 +67,7 @@
 	aspect-ratio: 4 / 3;
 }
 
-/* --- Featured layout ------------------------------------------------------ */
+/* Featured layout */
 /* First post large (grid-style) on the left, the rest as a descending
  * list of compact rows on the right. The first card spans the full
  * height of the right column and its image flexes to fill the space,
@@ -173,7 +173,7 @@
 	color: var(--kk-green, #0B6B3A);
 }
 
-/* --- Featured Right ------------------------------------------------------- */
+/* Featured Right */
 /* The same Featured grid, mirrored: the lead (first card) sits on
  * the RIGHT and spans the full height, the descending rows sit on
  * the left. The template outputs both kk-layout-featured and
@@ -191,7 +191,7 @@
 	grid-column: 1;
 }
 
-/* --- List (Columns) ------------------------------------------------------- */
+/* List (Columns) */
 /* The rows are the OLD article list rows (card-news in list mode),
  * not widget rows: a thumbnail, title + meta, a thin divider. The
  * posts are chunked into pages of (columns x rows); each page is a
@@ -236,7 +236,7 @@
 }
 
 /* List rows inside the columns: the same flat row as the plain
- * List layout — thumbnail, body, bookmark in their own columns,
+ * List layout - thumbnail, body, bookmark in their own columns,
  * no background/shadow, a thin divider. The thumbnail width is
  * the Article List Thumbnail Size setting
  * (--kk-list-thumb-size, default 180px). */
@@ -312,7 +312,7 @@
 	color: #fff;
 }
 
-/* --- Category blocks ------------------------------------------------------ */
+/* Category blocks */
 
 .kk-category-block {
 	margin-top: 40px;
@@ -327,10 +327,10 @@
 	margin-top: 16px;
 }
 
-/* --- Clean press-page treatment (Daily UI #051 language) ------------------ */
+/* Clean press-page treatment (Daily UI #051 language) */
 /* Homepage only: text-first cards on a quiet surface, lowercase serif
  * section labels with a hairline running to the edge, generous gaps.
- * The hero lead keeps its image — one strong visual per page. */
+ * The hero lead keeps its image - one strong visual per page. */
 
 .kk-home .kk-section-head {
 	margin-bottom: 20px;
@@ -384,10 +384,10 @@
 }
 
 /* Grid cards: thumbnails are back (the clean text-only treatment hid
- * them) and the excerpt goes — the card is thumb + category + title.
+ * them) and the excerpt goes - the card is thumb + category + title.
  * The list layout keeps its excerpt: there the excerpt is the point.
  * (The old rules hid the media here and forced list cards to block
- * because the thumb column was empty — both go away with the media.) */
+ * because the thumb column was empty - both go away with the media.) */
 .kk-home .kk-hero-grid .kk-card-excerpt,
 .kk-home .kk-category-block-items .kk-card-excerpt,
 .kk-home .kk-latest-items:not(.kk-layout-list) .kk-card-excerpt {
@@ -397,7 +397,7 @@
 /* Flat quiet card: surface fill, even padding, no border, no shadow. */
 /* Elevated cards, not grey slabs: a paper card on the white page,
  * separated by a soft shadow (and a clear grid gap) instead of the
- * grey surface fill. The shadow is the separator — no border in
+ * grey surface fill. The shadow is the separator - no border in
  * light mode; dark mode adds a hairline (variants.css) because a
  * black shadow cannot define a dark card on a dark page. */
 .kk-home .kk-card {
@@ -411,12 +411,12 @@
 /* List rows keep the body flush with the top of the thumbnail (the
  * body is a side column there). Grid cards use the base 12px top
  * padding so the article data (date/title) has a margin under the
- * thumbnail — without it the text sits directly on the image. */
+ * thumbnail - without it the text sits directly on the image. */
 .kk-home .kk-layout-list .kk-card-body {
 	padding-top: 0;
 }
 
-/* Headlines medium, not bold — the shot's Didone-style regular weight. */
+/* Headlines medium, not bold - the shot's Didone-style regular weight. */
 .kk-home .kk-card-title {
 	font-weight: 500;
 	font-size: 22px;
@@ -427,7 +427,7 @@
 	-webkit-line-clamp: var(--kk-excerpt-clamp, 2);
 }
 
-/* --- Highlights ("Sorotan") ------------------------------------------------ */
+/* Highlights ("Sorotan") */
 /* Grid mode reuses .kk-card-grid. Slider mode is a horizontal
  * scroll-snap row of cards (~18rem each, so the next card peeks),
  * prev/next buttons scroll by one card. */
@@ -436,7 +436,7 @@
 	margin-top: 2rem;
 }
 
-/* --- Layout Style --------------------------------------------------------- */
+/* Layout Style */
 /* Classic: a rule above and below the section. No Border: no rules.
  * Box: the section sits in a paper box. Only Box has a background:
  * in Classic and No Border the section AND its cards are flat
@@ -465,7 +465,7 @@
 	padding: 0;
 }
 
-/* --- Item Style ----------------------------------------------------------- */
+/* Item Style */
 /* Thumb Inside: the title sits over the thumbnail. Title With Meta:
  * no thumbnail at all, title + meta only. Thumb Below is the plain
  * card (thumbnail on top, title below). */
@@ -505,8 +505,8 @@
 	display: none;
 }
 
-/* --- Display -------------------------------------------------------------- */
-/* Slider Grid: a horizontal scroll-snap row of grid cards — the grid
+/* Display */
+/* Slider Grid: a horizontal scroll-snap row of grid cards - the grid
  * look, but swipeable (touch) with prev/next buttons. It never
  * autoplays unless the setting says so. Slider Full: one article
  * per slide, a small thumbnail + title like a widget row. List:
@@ -579,7 +579,7 @@
 	list-style: none;
 }
 
-/* List: the rows split into columns (1–4). Each column is a stack
+/* List: the rows split into columns (1-4). Each column is a stack
  * of rows; the columns sit side by side with a gap. When List
  * Enable Slider is on, the columns become a scroll-snap row with
  * prev/next buttons (same as the sliders). */
@@ -618,7 +618,7 @@
 }
 
 /* Compact row (Slider Full slide + List rows): small thumbnail on
- * the left, title + meta on the right, top-aligned. Flat — no
+ * the left, title + meta on the right, top-aligned. Flat - no
  * background, no shadow, a thin divider between rows. */
 .kk-highlight-row {
 	display: flex;

@@ -10,7 +10,7 @@ use WP_Widget;
 
 /**
  * Category Summary widget: the latest post from each picked
- * category, side by side in columns — one summary column per
+ * category, side by side in columns - one summary column per
  * category, each with a coloured top border (green, gold, green,
  * ...), the category name, the post title, its excerpt and its
  * time. The section header carries the title on the left and an

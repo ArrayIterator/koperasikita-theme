@@ -1,9 +1,9 @@
-/* ==========================================================================
-   Koperasi Kita — footer.css — footer
+/*
+   Koperasi Kita - footer.css - footer
    Footer, mobile bottom nav and back-to-top button.
-   ========================================================================== */
+   */
 
-/* --- Footer --------------------------------------------------------------- */
+/* Footer */
 
 .kk-site-footer {
 	border-top: 2px solid var(--kk-ink);
@@ -26,7 +26,7 @@
 	min-width: 0;
 	/* A long unbroken string (a pasted URL or token in a text widget)
 	 * must break inside a narrow footer column instead of spilling out
-	 * of it — the same treatment card titles already get (cards.css).
+	 * of it - the same treatment card titles already get (cards.css).
 	 * break-word only breaks words that would otherwise overflow. */
 	overflow-wrap: break-word;
 }
@@ -44,7 +44,7 @@
  * built-in footer headings, so a custom footer column keeps the
  * same look as the default one. The base .kk-widget-title is a
  * flex row (widgets.css), so its ::after grows a 1px rule across
- * the column that the built-in headings never have — reset both,
+ * the column that the built-in headings never have - reset both,
  * or every widget title in the footer renders with a stray line. */
 .kk-footer-col .kk-widget-title {
 	display: block;
@@ -61,7 +61,7 @@
 }
 
 /* Two or more widgets in one column need the same breathing room
- * the sidebar grid gives its widgets (32px, content.css) — without
+ * the sidebar grid gives its widgets (32px, content.css) - without
  * it a second widget's title butts straight against the first
  * widget's last line (measured 0px). Adjacent-sibling only, so the
  * default fallback content (logo / site name / description) is
@@ -175,7 +175,7 @@
 	color: var(--kk-green, #0B6B3A);
 }
 
-/* --- Mobile bottom nav ---------------------------------------------------- */
+/* Mobile bottom nav */
 
 .kk-bottom-nav {
 	display: none;
@@ -221,14 +221,14 @@
 }
 
 /* Titles off (Customizer -> Mobile Menu): the label text collapses
- * to nothing while the icon keeps its size — and the text stays in
+ * to nothing while the icon keeps its size - and the text stays in
  * the DOM, so screen readers still announce the item. */
 .kk-bottom-nav--no-titles .kk-bottom-nav-menu a {
 	font-size: 0;
 }
 
 /* Very narrow phones (320px): six labels in 320px only fit if the
- * type shrinks a touch — otherwise the longest label clips mid-word.
+ * type shrinks a touch - otherwise the longest label clips mid-word.
  * The min() keeps the Customizer title size as the ceiling. */
 @media (max-width: 360px) {
 	.kk-bottom-nav-menu a {
@@ -238,7 +238,7 @@
 	}
 }
 
-/* --- Back to top ---------------------------------------------------------- */
+/* Back to top */
 
 /* Like the PWA float: never glow through an open drawer. */
 html.kk-nav-open .kk-back-to-top {

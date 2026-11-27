@@ -18,8 +18,8 @@ use WP_Error;
  * matches as the editor types, so a site with hundreds of categories,
  * tags or posts stays light on both the server (one small query per
  * keystroke, capped at 20 rows) and the client (only the matches are
- * ever in the DOM). Both endpoints require `edit_theme_options` —
- * the same capability the Customizer itself needs — and answer with
+ * ever in the DOM). Both endpoints require `edit_theme_options` -
+ * the same capability the Customizer itself needs - and answer with
  * the shared Response envelope through Ajax::add().
  */
 final class TermSearch

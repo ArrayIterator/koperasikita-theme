@@ -1,11 +1,11 @@
-/* ==========================================================================
-   Koperasi Kita — customizer-controls.css — Customizer controls pane
+/*
+   Koperasi Kita - customizer-controls.css - Customizer controls pane
    Styles for the Customizer-only controls: the searchable term select
    (Select2-style, no jQuery) and the term checkbox filter. These run
    only in the Customizer controls pane, never on the frontend.
-   ========================================================================== */
+   */
 
-/* --- Searchable term select ------------------------------------------------ */
+/* Searchable term select */
 /* A trigger button (looks like a native select) + an absolutely
  * positioned panel with a search field and a scrollable option list. */
 
@@ -124,10 +124,10 @@
 	color: #646970;
 }
 
-/* --- Searchable term multi-select ------------------------------------------ */
+/* Searchable term multi-select */
 /* A Select2-style multi-select: a box holding the picked chips plus an
  * inline search field, with an absolutely positioned panel of AJAX
- * results below it. Clicking a result adds a chip; the × on a chip
+ * results below it. Clicking a result adds a chip; the x on a chip
  * removes it. The selection syncs into the hidden input as a JSON
  * array of term IDs. */
 
@@ -197,7 +197,7 @@
 	color: #fff;
 }
 
-/* The input must carry NO border of its own — the box around it is
+/* The input must carry NO border of its own - the box around it is
  * the border. WordPress admin styles input[type="search"] with a
  * border at specificity 0-1-1, which beats a bare class (0-1-0), so
  * the selector has to be more specific or the WP border wins and an
@@ -261,7 +261,7 @@
 	color: #646970;
 }
 
-/* --- Multi-image picker ---------------------------------------------------- */
+/* Multi-image picker */
 /* A dynamic list of thumbnails (each with a remove button) plus an
  * "Add images" button that opens the media library. The selection
  * syncs into a hidden input as a JSON array of attachment IDs. */

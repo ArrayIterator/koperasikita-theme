@@ -24,7 +24,7 @@ use KoperasiKita\Features\Markets;
  *  - Gold spot per gram (IDR), from xaus.com.
  *
  * The JSON is a static file on GitHub's CDN, so it is fast and
- * CORS-enabled — the browser can fetch it directly too (see
+ * CORS-enabled - the browser can fetch it directly too (see
  * clientApiUrl()). Picking this provider for gold means Antam +
  * Galeri 24 + UBS + Lotus Archi + Hartadinata + King Halim +
  * spot come live from the scrape.

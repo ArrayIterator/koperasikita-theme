@@ -5,7 +5,7 @@
  * Each market group is one marquee item; the set is rendered twice so
  * the CSS translateX(-50%) loop is seamless. The item width follows
  * the --kk-markets-visible variable (how many items show at once on
- * desktop, 1–4). Pauses on hover/focus and when the tab is hidden;
+ * desktop, 1-4). Pauses on hover/focus and when the tab is hidden;
  * disabled entirely under prefers-reduced-motion. Live-price refresh
  * keeps working: each item keeps its data-kk-market-prices container
  * and per-row data-kk-symbol / data-kk-price / data-kk-change

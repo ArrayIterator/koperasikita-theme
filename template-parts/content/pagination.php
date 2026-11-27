@@ -18,7 +18,7 @@
  *
  * The After Pagination widget area renders after the pagination
  * on every page that uses this part, even when there is only one
- * page and no pagination links — so the area is always available.
+ * page and no pagination links - so the area is always available.
  *
  * @package KoperasiKita
  */

@@ -1,13 +1,13 @@
-/* ==========================================================================
-   Koperasi Kita — editor.css — block editor canvas styles
+/*
+   Koperasi Kita - editor.css - block editor canvas styles
    The styles the widget previews need inside the editor canvas
    (widgets.php, the post editor, the Customizer widget panel).
 
    WHY THIS FILE EXISTS: widget blocks render their preview with
    ServerSideRender, which runs the widget through the_widget() inside
    the editor's iframe canvas. Styles enqueued on
-   `enqueue_block_editor_assets` load only in the outer admin page —
-   they never enter that iframe — and the only theme stylesheet that
+   `enqueue_block_editor_assets` load only in the outer admin page -
+   they never enter that iframe - and the only theme stylesheet that
    did reach the canvas was the blocks' `editor_style`
    (widget-blocks.css: just the dashed placeholder). So every preview
    rendered unstyled: plain small numbers instead of the big serif
@@ -20,22 +20,22 @@
 
    It imports the frontend stylesheets the widgets use, in frontend
    cascade order (app reset, tokens, base, content, widgets, cards,
-   gold-markets, weather, variants) — header / home / footer /
+   gold-markets, weather, variants) - header / home / footer /
    newsletter are not widget styles and stay out. The editor-only
    rules at the bottom close the two gaps the_widget() leaves open:
    its container is `<div class="widget">` (not the frontend
    `<section class="kk-widget">` inside `.kk-sidebar`) and its title
    is `<h2 class="widgettitle">` (not `.kk-widget-title`), so the
    sidebar-scoped shell rule and the title rule would otherwise
-   never match — the canvas wrapper `.kk-widget-block-canvas`
+   never match - the canvas wrapper `.kk-widget-block-canvas`
    (added by widget-blocks.ts) stands in for `.kk-sidebar` here.
 
    The canvas always shows the LIGHT frontend look: the colour
    scheme is a per-visitor choice on the live site, not a site
-   setting, and the theme default is light — so the dark palette is
+   setting, and the theme default is light - so the dark palette is
    forced back to the light tokens even if the editor document
    carries a dark scheme attribute.
-   ========================================================================== */
+   */
 
 @import './app.css';
 @import './tokens.css';
@@ -47,7 +47,7 @@
 @import './weather.css';
 @import './variants.css';
 
-/* --- Editor-only rules --------------------------------------------------- */
+/* Editor-only rules */
 
 html {
 	color-scheme: light;
@@ -77,7 +77,7 @@ html[data-color-scheme="system"] {
 
 /* variants.css colours a few widget parts directly (not via vars),
  * so the token reset above does not reach them. Force those back to
- * their light values too — today the only widget-visible one is the
+ * their light values too - today the only widget-visible one is the
  * Editor's Picks number. */
 html[data-color-scheme="dark"] .kk-pick-number,
 html[data-color-scheme="system"] .kk-pick-number {
@@ -121,9 +121,9 @@ html[data-color-scheme="system"] .kk-pick-number {
 
 /* Widget title: the_widget() titles carry `widgettitle`, not
  * `kk-widget-title`, so the frontend title rule (widgets.css) never
- * matches them. Mirror it here — the serif size from content.css
+ * matches them. Mirror it here - the serif size from content.css
  * (.kk-sidebar .widgettitle), the flex layout and the extending
- * rule from .kk-widget-title — so the preview title looks exactly
+ * rule from .kk-widget-title - so the preview title looks exactly
  * like the sidebar title. The no-border modifier drops the rule,
  * like the frontend. */
 .kk-widget-block-canvas .widgettitle {

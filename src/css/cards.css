@@ -1,9 +1,9 @@
-/* ==========================================================================
-   Koperasi Kita — cards.css — cards
+/*
+   Koperasi Kita - cards.css - cards
    News cards, shared by home, archive, search, single and index.
-   ========================================================================== */
+   */
 
-/* --- Cards ---------------------------------------------------------------- */
+/* Cards */
 
 .kk-card-grid {
 	display: grid;
@@ -17,7 +17,7 @@
 .kk-card {
 	/* A grid so the bookmark can share the media area (overlaying the
 	 * thumbnail) in grid layouts and take its own column in list rows
-	 * — without absolute positioning or padding maths. The excerpt
+	 * - without absolute positioning or padding maths. The excerpt
 	 * is a direct child in its own row below the body, so list rows
 	 * can stretch it full-width under the thumbnail + title row. */
 	display: grid;
@@ -44,7 +44,7 @@
 	padding-top: 12px;
 }
 
-/* --- Hero card title position -------------------------------------------- */
+/* Hero card title position */
 /* The Hero Card settings place the title below the image (default),
  * above the image, or inside the featured image. The CSS adapts so
  * each position reads correctly. */
@@ -92,7 +92,7 @@
 	margin: 6px 0 8px;
 	/* A single unbroken word (e.g. the 85-letter Maori place name on
 	 * the Theme Unit Test post) must break across lines instead of
-	 * overflowing the card — the line-clamp still caps it at 2. */
+	 * overflowing the card - the line-clamp still caps it at 2. */
 	overflow-wrap: break-word;
 	word-break: break-word;
 	/* Long titles wrap to 3+ lines and make rows uneven; clamp to 2
@@ -113,7 +113,7 @@
 
 /* The clamp ellipsis is painted by the heading, not the link, so it
  * keeps the heading's ink colour while the title turns green on
- * hover. Colour the heading on hover too, so the "…" follows the
+ * hover. Colour the heading on hover too, so the "..." follows the
  * link colour with the rest of the title. */
 .kk-card-title:hover,
 .kk-card-title:hover a {
@@ -168,11 +168,11 @@
 }
 
 /* Bookmark on the card: an icon-only circle over the thumbnail (grid)
- * or a trailing action at the right edge of the row (list) — never a
+ * or a trailing action at the right edge of the row (list) - never a
  * stray button under the text. The "Save" label is hidden; the button
  * keeps its "Save bookmark" aria-label, and the saved state is the
  * green fill, same as before. Over a thumbnail the glyph sits on a
- * dark translucent circle, so the white icon reads on ANY thumbnail —
+ * dark translucent circle, so the white icon reads on ANY thumbnail -
  * including the light default placeholder, where a bare white glyph
  * is invisible. */
 .kk-card .kk-bookmark-button {
@@ -186,7 +186,7 @@
 	min-height: 0;
 	padding: 0;
 	justify-content: center;
-	/* Dark translucent circle behind the white glyph — no blur, no
+	/* Dark translucent circle behind the white glyph - no blur, no
 	 * shadow, no border. The glyph alone reads over the photo. */
 	border: 0;
 	border-radius: 50%;
@@ -200,7 +200,7 @@
 }
 
 /* The card bookmark is a solid fill (not a hollow outline), so the
- * icon reads as a bold shape on the circle — white over a thumbnail,
+ * icon reads as a bold shape on the circle - white over a thumbnail,
  * ink in a list row. The fill follows the button colour. */
 .kk-card .kk-bookmark-button svg {
 	fill: currentColor;
@@ -218,13 +218,13 @@
 
 /* Saved: the bookmark is a solid white fill on the green circle.
  * The svg is stroke-based (Feather), so both fill and stroke follow
- * the button colour — fill alone would leave a hollow outline. */
+ * the button colour - fill alone would leave a hollow outline. */
 .kk-card .kk-bookmark-button[aria-pressed="true"] svg {
 	fill: currentColor;
 	stroke: currentColor;
 }
 
-/* Focus ring: a plain outline (keyboard users only) — no shadow,
+/* Focus ring: a plain outline (keyboard users only) - no shadow,
  * no background. */
 .kk-card .kk-bookmark-button:focus-visible {
 	outline: 2px solid var(--kk-gold, #C9962E);
@@ -233,10 +233,10 @@
 }
 
 /* List rows: the bookmark takes its own column at the right edge of
- * the row, pinned to the top corner (level with the date) — centred
+ * the row, pinned to the top corner (level with the date) - centred
  * vertically it floats oddly in the middle of a tall row. The row is
  * flat on a light background, so the white glyph (meant for over a
- * thumbnail) is invisible here — ink, so the icon reads, and no
+ * thumbnail) is invisible here - ink, so the icon reads, and no
  * circle background (that belongs over a thumbnail only). */
 .kk-layout-list .kk-card .kk-bookmark-button {
 	grid-area: bookmark;
@@ -251,7 +251,7 @@
 	color: var(--kk-green, #0B6B3A);
 }
 
-/* Desktop: the bookmark is a hover reveal — it appears only while the
+/* Desktop: the bookmark is a hover reveal - it appears only while the
  * card is hovered (or the button is focused / already saved), so the
  * thumbnail stays clean. Touch devices have no hover, so the button
  * is always visible there. */
@@ -268,14 +268,14 @@
 	}
 }
 
-/* --- Related news on phones: compact horizontal rows ---------------------- */
+/* Related news on phones: compact horizontal rows */
 /*
  * The related section reuses the standard news card, so on phones each card
- * is a full-width 16:9 image plus body — about 464px tall, and three stacked
+ * is a full-width 16:9 image plus body - about 464px tall, and three stacked
  * cards are ~1400px. Below 720px the related cards become horizontal rows
  * instead: a fixed 120px thumbnail on the left, the body on the right, no
  * excerpt. The border-top separator, eyebrow, title, meta and bookmark
- * button stay. Desktop (720px and up) is untouched — this rule is scoped
+ * button stay. Desktop (720px and up) is untouched - this rule is scoped
  * to .kk-related and cannot leak above 719px.
  */
 @media (max-width: 719px) {

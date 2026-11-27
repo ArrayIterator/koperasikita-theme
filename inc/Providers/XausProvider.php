@@ -12,7 +12,7 @@ use KoperasiKita\Features\Markets;
  * Fetches the gold spot price per gram in IDR from xaus.com
  * (https://xaus.com/api/v1/spot?currency=IDR&unit=gram), which
  * returns the price directly in the currency and unit the site
- * needs — no FX conversion, no key, no registration.
+ * needs - no FX conversion, no key, no registration.
  *
  * Caching and the stale-value fallback live in AbstractLiveProvider
  * (15-minute transient + last good value in an option).

@@ -2,7 +2,7 @@
 /**
  * The agenda sidebar.
  *
- * Renders the Agenda Sidebar widgets only — no fallback to any other
+ * Renders the Agenda Sidebar widgets only - no fallback to any other
  * sidebar, so an agenda page shows exactly what the editor placed in
  * the Agenda Sidebar, and nothing at all while it is empty.
  *

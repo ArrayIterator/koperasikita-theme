@@ -50,7 +50,7 @@ final class FeaturedImage
     /**
      * Rewrite uploaded image URLs in a URL or HTML fragment to the
      * CDN host. Only the uploads base URL is touched, so theme assets
-     * and external images pass through unchanged — and a URL that is
+     * and external images pass through unchanged - and a URL that is
      * already on the CDN does not match the pattern, so it is never
      * rewritten twice.
      */
@@ -155,7 +155,7 @@ final class FeaturedImage
      * filter before it adds `loading="lazy"` to images inside post
      * content, avatars and iframes (wp_filter_content_tags and
      * friends). Returning false here is what makes the toggle
-     * cover those paths too — filterImageAttributes() alone only
+     * cover those paths too - filterImageAttributes() alone only
      * reaches attachment images.
      */
     public static function filterLazyLoadingEnabled(bool $enabled): bool
@@ -217,8 +217,8 @@ final class FeaturedImage
             }
         }
 
-        /* Plain URL, no ?v= query version: the user asked for the
-         * random-looking ?v=<mtime> to be removed from the thumbnail
+        /* Plain URL, no ?v= query version: the
+         * random-looking ?v=<mtime> was removed from the thumbnail
          * URL. Trade-off: the server sends this file with a 10-year
          * max-age, so after a future placeholder redesign a browser
          * that cached the old artwork may keep showing it until its

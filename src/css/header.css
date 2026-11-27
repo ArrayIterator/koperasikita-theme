@@ -1,10 +1,10 @@
-/* ==========================================================================
-   Koperasi Kita — header.css — header
+/*
+   Koperasi Kita - header.css - header
    Site header: top bar, colour-scheme toggle, masthead,
    primary nav and the news ticker.
-   ========================================================================== */
+   */
 
-/* --- Top bar -------------------------------------------------------------- */
+/* Top bar */
 
 .kk-topbar {
 	border-bottom: 1px solid var(--kk-border);
@@ -59,14 +59,14 @@
 	display: inline-flex;
 }
 
-/* Loading state: muted, so the "—°" reads as a placeholder while the
+/* Loading state: muted, so the "--" reads as a placeholder while the
  * weather loads. The slot keeps the place name, so it holds its width
  * and the top bar does not bounce when the real numbers land. */
 .kk-topbar-weather-loading {
 	opacity: 0.55;
 }
 
-/* Colour-scheme toggle: the icon shows the current preference — sun
+/* Colour-scheme toggle: the icon shows the current preference - sun
  * for a pinned light mode, moon for a pinned dark mode, and a monitor
  * while the page follows the OS ("system"). The resolved scheme alone
  * cannot tell system from a pinned mode, so the monitor rules read
@@ -96,7 +96,7 @@ html[data-kk-scheme="system"] .kk-icon-monitor {
 	display: block;
 }
 
-/* --- Masthead ------------------------------------------------------------- */
+/* Masthead */
 
 .kk-masthead {
 	padding: 24px 0 20px;
@@ -197,7 +197,7 @@ html[data-kk-scheme="system"] .kk-icon-monitor {
 }
 
 /* Default logo: the mark and the title are separate links, so hover
- * them as one unit — hovering the mark also greens the title link,
+ * them as one unit - hovering the mark also greens the title link,
  * and hovering the title does the same. (With a custom logo the
  * title lives inside the logo link already, so it hovers with it.) */
 .kk-brand:hover .kk-site-title a {
@@ -291,7 +291,7 @@ html[data-kk-scheme="system"] .kk-icon-monitor {
 	}
 }
 
-/* --- Primary nav ---------------------------------------------------------- */
+/* Primary nav */
 
 .kk-nav-wrap {
 	position: sticky;
@@ -343,7 +343,7 @@ body.admin-bar {
 	display: inline-flex;
 }
 
-/* --- Mobile nav: a slide-in sidebar (drawer), not a dropdown ------------ */
+/* Mobile nav: a slide-in sidebar (drawer), not a dropdown */
 /* The nav is a fixed drawer off-canvas left; .is-open slides it in over
  * a blurred backdrop (see .kk-nav-backdrop). visibility keeps it out of
  * the tab order while closed, and the transition makes it slide. */
@@ -353,7 +353,7 @@ body.admin-bar {
 	/* Below the WP admin bar when logged in (same token as the sticky
 	 * nav): otherwise the bar covers the drawer's header. The token
 	 * is 0 when logged out, 32px desktop / 46px mobile when logged
-	 * in — but at <=600px the token is 0 (the bar scrolls away) while
+	 * in - but at <=600px the token is 0 (the bar scrolls away) while
 	 * the drawer, which locks the page scroll when open, still needs
 	 * the offset when it opens from the top of the page; see the
 	 * override below. */
@@ -381,12 +381,12 @@ body.admin-bar {
 }
 
 /* At <=600px the --kk-admin-bar-height token is 0 (the bar scrolls
- * away, which is right for the sticky nav) — but the drawer is fixed
+ * away, which is right for the sticky nav) - but the drawer is fixed
  * and locks the page scroll when open, so when it opens from the top
  * of the page the bar is still on screen and would cover the drawer
  * header. The drawer keeps the 46px offset at this width too. (If
  * the drawer is opened after scrolling down, the bar is gone and the
- * drawer shows a 46px gap at the top instead — the lesser evil.) */
+ * drawer shows a 46px gap at the top instead - the lesser evil.) */
 @media (max-width: 600px) {
 	body.admin-bar .kk-primary-nav {
 		top: 46px;
@@ -394,7 +394,7 @@ body.admin-bar {
 }
 
 /* Right-side drawer (Customizer -> Header -> Mobile Menu Slide
- * Side): mirrors the left drawer — pinned right, slides in from
+ * Side): mirrors the left drawer - pinned right, slides in from
  * the right, shadow on the left. */
 .kk-primary-nav.kk-nav-right {
 	left: auto;
@@ -426,8 +426,8 @@ body.admin-bar {
 	opacity: 1;
 }
 
-/* While the drawer is open the drawer — trapped inside the wrap's
- * z 40 stacking context — must paint above the body-level backdrop
+/* While the drawer is open the drawer - trapped inside the wrap's
+ * z 40 stacking context - must paint above the body-level backdrop
  * (z 55), so the wrap is raised to z 60. Same ordering as
  * padangkita: drawer above backdrop, backdrop above the page.
  * But only the DRAWER may stay crisp: the sticky bar itself (its
@@ -566,7 +566,7 @@ html.kk-nav-open body {
 }
 
 /* Expanding search: the icon is the toggle and the field grows
- * into a FULL bar, on desktop exactly as on mobile — not a
+ * into a FULL bar, on desktop exactly as on mobile - not a
  * 15rem stub floating over the menu. When the form opens, the
  * nav row gives it the whole width (see the .kk-search-open
  * rules below): the desktop menu / mobile hamburger hides, the
@@ -590,7 +590,7 @@ html.kk-nav-open body {
 	width: 0;
 	min-width: 0;
 	/* Slim field: the base .search-field is 44px tall, too tall for
-	 * the sticky bar. No transition anywhere on this field — it
+	 * the sticky bar. No transition anywhere on this field - it
 	 * opens and closes instantly, never animated. No outer shadow:
 	 * the focus state uses an inner shadow instead. */
 	min-height: 0;
@@ -613,7 +613,7 @@ html.kk-nav-open body {
 	transition: none;
 }
 
-/* Focus: no outline, inner shadow (inset) — never an outer glow. */
+/* Focus: no outline, inner shadow (inset) - never an outer glow. */
 .kk-search-expand .kk-search-expand-input:focus {
 	outline: none;
 	border-color: var(--kk-green);
@@ -624,7 +624,7 @@ html.kk-nav-open body {
  * stays at the bar's right edge next to the scheme toggle; the
  * input takes everything left of it. The menu and the hamburger
  * hide while the field is open and come back on close, so the
- * field never floats over — or gets squeezed by — the nav. The
+ * field never floats over - or gets squeezed by - the nav. The
  * 44px height matches the icon buttons beside it. */
 .kk-nav-wrap.kk-search-open .kk-desktop-nav,
 .kk-nav-wrap.kk-search-open .kk-menu-toggle {
@@ -830,7 +830,7 @@ html.kk-nav-open body {
 	font-weight: 400;
 }
 
-/* --- Ticker (content width, bouncing fade) -------------------------------- */
+/* Ticker (content width, bouncing fade) */
 
 .kk-ticker-wrap {
 	border-bottom: 1px solid var(--kk-border);
@@ -853,9 +853,9 @@ html.kk-nav-open body {
 	letter-spacing: 0.12em;
 	text-transform: uppercase;
 	/* Gold (default): white text on the gold, like the green / dark /
-	 * red variants. (White on bright gold is 2.66:1 — below the 3:1
-	 * UI-text bar that pure black gave at 7.89:1 — but the user asked
-	 * for the white text; the label is short bold uppercase, so it
+	 * red variants. (White on bright gold is 2.66:1 - below the 3:1
+	 * UI-text bar that pure black gave at 7.89:1 - but white text was
+	 * chosen; the label is short bold uppercase, so it
 	 * stays legible in practice.) */
 	color: #fff;
 	background: var(--kk-gold, #C9962E);
@@ -978,7 +978,7 @@ html.kk-nav-open body {
 }
 
 /* Narrow phones: the label plus three 36px controls leave the headline
- * almost no room (about 60px at 320px — a few characters). The ticker
+ * almost no room (about 60px at 320px - a few characters). The ticker
  * auto-advances anyway, so the prev/next buttons go; the pause toggle
  * stays for accessibility. The headline may then wrap to two lines so
  * a long headline stays readable instead of truncating to a stub. */

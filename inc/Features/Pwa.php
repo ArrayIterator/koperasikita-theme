@@ -10,7 +10,7 @@ use KoperasiKita\Assets\ViteLoader;
  * Progressive Web App: manifest + service worker + install prompt.
  *
  * Both endpoints are served by the theme itself through rewrite rules and
- * a query var — there are no static manifest / service-worker files in
+ * a query var - there are no static manifest / service-worker files in
  * the theme root, so no plugin, redirect or deployment step can break
  * the URLs. Pretty URLs are used when permalinks are enabled
  * (/manifest.webmanifest, /kk-service-worker.js); with plain permalinks
@@ -67,7 +67,7 @@ final class Pwa
         // WordPress's canonical redirect would 301 both endpoints to
         // their trailing-slash versions (/manifest.webmanifest/ and
         // /kk-service-worker.js/) because neither looks like a post
-        // URL — and a service worker fetched from a redirected URL
+        // URL - and a service worker fetched from a redirected URL
         // fails to register. Disable the redirect for these two
         // endpoints only; every other URL keeps its normal canonical
         // redirect. The query var is already set by the rewrite rule
@@ -238,7 +238,7 @@ final class Pwa
 
     /**
      * The manifest icons: the Customizer-picked image (one URL, used
-     * for both sizes — the browser scales it) when one is set,
+     * for both sizes - the browser scales it) when one is set,
      * otherwise the shipped 192 + 512 logo files.
      *
      * @return array<int, array<string, string>>
@@ -401,7 +401,7 @@ final class Pwa
 
     /**
      * Delay before the install prompt appears, in milliseconds.
-     * Stored as seconds (0–60) in the Customizer; 1.5s is the
+     * Stored as seconds (0-60) in the Customizer; 1.5s is the
      * shipped behaviour. Clamped again here so a hand-edited
      * option can never delay the prompt by minutes.
      */
@@ -648,7 +648,7 @@ final class Pwa
  * Static assets (same origin, GET only): cache-first. Everything else
  * passes straight through to the network. Admin pages, the login page
  * and AJAX endpoints are never cached, and navigation responses are
- * never cached either — an offline navigation falls back to the home
+ * never cached either - an offline navigation falls back to the home
  * page, which is precached anonymously (no credentials) at install
  * time, so no authenticated response can ever be served from cache.
  * Nothing here throws: a failed cache write is ignored and the
@@ -681,7 +681,7 @@ function offlineResponse() {
 	return new Response(
 		'<!doctype html><html lang="en"><head><meta charset="utf-8">' +
 			'<meta name="viewport" content="width=device-width, initial-scale=1">' +
-			'<title>Koperasi Kita — Offline</title>' +
+			'<title>Koperasi Kita - Offline</title>' +
 			'<style>body{font-family:system-ui,sans-serif;margin:0;padding:48px 24px;color:#1a1a1a}' +
 			'h1{font-size:22px;margin:0 0 12px}p{color:#555;line-height:1.6}</style>' +
 			'</head><body><h1>You are offline</h1>' +
@@ -693,9 +693,9 @@ function offlineResponse() {
 
 self.addEventListener('install', (event) => {
 	self.skipWaiting();
-	// The registration scope is the site root for this worker — the
+	// The registration scope is the site root for this worker - the
 	// domain root on a normal install, the subdirectory on a subdir
-	// install — so it is the correct home page to precache.
+	// install - so it is the correct home page to precache.
 	const home = self.registration.scope;
 	event.waitUntil(
 		caches

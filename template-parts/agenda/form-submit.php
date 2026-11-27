@@ -56,7 +56,7 @@ $formErrors = [
     'security' => __('Your session expired. Please try submitting again.', 'koperasikita'),
     'capability' => __('Your account cannot submit agenda items.', 'koperasikita'),
     'rate' => __('Too many submissions. Please wait an hour and try again.', 'koperasikita'),
-    'save' => __('Something went wrong while saving your submission. Please try again.', 'koperasikita'),
+    'save' => __('Could not save your submission. Please try again.', 'koperasikita'),
 ];
 
 $fieldMessage = static function (string $field) use ($errors, $fieldErrors): string {

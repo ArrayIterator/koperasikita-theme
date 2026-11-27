@@ -15,7 +15,7 @@ use KoperasiKita\Icons\Icon;
  * The choice is saved as post meta on the menu item. On the frontend
  * the icon is prepended to the item title via the nav_menu_item_title
  * filter, so it shows in the primary nav, the mobile bottom bar, the
- * footer nav and the sidebar menu alike — no custom walker needed.
+ * footer nav and the sidebar menu alike - no custom walker needed.
  * The colour (when set) is applied to the icon span; without a colour
  * the icon inherits the link colour.
  */
@@ -33,7 +33,7 @@ final class MenuIcons
         // One shared popup for every picker on the page: menu items
         // (Appearance -> Menus) and the Agenda widget's header icon
         // (widgets.php + Customizer, which reuse the same popup and
-        // the same data attributes — see AgendaWidget::form()).
+        // the same data attributes - see AgendaWidget::form()).
         add_action('admin_footer-nav-menus.php', [self::class, 'renderPopup']);
         add_action('admin_footer-widgets.php', [self::class, 'renderPopup']);
         add_action('customize_controls_print_footer_scripts', [self::class, 'renderPopup']);
@@ -126,7 +126,7 @@ final class MenuIcons
             return __('No icon', 'koperasikita');
         }
 
-        return '' !== $color ? $icon . ' · ' . $color : $icon;
+        return '' !== $color ? $icon . ' - ' . $color : $icon;
     }
 
     /** The shared icon picker popup (one per page, reused by every menu item and every Agenda widget). */

@@ -8,7 +8,7 @@ namespace KoperasiKita\Api;
  * An error that maps directly onto the public API envelope.
  *
  * Handlers throw this instead of building error responses by hand, so
- * every endpoint — AJAX or REST — reports failures with the same
+ * every endpoint - AJAX or REST - reports failures with the same
  * machine-readable code and HTTP status. The message is safe to show
  * to the caller; never put internals (paths, SQL, stack traces) in it.
  */

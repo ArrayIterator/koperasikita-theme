@@ -1,9 +1,9 @@
-/* ==========================================================================
-   Koperasi Kita — home.css — home
+/*
+   Koperasi Kita - home.css - home
    Home layout and hero.
-   ========================================================================== */
+   */
 
-/* --- Home layout ---------------------------------------------------------- */
+/* Home layout */
 
 .kk-home {
 	padding-top: 24px;
@@ -18,7 +18,7 @@
 /* Grid items default to min-width: auto, so a wide child (a slider
  * row of cards) forces the column wider instead of letting the
  * slider overflow and scroll. min-width: 0 lets the column shrink
- * to the grid track, so the slider scrolls — including by touch. */
+ * to the grid track, so the slider scrolls - including by touch. */
 .kk-home-primary,
 .kk-home-secondary {
 	min-width: 0;
@@ -30,14 +30,14 @@
 	align-content: start;
 }
 
-/* --- Hero ----------------------------------------------------------------- */
+/* Hero */
 
 .kk-hero {
 	display: grid;
 	gap: 20px;
 }
 
-/* --- Bottom Border -------------------------------------------------------- */
+/* Bottom Border */
 /* The rule under the hero that separates it from the content
  * below. Classic is a single 1px divider; Double is the
  * newspaper double rule; No Border leaves the hero flowing
@@ -63,7 +63,7 @@
 	padding-top: 16px;
 }
 
-/* --- Lead Title Inside (grid modes) --------------------------------------- */
+/* Lead Title Inside (grid modes) */
 /* The lead title + meta + excerpt inside the featured image: the
  * body overlays the bottom of the lead image with a gradient,
  * white text. */
@@ -139,7 +139,7 @@
 	gap: 20px;
 }
 
-/* --- Hero presentation modes (12) --------------------------------------- */
+/* Hero presentation modes (12) */
 /* The section is a grid; the mode class sets the columns. Widget
  * areas render nothing when empty, so a widget mode falls back to
  * the hero alone until a widget is added. The lead + cards inside
@@ -192,8 +192,8 @@
 }
 
 /* Grid Center sides: a descending list (kiri menurun, kanan
- * menurun), not grid cards. Compact rows — small thumbnail on the
- * left, eyebrow + title + date on the right — stacked top to
+ * menurun), not grid cards. Compact rows - small thumbnail on the
+ * left, eyebrow + title + date on the right - stacked top to
  * bottom with a divider, so the middle lead carries the hero. */
 .kk-hero-side-list {
 	list-style: none;
@@ -292,7 +292,7 @@
 }
 
 /* A widget mode whose widget area is empty falls back to the hero
- * alone (full width) — no blank column. The template adds
+ * alone (full width) - no blank column. The template adds
  * kk-hero--no-left-widget / kk-hero--no-right-widget when the
  * matching sidebar has no widgets. */
 .kk-hero--grid-left-widget.kk-hero--no-right-widget,
@@ -342,7 +342,7 @@
 	}
 }
 
-/* --- Hero slider (Hero Presentation = Slider) ---------------------------- */
+/* Hero slider (Hero Presentation = Slider) */
 /* One story at a time: a scroll-snap row, one full-width slide per
  * stop, prev/next buttons scroll by one slide. The scrollbar is
  * hidden (the buttons are the discoverable control). */
@@ -391,7 +391,7 @@
 	padding-top: 1rem;
 }
 
-/* --- Slider Style: Inner -------------------------------------------------- */
+/* Slider Style: Inner */
 /* Title + meta + excerpt inside the image: the body overlays the
  * bottom of the slide image with a gradient, white text. */
 .kk-hero--slider-inner .kk-hero-slide {

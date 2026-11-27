@@ -1,10 +1,10 @@
 /**
- * Koperasi Kita — inline location search for agenda events.
+ * Koperasi Kita - inline location search for agenda events.
  *
  * One combobox, three places: the Event Details box in the agenda
  * editor, the add/edit form on the Locations admin page, and the
  * contributor submission form. Typing searches the saved locations
- * first (instant, no network — they ride along as JSON on the field
+ * first (instant, no network - they ride along as JSON on the field
  * itself), then the geocoder through `kk_agenda_place_search`
  * (debounced, so a fast typist costs one request, not one per key).
  *
@@ -13,7 +13,7 @@
  * (the same inputs the Pick Location popup writes), in the
  * location-form context the Name / Address / Latitude / Longitude
  * fields of the form. Editing the text after a pick clears the
- * coordinates again, so a stale pin can never survive a rename —
+ * coordinates again, so a stale pin can never survive a rename -
  * free text without coordinates is still allowed, exactly as before.
  *
  * Keyboard: Down/Up moves through the results, Enter picks the
@@ -129,7 +129,7 @@ export function parseSavedLocations(raw: string | undefined): SavedLocation[] {
 
 /**
  * Merge geocoded rows after the saved ones, skipping any row that
- * sits on saved coordinates — the saved row already carries the
+ * sits on saved coordinates - the saved row already carries the
  * curated name for that place. Pure, so it is unit-testable.
  */
 export function mergePlaceResults(saved: PlaceResult[], geocoded: PlaceResult[]): PlaceResult[] {
@@ -182,7 +182,7 @@ export function initLocationSearch(root: HTMLElement, config: AjaxConfig | null)
 
 	const context = root.dataset.kkAgendaLocationContext === 'location-form' ? 'location-form' : 'picker';
 	const saved = parseSavedLocations(root.dataset.kkAgendaSavedLocations);
-	const searchingText = root.dataset.kkAgendaSearching ?? 'Searching…';
+	const searchingText = root.dataset.kkAgendaSearching ?? 'Searching...';
 	const noResultsText = root.dataset.kkAgendaNoResults ?? 'No places found';
 	const unavailableText = root.dataset.kkAgendaSearchUnavailable ?? 'Search is unavailable right now.';
 	const savedLabel = root.dataset.kkAgendaSavedLabel ?? 'Saved location';
@@ -190,7 +190,7 @@ export function initLocationSearch(root: HTMLElement, config: AjaxConfig | null)
 
 	// The picker block lives in the same form as the field (the
 	// #post form in the editor, the submit form on the frontend), so
-	// the scope is the form — never the whole document, where a
+	// the scope is the form - never the whole document, where a
 	// second picker could answer instead.
 	const scope = root.closest('form') ?? root.parentElement ?? document;
 	const latInput = scope.querySelector<HTMLInputElement>('[data-kk-agenda-lat]');
@@ -268,7 +268,7 @@ export function initLocationSearch(root: HTMLElement, config: AjaxConfig | null)
 			const meta = document.createElement('span');
 			meta.className = 'kk-agenda-location-result-meta';
 			const badge = row.source === 'saved' ? savedLabel : placeLabel;
-			meta.textContent = row.address !== '' ? `${row.address} · ${badge}` : badge;
+			meta.textContent = row.address !== '' ? `${row.address} - ${badge}` : badge;
 			button.append(meta);
 
 			button.addEventListener('click', () => pick(row));
@@ -426,7 +426,7 @@ export function initLocationSearch(root: HTMLElement, config: AjaxConfig | null)
 
 	searchInput.addEventListener('input', () => {
 		// The name changed after a pick: the stored pin belongs to
-		// the old name, so it goes — free text without coordinates
+		// the old name, so it goes - free text without coordinates
 		// is still a valid location, exactly as before.
 		if (pickedName !== null && searchInput.value !== pickedName) {
 			pickedName = null;

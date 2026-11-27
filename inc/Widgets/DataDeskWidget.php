@@ -9,7 +9,7 @@ use KoperasiKita\Features\Markets;
 use WP_Widget;
 
 /**
- * Data Desk widget: one market symbol as a panel — a line chart of
+ * Data Desk widget: one market symbol as a panel - a line chart of
  * the last N days on the left, three stats on the right (price with
  * day change, buyback with spread, weekly performance).
  *
@@ -45,7 +45,7 @@ final class DataDeskWidget extends WP_Widget
         $template = $templateId !== '' ? DataDesk::getTemplate($templateId) : null;
         // A table template picked here (its kind was changed after the
         // widget picked it) falls back to the first stored panel
-        // template — this widget only ever renders panels. With no
+        // template - this widget only ever renders panels. With no
         // panel template at all the widget renders nothing.
         if ($template === null || $template['kind'] !== DataDesk::KIND_PANEL) {
             $template = DataDesk::firstTemplateOfKind(DataDesk::KIND_PANEL);
@@ -129,7 +129,7 @@ final class DataDeskWidget extends WP_Widget
         </p>
         <?php /* Layout preview: the real panel markup with sample data, re-rendered by admin.ts
          * (kk_data_desk_preview) when the template above changes. The block editor needs no
-         * extra box — its ServerSideRender preview below the settings is the live preview. */ ?>
+         * extra box - its ServerSideRender preview below the settings is the live preview. */ ?>
         <div class="kk-data-desk-widget-preview" data-kk-data-desk-widget-preview data-kk-kind="panel">
             <p class="kk-data-desk-widget-preview-label"><?php esc_html_e('Layout preview — sample data', 'koperasikita'); ?></p>
             <div data-kk-data-desk-widget-preview-body>

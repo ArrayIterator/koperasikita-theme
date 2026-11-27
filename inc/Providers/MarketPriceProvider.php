@@ -13,7 +13,7 @@ namespace KoperasiKita\Providers;
  *
  * Rules every implementation must follow:
  *  - `prices()` returns only symbols with a real price. An empty array
- *    means "no data" — never return a zero or invented price.
+ *    means "no data" - never return a zero or invented price.
  *  - `supports()` answers whether the provider can serve the market at
  *    all, before any network or storage is touched.
  *  - `supplies()` lists the symbols the provider CAN supply for a

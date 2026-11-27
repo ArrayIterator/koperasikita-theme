@@ -1,9 +1,9 @@
-/* ==========================================================================
-   Koperasi Kita — overlays.css — overlays
+/*
+   Koperasi Kita - overlays.css - overlays
    Modal / popup (always centred + blurred backdrop).
-   ========================================================================== */
+   */
 
-/* --- Modal / popup (always centred + blurred backdrop) -------------------- */
+/* Modal / popup (always centred + blurred backdrop) */
 
 .kk-modal {
 	position: fixed;

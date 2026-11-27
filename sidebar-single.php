@@ -5,7 +5,7 @@
  * @package KoperasiKita
  */
 
-// An empty sidebar renders nothing — no placeholder box. The
+// An empty sidebar renders nothing - no placeholder box. The
 // editor adds widgets in Appearance -> Widgets.
 if ( ! is_active_sidebar( 'sidebar-single' ) ) {
 	return;

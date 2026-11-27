@@ -1,12 +1,12 @@
 <?php
 /**
- * Gold Data Desk: the gold brands as a data table — one row per
+ * Gold Data Desk: the gold brands as a data table - one row per
  * priced brand with the price per gram and the last-updated date.
  *
  * Expects $args['brands'] as array<string, \KoperasiKita\Providers\MarketPrice>
  * keyed by brand slug, and $args['client'] as the gold client info
  * (provider + client API URL) for live refresh. Brands without a
- * saved snapshot price are never passed in here — see
+ * saved snapshot price are never passed in here - see
  * Gold::brandPrices(). When the array is empty this template renders
  * an honest empty state and no table at all.
  *

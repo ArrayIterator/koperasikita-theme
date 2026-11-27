@@ -45,7 +45,7 @@ get_header();
 	// Block Area widget (global, locked): ONE shared area for the
 	// whole category-block region, not one per block. Whether it
 	// has a widget or not, the homepage sidebar always sits beside
-	// the primary content on desktop — an empty Block Area must
+	// the primary content on desktop - an empty Block Area must
 	// never collapse the layout to a single column.
 	$kk_has_block_widget = is_active_sidebar( 'kk-block' );
 	?>
@@ -81,7 +81,7 @@ get_header();
 			<?php
 			// Category blocks: the three Customizer slots, in order.
 			// Each block is followed by its own After Category Block
-			// widget area — but only when that block is active. The
+			// widget area - but only when that block is active. The
 			// loop only visits active blocks, so an inactive block's
 			// strip never renders.
 			foreach ( \KoperasiKita\Features\Homepage::categoryBlocks() as $block ) {

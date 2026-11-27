@@ -18,8 +18,8 @@ use WP_Customize_Control;
  * tags stays light on both sides: one small query per keystroke,
  * capped at 20 rows, and only the matches are ever in the DOM.
  * Static choices (e.g. value 0 = "Automatic (most posts)") are the
- * only options rendered server-side — set them through the control
- * args as `'static_choices' => [0 => 'Automatic (most posts)']` — and
+ * only options rendered server-side - set them through the control
+ * args as `'static_choices' => [0 => 'Automatic (most posts)']` - and
  * the taxonomy through `'taxonomy' => 'category'`.
  *
  * The trigger label is resolved server-side with a single term

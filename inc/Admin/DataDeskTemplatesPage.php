@@ -10,7 +10,7 @@ use KoperasiKita\Features\Gold;
 /**
  * Koperasi Kita -> Data Desk Templates: the Data Desk template manager.
  *
- * A template is a saved Data Desk configuration — a panel (one symbol
+ * A template is a saved Data Desk configuration - a panel (one symbol
  * as a chart + stats) or a table (the Gold Data Desk table of brands).
  * Widgets pick a template instead of carrying their own settings, so
  * a template is shared, not per-widget ("bukan widget pribadi").
@@ -37,7 +37,7 @@ final class DataDeskTemplatesPage
         $pageUrl = admin_url('admin.php?page=' . self::PAGE_SLUG);
 
         // Editing a template that no longer exists falls back to the
-        // list — there is nothing to edit.
+        // list - there is nothing to edit.
         if ($action === 'edit' && $id !== '' && DataDesk::getTemplate($id) === null) {
             $action = 'list';
         }
@@ -67,7 +67,7 @@ final class DataDeskTemplatesPage
      * Handle the save / delete / duplicate submissions. Runs on the
      * page's load hook (see AdminMenu::registerMenu), BEFORE any
      * output: the handlers redirect after acting, and a redirect
-     * cannot send headers once the admin chrome has been output —
+     * cannot send headers once the admin chrome has been output -
      * calling this from render() blanked the page content after
      * every Update / Duplicate / Delete while the action itself
      * had already persisted. Returns nothing; an action exits
@@ -162,7 +162,7 @@ final class DataDeskTemplatesPage
     /**
      * The template list: name, kind, what it shows, palette, days,
      * and actions. Every template can be edited, duplicated and
-     * deleted. The preview is not rendered inline — each row has a
+     * deleted. The preview is not rendered inline - each row has a
      * Preview link that opens the real panel / table markup (sample
      * data) in a popup, fetched through kk_data_desk_preview.
      */
@@ -237,7 +237,7 @@ final class DataDeskTemplatesPage
     /**
      * The create / edit form: a sticky top bar holds every setting
      * (name, kind, symbol/days or brands, palette) with Save at the
-     * right; below it the live preview IS the editor — kicker and
+     * right; below it the live preview IS the editor - kicker and
      * title are edited inline in the preview itself. Kind switches
      * which top-bar fields apply: panel shows Symbol + Days, table
      * shows Brands. The toggle is a tiny inline script so it runs
@@ -292,7 +292,7 @@ final class DataDeskTemplatesPage
             <?php /* The kicker and date line have no visible
              * rows: both are edited inline in the live preview
              * below, which writes into these hidden fields
-             * (admin.ts) — the save flow reads them exactly as
+             * (admin.ts) - the save flow reads them exactly as
              * before. The title DOES have a visible row in the
              * top bar (below): the table preview has no title
              * to click, so the header is where its title is
@@ -303,7 +303,7 @@ final class DataDeskTemplatesPage
              * stat blocks: edited inline in the live preview below
              * (click a label or note to edit it, eye button per
              * block to hide or show it), which writes into these
-             * hidden fields (admin.ts) — the save flow reads them
+             * hidden fields (admin.ts) - the save flow reads them
              * exactly as the title/kicker. */ ?>
             <?php foreach (DataDesk::STAT_BLOCKS as $blockKey) : ?>
             <input type="hidden" id="kk-template-stat-<?php echo esc_attr($blockKey); ?>-label" name="kk_template_stat_<?php echo esc_attr($blockKey); ?>_label" value="<?php echo esc_attr($template['stats'][$blockKey]['label'] ?? ''); ?>">
@@ -311,7 +311,7 @@ final class DataDeskTemplatesPage
             <?php endforeach; ?>
             <?php /* Table column header overrides: edited inline in
              * the live preview below (click a header to edit it),
-             * which writes into these hidden fields (admin.ts) —
+             * which writes into these hidden fields (admin.ts) -
              * the save flow reads them exactly as the stat texts. */ ?>
             <?php foreach (DataDesk::HEADER_FIELDS as $headerKey) : ?>
             <input type="hidden" id="kk-template-header-<?php echo esc_attr($headerKey); ?>" name="kk_template_header_<?php echo esc_attr($headerKey); ?>" value="<?php echo esc_attr($template['headers'][$headerKey] ?? ''); ?>">
@@ -335,7 +335,7 @@ final class DataDeskTemplatesPage
                     <?php /* The title field IS the save field (same id +
                      * name the inline preview edit writes into), so
                      * typing here refreshes the preview live and an
-                     * inline edit in the preview updates this input —
+                     * inline edit in the preview updates this input -
                      * one field, two ways to edit it. Table-only: a
                      * panel's title is edited inline in the preview,
                      * so the top bar does not need this field. */ ?>
@@ -404,7 +404,7 @@ final class DataDeskTemplatesPage
              * changes. The server renders the first preview so the
              * section is never empty. */ ?>
             <?php /* Kind-aware hint: the panel preview has a title
-             * to click, the table preview has none — its title is
+             * to click, the table preview has none - its title is
              * edited in the top bar above, so the table hint must
              * never promise a clickable preview title. The toggle
              * script below shows the matching hint. */ ?>

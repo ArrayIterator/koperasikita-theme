@@ -35,7 +35,7 @@ final class Pagination
 
     /**
      * How the Previous / Next links render: 'text' (words) or
-     * 'icons' (double chevrons « »).
+     * 'icons' (double chevrons << >>).
      */
     public static function navStyle(): string
     {
@@ -68,7 +68,7 @@ final class Pagination
         return __('Older &rarr;', 'koperasikita');
     }
 
-    /** Icon name for the Prev link (Customizer pick, default «). */
+    /** Icon name for the Prev link (Customizer pick, default <<). */
     public static function prevIcon(): string
     {
         $icon = (string) get_theme_mod('kk_pagination_prev_icon', 'chevrons-left');
@@ -76,7 +76,7 @@ final class Pagination
         return \KoperasiKita\Icons\Icon::exists($icon) ? $icon : 'chevrons-left';
     }
 
-    /** Icon name for the Next link (Customizer pick, default »). */
+    /** Icon name for the Next link (Customizer pick, default >>). */
     public static function nextIcon(): string
     {
         $icon = (string) get_theme_mod('kk_pagination_next_icon', 'chevrons-right');
@@ -119,7 +119,7 @@ final class Pagination
     /**
      * The current main query, reduced to the vars the /posts endpoint
      * accepts. Anything else (ordering, meta queries, post__in and
-     * friends) is dropped — the endpoint rebuilds the rest itself.
+     * friends) is dropped - the endpoint rebuilds the rest itself.
      *
      * @return array<string, mixed>
      */

@@ -13,7 +13,7 @@ use KoperasiKita\Features\Subscribers;
  * Every valid [kk_subscribe] submit is stored in the local
  * subscribers table first (Subscribers::record), whether MailPoet
  * is active or not, so this page is the record of who subscribed.
- * Server-rendered with WP admin styles only — no custom CSS and
+ * Server-rendered with WP admin styles only - no custom CSS and
  * no admin.js, so it cannot be bitten by the submenu hook-suffix
  * trap. The CSV export runs through admin-post.php (registered in
  * Theme::boot) because the page callback itself runs after the
@@ -133,7 +133,7 @@ final class SubscribersPage
         <script>
         // Two-step delete: the first click arms the button
         // ("Confirm delete?"), the second submits. No native
-        // confirm() dialog — some browsers and automation dismiss
+        // confirm() dialog - some browsers and automation dismiss
         // those without a trace, which silently swallowed the
         // delete entirely. Without JS the button submits at once.
         (function () {
@@ -200,7 +200,7 @@ final class SubscribersPage
      * Delete one subscriber (admin-post.php): nonce + capability
      * checked, then redirect back with a deleted flag so a refresh
      * never resubmits the form. Runs on admin-post.php, before any
-     * output — handling the POST inside render() would redirect
+     * output - handling the POST inside render() would redirect
      * after the admin headers are already sent.
      */
     public static function handleDelete(): void

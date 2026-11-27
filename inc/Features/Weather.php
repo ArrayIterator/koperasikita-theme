@@ -13,7 +13,7 @@ use KoperasiKita\Providers\OpenMeteoProvider;
 use KoperasiKita\Providers\WeatherProvider;
 
 /**
- * Weather module — the façade.
+ * Weather module - the facade.
  *
  * This class owns the module's public surface: the default location,
  * the quick-pick cities, city resolution, the WMO code labels, the
@@ -41,7 +41,7 @@ final class Weather
      * Clean a locations list into its canonical shape: one row per
      * place, `{name, latitude, longitude}`, duplicates dropped (same
      * name or same coordinates within ~1 km) and capped at
-     * MAX_LOCATIONS. Rows may be arrays or objects — the block
+     * MAX_LOCATIONS. Rows may be arrays or objects - the block
      * editor and the widget form both feed this.
      *
      * @param mixed $locations
@@ -450,7 +450,7 @@ final class Weather
         }
 
         // The condition icon is presentation, not provider data: the
-        // provider's cached shape stays untouched and the façade adds
+        // provider's cached shape stays untouched and the facade adds
         // the rendered SVG here, so the top bar can show it.
         $weather['icon'] = Icon::svg(self::codeIcon((int) $weather['code']), 18);
 
@@ -476,8 +476,8 @@ final class Weather
      *
      * A GPS fix or a typed coordinate pair has no name of its own, so
      * the top bar used to show the anonymous "My location" / "Custom
-     * location". This resolves the coordinates to their area — city,
-     * town or regency — so the top bar reads "Kabupaten Malang"
+     * location". This resolves the coordinates to their area - city,
+     * town or regency - so the top bar reads "Kabupaten Malang"
      * instead. Returns a null name (never an error) when the place
      * cannot be resolved; the caller keeps the generic label then.
      *
@@ -503,14 +503,14 @@ final class Weather
      * Resolve coordinates to the name of the area they sit in.
      *
      * Keyless Nominatim reverse lookup, zoom 10 (city / regency
-     * level — a village would be too specific for a weather label).
+     * level - a village would be too specific for a weather label).
      * The most specific populated place wins: city, town, village,
      * municipality, then the regency (county) and the province. Only
      * successful names are cached (30 days); a failure is retried on
      * the next lookup instead of caching an empty answer.
      *
-     * This lives on the façade, not on the WeatherProvider contract:
-     * reverse geocoding is city resolution (the façade's job), and
+     * This lives on the facade, not on the WeatherProvider contract:
+     * reverse geocoding is city resolution (the facade's job), and
      * adding it to the interface would break third-party providers.
      */
     public static function reverseGeocode(float $latitude, float $longitude): ?string

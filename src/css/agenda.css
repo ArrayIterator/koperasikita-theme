@@ -1,7 +1,7 @@
 @import 'leaflet/dist/leaflet.css';
 
-/* ==========================================================================
-   Koperasi Kita — agenda
+/*
+   Koperasi Kita - agenda
    Standalone stylesheet for the Agenda feature: the contributor submission
    form, the agenda archive cards and the single event view. Only loaded
    when Agenda is enabled. Builds on the shells in app.css and reuses the
@@ -10,7 +10,7 @@
    Touch-first: every input and button is at least 48px tall, labels sit
    on their own line, and the layout is a single column that fits a 390px
    viewport with no horizontal overflow.
-   ========================================================================== */
+   */
 
 .kk-agenda-submit {
 	box-sizing: border-box;
@@ -19,7 +19,7 @@
 	margin: 0 auto;
 }
 
-/* --- Notices ------------------------------------------------------------- */
+/* Notices */
 
 .kk-agenda-notice {
 	padding: 14px 16px;
@@ -41,7 +41,7 @@
 	border-left-color: #b3261e;
 }
 
-/* --- Form ---------------------------------------------------------------- */
+/* Form */
 
 .kk-agenda-form {
 	box-sizing: border-box;
@@ -131,7 +131,7 @@
 }
 
 /* Honeypot: kept off-screen so humans (and screen readers) never see it,
-   but present in the DOM so bots fill it in. Never display: none — some
+   but present in the DOM so bots fill it in. Never display: none - some
    bots skip fields they cannot see. */
 .kk-agenda-honeypot {
 	position: absolute;
@@ -144,7 +144,7 @@
 	padding: 0;
 }
 
-/* --- Archive card -------------------------------------------------------- */
+/* Archive card */
 
 .kk-agenda-card {
 	position: relative;
@@ -180,10 +180,10 @@
 	color: var(--kk-muted);
 }
 
-/* --- Event details ------------------------------------------------------- */
+/* Event details */
 /* Flat, not a box: the old grey surface fill + border + radius read as
  * a slab. The details are rows under a 2px rule (like a widget title),
- * separated by hairline dividers — the same quiet list language as
+ * separated by hairline dividers - the same quiet list language as
  * the article lists. */
 .kk-agenda-meta {
 	margin: 0 0 16px;
@@ -217,7 +217,7 @@
 	color: var(--kk-ink);
 }
 
-/* --- Event location ("location picker") ---------------------------------- */
+/* Event location ("location picker") */
 /* The venue as its own row: a location glyph, the venue text, and a
  * "View map" link (Google Maps search, new tab). Same flat row
  * language as the details above. */
@@ -258,11 +258,11 @@
 	text-decoration: underline;
 }
 
-/* --- Event map ----------------------------------------------------------- */
+/* Event map */
 /* The embedded map on a single event, and the map picker in the admin
  * meta box and the contributor form. The container stays hidden until
  * the map script marks it ready, so without the map library there is
- * no empty box — the venue text is the fallback, as before. The
+ * no empty box - the venue text is the fallback, as before. The
  * library (Leaflet or Google) renders into [data-kk-agenda-map]. */
 .kk-agenda-map {
 	display: none;
@@ -323,7 +323,7 @@
 	color: var(--kk-green, #0b6b3a);
 }
 
-/* --- Wider screens ------------------------------------------------------- */
+/* Wider screens */
 
 @media (min-width: 640px) {
 	.kk-agenda-field-row {
@@ -342,13 +342,13 @@
 	}
 }
 
-/* --- Pick Location popup -------------------------------------------------- */
+/* Pick Location popup */
 /* One shared centered popup (blurred backdrop, per the popup standard)
  * for the admin meta box and the contributor form. It sits above the
  * editor but below the admin menu (z-index 9999) and the admin bar
  * (99999): container 8999, the backdrop and dialog are layers inside
  * it. The container is display: flex, so it needs the explicit
- * [hidden] rule — the user-agent rule loses to the author display
+ * [hidden] rule - the user-agent rule loses to the author display
  * (same gotcha as the menu icon grid). */
 .kk-agenda-pick-location {
 	position: fixed;
@@ -488,9 +488,9 @@
 }
 
 /* --- Inline location search (Event Details box, Locations form,
- * contributor form) -------------------------------------------------- */
+ * contributor form) */
 /* The dropdown is positioned against the field wrapper, so it
- * overlays the fields below instead of pushing them down — the meta
+ * overlays the fields below instead of pushing them down - the meta
  * box is a narrow sidebar column and a pushing list would shove the
  * Pick Location button off the visible area. Hex fallbacks on every
  * var(): the admin loads this file without tokens.css. */
@@ -619,10 +619,10 @@ li:last-child > .kk-agenda-location-result {
 	color: #fff;
 }
 
-/* --- Map pin -------------------------------------------------------------- */
-/* The marker is pure CSS (no marker-image assets): a green teardrop —
- * a square with three rounded corners, rotated -45°, so the sharp
- * corner points down — with a white dot in the middle. The divIcon
+/* Map pin */
+/* The marker is pure CSS (no marker-image assets): a green teardrop -
+ * a square with three rounded corners, rotated -45deg, so the sharp
+ * corner points down - with a white dot in the middle. The divIcon
  * wrapper gets the default Leaflet white background and border
  * removed. The teardrop's tip sits ~6px below the 28px box, so the
  * icon anchor is [14, 34]: the tip, not the box, marks the place. */

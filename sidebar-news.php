@@ -5,7 +5,7 @@
  * Shows the News Sidebar widgets; when that area is empty it falls
  * back to the Main Sidebar, so the homepage is never bare just
  * because the editor only filled one sidebar. When neither area has
- * widgets, an empty sidebar renders nothing — no placeholder box.
+ * widgets, an empty sidebar renders nothing - no placeholder box.
  * The editor adds widgets in Appearance -> Widgets.
  *
  * @package KoperasiKita

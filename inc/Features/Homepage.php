@@ -42,7 +42,7 @@ final class Homepage
                 continue;
             }
 
-            // Automatic: the most-posted category not already used —
+            // Automatic: the most-posted category not already used -
             // also the fallback when a slot's pick is invalid or was
             // already picked by an earlier slot.
             if ($automatic === null) {
@@ -89,7 +89,7 @@ final class Homepage
 
     /**
      * The List (Columns) settings for a category block slot:
-     * [columns (1–4), rows per column (1–10), enable slider].
+     * [columns (1-4), rows per column (1-10), enable slider].
      *
      * @return array{columns: int, rows: int, enable_slider: bool}
      */

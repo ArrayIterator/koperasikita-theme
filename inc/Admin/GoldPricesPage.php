@@ -23,7 +23,7 @@ use KoperasiKita\Providers\LogamMuliaApiProvider;
  * sync, latest recorded date, which symbols are stored, the
  * failure backlog), a manual sync button that steps through the
  * enabled sources one at a time via AJAX with a real progress
- * bar, and the per-source status table (read-only — the sources'
+ * bar, and the per-source status table (read-only - the sources'
  * enable/default switches live on Setting). "History" shows the
  * stored price history as both a list (table) and a dependency-free
  * inline SVG line chart (one line per brand), with a brand +
@@ -31,7 +31,7 @@ use KoperasiKita\Providers\LogamMuliaApiProvider;
  * settings: the sync source list (which Logam Mulia CSV sources
  * the sync imports, with a default source that runs first) and
  * the automatic sync schedule (how often, days per run, timeout).
- * Uses WP admin styles only — no heavy custom CSS.
+ * Uses WP admin styles only - no heavy custom CSS.
  */
 final class GoldPricesPage
 {
@@ -85,8 +85,8 @@ final class GoldPricesPage
     }
 
     /**
-     * Run the form saves on the page's load hook — before any
-     * output — so the redirect after a save can send its headers.
+     * Run the form saves on the page's load hook - before any
+     * output - so the redirect after a save can send its headers.
      * Calling the save handlers from render() (after the admin
      * chrome is printed) made every save land on a blank page:
      * the redirect could not send headers, then exit() killed
@@ -102,7 +102,7 @@ final class GoldPricesPage
     /**
      * Contextual help tabs for this page: what Scraping is, what
      * each source provides, the schedule, and what each tab is
-     * for. Short and plain — the tabs answer, they do not lecture.
+     * for. Short and plain - the tabs answer, they do not lecture.
      */
     public static function addHelpTabs(): void
     {
@@ -140,9 +140,9 @@ final class GoldPricesPage
     /**
      * The chart endpoint (kk_gold_chart): the chart HTML for the
      * picked brands over the picked days. `brands` is a
-     * comma-separated list of brand slugs — empty means the
+     * comma-separated list of brand slugs - empty means the
      * enabled brands (see summaryChartBrands). `days` is clamped
-     * to 1–90 (default 7). Reuses renderChart + the History query,
+     * to 1-90 (default 7). Reuses renderChart + the History query,
      * so the Summary chart can never disagree with History.
      *
      * @return array{html: string}
@@ -173,7 +173,7 @@ final class GoldPricesPage
     /**
      * The brands a Summary chart query covers: the picked slugs
      * (unknown ones dropped), or the enabled brands when nothing
-     * is picked, or every brand when none is enabled — an empty
+     * is picked, or every brand when none is enabled - an empty
      * filter never means an empty chart, same as History.
      *
      * @param array<int, string> $picked
@@ -198,7 +198,7 @@ final class GoldPricesPage
         }
 
         // Saves run on the load hook (handleActionsOnLoad), never
-        // here — see register().
+        // here - see register().
 
         // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- tab is display-only.
         $tab = isset($_GET['tab']) ? sanitize_key((string) wp_unslash($_GET['tab'])) : 'summary';
@@ -239,8 +239,8 @@ final class GoldPricesPage
      * provider/fallback picks AND the enabled-brands switch, in
      * one form, one save. Nonce + capability checked, then redirect
      * back with a saved flag so a refresh never resubmits the form.
-     * Validation lives in Gold::setBrandProviders() — a provider
-     * that cannot supply its brand is dropped to Manual there —
+     * Validation lives in Gold::setBrandProviders() - a provider
+     * that cannot supply its brand is dropped to Manual there -
      * and in Gold::setEnabledBrands(), which drops unknown slugs.
      * The enabled checkboxes submit only when ticked, so an absent
      * list means "none enabled" on purpose, not "unchanged".
@@ -345,7 +345,7 @@ final class GoldPricesPage
      * Summary tab (the default): the price chart with live
      * filters, the sync facts, and the enabled / disabled brand
      * lists. The chart re-renders via AJAX (kk_gold_chart) when
-     * the brand picker or the days selector changes — no page
+     * the brand picker or the days selector changes - no page
      * reload. The old Status price table lives here as the two
      * brand lists; there is no Status tab anymore.
      *
@@ -489,9 +489,9 @@ final class GoldPricesPage
     }
 
     /**
-     * Gold Brands tab: the per-brand provider table (brand →
+     * Gold Brands tab: the per-brand provider table (brand ->
      * provider + fallback) with the per-brand Enabled switch in
-     * the same table — one form, one save. The Enabled switch is
+     * the same table - one form, one save. The Enabled switch is
      * the old "Enabled Gold Brands" form consolidated here; the
      * Setting tab no longer carries it.
      *
@@ -518,7 +518,7 @@ final class GoldPricesPage
     }
 
     /**
-     * Sync tab: everything about Scraping in one place — what it
+     * Sync tab: everything about Scraping in one place - what it
      * does, the sync status (last sync, latest date, symbols
      * stored, the failure backlog), a manual scrape button that
      * steps through the enabled sources one at a time via AJAX with
@@ -549,7 +549,7 @@ final class GoldPricesPage
 
     /**
      * The manual scrape block, on the Sync tab only. The button
-     * scrapes ONLY the enabled sources, default first — see
+     * scrapes ONLY the enabled sources, default first - see
      * LogamMuliaApiProvider::enabledSyncSources(). With no source
      * enabled the button is disabled with an honest note, so it
      * can never be clicked to no effect. The progress bar + step
@@ -577,9 +577,9 @@ final class GoldPricesPage
     }
 
     /**
-     * Setting tab: ONLY the sync settings — the scraping source
+     * Setting tab: ONLY the sync settings - the scraping source
      * list (which sources Scraping imports, and which one runs
-     * first) and the automatic sync schedule — one form, one save.
+     * first) and the automatic sync schedule - one form, one save.
      * Manual and automatic scraping both follow the same enabled
      * list. Manual scraping itself, and the sync status, live on
      * the Sync tab; the per-brand Enabled switch lives on the
@@ -706,7 +706,7 @@ final class GoldPricesPage
      * brand. When the primary has no price, the fallback is tried
      * automatically. A brand with a description shows it as one
      * muted line under the brand name. Brand rows also carry the
-     * Enabled switch (the spot row has none — spot is not a brand);
+     * Enabled switch (the spot row has none - spot is not a brand);
      * the table submits as one form with the Gold Brands tab.
      */
     private static function renderBrandProvidersTable(): void
@@ -757,7 +757,7 @@ final class GoldPricesPage
                             <?php if ($price !== null && $price->hasData() && $price->updated > 0) : ?>
                                 <?php echo esc_html(date_i18n(get_option('date_format', 'Y-m-d') . ' ' . get_option('time_format', 'H:i'), $price->updated)); ?>
                             <?php else : ?>
-                                —
+                                -
                             <?php endif; ?>
                         </td>
                         <td>
@@ -782,14 +782,14 @@ final class GoldPricesPage
                             <?php if ($price !== null && $price->hasData() && $price->provider !== '') : ?>
                                 <?php echo esc_html(Gold::providerLabel($price->provider)); ?>
                             <?php else : ?>
-                                —
+                                -
                             <?php endif; ?>
                         </td>
                         <td>
                             <?php if (isset($brands[$symbol])) : ?>
                                 <input type="checkbox" name="kk_enabled_brands[]" value="<?php echo esc_attr($symbol); ?>" <?php checked(in_array($symbol, $enabled, true)); ?> aria-label="<?php echo esc_attr(sprintf(__('Enabled: %s', 'koperasikita'), $label)); ?>">
                             <?php else : ?>
-                                —
+                                -
                             <?php endif; ?>
                         </td>
                     </tr>
@@ -918,7 +918,7 @@ final class GoldPricesPage
     }
 
     /**
-     * A real Y-m-d filter date, or '' — anything else (garbage, a
+     * A real Y-m-d filter date, or '' - anything else (garbage, a
      * wrong format, an impossible date) means "no filter".
      */
     private static function historyDate(string $value): string
@@ -987,8 +987,8 @@ final class GoldPricesPage
      * Per-source table: latest date, inserted/skipped, and the
      * backlog note (a failed source stays in the backlog and is
      * retried later; after 3 failures it drops to lowest
-     * priority — weekly retry only). Each row leads with what the
-     * source imports; the site name sits below it, muted — the
+     * priority - weekly retry only). Each row leads with what the
+     * source imports; the site name sits below it, muted - the
      * table is about the scraping, not about the sites.
      *
      * @param array{sources: array<string, array{synced_at: int|null, inserted: int, skipped: int, latest_date: string|null, error: string|null, failures: int, next_retry: int|null, deprioritised: bool}>} $status
@@ -1021,12 +1021,12 @@ final class GoldPricesPage
             } elseif (!empty($s['error'])) {
                 $note = (string) $s['error'];
             } else {
-                $note = '—';
+                $note = '-';
             }
 
             $rows .= '<tr>'
                 . '<td><strong>' . esc_html($descriptions[$source] ?? $source) . '</strong><br><span class="description">' . esc_html($labels[$source] ?? $source) . '</span></td>'
-                . '<td>' . esc_html($s['latest_date'] ?? '—') . '</td>'
+                . '<td>' . esc_html($s['latest_date'] ?? '-') . '</td>'
                 . '<td>' . esc_html((string) ($s['inserted'] ?? 0)) . '</td>'
                 . '<td>' . esc_html((string) ($s['skipped'] ?? 0)) . '</td>'
                 . '<td>' . esc_html($note) . '</td>'
@@ -1051,7 +1051,7 @@ final class GoldPricesPage
     /**
      * Dependency-free inline SVG line chart: one line per brand,
      * sell price (per gram, IDR) over recorded date. Empty history
-     * renders a short note instead of an empty chart — a different
+     * renders a short note instead of an empty chart - a different
      * note when a filter is active, so the page never suggests
      * syncing for rows the filter simply excluded. The figure spans
      * the full tab width (wide aspect, so the full-width render
@@ -1156,7 +1156,7 @@ final class GoldPricesPage
      * History list: latest per brand first (the table order is
      * recorded_date DESC), with date, brand, sell and buyback
      * price per gram in IDR. The rows arrive already paged from
-     * the query — this only renders them.
+     * the query - this only renders them.
      *
      * @param array<int, array{provider: string, symbol: string, sell_price: float, buyback_price: float|null, currency: string, recorded_date: string|null, fetched_at: int}> $history
      * @param array<string, string> $brands Slug => label.
@@ -1176,10 +1176,10 @@ final class GoldPricesPage
             $sell = number_format_i18n((float) ($row['sell_price'] ?? 0), 0);
             $buyback = isset($row['buyback_price']) && $row['buyback_price'] !== null
                 ? number_format_i18n((float) $row['buyback_price'], 0)
-                : '—';
+                : '-';
 
             $rows .= '<tr>'
-                . '<td>' . esc_html((string) ($row['recorded_date'] ?? '—')) . '</td>'
+                . '<td>' . esc_html((string) ($row['recorded_date'] ?? '-')) . '</td>'
                 . '<td><strong>' . esc_html($label) . '</strong></td>'
                 . '<td>' . esc_html(Gold::providerLabel((string) ($row['provider'] ?? ''))) . '</td>'
                 . '<td>' . esc_html($sell) . '</td>'

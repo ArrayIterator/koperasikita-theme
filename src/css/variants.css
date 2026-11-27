@@ -1,15 +1,15 @@
-/* ==========================================================================
-   Koperasi Kita — variants.css — variants
+/*
+   Koperasi Kita - variants.css - variants
    Dark mode and the style variants (compact / bold). Must load
    after the components so the overrides win.
-   ========================================================================== */
+   */
 
-/* --- Dark mode ------------------------------------------------------------ */
+/* Dark mode */
 
 /* The lightened green/gold are intentional, not brand drift: the brand
    green #0B6B3A is only 2.84:1 on the dark paper #121212 (it fails even
    the 3:1 large-text threshold), so dark mode uses the palette's own
-   light variants — #2FA36B (primary light, 5.86:1) and #F6D365 (gold
+   light variants - #2FA36B (primary light, 5.86:1) and #F6D365 (gold
    light, 12.87:1). The three green shades converge on the one readable
    green because the dark variant #07522C would be invisible (2.01:1).
    The semantic tokens get dark values too: the light error #B3261E is
@@ -36,7 +36,7 @@ html[data-color-scheme="dark"] {
 	--kk-surface-muted: #232322;
 }
 
-/* The solid green button gets near-black text in dark mode — it sits
+/* The solid green button gets near-black text in dark mode - it sits
    on the light green the button turns into. The ghost button is
    excluded: its background is transparent, so #121212 text on the
    dark paper would be invisible. */
@@ -69,7 +69,7 @@ html[data-color-scheme="dark"] .kk-home .kk-card {
 }
 
 /* Highlights cards are flat in light mode (transparent, no shadow,
- * no border) — keep them flat in dark mode too: the hairline above
+ * no border) - keep them flat in dark mode too: the hairline above
  * must not appear on them. */
 html[data-color-scheme="dark"] .kk-home .kk-highlights-slider .kk-card,
 html[data-color-scheme="dark"] .kk-home .kk-highlights-slider-full .kk-card,
@@ -92,7 +92,7 @@ html[data-color-scheme="dark"] .custom-logo.is-inverted {
 
 /* Dark logo: when a device pair has a dark logo (the --has-dark guard
  * on the wrapper), dark mode hides the light logo and shows the dark
- * one — masthead and drawer alike. */
+ * one - masthead and drawer alike. */
 html[data-color-scheme="dark"] .kk-logos--has-dark .kk-logo--light {
 	display: none;
 }
@@ -161,7 +161,7 @@ html[data-color-scheme="dark"] .kk-logo--dark {
 	}
 }
 
-/* --- Style variants ------------------------------------------------------ */
+/* Style variants */
 /*
  * body_class carries exactly one kk-variant-* class (see StyleVariant):
  * kk-variant-classic is the default look and needs no extra rules.
@@ -169,7 +169,7 @@ html[data-color-scheme="dark"] .kk-logo--dark {
  * weight up. Both keep the white paper, green and gold brand.
  */
 
-/* --- Compact: visibly denser -------------------------------------------- */
+/* Compact: visibly denser */
 
 body.kk-variant-compact {
 	--kk-title-size: 32px;
@@ -399,7 +399,7 @@ body.kk-variant-compact .kk-button {
 	padding-bottom: 8px;
 }
 
-/* --- Bold: visibly heavier editorial look -------------------------------- */
+/* Bold: visibly heavier editorial look */
 
 body.kk-variant-bold {
 	--kk-title-size: 48px;
@@ -525,7 +525,7 @@ body.kk-variant-bold .kk-tag {
 	}
 }
 
-/* --- Agenda card: dark mode + forced variants ------------------------------ */
+/* Agenda card: dark mode + forced variants */
 /* The dark-green reference card in dark mode. The forced-dark variant
  * shares the same values (it also matches in dark mode, where the
  * scheme rule already applies, so there is only one dark list). */
@@ -541,7 +541,7 @@ html[data-color-scheme="dark"] .kk-agenda-widget-card,
 }
 
 /* Forced-light under a dark scheme: the light-scheme values spelled
- * out as literals — the vars resolve to dark values under a dark
+ * out as literals - the vars resolve to dark values under a dark
  * scheme, so they cannot be reused here. */
 html[data-color-scheme="dark"] .kk-agenda-widget-card--light {
 	--kk-agenda-bg: #ffffff;

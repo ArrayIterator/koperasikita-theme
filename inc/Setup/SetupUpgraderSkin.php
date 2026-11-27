@@ -9,7 +9,7 @@ namespace KoperasiKita\Setup;
  *
  * The default skins print progress straight into the admin page. The
  * Setup installer runs on admin-post and redirects, so any output
- * would break the redirect — this skin swallows it and keeps the
+ * would break the redirect - this skin swallows it and keeps the
  * errors for the page to show instead.
  */
 final class SetupUpgraderSkin extends \WP_Upgrader_Skin

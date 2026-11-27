@@ -1,5 +1,5 @@
 /**
- * Koperasi Kita — Customizer controls pane script.
+ * Koperasi Kita - Customizer controls pane script.
  *
  * Powers the Select2-style term pickers in AJAX mode (no jQuery):
  * TermSelectControl (single) and TermMultiSelectControl (multi).
@@ -427,12 +427,12 @@ function initTermMultiSelect(container: HTMLElement): void {
 		remove.type = 'button';
 		remove.className = 'kk-term-multiselect-remove';
 		remove.setAttribute('aria-label', 'Remove');
-		remove.textContent = '×';
+		remove.textContent = 'x';
 		chip.appendChild(remove);
 		chips.appendChild(chip);
 		sync();
 		search.value = '';
-		search.placeholder = 'Add…';
+		search.placeholder = 'Add...';
 		void fetchResults('');
 	};
 
@@ -443,7 +443,7 @@ function initTermMultiSelect(container: HTMLElement): void {
 		hidden.value = JSON.stringify(ids);
 		sync();
 		if (ids.length === 0) {
-			search.placeholder = 'Search terms…';
+			search.placeholder = 'Search terms...';
 		}
 	};
 
@@ -553,7 +553,7 @@ function initTermMultiSelect(container: HTMLElement): void {
 /**
  * Boot: wire up every picker on the page. This entry loads as an ES
  * module (deferred), and the Customizer can finish parsing before a
- * deferred module executes — so a bare DOMContentLoaded listener
+ * deferred module executes - so a bare DOMContentLoaded listener
  * never fires and the pickers stay dead (no dropdown ever opens,
  * not even "Loading..."). Run immediately when the document is
  * already parsed, and only wait for DOMContentLoaded while the
@@ -711,7 +711,7 @@ function initMultiImage(container: HTMLElement): void {
 		remove.type = 'button';
 		remove.className = 'kk-multi-image-remove';
 		remove.setAttribute('aria-label', 'Remove image');
-		remove.textContent = '×';
+		remove.textContent = 'x';
 		item.appendChild(img);
 		item.appendChild(remove);
 		list.appendChild(item);

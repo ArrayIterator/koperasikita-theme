@@ -5,7 +5,7 @@
  * $args['layout'] (featured | grid | list | featured-right |
  * list-column). The widget title (custom, or the term name, optionally
  * linked to the term archive) is rendered by the widget itself via
- * WidgetHeader — this template only renders the posts.
+ * WidgetHeader - this template only renders the posts.
  *
  * - featured: the first post large (thumbnail, title, excerpt, date),
  *   the rest as a compact title + date list.

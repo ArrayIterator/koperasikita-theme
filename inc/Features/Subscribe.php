@@ -14,19 +14,19 @@ namespace KoperasiKita\Features;
  *
  * Every submit is checked, in order:
  *
- * 1. Nonce — a failed check shows a generic error, it never kills the
+ * Nonce - a failed check shows a generic error, it never kills the
  *    page (this shortcode lives in the footer of every page).
- * 2. Honeypot — a hidden "website" field that must stay empty. Bots fill
+ * Honeypot - a hidden "website" field that must stay empty. Bots fill
  *    it; when it is filled the request is silently treated as a success
  *    (same redirect, same message) and nobody is subscribed.
- * 3. Per-IP rate limit — 5 attempts per hour. The count lives in a
+ * Per-IP rate limit - 5 attempts per hour. The count lives in a
  *    transient keyed by a salted hash of the visitor's address; the raw
  *    address is never stored or logged. The address itself is read from
  *    the Cloudflare header when present, then X-Forwarded-For, then
  *    REMOTE_ADDR. Those headers are only used to pick a rate-limit
- *    bucket — a spoofed header only changes which bucket the attempt
+ *    bucket - a spoofed header only changes which bucket the attempt
  *    counts against, and the nonce and honeypot still apply.
- * 4. Email — sanitised with sanitize_email() and validated with
+ * Email - sanitised with sanitize_email() and validated with
  *    is_email().
  *
  * MailPoet is optional. When it is active the address is also
@@ -37,7 +37,7 @@ namespace KoperasiKita\Features;
  * subscribers table's Source column shows where the address
  * actually landed ('local' when MailPoet is absent, not set up,
  * or its call failed). A MailPoet failure must never report the
- * signup itself as failed — the address is already subscribed
+ * signup itself as failed - the address is already subscribed
  * to the site's own list.
  */
 final class Subscribe
@@ -77,7 +77,7 @@ final class Subscribe
         if (!wp_verify_nonce($nonce, self::NONCE_ACTION)) {
             self::$notice = [
                 'type' => 'error',
-                'message' => __('Something went wrong. Please try again.', 'koperasikita'),
+                'message' => __('Security check failed. Please try again.', 'koperasikita'),
             ];
 
             return;
@@ -124,7 +124,7 @@ final class Subscribe
         if (!Subscribers::record($email, Subscribers::SOURCE_LOCAL, Subscribers::STATUS_SUBSCRIBED)) {
             self::$notice = [
                 'type' => 'error',
-                'message' => __('Something went wrong. Please try again later.', 'koperasikita'),
+                'message' => __('Could not save your subscription. Please try again later.', 'koperasikita'),
             ];
 
             return;
@@ -161,7 +161,7 @@ final class Subscribe
         if ($notice === null && $subscribedVia !== '') {
             // MailPoet sends a confirmation email (double opt-in),
             // so the inbox line is true there. A local-only signup
-            // gets no email at all — promising one would be a lie.
+            // gets no email at all - promising one would be a lie.
             $notice = [
                 'type' => 'success',
                 'message' => $subscribedVia === Subscribers::SOURCE_MAILPOET
@@ -183,7 +183,7 @@ final class Subscribe
             . ' aria-label="' . esc_attr__('Email address', 'koperasikita') . '"'
             . ' placeholder="' . esc_attr__('Your email address', 'koperasikita') . '">';
         // Honeypot: positioned off-screen, not display:none, so a bot
-        // that skips hidden fields still finds it — and a human never
+        // that skips hidden fields still finds it - and a human never
         // sees it. The label text tells a human reader to leave it be.
         $html .= '<div style="position:absolute;left:-9999px;top:auto;width:1px;height:1px;overflow:hidden;" aria-hidden="true">';
         $html .= '<label>' . esc_html__('Leave this field empty', 'koperasikita')

@@ -16,7 +16,7 @@ namespace KoperasiKita\Features;
  *
  * Contributors submit through the `[kk_agenda_submit]` shortcode. The form
  * never publishes: every submission is stored with status `pending`, no
- * matter who submits it, and the author is always the logged-in user —
+ * matter who submits it, and the author is always the logged-in user -
  * never a value taken from the request. Pending items are invisible to the
  * public (WordPress excludes them from public queries and serves a 404 on
  * their single URL) until an editor publishes them from the admin.
@@ -126,7 +126,7 @@ final class Agenda
         add_action('save_post_' . self::POST_TYPE, [self::class, 'ensureMeta'], 20);
         // Place search for the Event Details location field (and the
         // Locations admin form): saved locations first, then the
-        // geocoder. Only users who can edit agenda items may search —
+        // geocoder. Only users who can edit agenda items may search -
         // contributors included, anonymous visitors never.
         \KoperasiKita\Api\Ajax::add('kk_agenda_place_search', [self::class, 'ajaxSearchPlaces'], false, 'edit_posts');
         // Title search for the Agenda widget's "Link to" field:
@@ -321,7 +321,7 @@ final class Agenda
     /**
      * Sanitizer for one map coordinate. Anything that is not a finite
      * number inside the range becomes null, so bad input can never be
-     * stored — an invalid pin is dropped, never saved.
+     * stored - an invalid pin is dropped, never saved.
      *
      * @param mixed $value Raw input.
      */
@@ -372,9 +372,9 @@ final class Agenda
      *
      * The meta is read duplicate-tolerantly: every row for each key is
      * considered and the first usable one wins. An item imported from a
-     * WXR file can carry two rows per key — the empty rows ensureMeta()
+     * WXR file can carry two rows per key - the empty rows ensureMeta()
      * wrote during wp_insert_post, plus the real rows the importer added
-     * afterwards — and get_post_meta(..., true) would return the first
+     * afterwards - and get_post_meta(..., true) would return the first
      * (empty) row, hiding the event's date entirely.
      *
      * @return array{start: string, end: string, location: string, start_ts: int, lat: float|null, lng: float|null, location_desc: string}
@@ -424,7 +424,7 @@ final class Agenda
      * AJAX: search places for the agenda location picker.
      *
      * Saved locations match first (instant, no network), then the
-     * geocoder — Open-Meteo through Weather::search() when the weather
+     * geocoder - Open-Meteo through Weather::search() when the weather
      * module is on, Nominatim direct when it is off, so the picker
      * never goes silent just because weather is disabled. Geocoded
      * rows that duplicate a saved location (same coordinates) are
@@ -515,8 +515,8 @@ final class Agenda
 
     /**
      * Geocode a place name through Nominatim (OpenStreetMap), the
-     * fallback when the weather module — and with it the Open-Meteo
-     * geocoder — is off. Server-side, so the browser never talks to
+     * fallback when the weather module - and with it the Open-Meteo
+     * geocoder - is off. Server-side, so the browser never talks to
      * a third party directly. The first comma segment is the place
      * name, the rest is the address; a failed fetch answers with an
      * empty list, never an error, so the saved locations still show.
@@ -580,7 +580,7 @@ final class Agenda
     /**
      * Append one place to the shared saved locations, or return the
      * existing row when the name (or the coordinates) is already
-     * saved — the picker never creates a duplicate. Returns null
+     * saved - the picker never creates a duplicate. Returns null
      * when the row cannot be saved (empty name, invalid coordinates).
      * Only called for users who may manage the shared list; see
      * saveMetaBox.
@@ -846,7 +846,7 @@ final class Agenda
      *
      * MIN over every timestamp row for the post: an imported item
      * carries the NO_DATE_TS sentinel as its first row and the real
-     * timestamp as a second row — MIN picks the real one. A dateless
+     * timestamp as a second row - MIN picks the real one. A dateless
      * item only has the sentinel, so it sinks to the end. COALESCE
      * covers an item with no timestamp row at all (it also sorts last).
      * The key is a class constant, never user input, so interpolating
@@ -863,7 +863,7 @@ final class Agenda
         return "COALESCE((SELECT MIN(CAST(pm.meta_value AS UNSIGNED)) FROM {$postmeta} pm WHERE pm.post_id = {$posts}.ID AND pm.meta_key = '" . self::META_START_TS . "' AND pm.meta_value <> ''), {$sentinel}) ASC, {$posts}.post_date ASC, {$posts}.ID ASC";
     }
 
-    // -- Admin: meta box and list columns ---------------------------------
+    // Admin: meta box and list columns
 
     public static function registerMetaBox(): void
     {
@@ -1013,7 +1013,7 @@ final class Agenda
         // The editor picked a new (geocoded) place and asked to keep
         // it: store it in the shared saved locations so the next event
         // finds it without searching again. The shared list is managed
-        // by administrators, so a contributor's checkbox is ignored —
+        // by administrators, so a contributor's checkbox is ignored -
         // the event itself still keeps its coordinates.
         if ($saveLocation && $location !== '' && $lat !== null && $lng !== null && current_user_can('manage_options')) {
             self::addSavedLocation($location, $locationAddress, $lat, $lng, $locationDesc);
@@ -1042,7 +1042,7 @@ final class Agenda
         }
     }
 
-    // -- Contributor submission -------------------------------------------
+    // Contributor submission
 
     /**
      * Shortcode `[kk_agenda_submit]`: the contributor submission form.
@@ -1051,7 +1051,7 @@ final class Agenda
      * without the contributor capability get a plain explanation, and only
      * users who can submit see the form. The form posts back to the same
      * page and is processed on `init` (see handleSubmission), so a
-     * successful submit redirects before any output — no double submit on
+     * successful submit redirects before any output - no double submit on
      * refresh.
      */
     public static function renderShortcode(): string
@@ -1116,7 +1116,7 @@ final class Agenda
      * The checks run in this order, and the first failure stops the chain:
      * logged in, nonce, capability, honeypot, rate limit, then field
      * validation. The post is always created as `pending` with the
-     * logged-in user as author — the request carries no status and no
+     * logged-in user as author - the request carries no status and no
      * author, so neither can be forged.
      */
     public static function handleSubmission(): void
@@ -1217,7 +1217,7 @@ final class Agenda
      * Validates and sanitises a raw submission.
      *
      * Coordinates are optional enrichment: an invalid pin is dropped
-     * silently instead of failing the whole submission — the venue text
+     * silently instead of failing the whole submission - the venue text
      * is the required field, the pin only places it on a map.
      *
      * @param array<string, mixed> $input Raw $_POST data.

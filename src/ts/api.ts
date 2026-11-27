@@ -1,5 +1,5 @@
 /**
- * Koperasi Kita — shared AJAX client.
+ * Koperasi Kita - shared AJAX client.
  *
  * Every admin-ajax call in the theme goes through here, so every call
  * speaks the same envelope the server answers with (see

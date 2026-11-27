@@ -9,7 +9,7 @@ namespace KoperasiKita\Providers;
  *
  * Prices are plain data: a value in the given currency, the day change in
  * percent, and the Unix timestamp the snapshot was saved. A null price means
- * "no data" — renderers must treat that as an honest empty state, never as
+ * "no data" - renderers must treat that as an honest empty state, never as
  * zero and never as a made-up number. `provider` names the provider that
  * actually supplied this price ('' when unknown, e.g. a legacy snapshot);
  * the Gold Prices admin page and the widget show it so the admin can see

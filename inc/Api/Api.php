@@ -13,7 +13,7 @@ namespace KoperasiKita\Api;
  * the Response envelope and the error codes in Response.
  *
  * The version is a single number. A future v2 lives beside v1 (new REST
- * namespace, new hook names where the shape changed) — v1 is never
+ * namespace, new hook names where the shape changed) - v1 is never
  * silently redefined.
  */
 final class Api

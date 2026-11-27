@@ -10,7 +10,7 @@ use KoperasiKita\Api\Hooks;
 use KoperasiKita\Api\Response;
 
 /**
- * Google Fonts, self-hosted — the façade.
+ * Google Fonts, self-hosted - the facade.
  *
  * This class owns the catalogue, the download state, the Customizer
  * wiring and the application of the chosen fonts (enqueue + CSS
@@ -23,7 +23,7 @@ use KoperasiKita\Api\Response;
  * served from there, with a locally rewritten @font-face stylesheet.
  * Until a font has been downloaded successfully the site keeps using
  * its system fallback stack, so a failed download can never break
- * the layout — it only means the nicer font is not applied yet.
+ * the layout - it only means the nicer font is not applied yet.
  *
  * The catalogue below is the single source of truth: only the fonts
  * listed here can ever be selected, downloaded or enqueued, and only
@@ -56,7 +56,7 @@ final class Fonts
      * by font id. Every entry has id, label, type and stack; Google
      * entries additionally carry the Google family name and the
      * weights that really exist for that family. The stack is the
-     * fallback used whenever the Google font is not downloaded yet —
+     * fallback used whenever the Google font is not downloaded yet -
      * a Google stack never contains the Google family name itself.
      *
      * @return array<string, array<string, array<string, mixed>>>
@@ -619,7 +619,7 @@ final class Fonts
      * given font selection.
      *
      * The Customizer holds changed settings in JS until Publish, so
-     * the saved theme mods still name the old fonts — the caller
+     * the saved theme mods still name the old fonts - the caller
      * passes the current body/headings ids and they are sanitized
      * here before the list is rendered. A missing id falls back to
      * its saved theme mod.
@@ -678,8 +678,8 @@ final class Fonts
 
     /**
      * Warn in the admin when a selected Google font failed to
-     * download. The site itself is unaffected — it keeps using the
-     * system fallback — this only tells the admin what happened.
+     * download. The site itself is unaffected - it keeps using the
+     * system fallback - this only tells the admin what happened.
      */
     public static function adminNotice(): void
     {

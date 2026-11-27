@@ -1,11 +1,11 @@
-/* ==========================================================================
-   Koperasi Kita — gold slider + markets strip
+/*
+   Koperasi Kita - gold slider + markets strip
    Standalone stylesheet for the Markets feature. Only loaded when Markets
    is enabled. Builds on the widget shells in app.css and reuses the same
    --kk-* tokens (with hex fallbacks), so light/dark mode just works.
-   ========================================================================== */
+   */
 
-/* --- Gold slider --------------------------------------------------------- */
+/* Gold slider */
 
 .kk-gold-slides {
 	margin: 0;
@@ -233,11 +233,11 @@
 	animation: none;
 }
 
-/* --- Markets vertical slider ---------------------------------------------
-   One slide per market group, auto-scrolling vertically — the markets
+/* Markets vertical slider
+   One slide per market group, auto-scrolling vertically - the markets
    counterpart of the gold slider above. Shares the generic
    .kk-widget-* controls (nav, dots, toggle) and the slide-in keyframes.
-   ------------------------------------------------------------------------- */
+   */
 
 .kk-markets-slides {
 	margin: 0;
@@ -314,7 +314,7 @@
 	outline-offset: 0;
 }
 
-/* --- Markets strip ------------------------------------------------------- */
+/* Markets strip */
 
 .kk-markets-strip {
 	display: flex;
@@ -330,7 +330,7 @@
 }
 
 /* Horizontal slider layout: groups in a swipeable row, no auto-advance.
- * The visible count (1–4, from --kk-markets-visible) sets each group's
+ * The visible count (1-4, from --kk-markets-visible) sets each group's
  * width so that many groups fit on desktop. */
 .kk-markets-strip--slider-horizontal {
 	display: flex;
@@ -364,14 +364,14 @@
 	min-width: 0;
 }
 
-/* --- Index strip -----------------------------------------------------------
+/* Index strip
    The picked items as one flat horizontal row - name, value and
    day-change chip per item, no market grouping. The row scrolls
    sideways on narrow screens instead of wrapping, so the strip
    keeps its one-line demo look in a sidebar too. The scrollbar
    stays hidden (the row is swipeable / scrollable, same as the
    horizontal slider above).
-   ------------------------------------------------------------------------- */
+   */
 
 .kk-index-strip {
 	display: flex;
@@ -416,13 +416,13 @@
 	flex-shrink: 0;
 }
 
-/* --- Markets marquee -----------------------------------------------------
+/* Markets marquee
    Continuously scrolling ticker. The track holds two identical sets and
    translates -50% on a linear loop, so the seam never shows. Each item
-   is --kk-markets-visible wide (1–4 on desktop). Pauses on hover/focus
+   is --kk-markets-visible wide (1-4 on desktop). Pauses on hover/focus
    and when the tab is hidden (the animation is CSS; the pause is a
    hover/focus rule + the reduced-motion rule below).
-   ------------------------------------------------------------------------- */
+   */
 
 .kk-markets-marquee {
 	overflow: hidden;
@@ -518,7 +518,7 @@
 	white-space: nowrap;
 }
 
-/* --- Gold Data Desk ------------------------------------------------------- */
+/* Gold Data Desk */
 
 .kk-gold-data-desk {
 	overflow-x: auto;
@@ -580,7 +580,7 @@ html[data-color-scheme="dark"] .kk-gold-data-desk--auto .kk-data-desk-table thea
 	color: #f2f2f0;
 }
 
-/* --- Data Desk panel ------------------------------------------------------ */
+/* Data Desk panel */
 
 /* One panel, four palettes: the palette sets a handful of custom
  * properties and the shared rules below read them, so every palette
@@ -601,7 +601,7 @@ html[data-color-scheme="dark"] .kk-gold-data-desk--auto .kk-data-desk-table thea
 	--dd-border: transparent;
 	/* Change arrows inside the panel need their own light colours
 	 * on the dark palettes: the global --kk-success green (#0B6B3A)
-	 * and --kk-error red (#B3261E) are ~1.9:1 on dark green —
+	 * and --kk-error red (#B3261E) are ~1.9:1 on dark green -
 	 * invisible. The light values are 8.3:1 / 6.7:1 on dark green
 	 * and 11.7:1 / 9.4:1 on the dark palette. */
 	--dd-up: #8ce99a;
@@ -657,7 +657,7 @@ html[data-color-scheme="dark"] .kk-gold-data-desk--auto .kk-data-desk-table thea
 /* 'auto': the light palette's exact colours by default, the dark
  * palette's exact colours under html[data-color-scheme="dark"]
  * (frontend) or a preview container carrying
- * data-color-scheme="dark" (admin previews — the admin never sets
+ * data-color-scheme="dark" (admin previews - the admin never sets
  * the attribute on <html>). No new colours. */
 .kk-data-desk-panel--auto {
 	--dd-bg: var(--kk-surface, #F7F7F5);
@@ -705,7 +705,7 @@ html[data-color-scheme="dark"] .kk-data-desk-panel--auto,
 
 /* Panel text colours are scoped under .kk-data-desk-panel on
  * purpose: every text element here is a <p>, and WordPress admin
- * colours all of them with `.widefat p` (common.css) at (0,1,1) —
+ * colours all of them with `.widefat p` (common.css) at (0,1,1) -
  * that beat the single-class rules (0,1,0) and turned the whole
  * stats column, kicker and subtitle dark grey (#2c3338, 1.04:1) on
  * the dark palettes wherever the panel renders inside a widefat
@@ -905,9 +905,9 @@ html[data-color-scheme="dark"] .kk-data-desk-panel--auto .kk-data-desk-preview-b
 	}
 }
 
-/* --- Markets widget: No Margin style -------------------------------------- */
-/* The widget sits flush — no top border, no top padding, no bottom
- * margin — so it reads as a seamless strip instead of a boxed widget.
+/* Markets widget: No Margin style */
+/* The widget sits flush - no top border, no top padding, no bottom
+ * margin - so it reads as a seamless strip instead of a boxed widget.
  * The rows keep a hairline divider at the bottom so the strip still
  * separates from the content below it. This beats the header
  * "Borderless" style, which only drops the top rule. */

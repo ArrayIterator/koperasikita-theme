@@ -16,7 +16,7 @@ namespace KoperasiKita\Providers;
  *    answers with unusable data. Callers render an honest empty state,
  *    never invented numbers.
  *  - `search()` returns an empty array when nothing matches or the
- *    provider fails — never an exception for a bad query.
+ *    provider fails - never an exception for a bad query.
  *  - Coordinates are validated by the caller (Weather::validateCoordinates);
  *    a provider may still defensively ignore out-of-range input.
  *  - A provider owns its own caching (transients) and its own timeouts.

@@ -15,7 +15,7 @@ namespace KoperasiKita\Features;
  * A variant falls back to its counterpart: the mobile logo falls back
  * to the desktop logo (and vice versa), the dark logo to the mobile
  * dark logo (and vice versa). When a device has no light logo but a
- * dark one, the dark logo shows in both schemes — the masthead never
+ * dark one, the dark logo shows in both schemes - the masthead never
  * renders empty while any logo is set.
  *
  * The light logo gets the is-inverted class (inverted in dark mode)
@@ -252,7 +252,7 @@ final class Logo
     /** Whether any logo variant is set. */
     public static function hasLogo(): bool
     {
-        // With "Ignore Default Logo" only the square logo counts —
+        // With "Ignore Default Logo" only the square logo counts -
         // the default variants are set but deliberately unused.
         if (self::ignoreDefault()) {
             return 0 !== self::squareId();
@@ -272,7 +272,7 @@ final class Logo
         }
 
         // SVG has no intrinsic size, so wp_get_attachment_image would
-        // emit an <img> without dimensions — build the tag from the
+        // emit an <img> without dimensions - build the tag from the
         // URL instead; the CSS sizes the logo.
         if ('image/svg+xml' === get_post_mime_type($id)) {
             $url = wp_get_attachment_url($id);

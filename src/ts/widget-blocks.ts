@@ -1,5 +1,5 @@
 /**
- * Koperasi Kita — widget blocks editor script.
+ * Koperasi Kita - widget blocks editor script.
  *
  * Registers the theme widgets as blocks in the "Koperasi Kita" inserter
  * category (the block types themselves, with render callbacks, are
@@ -7,7 +7,7 @@
  * edit UI built from a small field schema: the InspectorControls show
  * the widget's own fields (title, count, layout, thumbnails, and the
  * per-widget extras), while the canvas shows a live ServerSideRender
- * preview — the real frontend markup, rendered on the server through
+ * preview - the real frontend markup, rendered on the server through
  * the_widget().
  *
  * The category/tag pickers are searchable token fields: one chip
@@ -36,7 +36,7 @@ type FieldDef =
 	/* A hex colour swatch: a native colour input plus a hex readout
 	 * and a clear button (empty = fall back to the theme colour).
 	 * showWhen hides the field unless another attribute has the
-	 * given value — the Choose Own colours only show for the custom
+	 * given value - the Choose Own colours only show for the custom
 	 * card style. fallback is the picker starting value while the
 	 * stored value is empty; it is never stored itself. */
 	| { key: string; kind: 'color'; label: string; help?: string; showWhen?: { key: string; value: string }; fallback?: string };
@@ -185,7 +185,7 @@ function isSameWeatherLocation(a: WeatherLocation, b: WeatherLocation): boolean 
 
 /* The weather locations field: the saved list (name + coordinates
  * with a remove button each) plus a search box that adds places
- * through the theme's own kk_weather_search endpoint — the same
+ * through the theme's own kk_weather_search endpoint - the same
  * geocoding the frontend location picker uses. A real component
  * (not a renderField branch) so it can hold the search state. */
 function LocationsField(props: {
@@ -262,7 +262,7 @@ function LocationsField(props: {
 			api.element.createElement(
 				'span',
 				{ className: 'kk-locations-name' },
-				`${location.name} — ${location.latitude}, ${location.longitude}`,
+				`${location.name} - ${location.latitude}, ${location.longitude}`,
 			),
 			api.element.createElement(
 				'button',
@@ -272,7 +272,7 @@ function LocationsField(props: {
 					'aria-label': `${__('Remove')} ${location.name}`,
 					onClick: () => set(field.key, locations.filter((_, i) => i !== index)),
 				},
-				'×',
+				'x',
 			),
 		),
 	);
@@ -346,7 +346,7 @@ function decodeTitle(html: string): string {
 /* The agenda "Link to" field: the chosen post or page (its resolved
  * title with a "Remove link" button) plus a search box that finds
  * published posts and pages by title through the theme's own
- * kk_agenda_link_search endpoint — the same search the widget form
+ * kk_agenda_link_search endpoint - the same search the widget form
  * uses. A real component (not a renderField branch) so it can hold
  * the search state and resolve the stored id to a title. */
 const EMPTY_RECORDS: CategoryRecord[] = [];
@@ -420,8 +420,8 @@ function TermSearchField(props: {
 	 * Already-picked terms never show twice.
 	 *
 	 * The browse list is the cached variable: field.options is the
-	 * localized kkWidgetBlocks list — one PHP get_terms per editor
-	 * page load, no cap — so the component never refetches it.
+	 * localized kkWidgetBlocks list - one PHP get_terms per editor
+	 * page load, no cap - so the component never refetches it.
 	 * Its length is the true total (the list is never truncated
 	 * upstream), which is what the capped count line reports. The
 	 * search path is cached the same way: the core store keeps
@@ -452,7 +452,7 @@ function TermSearchField(props: {
 		waiting = true;
 	} else {
 		/* The core store returns term names entity-escaped
-		 * ("Bisnis &amp; Keuangan"), so decode them — the browse
+		 * ("Bisnis &amp; Keuangan"), so decode them - the browse
 		 * list is already plain text and decoding it is a no-op. */
 		results = records
 			.filter((record) => !selectedSet.has(String(record.id)))
@@ -505,7 +505,7 @@ function TermSearchField(props: {
 					'aria-label': `${__('Remove')} ${label}`,
 					onClick: () => remove(val),
 				},
-				'×',
+				'x',
 			),
 		);
 	});
@@ -788,7 +788,7 @@ function renderField(
 		}
 		case 'termsearch': {
 			/* Searchable term picker: picked terms as chips plus a
-			 * search box — the core store for categories, the
+			 * search box - the core store for categories, the
 			 * localized list for brands. A real component, so it
 			 * can hold the search state. */
 			return api.element.createElement(TermSearchField, { key, field, value, set, api });
@@ -796,12 +796,12 @@ function renderField(
 		case 'locations': {
 			/* The weather locations list: saved places with remove
 			 * buttons, plus a geocoding search to add more. A real
-			 * component — it holds the search state. */
+			 * component - it holds the search state. */
 			return api.element.createElement(LocationsField, { key, field, value, set, api });
 		}
 		case 'postsearch': {
 			/* The agenda "Link to" search: the chosen post or page
-			 * plus a title search. A real component — it holds the
+			 * plus a title search. A real component - it holds the
 			 * search state and resolves the stored id to a title. */
 			return api.element.createElement(PostSearchField, { key, field, value, set, api });
 		}
@@ -810,7 +810,7 @@ function renderField(
 			 * The input always holds a colour (the dialog needs a
 			 * starting value), so the stored value is what counts:
 			 * empty means "fall back to the theme colour", and the
-			 * × button restores it. */
+			 * x button restores it. */
 			const hex = typeof value === 'string' ? value : '';
 			return api.element.createElement(
 				'div',
@@ -826,7 +826,7 @@ function renderField(
 					? api.element.createElement(
 							'button',
 							{ type: 'button', onClick: () => set(key, '') },
-							'×',
+							'x',
 						)
 					: null,
 				field.help !== undefined
@@ -872,7 +872,7 @@ function createEdit(def: BlockDef, api: Wp): (props: BlockEditProps) => unknown 
 		/* Live preview: ServerSideRender asks the server for the
 		 * block's real frontend output (the widget rendered through
 		 * the_widget()), so the editor shows exactly what the site
-		 * will show — not a title/description placeholder. */
+		 * will show - not a title/description placeholder. */
 		const preview = api.element.createElement(
 			'div',
 			blockProps,
@@ -1437,7 +1437,7 @@ if (typeof wp !== 'undefined') {
 		}
 		/* Inserter preview: without an `example` the inserter shows
 		 * "No Preview Available". The example is the attribute
-		 * defaults, so the preview is the block as first inserted —
+		 * defaults, so the preview is the block as first inserted -
 		 * the ServerSideRender preview, not a placeholder. */
 		const exampleAttributes: Record<string, unknown> = {};
 		for (const [key, schema] of Object.entries(def.attributes)) {

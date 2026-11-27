@@ -16,7 +16,7 @@ namespace KoperasiKita\Features;
  * Nothing here touches the admin, the Customizer preview, or the PWA:
  * front-end-only switches are guarded with is_admin(), and Dashicons are
  * only removed for logged-out visitors (the admin bar needs them).
- * Disabling XML-RPC does not touch the theme's own REST routes or AJAX —
+ * Disabling XML-RPC does not touch the theme's own REST routes or AJAX -
  * XML-RPC is a separate protocol from the WP REST API and admin-ajax.php.
  */
 final class Performance

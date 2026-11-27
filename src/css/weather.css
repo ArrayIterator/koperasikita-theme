@@ -1,4 +1,4 @@
-/* Koperasi Kita — weather module styles.
+/* Koperasi Kita - weather module styles.
  *
  * Uses the theme tokens from app.css, so light/dark schemes follow
  * automatically. All tap targets are at least 44px; the picker dialog
@@ -94,7 +94,7 @@
 /* Dark mode: keep ghost-button text readable inside weather surfaces.
  *
  * variants.css forces `color: #121212` on every `.kk-button` under
- * `html[data-color-scheme="dark"]` — meant for the solid green primary
+ * `html[data-color-scheme="dark"]` - meant for the solid green primary
  * button, whose dark-mode background is the light green. But the rule
  * also matches `.kk-button-ghost` (transparent background), so the
  * picker's "Use these coordinates" / "Use my location" / "Reset to
@@ -103,7 +103,7 @@
  * (higher specificity, loaded after variants.css) restores the ink
  * colour for ghost buttons inside weather surfaces only. The same
  * variants.css rule also catches the PWA install prompt's "Not now"
- * button — that one lives outside weather CSS and needs the same
+ * button - that one lives outside weather CSS and needs the same
  * treatment where it is owned. */
 html[data-color-scheme="dark"] .kk-weather-modal .kk-button-ghost,
 html[data-color-scheme="dark"] .kk-weather-widget .kk-button-ghost {

@@ -10,7 +10,7 @@ final class ThemeSupport
     {
         // Load the theme's own translations. WordPress only auto-loads
         // translations for themes hosted on wordpress.org; this theme is
-        // distributed as a zip, so the .mo in languages/ needs this call —
+        // distributed as a zip, so the .mo in languages/ needs this call -
         // without it even a complete id_ID.mo would never be used.
         load_theme_textdomain('koperasikita', get_template_directory() . '/languages');
 

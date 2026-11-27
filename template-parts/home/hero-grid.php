@@ -7,8 +7,8 @@
  * The Hero Presentation setting (kk_hero_mode) picks one of 12
  * modes: Grid Left / Right / Center, Grid + Widget, Leads +
  * Widgets, Slider One + Widget, Slider Full, Slider Center, and
- * Slider + Widget (1/3–2/3). The hero renders with NO heading,
- * exactly as before — the section headings belong to the sections
+ * Slider + Widget (1/3-2/3). The hero renders with NO heading,
+ * exactly as before - the section headings belong to the sections
  * below it (Latest News, Highlights, Category Blocks).
  *
  * Accepts $args['posts'] (array of WP_Post) or queries itself via
