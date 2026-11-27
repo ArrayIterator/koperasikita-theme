@@ -1435,7 +1435,8 @@ final class Customizer
             'kk_clock_enabled' => ['koperasikita_header', 'Show Live Clock in Top Bar', true, 33],
             'kk_clock_seconds' => ['koperasikita_header', 'Show Seconds on the Clock', false, 34],
             'kk_clock_24h' => ['koperasikita_header', 'Use the 24-Hour Clock', true, 35],
-            'kk_sticky_header' => ['koperasikita_header', 'Sticky Header Navigation', true, 39],
+            'kk_clock_show_date' => ['koperasikita_header', 'Show Date on the Clock', true, 36],
+            'kk_sticky_header' => ['koperasikita_header', 'Sticky Header Navigation', true, 41],
             'kk_list_show_time' => ['koperasikita_accessibility', 'Show Time on Article List & Archive', false, 10],
             'kk_single_show_time' => ['koperasikita_accessibility', 'Show Time on Single Post & Page', false, 10],
         ];
@@ -1661,6 +1662,26 @@ final class Customizer
 
         self::addSetting(
             $wpCustomize,
+            'kk_clock_date_format',
+            'full',
+            [self::class, 'sanitizeClockDateFormat'],
+            'refresh'
+        );
+        $wpCustomize->add_control('kk_clock_date_format', [
+            'label' => esc_html__('Date Format', 'koperasikita'),
+            'section' => 'koperasikita_header',
+            'type' => 'select',
+            'priority' => 37,
+            'active_callback' => [self::class, 'isClockDateShown'],
+            'choices' => [
+                'full' => esc_html__('Full', 'koperasikita'),
+                'short' => esc_html__('Short', 'koperasikita'),
+                'numeric' => esc_html__('Numeric', 'koperasikita'),
+            ],
+        ]);
+
+        self::addSetting(
+            $wpCustomize,
             'kk_clock_timezone',
             'site',
             [self::class, 'sanitizeClockTimezone'],
@@ -1670,7 +1691,7 @@ final class Customizer
             'label' => esc_html__('Clock Time Zone', 'koperasikita'),
             'section' => 'koperasikita_header',
             'type' => 'select',
-            'priority' => 36,
+            'priority' => 38,
             'choices' => [
                 'site' => esc_html__('Site time zone (Settings > General)', 'koperasikita'),
                 'device' => esc_html__('Visitor device time', 'koperasikita'),
@@ -1689,7 +1710,7 @@ final class Customizer
             'label' => esc_html__('Custom Time Zone', 'koperasikita'),
             'section' => 'koperasikita_header',
             'type' => 'select',
-            'priority' => 37,
+            'priority' => 39,
             'choices' => self::timezoneChoices(),
         ]);
 
@@ -1704,7 +1725,7 @@ final class Customizer
             'label' => esc_html__('Clock Separator', 'koperasikita'),
             'section' => 'koperasikita_header',
             'type' => 'select',
-            'priority' => 38,
+            'priority' => 40,
             'choices' => [
                 'colon' => esc_html__('Colon (14:05:30)', 'koperasikita'),
                 'dot' => esc_html__('Dot (14.05.30)', 'koperasikita'),
@@ -2501,6 +2522,11 @@ final class Customizer
         return (bool) get_theme_mod('kk_ticker_enabled', true);
     }
 
+    public static function isClockDateShown(): bool
+    {
+        return (bool) get_theme_mod('kk_clock_show_date', true);
+    }
+
     public static function isWeatherEnabled(): bool
     {
         return (bool) get_theme_mod('kk_weather_enabled', true);
@@ -2857,6 +2883,11 @@ final class Customizer
     public static function sanitizeClockSeparator(mixed $value): string
     {
         return in_array($value, ['colon', 'dot'], true) ? (string) $value : 'colon';
+    }
+
+    public static function sanitizeClockDateFormat(mixed $value): string
+    {
+        return in_array($value, ['full', 'short', 'numeric'], true) ? (string) $value : 'full';
     }
 
     /**
