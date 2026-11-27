@@ -16,12 +16,10 @@ use KoperasiKita\Providers\MarketPrice;
  * and a slider with no priced brands at all renders an honest empty state.
  *
  * Live prices come from the scraper for Antam, UBS, Galeri 24, Lotus
- * Archi, Pegadaian, Hartadinata and King Halim (+ spot). EmasKita
- * has no public live price source — its price page is stamped
- * June 09 2026 with no fresher signal — so it shows only when a
- * manual snapshot price exists. Mini gold (MiniGold, EOA Gold, IGS
- * Gold, Waris Sampoerna) is a separate category — small
- * denominations, not gram bars — so it is not in this registry.
+ * Archi, King Halim and Emasku (HRTA GOLD) (+ spot). Mini gold
+ * (MiniGold, EOA Gold, IGS Gold, Waris Sampoerna) is a separate
+ * category — small denominations, not gram bars — so it is not in
+ * this registry.
  *
  * Third parties may add or rename brands through the
  * `koperasikita/gold/brands` filter. A brand added there with no
@@ -61,10 +59,8 @@ final class Gold
             'ubs' => 'UBS',
             'galeri-24' => 'Galeri 24',
             'lotus-archi' => 'Lotus Archi',
-            'pegadaian' => 'Pegadaian',
-            'hartadinata' => 'Hartadinata',
             'king-halim' => 'King Halim',
-            'emaskita' => 'EmasKita',
+            'hartadinata' => 'Emasku (HRTA GOLD)',
         ]);
 
         if (!is_array($brands)) {
@@ -80,6 +76,31 @@ final class Gold
         }
 
         return $clean;
+    }
+
+    /**
+     * One-line descriptions per brand, shown under the brand name
+     * on the Gold Prices admin page (Prices tab). Only the five
+     * brands the user described have one — Emasku (HRTA GOLD) has
+     * none, and a brand without one renders nothing.
+     *
+     * @return array<string, string> Brand slug => description.
+     */
+    public static function brandDescriptions(): array
+    {
+        return [
+            'antam' => __('Produced by a state-owned enterprise with integrated certificate packaging (CertiEye), generally available from 0.5 grams to 1 kg, and known for its wide liquidity.', 'koperasikita'),
+            'ubs' => __('Founded in 1981, offering a wide choice of sizes and designs (including themed series such as Disney/Hello Kitty) at prices often more affordable than Antam.', 'koperasikita'),
+            'galeri-24' => __('Gold products from a subsidiary of PT Pegadaian, meeting SNI standards, available as bars and jewelry, and easily accessible through the Pegadaian network and online or offline channels. Galeri 24 also reviews this range of gold bar brands.', 'koperasikita'),
+            'lotus-archi' => __('Produced since 1975 and a member of the gold/jewelry industry association, available in a wide choice of weights and classic or themed designs.', 'koperasikita'),
+            'king-halim' => __('A local gold producer offering gold bars and jewelry in a wide choice of weight sizes.', 'koperasikita'),
+        ];
+    }
+
+    /** The description of one brand ('' when it has none). */
+    public static function brandDescription(string $slug): string
+    {
+        return self::brandDescriptions()[sanitize_key($slug)] ?? '';
     }
 
     /**
@@ -143,9 +164,10 @@ final class Gold
      * Providers that can actually supply one gold symbol, id => label,
      * derived from each provider's own supplies() — never a hardcoded
      * list in the template. Manual can supply everything; Xaus only
-     * spot; Scraped covers spot + five brands; Logam Mulia API covers
-     * five brands, no spot; Hartadinata, King Halim and EmasKita have
-     * no live source, so Manual is their only choice.
+     * spot; Scraped covers spot + all six brands; Logam Mulia API
+     * covers four brands (Antam, UBS, Galeri 24, Lotus Archi), no
+     * spot. Every brand has a live source, so Manual is never the
+     * only choice.
      *
      * @return array<string, string>
      */
@@ -392,13 +414,10 @@ final class Gold
     /**
      * Brand logo URLs (slug => theme asset URL), for the Gold widget.
      *
-     * Pegadaian uses its official logo from Wikimedia Commons
-     * (https://commons.wikimedia.org/wiki/File:Pegadaian_logo_(2013).svg,
-     * stored at assets/img/brands/pegadaian.svg). Antam, UBS and
-     * Galeri 24 have no official logo on Commons / Wikipedia, so they
-     * use a generic initials mark drawn for the theme (assets/img/brands/*.svg)
-     * — never a fabricated official logo. EmasKita is KK-specific and
-     * uses an initials mark too. A brand with no file returns ''.
+     * Antam, UBS and Galeri 24 have no official logo on Commons /
+     * Wikipedia, so they use a generic initials mark drawn for the
+     * theme (assets/img/brands/*.svg) — never a fabricated official
+     * logo. A brand with no file returns ''.
      *
      * @return array<string, string>
      */

@@ -2859,8 +2859,8 @@ msgstr "Centang item yang disediakan provider ini yang harus ditampilkan strip p
 msgid "This provider supplies nothing for this market."
 msgstr "Provider ini tidak menyediakan apa pun untuk pasar ini."
 
-msgid "Scraped (live Antam, Galeri 24, UBS, Pegadaian, Lotus Archi + spot, free)"
-msgstr "Scraped (Antam, Galeri 24, UBS, Pegadaian, Lotus Archi + spot live, gratis)"
+msgid "Scraped (live Antam, Galeri 24, UBS, Lotus Archi, Hartadinata, King Halim + spot, free)"
+msgstr "Scraped (Antam, Galeri 24, UBS, Lotus Archi, Hartadinata, King Halim + spot live, gratis)"
 
 msgid "Showing: %s"
 msgstr "Menampilkan: %s"
@@ -3992,3 +3992,27 @@ msgstr "Konfirmasi hapus?"
 
 msgid "Leave empty for the automatic title. Use {label} for the symbol name and {day} for the number of days."
 msgstr "Biarkan kosong untuk judul otomatis. Gunakan {label} untuk nama simbol dan {day} untuk jumlah hari."
+
+#: inc/Features/Gold.php
+msgid "Produced by a state-owned enterprise with integrated certificate packaging (CertiEye), generally available from 0.5 grams to 1 kg, and known for its wide liquidity."
+msgstr "Diproduksi oleh BUMN dengan kemasan sertifikat terintegrasi (CertiEye), umumnya tersedia mulai dari 0,5 gram hingga 1 kg, dan dikenal memiliki likuiditas luas."
+
+#: inc/Features/Gold.php
+msgid "Founded in 1981, offering a wide choice of sizes and designs (including themed series such as Disney/Hello Kitty) at prices often more affordable than Antam."
+msgstr "Berdiri sejak 1981, menawarkan berbagai pilihan ukuran dan desain (termasuk seri tematik seperti Disney/Hello Kitty) dengan harga yang sering kali lebih terjangkau dibanding Antam."
+
+#: inc/Features/Gold.php
+msgid "Gold products from a subsidiary of PT Pegadaian, meeting SNI standards, available as bars and jewelry, and easily accessible through the Pegadaian network and online or offline channels. Galeri 24 also reviews this range of gold bar brands."
+msgstr "Produk emas dari anak perusahaan PT Pegadaian yang berstandar SNI, tersedia dalam bentuk batangan maupun perhiasan, serta mudah diakses melalui jaringan Pegadaian dan saluran daring maupun luring. Ragam merek emas batangan ini juga diulas oleh Galeri 24."
+
+#: inc/Features/Gold.php
+msgid "Produced since 1975 and a member of the gold/jewelry industry association, available in a wide choice of weights and classic or themed designs."
+msgstr "Diproduksi sejak 1975 dan tergabung dalam asosiasi industri emas/perhiasan, hadir dalam berbagai pilihan gramasi serta desain klasik maupun tematik."
+
+#: inc/Features/Gold.php
+msgid "A local gold producer offering gold bars and jewelry in a wide choice of weight sizes."
+msgstr "Produsen emas lokal yang menawarkan emas batangan dan perhiasan dengan beragam pilihan ukuran gramasi"
+
+#: inc/Features/Gold.php
+msgid "Emasku (HRTA GOLD)"
+msgstr "Emasku (HRTA GOLD)"

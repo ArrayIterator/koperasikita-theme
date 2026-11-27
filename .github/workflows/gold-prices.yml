@@ -2,20 +2,17 @@ name: Gold prices
 
 # Scrape the gold prices no free API provides (Antam 1-gram retail
 # price from harga-emas.net, Galeri 24 + UBS + Lotus Archi from
-# galeri24.co.id, Pegadaian 1-gram from the Logam Mulia backup CSV,
-# Hartadinata 1-gram buy price from hrtagold.id, King Halim 1-gram
-# sell price from kinghalim.com, gold spot per gram from xaus.com)
-# and publish them as scraper/prices.json — a free, self-hosted API
-# the theme reads from raw.githubusercontent.com. Runs every 15
-# minutes and on manual dispatch. The scraper never invents a price:
-# a failed source keeps the last good value, and the job fails loudly
-# if no price at all could be produced.
+# galeri24.co.id, Hartadinata 1-gram buy price from hrtagold.id,
+# King Halim 1-gram sell price from kinghalim.com, gold spot per
+# gram from xaus.com) and publish them as scraper/prices.json — a
+# free, self-hosted API the theme reads from
+# raw.githubusercontent.com. Runs every 15 minutes and on manual
+# dispatch. The scraper never invents a price: a failed source keeps
+# the last good value, and the job fails loudly if no price at all
+# could be produced.
 #
-# EmasKita has no public live price source (its price page is stamped
-# June 09 2026 with no fresher signal), so it stays manual in the
-# theme (Settings -> Markets). Mini gold (MiniGold, EOA Gold, IGS
-# Gold, Waris Sampoerna) is a separate category — small
-# denominations, not gram bars.
+# Mini gold (MiniGold, EOA Gold, IGS Gold, Waris Sampoerna) is a
+# separate category — small denominations, not gram bars.
 
 on:
   schedule:

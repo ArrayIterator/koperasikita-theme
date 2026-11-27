@@ -337,7 +337,7 @@ function parseClientApi(provider: string, data: unknown): LivePriceMap | null {
 		}
 		// The scraper publishes every symbol it covers; the strip only
 		// renders the enabled ones, so any symbol present here is used.
-		for (const symbol of ['spot', 'antam', 'ubs', 'galeri-24', 'pegadaian', 'lotus-archi']) {
+		for (const symbol of ['spot', 'antam', 'ubs', 'galeri-24', 'lotus-archi']) {
 			const row = rows[symbol];
 			const price = row?.price;
 			if (typeof price !== 'number' || price <= 0) {

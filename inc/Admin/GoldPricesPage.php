@@ -56,10 +56,8 @@ final class GoldPricesPage
         'ubs' => '#C9962E',
         'galeri-24' => '#2fa36b',
         'lotus-archi' => '#7c3aed',
-        'pegadaian' => '#8A6D1B',
-        'hartadinata' => '#2563eb',
         'king-halim' => '#dc2626',
-        'emaskita' => '#6b7280',
+        'hartadinata' => '#2563eb',
     ];
 
     public static function render(): void
@@ -449,9 +447,9 @@ final class GoldPricesPage
      * price + when it was updated, which provider actually supplied
      * it, and two selects: the provider and the fallback provider.
      * A select only lists providers that can actually supply that
-     * brand — a brand with no live source (Hartadinata, King Halim,
-     * EmasKita) offers Manual only. When the primary has no price,
-     * the fallback is tried automatically.
+     * brand. When the primary has no price, the fallback is tried
+     * automatically. A brand with a description shows it as one
+     * muted line under the brand name.
      */
     private static function renderBrandProvidersTable(): void
     {
@@ -488,7 +486,13 @@ final class GoldPricesPage
                         $fallback = $fallbacks[$symbol] ?? '';
                         ?>
                         <tr>
-                            <td><strong><?php echo esc_html($label); ?></strong></td>
+                            <td>
+                                <strong><?php echo esc_html($label); ?></strong>
+                                <?php $description = Gold::brandDescription($symbol); ?>
+                                <?php if ($description !== '') : ?>
+                                    <br><span class="description"><?php echo esc_html($description); ?></span>
+                                <?php endif; ?>
+                            </td>
                             <td>
                                 <?php if ($price !== null && $price->hasData()) : ?>
                                     <?php echo esc_html(Markets::formatPrice((float) $price->price, $price->currency)); ?>

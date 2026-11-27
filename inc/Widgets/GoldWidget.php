@@ -9,8 +9,9 @@ use KoperasiKita\Features\Markets;
 use WP_Widget;
 
 /**
- * Gold price widget: a vertical auto-scroll slider with the five gold
- * brands (Antam, UBS, Galeri 24, Pegadaian, EmasKita).
+ * Gold price widget: a vertical auto-scroll slider with the six gold
+ * brands (Antam, UBS, Galeri 24, Lotus Archi, King Halim,
+ * Emasku (HRTA GOLD)).
  *
  * Prices come from each brand's own provider, picked per brand on the
  * Gold Prices page (Gold::brandPrices); the widget form only picks the
