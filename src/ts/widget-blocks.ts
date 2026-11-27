@@ -882,6 +882,11 @@ function createEdit(def: BlockDef, api: Wp): (props: BlockEditProps) => unknown 
 				? api.element.createElement(api.serverSideRender.ServerSideRender, {
 						block: `koperasi-kita/${def.slug}`,
 						attributes,
+						/* POST, not the default GET: over GET the
+						 * attributes travel in the query string, so a
+						 * boolean false arrives as the text "false"
+						 * and still renders as on. */
+						httpMethod: 'POST',
 					})
 				: api.element.createElement(
 						'div',
