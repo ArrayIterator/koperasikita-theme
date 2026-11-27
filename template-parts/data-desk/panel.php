@@ -16,7 +16,10 @@
  * block can be hidden via $args['hidden_blocks'] — hidden blocks
  * are not rendered at all, except in the template editor's preview
  * ($args['editable']), where they stay visible, dimmed, with an eye
- * toggle to bring them back. A symbol with no usable history gets a
+ * toggle to bring them back. The date-range line under the title
+ * can be overridden per template via $args['date_line'] (empty =
+ * the computed line); in the editor's preview it is inline-editable
+ * like the kicker/title. A symbol with no usable history gets a
  * placeholder chart and honest empty stats instead of invented
  * numbers.
  *
@@ -77,8 +80,14 @@ if ($title === '') {
 	$title = DataDesk::replaceTitleTokens($title, $label, $days);
 }
 
+// A saved template date line overrides the computed range
+// line; empty means the computed text below (literal text, no
+// {label}/{day} tokens, like the stat label overrides).
+$dateLineOverride = isset($args['date_line']) ? sanitize_text_field((string) $args['date_line']) : '';
 $subtitle = '';
-if ($hasHistory && !empty($data['date_range'])) {
+if ($dateLineOverride !== '') {
+	$subtitle = $dateLineOverride;
+} elseif ($hasHistory && !empty($data['date_range'])) {
 	$subtitle = $isGold
 		/* translators: %s: date range, e.g. 15–21 November 2026. */
 		? sprintf(__('Harga jual per gram · %s', 'koperasikita'), $data['date_range'])
@@ -137,7 +146,7 @@ $polyline = implode(' ', array_map(static fn(array $c): string => number_format(
 	<header class="kk-data-desk-head">
 		<p class="kk-data-desk-kicker"><?php echo $kicker !== '' ? esc_html($kicker) : esc_html__('Meja Data', 'koperasikita'); ?></p>
 		<h2 class="kk-data-desk-title"><?php echo esc_html($title); ?></h2>
-		<p class="kk-data-desk-subtitle"><?php echo esc_html($subtitle); ?></p>
+		<p class="kk-data-desk-subtitle"<?php echo $editable ? ' data-kk-date-line' : ''; ?>><?php echo esc_html($subtitle); ?></p>
 	</header>
 	<div class="kk-data-desk-body">
 		<div class="kk-data-desk-chart">

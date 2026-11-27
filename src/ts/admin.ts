@@ -46,6 +46,7 @@ interface AdminStrings {
 	editTitleHint: string;
 	previewFailed: string;
 	savingTemplate: string;
+	editDateLineHint: string;
 	editStatHint: string;
 	close: string;
 }
@@ -111,6 +112,7 @@ const FALLBACK_STRINGS: AdminStrings = {
 	editTitleHint: 'Click to edit the title.',
 	previewFailed: 'Could not load the preview.',
 	savingTemplate: 'Saving…',
+	editDateLineHint: 'Click to edit the date line.',
 	editStatHint: 'Click to edit this stat.',
 	close: 'Close',
 };
@@ -144,6 +146,8 @@ function adminStrings(): AdminStrings {
 		previewFailed: strings?.previewFailed ?? FALLBACK_STRINGS.previewFailed,
 		savingTemplate: strings?.savingTemplate ?? FALLBACK_STRINGS.savingTemplate,
 		close: strings?.close ?? FALLBACK_STRINGS.close,
+		editDateLineHint: strings?.editDateLineHint ?? FALLBACK_STRINGS.editDateLineHint,
+		editStatHint: strings?.editStatHint ?? FALLBACK_STRINGS.editStatHint,
 	};
 }
 
@@ -405,16 +409,17 @@ function resolveAdminScheme(): 'light' | 'dark' {
  * refresh keeps the last good preview and reports the error under
  * the box.
  *
- * The preview kicker and title are edited inline: neither has a
- * visible form row (both are hidden inputs) — the preview IS the
- * editor. Clicking either text edits it in place; Enter or blur
- * commits into the hidden field and refreshes the preview, Escape
- * cancels and restores the text. The three stat blocks work the
- * same way (their label and note write into hidden stat_* fields),
- * and each carries an eye toggle that hides the block (dimmed in
- * the editor, gone on the frontend) or shows it again. The
- * container carries data-color-scheme so the 'auto' palette
- * follows the site scheme in the admin preview too.
+ * The preview kicker, title and date line are edited inline:
+ * none has a visible form row (all are hidden inputs) — the
+ * preview IS the editor. Clicking any of the three texts edits it
+ * in place; Enter or blur commits into the hidden field and
+ * refreshes the preview, Escape cancels and restores the text.
+ * The three stat blocks work the same way (their label and note
+ * write into hidden stat_* fields), and each carries an eye
+ * toggle that hides the block (dimmed in the editor, gone on the
+ * frontend) or shows it again. The container carries
+ * data-color-scheme so the 'auto' palette follows the site scheme
+ * in the admin preview too.
  */
 function initDataDeskPreview(): void {
 	const config = adminData();
@@ -432,8 +437,9 @@ function initDataDeskPreview(): void {
 	const palette = document.getElementById('kk-template-palette') as HTMLInputElement | null;
 	const title = document.getElementById('kk-template-title') as HTMLInputElement | null;
 	const kicker = document.getElementById('kk-template-kicker') as HTMLInputElement | null;
+	const dateLine = document.getElementById('kk-template-date-line') as HTMLInputElement | null;
 	const hiddenBlocks = document.getElementById('kk-template-hidden-blocks') as HTMLInputElement | null;
-	if (!kind || !symbol || !days || !brands || !palette || !title || !kicker || !hiddenBlocks) {
+	if (!kind || !symbol || !days || !brands || !palette || !title || !kicker || !dateLine || !hiddenBlocks) {
 		return;
 	}
 	/* Per-block stat texts, one hidden input per label + sub-line.
@@ -475,6 +481,10 @@ function initDataDeskPreview(): void {
 		if (titleEl) {
 			titleEl.setAttribute('title', adminStrings().editTitleHint);
 		}
+		const dateLineEl = container.querySelector('.kk-data-desk-subtitle[data-kk-date-line]');
+		if (dateLineEl) {
+			dateLineEl.setAttribute('title', adminStrings().editDateLineHint);
+		}
 		container.querySelectorAll('[data-kk-stat-field]').forEach((el) => {
 			el.setAttribute('title', adminStrings().editStatHint);
 		});
@@ -493,6 +503,7 @@ function initDataDeskPreview(): void {
 				palette: palette.value,
 				title: title.value,
 				kicker: kicker.value,
+				date_line: dateLine.value,
 				brands: Array.from(brands.selectedOptions)
 					.map((option) => option.value)
 					.join(','),
@@ -521,26 +532,31 @@ function initDataDeskPreview(): void {
 		}, 300);
 	};
 
-	/* Inline editing of the preview kicker + title + stat texts,
-	 * delegated on the container because every refresh replaces
-	 * the preview DOM. Click to edit (text selected), Enter or blur
-	 * commits the text into the hidden field and refreshes the
-	 * preview, Escape cancels and restores the previous text.
-	 * Clearing the title means empty (automatic title); clearing
-	 * the kicker means empty (default 'Meja Data'); clearing a
-	 * stat label or note means empty (the computed text). */
+	/* Inline editing of the preview kicker + title + date line +
+	 * stat texts, delegated on the container because every refresh
+	 * replaces the preview DOM. Click to edit (text selected),
+	 * Enter or blur commits the text into the hidden field and
+	 * refreshes the preview, Escape cancels and restores the
+	 * previous text. Clearing the title means empty (automatic
+	 * title); clearing the kicker means empty (default 'Meja
+	 * Data'); clearing the date line means empty (the computed
+	 * date range); clearing a stat label or note means empty (the
+	 * computed text). */
 	let editing: HTMLElement | null = null;
 	let editingOriginal = '';
 
 	/* Which hidden input an inline-edited element writes into:
-	 * kicker / title by class, a stat label or note by its
-	 * data-kk-stat-field attribute. */
+	 * kicker / title / date line by class, a stat label or note
+	 * by its data-kk-stat-field attribute. */
 	const fieldForEdit = (el: HTMLElement): HTMLInputElement | null => {
 		if (el.classList.contains('kk-data-desk-kicker')) {
 			return kicker;
 		}
 		if (el.classList.contains('kk-data-desk-title')) {
 			return title;
+		}
+		if (el.classList.contains('kk-data-desk-subtitle')) {
+			return dateLine;
 		}
 		const statField = el.getAttribute('data-kk-stat-field');
 		return statField ? statInputs[statField] ?? null : null;
@@ -568,7 +584,7 @@ function initDataDeskPreview(): void {
 
 	container.addEventListener('click', (event) => {
 		const target = (event.target as HTMLElement | null)?.closest?.(
-			'.kk-data-desk-kicker, .kk-data-desk-title, .kk-data-desk-stat-label[data-kk-stat-field], .kk-data-desk-stat-note[data-kk-stat-field]',
+			'.kk-data-desk-kicker, .kk-data-desk-title, .kk-data-desk-subtitle[data-kk-date-line], .kk-data-desk-stat-label[data-kk-stat-field], .kk-data-desk-stat-note[data-kk-stat-field]',
 		) as HTMLElement | null;
 		if (!target || editing === target) {
 			return;

@@ -507,6 +507,7 @@ final class Enqueue
                         'editTitleHint' => __('Click to edit the title.', 'koperasikita'),
                         'previewFailed' => __('Could not load the preview.', 'koperasikita'),
                         'savingTemplate' => __('Saving…', 'koperasikita'),
+                        'editDateLineHint' => __('Click to edit the date line.', 'koperasikita'),
                         'editStatHint' => __('Click to edit this stat.', 'koperasikita'),
                         'close' => __('Close', 'koperasikita'),
                     ],
