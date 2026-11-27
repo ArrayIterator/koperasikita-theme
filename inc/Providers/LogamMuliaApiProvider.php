@@ -133,7 +133,7 @@ final class LogamMuliaApiProvider extends AbstractLiveProvider
 
     public function label(): string
     {
-        return 'Logam Mulia API (live Antam, Galeri 24, UBS, Lotus Archi)';
+        return 'Logam Mulia API';
     }
 
     public function supports(string $market): bool

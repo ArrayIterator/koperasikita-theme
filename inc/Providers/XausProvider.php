@@ -32,7 +32,7 @@ final class XausProvider extends AbstractLiveProvider
 
     public function label(): string
     {
-        return 'Xaus (live spot, free)';
+        return 'Xaus';
     }
 
     public function supports(string $market): bool

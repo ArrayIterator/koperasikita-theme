@@ -473,11 +473,10 @@
 }
 
 /*
- * Gold Prices per-brand provider table: the provider labels are long
- * ("Scrapping (live Antam, Galeri 24, ...)"), so uncapped selects would
- * blow the table wider than the admin page and cut the Supplied by
- * column off. The selects cap at 15rem; the wrapper scrolls
- * horizontally only when the viewport is still too narrow.
+ * Gold Prices per-brand provider table: the selects cap at 15rem so
+ * the table stays inside the admin page and the Supplied by column
+ * is never cut off; the wrapper scrolls horizontally only when the
+ * viewport is still too narrow.
  */
 .kk-gold-brand-providers-wrap {
 	overflow-x: auto;

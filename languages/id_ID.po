@@ -2909,8 +2909,8 @@ msgstr "Centang item yang disediakan provider ini yang harus ditampilkan strip p
 msgid "This provider supplies nothing for this market."
 msgstr "Provider ini tidak menyediakan apa pun untuk pasar ini."
 
-msgid "Scrapping (live Antam, Galeri 24, UBS, Lotus Archi, Hartadinata, King Halim + spot, free)"
-msgstr "Scrapping (Antam, Galeri 24, UBS, Lotus Archi, Hartadinata, King Halim + spot live, gratis)"
+msgid "Scrapping"
+msgstr "Scrapping"
 
 msgid "Showing: %s"
 msgstr "Menampilkan: %s"
