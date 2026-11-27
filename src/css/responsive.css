@@ -54,11 +54,13 @@
 		height: 24px;
 	}
 
-	/* No dark-mode toggle in the sticky bar on mobile: it lives in
-	 * the drawer footer instead. The search icon stays. */
-	.kk-color-scheme-toggle {
-		display: none;
-	}
+	/* The colour-scheme toggle stays in the sticky bar at every width
+	 * (it used to hide below 1024px and live only in the drawer
+	 * footer, so the bar had no switcher at all on mobile/tablet
+	 * and on the archive and agenda pages it looked missing). The
+	 * drawer footer keeps its own toggle too - main.ts binds every
+	 * [data-kk-scheme-toggle] and keeps them in sync. The search
+	 * icon stays beside it. */
 }
 
 @media (min-width: 1024px) {

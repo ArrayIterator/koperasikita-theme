@@ -526,9 +526,10 @@ html.kk-nav-open body {
 	cursor: pointer;
 }
 
-/* Drawer footer: the colour-scheme toggle lives here on mobile, not
- * in the sticky bar. The nav is a flex column, so the footer pins to
- * the bottom when the menu is short and scrolls after it when long. */
+/* Drawer footer: a second colour-scheme toggle, kept in sync with the
+ * one in the sticky bar by main.ts (every [data-kk-scheme-toggle] is
+ * bound). The nav is a flex column, so the footer pins to the bottom
+ * when the menu is short and scrolls after it when long. */
 .kk-primary-nav > .kk-drawer-head,
 .kk-primary-nav > .kk-drawer-back,
 .kk-primary-nav > .kk-primary-menu,
