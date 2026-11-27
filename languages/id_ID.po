@@ -3936,8 +3936,12 @@ msgid " (latest %s)"
 msgstr " (terbaru %s)"
 
 #: inc/Admin/GoldPricesPage.php
-msgid "Done — inserted %s, skipped %s (already in database). Reloading…"
-msgstr "Selesai — dimasukkan %s, dilewati %s (sudah ada di database). Memuat ulang…"
+msgid "Done - inserted %s, skipped %s (already in database)."
+msgstr "Selesai - dimasukkan %s, dilewati %s (sudah ada di database)."
+
+#: inc/Admin/GoldPricesPage.php
+msgid "Closing this popup reloads the page so the status, history list and chart show the new prices."
+msgstr "Menutup popup ini memuat ulang halaman agar status, daftar riwayat, dan grafik menampilkan harga terbaru."
 
 #: inc/Admin/GoldPricesPage.php
 msgid "Sync sources"
@@ -4193,8 +4197,8 @@ msgstr "Scrape sekarang"
 msgid "Scraping"
 msgstr "Scraping"
 
-msgid "Scraping %s…"
-msgstr "Scraping %s…"
+msgid "Scraping %s..."
+msgstr "Scraping %s..."
 
 msgid "Scraping fetches the daily gold prices and stores one row per brand per day — only rows that are not in the database yet. It runs automatically via WP-Cron on the schedule on the Setting tab. Use the button below to scrape on demand."
 msgstr "Scraping mengambil harga emas harian dan menyimpan satu baris per merek per hari — hanya baris yang belum ada di basis data. Proses ini berjalan otomatis melalui WP-Cron sesuai jadwal pada tab Pengaturan. Gunakan tombol di bawah untuk melakukan scraping sesuai permintaan."
