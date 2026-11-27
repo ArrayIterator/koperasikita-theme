@@ -389,7 +389,10 @@ final class DataDeskTemplatesPage
             <div id="kk-data-desk-live-preview" data-kk-data-desk-preview>
                 <?php
                 // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- renderPreview returns the theme's own template markup.
-                echo DataDesk::renderPreview($template);
+                // Editable: the first preview must carry the stat /
+                // date-line edit hooks + eye toggles, not just the
+                // AJAX refresh (which already passes true).
+                echo DataDesk::renderPreview($template, true);
                 ?>
             </div>
         </form>
