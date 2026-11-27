@@ -224,7 +224,7 @@ abstract class AbstractStoryWidget extends WP_Widget
             ? (string) $new['layout']
             : 'list';
         $instance['show_thumbnail'] = !empty($new['show_thumbnail']) ? 1 : 0;
-        $instance['header_style'] = WidgetHeader::sanitize($new['header_style'] ?? WidgetHeader::CLASSIC);
+        $instance['header_style'] = WidgetHeader::sanitize($new['header_style'] ?? WidgetHeader::CLASSIC_TOP);
 
         return $this->sanitizeExtra($new, $instance);
     }

@@ -168,7 +168,7 @@ final class PagesWidget extends WP_Widget
         $instance['sort_order'] = isset($new['sort_order']) && array_key_exists((string) $new['sort_order'], self::sortOptions())
             ? (string) $new['sort_order']
             : 'menu_order';
-        $instance['header_style'] = WidgetHeader::sanitize($new['header_style'] ?? WidgetHeader::CLASSIC);
+        $instance['header_style'] = WidgetHeader::sanitize($new['header_style'] ?? WidgetHeader::CLASSIC_TOP);
 
         return $instance;
     }

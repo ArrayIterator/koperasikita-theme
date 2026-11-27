@@ -240,7 +240,7 @@ final class GoldWidget extends WP_Widget
             ? array_values(array_intersect($new['brands'], Gold::enabledBrands()))
             : [];
         $instance['brands'] = $brands !== [] ? $brands : Gold::enabledBrands();
-        $instance['header_style'] = WidgetHeader::sanitize($new['header_style'] ?? WidgetHeader::CLASSIC);
+        $instance['header_style'] = WidgetHeader::sanitize($new['header_style'] ?? WidgetHeader::CLASSIC_TOP);
         $instance['style'] = self::sanitizeStyle(isset($new['style']) ? sanitize_text_field((string) $new['style']) : self::DEFAULT_STYLE);
         $instance['color_style'] = self::sanitizeColorStyle(isset($new['color_style']) ? sanitize_text_field((string) $new['color_style']) : self::DEFAULT_COLOR_STYLE);
         $instance['autoplay'] = !empty($new['autoplay']);
