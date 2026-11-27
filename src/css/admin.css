@@ -1214,10 +1214,10 @@
  * (setup.css): white cards, cooperative green titles, generous
  * spacing, green primary buttons. Only the admin chrome changes —
  * the live preview panel itself is untouched, and the floating
- * toast keeps its own rules above. */
+ * toast keeps its own rules above. Unlike Setup, the page is
+ * intentionally FULL WIDTH (no 880px cap): the template table and
+ * the preview need the room, same reason as the Gold page. */
 .kk-data-desk-page {
-	max-width: 880px;
-	margin: 0 auto;
 	padding: 8px 0 32px;
 }
 
