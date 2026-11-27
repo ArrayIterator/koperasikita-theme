@@ -210,14 +210,14 @@ final class GoldPricesPage
         $brands = Gold::brands();
         $pageUrl = admin_url('admin.php?page=' . self::PAGE_SLUG);
         ?>
-        <div class="wrap" data-kk-gold-prices-page>
-            <h1><?php esc_html_e('Gold Prices', 'koperasikita'); ?></h1>
-            <h2 class="nav-tab-wrapper">
-                <a href="<?php echo esc_url(add_query_arg('tab', 'summary', $pageUrl)); ?>" class="nav-tab<?php echo $tab === 'summary' ? ' nav-tab-active' : ''; ?>"><?php esc_html_e('Summary', 'koperasikita'); ?></a>
-                <a href="<?php echo esc_url(add_query_arg('tab', 'gold-brands', $pageUrl)); ?>" class="nav-tab<?php echo $tab === 'gold-brands' ? ' nav-tab-active' : ''; ?>"><?php esc_html_e('Gold Brands', 'koperasikita'); ?></a>
-                <a href="<?php echo esc_url(add_query_arg('tab', 'sync', $pageUrl)); ?>" class="nav-tab<?php echo $tab === 'sync' ? ' nav-tab-active' : ''; ?>"><?php esc_html_e('Sync', 'koperasikita'); ?></a>
-                <a href="<?php echo esc_url(add_query_arg('tab', 'history', $pageUrl)); ?>" class="nav-tab<?php echo $tab === 'history' ? ' nav-tab-active' : ''; ?>"><?php esc_html_e('History', 'koperasikita'); ?></a>
-                <a href="<?php echo esc_url(add_query_arg('tab', 'setting', $pageUrl)); ?>" class="nav-tab<?php echo $tab === 'setting' ? ' nav-tab-active' : ''; ?>"><?php esc_html_e('Setting', 'koperasikita'); ?></a>
+        <div class="wrap kk-gold-page" data-kk-gold-prices-page>
+            <h1 class="kk-gold-title"><?php esc_html_e('Gold Prices', 'koperasikita'); ?></h1>
+            <h2 class="kk-gold-tabs">
+                <a href="<?php echo esc_url(add_query_arg('tab', 'summary', $pageUrl)); ?>" class="kk-gold-tab<?php echo $tab === 'summary' ? ' is-active' : ''; ?>"><?php esc_html_e('Summary', 'koperasikita'); ?></a>
+                <a href="<?php echo esc_url(add_query_arg('tab', 'gold-brands', $pageUrl)); ?>" class="kk-gold-tab<?php echo $tab === 'gold-brands' ? ' is-active' : ''; ?>"><?php esc_html_e('Gold Brands', 'koperasikita'); ?></a>
+                <a href="<?php echo esc_url(add_query_arg('tab', 'sync', $pageUrl)); ?>" class="kk-gold-tab<?php echo $tab === 'sync' ? ' is-active' : ''; ?>"><?php esc_html_e('Sync', 'koperasikita'); ?></a>
+                <a href="<?php echo esc_url(add_query_arg('tab', 'history', $pageUrl)); ?>" class="kk-gold-tab<?php echo $tab === 'history' ? ' is-active' : ''; ?>"><?php esc_html_e('History', 'koperasikita'); ?></a>
+                <a href="<?php echo esc_url(add_query_arg('tab', 'setting', $pageUrl)); ?>" class="kk-gold-tab<?php echo $tab === 'setting' ? ' is-active' : ''; ?>"><?php esc_html_e('Setting', 'koperasikita'); ?></a>
             </h2>
             <?php if ($tab === 'gold-brands') : ?>
                 <?php self::renderGoldBrandsTab($brands); ?>
@@ -361,8 +361,9 @@ final class GoldPricesPage
             ? date_i18n(get_option('date_format', 'Y-m-d') . ' ' . get_option('time_format', 'H:i'), (int) $status['synced_at'])
             : __('Never', 'koperasikita');
         ?>
-        <h2><?php esc_html_e('Price chart', 'koperasikita'); ?></h2>
-        <p>
+        <section class="kk-gold-card">
+        <h2 class="kk-gold-card-title"><?php esc_html_e('Price chart', 'koperasikita'); ?></h2>
+        <p class="kk-gold-filters">
             <label for="kk-summary-search"><?php esc_html_e('Brands', 'koperasikita'); ?></label>
             <input type="search" id="kk-summary-search" data-kk-gold-summary-search placeholder="<?php esc_attr_e('Search brands', 'koperasikita'); ?>">
             <label for="kk-summary-days"><?php esc_html_e('Days', 'koperasikita'); ?></label>
@@ -372,7 +373,7 @@ final class GoldPricesPage
                 <?php endforeach; ?>
             </select>
         </p>
-        <fieldset data-kk-gold-summary-brands>
+        <fieldset class="kk-gold-brand-picker" data-kk-gold-summary-brands>
             <legend class="screen-reader-text"><?php esc_html_e('Brands to show', 'koperasikita'); ?></legend>
             <?php foreach ($brands as $slug => $label) : ?>
                 <label data-kk-gold-summary-brand-row>
@@ -385,9 +386,11 @@ final class GoldPricesPage
         <div data-kk-gold-summary-chart>
             <?php self::renderChart($chart, $brands, true); ?>
         </div>
+        </section>
 
-        <h2><?php esc_html_e('Sync status', 'koperasikita'); ?></h2>
-        <table class="form-table" role="presentation">
+        <section class="kk-gold-card">
+        <h2 class="kk-gold-card-title"><?php esc_html_e('Sync status', 'koperasikita'); ?></h2>
+        <table class="form-table kk-gold-facts" role="presentation">
             <tbody>
                 <tr>
                     <th scope="row"><?php esc_html_e('Last sync', 'koperasikita'); ?></th>
@@ -412,12 +415,17 @@ final class GoldPricesPage
                 </tr>
             </tbody>
         </table>
+        </section>
 
-        <h2><?php esc_html_e('Enabled brands', 'koperasikita'); ?></h2>
+        <section class="kk-gold-card">
+        <h2 class="kk-gold-card-title"><?php esc_html_e('Enabled brands', 'koperasikita'); ?></h2>
         <?php self::renderSummaryBrandList($brands, $enabled, true); ?>
+        </section>
 
-        <h2><?php esc_html_e('Disabled brands', 'koperasikita'); ?></h2>
+        <section class="kk-gold-card">
+        <h2 class="kk-gold-card-title"><?php esc_html_e('Disabled brands', 'koperasikita'); ?></h2>
         <?php self::renderSummaryBrandList($brands, $enabled, false); ?>
+        </section>
         <?php
     }
 
@@ -447,7 +455,7 @@ final class GoldPricesPage
         $prices = Markets::prices('gold');
         $configured = Gold::brandProviders();
         ?>
-        <table class="widefat striped">
+        <table class="widefat striped kk-gold-table">
             <thead>
                 <tr>
                     <th><?php esc_html_e('Brand', 'koperasikita'); ?></th>
@@ -494,16 +502,18 @@ final class GoldPricesPage
         // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- saved flag is display-only.
         $saved = isset($_GET['gold_brands_saved']) && $_GET['gold_brands_saved'] === '1';
         ?>
-        <h2><?php esc_html_e('Gold Brands', 'koperasikita'); ?></h2>
+        <section class="kk-gold-card">
+        <h2 class="kk-gold-card-title"><?php esc_html_e('Gold Brands', 'koperasikita'); ?></h2>
         <?php if ($saved) : ?>
             <div class="notice notice-success inline"><p><?php esc_html_e('Gold brands saved.', 'koperasikita'); ?></p></div>
         <?php endif; ?>
-        <p><?php esc_html_e('Choose which provider supplies the price for each brand, and which brands the site shows. Only providers that can actually supply that brand are listed. When the primary provider has no price for a brand, its fallback provider is tried automatically. A disabled brand is hidden from the Gold widget and from the widget\'s Brands to show picker.', 'koperasikita'); ?></p>
+        <p class="kk-gold-intro"><?php esc_html_e('Choose which provider supplies the price for each brand, and which brands the site shows. Only providers that can actually supply that brand are listed. When the primary provider has no price for a brand, its fallback provider is tried automatically. A disabled brand is hidden from the Gold widget and from the widget\'s Brands to show picker.', 'koperasikita'); ?></p>
         <form method="post" action="<?php echo esc_url(admin_url('admin.php?page=' . self::PAGE_SLUG . '&tab=gold-brands')); ?>">
             <?php wp_nonce_field('kk_gold_brands', 'kk_gold_brands_nonce'); ?>
             <?php self::renderBrandProvidersTable(); ?>
             <?php submit_button(__('Save gold brands', 'koperasikita'), 'secondary'); ?>
         </form>
+        </section>
         <?php
     }
 
@@ -518,16 +528,22 @@ final class GoldPricesPage
     {
         $status = LogamMuliaApiProvider::status();
         ?>
-        <p><?php esc_html_e('Scraping fetches the daily gold prices and stores one row per brand per day — only rows that are not in the database yet. It runs automatically via WP-Cron on the schedule on the Setting tab. Use the button below to scrape on demand.', 'koperasikita'); ?></p>
+        <p class="kk-gold-intro"><?php esc_html_e('Scraping fetches the daily gold prices and stores one row per brand per day — only rows that are not in the database yet. It runs automatically via WP-Cron on the schedule on the Setting tab. Use the button below to scrape on demand.', 'koperasikita'); ?></p>
 
-        <h2><?php esc_html_e('Sync status', 'koperasikita'); ?></h2>
+        <section class="kk-gold-card">
+        <h2 class="kk-gold-card-title"><?php esc_html_e('Sync status', 'koperasikita'); ?></h2>
         <?php self::renderStatus($status); ?>
+        </section>
 
-        <h2><?php esc_html_e('Manual scraping', 'koperasikita'); ?></h2>
+        <section class="kk-gold-card">
+        <h2 class="kk-gold-card-title"><?php esc_html_e('Manual scraping', 'koperasikita'); ?></h2>
         <?php self::renderManualSync(); ?>
+        </section>
 
-        <h2><?php esc_html_e('Scraping sources', 'koperasikita'); ?></h2>
+        <section class="kk-gold-card">
+        <h2 class="kk-gold-card-title"><?php esc_html_e('Scraping sources', 'koperasikita'); ?></h2>
         <?php self::renderSourceTable($status); ?>
+        </section>
         <?php
     }
 
@@ -546,7 +562,7 @@ final class GoldPricesPage
         $enabled = LogamMuliaApiProvider::enabledSyncSources();
         ?>
         <p>
-            <button type="button" class="button button-primary" data-kk-gold-sync <?php disabled(empty($enabled)); ?>><?php esc_html_e('Scrape now', 'koperasikita'); ?></button>
+            <button type="button" class="kk-gold-button kk-gold-button--primary" data-kk-gold-sync <?php disabled(empty($enabled)); ?>><?php esc_html_e('Scrape now', 'koperasikita'); ?></button>
         </p>
         <?php if ($enabled === []) : ?>
             <p><?php esc_html_e('No scraping source is enabled. Enable one on the Setting tab.', 'koperasikita'); ?></p>
@@ -579,16 +595,17 @@ final class GoldPricesPage
         // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- saved flag is display-only.
         $syncSettingsSaved = isset($_GET['sync_settings_saved']) && $_GET['sync_settings_saved'] === '1';
         ?>
-        <p><?php esc_html_e('Scraping fetches the gold prices from the sources below. Only enabled sources are scraped, manually and automatically. The default source is scraped first.', 'koperasikita'); ?></p>
+        <section class="kk-gold-card">
+        <p class="kk-gold-intro"><?php esc_html_e('Scraping fetches the gold prices from the sources below. Only enabled sources are scraped, manually and automatically. The default source is scraped first.', 'koperasikita'); ?></p>
 
-        <h2><?php esc_html_e('Scraping sources', 'koperasikita'); ?></h2>
+        <h2 class="kk-gold-card-title"><?php esc_html_e('Scraping sources', 'koperasikita'); ?></h2>
         <?php if ($syncSettingsSaved) : ?>
             <div class="notice notice-success inline"><p><?php esc_html_e('Automatic sync settings saved.', 'koperasikita'); ?></p></div>
         <?php endif; ?>
         <p data-kk-gold-sync-running hidden><em><?php esc_html_e('A manual sync is running. Automatic sync settings are paused until it finishes.', 'koperasikita'); ?></em></p>
         <form method="post" data-kk-gold-sync-settings action="<?php echo esc_url(admin_url('admin.php?page=' . self::PAGE_SLUG . '&tab=setting')); ?>">
             <?php wp_nonce_field('kk_gold_sync_settings', 'kk_gold_sync_settings_nonce'); ?>
-            <table class="widefat striped">
+            <table class="widefat striped kk-gold-table">
                 <thead>
                     <tr>
                         <th><?php esc_html_e('Source', 'koperasikita'); ?></th>
@@ -619,8 +636,8 @@ final class GoldPricesPage
                 </tbody>
             </table>
 
-            <h2><?php esc_html_e('Automatic sync', 'koperasikita'); ?></h2>
-            <table class="form-table" role="presentation">
+            <h3 class="kk-gold-card-subtitle"><?php esc_html_e('Automatic sync', 'koperasikita'); ?></h3>
+            <table class="form-table kk-gold-facts" role="presentation">
                 <tbody>
                     <tr>
                         <th scope="row"><?php esc_html_e('Enable automatic sync', 'koperasikita'); ?></th>
@@ -676,6 +693,7 @@ final class GoldPricesPage
             </table>
             <?php submit_button(__('Save sync settings', 'koperasikita'), 'secondary'); ?>
         </form>
+        </section>
         <?php
     }
 
@@ -701,7 +719,7 @@ final class GoldPricesPage
         $brands = Gold::brands();
         ?>
         <div class="kk-gold-brand-providers-wrap">
-        <table class="widefat striped kk-gold-brand-providers">
+        <table class="widefat striped kk-gold-table kk-gold-brand-providers">
             <thead>
                 <tr>
                     <th><?php esc_html_e('Brand', 'koperasikita'); ?></th>
@@ -847,11 +865,12 @@ final class GoldPricesPage
         }
         $enabled = Gold::enabledBrands();
         ?>
-        <h2><?php esc_html_e('Price history', 'koperasikita'); ?></h2>
+        <section class="kk-gold-card">
+        <h2 class="kk-gold-card-title"><?php esc_html_e('Price history', 'koperasikita'); ?></h2>
         <form method="get" action="<?php echo esc_url(admin_url('admin.php')); ?>">
             <input type="hidden" name="page" value="<?php echo esc_attr(self::PAGE_SLUG); ?>">
             <input type="hidden" name="tab" value="history">
-            <p>
+            <p class="kk-gold-filters">
                 <label for="kk-history-provider"><?php esc_html_e('Provider', 'koperasikita'); ?></label>
                 <select id="kk-history-provider" name="provider">
                     <option value=""><?php esc_html_e('All providers', 'koperasikita'); ?></option>
@@ -893,6 +912,7 @@ final class GoldPricesPage
                 </div>
             </div>
         <?php endif; ?>
+        </section>
         <?php
     }
 
@@ -924,7 +944,7 @@ final class GoldPricesPage
             : __('Never', 'koperasikita');
         $symbols = $status['symbols'] !== [] ? implode(', ', $status['symbols']) : __('None yet', 'koperasikita');
         ?>
-        <table class="form-table" role="presentation">
+        <table class="form-table kk-gold-facts" role="presentation">
             <tbody>
                 <tr>
                     <th scope="row"><?php esc_html_e('Last sync', 'koperasikita'); ?></th>
@@ -1012,7 +1032,7 @@ final class GoldPricesPage
                 . '</tr>';
         }
         ?>
-        <table class="widefat striped">
+        <table class="widefat striped kk-gold-table">
             <thead>
                 <tr>
                     <th><?php esc_html_e('Source', 'koperasikita'); ?></th>
@@ -1116,7 +1136,7 @@ final class GoldPricesPage
                 . '</span>';
         }
         ?>
-        <figure style="margin:0 0 1rem">
+        <figure class="kk-gold-chart" style="margin:0 0 1rem">
             <svg viewBox="0 0 <?php echo (int) self::CHART_WIDTH; ?> <?php echo (int) self::CHART_HEIGHT; ?>" width="100%" role="img" aria-label="<?php esc_attr_e('Gold price history per brand', 'koperasikita'); ?>">
                 <line x1="<?php echo (int) self::CHART_PAD_LEFT; ?>" y1="<?php echo (int) self::CHART_PAD_TOP; ?>" x2="<?php echo (int) self::CHART_PAD_LEFT; ?>" y2="<?php echo (int) (self::CHART_HEIGHT - self::CHART_PAD_BOTTOM); ?>" stroke="#d1d5db" />
                 <line x1="<?php echo (int) self::CHART_PAD_LEFT; ?>" y1="<?php echo (int) (self::CHART_HEIGHT - self::CHART_PAD_BOTTOM); ?>" x2="<?php echo (int) (self::CHART_WIDTH - self::CHART_PAD_RIGHT); ?>" y2="<?php echo (int) (self::CHART_HEIGHT - self::CHART_PAD_BOTTOM); ?>" stroke="#d1d5db" />
@@ -1165,7 +1185,7 @@ final class GoldPricesPage
                 . '</tr>';
         }
         ?>
-        <table class="widefat striped">
+        <table class="widefat striped kk-gold-table">
             <thead>
                 <tr>
                     <th><?php esc_html_e('Date', 'koperasikita'); ?></th>
