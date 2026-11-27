@@ -112,6 +112,55 @@ final class GoldPricesTable
     }
 
     /**
+     * Insert one row, or update the row with the same
+     * (provider, symbol, recorded_date) when it already exists.
+     * The update rewrites the price and the fetch time; a null
+     * buyback leaves the stored buyback alone, so an update from
+     * a source without buyback data never blanks one. Returns
+     * 1 inserted, 2 updated, 0 when the row already held the
+     * same values (or the write failed).
+     */
+    public static function upsert(
+        string $provider,
+        string $symbol,
+        float $sell,
+        ?float $buyback,
+        string $currency,
+        string $recordedDate,
+        int $fetchedAt
+    ): int {
+        $inserted = self::insertIgnore($provider, $symbol, $sell, $buyback, $currency, $recordedDate, $fetchedAt);
+
+        if ($inserted > 0) {
+            return 1;
+        }
+
+        global $wpdb;
+
+        $data = [
+            'sell_price' => $sell,
+            'currency' => $currency,
+            'fetched_at' => $fetchedAt,
+        ];
+        $format = ['%f', '%s', '%d'];
+
+        if ($buyback !== null) {
+            $data['buyback_price'] = $buyback;
+            $format[] = '%f';
+        }
+
+        $updated = $wpdb->update(
+            self::table(),
+            $data,
+            ['provider' => $provider, 'symbol' => $symbol, 'recorded_date' => $recordedDate],
+            $format,
+            ['%s', '%s', '%s']
+        );
+
+        return $updated > 0 ? 2 : 0;
+    }
+
+    /**
      * The newest recordedDate stored for one provider, or null when
      * the table is empty. The sync's coarse fast-path: a CSV whose
      * max date is older than this holds nothing new.
@@ -137,7 +186,7 @@ final class GoldPricesTable
      * All rows for one provider, newest first. Used by the admin
      * page (list + graph). Capped so a long history stays light.
      *
-     * @return array<int, array{symbol: string, sell_price: float, buyback_price: float|null, currency: string, recorded_date: string, fetched_at: int}>
+     * @return array<int, array{provider: string, symbol: string, sell_price: float, buyback_price: float|null, currency: string, recorded_date: string, fetched_at: int}>
      */
     public static function history(string $provider, int $limit = 200): array
     {
@@ -151,7 +200,7 @@ final class GoldPricesTable
 
         $rows = $wpdb->get_results(
             $wpdb->prepare(
-                "SELECT symbol, sell_price, buyback_price, currency, recorded_date, fetched_at
+                "SELECT provider, symbol, sell_price, buyback_price, currency, recorded_date, fetched_at
                  FROM {$table} WHERE provider = %s
                  ORDER BY recorded_date DESC, symbol ASC LIMIT %d",
                 $provider,
@@ -181,10 +230,18 @@ final class GoldPricesTable
      * is ignored when empty or when 'symbol' already filters to
      * one.
      *
+     * $official maps symbol => provider id (see
+     * Gold::officialProviders()). When given and no provider
+     * filter is set, each brand+date keeps one row: the official
+     * provider's row when one exists, else the Logam Mulia row,
+     * else the most recently fetched row. A provider filter
+     * always shows that provider's rows as stored.
+     *
      * @param array{symbol?: string, symbols?: array<int, string>, from?: string, to?: string} $filters
-     * @return array<int, array{symbol: string, sell_price: float, buyback_price: float|null, currency: string, recorded_date: string, fetched_at: int}>
+     * @param array<string, string> $official
+     * @return array<int, array{provider: string, symbol: string, sell_price: float, buyback_price: float|null, currency: string, recorded_date: string, fetched_at: int}>
      */
-    public static function historyFiltered(string $provider, array $filters, int $limit = 200, int $offset = 0): array
+    public static function historyFiltered(string $provider, array $filters, int $limit = 200, int $offset = 0, array $official = []): array
     {
         global $wpdb;
 
@@ -194,13 +251,19 @@ final class GoldPricesTable
             return [];
         }
 
+        if ($official !== [] && $provider === '') {
+            $rows = self::preferOfficial(self::historyRows($provider, $filters), $official);
+
+            return array_slice($rows, max(0, $offset), max(0, $limit));
+        }
+
         [$where, $params] = self::historyWhere($provider, $filters);
         $params[] = max(0, $limit);
         $params[] = max(0, $offset);
 
         $rows = $wpdb->get_results(
             $wpdb->prepare(
-                "SELECT symbol, sell_price, buyback_price, currency, recorded_date, fetched_at
+                "SELECT provider, symbol, sell_price, buyback_price, currency, recorded_date, fetched_at
                  FROM {$table} {$where}
                  ORDER BY recorded_date DESC, symbol ASC LIMIT %d OFFSET %d",
                 ...$params
@@ -216,16 +279,110 @@ final class GoldPricesTable
     }
 
     /**
+     * All rows matching a filter, newest first, with no paging:
+     * the input for the official-preference pass, which must see
+     * every candidate row for a brand+date before it can pick one.
+     *
+     * @param array{symbol?: string, symbols?: array<int, string>, from?: string, to?: string} $filters
+     * @return array<int, array{provider: string, symbol: string, sell_price: float, buyback_price: float|null, currency: string, recorded_date: string, fetched_at: int}>
+     */
+    private static function historyRows(string $provider, array $filters): array
+    {
+        global $wpdb;
+
+        $table = self::table();
+
+        [$where, $params] = self::historyWhere($provider, $filters);
+
+        $rows = $wpdb->get_results(
+            $wpdb->prepare(
+                "SELECT provider, symbol, sell_price, buyback_price, currency, recorded_date, fetched_at
+                 FROM {$table} {$where}
+                 ORDER BY recorded_date DESC, symbol ASC",
+                ...$params
+            ),
+            ARRAY_A
+        );
+
+        if (!is_array($rows)) {
+            return [];
+        }
+
+        return self::cleanRows($rows);
+    }
+
+    /**
+     * One row per brand+date, keeping the best-ranked row and the
+     * input order (recorded_date DESC, so the table order never
+     * shifts). Rank: the symbol's official provider, then the
+     * Logam Mulia fallback, then any other provider; ties go to
+     * the most recently fetched row.
+     *
+     * @param array<int, array{provider: string, symbol: string, sell_price: float, buyback_price: float|null, currency: string, recorded_date: string, fetched_at: int}> $rows
+     * @param array<string, string> $official
+     * @return array<int, array{provider: string, symbol: string, sell_price: float, buyback_price: float|null, currency: string, recorded_date: string, fetched_at: int}>
+     */
+    private static function preferOfficial(array $rows, array $official): array
+    {
+        $kept = [];
+        $at = [];
+        $rank = [];
+
+        foreach ($rows as $row) {
+            $key = $row['symbol'] . '|' . $row['recorded_date'];
+            $r = self::officialRank($row, $official);
+
+            if (!isset($at[$key])) {
+                $at[$key] = count($kept);
+                $kept[] = $row;
+                $rank[] = $r;
+                continue;
+            }
+
+            $i = $at[$key];
+
+            if ($r < $rank[$i] || ($r === $rank[$i] && $row['fetched_at'] > $kept[$i]['fetched_at'])) {
+                $kept[$i] = $row;
+                $rank[$i] = $r;
+            }
+        }
+
+        return $kept;
+    }
+
+    /**
+     * @param array{provider: string, symbol: string} $row
+     * @param array<string, string> $official
+     */
+    private static function officialRank(array $row, array $official): int
+    {
+        $provider = (string) ($row['provider'] ?? '');
+
+        if ($provider !== '' && ($official[$row['symbol']] ?? '') === $provider) {
+            return 0;
+        }
+
+        if ($provider === LogamMuliaApiProvider::PROVIDER_ID) {
+            return 1;
+        }
+
+        return 2;
+    }
+
+    /**
      * How many rows the same filter matches — the History tab's
      * page count. An empty $provider means "all providers".
      * Counts table rows, so a row cleanRows() would
      * drop (no symbol, no positive price) is still counted; the
      * sync only ever inserts valid rows, so the count matches
-     * what the table shows.
+     * what the table shows. With $official given (and no
+     * provider filter) it counts the preferred rows, so the
+     * page count matches the deduped table.
      *
      * @param array{symbol?: string, symbols?: array<int, string>, from?: string, to?: string} $filters
+     * @param array<string, string> $official
      */
-    public static function historyCount(string $provider, array $filters): int
+    public static function historyCount(string $provider, array $filters, array $official = []): int
     {
         global $wpdb;
 
@@ -233,6 +390,10 @@ final class GoldPricesTable
 
         if ($wpdb->get_var($wpdb->prepare('SHOW TABLES LIKE %s', $table)) !== $table) {
             return 0;
+        }
+
+        if ($official !== [] && $provider === '') {
+            return count(self::preferOfficial(self::historyRows($provider, $filters), $official));
         }
 
         [$where, $params] = self::historyWhere($provider, $filters);
@@ -342,7 +503,7 @@ final class GoldPricesTable
      * keyed by symbol. An empty array means the table does not exist
      * yet or holds no rows — never an error.
      *
-     * @return array<string, array{sell_price: float, buyback_price: float|null, currency: string, recorded_date: string|null, fetched_at: int}>
+     * @return array<string, array{provider: string, sell_price: float, buyback_price: float|null, currency: string, recorded_date: string|null, fetched_at: int}>
      */
     public static function lastGood(string $provider): array
     {
@@ -356,7 +517,7 @@ final class GoldPricesTable
 
         $rows = $wpdb->get_results(
             $wpdb->prepare(
-                "SELECT symbol, sell_price, buyback_price, currency, recorded_date, fetched_at
+                "SELECT provider, symbol, sell_price, buyback_price, currency, recorded_date, fetched_at
                  FROM {$table} WHERE provider = %s ORDER BY recorded_date DESC",
                 $provider
             ),
@@ -384,7 +545,7 @@ final class GoldPricesTable
      * symbol or no positive sell price.
      *
      * @param array<int, mixed> $rows
-     * @return array<int, array{symbol: string, sell_price: float, buyback_price: float|null, currency: string, recorded_date: string, fetched_at: int}>
+     * @return array<int, array{provider: string, symbol: string, sell_price: float, buyback_price: float|null, currency: string, recorded_date: string, fetched_at: int}>
      */
     private static function cleanRows(array $rows): array
     {
@@ -403,6 +564,7 @@ final class GoldPricesTable
             }
 
             $clean[] = [
+                'provider' => (string) ($row['provider'] ?? ''),
                 'symbol' => $symbol,
                 'sell_price' => $sell,
                 'buyback_price' => isset($row['buyback_price']) && $row['buyback_price'] !== null

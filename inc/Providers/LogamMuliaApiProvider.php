@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace KoperasiKita\Providers;
 
 use KoperasiKita\Api\Ajax;
+use KoperasiKita\Features\Gold;
 use KoperasiKita\Features\Markets;
 
 /**
@@ -389,14 +390,15 @@ final class LogamMuliaApiProvider extends AbstractLiveProvider
      * Manual sync calls syncSource() directly and bypasses the
      * backoff.
      *
-     * @return array{inserted: int, skipped: int, sources: array<string, array{source: string, inserted: int, skipped: int, latest_date: string|null, error: string|null, deferred: bool}>}
+     * @return array{inserted: int, skipped: int, sources: array<string, array{source: string, inserted: int, skipped: int, latest_date: string|null, error: string|null, deferred: bool}>, official: array{inserted: int, updated: int, skipped: int, brands: array<string, array{provider: string, outcome: string}>}}
      */
     public function syncAll(): array
     {
         $now = time();
         $total = ['inserted' => 0, 'skipped' => 0, 'sources' => []];
+        $enabled = self::enabledSyncSources();
 
-        foreach (self::enabledSyncSources() as $source) {
+        foreach ($enabled as $source) {
             if (!$this->isDue($source, $now)) {
                 // Deprioritised and its weekly retry is not due
                 // yet: skip it without touching the upstream.
@@ -418,6 +420,8 @@ final class LogamMuliaApiProvider extends AbstractLiveProvider
             $total['inserted'] += (int) $step['inserted'];
             $total['skipped'] += (int) $step['skipped'];
         }
+
+        $total['official'] = $enabled !== [] ? Gold::recordOfficialHistory() : ['inserted' => 0, 'updated' => 0, 'skipped' => 0, 'brands' => []];
 
         return $total;
     }
@@ -898,6 +902,7 @@ final class LogamMuliaApiProvider extends AbstractLiveProvider
                         'next' => null,
                         'total' => count($enabled),
                         'step' => count($enabled),
+                        'official' => Gold::recordOfficialHistory(),
                     ];
                 }
 
@@ -913,6 +918,10 @@ final class LogamMuliaApiProvider extends AbstractLiveProvider
             $stepIndex = array_search($source, $enabled, true);
             $step['total'] = count($enabled);
             $step['step'] = $stepIndex !== false ? (int) $stepIndex + 1 : 1;
+
+            if ($step['next'] === null) {
+                $step['official'] = Gold::recordOfficialHistory();
+            }
 
             return $step;
         }, false, 'manage_options');
