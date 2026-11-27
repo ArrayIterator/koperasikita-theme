@@ -10,6 +10,7 @@ use KoperasiKita\Features\DataDesk;
 use KoperasiKita\Features\Features;
 use KoperasiKita\Features\Gold;
 use KoperasiKita\Features\Markets;
+use KoperasiKita\Icons\Icon;
 use WP_Widget;
 
 /**
@@ -427,6 +428,8 @@ final class Blocks
                 'tags' => self::termOptions('post_tag'),
                 'dataDeskTemplates' => self::templateOptions(DataDesk::KIND_PANEL),
                 'dataDeskTableTemplates' => self::templateOptions(DataDesk::KIND_TABLE),
+                // The agenda block's icon picker lists every icon.
+                'icons' => self::optionList(array_combine(Icon::names(), Icon::names())),
                 // The locations field searches places through the
                 // theme's own AJAX endpoint (kk_weather_search).
                 'ajaxUrl' => admin_url('admin-ajax.php'),

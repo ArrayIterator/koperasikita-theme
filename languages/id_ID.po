@@ -803,12 +803,6 @@ msgstr "Koperasi Kita Data Desk Emas"
 msgid "Koperasi Kita Agenda"
 msgstr "Agenda Koperasi Kita"
 
-#: inc/Widgets/AgendaWidget.php
-#: inc/Widgets/Blocks.php
-#: src/ts/widget-blocks.ts
-msgid "Upcoming cooperative events as a dark card; live events get a green dot, finished events are dimmed."
-msgstr "Acara koperasi mendatang sebagai kartu gelap; acara yang sedang berlangsung ditandai titik hijau, acara yang sudah selesai diredupkan."
-
 #: template-parts/agenda/widget.php
 msgid "No agenda items yet."
 msgstr "Belum ada agenda."
@@ -4240,3 +4234,11 @@ msgstr "Hapus tautan"
 #: src/ts/admin.ts
 msgid "No results."
 msgstr "Tidak ada hasil."
+
+#: src/ts/widget-blocks.ts
+msgid "Post not found."
+msgstr "Postingan tidak ditemukan."
+
+#: src/ts/widget-blocks.ts
+msgid "selected."
+msgstr "dipilih."

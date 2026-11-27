@@ -33,7 +33,8 @@ type FieldDef =
 	| { key: string; kind: 'multiselect'; label: string; help?: string; options: OptionItem[] }
 	| { key: string; kind: 'categories'; label: string; help?: string }
 	| { key: string; kind: 'tags'; label: string; help?: string }
-	| { key: string; kind: 'locations'; label: string; help?: string };
+	| { key: string; kind: 'locations'; label: string; help?: string }
+	| { key: string; kind: 'postsearch'; label: string; help?: string };
 
 interface BlockDef {
 	slug: string;
@@ -50,6 +51,12 @@ interface CategoryRecord {
 	count: number;
 }
 
+interface PostTypeRecord {
+	title?: {
+		rendered?: string;
+	};
+}
+
 interface WpDataSelect {
 	(store: string): {
 		getEntityRecords: (
@@ -57,6 +64,11 @@ interface WpDataSelect {
 			name: string,
 			query?: Record<string, unknown>,
 		) => CategoryRecord[] | null;
+		getEntityRecord: (
+			kind: string,
+			name: string,
+			key: number,
+		) => PostTypeRecord | null | undefined;
 	};
 }
 
@@ -128,6 +140,7 @@ declare const kkWidgetBlocks:
 			tags?: OptionItem[];
 			dataDeskTemplates?: OptionItem[];
 			dataDeskTableTemplates?: OptionItem[];
+			icons?: OptionItem[];
 			ajaxUrl?: string;
 			nonce?: string;
 	  }
@@ -290,6 +303,184 @@ function LocationsField(props: {
 		searching ? api.element.createElement(api.components.Spinner, null) : null,
 		resultButtons.length > 0
 			? api.element.createElement('ul', { className: 'kk-locations-results' }, ...resultButtons)
+			: null,
+		status !== ''
+			? api.element.createElement('p', { className: 'components-base-control__help' }, status)
+			: null,
+	);
+}
+
+interface LinkSearchResult {
+	id: number;
+	title: string;
+	type: string;
+	url: string;
+}
+
+function isLinkSearchResult(item: unknown): item is LinkSearchResult {
+	return (
+		typeof item === 'object' &&
+		item !== null &&
+		typeof (item as LinkSearchResult).id === 'number' &&
+		typeof (item as LinkSearchResult).title === 'string' &&
+		typeof (item as LinkSearchResult).type === 'string'
+	);
+}
+
+/* Decode a title.rendered string (HTML entities, no tags) to plain
+ * text for display. A textarea decodes entities without ever
+ * parsing the string as markup. */
+function decodeTitle(html: string): string {
+	const el = document.createElement('textarea');
+	el.innerHTML = html;
+	return el.value;
+}
+
+/* The agenda "Link to" field: the chosen post or page (its resolved
+ * title with a "Remove link" button) plus a search box that finds
+ * published posts and pages by title through the theme's own
+ * kk_agenda_link_search endpoint — the same search the widget form
+ * uses. A real component (not a renderField branch) so it can hold
+ * the search state and resolve the stored id to a title. */
+function PostSearchField(props: {
+	field: { key: string; label: string; help?: string };
+	value: unknown;
+	set: (key: string, value: unknown) => void;
+	api: Wp;
+}): unknown {
+	const { field, value, set, api } = props;
+	const __ = (text: string): string => api.i18n.__(text, 'koperasikita');
+	const id = typeof value === 'number' ? value : 0;
+	/* Post ids and page ids never collide (one wp_posts table), so
+	 * both lookups can run in parallel; at most one resolves. */
+	const postRecord = api.data.useSelect(
+		(select) => (id > 0 ? select('core').getEntityRecord('postType', 'post', id) : null),
+		[id],
+	);
+	const pageRecord = api.data.useSelect(
+		(select) => (id > 0 ? select('core').getEntityRecord('postType', 'page', id) : null),
+		[id],
+	);
+	const [query, setQuery] = api.element.useState('');
+	const [results, setResults] = api.element.useState<LinkSearchResult[]>([]);
+	const [searching, setSearching] = api.element.useState(false);
+	const [status, setStatus] = api.element.useState('');
+	const timer = api.element.useRef<number | null>(null);
+
+	const search = (nextQuery: string): void => {
+		if (timer.current !== null) {
+			window.clearTimeout(timer.current);
+			timer.current = null;
+		}
+		if (nextQuery.trim().length < 2) {
+			setResults([]);
+			setStatus('');
+			return;
+		}
+		setStatus(__('Searching…'));
+		timer.current = window.setTimeout(() => {
+			const ajaxUrl = kkWidgetBlocks?.ajaxUrl ?? '';
+			const nonce = kkWidgetBlocks?.nonce ?? '';
+			if (ajaxUrl === '' || nonce === '') {
+				setSearching(false);
+				setStatus(__('Search is unavailable right now.'));
+				return;
+			}
+			setSearching(true);
+			const body = new URLSearchParams({
+				action: 'kk_agenda_link_search',
+				nonce,
+				query: nextQuery.trim(),
+			});
+			void fetch(ajaxUrl, { method: 'POST', credentials: 'same-origin', body })
+				.then((response) => response.json() as Promise<unknown>)
+				.then((json) => {
+					setSearching(false);
+					const data = json as {
+						success?: boolean;
+						data?: { results?: unknown };
+					};
+					const raw = Array.isArray(data.data?.results) ? data.data.results : [];
+					const found = raw.filter(isLinkSearchResult);
+					setResults(found);
+					setStatus(found.length === 0 ? __('No results.') : '');
+				})
+				.catch(() => {
+					setSearching(false);
+					setStatus(__('Search is unavailable right now.'));
+				});
+		}, 300);
+	};
+
+	const pick = (result: LinkSearchResult): void => {
+		set(field.key, result.id);
+		setResults([]);
+		setQuery('');
+		setStatus(`${result.title} ${__('selected.')}`);
+	};
+
+	const renderedTitle =
+		postRecord?.title?.rendered ?? pageRecord?.title?.rendered ?? '';
+	const title = renderedTitle !== '' ? decodeTitle(renderedTitle) : '';
+	const resolving =
+		id > 0 && title === '' && (postRecord === undefined || pageRecord === undefined);
+	const missing = id > 0 && postRecord === null && pageRecord === null;
+
+	const resultButtons = results.map((result) =>
+		api.element.createElement(
+			'li',
+			{ key: `${result.type}-${result.id}` },
+			api.element.createElement(
+				'button',
+				{
+					type: 'button',
+					className: 'kk-postsearch-result',
+					onClick: () => pick(result),
+				},
+				`${result.title} (${result.type})`,
+			),
+		),
+	);
+
+	return api.element.createElement(
+		'div',
+		{ key: field.key, className: 'kk-postsearch-field' },
+		api.element.createElement('p', { className: 'kk-postsearch-label' }, field.label),
+		id > 0
+			? api.element.createElement(
+					'div',
+					{ className: 'kk-postsearch-chosen' },
+					api.element.createElement(
+						'span',
+						{ className: 'kk-postsearch-name' },
+						resolving ? __('Loading…') : missing ? __('Post not found.') : title,
+					),
+					api.element.createElement(
+						'button',
+						{
+							type: 'button',
+							className: 'kk-postsearch-remove',
+							onClick: () => {
+								set(field.key, 0);
+								setStatus('');
+							},
+						},
+						__('Remove link'),
+					),
+				)
+			: null,
+		api.element.createElement(api.components.TextControl, {
+			label: __('Search posts and pages by title…'),
+			help: field.help ?? '',
+			value: query,
+			onChange: (next: string) => {
+				setQuery(next);
+				search(next);
+			},
+		}),
+		searching ? api.element.createElement(api.components.Spinner, null) : null,
+		resultButtons.length > 0
+			? api.element.createElement('ul', { className: 'kk-postsearch-results' }, ...resultButtons)
 			: null,
 		status !== ''
 			? api.element.createElement('p', { className: 'components-base-control__help' }, status)
@@ -467,6 +658,12 @@ function renderField(
 			 * buttons, plus a geocoding search to add more. A real
 			 * component — it holds the search state. */
 			return api.element.createElement(LocationsField, { key, field, value, set, api });
+		}
+		case 'postsearch': {
+			/* The agenda "Link to" search: the chosen post or page
+			 * plus a title search. A real component — it holds the
+			 * search state and resolves the stored id to a title. */
+			return api.element.createElement(PostSearchField, { key, field, value, set, api });
 		}
 	}
 }
@@ -950,12 +1147,16 @@ function buildDefinitions(api: Wp): BlockDef[] {
 		{
 			slug: 'agenda',
 			title: __('KK Agenda'),
-			description: __('Upcoming cooperative events as a dark card; live events get a green dot, finished events are dimmed.'),
+			description: __('Upcoming cooperative events as a card that follows the site colour scheme; live events get a green dot, finished events are dimmed.'),
 			icon: 'calendar',
 			attributes: {
 				title: { type: 'string', default: __('Agenda Koperasi') },
 				count: { type: 'number', default: 5 },
 				showPast: { type: 'boolean', default: true },
+				showIcon: { type: 'boolean', default: true },
+				icon: { type: 'string', default: 'users' },
+				style: { type: 'string', default: 'auto' },
+				linkTo: { type: 'number', default: 0 },
 			},
 			fields: [
 				{ key: 'title', kind: 'text', label: __('Title') },
@@ -964,6 +1165,29 @@ function buildDefinitions(api: Wp): BlockDef[] {
 					key: 'showPast',
 					kind: 'toggle',
 					label: __('Show past events'),
+				},
+				{ key: 'showIcon', kind: 'toggle', label: __('Show icon') },
+				{
+					key: 'icon',
+					kind: 'select',
+					label: __('Icon'),
+					options: kkWidgetBlocks?.icons ?? [],
+				},
+				{
+					key: 'style',
+					kind: 'select',
+					label: __('Card style'),
+					options: [
+						{ value: 'auto', label: __('Follow site theme') },
+						{ value: 'dark', label: __('Dark card') },
+						{ value: 'light', label: __('Light card') },
+					],
+				},
+				{
+					key: 'linkTo',
+					kind: 'postsearch',
+					label: __('Link to'),
+					help: __('The card title links to this post or page.'),
 				},
 			],
 		},
