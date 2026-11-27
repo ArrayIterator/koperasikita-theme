@@ -908,9 +908,8 @@ function initDataDeskAjaxSave(): void {
 }
 
 /**
- * Layout preview in the classic Data Desk / Gold Data Desk widget
- * forms (widgets.php, Customizer). Each form renders its preview
- * server-side; changing the template select re-renders it through
+ * Layout preview in the classic Data Desk widget form (widgets.php,
+ * Customizer). Each form renders its preview server-side; changing the template select re-renders it through
  * kk_data_desk_preview by template id. Widget forms re-render after
  * a save, so new boxes are picked up by a MutationObserver, the
  * same pattern initTermPickers uses. A failed refresh keeps the last
