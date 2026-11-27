@@ -527,7 +527,15 @@ function initDataDeskPreview(): void {
 	const placeholderDateFormat = document.getElementById('kk-template-placeholder-date-format') as HTMLInputElement | null;
 	const placeholderPercent = document.getElementById('kk-template-placeholder-percent') as HTMLInputElement | null;
 	const placeholderZoneColor = document.getElementById('kk-template-placeholder-zone-color') as HTMLInputElement | null;
-	if (!kind || !symbol || !days || !brands || !palette || !title || !kicker || !dateLine || !hiddenBlocks || !placeholderDateFormat || !placeholderPercent || !placeholderZoneColor) {
+	const tableStyle = document.getElementById('kk-template-table-style') as HTMLSelectElement | null;
+	const titleDisplay = document.getElementById('kk-template-title-display') as HTMLSelectElement | null;
+	const fontSize = document.getElementById('kk-template-font-size') as HTMLInputElement | null;
+	const cellPadding = document.getElementById('kk-template-cell-padding') as HTMLInputElement | null;
+	const chartAnimate = document.getElementById('kk-template-chart-animate') as HTMLInputElement | null;
+	const headerBg = document.getElementById('kk-template-header-bg') as HTMLInputElement | null;
+	const headerText = document.getElementById('kk-template-header-text') as HTMLInputElement | null;
+	const chartColorInputs = Array.from(document.querySelectorAll<HTMLInputElement>('input[data-kk-chart-color]'));
+	if (!kind || !symbol || !days || !brands || !palette || !title || !kicker || !dateLine || !hiddenBlocks || !placeholderDateFormat || !placeholderPercent || !placeholderZoneColor || !tableStyle || !titleDisplay || !fontSize || !cellPadding || !chartAnimate || !headerBg || !headerText) {
 		return;
 	}
 	/* Per-block stat texts, one hidden input per label + sub-line.
@@ -622,7 +630,20 @@ function initDataDeskPreview(): void {
 				placeholder_date_format: placeholderDateFormat.value,
 				placeholder_percent: placeholderPercent.value,
 				placeholder_zone_color: placeholderZoneColor.value,
+				table_style: tableStyle.value,
+				title_display: titleDisplay.value,
+				font_size: fontSize.value,
+				cell_padding: cellPadding.value,
+				chart_animate: chartAnimate.checked ? '1' : '0',
+				header_bg: headerBg.value,
+				header_text: headerText.value,
 			};
+			for (const input of chartColorInputs) {
+				const slug = input.getAttribute('data-kk-chart-color');
+				if (slug) {
+					params[`chart_color_${slug}`] = input.value;
+				}
+			}
 			for (const [key, input] of Object.entries(statInputs)) {
 				params[`stat_${key.replace('-', '_')}`] = input.value;
 			}
@@ -1924,10 +1945,26 @@ function initDataDeskPreview(): void {
 			}
 		});
 	}
-	[days, title, kicker].forEach((el) => {
+	[days, title, kicker, fontSize, cellPadding, headerBg, headerText].forEach((el) => {
 		el.addEventListener('input', () => {
 			refresh();
 		});
+	});
+	[tableStyle, titleDisplay, chartAnimate, ...chartColorInputs].forEach((el) => {
+		el.addEventListener('change', () => {
+			refresh();
+		});
+	});
+	/* Reset the chart line colours to the palette defaults, then
+	 * refresh the preview so the lines repaint at once. */
+	document.querySelector('[data-kk-chart-colors-reset]')?.addEventListener('click', () => {
+		for (const input of chartColorInputs) {
+			const fallback = input.getAttribute('data-kk-chart-color-default');
+			if (fallback) {
+				input.value = fallback;
+			}
+		}
+		refresh();
 	});
 	brands.addEventListener('change', () => {
 		refresh();

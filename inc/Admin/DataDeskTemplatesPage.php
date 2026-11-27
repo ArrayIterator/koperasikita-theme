@@ -360,7 +360,7 @@ final class DataDeskTemplatesPage
                         <td><?php echo esc_html($kinds[$template['kind']] ?? $template['kind']); ?></td>
                         <td><?php echo esc_html($shows); ?></td>
                         <td><?php echo esc_html(DataDesk::paletteLabel($template['palette'])); ?></td>
-                        <td><?php echo $template['kind'] === DataDesk::KIND_PANEL ? esc_html((string) $template['days']) : '&mdash;'; ?></td>
+                        <td><?php echo ($template['kind'] === DataDesk::KIND_PANEL || ($template['kind'] === DataDesk::KIND_TABLE && ($template['table_style'] ?? '') === 'chart')) ? esc_html((string) $template['days']) : '&mdash;'; ?></td>
                         <td>
                             <?php if (DataDesk::isBuiltIn($id)) : ?>
                                 <a href="<?php echo esc_url(wp_nonce_url(add_query_arg('kk_data_desk_duplicate', $id, $pageUrl), 'kk_data_desk_duplicate')); ?>"><?php esc_html_e('Use', 'koperasikita'); ?></a>
@@ -414,9 +414,11 @@ final class DataDeskTemplatesPage
      * (name, kind, symbol/days or brands, palette) with Save at the
      * right; below it the live preview IS the editor - kicker and
      * title are edited inline in the preview itself. Kind switches
-     * which top-bar fields apply: panel shows Symbol + Days, table
-     * shows Brands. The toggle is a tiny inline script so it runs
-     * before the admin bundle loads (no flash of the wrong fields).
+     * which top-bar fields apply: panel shows Symbol, table shows
+     * Brands; Days applies to both (it is the panel's chart window
+     * and the table chart's window). The toggle is a tiny inline
+     * script so it runs before the admin bundle loads (no flash of
+     * the wrong fields).
      */
     private static function renderForm(string $id, string $pageUrl): void
     {
@@ -441,6 +443,14 @@ final class DataDeskTemplatesPage
                 'headers' => [],
                 'hidden_blocks' => [],
                 'placeholders' => DataDesk::sanitizePlaceholders([]),
+                'table_style' => DataDesk::DEFAULT_TABLE_STYLE,
+                'title_display' => DataDesk::DEFAULT_TITLE_DISPLAY,
+                'font_size' => DataDesk::DEFAULT_FONT_SIZE,
+                'cell_padding' => DataDesk::DEFAULT_CELL_PADDING,
+                'chart_animate' => true,
+                'chart_colors' => [],
+                'header_bg' => '',
+                'header_text' => '',
             ];
         }
 
@@ -448,6 +458,17 @@ final class DataDeskTemplatesPage
         // here: the hidden fields, the placeholders section and the
         // settings popup below all read these values.
         $placeholders = DataDesk::sanitizePlaceholders($template['placeholders'] ?? []);
+
+        // Table display settings for this template, sanitised
+        // once here: the table-settings card below reads these
+        // values, and the save flow reads the same fields.
+        $tableStyle = DataDesk::sanitizeTableStyle($template['table_style'] ?? DataDesk::DEFAULT_TABLE_STYLE);
+        $titleDisplay = DataDesk::sanitizeTitleDisplay($template['title_display'] ?? DataDesk::DEFAULT_TITLE_DISPLAY);
+        $fontSize = DataDesk::sanitizeFontSize($template['font_size'] ?? DataDesk::DEFAULT_FONT_SIZE);
+        $cellPadding = DataDesk::sanitizeCellPadding($template['cell_padding'] ?? DataDesk::DEFAULT_CELL_PADDING);
+        $chartAnimate = !isset($template['chart_animate']) || (bool) $template['chart_animate'];
+        $headerBg = DataDesk::sanitizeHexColor($template['header_bg'] ?? '');
+        $headerText = DataDesk::sanitizeHexColor($template['header_text'] ?? '');
 
         // Palette segments in the top bar, in the user's order:
         // Green is the dark-green palette, Auto follows the site
@@ -538,7 +559,7 @@ final class DataDeskTemplatesPage
                         <?php endforeach; ?>
                     </select>
                 </div>
-                <div class="kk-data-desk-topbar-field kk-data-desk-topbar-field--days" data-kk-template-panel-control>
+                <div class="kk-data-desk-topbar-field kk-data-desk-topbar-field--days">
                     <label for="kk-template-days"><?php esc_html_e('Days', 'koperasikita'); ?></label>
                     <input type="number" id="kk-template-days" name="kk_template_days" value="<?php echo esc_attr((string) $template['days']); ?>" min="3" max="30" step="1">
                 </div>
@@ -582,6 +603,72 @@ final class DataDeskTemplatesPage
                     <a href="<?php echo esc_url($pageUrl); ?>" class="kk-data-desk-button"><?php esc_html_e('Cancel', 'koperasikita'); ?></a>
                 </div>
             </div>
+            <?php /* Table display settings: style, title placement,
+             * type size, cell padding, chart animation and colours.
+             * Table-only (the toggle script below hides it for
+             * panels); the values ride along in the same form, so
+             * the native save and the AJAX save both read them, and
+             * admin.ts sends them with every preview refresh. */ ?>
+            <div class="kk-data-desk-table-settings" data-kk-template-table-control>
+                <div class="kk-data-desk-table-settings-field">
+                    <label for="kk-template-table-style"><?php esc_html_e('Table style', 'koperasikita'); ?></label>
+                    <select id="kk-template-table-style" name="kk_template_table_style">
+                        <?php foreach (DataDesk::tableStyles() as $value => $label) : ?>
+                            <option value="<?php echo esc_attr($value); ?>" <?php selected($tableStyle, $value); ?>><?php echo esc_html($label); ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+                <div class="kk-data-desk-table-settings-field">
+                    <label for="kk-template-title-display"><?php esc_html_e('Title display', 'koperasikita'); ?></label>
+                    <select id="kk-template-title-display" name="kk_template_title_display">
+                        <?php foreach (DataDesk::titleDisplays() as $value => $label) : ?>
+                            <option value="<?php echo esc_attr($value); ?>" <?php selected($titleDisplay, $value); ?>><?php echo esc_html($label); ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+                <div class="kk-data-desk-table-settings-field kk-data-desk-table-settings-field--number">
+                    <label for="kk-template-font-size"><?php esc_html_e('Font size (px)', 'koperasikita'); ?></label>
+                    <input type="number" id="kk-template-font-size" name="kk_template_font_size" value="<?php echo esc_attr((string) $fontSize); ?>" min="12" max="18" step="1">
+                </div>
+                <div class="kk-data-desk-table-settings-field kk-data-desk-table-settings-field--number">
+                    <label for="kk-template-cell-padding"><?php esc_html_e('Cell padding (px)', 'koperasikita'); ?></label>
+                    <input type="number" id="kk-template-cell-padding" name="kk_template_cell_padding" value="<?php echo esc_attr((string) $cellPadding); ?>" min="4" max="16" step="1">
+                </div>
+                <div class="kk-data-desk-table-settings-field kk-data-desk-table-settings-field--check">
+                    <label for="kk-template-chart-animate"><?php esc_html_e('Animate chart', 'koperasikita'); ?></label>
+                    <input type="checkbox" id="kk-template-chart-animate" name="kk_template_chart_animate" value="1" <?php checked($chartAnimate); ?>>
+                    <span class="description"><?php esc_html_e('Draw the chart lines on load. Always off when reduced motion is on.', 'koperasikita'); ?></span>
+                </div>
+                <div class="kk-data-desk-table-settings-field kk-data-desk-table-settings-field--colors">
+                    <span class="kk-data-desk-topbar-label"><?php esc_html_e('Chart line colours', 'koperasikita'); ?></span>
+                    <?php foreach (Gold::enabledBrands() as $slug) : ?>
+                        <label class="kk-data-desk-chart-color">
+                            <input
+                                type="color"
+                                id="kk-template-chart-color-<?php echo esc_attr($slug); ?>"
+                                name="kk_template_chart_color_<?php echo esc_attr($slug); ?>"
+                                value="<?php echo esc_attr(DataDesk::chartColorFor($slug, $template)); ?>"
+                                data-kk-chart-color="<?php echo esc_attr($slug); ?>"
+                                data-kk-chart-color-default="<?php echo esc_attr(DataDesk::chartColorFor($slug, ['chart_colors' => []])); ?>"
+                            >
+                            <?php echo esc_html(Gold::brands()[$slug] ?? $slug); ?>
+                        </label>
+                    <?php endforeach; ?>
+                    <button type="button" class="kk-data-desk-button" data-kk-chart-colors-reset><?php esc_html_e('Reset colours', 'koperasikita'); ?></button>
+                </div>
+                <div class="kk-data-desk-table-settings-field kk-data-desk-table-settings-field--colors">
+                    <span class="kk-data-desk-topbar-label"><?php esc_html_e('Header colours', 'koperasikita'); ?></span>
+                    <label class="kk-data-desk-chart-color">
+                        <span><?php esc_html_e('Background', 'koperasikita'); ?></span>
+                        <input type="text" id="kk-template-header-bg" name="kk_template_header_bg" value="<?php echo esc_attr($headerBg); ?>" placeholder="<?php esc_attr_e('Palette default', 'koperasikita'); ?>" size="8" maxlength="7">
+                    </label>
+                    <label class="kk-data-desk-chart-color">
+                        <span><?php esc_html_e('Text', 'koperasikita'); ?></span>
+                        <input type="text" id="kk-template-header-text" name="kk_template_header_text" value="<?php echo esc_attr($headerText); ?>" placeholder="<?php esc_attr_e('Palette default', 'koperasikita'); ?>" size="8" maxlength="7">
+                    </label>
+                    <span class="description"><?php esc_html_e('Hex colour, e.g. #0B3D24. Empty uses the palette colours.', 'koperasikita'); ?></span>
+                </div>
+            </div>
             <?php /* The live preview IS the editor: the real panel /
              * table markup with sample data, re-rendered by admin.ts
              * (kk_data_desk_preview) whenever a top-bar field
@@ -596,7 +683,7 @@ final class DataDeskTemplatesPage
                 <?php esc_html_e("Click the title or 'Data Desk' in the preview to edit them. In the title you can use {label} for the symbol name and {day} for the number of days. Click the date line under the title to edit it in a popup. Click a stat block to edit it in a popup, or the eye button on a stat to hide it or show it again.", 'koperasikita'); ?>
             </p>
             <p class="description kk-data-desk-editor-hint" data-kk-template-table-hint>
-                <?php esc_html_e('Edit the title in the top bar above. Click a column header in the preview to edit it.', 'koperasikita'); ?>
+                <?php esc_html_e('Edit the title in the top bar above. In the title you can use {label} for the first brand and {day} for the number of days. Click a column header in the preview to edit it.', 'koperasikita'); ?>
             </p>
             <div id="kk-data-desk-live-preview" data-kk-data-desk-preview>
                 <?php

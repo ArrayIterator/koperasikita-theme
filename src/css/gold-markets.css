@@ -780,6 +780,193 @@ html[data-color-scheme="dark"] .kk-gold-data-desk--auto .kk-data-desk-table thea
 	color: #f2f2f0;
 }
 
+/* Table display settings, per template. The wrapper carries the
+ * type size and cell padding as custom properties (defaults here
+ * are the shipped 14px / 8px; the template only writes them when
+ * the user changed them), and the thead overrides the same way.
+ * A template without these settings renders exactly as before. */
+.kk-data-desk-table {
+	font-size: var(--dd-table-font-size, 14px);
+}
+
+.kk-data-desk-table th,
+.kk-data-desk-table td {
+	padding: var(--dd-table-cell-padding, 8px) 10px;
+}
+
+/* Table title above the table, and the inline caption bar (title
+ * left, latest update right) that sits inside the wrapper. */
+.kk-data-desk-table-title {
+	margin: 0 0 12px;
+	font-size: 16px;
+	font-weight: 700;
+	line-height: 1.4;
+	color: var(--kk-ink);
+}
+
+.kk-data-desk-table-caption {
+	display: flex;
+	align-items: baseline;
+	justify-content: space-between;
+	gap: 8px 16px;
+	padding: 10px 12px;
+	border-bottom: 1px solid var(--kk-border);
+}
+
+.kk-data-desk-table-caption-title {
+	font-size: 15px;
+	font-weight: 700;
+	color: var(--kk-ink);
+}
+
+.kk-data-desk-table-caption-meta {
+	font-size: 12px;
+	color: var(--kk-muted);
+	white-space: nowrap;
+}
+
+/* Striped tables: every second body row takes the surface tint. */
+.kk-data-desk-table--striped tbody tr:nth-child(even) th,
+.kk-data-desk-table--striped tbody tr:nth-child(even) td {
+	background: var(--kk-surface-muted);
+}
+
+/* Cards tables: the thead loses its band and each body row is a
+ * separated card (own borders, rounded ends, surface fill). The
+ * table switches to separated borders with a vertical gap between
+ * rows; the wrapper's horizontal scroll stays for narrow screens. */
+.kk-data-desk-table--cards {
+	border-collapse: separate;
+	border-spacing: 0 8px;
+}
+
+.kk-data-desk-table--cards thead th {
+	border-bottom: 0;
+	background: transparent;
+	color: var(--kk-muted);
+}
+
+.kk-gold-data-desk--dark-green .kk-data-desk-table--cards thead th,
+.kk-gold-data-desk--dark .kk-data-desk-table--cards thead th {
+	background: transparent;
+}
+
+html[data-color-scheme="dark"] .kk-gold-data-desk--auto .kk-data-desk-table--cards thead th,
+[data-color-scheme="dark"] .kk-gold-data-desk--auto .kk-data-desk-table--cards thead th {
+	background: transparent;
+}
+
+.kk-data-desk-table--cards tbody th,
+.kk-data-desk-table--cards tbody td {
+	border-top: 1px solid var(--kk-border);
+	border-bottom: 1px solid var(--kk-border);
+	background: var(--kk-paper);
+}
+
+.kk-data-desk-table--cards tbody th:first-child {
+	border-left: 1px solid var(--kk-border);
+	border-top-left-radius: var(--kk-radius, 3px);
+	border-bottom-left-radius: var(--kk-radius, 3px);
+}
+
+.kk-data-desk-table--cards tbody td:last-child {
+	border-right: 1px solid var(--kk-border);
+	border-top-right-radius: var(--kk-radius, 3px);
+	border-bottom-right-radius: var(--kk-radius, 3px);
+}
+
+/* Custom thead colours beat the palette band AND the cards
+ * style's transparent thead (specificity + position: this rule
+ * sits after both, so an explicit user colour always wins). */
+.kk-gold-data-desk.has-custom-head .kk-data-desk-table thead th {
+	background: var(--dd-thead-bg, #0B3D24);
+	color: var(--dd-thead-text, #fff);
+}
+
+/* Multiline chart: one SVG line per brand, shared axes, legend
+ * below. The chart sits above the table; the table itself keeps
+ * its shipped look in this style. */
+.kk-data-desk-table--chart .kk-data-desk-multi-chart {
+	margin-bottom: 16px;
+}
+
+.kk-data-desk-multi-chart svg {
+	display: block;
+	width: 100%;
+	height: auto;
+}
+
+.kk-multi-line {
+	stroke-width: 2.5;
+}
+
+.kk-multi-dot {
+	stroke: var(--kk-paper);
+	stroke-width: 1.5;
+}
+
+.kk-data-desk-axis--grid {
+	stroke-dasharray: 3 4;
+	opacity: 0.6;
+}
+
+/* Legend: one swatch + brand name per plotted line, wrapping. */
+.kk-multi-legend {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 6px 16px;
+	margin: 12px 0 0;
+	padding: 0;
+	list-style: none;
+	font-size: 13px;
+	color: var(--kk-ink);
+}
+
+.kk-multi-legend li {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	white-space: nowrap;
+}
+
+.kk-multi-swatch {
+	flex: none;
+	width: 12px;
+	height: 12px;
+	border-radius: 2px;
+}
+
+/* Chart draw-on animation: the polyline's pathLength is 1, so a
+ * dash of 1 draws the whole line as the offset runs to 0. Each
+ * line staggers by its inline animation-delay. Off means static
+ * lines; reduced motion always means static lines. */
+.kk-multi-chart--animate .kk-multi-line {
+	stroke-dasharray: 1;
+	stroke-dashoffset: 1;
+	animation: kk-multi-draw 1.1s ease-out forwards;
+}
+
+@keyframes kk-multi-draw {
+	to {
+		stroke-dashoffset: 0;
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.kk-multi-chart--animate .kk-multi-line {
+		animation: none;
+		stroke-dashoffset: 0;
+	}
+}
+
+/* The chart's empty state reuses the panel's placeholder text. */
+.kk-gold-data-desk .kk-data-desk-placeholder {
+	margin: 12px 0 0;
+	font-size: 14px;
+	text-align: center;
+	color: var(--kk-muted);
+}
+
 /* Data Desk panel */
 
 /* One panel, four palettes: the palette sets a handful of custom

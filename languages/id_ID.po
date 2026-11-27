@@ -4883,3 +4883,78 @@ msgstr "Pengaturan disimpan."
 #: inc/Admin/MarketHeaderPage.php
 msgid "Remove this item from the strip?"
 msgstr "Hapus item ini dari strip?"
+#: inc/Features/DataDesk.php
+msgid "Flat"
+msgstr "Rata"
+
+#: inc/Features/DataDesk.php
+msgid "Striped"
+msgstr "Garis-garis"
+
+#: inc/Features/DataDesk.php
+msgid "Chart"
+msgstr "Grafik"
+
+#: inc/Features/DataDesk.php
+msgid "Above the table"
+msgstr "Di atas tabel"
+
+#: inc/Features/DataDesk.php
+msgid "Inline with the table"
+msgstr "Sejajar dengan tabel"
+
+#: template-parts/gold/data-desk.php
+msgid "No price history yet."
+msgstr "Riwayat harga belum tersedia."
+
+#: template-parts/gold/data-desk.php
+msgid "Gold price history"
+msgstr "Riwayat harga emas"
+
+#: inc/Admin/DataDeskTemplatesPage.php
+msgid "Table style"
+msgstr "Gaya tabel"
+
+#: inc/Admin/DataDeskTemplatesPage.php
+msgid "Title display"
+msgstr "Tampilan judul"
+
+#: inc/Admin/DataDeskTemplatesPage.php
+msgid "Font size (px)"
+msgstr "Ukuran font (px)"
+
+#: inc/Admin/DataDeskTemplatesPage.php
+msgid "Cell padding (px)"
+msgstr "Padding sel (px)"
+
+#: inc/Admin/DataDeskTemplatesPage.php
+msgid "Animate chart"
+msgstr "Animasikan grafik"
+
+#: inc/Admin/DataDeskTemplatesPage.php
+msgid "Draw the chart lines on load. Always off when reduced motion is on."
+msgstr "Gambar garis grafik saat dimuat. Selalu mati bila reduced motion aktif."
+
+#: inc/Admin/DataDeskTemplatesPage.php
+msgid "Chart line colours"
+msgstr "Warna garis grafik"
+
+#: inc/Admin/DataDeskTemplatesPage.php
+msgid "Reset colours"
+msgstr "Reset warna"
+
+#: inc/Admin/DataDeskTemplatesPage.php
+msgid "Header colours"
+msgstr "Warna header"
+
+#: inc/Admin/DataDeskTemplatesPage.php
+msgid "Palette default"
+msgstr "Default palet"
+
+#: inc/Admin/DataDeskTemplatesPage.php
+msgid "Hex colour, e.g. #0B3D24. Empty uses the palette colours."
+msgstr "Warna hex, mis. #0B3D24. Kosong memakai warna palet."
+
+#: inc/Admin/DataDeskTemplatesPage.php
+msgid "Edit the title in the top bar above. In the title you can use {label} for the first brand and {day} for the number of days. Click a column header in the preview to edit it."
+msgstr "Edit judul di bilah atas. Di judul Anda dapat memakai {label} untuk merek pertama dan {day} untuk jumlah hari. Klik header kolom di pratinjau untuk mengeditnya."
