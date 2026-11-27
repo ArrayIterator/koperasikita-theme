@@ -374,14 +374,18 @@ function resolveAdminScheme(): 'light' | 'dark' {
 /**
  * Live Data Desk preview on the Data Desk Templates form.
  *
- * The preview box under the form shows the real panel / table markup
- * with sample data (the server renders the first one). Every field
- * change — kind, symbol, days, brands, palette, title, kicker —
- * re-renders it through kk_data_desk_preview, debounced so typing
- * does not fire a request per keystroke. The brands picker is a chip
- * UI over the hidden select and never fires `change` on it, so
- * clicks in its wrapper refresh too. A failed refresh keeps the
- * last good preview and reports the error under the box.
+ * The form is a top bar (name, kind, symbol/days or brands,
+ * palette, Save) over the live preview — and the preview IS the
+ * editor: the kicker and title are edited inline there. The preview
+ * shows the real panel / table markup with sample data (the server
+ * renders the first one). Every field change — kind, symbol, days,
+ * brands, palette, title, kicker — re-renders it through
+ * kk_data_desk_preview, debounced so typing does not fire a request
+ * per keystroke. The brands picker is a chip UI over the hidden
+ * select and never fires `change` on it, so clicks in its wrapper
+ * refresh too. The palette is a segmented control of radios synced
+ * into the hidden #kk-template-palette input. A failed refresh keeps
+ * the last good preview and reports the error under the box.
  *
  * The preview kicker and title are edited inline: neither has a
  * visible form row (both are hidden inputs) — the preview IS the
@@ -404,7 +408,7 @@ function initDataDeskPreview(): void {
 	const symbol = document.getElementById('kk-template-symbol') as HTMLSelectElement | null;
 	const days = document.getElementById('kk-template-days') as HTMLInputElement | null;
 	const brands = document.getElementById('kk-template-brands') as HTMLSelectElement | null;
-	const palette = document.getElementById('kk-template-palette') as HTMLSelectElement | null;
+	const palette = document.getElementById('kk-template-palette') as HTMLInputElement | null;
 	const title = document.getElementById('kk-template-title') as HTMLInputElement | null;
 	const kicker = document.getElementById('kk-template-kicker') as HTMLInputElement | null;
 	if (!kind || !symbol || !days || !brands || !palette || !title || !kicker) {
@@ -551,6 +555,16 @@ function initDataDeskPreview(): void {
 
 	[kind, symbol, days, palette].forEach((el) => {
 		el.addEventListener('change', refresh);
+	});
+	/* The palette is a segmented control in the top bar (radios),
+	 * synced into the hidden #kk-template-palette input the
+	 * refresh reads. A segment click updates the hidden value and
+	 * fires its change listener, so the preview refreshes. */
+	document.querySelectorAll<HTMLInputElement>('input[name="kk_template_palette_ui"]').forEach((radio) => {
+		radio.addEventListener('change', () => {
+			palette.value = radio.value;
+			palette.dispatchEvent(new Event('change'));
+		});
 	});
 	[days, title, kicker].forEach((el) => {
 		el.addEventListener('input', refresh);

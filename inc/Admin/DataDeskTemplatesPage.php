@@ -222,9 +222,13 @@ final class DataDeskTemplatesPage
     }
 
     /**
-     * The create / edit form. Kind switches which fields apply:
-     * panel shows Symbol + Days, table shows Brands. The toggle is
-     * a tiny inline script (the admin script is not enqueued here).
+     * The create / edit form: a sticky top bar holds every setting
+     * (name, kind, symbol/days or brands, palette) with Save at the
+     * right; below it the live preview IS the editor — kicker and
+     * title are edited inline in the preview itself. Kind switches
+     * which top-bar fields apply: panel shows Symbol + Days, table
+     * shows Brands. The toggle is a tiny inline script so it runs
+     * before the admin bundle loads (no flash of the wrong fields).
      */
     private static function renderForm(string $id, string $pageUrl): void
     {
@@ -246,6 +250,17 @@ final class DataDeskTemplatesPage
                 'kicker' => '',
             ];
         }
+
+        // Palette segments in the top bar, in the user's order:
+        // Green is the dark-green palette, Auto follows the site
+        // theme. Short labels fit the bar; the full palette name
+        // rides along as a tooltip on each segment.
+        $paletteSegments = [
+            'dark-green' => __('Green', 'koperasikita'),
+            'dark' => __('Dark', 'koperasikita'),
+            'light' => __('Light', 'koperasikita'),
+            'auto' => __('Auto', 'koperasikita'),
+        ];
         ?>
         <h2><?php echo $id !== '' ? esc_html__('Edit Template', 'koperasikita') : esc_html__('Add New Template', 'koperasikita'); ?></h2>
         <form method="post" action="<?php echo esc_url($pageUrl); ?>">
@@ -257,78 +272,75 @@ final class DataDeskTemplatesPage
              * reads them exactly as before. */ ?>
             <input type="hidden" id="kk-template-title" name="kk_template_title" value="<?php echo esc_attr($template['title']); ?>">
             <input type="hidden" id="kk-template-kicker" name="kk_template_kicker" value="<?php echo esc_attr($template['kicker']); ?>">
-            <table class="form-table">
-                <tr>
-                    <th scope="row"><label for="kk-template-name"><?php esc_html_e('Name', 'koperasikita'); ?></label></th>
-                    <td><input type="text" id="kk-template-name" name="kk_template_name" value="<?php echo esc_attr($template['name']); ?>" class="regular-text" required></td>
-                </tr>
-                <tr>
-                    <th scope="row"><label for="kk-template-kind"><?php esc_html_e('Kind', 'koperasikita'); ?></label></th>
-                    <td>
-                        <select id="kk-template-kind" name="kk_template_kind">
-                            <?php foreach (DataDesk::kinds() as $value => $label) : ?>
-                                <option value="<?php echo esc_attr($value); ?>" <?php selected($template['kind'], $value); ?>><?php echo esc_html($label); ?></option>
-                            <?php endforeach; ?>
-                        </select>
-                    </td>
-                </tr>
-                <tr data-kk-template-panel-row>
-                    <th scope="row"><label for="kk-template-symbol"><?php esc_html_e('Symbol', 'koperasikita'); ?></label></th>
-                    <td>
-                        <select id="kk-template-symbol" name="kk_template_symbol">
-                            <?php foreach (DataDesk::symbols() as $value => $label) : ?>
-                                <option value="<?php echo esc_attr($value); ?>" <?php selected($template['symbol'], $value); ?>><?php echo esc_html($label); ?></option>
-                            <?php endforeach; ?>
-                        </select>
-                        <p class="description"><?php esc_html_e('Panel only: the symbol the chart and stats show.', 'koperasikita'); ?></p>
-                    </td>
-                </tr>
-                <tr data-kk-template-panel-row>
-                    <th scope="row"><label for="kk-template-days"><?php esc_html_e('Days in the chart', 'koperasikita'); ?></label></th>
-                    <td>
-                        <input type="number" id="kk-template-days" name="kk_template_days" value="<?php echo esc_attr((string) $template['days']); ?>" min="3" max="30" step="1" class="small-text">
-                        <p class="description"><?php esc_html_e('Panel only: how many days the chart covers (3–30).', 'koperasikita'); ?></p>
-                    </td>
-                </tr>
-                <tr data-kk-template-table-row>
-                    <th scope="row"><label for="kk-template-brands"><?php esc_html_e('Brands to show', 'koperasikita'); ?></label></th>
-                    <td>
-                        <?php /* Select2-style picker (see admin.ts): a searchable multi-select, not a checkbox list. */ ?>
-                        <select
-                            multiple
-                            class="widefat"
-                            data-kk-term-picker
-                            id="kk-template-brands"
-                            name="kk_template_brands[]"
-                            style="min-height: 120px;"
-                        >
-                            <?php $allBrands = Gold::brands(); ?>
-                            <?php foreach (Gold::enabledBrands() as $slug) : ?>
-                                <option value="<?php echo esc_attr($slug); ?>" <?php selected(in_array($slug, $template['brands'], true)); ?>><?php echo esc_html($allBrands[$slug] ?? $slug); ?></option>
-                            <?php endforeach; ?>
-                        </select>
-                        <p class="description"><?php esc_html_e('Table only: leave empty to show all brands.', 'koperasikita'); ?></p>
-                    </td>
-                </tr>
-                <tr>
-                    <th scope="row"><label for="kk-template-palette"><?php esc_html_e('Colour palette', 'koperasikita'); ?></label></th>
-                    <td>
-                        <select id="kk-template-palette" name="kk_template_palette">
-                            <?php foreach (DataDesk::PALETTES as $value => $label) : ?>
-                                <option value="<?php echo esc_attr($value); ?>" <?php selected($template['palette'], $value); ?>><?php echo esc_html(DataDesk::paletteLabel($value)); ?></option>
-                            <?php endforeach; ?>
-                        </select>
-                    </td>
-                </tr>
-            </table>
-            <?php /* Live preview: the real panel / table markup with sample data, re-rendered by admin.ts
-             * (kk_data_desk_preview) whenever a field above changes — kind, symbol, days, brands,
-             * palette or title. The server renders the first preview so the section is never empty. */ ?>
-            <h2><?php esc_html_e('Preview', 'koperasikita'); ?></h2>
-            <p class="description">
-                <?php esc_html_e('Live preview of this template with sample data. It updates as you change the settings above.', 'koperasikita'); ?>
-            </p>
-            <p class="description">
+            <div class="kk-data-desk-topbar">
+                <div class="kk-data-desk-topbar-field kk-data-desk-topbar-field--name">
+                    <label for="kk-template-name"><?php esc_html_e('Name', 'koperasikita'); ?></label>
+                    <input type="text" id="kk-template-name" name="kk_template_name" value="<?php echo esc_attr($template['name']); ?>" required>
+                </div>
+                <div class="kk-data-desk-topbar-field">
+                    <label for="kk-template-kind"><?php esc_html_e('Kind', 'koperasikita'); ?></label>
+                    <select id="kk-template-kind" name="kk_template_kind">
+                        <?php foreach (DataDesk::kinds() as $value => $label) : ?>
+                            <option value="<?php echo esc_attr($value); ?>" <?php selected($template['kind'], $value); ?>><?php echo esc_html($label); ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+                <div class="kk-data-desk-topbar-field" data-kk-template-panel-control>
+                    <label for="kk-template-symbol"><?php esc_html_e('Symbol', 'koperasikita'); ?></label>
+                    <select id="kk-template-symbol" name="kk_template_symbol">
+                        <?php foreach (DataDesk::symbols() as $value => $label) : ?>
+                            <option value="<?php echo esc_attr($value); ?>" <?php selected($template['symbol'], $value); ?>><?php echo esc_html($label); ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+                <div class="kk-data-desk-topbar-field kk-data-desk-topbar-field--days" data-kk-template-panel-control>
+                    <label for="kk-template-days"><?php esc_html_e('Days', 'koperasikita'); ?></label>
+                    <input type="number" id="kk-template-days" name="kk_template_days" value="<?php echo esc_attr((string) $template['days']); ?>" min="3" max="30" step="1">
+                </div>
+                <div class="kk-data-desk-topbar-field kk-data-desk-topbar-field--brands" data-kk-template-table-control>
+                    <label for="kk-template-brands"><?php esc_html_e('Brands to show', 'koperasikita'); ?></label>
+                    <?php /* Select2-style picker (see admin.ts): a searchable multi-select, not a checkbox list. */ ?>
+                    <select
+                        multiple
+                        class="widefat"
+                        data-kk-term-picker
+                        id="kk-template-brands"
+                        name="kk_template_brands[]"
+                        style="min-height: 120px;"
+                    >
+                        <?php $allBrands = Gold::brands(); ?>
+                        <?php foreach (Gold::enabledBrands() as $slug) : ?>
+                            <option value="<?php echo esc_attr($slug); ?>" <?php selected(in_array($slug, $template['brands'], true)); ?>><?php echo esc_html($allBrands[$slug] ?? $slug); ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+                <div class="kk-data-desk-topbar-field">
+                    <span class="kk-data-desk-topbar-label" id="kk-template-palette-label"><?php esc_html_e('Colour palette', 'koperasikita'); ?></span>
+                    <div class="kk-segmented" role="group" aria-labelledby="kk-template-palette-label">
+                        <?php foreach ($paletteSegments as $value => $segmentLabel) : ?>
+                            <input
+                                type="radio"
+                                id="kk-template-palette-<?php echo esc_attr($value); ?>"
+                                name="kk_template_palette_ui"
+                                value="<?php echo esc_attr($value); ?>"
+                                <?php checked($template['palette'], $value); ?>
+                            >
+                            <label for="kk-template-palette-<?php echo esc_attr($value); ?>" title="<?php echo esc_attr(DataDesk::paletteLabel($value)); ?>"><?php echo esc_html($segmentLabel); ?></label>
+                        <?php endforeach; ?>
+                    </div>
+                    <input type="hidden" id="kk-template-palette" name="kk_template_palette" value="<?php echo esc_attr($template['palette']); ?>">
+                </div>
+                <div class="kk-data-desk-topbar-actions">
+                    <input type="submit" name="submit" class="button button-primary" value="<?php echo esc_attr($id !== '' ? __('Update Template', 'koperasikita') : __('Add Template', 'koperasikita')); ?>">
+                    <a href="<?php echo esc_url($pageUrl); ?>" class="button"><?php esc_html_e('Cancel', 'koperasikita'); ?></a>
+                </div>
+            </div>
+            <?php /* The live preview IS the editor: the real panel /
+             * table markup with sample data, re-rendered by admin.ts
+             * (kk_data_desk_preview) whenever a top-bar field
+             * changes. The server renders the first preview so the
+             * section is never empty. */ ?>
+            <p class="description kk-data-desk-editor-hint">
                 <?php esc_html_e("Click the title or 'Meja Data' in the preview to edit them. In the title you can use {label} for the symbol name and {day} for the number of days.", 'koperasikita'); ?>
             </p>
             <div id="kk-data-desk-live-preview" data-kk-data-desk-preview>
@@ -337,8 +349,6 @@ final class DataDeskTemplatesPage
                 echo DataDesk::renderPreview($template);
                 ?>
             </div>
-            <?php submit_button($id !== '' ? __('Update Template', 'koperasikita') : __('Add Template', 'koperasikita')); ?>
-            <a href="<?php echo esc_url($pageUrl); ?>" class="button"><?php esc_html_e('Cancel', 'koperasikita'); ?></a>
         </form>
         <script>
         (function () {
@@ -346,11 +356,11 @@ final class DataDeskTemplatesPage
             if (!kind) { return; }
             var toggle = function () {
                 var isPanel = kind.value === 'panel';
-                document.querySelectorAll('[data-kk-template-panel-row]').forEach(function (row) {
-                    row.style.display = isPanel ? '' : 'none';
+                document.querySelectorAll('[data-kk-template-panel-control]').forEach(function (control) {
+                    control.style.display = isPanel ? '' : 'none';
                 });
-                document.querySelectorAll('[data-kk-template-table-row]').forEach(function (row) {
-                    row.style.display = isPanel ? 'none' : '';
+                document.querySelectorAll('[data-kk-template-table-control]').forEach(function (control) {
+                    control.style.display = isPanel ? 'none' : '';
                 });
             };
             kind.addEventListener('change', toggle);

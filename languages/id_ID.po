@@ -4065,6 +4065,12 @@ msgstr "Hijau Gelap"
 msgid "Follow site theme"
 msgstr "Ikuti tema situs"
 
+msgid "Green"
+msgstr "Hijau"
+
+msgid "Auto"
+msgstr "Otomatis"
+
 msgid "Click to edit the kicker."
 msgstr "Klik untuk mengedit kicker."
 
