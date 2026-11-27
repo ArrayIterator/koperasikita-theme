@@ -490,8 +490,15 @@
 	border-radius: 3px;
 }
 @media screen and (max-width: 782px) {
+	/* Mobile: the bar stops being sticky — on a phone it would fight
+	 * the 46px admin bar for the viewport and push the preview far
+	 * down. In flow + compact it fits, and Save is reached by
+	 * scrolling back up, like WP's own mobile publish box. */
 	.kk-data-desk-topbar {
-		top: 46px;
+		position: static;
+		gap: 8px 10px;
+		margin: 8px 0 12px;
+		padding: 8px 10px;
 	}
 }
 .kk-data-desk-topbar-field {
