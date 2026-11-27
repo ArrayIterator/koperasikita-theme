@@ -4082,3 +4082,6 @@ msgstr "Klik untuk mengedit judul."
 
 msgid "Click the title or 'Meja Data' in the preview to edit them. In the title you can use {label} for the symbol name and {day} for the number of days."
 msgstr "Klik judul atau 'Meja Data' pada pratinjau untuk mengeditnya. Pada judul, gunakan {label} untuk nama simbol dan {day} untuk jumlah hari."
+
+msgid "Saving…"
+msgstr "Menyimpan…"

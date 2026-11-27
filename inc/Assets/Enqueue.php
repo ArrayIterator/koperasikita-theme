@@ -505,6 +505,8 @@ final class Enqueue
                         'editKickerHint' => __('Click to edit the kicker.', 'koperasikita'),
                         'editTitleHint' => __('Click to edit the title.', 'koperasikita'),
                         'previewFailed' => __('Could not load the preview.', 'koperasikita'),
+                        'savingTemplate' => __('Saving…', 'koperasikita'),
+                        'close' => __('Close', 'koperasikita'),
                     ],
                 ]);
             }

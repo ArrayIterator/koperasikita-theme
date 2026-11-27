@@ -44,6 +44,8 @@ interface AdminStrings {
 	editKickerHint: string;
 	editTitleHint: string;
 	previewFailed: string;
+	savingTemplate: string;
+	close: string;
 }
 
 interface AdminData {
@@ -105,6 +107,8 @@ const FALLBACK_STRINGS: AdminStrings = {
 	editKickerHint: 'Click to edit the kicker.',
 	editTitleHint: 'Click to edit the title.',
 	previewFailed: 'Could not load the preview.',
+	savingTemplate: 'Saving…',
+	close: 'Close',
 };
 
 function adminData(): AdminData | null {
@@ -133,6 +137,8 @@ function adminStrings(): AdminStrings {
 		editKickerHint: strings?.editKickerHint ?? FALLBACK_STRINGS.editKickerHint,
 		editTitleHint: strings?.editTitleHint ?? FALLBACK_STRINGS.editTitleHint,
 		previewFailed: strings?.previewFailed ?? FALLBACK_STRINGS.previewFailed,
+		savingTemplate: strings?.savingTemplate ?? FALLBACK_STRINGS.savingTemplate,
+		close: strings?.close ?? FALLBACK_STRINGS.close,
 	};
 }
 
@@ -337,6 +343,7 @@ function initAdmin(): void {
 		initMenuIconPickers,
 		initGoldSync,
 		initDataDeskPreview,
+		initDataDeskAjaxSave,
 		initDataDeskWidgetPreview,
 		initDataDeskPopupPreview,
 	];
@@ -576,6 +583,102 @@ function initDataDeskPreview(): void {
 	brands.addEventListener('change', refresh);
 	brands.parentElement?.querySelector('.kk-term-picker')?.addEventListener('click', refresh);
 	markEditable();
+}
+
+/**
+ * A floating toast notice (top-right, below the WP admin bar):
+ * success is KK green, errors are red. Auto-dismisses after a few
+ * seconds; the close button dismisses it at once. One toast at a
+ * time — a new one replaces the old.
+ */
+function showToast(message: string, kind: 'success' | 'error'): void {
+	document.querySelector('.kk-toast')?.remove();
+	const toast = document.createElement('div');
+	toast.className = `kk-toast kk-toast--${kind}`;
+	toast.setAttribute('role', 'status');
+	const text = document.createElement('span');
+	text.className = 'kk-toast-message';
+	text.textContent = message;
+	const close = document.createElement('button');
+	close.type = 'button';
+	close.className = 'kk-toast-close';
+	close.setAttribute('aria-label', adminStrings().close);
+	close.textContent = '×';
+	close.addEventListener('click', () => {
+		toast.remove();
+	});
+	toast.append(text, close);
+	document.body.appendChild(toast);
+	window.setTimeout(() => {
+		toast.remove();
+	}, 4000);
+}
+
+/**
+ * AJAX save for the Data Desk template form.
+ *
+ * The top-bar Save button submits the form through
+ * kk_data_desk_save_template instead of a native POST, so the page
+ * never reloads or redirects (the native redirect used to blank
+ * the page — see DataDeskTemplatesPage::handleActionsOnLoad). While
+ * saving the button is disabled with a "Saving…" label; on success
+ * a floating toast confirms and the hidden template id + the URL
+ * are updated to the saved id, so a second save updates the same
+ * template (matters for new templates, which get their id from
+ * the server). On failure the toast shows the server's message.
+ */
+function initDataDeskAjaxSave(): void {
+	const config = adminData();
+	if (!config) {
+		return;
+	}
+	const form = document.getElementById('kk-data-desk-template-form') as HTMLFormElement | null;
+	if (!form) {
+		return;
+	}
+	const submit = form.querySelector<HTMLInputElement>('input[type="submit"]');
+	const idInput = form.querySelector<HTMLInputElement>('input[name="kk_template_id"]');
+	if (!submit || !idInput) {
+		return;
+	}
+	const originalValue = submit.value;
+	form.addEventListener('submit', (event) => {
+		event.preventDefault();
+		if (submit.disabled) {
+			return;
+		}
+		submit.disabled = true;
+		submit.value = adminStrings().savingTemplate;
+		const formData = new FormData(form);
+		const params: Record<string, string> = {
+			kk_template_id: String(formData.get('kk_template_id') ?? ''),
+			kk_template_name: String(formData.get('kk_template_name') ?? ''),
+			kk_template_kind: String(formData.get('kk_template_kind') ?? ''),
+			kk_template_symbol: String(formData.get('kk_template_symbol') ?? ''),
+			kk_template_palette: String(formData.get('kk_template_palette') ?? ''),
+			kk_template_days: String(formData.get('kk_template_days') ?? ''),
+			kk_template_title: String(formData.get('kk_template_title') ?? ''),
+			kk_template_kicker: String(formData.get('kk_template_kicker') ?? ''),
+			kk_template_brands: formData.getAll('kk_template_brands[]').map(String).join(','),
+		};
+		void postAjax<{ id: string; message: string }>(config, 'kk_data_desk_save_template', params)
+			.then((data) => {
+				idInput.value = data.id;
+				const url = new URL(window.location.href);
+				url.searchParams.set('action', 'edit');
+				url.searchParams.set('id', data.id);
+				url.searchParams.delete('saved');
+				window.history.replaceState(null, '', url.toString());
+				showToast(data.message, 'success');
+			})
+			.catch((error: unknown) => {
+				showToast(errorMessage(error), 'error');
+			})
+			.finally(() => {
+				submit.disabled = false;
+				submit.value = originalValue;
+			});
+	});
 }
 
 /**

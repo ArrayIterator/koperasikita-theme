@@ -27,7 +27,7 @@ final class DataDeskTemplatesPage
             wp_die(esc_html__('You do not have permission to access this page.', 'koperasikita'));
         }
 
-        $notice = self::handleActions();
+        $notice = self::noticeFromRequest();
 
         // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- action/id are display-only.
         $action = isset($_GET['action']) ? sanitize_key((string) wp_unslash($_GET['action'])) : 'list';
@@ -62,10 +62,16 @@ final class DataDeskTemplatesPage
     }
 
     /**
-     * Handle the save / delete / duplicate submissions. Returns a
-     * notice to show, or '' when nothing was done.
+     * Handle the save / delete / duplicate submissions. Runs on the
+     * page's load hook (see AdminMenu::registerMenu), BEFORE any
+     * output: the handlers redirect after acting, and a redirect
+     * cannot send headers once the admin chrome has been output —
+     * calling this from render() blanked the page content after
+     * every Update / Duplicate / Delete while the action itself
+     * had already persisted. Returns nothing; an action exits
+     * through its redirect, anything else falls through to render().
      */
-    private static function handleActions(): string
+    public static function handleActionsOnLoad(): void
     {
         if (isset($_POST['kk_data_desk_template_nonce'])) {
             if (!current_user_can('manage_options')) {
@@ -77,20 +83,8 @@ final class DataDeskTemplatesPage
             // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- sanitised below.
             $raw = wp_unslash($_POST);
             $id = isset($raw['kk_template_id']) ? sanitize_key((string) $raw['kk_template_id']) : '';
-            $data = [
-                'name' => isset($raw['kk_template_name']) ? sanitize_text_field((string) $raw['kk_template_name']) : '',
-                'kind' => isset($raw['kk_template_kind']) ? sanitize_key((string) $raw['kk_template_kind']) : DataDesk::KIND_PANEL,
-                'symbol' => isset($raw['kk_template_symbol']) ? sanitize_text_field((string) $raw['kk_template_symbol']) : 'gold:antam',
-                'brands' => isset($raw['kk_template_brands']) && is_array($raw['kk_template_brands'])
-                    ? array_values(array_map('sanitize_key', $raw['kk_template_brands']))
-                    : [],
-                'palette' => isset($raw['kk_template_palette']) ? sanitize_key((string) $raw['kk_template_palette']) : DataDesk::DEFAULT_PALETTE,
-                'days' => isset($raw['kk_template_days']) ? (int) $raw['kk_template_days'] : DataDesk::DEFAULT_DAYS,
-                'title' => isset($raw['kk_template_title']) ? sanitize_text_field((string) $raw['kk_template_title']) : '',
-                'kicker' => isset($raw['kk_template_kicker']) ? sanitize_text_field((string) $raw['kk_template_kicker']) : '',
-            ];
 
-            DataDesk::saveTemplate($id, $data);
+            DataDesk::saveTemplate($id, DataDesk::templateDataFromRequest($raw));
 
             wp_safe_redirect(add_query_arg('saved', '1', admin_url('admin.php?page=' . self::PAGE_SLUG)));
             exit;
@@ -141,7 +135,15 @@ final class DataDeskTemplatesPage
             ));
             exit;
         }
+    }
 
+    /**
+     * The notice for the redirect the load-hook handler just sent
+     * (?saved=1 / ?deleted=1), shown by render(). The actions
+     * themselves live on the load hook; this only reads the flag.
+     */
+    private static function noticeFromRequest(): string
+    {
         // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- saved/deleted flags are display-only.
         if (isset($_GET['saved']) && $_GET['saved'] === '1') {
             return __('Template saved.', 'koperasikita');
@@ -270,7 +272,7 @@ final class DataDeskTemplatesPage
         ];
         ?>
         <h2><?php echo $id !== '' ? esc_html__('Edit Template', 'koperasikita') : esc_html__('Add New Template', 'koperasikita'); ?></h2>
-        <form method="post" action="<?php echo esc_url($pageUrl); ?>">
+        <form method="post" action="<?php echo esc_url($pageUrl); ?>" id="kk-data-desk-template-form">
             <?php wp_nonce_field('kk_data_desk_template', 'kk_data_desk_template_nonce'); ?>
             <input type="hidden" name="kk_template_id" value="<?php echo esc_attr($id); ?>">
             <?php /* Title and kicker have no visible rows: both are

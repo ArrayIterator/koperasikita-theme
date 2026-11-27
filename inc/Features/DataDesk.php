@@ -70,6 +70,7 @@ final class DataDesk
     public static function register(): void
     {
         Ajax::add('kk_data_desk_preview', [self::class, 'ajaxPreview'], false, 'manage_options');
+        Ajax::add('kk_data_desk_save_template', [self::class, 'ajaxSaveTemplate'], false, 'manage_options');
     }
 
     /**
@@ -272,6 +273,59 @@ final class DataDesk
         }
 
         return ['html' => self::renderPreview($template)];
+    }
+
+    /**
+     * The template fields, read from a request array and sanitised —
+     * the one reader for the form POST (DataDeskTemplatesPage) and
+     * the AJAX save below, so the two saves can never drift apart.
+     * Brands arrive either as an array (native form POST, field
+     * kk_template_brands[]) or as a comma-separated list (AJAX).
+     *
+     * @param array<string, mixed> $raw
+     * @return array{name: string, kind: string, symbol: string, brands: array<int, string>, palette: string, days: int, title: string, kicker: string}
+     */
+    public static function templateDataFromRequest(array $raw): array
+    {
+        $brands = [];
+        if (isset($raw['kk_template_brands']) && is_array($raw['kk_template_brands'])) {
+            $brands = array_values(array_map('sanitize_key', $raw['kk_template_brands']));
+        } elseif (isset($raw['kk_template_brands']) && is_string($raw['kk_template_brands']) && trim($raw['kk_template_brands']) !== '') {
+            $brands = array_values(array_filter(array_map('sanitize_key', explode(',', $raw['kk_template_brands']))));
+        }
+
+        return [
+            'name' => isset($raw['kk_template_name']) ? sanitize_text_field((string) $raw['kk_template_name']) : '',
+            'kind' => isset($raw['kk_template_kind']) ? sanitize_key((string) $raw['kk_template_kind']) : self::KIND_PANEL,
+            'symbol' => isset($raw['kk_template_symbol']) ? sanitize_text_field((string) $raw['kk_template_symbol']) : 'gold:antam',
+            'brands' => $brands,
+            'palette' => isset($raw['kk_template_palette']) ? sanitize_key((string) $raw['kk_template_palette']) : self::DEFAULT_PALETTE,
+            'days' => isset($raw['kk_template_days']) ? (int) $raw['kk_template_days'] : self::DEFAULT_DAYS,
+            'title' => isset($raw['kk_template_title']) ? sanitize_text_field((string) $raw['kk_template_title']) : '',
+            'kicker' => isset($raw['kk_template_kicker']) ? sanitize_text_field((string) $raw['kk_template_kicker']) : '',
+        ];
+    }
+
+    /**
+     * The save endpoint (kk_data_desk_save_template): saves one
+     * template from the edit form's fields and answers with the id
+     * it was saved under, so the form can stay on the page (no
+     * redirect) and a second save updates the same template. The
+     * shared nonce + manage_options are enforced by Ajax::dispatch.
+     *
+     * @return array{id: string, message: string}
+     */
+    public static function ajaxSaveTemplate(): array
+    {
+        // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- sanitised below.
+        $raw = wp_unslash($_POST);
+        $id = isset($raw['kk_template_id']) ? sanitize_key((string) $raw['kk_template_id']) : '';
+        $id = self::saveTemplate($id, self::templateDataFromRequest($raw));
+
+        return [
+            'id' => $id,
+            'message' => __('Template saved.', 'koperasikita'),
+        ];
     }
 
     /**

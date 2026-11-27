@@ -107,6 +107,16 @@ final class AdminMenu
             [DataDeskTemplatesPage::class, 'render']
         );
 
+        /* The templates page's save / delete / duplicate handler
+         * runs on the page's load hook, before any output: its
+         * redirect cannot send headers once the admin chrome has
+         * been output, and handling it in render() blanked the
+         * page after every action. */
+        add_action(
+            'load-' . self::submenuHookSuffix(DataDeskTemplatesPage::PAGE_SLUG),
+            [DataDeskTemplatesPage::class, 'handleActionsOnLoad']
+        );
+
         add_submenu_page(
             self::MENU_SLUG,
             esc_html__('Locations', 'koperasikita'),
