@@ -209,16 +209,12 @@
 
 /* No hover style on purpose: a tap on touch screens triggers :hover,
  * so a green hover would read as bookmarked on an unsaved post.
- * Only the saved state is green - hover changes nothing. */
+ * The button only ever shows the icon state - hover changes nothing. */
 
-.kk-card .kk-bookmark-button[aria-pressed="true"] {
-	background: var(--kk-green, #0B6B3A);
-	color: #fff;
-}
-
-/* Saved: the bookmark is a solid white fill on the green circle.
- * The svg is stroke-based (Feather), so both fill and stroke follow
- * the button colour - fill alone would leave a hollow outline. */
+/* Saved: only the icon changes - a solid fill instead of the line
+ * outline. The background stays the same dark circle as unsaved,
+ * so the fill alone is the state; a green background would read
+ * as bookmarked before the state is real. */
 .kk-card .kk-bookmark-button[aria-pressed="true"] svg {
 	fill: currentColor;
 	stroke: currentColor;
