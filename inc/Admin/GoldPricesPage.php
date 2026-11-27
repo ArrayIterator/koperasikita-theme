@@ -81,6 +81,22 @@ final class GoldPricesPage
         Ajax::add('kk_gold_chart', [self::class, 'ajaxChart'], false, 'manage_options');
 
         add_action('load-' . AdminMenu::submenuHookSuffix(self::PAGE_SLUG), [self::class, 'addHelpTabs']);
+        add_action('load-' . AdminMenu::submenuHookSuffix(self::PAGE_SLUG), [self::class, 'handleActionsOnLoad']);
+    }
+
+    /**
+     * Run the form saves on the page's load hook — before any
+     * output — so the redirect after a save can send its headers.
+     * Calling the save handlers from render() (after the admin
+     * chrome is printed) made every save land on a blank page:
+     * the redirect could not send headers, then exit() killed
+     * the page mid-render. The save itself always worked; only
+     * the response was blank.
+     */
+    public static function handleActionsOnLoad(): void
+    {
+        self::handleGoldBrandsSave();
+        self::handleSyncSettingsSave();
     }
 
     /**
@@ -181,8 +197,8 @@ final class GoldPricesPage
             wp_die(esc_html__('You do not have permission to access this page.', 'koperasikita'));
         }
 
-        self::handleGoldBrandsSave();
-        self::handleSyncSettingsSave();
+        // Saves run on the load hook (handleActionsOnLoad), never
+        // here — see register().
 
         // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- tab is display-only.
         $tab = isset($_GET['tab']) ? sanitize_key((string) wp_unslash($_GET['tab'])) : 'summary';
