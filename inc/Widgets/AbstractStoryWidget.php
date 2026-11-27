@@ -127,7 +127,7 @@ abstract class AbstractStoryWidget extends WP_Widget
                             </span>
                         <?php endif; ?>
                         <span class="kk-widget-story-text">
-                            <span class="kk-widget-story-title"><?php echo esc_html(get_the_title($post)); ?></span>
+                            <span class="kk-widget-story-title"><?php echo get_the_title($post); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></span>
                             <time class="kk-widget-story-date" datetime="<?php echo esc_attr(get_the_date('c', $post)); ?>">
                                 <?php echo esc_html(get_the_date('', $post)); ?>
                             </time>

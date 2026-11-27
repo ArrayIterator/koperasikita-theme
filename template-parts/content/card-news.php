@@ -53,7 +53,7 @@ if ( $is_hero_card ) {
 
 $title_html = '';
 if ( $show_title ) {
-	$title_html = '<h3 class="kk-card-title"><a href="' . esc_url( get_the_permalink() ) . '">' . esc_html( get_the_title() ) . '</a></h3>';
+	$title_html = '<h3 class="kk-card-title"><a href="' . esc_url( get_the_permalink() ) . '">' . get_the_title() . '</a></h3>';
 }
 ?>
 

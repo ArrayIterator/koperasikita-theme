@@ -85,6 +85,16 @@ final class ArticleFontSize
             return $content;
         }
 
+        // Excerpts are built by wp_trim_excerpt(), which runs the
+        // the_content filters on the raw post content while the
+        // get_the_excerpt filter is on the stack. A control prepended
+        // here would survive strip_tags() and land at the start of
+        // every auto-generated excerpt (cards, widgets, SEO), so skip
+        // it: an excerpt is text, never the article itself.
+        if (doing_filter('get_the_excerpt')) {
+            return $content;
+        }
+
         if (!is_singular(['post', 'page', 'agenda'])) {
             return $content;
         }
