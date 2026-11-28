@@ -584,7 +584,12 @@ final class Subscribers
      * Change one subscriber's source (where the address actually
      * landed). Returns false when the address has no row or the
      * write failed - so a failed MailPoet sync can never flip a
-     * row to 'mailpoet' by accident.
+     * row to 'mailpoet' by accident. Already holding the target
+     * source counts as a success: a second click (or a
+     * concurrent one) that finds the row already flipped must
+     * never report a failure for a row that is already where it
+     * belongs - $wpdb->update reports 0 rows changed when the
+     * values written are the values already stored.
      */
     public static function setSource(string $email, string $source): bool
     {
@@ -608,7 +613,35 @@ final class Subscribers
             ['%s']
         );
 
-        return $updated !== false && $updated > 0;
+        if ($updated === false) {
+            return false;
+        }
+
+        if ($updated > 0) {
+            return true;
+        }
+
+        // Nothing changed: the row may already hold the target
+        // source (a concurrent click flipped it first). Read the
+        // actual source back instead of trusting the row count.
+        return self::sourceOf($email) === $source;
+    }
+
+    /**
+     * One subscriber's current source, or null when the address
+     * has no row. Read straight off the table for the setSource
+     * re-check.
+     */
+    private static function sourceOf(string $email): ?string
+    {
+        global $wpdb;
+
+        $source = $wpdb->get_var($wpdb->prepare(
+            'SELECT source FROM ' . self::table() . ' WHERE email = %s',
+            $email
+        ));
+
+        return is_string($source) ? $source : null;
     }
 
     /**
