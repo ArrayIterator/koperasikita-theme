@@ -2,44 +2,19 @@
 /**
  * The main sidebar.
  *
+ * Renders the Main Sidebar widgets only - no placeholder box when
+ * the area is empty. The editor adds widgets in Appearance ->
+ * Widgets. The Mobile Menu location (Appearance -> Menus) belongs
+ * to the mobile drawer only; it is never rendered here.
+ *
  * @package KoperasiKita
  */
 
-// An empty sidebar renders nothing - no placeholder box. The
-// editor adds widgets in Appearance -> Widgets. A menu assigned to
-// the Sidebar Menu location (Appearance -> Menus) also counts -
-// except on archive and search pages, where the sidebar shows only
-// the widgets the editor placed: when none are placed it renders
-// nothing, so an unfilled archive sidebar stays empty.
-$has_widgets = is_active_sidebar( 'sidebar-1' );
-$has_menu = has_nav_menu( 'sidebar' ) && ! is_archive() && ! is_search();
-
-if ( ! $has_widgets && ! $has_menu ) {
+if ( ! is_active_sidebar( 'sidebar-1' ) ) {
 	return;
 }
 ?>
 
 <aside class="kk-sidebar<?php echo \KoperasiKita\Admin\SidebarSettings::isSticky( 'sidebar-1' ) ? ' kk-sidebar--sticky' : ''; ?>" aria-label="<?php esc_attr_e( 'Sidebar', 'koperasikita' ); ?>">
-	<?php if ( $has_menu ) : ?>
-		<nav class="kk-sidebar-nav" aria-label="<?php esc_attr_e( 'Sidebar Menu', 'koperasikita' ); ?>">
-			<?php
-			wp_nav_menu(
-				array(
-					'theme_location' => 'sidebar',
-					'menu_class'     => 'kk-sidebar-nav-menu',
-					'container'      => false,
-					'fallback_cb'    => false,
-					// Depth 0 (unlimited): the sidebar menu renders
-					// every nesting level, same as the drawer.
-					'depth'          => 0,
-				)
-			);
-			?>
-		</nav>
-	<?php endif; ?>
-	<?php
-	if ( $has_widgets ) {
-		dynamic_sidebar( 'sidebar-1' );
-	}
-	?>
+	<?php dynamic_sidebar( 'sidebar-1' ); ?>
 </aside>
