@@ -5,7 +5,8 @@
  *
  * Expects the global $post to be an agenda item. Renders nothing when
  * the item has neither a stored location nor coordinates. The map link
- * opens a Google Maps search for the venue in a new tab; the embedded
+ * opens Google Maps at the venue's stored coordinates in a new tab and
+ * is omitted entirely when the item has no coordinates; the embedded
  * map is rendered into the container by the agenda script.
  *
  * @package KoperasiKita
@@ -18,14 +19,17 @@ if ($meta['location'] === '' && !$hasCoords) {
     return;
 }
 
-$maps_url = 'https://www.google.com/maps/search/' . rawurlencode($meta['location']);
+$maps_url = $hasCoords ? 'https://www.google.com/maps?q=' . $meta['lat'] . ',' . $meta['lng'] : '';
 ?>
 
 <?php if ($meta['location'] !== '') : ?>
 <p class="kk-agenda-location">
+	<span class="kk-agenda-location-label"><?php esc_html_e('Location', 'koperasikita'); ?></span>
 	<span class="kk-agenda-location-icon" aria-hidden="true"><?php echo \KoperasiKita\Icons\Icon::svg('location', 18); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></span>
 	<span class="kk-agenda-location-text"><?php echo esc_html($meta['location']); ?></span>
+	<?php if ($hasCoords) : ?>
 	<a class="kk-agenda-location-map" href="<?php echo esc_url($maps_url); ?>" target="_blank" rel="noopener"><?php esc_html_e('View map', 'koperasikita'); ?></a>
+	<?php endif; ?>
 </p>
 <?php endif; ?>
 
