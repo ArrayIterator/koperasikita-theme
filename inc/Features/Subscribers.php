@@ -237,6 +237,72 @@ final class Subscribers
     }
 
     /**
+     * How many subscribed rows are stored here but not in MailPoet
+     * yet (source 'local'). The admin sync button only shows when
+     * this is above zero.
+     */
+    public static function countLocalPending(): int
+    {
+        global $wpdb;
+
+        $table = self::table();
+
+        if (!self::tableExists()) {
+            return 0;
+        }
+
+        return (int) $wpdb->get_var(
+            $wpdb->prepare(
+                "SELECT COUNT(*) FROM {$table} WHERE status = %s AND source = %s",
+                self::STATUS_SUBSCRIBED,
+                self::SOURCE_LOCAL
+            )
+        );
+    }
+
+    /**
+     * Subscribed addresses stored here but not in MailPoet yet,
+     * oldest first, capped so one sync click cannot run forever.
+     *
+     * @return array<int, string>
+     */
+    public static function localSubscribedEmails(int $limit): array
+    {
+        global $wpdb;
+
+        $table = self::table();
+
+        if (!self::tableExists()) {
+            return [];
+        }
+
+        $rows = $wpdb->get_col(
+            $wpdb->prepare(
+                "SELECT email FROM {$table} WHERE status = %s AND source = %s ORDER BY created_at ASC, id ASC LIMIT %d",
+                self::STATUS_SUBSCRIBED,
+                self::SOURCE_LOCAL,
+                max(1, $limit)
+            )
+        );
+
+        if (!is_array($rows)) {
+            return [];
+        }
+
+        $emails = [];
+
+        foreach ($rows as $email) {
+            $email = sanitize_email((string) $email);
+
+            if ($email !== '' && is_email($email)) {
+                $emails[] = $email;
+            }
+        }
+
+        return $emails;
+    }
+
+    /**
      * Change one subscriber's source (where the address actually
      * landed). Returns false when the address has no row or the
      * write failed - so a failed MailPoet sync can never flip a

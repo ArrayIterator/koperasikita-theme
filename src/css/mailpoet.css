@@ -1,0 +1,223 @@
+/* Koperasi Kita - MailPoet form styles.
+ *
+ * MailPoet's own form styles are injected per form with an
+ * #mailpoet_form_<id> prefix, which beats plain class selectors,
+ * so the rules that must win over them carry !important. The
+ * selectors stay scoped to .mailpoet_form (and the manage
+ * subscription form, which shares the same classes), so nothing
+ * else on the page is touched. Colours resolve through the theme
+ * tokens, so light and dark schemes follow automatically.
+ * The form editor's own per-form styles, when the admin sets
+ * them in MailPoet, still win over this file: those are inline
+ * in the form markup and this stylesheet does not try to fight
+ * them.
+ */
+
+.mailpoet_form,
+form.mailpoet-manage-subscription {
+	font-family: var(--kk-sans);
+	color: var(--kk-ink);
+}
+
+/* Paragraphs (label + input) */
+
+.mailpoet_form .mailpoet_paragraph,
+form.mailpoet-manage-subscription .mailpoet_paragraph {
+	margin: 0 0 12px;
+	line-height: 1.5;
+}
+
+.mailpoet_form .mailpoet_paragraph:last-child,
+form.mailpoet-manage-subscription .mailpoet_paragraph:last-child {
+	margin-bottom: 0;
+}
+
+/* Labels */
+
+.mailpoet_form .mailpoet_segment_label,
+.mailpoet_form .mailpoet_text_label,
+.mailpoet_form .mailpoet_textarea_label,
+.mailpoet_form .mailpoet_select_label,
+.mailpoet_form .mailpoet_radio_label,
+.mailpoet_form .mailpoet_checkbox_label,
+.mailpoet_form .mailpoet_list_label,
+.mailpoet_form .mailpoet_date_label,
+form.mailpoet-manage-subscription .mailpoet_segment_label,
+form.mailpoet-manage-subscription .mailpoet_text_label,
+form.mailpoet-manage-subscription .mailpoet_textarea_label,
+form.mailpoet-manage-subscription .mailpoet_select_label,
+form.mailpoet-manage-subscription .mailpoet_radio_label,
+form.mailpoet-manage-subscription .mailpoet_checkbox_label,
+form.mailpoet-manage-subscription .mailpoet_list_label,
+form.mailpoet-manage-subscription .mailpoet_date_label {
+	display: block;
+	margin-bottom: 6px;
+	font-size: 14px;
+	font-weight: 600;
+	line-height: 1.4;
+	color: var(--kk-ink);
+}
+
+/* Text inputs, textarea, select, date parts */
+
+.mailpoet_form .mailpoet_text,
+.mailpoet_form .mailpoet_textarea,
+.mailpoet_form .mailpoet_select,
+.mailpoet_form .mailpoet_date,
+form.mailpoet-manage-subscription .mailpoet_text,
+form.mailpoet-manage-subscription .mailpoet_textarea,
+form.mailpoet-manage-subscription .mailpoet_select,
+form.mailpoet-manage-subscription .mailpoet_date {
+	display: block;
+	width: 100% !important;
+	min-height: 44px;
+	box-sizing: border-box;
+	padding: 10px 12px !important;
+	font-family: inherit;
+	font-size: 15px;
+	line-height: 1.4;
+	color: var(--kk-ink) !important;
+	background: var(--kk-paper) !important;
+	border: 1px solid var(--kk-border) !important;
+	border-radius: var(--kk-radius) !important;
+}
+
+.mailpoet_form .mailpoet_textarea,
+form.mailpoet-manage-subscription .mailpoet_textarea {
+	min-height: 96px;
+	resize: vertical;
+}
+
+.mailpoet_form .mailpoet_date_month,
+.mailpoet_form .mailpoet_date_day,
+.mailpoet_form .mailpoet_date_year,
+form.mailpoet-manage-subscription .mailpoet_date_month,
+form.mailpoet-manage-subscription .mailpoet_date_day,
+form.mailpoet-manage-subscription .mailpoet_date_year {
+	display: inline-block;
+	width: auto;
+	margin-right: 8px;
+}
+
+.mailpoet_form .mailpoet_text:focus,
+.mailpoet_form .mailpoet_textarea:focus,
+.mailpoet_form .mailpoet_select:focus,
+.mailpoet_form .mailpoet_date:focus,
+form.mailpoet-manage-subscription .mailpoet_text:focus,
+form.mailpoet-manage-subscription .mailpoet_textarea:focus,
+form.mailpoet-manage-subscription .mailpoet_select:focus,
+form.mailpoet-manage-subscription .mailpoet_date:focus {
+	border-color: var(--kk-green) !important;
+	outline: none;
+}
+
+/* Checkbox and radio rows: the label sits beside the control. */
+
+.mailpoet_form .mailpoet_checkbox_label,
+.mailpoet_form .mailpoet_radio_label,
+form.mailpoet-manage-subscription .mailpoet_checkbox_label,
+form.mailpoet-manage-subscription .mailpoet_radio_label {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	font-weight: 400;
+}
+
+.mailpoet_form .mailpoet_checkbox,
+.mailpoet_form .mailpoet_radio,
+form.mailpoet-manage-subscription .mailpoet_checkbox,
+form.mailpoet-manage-subscription .mailpoet_radio {
+	accent-color: var(--kk-green);
+}
+
+/* Submit: the theme green button. MailPoet renders the class on
+ * the input itself (block forms) and, in older markup, on a
+ * wrapper around it - both are covered. */
+
+.mailpoet_form input.mailpoet_submit,
+.mailpoet_form .mailpoet_submit input,
+form.mailpoet-manage-subscription input.mailpoet_submit,
+form.mailpoet-manage-subscription .mailpoet_submit input {
+	display: inline-block;
+	min-height: 44px;
+	box-sizing: border-box;
+	padding: 12px 24px !important;
+	font-family: inherit;
+	font-size: 15px;
+	font-weight: 600;
+	line-height: 1.2;
+	text-align: center;
+	text-decoration: none;
+	color: #fff !important;
+	background: var(--kk-green) !important;
+	border: 1px solid var(--kk-green) !important;
+	border-radius: var(--kk-radius) !important;
+	cursor: pointer;
+}
+
+.mailpoet_form input.mailpoet_submit:hover,
+.mailpoet_form .mailpoet_submit input:hover,
+form.mailpoet-manage-subscription input.mailpoet_submit:hover,
+form.mailpoet-manage-subscription .mailpoet_submit input:hover {
+	background: var(--kk-green-dark) !important;
+	border-color: var(--kk-green-dark) !important;
+}
+
+/* Divider between form sections */
+
+.mailpoet_form .mailpoet_divider,
+form.mailpoet-manage-subscription .mailpoet_divider {
+	margin: 16px 0;
+	border: 0;
+	border-top: 1px solid var(--kk-border);
+}
+
+/* Result messages: success green, error red, both with a tinted
+ * panel so they read as notices, not bare text. */
+
+.mailpoet_form .mailpoet_message,
+form.mailpoet-manage-subscription .mailpoet_message {
+	margin: 12px 0 0;
+}
+
+.mailpoet_form .mailpoet_validate_success,
+form.mailpoet-manage-subscription .mailpoet_validate_success {
+	margin: 0;
+	padding: 10px 12px;
+	font-weight: 600;
+	color: var(--kk-success) !important;
+	background: #eaf4ee;
+	border: 1px solid var(--kk-success);
+	border-left-width: 3px;
+	border-radius: var(--kk-radius);
+}
+
+.mailpoet_form .mailpoet_validate_error,
+form.mailpoet-manage-subscription .mailpoet_validate_error {
+	margin: 0;
+	padding: 10px 12px;
+	font-weight: 600;
+	color: var(--kk-error) !important;
+	background: #fdf0ef;
+	border: 1px solid var(--kk-error);
+	border-left-width: 3px;
+	border-radius: var(--kk-radius);
+}
+
+/* Sending indicator: the three bounce dots in theme green. */
+
+.mailpoet_form .mailpoet_form_loading > span,
+form.mailpoet-manage-subscription .mailpoet_form_loading > span {
+	background-color: var(--kk-green) !important;
+}
+
+/* Narrow screens: the submit button spans the form width. */
+
+@media (max-width: 480px) {
+	.mailpoet_form input.mailpoet_submit,
+	.mailpoet_form .mailpoet_submit input,
+	form.mailpoet-manage-subscription input.mailpoet_submit,
+	form.mailpoet-manage-subscription .mailpoet_submit input {
+		width: 100%;
+	}
+}
