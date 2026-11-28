@@ -5,8 +5,11 @@
  * pages). Expects the global $post to be an agenda item.
  *
  * The date badge is a direct child of the article, not part of the
- * body: the grid layout overlays it on the thumbnail and the list
- * layout puts it in a side column, both via grid areas.
+ * body: in grid view it overlays the thumbnail, top-left. In list
+ * view that same badge is hidden and a second badge inside the
+ * body, on the RIGHT beside the Date/Time rows (the single-page
+ * pattern, badge after the rows), is shown instead - the list
+ * badge never gets its own side column next to the thumbnail.
  *
  * @package KoperasiKita
  */
@@ -35,7 +38,16 @@ $month = $eventTs > 0 ? wp_date('M', $eventTs) : '';
     <div class="kk-card-body">
         <h3 class="kk-card-title"><a href="<?php the_permalink(); ?>"><?php the_title(); ?></a></h3>
 
-        <?php get_template_part('template-parts/agenda/agenda-meta'); ?>
+        <div class="kk-agenda-details">
+            <?php get_template_part('template-parts/agenda/agenda-meta'); ?>
+
+            <?php if ($day !== '' && $month !== '') : ?>
+                <p class="kk-agenda-date-badge" aria-hidden="true">
+                    <span class="kk-agenda-date-day"><?php echo esc_html($day); ?></span>
+                    <span class="kk-agenda-date-month"><?php echo esc_html($month); ?></span>
+                </p>
+            <?php endif; ?>
+        </div>
 
         <?php if (\KoperasiKita\Features\Agenda::showExcerpt()) : ?>
         <p class="kk-card-excerpt"><?php echo esc_html(get_the_excerpt()); ?></p>
