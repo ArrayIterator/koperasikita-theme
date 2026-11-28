@@ -51,7 +51,10 @@ final class MarketHeaderPage
             <?php endif; ?>
 
             <section class="kk-market-header-card">
-                <h2 class="kk-market-header-card-title"><?php esc_html_e('Sync', 'koperasikita'); ?></h2>
+                <div class="kk-market-header-card-head">
+                    <h2 class="kk-market-header-card-title"><?php esc_html_e('Sync', 'koperasikita'); ?></h2>
+                    <button type="button" class="button" data-kk-market-sync <?php disabled($syncStatus['markets'] === []); ?>><?php esc_html_e('Sync now', 'koperasikita'); ?></button>
+                </div>
                 <p><?php esc_html_e('The strip data is fetched by a sync and stored, like the gold prices: a manual sync here, plus an automatic sync on a schedule. A market that is not selected is not synced and keeps its stored data.', 'koperasikita'); ?></p>
 
                 <table class="form-table kk-market-header-facts" role="presentation">
@@ -116,36 +119,38 @@ final class MarketHeaderPage
                 <form method="post" data-kk-market-sync-settings action="<?php echo esc_url($pageUrl); ?>">
                     <?php wp_nonce_field('kk_market_header_sync', 'kk_market_header_sync_nonce'); ?>
 
-                    <p>
-                        <?php foreach (MarketSync::syncableMarkets() as $market) : ?>
-                            <label>
-                                <input type="checkbox" name="kk_market_sync_markets[]" value="<?php echo esc_attr($market); ?>" <?php checked(in_array($market, $syncStatus['markets'], true)); ?>>
-                                <?php echo esc_html(Markets::labels()[$market] ?? $market); ?>
-                            </label>
-                        <?php endforeach; ?>
-                        <span class="description"><?php esc_html_e('Markets to sync. A market that is not selected is not synced.', 'koperasikita'); ?></span>
-                    </p>
-
-                    <p>
-                        <label>
-                            <input type="checkbox" name="kk_market_auto_sync" value="1" <?php checked($syncStatus['auto_sync']); ?>>
-                            <?php esc_html_e('Enable auto-sync', 'koperasikita'); ?>
-                        </label>
-                        <span class="description"><?php esc_html_e('Fetches the selected markets automatically on a schedule, like the manual sync.', 'koperasikita'); ?></span>
-                    </p>
-
-                    <p>
-                        <label for="kk-market-auto-sync-interval"><?php esc_html_e('Auto-sync interval', 'koperasikita'); ?></label>
-                        <select id="kk-market-auto-sync-interval" name="kk_market_auto_sync_interval_hours">
-                            <?php foreach (MarketSync::intervalLabels() as $hours => $label) : ?>
-                                <option value="<?php echo esc_attr((string) $hours); ?>" <?php selected($syncStatus['auto_sync_interval_hours'], $hours); ?>><?php echo esc_html($label); ?></option>
+                    <table class="form-table kk-market-header-settings" role="presentation">
+                        <tbody>
+                            <?php foreach (MarketSync::syncableMarkets() as $market) : ?>
+                                <tr>
+                                    <th scope="row"><label for="kk-market-sync-<?php echo esc_attr($market); ?>"><?php echo esc_html(Markets::labels()[$market] ?? $market); ?></label></th>
+                                    <td><input type="checkbox" id="kk-market-sync-<?php echo esc_attr($market); ?>" name="kk_market_sync_markets[]" value="<?php echo esc_attr($market); ?>" <?php checked(in_array($market, $syncStatus['markets'], true)); ?>></td>
+                                </tr>
                             <?php endforeach; ?>
-                        </select>
-                    </p>
+                            <tr>
+                                <th scope="row"><label for="kk-market-auto-sync"><?php esc_html_e('Enable auto-sync', 'koperasikita'); ?></label></th>
+                                <td>
+                                    <input type="checkbox" id="kk-market-auto-sync" name="kk_market_auto_sync" value="1" <?php checked($syncStatus['auto_sync']); ?>>
+                                    <span class="description"><?php esc_html_e('Fetches the selected markets automatically on a schedule, like the manual sync.', 'koperasikita'); ?></span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th scope="row"><label for="kk-market-auto-sync-interval"><?php esc_html_e('Auto-sync interval', 'koperasikita'); ?></label></th>
+                                <td>
+                                    <select id="kk-market-auto-sync-interval" name="kk_market_auto_sync_interval_hours">
+                                        <?php foreach (MarketSync::intervalLabels() as $hours => $label) : ?>
+                                            <option value="<?php echo esc_attr((string) $hours); ?>" <?php selected($syncStatus['auto_sync_interval_hours'], $hours); ?>><?php echo esc_html($label); ?></option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <p class="description"><?php esc_html_e('Markets to sync. A market that is not selected is not synced.', 'koperasikita'); ?></p>
 
                     <p class="kk-market-header-card-actions">
-                        <input type="submit" class="button button-primary kk-market-header-button kk-market-header-button--primary" value="<?php esc_attr_e('Save settings', 'koperasikita'); ?>">
-                        <button type="button" class="button kk-market-header-button" data-kk-market-sync <?php disabled($syncStatus['markets'] === []); ?>><?php esc_html_e('Sync now', 'koperasikita'); ?></button>
+                        <input type="submit" class="button button-primary" value="<?php esc_attr_e('Save settings', 'koperasikita'); ?>">
                     </p>
                 </form>
 
@@ -158,7 +163,7 @@ final class MarketHeaderPage
                         <div class="kk-data-desk-popup-head">
                             <h2 id="kk-market-sync-popup-title"><?php esc_html_e('Manual sync', 'koperasikita'); ?></h2>
                             <div class="kk-data-desk-popup-actions">
-                                <button type="button" class="kk-market-header-button" data-kk-market-sync-popup-close><?php esc_html_e('Close', 'koperasikita'); ?></button>
+                                <button type="button" class="button" data-kk-market-sync-popup-close><?php esc_html_e('Close', 'koperasikita'); ?></button>
                             </div>
                         </div>
                         <div class="kk-data-desk-popup-body">

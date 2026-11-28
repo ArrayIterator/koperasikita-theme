@@ -1715,6 +1715,26 @@
 	border-bottom: 1px solid #e5e5e5;
 }
 
+/* Sync card head: the title and the Sync now button share one
+ * row, title left and button right, with the head carrying the
+ * title's old margin, padding and border. */
+.kk-market-header-card-head {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	justify-content: space-between;
+	gap: 16px;
+	margin: 0 0 16px;
+	padding-bottom: 12px;
+	border-bottom: 1px solid #e5e5e5;
+}
+
+.kk-market-header-card-head .kk-market-header-card-title {
+	margin: 0;
+	padding-bottom: 0;
+	border-bottom: 0;
+}
+
 /* Sync status facts table: label/value rows like the gold card's
  * facts table - the status reads as aligned facts, not loose
  * paragraphs. */
@@ -1737,65 +1757,33 @@
 	border-top: 1px solid #e5e5e5;
 }
 
+/* Sync settings table: same label/value rhythm as the facts
+ * table - one row per market (label in th, checkbox in td), then
+ * the auto-sync row and the interval row (label in th, control
+ * in td). */
+.kk-market-header-card .form-table.kk-market-header-settings {
+	margin: 0 0 16px;
+}
+
+.kk-market-header-card .form-table.kk-market-header-settings th {
+	padding: 12px 16px 12px 0;
+	font-weight: 600;
+	color: #1a1a1a;
+}
+
+.kk-market-header-card .form-table.kk-market-header-settings td {
+	padding: 12px 0;
+}
+
+.kk-market-header-card .form-table.kk-market-header-settings tbody tr + tr th,
+.kk-market-header-card .form-table.kk-market-header-settings tbody tr + tr td {
+	border-top: 1px solid #e5e5e5;
+}
+
 .kk-locations-card-actions,
 .kk-subscribers-card-actions,
 .kk-market-header-card-actions {
 	margin: 0 0 16px;
-}
-
-/* The scoped .button rules are only a safety net for chrome WP
- * itself renders (List Table bulk and search buttons). */
-.kk-market-header-button,
-.kk-market-header-page .button {
-	display: inline-flex;
-	align-items: center;
-	justify-content: center;
-	gap: 8px;
-	min-height: 44px;
-	padding: 0 20px;
-	font-family: inherit;
-	font-size: 15px;
-	font-weight: 600;
-	line-height: 1.2;
-	color: #0b6b3a;
-	background: #fff;
-	border: 1px solid #0b6b3a;
-	border-radius: 8px;
-	text-decoration: none;
-	cursor: pointer;
-}
-
-.kk-market-header-button:hover,
-.kk-market-header-page .button:hover {
-	background: #eaf4ee;
-	border-color: #0b6b3a;
-	color: #0b6b3a;
-}
-
-.kk-market-header-button:focus-visible,
-.kk-market-header-page .button:focus-visible {
-	outline: 2px solid #c9962e;
-	outline-offset: 2px;
-}
-
-.kk-market-header-button--primary,
-.kk-market-header-page .button-primary {
-	color: #fff;
-	background: #0b6b3a;
-	border-color: #0b6b3a;
-}
-
-.kk-market-header-button--primary:hover,
-.kk-market-header-page .button-primary:hover {
-	background: #07522c;
-	border-color: #07522c;
-	color: #fff;
-}
-
-.kk-market-header-button:disabled,
-.kk-market-header-page .button:disabled {
-	opacity: 0.55;
-	cursor: not-allowed;
 }
 
 .kk-market-header-table-wrap {
@@ -1814,25 +1802,9 @@
 	box-shadow: none;
 }
 
-/* Market Index: Sync now is the outline secondary so it reads as a
- * separate action from the solid Save primary; the column gap keeps
- * the pair from touching. Both share the 36px height. */
-.kk-market-header-card-actions {
-	display: flex;
-	flex-direction: column;
-	align-items: flex-start;
-	gap: 12px;
-}
-
-.kk-market-header-page .kk-market-header-button {
-	height: 36px;
-	min-height: 36px;
-	box-sizing: border-box;
-}
-
-/* Market Index: checkbox descriptions sit on their own line below
- * the checkboxes, in the page's existing description style. */
-.kk-market-header-page form p .description {
+/* Market Index: the auto-sync description sits on its own line
+ * below the checkbox, in the page's existing description style. */
+.kk-market-header-card .form-table.kk-market-header-settings .description {
 	display: block;
 	margin-top: 4px;
 }
