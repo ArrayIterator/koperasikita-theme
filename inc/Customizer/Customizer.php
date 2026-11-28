@@ -1741,7 +1741,7 @@ final class Customizer
         self::addSetting(
             $wpCustomize,
             'kk_pwa_name',
-            'Koperasi Kita',
+            get_bloginfo('name'),
             'sanitize_text_field',
             'refresh'
         );
@@ -1754,7 +1754,7 @@ final class Customizer
         self::addSetting(
             $wpCustomize,
             'kk_pwa_short_name',
-            'Koperasi Kita',
+            get_bloginfo('name'),
             'sanitize_text_field',
             'refresh'
         );
@@ -1767,7 +1767,7 @@ final class Customizer
         self::addSetting(
             $wpCustomize,
             'kk_pwa_description',
-            'News, announcements and market updates from Koperasi Kita.',
+            __('News, announcements and market updates from {app_name}.', 'koperasikita'),
             'sanitize_text_field',
             'refresh'
         );

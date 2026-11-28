@@ -318,26 +318,28 @@ final class Pwa
      */
     public static function manifestName(): string
     {
-        $name = sanitize_text_field((string) get_theme_mod('kk_pwa_name', 'Koperasi Kita'));
+        $name = sanitize_text_field((string) get_theme_mod('kk_pwa_name', get_bloginfo('name')));
 
         return $name !== '' ? $name : 'Koperasi Kita';
     }
 
     public static function manifestShortName(): string
     {
-        $name = sanitize_text_field((string) get_theme_mod('kk_pwa_short_name', 'Koperasi Kita'));
+        $name = sanitize_text_field((string) get_theme_mod('kk_pwa_short_name', get_bloginfo('name')));
 
         return $name !== '' ? $name : 'Koperasi Kita';
     }
 
     public static function manifestDescription(): string
     {
-        $description = sanitize_text_field((string) get_theme_mod(
-            'kk_pwa_description',
-            'News, announcements and market updates from Koperasi Kita.'
-        ));
+        $default = __('News, announcements and market updates from {app_name}.', 'koperasikita');
+        $description = sanitize_text_field((string) get_theme_mod('kk_pwa_description', $default));
 
-        return $description !== '' ? $description : 'News, announcements and market updates from Koperasi Kita.';
+        if ($description === '') {
+            $description = $default;
+        }
+
+        return str_replace('{app_name}', self::manifestName(), $description);
     }
 
     public static function themeColor(): string
@@ -419,9 +421,10 @@ final class Pwa
      */
     public static function buttonDescription(): string
     {
-        $desc = (string) get_theme_mod('kk_pwa_button_desc', 'Install {app_name} on your device for a faster and smoother experience.');
+        $default = __('Install {app_name} on your device for a faster and smoother experience.', 'koperasikita');
+        $desc = (string) get_theme_mod('kk_pwa_button_desc', $default);
         if (trim($desc) === '') {
-            $desc = 'Install {app_name} on your device for a faster and smoother experience.';
+            $desc = $default;
         }
 
         return str_replace('{app_name}', self::manifestName(), $desc);
@@ -645,8 +648,52 @@ final class Pwa
         header('Service-Worker-Allowed: /');
         header('X-Content-Type-Options: nosniff');
 
-        echo str_replace('__KK_CACHE_NAME__', self::cacheName(), self::serviceWorkerScript());
+        echo str_replace(
+            array_keys(self::serviceWorkerReplacements()),
+            array_values(self::serviceWorkerReplacements()),
+            self::serviceWorkerScript()
+        );
         exit;
+    }
+
+    /**
+     * Placeholders in the worker script and their values: the cache
+     * name plus the offline page text, translated and following the
+     * app-name setting instead of hardcoded English.
+     *
+     * @return array<string, string>
+     */
+    private static function serviceWorkerReplacements(): array
+    {
+        return [
+            '__KK_CACHE_NAME__' => self::cacheName(),
+            '__KK_OFFLINE_LANG__' => self::offlineLang(),
+            '__KK_OFFLINE_TITLE__' => self::jsString(sprintf(__('%s - Offline', 'koperasikita'), self::manifestName())),
+            '__KK_OFFLINE_HEADING__' => self::jsString(__('You are offline', 'koperasikita')),
+            '__KK_OFFLINE_BODY__' => self::jsString(sprintf(__('%s could not be reached. Please check your connection and try again.', 'koperasikita'), self::manifestName())),
+        ];
+    }
+
+    /**
+     * Language tag for the offline page, from the site locale
+     * (id_ID becomes id). The worker is served by PHP, so the page
+     * matches the site language instead of hardcoding English.
+     */
+    private static function offlineLang(): string
+    {
+        $locale = (string) get_locale();
+        $lang = strtolower(strtok($locale, '_') ?: 'en');
+
+        return $lang !== '' ? $lang : 'en';
+    }
+
+    /**
+     * Escape a value for a single-quoted JavaScript string literal in
+     * the service worker script.
+     */
+    private static function jsString(string $value): string
+    {
+        return str_replace(['\\', "'"], ['\\\\', "\\'"], $value);
     }
 
     /**
@@ -707,13 +754,13 @@ function isStaticAsset(request, url) {
 
 function offlineResponse() {
 	return new Response(
-		'<!doctype html><html lang="en"><head><meta charset="utf-8">' +
+		'<!doctype html><html lang="__KK_OFFLINE_LANG__"><head><meta charset="utf-8">' +
 			'<meta name="viewport" content="width=device-width, initial-scale=1">' +
-			'<title>Koperasi Kita - Offline</title>' +
+			'<title>__KK_OFFLINE_TITLE__</title>' +
 			'<style>body{font-family:system-ui,sans-serif;margin:0;padding:48px 24px;color:#1a1a1a}' +
 			'h1{font-size:22px;margin:0 0 12px}p{color:#555;line-height:1.6}</style>' +
-			'</head><body><h1>You are offline</h1>' +
-			'<p>Koperasi Kita could not be reached. Please check your connection and try again.</p>' +
+			'</head><body><h1>__KK_OFFLINE_HEADING__</h1>' +
+			'<p>__KK_OFFLINE_BODY__</p>' +
 			'</body></html>',
 		{ status: 503, headers: { 'Content-Type': 'text/html; charset=utf-8' } },
 	);
