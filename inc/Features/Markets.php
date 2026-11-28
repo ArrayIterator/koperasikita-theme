@@ -977,8 +977,9 @@ final class Markets
         // + the contextual help tabs.
         GoldPricesPage::register();
 
-        // Market Index admin page: the move-order AJAX endpoint
-        // (the up/down buttons reorder over AJAX, no page reload).
+        // Market Index admin page: the manual-sync AJAX endpoint
+        // (the Sync now button syncs one market per call, with a
+        // progress popup, like the gold sync).
         MarketHeaderPage::register();
 
         MarketsSettings::register();

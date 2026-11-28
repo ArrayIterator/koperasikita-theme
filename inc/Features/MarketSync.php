@@ -125,6 +125,22 @@ final class MarketSync
     }
 
     /**
+     * Save which markets the sync fetches (the sync form), without
+     * fetching anything. The manual sync reads this selection.
+     *
+     * @param string[] $markets
+     */
+    public static function saveMarkets(array $markets): array
+    {
+        $status = self::status();
+        $status['markets'] = self::sanitizeMarkets($markets);
+
+        update_option(self::OPTION, $status);
+
+        return $status;
+    }
+
+    /**
      * Save the automatic sync settings (the sync form) and apply
      * them to the schedule right away.
      */
@@ -331,55 +347,9 @@ final class MarketSync
         $markets = self::sanitizeMarkets($markets);
         $status = self::status();
         $results = $status['results'];
-        $labels = Markets::labels();
 
         foreach ($markets as $market) {
-            $provider = Markets::providerFor($market);
-
-            if (!$provider instanceof AbstractLiveProvider) {
-                // Manual snapshots are typed by the admin; there
-                // is nothing upstream to fetch for this market.
-                $results[$market] = [
-                    'ok' => true,
-                    'updated' => null,
-                    'symbols' => 0,
-                    'error' => null,
-                    'skipped' => true,
-                ];
-
-                continue;
-            }
-
-            $fetched = $provider->forceRefresh($market);
-
-            if ($fetched === null) {
-                $results[$market] = [
-                    'ok' => false,
-                    'updated' => null,
-                    'symbols' => 0,
-                    /* translators: %s: market label, e.g. Stocks. */
-                    'error' => sprintf(__('Could not fetch the latest %s prices. The last good value is still shown.', 'koperasikita'), $labels[$market] ?? $market),
-                    'skipped' => false,
-                ];
-
-                continue;
-            }
-
-            $updated = 0;
-
-            foreach ($fetched as $entry) {
-                if (is_array($entry) && isset($entry['updated'])) {
-                    $updated = max($updated, (int) $entry['updated']);
-                }
-            }
-
-            $results[$market] = [
-                'ok' => true,
-                'updated' => $updated > 0 ? $updated : null,
-                'symbols' => count($fetched),
-                'error' => null,
-                'skipped' => false,
-            ];
+            $results[$market] = self::fetchMarket($market);
         }
 
         $status = [
@@ -393,6 +363,81 @@ final class MarketSync
         update_option(self::OPTION, $status);
 
         return $status;
+    }
+
+    /**
+     * Sync one market and merge its result into the stored status,
+     * without touching the saved market selection. The manual-sync
+     * popup calls this once per selected market, in order, like
+     * the gold sync calls once per source.
+     *
+     * @return array{market: string, ok: bool, updated: int|null, symbols: int, error: string|null, skipped: bool}
+     */
+    public static function syncOneMarket(string $market): array
+    {
+        $market = sanitize_key($market);
+        $status = self::status();
+        $row = self::fetchMarket($market);
+        $status['results'][$market] = $row;
+        $status['last_run'] = time();
+
+        update_option(self::OPTION, $status);
+
+        return array_merge(['market' => $market], $row);
+    }
+
+    /**
+     * Fetch one market fresh and return its status row. Manual
+     * snapshots are typed by the admin; there is nothing upstream
+     * to fetch for this market.
+     *
+     * @return array{ok: bool, updated: int|null, symbols: int, error: string|null, skipped: bool}
+     */
+    private static function fetchMarket(string $market): array
+    {
+        $labels = Markets::labels();
+        $provider = Markets::providerFor($market);
+
+        if (!$provider instanceof AbstractLiveProvider) {
+            // Manual snapshots are typed by the admin; there
+            // is nothing upstream to fetch for this market.
+            return [
+                'ok' => true,
+                'updated' => null,
+                'symbols' => 0,
+                'error' => null,
+                'skipped' => true,
+            ];
+        }
+
+        $fetched = $provider->forceRefresh($market);
+
+        if ($fetched === null) {
+            return [
+                'ok' => false,
+                'updated' => null,
+                'symbols' => 0,
+                /* translators: %s: market label, e.g. Stocks. */
+                'error' => sprintf(__('Could not fetch the latest %s prices. The last good value is still shown.', 'koperasikita'), $labels[$market] ?? $market),
+                'skipped' => false,
+            ];
+        }
+
+        $updated = 0;
+
+        foreach ($fetched as $entry) {
+            if (is_array($entry) && isset($entry['updated'])) {
+                $updated = max($updated, (int) $entry['updated']);
+            }
+        }
+
+        return [
+            'ok' => true,
+            'updated' => $updated > 0 ? $updated : null,
+            'symbols' => count($fetched),
+            'error' => null,
+            'skipped' => false,
+        ];
     }
 
     /** WP-Cron callback: sync the markets the admin selected. */
