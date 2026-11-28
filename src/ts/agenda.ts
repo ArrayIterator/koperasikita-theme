@@ -270,7 +270,14 @@ function initLocationPreviewMap(el: HTMLElement): void {
 	const noPin = picker?.dataset.kkAgendaNoPin ?? 'No pin placed';
 
 	// Same rule as the display map: the container is display: none
-	// until .is-ready, so show it before Leaflet measures it.
+	// until .is-ready, so show it before Leaflet measures it. The
+	// picker block itself is display: none too, and it only gains
+	// .is-ready from the Pick Location popup wiring - which the
+	// Locations form no longer has - so show the block here as well,
+	// or the map is built into a hidden box and renders blank.
+	if (picker !== null) {
+		picker.classList.add('is-ready');
+	}
 	el.classList.add('is-ready');
 	const map = L.map(el, { scrollWheelZoom: false }).setView([defaultLat, defaultLng], DEFAULT_ZOOM);
 	addTileLayer(map);
