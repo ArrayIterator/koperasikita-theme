@@ -299,7 +299,7 @@ final class FastSearch
             echo '<p class="kk-setup-stack-status">' . esc_html__('An index build is already running. Wait for it to finish before starting another one.', 'koperasikita') . '</p>';
         }
 
-        echo '<p><button type="button" class="kk-setup-button kk-setup-button--primary" data-kk-fast-search-build' . disabled($job !== null, true, false) . '>'
+        echo '<p class="kk-setup-fast-search-build"><button type="button" class="kk-setup-button kk-setup-button--primary" data-kk-fast-search-build' . disabled($job !== null, true, false) . '>'
             . esc_html__('Build indexes', 'koperasikita') . '</button> '
             . '<span class="description">' . esc_html__('Installs the missing indexes one at a time. Large tables can take a while per index; the page stays responsive and shows progress in a popup.', 'koperasikita') . '</span></p>';
 

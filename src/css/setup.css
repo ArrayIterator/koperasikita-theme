@@ -369,6 +369,14 @@
 	margin-right: 6px;
 }
 
+/* Build button: the description sits below the button, never beside
+ * it - inline it crowds the button on a narrow phone. */
+
+.kk-setup-fast-search-build .description {
+	display: block;
+	margin-top: 8px;
+}
+
 /* Footnote. */
 
 .kk-setup-footnote {
