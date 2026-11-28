@@ -67,7 +67,7 @@ for ($i = 0; $i < $repeat; $i++) {
 						<h3 class="kk-market-group-title"><?php echo esc_html($market['label']); ?></h3>
 						<ul class="kk-market-list">
 							<?php foreach ($prices as $symbol => $price) : ?>
-								<li class="kk-market-row" data-kk-symbol="<?php echo esc_attr((string) $symbol); ?>">
+								<li class="kk-market-row" data-kk-symbol="<?php echo esc_attr((string) $symbol); ?>" data-kk-currency="<?php echo esc_attr($price->currency); ?>">
 									<span class="kk-market-symbol"><?php echo esc_html($price->label); ?></span>
 									<span class="kk-market-price" data-kk-price><?php echo esc_html(Markets::formatPrice((float) $price->price, $price->currency)); ?></span>
 									<?php if ($show_change && $price->change !== null) : ?>

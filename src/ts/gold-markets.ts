@@ -492,12 +492,27 @@ interface LivePrice {
 type LivePriceMap = Record<string, LivePrice>;
 
 const LIVE_CACHE_TTL_MS = 15 * 60 * 1000;
+const MAX_CACHE_TTL_MINUTES = 24 * 60;
 
 function liveCacheKey(market: string): string {
 	return `kk-market-${market}`;
 }
 
-function readLiveCache(market: string): LivePriceMap | null {
+/**
+ * A container's cache lifetime in milliseconds, from its
+ * data-kk-cache-ttl-minutes attribute (the header strip sets 30,
+ * the widgets leave it unset and keep the 15-minute default).
+ * Out-of-range or unreadable values fall back to the default.
+ */
+function containerTtlMs(container: HTMLElement): number {
+	const parsed = Number(container.dataset.kkCacheTtlMinutes ?? '');
+	if (!Number.isFinite(parsed) || parsed <= 0) {
+		return LIVE_CACHE_TTL_MS;
+	}
+	return Math.min(parsed, MAX_CACHE_TTL_MINUTES) * 60 * 1000;
+}
+
+function readLiveCache(market: string, ttlMs: number = LIVE_CACHE_TTL_MS): LivePriceMap | null {
 	try {
 		const raw = window.localStorage.getItem(liveCacheKey(market));
 		if (!raw) {
@@ -507,7 +522,7 @@ function readLiveCache(market: string): LivePriceMap | null {
 		if (!parsed || typeof parsed.savedAt !== 'number' || !parsed.prices) {
 			return null;
 		}
-		if (Date.now() - parsed.savedAt > LIVE_CACHE_TTL_MS) {
+		if (Date.now() - parsed.savedAt > ttlMs) {
 			return null;
 		}
 		return parsed.prices;
@@ -533,6 +548,18 @@ function formatIdr(price: number): string {
 		.replace(/\B(?=(\d{3})+(?!\d))/g, '.')}`;
 }
 
+/**
+ * The server's Markets::formatPrice() for the browser: rupiah is
+ * rounded with the Rp prefix, anything else keeps two decimals
+ * with the currency code (Brent is "84.25 USD", never "Rp84").
+ */
+function formatPrice(price: number, currency: string): string {
+	if (currency === 'IDR') {
+		return formatIdr(price);
+	}
+	return `${price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ${currency}`;
+}
+
 function formatChange(change: number): string {
 	const sign = change > 0 ? '+' : '';
 	return `${sign}${change.toFixed(2)}%`;
@@ -541,23 +568,50 @@ function formatChange(change: number): string {
 function updatePriceDom(container: HTMLElement, prices: LivePriceMap): void {
 	$all<HTMLElement>('[data-kk-symbol]', container).forEach((row) => {
 		const symbol = row.dataset.kkSymbol ?? '';
-		const entry = prices[symbol];
+		const market = row.dataset.kkMarket ?? '';
+		// A row with a market (the header strip, which mixes
+		// markets) looks up market|symbol; a single-market row
+		// (the widgets) looks up the plain symbol as before.
+		const entry = market !== '' ? (prices[`${market}|${symbol}`] ?? prices[symbol]) : prices[symbol];
 		if (!entry || !Number.isFinite(entry.price) || entry.price <= 0) {
 			return;
 		}
 		const priceEl = row.querySelector<HTMLElement>('[data-kk-price]');
 		if (priceEl) {
-			priceEl.textContent = formatIdr(entry.price);
+			priceEl.textContent = formatPrice(entry.price, row.dataset.kkCurrency ?? 'IDR');
 		}
 		const changeEl = row.querySelector<HTMLElement>('[data-kk-change]');
-		if (changeEl) {
-			if (entry.change === null || !Number.isFinite(entry.change)) {
-				changeEl.textContent = '';
-				changeEl.classList.remove('kk-market-change-up', 'kk-market-change-down');
-			} else {
-				changeEl.textContent = formatChange(entry.change);
-				changeEl.classList.toggle('kk-market-change-up', entry.change >= 0);
-				changeEl.classList.toggle('kk-market-change-down', entry.change < 0);
+		if (!changeEl) {
+			return;
+		}
+		// The header strip's change chip carries an icon svg: the
+		// text lives in its [data-kk-change-text] span, so updating
+		// the chip's textContent would wipe the icon. Widget chips
+		// have no such span and update as before.
+		const textEl = changeEl.querySelector<HTMLElement>('[data-kk-change-text]') ?? changeEl;
+		if (entry.change === null || !Number.isFinite(entry.change)) {
+			textEl.textContent = '';
+			changeEl.classList.remove('kk-market-change-up', 'kk-market-change-down');
+			return;
+		}
+		const wasUp = changeEl.classList.contains('kk-market-change-up');
+		const isUp = entry.change >= 0;
+		textEl.textContent = formatChange(entry.change);
+		changeEl.classList.toggle('kk-market-change-up', isUp);
+		changeEl.classList.toggle('kk-market-change-down', !isUp);
+		// The icon follows the sign: when the day change flips,
+		// swap the svg for the server-rendered one of the new
+		// sign (data-kk-icon-up / data-kk-icon-down).
+		if (wasUp !== isUp) {
+			const svg = changeEl.querySelector('svg');
+			const icon = isUp ? changeEl.dataset.kkIconUp : changeEl.dataset.kkIconDown;
+			if (svg && icon) {
+				const tpl = document.createElement('template');
+				tpl.innerHTML = icon.trim();
+				const node = tpl.content.firstElementChild;
+				if (node) {
+					svg.replaceWith(node);
+				}
 			}
 		}
 	});
@@ -678,13 +732,23 @@ async function fetchLivePrices(container: HTMLElement): Promise<LivePriceMap | n
 
 function initLivePrices(): void {
 	$all<HTMLElement>('[data-kk-market-prices]').forEach((container) => {
+		const ttlMs = containerTtlMs(container);
+
+		// The header strip: one container for every market, fed by
+		// the rewrite endpoint instead of the per-market calls.
+		const stripEndpoint = container.dataset.kkStripEndpoint ?? '';
+		if (stripEndpoint !== '') {
+			initStripPrices(container, stripEndpoint, ttlMs);
+			return;
+		}
+
 		const market = container.dataset.kkMarket ?? '';
 		if (!market) {
 			return;
 		}
 
 		// localStorage first: a fresh cache means no server call at all.
-		const cached = readLiveCache(market);
+		const cached = readLiveCache(market, ttlMs);
 		if (cached !== null) {
 			updatePriceDom(container, cached);
 			return;
@@ -697,6 +761,151 @@ function initLivePrices(): void {
 			writeLiveCache(market, prices);
 			updatePriceDom(container, prices);
 		});
+	});
+}
+
+// Header strip refresh.
+//
+// The strip mixes markets in one flat row, so it cannot use the
+// per-market containers above: it fetches the whole strip at once
+// from the rewrite endpoint (/kk-market-prices/) and caches it
+// under its own key with the strip's 30-minute lifetime. The
+// endpoint also returns the pre-formatted snapshot caption, so the
+// caption refreshes with the prices instead of going stale under
+// a full-page cache. A failed fetch leaves the server-rendered
+// strip in place; the strip never goes blank because the live
+// call failed.
+
+const STRIP_CACHE_KEY = 'kk-market-strip';
+
+interface StripCache {
+	savedAt: number;
+	markets: Record<string, LivePriceMap>;
+	caption: string;
+}
+
+interface StripPrices {
+	markets: Record<string, LivePriceMap>;
+	caption: string;
+}
+
+function readStripCache(ttlMs: number): StripCache | null {
+	try {
+		const raw = window.localStorage.getItem(STRIP_CACHE_KEY);
+		if (!raw) {
+			return null;
+		}
+		const parsed = JSON.parse(raw) as StripCache;
+		if (
+			!parsed
+			|| typeof parsed.savedAt !== 'number'
+			|| typeof parsed.markets !== 'object'
+			|| parsed.markets === null
+			|| typeof parsed.caption !== 'string'
+		) {
+			return null;
+		}
+		if (Date.now() - parsed.savedAt > ttlMs) {
+			return null;
+		}
+		return parsed;
+	} catch {
+		return null;
+	}
+}
+
+function writeStripCache(markets: Record<string, LivePriceMap>, caption: string): void {
+	try {
+		window.localStorage.setItem(
+			STRIP_CACHE_KEY,
+			JSON.stringify({ savedAt: Date.now(), markets, caption }),
+		);
+	} catch {
+		// Storage full or private mode - the next load just fetches again.
+	}
+}
+
+async function fetchStripPrices(endpoint: string): Promise<StripPrices | null> {
+	try {
+		const response = await fetch(endpoint, { headers: { Accept: 'application/json' } });
+		if (!response.ok) {
+			return null;
+		}
+		const data = (await response.json()) as {
+			markets?: Record<string, Record<string, { price?: unknown; change?: unknown; updated?: unknown }>>;
+			caption?: unknown;
+		};
+		if (typeof data !== 'object' || data === null || typeof data.markets !== 'object' || data.markets === null) {
+			return null;
+		}
+		const markets: Record<string, LivePriceMap> = {};
+		for (const [market, rows] of Object.entries(data.markets)) {
+			if (typeof rows !== 'object' || rows === null) {
+				continue;
+			}
+			const out: LivePriceMap = {};
+			for (const [symbol, row] of Object.entries(rows)) {
+				if (typeof row !== 'object' || row === null || typeof row.price !== 'number' || row.price <= 0) {
+					continue;
+				}
+				out[symbol] = {
+					price: row.price,
+					change: typeof row.change === 'number' ? row.change : null,
+					updated: typeof row.updated === 'number' ? row.updated : Math.floor(Date.now() / 1000),
+				};
+			}
+			if (Object.keys(out).length > 0) {
+				markets[market] = out;
+			}
+		}
+		if (Object.keys(markets).length === 0) {
+			return null;
+		}
+		return { markets, caption: typeof data.caption === 'string' ? data.caption : '' };
+	} catch {
+		return null;
+	}
+}
+
+function updateStripCaption(container: HTMLElement, caption: string): void {
+	const captionEl = container.querySelector<HTMLElement>('.kk-market-header-snapshot');
+	if (!captionEl) {
+		return;
+	}
+	captionEl.textContent = caption;
+	captionEl.style.display = caption === '' ? 'none' : '';
+}
+
+function applyStripData(container: HTMLElement, markets: Record<string, LivePriceMap>, caption: string): void {
+	const flat: LivePriceMap = {};
+	for (const [market, prices] of Object.entries(markets)) {
+		for (const [symbol, entry] of Object.entries(prices)) {
+			flat[`${market}|${symbol}`] = entry;
+		}
+	}
+	updatePriceDom(container, flat);
+	updateStripCaption(container, caption);
+}
+
+function initStripPrices(container: HTMLElement, endpoint: string, ttlMs: number): void {
+	const cached = readStripCache(ttlMs);
+	if (cached !== null) {
+		applyStripData(container, cached.markets, cached.caption);
+		return;
+	}
+
+	void fetchStripPrices(endpoint).then((data) => {
+		if (data === null) {
+			return;
+		}
+		writeStripCache(data.markets, data.caption);
+		// The strip fetch covers every market, so the widgets on
+		// this page find a fresh per-market cache on their next
+		// load instead of fetching again.
+		for (const [market, prices] of Object.entries(data.markets)) {
+			writeLiveCache(market, prices);
+		}
+		applyStripData(container, data.markets, data.caption);
 	});
 }
 
