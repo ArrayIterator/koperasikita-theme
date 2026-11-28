@@ -834,20 +834,16 @@ interface MapElements {
 	map: HTMLElement;
 	name: HTMLInputElement;
 	coords: HTMLElement;
-	save: HTMLButtonElement;
-	cancel: HTMLButtonElement;
 }
 
 function mapEls(): MapElements | null {
 	const map = $('[data-kk-weather-map]');
 	const name = $('[data-kk-weather-map-name]') as HTMLInputElement | null;
 	const coords = $('[data-kk-weather-map-coords]');
-	const save = $('[data-kk-weather-map-save]') as HTMLButtonElement | null;
-	const cancel = $('[data-kk-weather-map-cancel]') as HTMLButtonElement | null;
-	if (!map || !name || !coords || !save || !cancel) {
+	if (!map || !name || !coords) {
 		return null;
 	}
-	return { map, name, coords, save, cancel };
+	return { map, name, coords };
 }
 
 /* Move the marker to a place: the coordinates line always shows where
@@ -859,6 +855,14 @@ function setMapPin(latitude: number, longitude: number, name?: string): void {
 		return;
 	}
 	els.coords.textContent = `${latitude.toFixed(4)}, ${longitude.toFixed(4)}`;
+	const lat = $('[data-kk-weather-lat]') as HTMLInputElement | null;
+	const lon = $('[data-kk-weather-lon]') as HTMLInputElement | null;
+	if (lat) {
+		lat.value = String(latitude);
+	}
+	if (lon) {
+		lon.value = String(longitude);
+	}
 	if (name !== undefined) {
 		els.name.value = name;
 		mapNameEdited = false;
@@ -928,6 +932,20 @@ function stageMapForTarget(): void {
 	requestAnimationFrame(() => weatherMap?.invalidateSize());
 }
 
+/* Stage a location on the map without applying it: the marker, the
+ * name field and the coordinate inputs follow, the weather on the
+ * page only changes when the visitor confirms with Update. Without
+ * the map section (stale cached markup) the location applies
+ * directly, as it used to. */
+function stageLocation(location: Location): void {
+	if (mapEls() === null) {
+		applyLocation(location, pickerTarget);
+		return;
+	}
+	setMapPin(location.latitude, location.longitude, location.name);
+	setStatus(tf('Moved the map to %s. Press "Update" to apply it.', location.name));
+}
+
 /* After any committed pick (quick pick, coordinates, geolocation,
  * reset), the map follows the surface so it never shows a stale pin. */
 function syncMapToTarget(target: PickerTarget): void {
@@ -946,7 +964,11 @@ function initMap(): void {
 	els.name.addEventListener('input', () => {
 		mapNameEdited = true;
 	});
-	els.save.addEventListener('click', () => {
+	// Update is the only path that applies the staged location: read
+	// the marker, resolve the area name when the field is empty, then
+	// apply and close.
+	const update = $('[data-kk-weather-update]') as HTMLButtonElement | null;
+	update?.addEventListener('click', () => {
 		const pos = mapMarker?.getLatLng();
 		if (!pos) {
 			return;
@@ -963,9 +985,6 @@ function initMap(): void {
 			applyLocation(locationWithDetails(base, details), pickerTarget);
 			closePicker();
 		})();
-	});
-	els.cancel.addEventListener('click', () => {
-		closePicker();
 	});
 }
 
@@ -1071,7 +1090,7 @@ function renderStrip(): void {
 		}
 		chip.textContent = city.name;
 		chip.addEventListener('click', () => {
-			applyLocation({ ...city, source: isCustom ? 'search' : 'quick' }, pickerTarget);
+			stageLocation({ ...city, source: isCustom ? 'search' : 'quick' });
 			renderStrip();
 		});
 		item.appendChild(chip);
@@ -1147,7 +1166,7 @@ function initStrip(): void {
 		const current = getTargetLocation(pickerTarget);
 		const existing = findExistingPick(current);
 		if (existing) {
-			applyLocation({ ...existing, source: existing.source }, pickerTarget);
+			stageLocation({ ...existing, source: existing.source });
 			renderStrip();
 			setStatus(tf('%s is already in your quick picks.', existing.name));
 			return;
@@ -1241,7 +1260,7 @@ function initSearch(): void {
 							setMapPin(place.latitude, place.longitude, place.name);
 							results.textContent = '';
 							input.value = place.name;
-							setStatus(tf('Moved the map to %s. Press "Use this location" to apply it.', place.name));
+							setStatus(tf('Moved the map to %s. Press "Update" to apply it.', place.name));
 						});
 						item.appendChild(button);
 						results.appendChild(item);
@@ -1300,7 +1319,7 @@ function initCoords(): void {
 		void (async () => {
 			const details = await reverseGeocodeDetails(latitude, longitude);
 			const base: Location = { name: details?.name ?? t('Custom location'), latitude, longitude, source: 'coords' };
-			applyLocation(locationWithDetails(base, details), pickerTarget);
+			stageLocation(locationWithDetails(base, details));
 			renderStrip();
 		})();
 	});
@@ -1331,15 +1350,14 @@ function initGeolocate(): void {
 					// anonymous "My location" that duplicates it on Add.
 					const existing = findExistingPick(resolved);
 					if (existing) {
-						applyLocation({ ...existing, source: existing.source }, pickerTarget, false);
-						setStatus(tf("You're near %s - showing its weather.", existing.name));
+						stageLocation({ ...existing, source: existing.source });
 					} else {
 						// Otherwise resolve the fix to its area name so
 						// the top bar reads "Pakis, Kabupaten Malang", not
 						// "My location".
 						const details = await reverseGeocodeDetails(resolved.latitude, resolved.longitude);
 						const base: Location = { ...resolved, name: details?.name ?? t('My location') };
-						applyLocation(locationWithDetails(base, details), pickerTarget);
+						stageLocation(locationWithDetails(base, details));
 					}
 					renderStrip();
 				})();
@@ -1400,7 +1418,7 @@ function initPicker(): void {
 			pickerTarget.kind === 'topbar'
 				? DEFAULT_LOCATION
 				: widgetDefaultLocation(pickerTarget.element);
-		applyLocation(def, pickerTarget);
+		stageLocation(def);
 		renderStrip();
 		setStatus(tf('Location reset to %s.', def.name));
 	});

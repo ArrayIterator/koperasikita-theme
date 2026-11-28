@@ -53,14 +53,6 @@ $default      = \KoperasiKita\Features\Weather::defaultLocation();
 			<div class="kk-weather-map" data-kk-weather-map></div>
 			<p class="kk-weather-map-coords" data-kk-weather-map-coords></p>
 			<p class="kk-weather-map-hint"><?php esc_html_e( 'Click the map to place the marker, or drag it.', 'koperasikita' ); ?></p>
-			<div class="kk-weather-map-actions">
-				<button type="button" class="kk-button kk-button-ghost" data-kk-weather-map-cancel>
-					<?php esc_html_e( 'Cancel', 'koperasikita' ); ?>
-				</button>
-				<button type="button" class="kk-button" data-kk-weather-map-save>
-					<?php esc_html_e( 'Use this location', 'koperasikita' ); ?>
-				</button>
-			</div>
 		</div>
 
 		<fieldset class="kk-weather-field kk-weather-coords">
@@ -108,11 +100,14 @@ $default      = \KoperasiKita\Features\Weather::defaultLocation();
 		</div>
 
 		<div class="kk-weather-modal-actions">
+			<button type="button" class="kk-weather-cancel" data-kk-weather-close>
+				<?php esc_html_e( 'Cancel', 'koperasikita' ); ?>
+			</button>
 			<button type="button" class="kk-button kk-button-ghost" data-kk-weather-reset>
 				<?php esc_html_e( 'Reset to default', 'koperasikita' ); ?>
 			</button>
-			<button type="button" class="kk-button" data-kk-weather-close>
-				<?php esc_html_e( 'Done', 'koperasikita' ); ?>
+			<button type="button" class="kk-button" data-kk-weather-update>
+				<?php esc_html_e( 'Update', 'koperasikita' ); ?>
 			</button>
 		</div>
 	</div>
