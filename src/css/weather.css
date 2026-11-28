@@ -272,10 +272,27 @@ html[data-color-scheme="dark"] .kk-weather-modal .kk-button-ghost {
 	color: var(--kk-ink);
 }
 
-/* Map picker order: name, search, then the map below them. The map
- * still owns the marker; the search only moves it. The coordinates
- * line always shows where the marker sits, so the saved lat/lon come
- * from the marker. */
+/* Map picker order: name, search, then the map toggle below them.
+ * The map is hidden until the visitor asks for it; the search only
+ * moves the marker. The coordinates line always shows where the
+ * marker sits, so the saved lat/lon come from the marker. */
+
+.kk-weather-map-toggle {
+	background: transparent;
+	border: none;
+	padding: 0 0 12px;
+	font-size: 14px;
+	font-weight: 600;
+	color: var(--kk-link, #2563eb);
+	cursor: pointer;
+	text-align: left;
+}
+
+.kk-weather-map-toggle:hover,
+.kk-weather-map-toggle:focus-visible {
+	text-decoration: underline;
+	outline: none;
+}
 
 .kk-weather-map-wrap {
 	margin-bottom: 20px;

@@ -48,7 +48,11 @@ $default      = \KoperasiKita\Features\Weather::defaultLocation();
 
 		<p class="kk-weather-status" id="kk-weather-status" data-kk-weather-status role="status" aria-live="polite"></p>
 
-		<div class="kk-weather-map-wrap">
+		<button type="button" class="kk-weather-map-toggle" data-kk-weather-map-toggle aria-expanded="false">
+			<?php esc_html_e( 'Show map', 'koperasikita' ); ?>
+		</button>
+
+		<div class="kk-weather-map-wrap" hidden>
 			<p class="kk-weather-map-label"><?php esc_html_e( 'Map', 'koperasikita' ); ?></p>
 			<div class="kk-weather-map" data-kk-weather-map></div>
 			<p class="kk-weather-map-coords" data-kk-weather-map-coords></p>
