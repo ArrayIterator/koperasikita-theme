@@ -112,15 +112,13 @@
 .kk-footer-subscribe .kk-subscribe-form,
 .kk-footer-subscribe form {
 	display: flex;
-	flex-wrap: wrap;
+	flex-direction: column;
 	gap: 8px;
 	margin-top: 12px;
 }
 
-.kk-footer-subscribe input[type="email"],
-.kk-footer-subscribe input.kk-subscribe-name {
-	flex: 1;
-	min-width: 0;
+.kk-footer-subscribe input[type="email"] {
+	width: 100%;
 	min-height: 44px;
 	padding: 10px 12px;
 	border: 1px solid var(--kk-border);
@@ -129,9 +127,8 @@
 	color: var(--kk-ink);
 }
 
-/* The name fields share a row below the email + button row. */
-.kk-footer-subscribe input.kk-subscribe-name {
-	flex: 1 1 calc(50% - 4px);
+.kk-footer-subscribe .kk-subscribe-submit {
+	width: 100%;
 }
 
 .kk-footer-bottom {

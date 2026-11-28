@@ -210,9 +210,9 @@
 	text-decoration: underline;
 }
 
-/* Newsletter widget: the [kk_subscribe] form, stacked for a narrow
- * column - the footer and the section lay it out side by side, but a
- * sidebar is 320px wide, so the field and the button stack. */
+/* Newsletter widget: the [kk_subscribe] form. One field per row at
+ * every width, same as the footer and the section: email, then the
+ * button, both full width. */
 .kk-newsletter-widget-text {
 	margin: 0 0 12px;
 	color: var(--kk-muted);
@@ -224,8 +224,7 @@
 	gap: 8px;
 }
 
-.kk-newsletter-widget input[type="email"],
-.kk-newsletter-widget input.kk-subscribe-name {
+.kk-newsletter-widget input[type="email"] {
 	width: 100%;
 	min-height: 44px;
 	padding: 10px 12px;

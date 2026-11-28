@@ -202,22 +202,21 @@
 	@apply mx-auto mt-2 max-w-[560px] text-kk-muted;
 }
 
-/* The [kk_subscribe] form: email field and button side by side on
- * desktop, stacked on mobile. The button itself is the theme .kk-button.
+/* The [kk_subscribe] form stacks at every width: email on its own
+ * row, then the button on its own row, both full width. The button
+ * itself is the theme .kk-button.
  */
 .kk-newsletter-subscribe .kk-subscribe-form,
 .kk-newsletter-subscribe form {
-	@apply mx-auto mt-5 flex max-w-[560px] flex-wrap gap-3;
+	@apply mx-auto mt-5 flex max-w-[560px] flex-col gap-3;
 }
 
-.kk-newsletter-subscribe input[type="email"],
-.kk-newsletter-subscribe input.kk-subscribe-name {
-	@apply min-h-11 min-w-0 flex-1 rounded-kk border border-kk-border bg-kk-paper px-3 py-2.5 text-kk-ink;
+.kk-newsletter-subscribe input[type="email"] {
+	@apply min-h-11 w-full rounded-kk border border-kk-border bg-kk-paper px-3 py-2.5 text-kk-ink;
 }
 
-/* The name fields share a row below the email + button row. */
-.kk-newsletter-subscribe input.kk-subscribe-name {
-	flex-basis: calc(50% - 6px);
+.kk-newsletter-subscribe .kk-subscribe-submit {
+	@apply w-full;
 }
 
 /* Small screens */
@@ -249,19 +248,5 @@
 
 	.kk-newsletter-subscribe {
 		@apply px-4 py-6;
-	}
-
-	.kk-newsletter-subscribe .kk-subscribe-form,
-	.kk-newsletter-subscribe form {
-		@apply flex-col;
-	}
-
-	.kk-newsletter-subscribe input.kk-subscribe-name {
-		@apply w-full;
-		flex-basis: auto;
-	}
-
-	.kk-newsletter-subscribe .kk-subscribe-submit {
-		@apply w-full;
 	}
 }

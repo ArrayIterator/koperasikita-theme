@@ -280,6 +280,15 @@ button:focus-visible {
 	color: #fff;
 }
 
+/* Disabled beats hover: same specificity, so this rule stays after
+ * .kk-button:hover. A disabled button keeps its green but reads as
+ * inactive and never takes the hover shade. */
+.kk-button:disabled {
+	opacity: 0.55;
+	cursor: not-allowed;
+	background: var(--kk-green, #0B6B3A);
+}
+
 .kk-button-ghost {
 	background: transparent;
 	color: var(--kk-ink);

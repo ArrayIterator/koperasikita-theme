@@ -241,19 +241,6 @@ final class Subscribe
             . ' required maxlength="254" autocomplete="email"'
             . ' aria-label="' . esc_attr__('Email address', 'koperasikita') . '"'
             . ' placeholder="' . esc_attr__('Your email address', 'koperasikita') . '">';
-        // Names are optional, so no required attribute: a signup
-        // without a name is a valid signup. They sit after the
-        // email field and share its field styling (the
-        // kk-subscribe-name class, in newsletter.css, widgets.css
-        // and footer.css).
-        $html .= '<input type="text" name="kk_subscribe_first_name" class="kk-subscribe-name kk-subscribe-first-name"'
-            . ' maxlength="100" autocomplete="given-name"'
-            . ' aria-label="' . esc_attr__('First name', 'koperasikita') . '"'
-            . ' placeholder="' . esc_attr__('Your first name', 'koperasikita') . '">';
-        $html .= '<input type="text" name="kk_subscribe_last_name" class="kk-subscribe-name kk-subscribe-last-name"'
-            . ' maxlength="100" autocomplete="family-name"'
-            . ' aria-label="' . esc_attr__('Last name', 'koperasikita') . '"'
-            . ' placeholder="' . esc_attr__('Your last name', 'koperasikita') . '">';
         // Honeypot: positioned off-screen, not display:none, so a bot
         // that skips hidden fields still finds it - and a human never
         // sees it. The label text tells a human reader to leave it be.
