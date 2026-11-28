@@ -4936,8 +4936,174 @@ msgstr "Pengaturan Fast Search tidak dapat disimpan."
 #: inc/Customizer/Customizer.php
 #: inc/Admin/AdminMenu.php
 #: inc/Admin/MarketHeaderPage.php
-msgid "Market Header Index"
-msgstr "Indeks Header Pasar"
+msgid "Market Index"
+msgstr "Indeks Pasar"
+
+#: inc/Admin/MarketHeaderPage.php
+msgid "Strip items"
+msgstr "Item strip"
+
+#: inc/Admin/MarketHeaderPage.php
+msgid "Enable auto-sync"
+msgstr "Aktifkan sinkronisasi otomatis"
+
+#: inc/Admin/MarketHeaderPage.php
+msgid "Auto-sync interval"
+msgstr "Interval sinkronisasi otomatis"
+
+#: inc/Admin/MarketHeaderPage.php
+msgid "Auto-sync"
+msgstr "Sinkronisasi otomatis"
+
+#: inc/Admin/MarketHeaderPage.php
+msgid "Fetches the selected markets automatically on a schedule, like the manual sync."
+msgstr "Mengambil pasar yang dipilih secara otomatis sesuai jadwal, seperti sinkronisasi manual."
+
+#: inc/Admin/MarketHeaderPage.php
+msgid "Auto-sync is on — %s."
+msgstr "Sinkronisasi otomatis aktif — %s."
+
+#: inc/Admin/MarketHeaderPage.php
+msgid "Auto-sync is off."
+msgstr "Sinkronisasi otomatis nonaktif."
+
+#: inc/Admin/MarketHeaderPage.php
+msgid "Off"
+msgstr "Nonaktif"
+
+#: inc/Admin/MarketHeaderPage.php
+msgid "Next sync: %s"
+msgstr "Sinkronisasi berikutnya: %s"
+
+#: inc/Admin/MarketHeaderPage.php
+msgid "Next sync"
+msgstr "Sinkronisasi berikutnya"
+
+#: inc/Admin/MarketHeaderPage.php
+msgid "Not scheduled."
+msgstr "Belum terjadwal."
+
+#: inc/Setup/Setup.php
+msgid "Market auto-sync"
+msgstr "Sinkronisasi otomatis pasar"
+
+#: inc/Setup/Setup.php
+msgid "WP-Cron is disabled in wp-config.php, but the auto-sync is running — a server cronjob is calling wp-cron.php, so this setup is fine. For reference, the cronjob looks like this:"
+msgstr "WP-Cron dinonaktifkan di wp-config.php, tetapi sinkronisasi otomatis berjalan — cronjob server memanggil wp-cron.php, jadi pengaturan ini sudah benar. Sebagai referensi, cronjob-nya seperti ini:"
+
+#: inc/Setup/Setup.php
+msgid "WP-Cron is disabled in wp-config.php, and the auto-sync has not run recently. Without a server cronjob calling wp-cron.php, the auto-sync will not run at all. Either remove the DISABLE_WP_CRON line from wp-config.php, or set up a server cronjob like this:"
+msgstr "WP-Cron dinonaktifkan di wp-config.php, dan sinkronisasi otomatis belum berjalan baru-baru ini. Tanpa cronjob server yang memanggil wp-cron.php, sinkronisasi otomatis tidak akan berjalan sama sekali. Hapus baris DISABLE_WP_CRON dari wp-config.php, atau siapkan cronjob server seperti ini:"
+
+#: inc/Setup/Setup.php
+msgid "Reference only — nothing to do here unless the sync must run on time. WordPress runs scheduled tasks (WP-Cron) only when the site gets visits, so on a quiet site the market auto-sync can run late. A server cron that calls wp-cron.php every hour makes it reliable:"
+msgstr "Hanya referensi — tidak ada yang perlu dilakukan di sini kecuali sinkronisasi harus berjalan tepat waktu. WordPress menjalankan tugas terjadwal (WP-Cron) hanya saat situs dikunjungi, jadi di situs yang sepi, sinkronisasi otomatis pasar bisa terlambat. Cron server yang memanggil wp-cron.php setiap jam membuatnya andal:"
+
+
+#: inc/Features/MarketHeaderIndex.php
+#: inc/Admin/MarketHeaderPage.php
+#: inc/Customizer/Customizer.php
+msgid "Market Snapshot"
+msgstr "Snapshot Pasar"
+
+#: inc/Customizer/Customizer.php
+#: inc/Admin/MarketHeaderPage.php
+msgid "Snapshot label"
+msgstr "Label snapshot"
+
+#: inc/Customizer/Customizer.php
+#: inc/Admin/MarketHeaderPage.php
+msgid "The text before the date and time. Leave empty to hide the label. Default: %s."
+msgstr "Teks sebelum tanggal dan jam. Kosongkan untuk menyembunyikan label. Default: %s."
+
+#: inc/Customizer/Customizer.php
+#: inc/Admin/MarketHeaderPage.php
+msgid "Show day and time"
+msgstr "Tampilkan hari & jam"
+
+#: inc/Customizer/Customizer.php
+#: inc/Admin/MarketHeaderPage.php
+msgid "Shows the day and time the strip data was taken, after the label."
+msgstr "Menampilkan hari dan jam data strip diambil, setelah label."
+
+#: inc/Customizer/Customizer.php
+#: inc/Admin/MarketHeaderPage.php
+msgid "Day and time format"
+msgstr "Format hari dan jam"
+
+#: inc/Customizer/Customizer.php
+#: inc/Admin/MarketHeaderPage.php
+msgid "PHP date format for the snapshot day and time. Default: %1$s — for example: %2$s."
+msgstr "Format tanggal PHP untuk hari dan jam snapshot. Default: %1$s — contoh: %2$s."
+
+#: inc/Admin/MarketHeaderPage.php
+msgid "The market index strip below the header shows the picked market indices - symbol, price and day change - with a snapshot caption. Data comes only from the Markets providers; an item with no price is skipped, never invented."
+msgstr "Strip indeks pasar di bawah header menampilkan indeks pasar yang dipilih - simbol, harga, dan perubahan harian - dengan caption snapshot. Data hanya berasal dari provider Markets; item tanpa harga dilewati, tidak pernah dibuat-buat."
+
+#: inc/Admin/MarketHeaderPage.php
+msgid "The strip data is fetched by a sync and stored, like the gold prices: a manual sync here, plus an automatic sync on a schedule. A market that is not selected is not synced and keeps its stored data."
+msgstr "Data strip diambil lewat sinkronisasi dan disimpan, seperti harga emas: sinkronisasi manual di sini, ditambah sinkronisasi otomatis sesuai jadwal. Pasar yang tidak dipilih tidak disinkronkan dan tetap memakai data tersimpannya."
+
+#: inc/Admin/MarketHeaderPage.php
+msgid "Last sync: %s"
+msgstr "Sinkronisasi terakhir: %s"
+
+#: inc/Admin/MarketHeaderPage.php
+msgid "Never synced yet."
+msgstr "Belum pernah disinkronkan."
+
+#: inc/Admin/MarketHeaderPage.php
+msgid "Market"
+msgstr "Pasar"
+
+#: inc/Admin/MarketHeaderPage.php
+msgid "Skipped — manual snapshots are not synced."
+msgstr "Dilewati — snapshot manual tidak disinkronkan."
+
+#: inc/Admin/MarketHeaderPage.php
+msgid "Sync failed."
+msgstr "Sinkronisasi gagal."
+
+#: inc/Admin/MarketHeaderPage.php
+msgid "Synced %1$s (%2$d symbols)"
+msgstr "Disinkronkan %1$s (%2$d simbol)"
+
+#: inc/Admin/MarketHeaderPage.php
+msgid "Synced."
+msgstr "Disinkronkan."
+
+#: inc/Admin/MarketHeaderPage.php
+msgid "Markets to sync. A market that is not selected is not synced."
+msgstr "Pasar yang akan disinkronkan. Pasar yang tidak dipilih tidak disinkronkan."
+
+#: inc/Admin/MarketHeaderPage.php
+msgid "Sync complete."
+msgstr "Sinkronisasi selesai."
+
+#: inc/Admin/MarketHeaderPage.php
+msgid "Sync finished with errors — see the status below."
+msgstr "Sinkronisasi selesai dengan error — lihat status di bawah."
+
+#: inc/Admin/MarketHeaderPage.php
+msgid "No order was sent."
+msgstr "Tidak ada urutan yang dikirim."
+
+#: inc/Admin/MarketHeaderPage.php
+msgid "The order could not be read."
+msgstr "Urutan tidak dapat dibaca."
+
+#: inc/Admin/MarketHeaderPage.php
+msgid "The order is empty."
+msgstr "Urutan kosong."
+
+#: inc/Features/MarketSync.php
+msgid "Could not fetch the latest %s prices. The last good value is still shown."
+msgstr "Tidak dapat mengambil harga %s terbaru. Nilai terakhir yang baik masih ditampilkan."
+
+#: inc/Assets/Enqueue.php
+msgid "Could not move the item."
+msgstr "Tidak dapat memindahkan item."
+
 
 #: inc/Customizer/Customizer.php
 #: inc/Admin/MarketHeaderPage.php
@@ -4965,10 +5131,6 @@ msgstr "Item pasar"
 #: inc/Customizer/Customizer.php
 msgid "Pick up to 16 items, in the order they show. Empty means the default set (IHSG, USD/IDR, Antam, Brent)."
 msgstr "Pilih hingga 16 item, sesuai urutan tampil. Kosong berarti set default (IHSG, USD/IDR, Antam, Brent)."
-
-#: template-parts/header/market-index.php
-msgid "Market Snapshot · %s"
-msgstr "Snapshot Pasar · %s"
 
 #: inc/Customizer/MarketItemsControl.php
 msgid "No items picked. The default set shows instead."
@@ -5006,10 +5168,6 @@ msgstr "Sembunyikan item"
 #: inc/Customizer/MarketItemsControl.php
 msgid "Show item"
 msgstr "Tampilkan item"
-
-#: inc/Admin/MarketHeaderPage.php
-msgid "The market index strip below the header shows the picked market indices - symbol, price and day change - with a snapshot timestamp. Data comes only from the Markets providers; an item with no price is skipped, never invented."
-msgstr "Strip indeks pasar di bawah header menampilkan indeks pasar yang dipilih - simbol, harga, dan perubahan harian - dengan stempel waktu snapshot. Data hanya berasal dari provider Markets; item tanpa harga dilewati, tidak pernah dibuat-buat."
 
 #: inc/Admin/MarketHeaderPage.php
 msgid "Item"

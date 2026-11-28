@@ -647,9 +647,11 @@ final class Enqueue
             }
         }
 
-        /* Subscribers + Market Header Index pages: server-rendered,
-         * no admin script, but their card, title, button and table
-         * chrome lives in admin.css. */
+        /* Subscribers + Market Index pages: server-rendered, but
+         * their card, title, button and table chrome lives in
+         * admin.css. The Market Index page also needs the admin
+         * script: its up/down buttons reorder the item list over
+         * AJAX, with no page reload. */
         $isSubscribers = $hookSuffix === AdminMenu::submenuHookSuffix(\KoperasiKita\Admin\SubscribersPage::PAGE_SLUG);
         $isMarketHeader = $hookSuffix === AdminMenu::submenuHookSuffix(\KoperasiKita\Admin\MarketHeaderPage::PAGE_SLUG);
 
@@ -658,6 +660,22 @@ final class Enqueue
 
             if ($css !== '') {
                 wp_enqueue_style('kk-admin', $css, [], KK_VERSION);
+            }
+
+            if ($isMarketHeader) {
+                $adminJs = ViteLoader::js('src/ts/admin.ts');
+
+                if ($adminJs !== '') {
+                    wp_enqueue_script('kk-admin', $adminJs, [], KK_VERSION, true);
+
+                    wp_localize_script('kk-admin', 'kkAdminData', [
+                        'ajaxUrl' => admin_url('admin-ajax.php'),
+                        'nonce' => wp_create_nonce('koperasikita_nonce'),
+                        'strings' => [
+                            'moveFailed' => __('Could not move the item.', 'koperasikita'),
+                        ],
+                    ]);
+                }
             }
 
             return;

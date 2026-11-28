@@ -200,6 +200,18 @@ final class YahooStockProvider extends AbstractLiveProvider
         return parent::prices($market);
     }
 
+    /**
+     * The transient and last-good keys are per-market (see
+     * transientKey()), so the market must be remembered before
+     * the base forceRefresh() stores anything - same as prices().
+     */
+    public function forceRefresh(string $market): ?array
+    {
+        $this->market = $market;
+
+        return parent::forceRefresh($market);
+    }
+
     protected function transientKey(): string
     {
         return $this->market === 'stock' ? 'kk_stock_yahoo' : 'kk_' . $this->market . '_yahoo';

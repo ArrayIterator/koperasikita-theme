@@ -11,7 +11,7 @@ use KoperasiKita\Widgets\MarketsWidget;
 use WP_Customize_Control;
 
 /**
- * Ordered market-item picker for the Market Header Index section.
+ * Ordered market-item picker for the Market Index section.
  *
  * The picked set is a JSON array of {item, hidden} pairs in picked
  * order, synced into the hidden input (data-customize-setting-link)

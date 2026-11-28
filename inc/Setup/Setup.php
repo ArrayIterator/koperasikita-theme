@@ -212,6 +212,8 @@ final class Setup
         echo '<span class="kk-setup-link-desc">' . esc_html__('Agenda locations with map coordinates.', 'koperasikita') . '</span></a>';
         echo '</div></div></section>';
 
+        self::renderMarketCronCard();
+
         \KoperasiKita\Features\FastSearch\FastSearch::renderSetupCard();
 
         echo '<p class="kk-setup-footnote">' . esc_html__('Koperasi Kita theme', 'koperasikita')
@@ -220,6 +222,54 @@ final class Setup
         self::renderSidebarPopup();
 
         echo '</div>';
+    }
+
+    /**
+     * Market auto-sync cron card: a state-aware reference about
+     * the server cron that triggers wp-cron.php. Only when the
+     * Markets feature and the market auto-sync are on - with the
+     * sync off there is nothing to trigger, so the card stays
+     * hidden. Display text only: nothing here changes
+     * wp-config.php or sets anything up.
+     */
+    private static function renderMarketCronCard(): void
+    {
+        if (!\KoperasiKita\Features\Markets::isEnabled()) {
+            return;
+        }
+
+        $autoSync = \KoperasiKita\Features\MarketSync::autoSyncSettings();
+
+        if (!$autoSync['enabled']) {
+            return;
+        }
+
+        $cronLine = '0 * * * * curl -s ' . home_url('wp-cron.php') . ' > /dev/null 2>&1';
+        $state = \KoperasiKita\Features\MarketSync::wpCronState();
+
+        echo '<section class="kk-setup-card">';
+        echo '<h2 class="kk-setup-card-title">' . esc_html__('Market auto-sync', 'koperasikita') . '</h2>';
+        echo '<div class="kk-setup-card-body">';
+
+        if ($state === 'disabled-with-cronjob') {
+            echo '<p>' . esc_html__(
+                'WP-Cron is disabled in wp-config.php, but the auto-sync is running — a server cronjob is calling wp-cron.php, so this setup is fine. For reference, the cronjob looks like this:',
+                'koperasikita'
+            ) . '</p>';
+        } elseif ($state === 'disabled-no-cronjob') {
+            echo '<p>' . esc_html__(
+                'WP-Cron is disabled in wp-config.php, and the auto-sync has not run recently. Without a server cronjob calling wp-cron.php, the auto-sync will not run at all. Either remove the DISABLE_WP_CRON line from wp-config.php, or set up a server cronjob like this:',
+                'koperasikita'
+            ) . '</p>';
+        } else {
+            echo '<p>' . esc_html__(
+                'Reference only — nothing to do here unless the sync must run on time. WordPress runs scheduled tasks (WP-Cron) only when the site gets visits, so on a quiet site the market auto-sync can run late. A server cron that calls wp-cron.php every hour makes it reliable:',
+                'koperasikita'
+            ) . '</p>';
+        }
+
+        echo '<p><code class="kk-setup-cron">' . esc_html($cronLine) . '</code></p>';
+        echo '</div></section>';
     }
 
     /**
