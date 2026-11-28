@@ -12,11 +12,15 @@ use KoperasiKita\Widgets\MarketsWidget;
  * the ticker, above the hero) showing picked market indices -
  * symbol, price, day change - with a snapshot caption.
  *
- * Data comes only from the Markets providers (Markets::prices(),
- * 15-minute transient plus last good, the same as the Markets
- * widget); an item with no price is skipped, never invented. The
- * strip renders nothing at all - not even an empty bar - when
- * disabled, when Markets is off, or when no picked item has data.
+ * Data comes only from what the sync already stored
+ * (Markets::storedPrices(): fresh transient plus last good).
+ * The strip never fetches from the upstream itself: fresh data
+ * is the manual sync's job in wp-admin and the cron auto-sync's
+ * job, on their own schedule. When the cron has not run yet the
+ * strip serves the stored data, however old; an item with no
+ * stored price is skipped, never invented. The strip renders
+ * nothing at all - not even an empty bar - when disabled, when
+ * Markets is off, or when no picked item has data.
  * The strip has no background of its own: the items sit directly
  * on the page background and follow the site colour scheme.
  *
@@ -248,7 +252,7 @@ final class MarketHeaderIndex
             [$market, $symbol] = explode('|', $item, 2);
 
             if (!isset($pricesByMarket[$market])) {
-                $pricesByMarket[$market] = Markets::prices($market);
+                $pricesByMarket[$market] = Markets::storedPrices($market);
             }
 
             $price = $pricesByMarket[$market][$symbol] ?? null;
@@ -420,11 +424,13 @@ final class MarketHeaderIndex
     }
 
     /**
-     * The endpoint payload: every market's prices (the same shape
-     * as the REST /markets route, via Markets::allPrices()), the
-     * pre-formatted snapshot caption, and the snapshot timestamp
-     * it was formatted from. The caption is formatted server-side
-     * with the caption settings, so the browser only swaps text.
+     * The endpoint payload: every market's stored prices (the same
+     * shape as the REST /markets route, via
+     * Markets::allStoredPrices() - stored only, never a live
+     * fetch), the pre-formatted snapshot caption, and the snapshot
+     * timestamp it was formatted from. The caption is formatted
+     * server-side with the caption settings, so the browser only
+     * swaps text.
      *
      * @return array{markets: array<string, array<string, array<string, mixed>>>, caption: string, snapshot: int|null}
      */
@@ -434,7 +440,7 @@ final class MarketHeaderIndex
         $snapshot = self::snapshotTime($items);
 
         return [
-            'markets' => Markets::allPrices(),
+            'markets' => Markets::allStoredPrices(),
             'caption' => self::captionText($snapshot),
             'snapshot' => $snapshot,
         ];
