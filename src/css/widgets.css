@@ -311,7 +311,7 @@
 	font-size: 0.875rem;
 }
 
-.kk-quote-link {
+.kk-quote .kk-quote-link {
 	display: inline-flex;
 	align-items: center;
 	gap: 4px;
@@ -322,8 +322,8 @@
 	text-decoration: none;
 }
 
-.kk-quote-link:hover,
-.kk-quote-link:focus-visible {
+.kk-quote .kk-quote-link:hover,
+.kk-quote .kk-quote-link:focus-visible {
 	color: var(--kk-gold-light);
 	text-decoration: underline;
 }
