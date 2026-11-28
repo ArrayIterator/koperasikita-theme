@@ -40,6 +40,13 @@ final class GoldPricesPage
     /** Rows per page in the history list. */
     private const HISTORY_PER_PAGE = 20;
 
+    /** Rows the Incremental Export fetches per chunk (100 or 500
+     * per the user's call - 500 keeps a full-history export to a
+     * handful of small queries without loading the server). */
+    private const EXPORT_CHUNK = 500;
+
+    private const NONCE_EXPORT = 'kk_gold_prices_export';
+
     /** Rows the history chart reads at most (filter applies, page does not). */
     private const HISTORY_CHART_CAP = 200;
 
@@ -97,6 +104,65 @@ final class GoldPricesPage
     {
         self::handleGoldBrandsSave();
         self::handleSyncSettingsSave();
+    }
+
+    /**
+     * The Incremental Export (admin-post.php): the stored price
+     * history as a CSV download, by date range or all of it.
+     * Both modes stream: GoldPricesTable::streamExportRows()
+     * fetches one chunk at a time and each row is echoed to
+     * php://output as it is read, so the export never holds the
+     * whole history in memory. Runs on admin-post.php, before any
+     * output, so the download headers can still be sent.
+     */
+    public static function handleExport(): void
+    {
+        if (!current_user_can('manage_options')) {
+            wp_die(esc_html__('You do not have permission to access this page.', 'koperasikita'));
+        }
+
+        check_admin_referer(self::NONCE_EXPORT);
+
+        // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- the nonce was just checked.
+        $all = isset($_GET['all']) && (string) wp_unslash($_GET['all']) === '1';
+        // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- the nonce was just checked.
+        $from = $all ? '' : self::historyDate(isset($_GET['from']) ? (string) wp_unslash($_GET['from']) : '');
+        // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- the nonce was just checked.
+        $to = $all ? '' : self::historyDate(isset($_GET['to']) ? (string) wp_unslash($_GET['to']) : '');
+        if ($from !== '' && $to !== '' && $from > $to) {
+            [$from, $to] = [$to, $from];
+        }
+
+        $suffix = $all || ($from === '' && $to === '')
+            ? 'all-' . gmdate('Y-m-d')
+            : ($from !== '' ? $from : 'start') . '-to-' . ($to !== '' ? $to : gmdate('Y-m-d'));
+
+        nocache_headers();
+        header('Content-Type: text/csv; charset=utf-8');
+        header('Content-Disposition: attachment; filename="gold-prices-' . $suffix . '.csv"');
+
+        $out = fopen('php://output', 'w');
+
+        if ($out === false) {
+            exit;
+        }
+
+        fputcsv($out, ['Provider', 'Brand', 'Sell price', 'Buyback price', 'Currency', 'Recorded date', 'Fetched at']);
+
+        foreach (GoldPricesTable::streamExportRows($from, $to, self::EXPORT_CHUNK) as $row) {
+            fputcsv($out, [
+                $row['provider'],
+                $row['symbol'],
+                $row['sell_price'],
+                $row['buyback_price'] ?? '',
+                $row['currency'],
+                $row['recorded_date'],
+                gmdate('Y-m-d H:i:s', $row['fetched_at']),
+            ]);
+        }
+
+        fclose($out);
+        exit;
     }
 
     /**
@@ -911,6 +977,20 @@ final class GoldPricesPage
                 <?php if ($filtered) : ?>
                     <a class="button" href="<?php echo esc_url(add_query_arg('tab', 'history', $pageUrl)); ?>"><?php esc_html_e('Clear filters', 'koperasikita'); ?></a>
                 <?php endif; ?>
+            </p>
+        </form>
+        <form method="get" action="<?php echo esc_url(admin_url('admin-post.php')); ?>">
+            <input type="hidden" name="action" value="kk_export_gold_prices">
+            <?php wp_nonce_field(self::NONCE_EXPORT); ?>
+            <p class="kk-gold-filters">
+                <strong><?php esc_html_e('Incremental Export', 'koperasikita'); ?></strong>
+                <span><?php esc_html_e('Download the price history as CSV. Exports stream row by row from the database, so exporting the full history uses almost no memory.', 'koperasikita'); ?></span>
+                <label for="kk-export-from"><?php esc_html_e('From', 'koperasikita'); ?></label>
+                <input type="date" id="kk-export-from" name="from" value="<?php echo esc_attr($from); ?>">
+                <label for="kk-export-to"><?php esc_html_e('To', 'koperasikita'); ?></label>
+                <input type="date" id="kk-export-to" name="to" value="<?php echo esc_attr($to); ?>">
+                <input type="submit" class="button button-primary" value="<?php esc_attr_e('Export CSV', 'koperasikita'); ?>">
+                <a class="button" href="<?php echo esc_url(wp_nonce_url(add_query_arg('all', '1', admin_url('admin-post.php?action=kk_export_gold_prices')), self::NONCE_EXPORT)); ?>"><?php esc_html_e('Export All', 'koperasikita'); ?></a>
             </p>
         </form>
         <?php self::renderChart($chart, $brands, $filtered); ?>

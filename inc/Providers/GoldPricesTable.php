@@ -515,6 +515,62 @@ final class GoldPricesTable
     }
 
     /**
+     * Stream rows for the CSV Incremental Export, oldest first, in
+     * chunks: the generator fetches one chunk at a time and yields
+     * one row at a time, so an export of the full history never
+     * holds more than a chunk in memory. Both export modes (date
+     * range and export-all) read through here; the only difference
+     * is the WHERE clause. A from/to pair that is not a real Y-m-d
+     * date is ignored (historyDate), so an empty pair means "all
+     * rows" and a hand-made URL can never break the query.
+     *
+     * @return iterable<int, array{provider: string, symbol: string, sell_price: float, buyback_price: float|null, currency: string, recorded_date: string, fetched_at: int}>
+     */
+    public static function streamExportRows(string $from, string $to, int $chunkSize = 500): iterable
+    {
+        global $wpdb;
+
+        $table = self::table();
+
+        if ($wpdb->get_var($wpdb->prepare('SHOW TABLES LIKE %s', $table)) !== $table) {
+            return;
+        }
+
+        [$where, $params] = self::historyWhere('', ['from' => $from, 'to' => $to]);
+
+        $chunk = max(1, $chunkSize);
+        $offset = 0;
+
+        while (true) {
+            $pageParams = array_merge($params, [$chunk, $offset]);
+
+            $rows = $wpdb->get_results(
+                $wpdb->prepare(
+                    "SELECT provider, symbol, sell_price, buyback_price, currency, recorded_date, fetched_at
+                     FROM {$table} {$where}
+                     ORDER BY recorded_date ASC, symbol ASC, id ASC LIMIT %d OFFSET %d",
+                    ...$pageParams
+                ),
+                ARRAY_A
+            );
+
+            if (!is_array($rows) || $rows === []) {
+                return;
+            }
+
+            foreach (self::cleanRows($rows) as $row) {
+                yield $row;
+            }
+
+            if (count($rows) < $chunk) {
+                return;
+            }
+
+            $offset += $chunk;
+        }
+    }
+
+    /**
      * A real Y-m-d date, or '' - anything else (garbage, a
      * wrong format, an impossible date) means "no filter".
      */
