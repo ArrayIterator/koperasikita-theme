@@ -7,10 +7,14 @@
  * server-rendered cards to the same grid page one used. A failed
  * fetch leaves the link enabled so the reader can retry.
  *
- * The control is a real link to the next page: the click is
- * intercepted for an AJAX load while there are pages left inside
- * the cap, and once the cap is reached the click is left alone so
- * it navigates to that page instead of showing a pagination.
+ * The cap counts Load More requests, not pages: each click loads
+ * one more page, from wherever the reader is, so the cap is
+ * reached after that many loads even when the reader started on
+ * a later page. Once the cap is reached the click is left alone
+ * so it navigates to the next page instead of showing a
+ * pagination. When there are no more pages the button hides
+ * instead of navigating to a page that does not exist, and a
+ * request that answers 404 hides it too.
  */
 
 export {};
@@ -62,10 +66,11 @@ function initPagination(): void {
 		query = {};
 	}
 	const maxPages = Math.max(1, Number(loader.getAttribute('data-max-pages') ?? '1') || 1);
-	const loadMoreMax = Math.max(0, Number(loader.getAttribute('data-load-more-max') ?? '0') || 0);
+	const loadMoreMaxRequests = Math.max(0, Number(loader.getAttribute('data-load-more-max') ?? '0') || 0);
 	const loadingStyle = loader.getAttribute('data-loading-style') ?? 'icon-text';
 	const perPage = Math.min(100, Math.max(1, Number(loader.getAttribute('data-per-page') ?? '10') || 10));
 	let page = Math.max(1, Number(loader.getAttribute('data-page') ?? '1') || 1);
+	let requests = 0;
 	let loading = false;
 
 	const status = loader.querySelector<HTMLElement>('[data-kk-pagination-status]');
@@ -147,12 +152,11 @@ function initPagination(): void {
 		if (loading || page >= maxPages) {
 			return;
 		}
-		/* The cap stops AJAX loading even when more pages exist:
-		 * the link is left alone from here, so the next click
-		 * navigates to the next page instead. The click handler
-		 * below is what enforces this - loadNext never runs past
-		 * the cap. */
-		if (loadMoreMax > 0 && page >= loadMoreMax) {
+		/* The cap counts Load More requests, not pages: each click
+		 * loads one more page, from wherever the reader is, so the
+		 * cap is reached after that many loads even when the reader
+		 * started on a later page. */
+		if (loadMoreMaxRequests > 0 && requests >= loadMoreMaxRequests) {
 			return;
 		}
 		loading = true;
@@ -166,6 +170,13 @@ function initPagination(): void {
 			params.set('page', String(page + 1));
 			params.set('per_page', String(perPage));
 			const response = await fetch(`${endpoint}?${params.toString()}`);
+			/* A 404 means the requested page does not exist: nothing
+			 * more to load, so hide the button instead of showing
+			 * an error. */
+			if (response.status === 404) {
+				finish();
+				return;
+			}
 			const body = (await response.json()) as PostsEnvelope;
 			if (!response.ok || !body.success || !body.data) {
 				throw new Error(body.error?.message ?? 'Request failed');
@@ -176,6 +187,7 @@ function initPagination(): void {
 			while (temp.firstChild) {
 				grid.appendChild(temp.firstChild);
 			}
+			requests += 1;
 			page = data.page;
 			/* Keep the link pointing at the page after the one just
 			 * loaded, so a later click (past the cap, or with
@@ -197,12 +209,16 @@ function initPagination(): void {
 
 	if (mode === 'load-more') {
 		button?.addEventListener('click', (event) => {
-			/* Cap reached: do not intercept - the link navigates to
-			 * the next page. Otherwise load it by AJAX. */
-			if (loadMoreMax > 0 && page >= loadMoreMax) {
+			/* No more pages: hide the button instead of navigating
+			 * to a page that does not exist. */
+			if (page >= maxPages) {
+				event.preventDefault();
+				finish();
 				return;
 			}
-			if (page >= maxPages) {
+			/* Cap reached: do not intercept - the link navigates to
+			 * the next page. Otherwise load it by AJAX. */
+			if (loadMoreMaxRequests > 0 && requests >= loadMoreMaxRequests) {
 				return;
 			}
 			event.preventDefault();

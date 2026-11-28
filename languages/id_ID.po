@@ -4310,8 +4310,8 @@ msgstr "Teks \"Loading\""
 msgid "Load More Max Pages"
 msgstr "Maks. Halaman Load More"
 
-msgid "How many pages Load More may fetch. After that the link navigates to the next page instead. 0 means unlimited."
-msgstr "Berapa halaman yang boleh dimuat Load More. Setelah itu tautan membuka halaman berikutnya. 0 berarti tanpa batas."
+msgid "How many times Load More may load. Each load fetches one more page. After that the link navigates to the next page instead. 0 means unlimited."
+msgstr "Berapa kali Load More boleh memuat. Setiap pemuatan mengambil satu halaman lagi. Setelah itu tautan membuka halaman berikutnya. 0 berarti tanpa batas."
 
 msgid "Sticky sidebars and which sidebar shows where."
 msgstr "Sidebar lengket dan sidebar mana yang tampil di mana."

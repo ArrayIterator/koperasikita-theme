@@ -101,8 +101,10 @@ final class Pagination
     }
 
     /**
-     * How many pages Load More may fetch before the normal numbered
-     * navigation takes over. 0 means unlimited.
+     * How many times Load More may load before the normal numbered
+     * navigation takes over. Each load fetches one more page, from
+     * wherever the reader is - the number counts requests, not
+     * pages. 0 means unlimited.
      */
     public static function loadMoreMaxPages(): int
     {
@@ -203,10 +205,10 @@ final class Pagination
      * latest news); omit it to load more of the main query.
      *
      * The control is a real link to the next page, not a button: the
-     * script intercepts the click and loads the page by AJAX while
-     * there are pages left inside the cap, and once the cap is
-     * reached the click is left alone so it navigates to that page
-     * instead of showing a numbered pagination.
+     * script intercepts the click and loads the next page by AJAX
+     * while the request cap allows it, and once the cap is reached
+     * the click is left alone so it navigates to that page instead
+     * of showing a numbered pagination.
      */
     public static function renderLoader(?\WP_Query $query = null): void
     {
