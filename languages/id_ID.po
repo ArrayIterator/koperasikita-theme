@@ -2582,6 +2582,11 @@ msgstr "Muat lebih banyak"
 msgid "No more posts."
 msgstr "Tidak ada artikel lagi."
 
+#: inc/Features/Pagination.php
+
+msgid "Loading..."
+msgstr "Memuat..."
+
 #: inc/Customizer/Customizer.php
 
 msgid "Install Button Text"

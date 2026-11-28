@@ -69,6 +69,7 @@ function initPagination(): void {
 	let maxPages = Math.max(1, Number(loader.getAttribute('data-max-pages') ?? '1') || 1);
 	const loadMoreMaxRequests = Math.max(0, Number(loader.getAttribute('data-load-more-max') ?? '0') || 0);
 	const loadingStyle = loader.getAttribute('data-loading-style') ?? 'icon-text';
+	const loadingLabel = loader.getAttribute('data-loading-label') ?? 'Loading...';
 	const perPage = Math.min(100, Math.max(1, Number(loader.getAttribute('data-per-page') ?? '10') || 10));
 	let page = Math.max(1, Number(loader.getAttribute('data-page') ?? '1') || 1);
 	let requests = 0;
@@ -125,12 +126,12 @@ function initPagination(): void {
 			if (icon) {
 				icon.hidden = true;
 			}
-			label.textContent = 'Loading...';
+			label.textContent = loadingLabel;
 		} else {
 			if (icon) {
 				icon.hidden = false;
 			}
-			label.textContent = 'Loading...';
+			label.textContent = loadingLabel;
 		}
 	};
 
