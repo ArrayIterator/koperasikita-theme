@@ -445,6 +445,62 @@
 	color: #646970;
 }
 
+/* Quote widget colours: the same swatch + hex + clear row as the
+ * agenda Choose Own colours - an empty value reads as "no colour"
+ * via the checkerboard, so the card falls back to the theme colour. */
+.kk-quote-color-row {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	margin: 4px 0 0;
+}
+
+.kk-quote-color-wrap {
+	position: relative;
+	flex: 0 0 auto;
+	width: 2.25rem;
+	height: 2.25rem;
+	border-radius: 3px;
+}
+
+.kk-quote-color-wrap.is-empty::after {
+	content: '';
+	position: absolute;
+	inset: 0;
+	border-radius: 3px;
+	background: repeating-conic-gradient(#dcdcde 0% 25%, #fff 0% 50%) 0 0 / 12px 12px;
+	pointer-events: none;
+}
+
+.kk-quote-color {
+	box-sizing: border-box;
+	width: 100%;
+	height: 100%;
+	padding: 2px;
+	border: 1px solid #dcdcde;
+	border-radius: 3px;
+	background: #fff;
+	cursor: pointer;
+}
+
+.kk-quote-color-clear {
+	padding: 0 0.25rem;
+	border: none;
+	background: none;
+	color: #646970;
+	font-size: 1.25rem;
+	line-height: 1;
+	cursor: pointer;
+}
+
+.kk-quote-color-clear:hover {
+	color: #d63638;
+}
+
+.kk-quote-color-hex {
+	color: #646970;
+}
+
 /* "Link to": the search results reuse the term picker list/option
  * styles; the chosen post/page shows as one row (title + type +
  * remove) under the search box. */

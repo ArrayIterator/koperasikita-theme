@@ -3408,6 +3408,70 @@ function initAgendaWidgetFields(): void {
 		syncColorRow(scope, key);
 	});
 
+	/* Quote widget colour rows: the same shape as the agenda rows -
+	 * the visible swatch is only the picker, the hidden input holds
+	 * the real value (empty = fall back to the theme colour), and
+	 * the x button clears it back to empty. */
+	const syncQuoteColorRow = (scope: HTMLElement | null, key: string): void => {
+		const input = scope?.querySelector<HTMLInputElement>(
+			`[data-kk-quote-color-input="${key}"]`,
+		);
+		const hex = scope?.querySelector<HTMLElement>(
+			`[data-kk-quote-color-hex="${key}"]`,
+		);
+		const wrap = scope?.querySelector<HTMLElement>(
+			`[data-kk-quote-color-wrap="${key}"]`,
+		);
+		const clear = scope?.querySelector<HTMLElement>(
+			`[data-kk-quote-color-clear="${key}"]`,
+		);
+		if (hex && input) {
+			hex.textContent = input.value;
+		}
+		if (wrap) {
+			wrap.classList.toggle('is-empty', !input || input.value === '');
+		}
+		if (clear) {
+			clear.hidden = !input || input.value === '';
+		}
+	};
+
+	document.addEventListener('input', (event) => {
+		const picker = (event.target as HTMLElement).closest(
+			'[data-kk-quote-color]',
+		) as HTMLInputElement | null;
+		if (!picker) {
+			return;
+		}
+		const key = picker.dataset.kkQuoteColor ?? '';
+		const scope = scopeFor(picker);
+		const input = scope?.querySelector<HTMLInputElement>(
+			`[data-kk-quote-color-input="${key}"]`,
+		);
+		if (input) {
+			input.value = picker.value;
+		}
+		syncQuoteColorRow(scope, key);
+	});
+
+	document.addEventListener('click', (event) => {
+		const clear = (event.target as HTMLElement).closest(
+			'[data-kk-quote-color-clear]',
+		) as HTMLElement | null;
+		if (!clear) {
+			return;
+		}
+		const key = clear.dataset.kkQuoteColorClear ?? '';
+		const scope = scopeFor(clear);
+		const input = scope?.querySelector<HTMLInputElement>(
+			`[data-kk-quote-color-input="${key}"]`,
+		);
+		if (input) {
+			input.value = '';
+		}
+		syncQuoteColorRow(scope, key);
+	});
+
 	const scopeFor = (el: HTMLElement): HTMLElement | null =>
 		el.closest('form') ??
 		el.closest('.widget-content') ??

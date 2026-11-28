@@ -2378,6 +2378,26 @@ msgstr "URL Tautan"
 msgid "Link label"
 msgstr "Label Tautan"
 
+#: inc/Widgets/QuoteWidget.php
+#: src/ts/widget-blocks.ts
+msgid "Italic"
+msgstr "Miring"
+
+#: inc/Widgets/QuoteWidget.php
+#: src/ts/widget-blocks.ts
+msgid "Text color"
+msgstr "Warna teks"
+
+#: inc/Widgets/QuoteWidget.php
+#: src/ts/widget-blocks.ts
+msgid "Role color"
+msgstr "Warna jabatan"
+
+#: inc/Widgets/QuoteWidget.php
+#: src/ts/widget-blocks.ts
+msgid "Link color"
+msgstr "Warna tautan"
+
 #: src/ts/widget-blocks.ts
 msgid "Leave empty to hide the link."
 msgstr "Biarkan kosong untuk menyembunyikan tautan."

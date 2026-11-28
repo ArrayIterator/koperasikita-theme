@@ -238,7 +238,8 @@
 .kk-quote {
 	--kk-quote-bg: #3A2D1E;
 	--kk-quote-text: #F5EEDD;
-	--kk-quote-muted: #C9A86A;
+	--kk-quote-muted: #e9dabe;
+	--kk-quote-link: #e5e9cc;
 	margin: 0;
 	padding: 24px;
 	border-radius: 8px;
@@ -248,7 +249,8 @@
 .kk-quote-text {
 	margin: 0;
 	font-family: var(--kk-serif);
-	font-size: 1.375rem;
+	font-size: var(--kk-quote-font-size, 1.175rem);
+	font-style: var(--kk-quote-font-style, normal);
 	line-height: 1.5;
 	color: var(--kk-quote-text);
 }
@@ -304,9 +306,8 @@
 	align-items: center;
 	gap: 4px;
 	margin-top: 16px;
-	color: var(--kk-gold);
+	color: var(--kk-quote-link);
 	font-weight: 700;
-	text-transform: uppercase;
 	letter-spacing: 0.04em;
 	text-decoration: none;
 }
