@@ -29,10 +29,10 @@ use KoperasiKita\Widgets\MarketsWidget;
  * page: ['enabled' => bool, 'items' => [{item, hidden}],
  * 'cycle_interval' => int, 'snapshot_label' => string,
  * 'snapshot_show_datetime' => bool, 'snapshot_format' => string].
- * `cycle_interval` is the seconds per item in the desktop
- * marquee - 7 by default, deliberately not the news ticker's 5,
- * so the two never step together. On small screens the strip is
- * a swipeable row and the interval does not apply.
+ * `cycle_interval` is the seconds between items when the strip
+ * cycles one item at a time on small screens - 7 by default,
+ * deliberately not the news ticker's 5, so the two rotations
+ * never step together.
  * `items` is the picked set in picked order (max 16, market|symbol
  * values from MarketsWidget::allItems()); `hidden` flags items the
  * admin page hid - hidden items stay stored so they can be shown

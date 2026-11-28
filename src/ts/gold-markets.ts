@@ -919,14 +919,15 @@ function initStripPrices(container: HTMLElement, endpoint: string, ttlMs: number
  * translates -50% on a linear loop (the same two-set pattern as the
  * markets marquee), so the seam never shows. The loop passes one
  * item per cycle interval (the strip's data-speed, 7s by default),
- * so the pace follows the cycle interval Customizer setting - no
- * new setting.
+ * so the pace follows the same Customizer setting as the mobile
+ * rotation - no new setting.
  *
  * The marquee only exists on desktop (min-width: 768px, the mirror
- * of the mobile swipeable row's max-width: 767px) and never under
- * reduced motion; below the breakpoint the markup is restored to
- * exactly what the server rendered, so the mobile swipeable row is
- * untouched. The clones carry the same data-kk-symbol attributes, so updatePriceDom() refreshes them in
+ * of the mobile rotation's max-width: 767px) and never under reduced
+ * motion; below the breakpoint the markup is restored to exactly
+ * what the server rendered, so the mobile rotation and the plain
+ * swipeable row are untouched. The clones carry the same
+ * data-kk-symbol attributes, so updatePriceDom() refreshes them in
  * place with the originals. Hover/focus pauses the loop (CSS); the
  * animation itself is CSS, so a hidden tab pauses it too.
  */
@@ -1016,6 +1017,154 @@ function initMarketHeaderMarquee(): void {
 			teardown();
 		}
 	}
+
+	/* Dragging the desktop marquee.
+	 *
+	 * The marquee is a CSS animation on the track (translateX 0 to
+	 * -50%), so a pointer drag takes over the translate directly:
+	 * on press the script reads the track's live offset from the
+	 * computed transform, switches the animation off (the
+	 * kk-is-dragging class) and drives the offset from the pointer;
+	 * on release it converts the offset back into a negative
+	 * animation delay, so the loop resumes exactly where the drag
+	 * left it - no jump. Hover already pauses the loop through CSS,
+	 * so a hovered strip sits still and the drag starts from the
+	 * frozen offset; leaving the strip lifts the pause and the loop
+	 * resumes from the dragged spot. Touch drags work the same way
+	 * (the strip's touch-action is pan-y, so horizontal moves reach
+	 * the script). Under reduced motion the marquee never builds and
+	 * the strip is the plain scrollable row, so a mouse drag scrolls
+	 * it instead (touch scrolls it natively); on mobile the rotation
+	 * owns the strip, which is not scrollable, so the drag is a
+	 * no-op there.
+	 */
+	const DRAG_THRESHOLD_PX = 3;
+	let dragging = false;
+	let dragMode: 'track' | 'scroll' | null = null;
+	let dragMoved = false;
+	let dragStartX = 0;
+	let dragStartTx = 0;
+	let dragTx = 0;
+	let dragStartScroll = 0;
+
+	const trackOf = (): HTMLElement | null => strip.querySelector<HTMLElement>('.kk-index-strip-track');
+
+	const trackTx = (track: HTMLElement): number => {
+		const matrix = window.getComputedStyle(track).transform;
+		if (matrix === 'none') {
+			return 0;
+		}
+		const parts = matrix.replace(/^matrix3?d?\(/, '').replace(/\)$/, '').split(',').map(Number);
+		const tx = matrix.startsWith('matrix3d') ? parts[12] : parts[4];
+		return Number.isFinite(tx) ? tx : 0;
+	};
+
+	const normalizeTx = (tx: number, half: number): number => {
+		if (half <= 0) {
+			return 0;
+		}
+		let t = tx % half;
+		if (t > 0) {
+			t -= half;
+		}
+		return t;
+	};
+
+	const endDrag = (): void => {
+		if (!dragging) {
+			return;
+		}
+		dragging = false;
+		strip.classList.remove('kk-is-dragging');
+		if (dragMode === 'track') {
+			const track = trackOf();
+			if (track) {
+				// Resume the loop exactly where the drag left it:
+				// the offset is a fraction of one set's width, and
+				// the negative delay starts the loop at that
+				// fraction. Runs even for a bare press, so a click
+				// never restarts the loop from zero.
+				const half = track.scrollWidth / 2;
+				const progress = half > 0 ? -normalizeTx(dragTx, half) / half : 0;
+				const duration = originals().length * speedSeconds();
+				track.style.animationDelay = `${-progress * duration}s`;
+				track.style.transform = '';
+			}
+		}
+		dragMode = null;
+	};
+
+	const onPointerDown = (event: PointerEvent): void => {
+		if (dragging) {
+			return;
+		}
+		if (event.pointerType === 'mouse' && event.button !== 0) {
+			return;
+		}
+		if (built) {
+			// Marquee mode: the track takes the drag (every pointer
+			// type - the strip is overflow hidden, so there is no
+			// native scroll for touch to use).
+			const track = trackOf();
+			if (!track) {
+				return;
+			}
+			dragMode = 'track';
+			dragStartTx = trackTx(track);
+			dragTx = dragStartTx;
+			// Freeze the loop exactly where it is, so the first
+			// move does not jump back to the press position.
+			track.style.transform = `translateX(${dragStartTx}px)`;
+		} else {
+			// Plain-row mode (reduced motion): mouse/pen drag
+			// scrolls the row; touch scrolls it natively. A
+			// rotation strip is not scrollable, so this is a
+			// no-op on mobile.
+			if (event.pointerType !== 'mouse' && event.pointerType !== 'pen') {
+				return;
+			}
+			if (strip.scrollWidth <= strip.clientWidth) {
+				return;
+			}
+			dragMode = 'scroll';
+			dragStartScroll = strip.scrollLeft;
+		}
+		dragging = true;
+		dragMoved = false;
+		dragStartX = event.clientX;
+		strip.classList.add('kk-is-dragging');
+		strip.setPointerCapture(event.pointerId);
+		if (event.pointerType === 'mouse') {
+			event.preventDefault();
+		}
+	};
+
+	const onPointerMove = (event: PointerEvent): void => {
+		if (!dragging || dragMode === null) {
+			return;
+		}
+		const dx = event.clientX - dragStartX;
+		if (!dragMoved && Math.abs(dx) <= DRAG_THRESHOLD_PX) {
+			return;
+		}
+		dragMoved = true;
+		if (dragMode === 'track') {
+			const track = trackOf();
+			if (!track) {
+				return;
+			}
+			dragTx = normalizeTx(dragStartTx + dx, track.scrollWidth / 2);
+			track.style.transform = `translateX(${dragTx}px)`;
+		} else {
+			strip.scrollLeft = dragStartScroll - dx;
+		}
+	};
+
+	strip.addEventListener('pointerdown', onPointerDown);
+	strip.addEventListener('pointermove', onPointerMove);
+	strip.addEventListener('pointerup', endDrag);
+	strip.addEventListener('pointercancel', endDrag);
+	strip.addEventListener('lostpointercapture', endDrag);
 
 	desktop.addEventListener('change', sync);
 	reduced.addEventListener('change', sync);
