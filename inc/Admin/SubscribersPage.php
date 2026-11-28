@@ -29,11 +29,6 @@ final class SubscribersPage
 
     private const NONCE_MAILPOET_SETTINGS = 'kk_mailpoet_settings';
 
-    private const NONCE_MAILPOET_SYNC = 'kk_sync_subscribers_mailpoet';
-
-    /** Addresses synced per MailPoet sync click. */
-    private const MAILPOET_SYNC_BATCH = 100;
-
     public static function render(): void
     {
         if (!current_user_can('manage_options')) {
@@ -45,14 +40,6 @@ final class SubscribersPage
 
         // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- display-only flags.
         $mailpoetSettings = isset($_GET['mailpoet_settings']) && (string) wp_unslash($_GET['mailpoet_settings']) === '1';
-        // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- display-only flags.
-        $mailpoetUnavailable = isset($_GET['mailpoet_unavailable']) && (string) wp_unslash($_GET['mailpoet_unavailable']) === '1';
-        // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- display-only flags.
-        $mailpoetSynced = isset($_GET['mailpoet_synced']) ? absint((string) wp_unslash($_GET['mailpoet_synced'])) : null;
-        // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- display-only flags.
-        $mailpoetFailed = isset($_GET['mailpoet_failed']) ? absint((string) wp_unslash($_GET['mailpoet_failed'])) : 0;
-        // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- display-only flags.
-        $mailpoetRemaining = isset($_GET['mailpoet_remaining']) ? absint((string) wp_unslash($_GET['mailpoet_remaining'])) : 0;
 
         $table = new SubscribersTable();
         $table->prepare_items();
@@ -70,15 +57,6 @@ final class SubscribersPage
             <?php endif; ?>
             <?php if ($mailpoetSettings) : ?>
                 <div class="notice notice-success is-dismissible"><p><?php esc_html_e('MailPoet settings saved.', 'koperasikita'); ?></p></div>
-            <?php endif; ?>
-            <?php if ($mailpoetSynced !== null) : ?>
-                <div class="notice notice-success is-dismissible"><p><?php
-                    // translators: %d is a count of subscribers: synced, failed, remaining.
-                    printf(esc_html__('Sync complete: %d synced, %d failed, %d remaining.', 'koperasikita'), $mailpoetSynced, $mailpoetFailed, $mailpoetRemaining);
-                ?></p></div>
-            <?php endif; ?>
-            <?php if ($mailpoetUnavailable) : ?>
-                <div class="notice notice-error is-dismissible"><p><?php esc_html_e('MailPoet is not available, so nothing was synced.', 'koperasikita'); ?></p></div>
             <?php endif; ?>
             <?php self::renderMailPoetSection(); ?>
             <section class="kk-subscribers-card">
@@ -193,10 +171,10 @@ final class SubscribersPage
             exit;
         }
 
-        fputcsv($out, ['Email', 'Date subscribed', 'Status', 'Source']);
+        fputcsv($out, ['Email', 'First name', 'Last name', 'Date subscribed', 'Status', 'Source']);
 
         foreach ($rows as $row) {
-            fputcsv($out, [$row['email'], $row['created_at'], $row['status'], $row['source']]);
+            fputcsv($out, [$row['email'], $row['first_name'], $row['last_name'], $row['created_at'], $row['status'], $row['source']]);
         }
 
         fclose($out);
@@ -205,13 +183,15 @@ final class SubscribersPage
 
     /**
      * The MailPoet card above the list: the plugin status, the
-     * yes/no setting for new signups, and the one-click sync of
-     * the subscribers stored here. Same card language as the
-     * Setup page - a head row with the title and the sync action,
-     * then a body with the description, the status line and the
-     * setting form - and WP-default buttons only. When MailPoet is
-     * not active there is nothing to sync into, so the forms stay
-     * hidden and only the status line shows.
+     * on/off setting for new signups, and the two-way sync with
+     * MailPoet. Same card language as the Setup page - a head
+     * row with the title and the sync action, then a body with
+     * the description, the status line and the setting form -
+     * and WP-default buttons only. The sync runs in an AJAX
+     * popup (admin.ts initMailPoetSync), never a page reload,
+     * so the button is a plain button, not a form. When
+     * MailPoet is not active there is nothing to sync with, so
+     * the button stays hidden and only the status line shows.
      */
     private static function renderMailPoetSection(): void
     {
@@ -222,12 +202,8 @@ final class SubscribersPage
         <section class="kk-subscribers-card">
             <div class="kk-subscribers-card-head">
                 <h2 class="kk-subscribers-card-title"><?php esc_html_e('MailPoet', 'koperasikita'); ?></h2>
-                <?php if ($status === Subscribe::MAILPOET_ACTIVE && $pending > 0) : ?>
-                    <form method="post" action="<?php echo esc_url(admin_url('admin-post.php')); ?>">
-                        <input type="hidden" name="action" value="kk_sync_subscribers_mailpoet">
-                        <?php wp_nonce_field(self::NONCE_MAILPOET_SYNC, 'kk_mailpoet_sync_nonce'); ?>
-                        <?php submit_button(__('Sync With MailPoet', 'koperasikita'), 'secondary', 'submit', false); ?>
-                    </form>
+                <?php if ($status === Subscribe::MAILPOET_ACTIVE) : ?>
+                    <button type="button" class="button" data-kk-mailpoet-sync><?php esc_html_e('Sync With MailPoet', 'koperasikita'); ?></button>
                 <?php endif; ?>
             </div>
             <div class="kk-subscribers-card-body">
@@ -237,7 +213,7 @@ final class SubscribersPage
                             // translators: %d is the number of subscribers not in MailPoet yet.
                             printf(esc_html__('Subscribers stored here but not in MailPoet yet: %d.', 'koperasikita'), $pending);
                         ?></p>
-                        <p><?php esc_html_e('Copies the subscribers stored here into MailPoet.', 'koperasikita'); ?></p>
+                        <p><?php esc_html_e('Syncs subscribers with MailPoet in both directions.', 'koperasikita'); ?></p>
                     <?php else : ?>
                         <p><?php esc_html_e('All subscribers are already in MailPoet.', 'koperasikita'); ?></p>
                     <?php endif; ?>
@@ -245,19 +221,56 @@ final class SubscribersPage
                 <p><?php esc_html_e('MailPoet is the newsletter plugin. When it is active, new subscribers can also be added to the MailPoet database, and the subscribers already stored here can be synced into it.', 'koperasikita'); ?></p>
                 <p><strong><?php echo esc_html(self::mailPoetStatusLine($status)); ?></strong></p>
                 <?php if ($status !== Subscribe::MAILPOET_INACTIVE) : ?>
-                    <form method="post" action="<?php echo esc_url(admin_url('admin-post.php')); ?>">
+                    <form method="post" action="<?php echo esc_url(admin_url('admin-post.php')); ?>" data-kk-mailpoet-settings>
                         <input type="hidden" name="action" value="kk_save_mailpoet_settings">
                         <?php wp_nonce_field(self::NONCE_MAILPOET_SETTINGS, 'kk_mailpoet_settings_nonce'); ?>
                         <p>
-                            <span><?php esc_html_e('Add new subscribers to the MailPoet database', 'koperasikita'); ?></span>
-                            <label><input type="radio" name="kk_mailpoet_sync" value="yes"<?php checked($syncEnabled); ?>> <?php esc_html_e('Yes', 'koperasikita'); ?></label>
-                            <label><input type="radio" name="kk_mailpoet_sync" value="no"<?php checked(! $syncEnabled); ?>> <?php esc_html_e('No', 'koperasikita'); ?></label>
+                            <label class="kk-subscribers-toggle">
+                                <span><?php esc_html_e('Add new subscribers to the MailPoet database', 'koperasikita'); ?></span>
+                                <span class="kk-subscribers-toggle-switch">
+                                    <input type="checkbox" name="kk_mailpoet_sync" value="yes"<?php checked($syncEnabled); ?>>
+                                    <span class="kk-subscribers-toggle-track" aria-hidden="true"></span>
+                                </span>
+                            </label>
                         </p>
                         <?php submit_button(__('Save MailPoet settings', 'koperasikita'), 'primary', 'submit', false); ?>
                     </form>
                 <?php endif; ?>
             </div>
         </section>
+        <?php self::renderMailPoetSyncPopup(); ?>
+        <?php
+    }
+
+    /**
+     * The two-way sync popup, same shape as the gold scrape
+     * popup: one scrolling pre for the per-address lines, the
+     * run summary once in a success notice below it, WP-default
+     * buttons. The panel is filled by admin.ts
+     * (initMailPoetSync); without JS the button does nothing
+     * and the list stays usable. Closing reloads the page, so
+     * the pending count and the list show the synced rows.
+     */
+    private static function renderMailPoetSyncPopup(): void
+    {
+        ?>
+        <div class="kk-data-desk-popup" id="kk-mailpoet-sync-popup" hidden role="dialog" aria-modal="true" aria-labelledby="kk-mailpoet-sync-popup-title">
+            <div class="kk-data-desk-popup-backdrop" data-kk-mailpoet-sync-popup-close></div>
+            <div class="kk-data-desk-popup-panel" role="document">
+                <div class="kk-data-desk-popup-head">
+                    <h2 id="kk-mailpoet-sync-popup-title"><?php esc_html_e('Sync With MailPoet', 'koperasikita'); ?></h2>
+                    <div class="kk-data-desk-popup-actions">
+                        <button type="button" class="button" data-kk-mailpoet-sync-popup-close><?php esc_html_e('Close', 'koperasikita'); ?></button>
+                    </div>
+                </div>
+                <div class="kk-data-desk-popup-body">
+                    <p><progress data-kk-mailpoet-sync-bar max="100" value="0" style="width: 100%; max-width: 30rem;"></progress></p>
+                    <pre data-kk-mailpoet-sync-status role="status" aria-live="polite"></pre>
+                    <div class="notice notice-success inline" data-kk-mailpoet-sync-result role="status" aria-live="polite" hidden></div>
+                    <p class="description"><?php esc_html_e('Closing this popup reloads the page so the subscriber list and the pending count show the synced addresses.', 'koperasikita'); ?></p>
+                </div>
+            </div>
+        </div>
         <?php
     }
 
@@ -281,7 +294,9 @@ final class SubscribersPage
     /**
      * Save the MailPoet yes/no setting (admin-post.php): nonce +
      * capability checked, then redirect back with a saved flag so
-     * a refresh never resubmits the form.
+     * a refresh never resubmits the form. The setting is a
+     * checkbox toggle: checked posts 'yes', unchecked posts
+     * nothing, which reads as 'no'.
      */
     public static function handleMailPoetSettings(): void
     {
@@ -299,54 +314,6 @@ final class SubscribersPage
         $pageUrl = admin_url('admin.php?page=' . self::PAGE_SLUG);
 
         wp_safe_redirect(add_query_arg('mailpoet_settings', '1', $pageUrl));
-        exit;
-    }
-
-    /**
-     * Sync the locally stored subscribers into MailPoet
-     * (admin-post.php): one batch per click, capped so a very large
-     * list cannot time out the request. Only subscribed rows with a
-     * 'local' source are synced; a confirmed sync flips the row's
-     * source to 'mailpoet'. Redirects back with the counts.
-     */
-    public static function handleMailPoetSync(): void
-    {
-        if (!current_user_can('manage_options')) {
-            wp_die(esc_html__('You do not have permission to access this page.', 'koperasikita'));
-        }
-
-        check_admin_referer(self::NONCE_MAILPOET_SYNC, 'kk_mailpoet_sync_nonce');
-
-        $pageUrl = admin_url('admin.php?page=' . self::PAGE_SLUG);
-
-        if (Subscribe::mailPoetStatus() !== Subscribe::MAILPOET_ACTIVE) {
-            wp_safe_redirect(add_query_arg('mailpoet_unavailable', '1', $pageUrl));
-            exit;
-        }
-
-        $listIds = Subscribe::mailPoetSyncLists();
-        $emails = Subscribers::localSubscribedEmails(self::MAILPOET_SYNC_BATCH);
-        $synced = 0;
-        $failed = 0;
-
-        foreach ($emails as $email) {
-            if (
-                Subscribe::syncEmailToMailPoetLists($email, $listIds) === 'ok'
-                && Subscribers::setSource($email, Subscribers::SOURCE_MAILPOET)
-            ) {
-                $synced++;
-            } else {
-                $failed++;
-            }
-        }
-
-        $remaining = Subscribers::countLocalPending();
-
-        wp_safe_redirect(add_query_arg([
-            'mailpoet_synced' => (string) $synced,
-            'mailpoet_failed' => (string) $failed,
-            'mailpoet_remaining' => (string) $remaining,
-        ], $pageUrl));
         exit;
     }
 }

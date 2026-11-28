@@ -667,9 +667,12 @@ final class Enqueue
 
         /* Subscribers + Market Index pages: server-rendered, and
          * their card, title, button and table chrome lives in
-         * admin.css. The Market Index page also needs the admin
-         * script: its Sync now button syncs one market per AJAX
-         * call, with a progress popup (admin.ts initMarketSync). */
+         * admin.css. Both pages also need the admin script: the
+         * Market Index Sync now button syncs one market per AJAX
+         * call, with a progress popup (admin.ts initMarketSync),
+         * and the Subscribers Sync With MailPoet button runs the
+         * two-way sync in a popup the same way (admin.ts
+         * initMailPoetSync). */
         $isSubscribers = $hookSuffix === AdminMenu::submenuHookSuffix(\KoperasiKita\Admin\SubscribersPage::PAGE_SLUG);
         $isMarketHeader = $hookSuffix === AdminMenu::submenuHookSuffix(\KoperasiKita\Admin\MarketHeaderPage::PAGE_SLUG);
 
@@ -680,29 +683,36 @@ final class Enqueue
                 wp_enqueue_style('kk-admin', $css, [], KK_VERSION);
             }
 
-            if ($isMarketHeader) {
-                $adminJs = ViteLoader::js('src/ts/admin.ts');
+            $adminJs = ViteLoader::js('src/ts/admin.ts');
 
-                if ($adminJs !== '') {
-                    wp_enqueue_script('kk-admin', $adminJs, [], KK_VERSION, true);
+            if ($adminJs !== '') {
+                wp_enqueue_script('kk-admin', $adminJs, [], KK_VERSION, true);
 
-                    // The manual market sync progress strings
-                    // (admin.ts initMarketSync) and the shared admin
-                    // strings, so the progress lines are translated
-                    // in the admin language.
-                    wp_localize_script('kk-admin', 'kkAdminData', [
-                        'ajaxUrl' => admin_url('admin-ajax.php'),
-                        'nonce' => wp_create_nonce('koperasikita_nonce'),
-                        'strings' => [
-                            'adminDataMissing' => __('Admin data is not available.', 'koperasikita'),
-                            'failed' => __('Failed: %s', 'koperasikita'),
-                            'syncingMarket' => __('Syncing %s…', 'koperasikita'),
-                            'syncMarketDone' => __('Synced %s (%s symbols)', 'koperasikita'),
-                            'syncMarketSkipped' => __('Skipped %s — manual snapshots are not synced.', 'koperasikita'),
-                            'marketSyncDone' => __('Sync complete.', 'koperasikita'),
-                        ],
-                    ]);
+                // The shared admin strings, plus the progress
+                // strings of whichever sync popup this page has,
+                // so the progress lines are translated in the
+                // admin language.
+                $strings = [
+                    'adminDataMissing' => __('Admin data is not available.', 'koperasikita'),
+                    'failed' => __('Failed: %s', 'koperasikita'),
+                ];
+
+                if ($isMarketHeader) {
+                    $strings['syncingMarket'] = __('Syncing %s…', 'koperasikita');
+                    $strings['syncMarketDone'] = __('Synced %s (%s symbols)', 'koperasikita');
+                    $strings['syncMarketSkipped'] = __('Skipped %s — manual snapshots are not synced.', 'koperasikita');
+                    $strings['marketSyncDone'] = __('Sync complete.', 'koperasikita');
                 }
+
+                if ($isSubscribers) {
+                    $strings['syncingMailPoet'] = __('Syncing with MailPoet…', 'koperasikita');
+                }
+
+                wp_localize_script('kk-admin', 'kkAdminData', [
+                    'ajaxUrl' => admin_url('admin-ajax.php'),
+                    'nonce' => wp_create_nonce('koperasikita_nonce'),
+                    'strings' => $strings,
+                ]);
             }
 
             return;

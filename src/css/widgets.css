@@ -224,7 +224,8 @@
 	gap: 8px;
 }
 
-.kk-newsletter-widget input[type="email"] {
+.kk-newsletter-widget input[type="email"],
+.kk-newsletter-widget input.kk-subscribe-name {
 	width: 100%;
 	min-height: 44px;
 	padding: 10px 12px;

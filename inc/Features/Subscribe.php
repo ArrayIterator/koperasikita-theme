@@ -4,6 +4,10 @@ declare(strict_types=1);
 
 namespace KoperasiKita\Features;
 
+use KoperasiKita\Api\Ajax;
+use KoperasiKita\Api\ApiException;
+use KoperasiKita\Api\Response;
+
 /**
  * Newsletter subscribe form: the [kk_subscribe] shortcode.
  *
@@ -20,12 +24,15 @@ namespace KoperasiKita\Features;
  *    it; when it is filled the request is silently treated as a success
  *    (same redirect, same message) and nobody is subscribed.
  * Per-IP rate limit - 5 attempts per hour. The count lives in a
- *    transient keyed by a salted hash of the visitor's address; the raw
- *    address is never stored or logged. The address itself is read from
- *    the Cloudflare header when present, then X-Forwarded-For, then
- *    REMOTE_ADDR. Those headers are only used to pick a rate-limit
- *    bucket - a spoofed header only changes which bucket the attempt
- *    counts against, and the nonce and honeypot still apply.
+ *    transient keyed by a salted hash of the visitor's address; the
+ *    transient key never holds the raw address. The address itself
+ *    is read from the Cloudflare header when present, then
+ *    X-Forwarded-For, then REMOTE_ADDR. Those headers are only
+ *    used to pick a rate-limit bucket - a spoofed header only
+ *    changes which bucket the attempt counts against, and the
+ *    nonce and honeypot still apply. The same address is stored
+ *    as the subscriber's subscribed_ip on the local row: the
+ *    signup address is audit data, kept with the record.
  * Email - sanitised with sanitize_email() and validated with
  *    is_email().
  *
@@ -61,6 +68,9 @@ final class Subscribe
     /** Maximum submits from one address within the rate window. */
     public const RATE_LIMIT_MAX = 5;
 
+    /** Addresses synced per MailPoet sync click, each direction. */
+    public const SYNC_BATCH = 100;
+
     /** Rate-limit window in seconds (one hour, sliding). */
     public const RATE_LIMIT_WINDOW = HOUR_IN_SECONDS;
 
@@ -71,6 +81,7 @@ final class Subscribe
     {
         add_action('init', [self::class, 'handleSubmission'], 20);
         add_shortcode(self::SHORTCODE, [self::class, 'renderShortcode']);
+        Ajax::add('kk_mailpoet_sync', [self::class, 'ajaxSync'], false, 'manage_options');
     }
 
     /**
@@ -127,13 +138,31 @@ final class Subscribe
             return;
         }
 
+        // Names are optional: an empty name is a signup without a
+        // name, never an error. Capped at the column width, so a
+        // long name is cut, never rejected.
+        $rawFirstName = $_POST['kk_subscribe_first_name'] ?? '';
+        $firstName = is_string($rawFirstName) ? trim(sanitize_text_field(wp_unslash($rawFirstName))) : '';
+
+        if (strlen($firstName) > 100) {
+            $firstName = substr($firstName, 0, 100);
+        }
+
+        $rawLastName = $_POST['kk_subscribe_last_name'] ?? '';
+        $lastName = is_string($rawLastName) ? trim(sanitize_text_field(wp_unslash($rawLastName))) : '';
+
+        if (strlen($lastName) > 100) {
+            $lastName = substr($lastName, 0, 100);
+        }
+
         self::recordAttempt();
 
         // The local record comes first and is the success
         // criterion: the site keeps its own list whether MailPoet
         // is there or not. A failed local write is the only case
-        // where the submit itself fails.
-        if (!Subscribers::record($email, Subscribers::SOURCE_LOCAL, Subscribers::STATUS_SUBSCRIBED)) {
+        // where the submit itself fails. The visitor's address is
+        // stored as the signup address (subscribed_ip).
+        if (!Subscribers::record($email, Subscribers::SOURCE_LOCAL, Subscribers::STATUS_SUBSCRIBED, $firstName, $lastName, self::clientIp())) {
             self::$notice = [
                 'type' => 'error',
                 'message' => __('Could not save your subscription. Please try again later.', 'koperasikita'),
@@ -153,7 +182,7 @@ final class Subscribe
 
         if (
             self::mailPoetSyncEnabled()
-            && self::syncEmailWithMailPoet($email) === 'ok'
+            && self::syncEmailWithMailPoet($email, $firstName, $lastName, self::clientIp()) === 'ok'
             && Subscribers::setSource($email, Subscribers::SOURCE_MAILPOET)
         ) {
             $source = Subscribers::SOURCE_MAILPOET;
@@ -177,9 +206,10 @@ final class Subscribe
 
     /**
      * Render the subscribe form: the notice, the email field, the
-     * honeypot and the nonce. One markup for the shortcode, the
-     * newsletter widget and the newsletter section, so the form
-     * behaves identically wherever it is placed.
+     * optional first and last name fields, the honeypot and the
+     * nonce. One markup for the shortcode, the newsletter widget
+     * and the newsletter section, so the form behaves identically
+     * wherever it is placed.
      */
     public static function renderForm(): string
     {
@@ -211,6 +241,19 @@ final class Subscribe
             . ' required maxlength="254" autocomplete="email"'
             . ' aria-label="' . esc_attr__('Email address', 'koperasikita') . '"'
             . ' placeholder="' . esc_attr__('Your email address', 'koperasikita') . '">';
+        // Names are optional, so no required attribute: a signup
+        // without a name is a valid signup. They sit after the
+        // email field and share its field styling (the
+        // kk-subscribe-name class, in newsletter.css, widgets.css
+        // and footer.css).
+        $html .= '<input type="text" name="kk_subscribe_first_name" class="kk-subscribe-name kk-subscribe-first-name"'
+            . ' maxlength="100" autocomplete="given-name"'
+            . ' aria-label="' . esc_attr__('First name', 'koperasikita') . '"'
+            . ' placeholder="' . esc_attr__('Your first name', 'koperasikita') . '">';
+        $html .= '<input type="text" name="kk_subscribe_last_name" class="kk-subscribe-name kk-subscribe-last-name"'
+            . ' maxlength="100" autocomplete="family-name"'
+            . ' aria-label="' . esc_attr__('Last name', 'koperasikita') . '"'
+            . ' placeholder="' . esc_attr__('Your last name', 'koperasikita') . '">';
         // Honeypot: positioned off-screen, not display:none, so a bot
         // that skips hidden fields still finds it - and a human never
         // sees it. The label text tells a human reader to leave it be.
@@ -314,13 +357,16 @@ final class Subscribe
     }
 
     /**
-     * Subscribe one address through MailPoet's public API.
+     * Subscribe one address through MailPoet's public API. The
+     * frontend signup flow: confirmation and welcome mail stay
+     * on, so double opt-in keeps working. Best-effort - the
+     * caller treats anything but 'ok' as a local-only signup.
      *
      * @return 'ok'|'unavailable'|'error' 'unavailable' means MailPoet is
      *         not active (or has no lists): the caller must say so
      *         honestly instead of faking a success.
      */
-    public static function syncEmailWithMailPoet(string $email): string
+    public static function syncEmailWithMailPoet(string $email, string $firstName = '', string $lastName = '', string $subscribedIp = ''): string
     {
         $api = self::mailPoetApi();
 
@@ -340,42 +386,53 @@ final class Subscribe
             return 'unavailable';
         }
 
-        try {
-            self::mailPoetAddToLists($api, $email, $listIds);
-        } catch (\Throwable) {
-            return 'error';
-        }
-
-        return 'ok';
+        return self::pushEmailToMailPoetLists($api, $email, $listIds, [], $firstName, $lastName, $subscribedIp)['status'] === 'ok' ? 'ok' : 'error';
     }
 
     /**
-     * Add one address to the given MailPoet lists. The batch
-     * version of syncEmailWithMailPoet(): the caller already has
-     * the list ids, so no list call happens per address.
+     * Push one address into MailPoet, with the outcome and the
+     * reason when it fails. The success criterion is the
+     * subscriber record plus the list subscription; the
+     * confirmation and welcome mail are side effects (see
+     * mailPoetAddToLists) and never decide the outcome. Names
+     * and the signup address are carried when given: a new
+     * subscriber is created with them, an existing one gets
+     * them updated.
      *
+     * @param mixed $api
      * @param array<int, int> $listIds
-     * @return 'ok'|'error'
+     * @param array{send_confirmation_email?: bool, schedule_welcome_email?: bool} $options
+     * @return array{status: string, reason: string}
      */
-    public static function syncEmailToMailPoetLists(string $email, array $listIds): string
+    private static function pushEmailToMailPoetLists($api, string $email, array $listIds, array $options = [], string $firstName = '', string $lastName = '', string $subscribedIp = ''): array
     {
-        if ($listIds === []) {
-            return 'error';
-        }
-
-        $api = self::mailPoetApi();
-
-        if ($api === null) {
-            return 'error';
-        }
-
         try {
-            self::mailPoetAddToLists($api, $email, $listIds);
-        } catch (\Throwable) {
-            return 'error';
+            self::mailPoetAddToLists($api, $email, $listIds, $options, $firstName, $lastName, $subscribedIp);
+        } catch (\Throwable $e) {
+            return ['status' => 'error', 'reason' => self::mailPoetErrorReason($e)];
         }
 
-        return 'ok';
+        return ['status' => 'ok', 'reason' => ''];
+    }
+
+    /**
+     * The human-readable reason for a failed MailPoet call.
+     * MailPoet's API messages are user-facing strings; anything
+     * else gets a generic reason so internals never leak.
+     */
+    private static function mailPoetErrorReason(\Throwable $e): string
+    {
+        $message = trim($e->getMessage());
+
+        if ($message === '') {
+            return __('MailPoet reported an error.', 'koperasikita');
+        }
+
+        if (strlen($message) > 200) {
+            $message = substr($message, 0, 200);
+        }
+
+        return $message;
     }
 
     /**
@@ -448,36 +505,380 @@ final class Subscribe
     /**
      * Add one address to the lists, creating it when it is not a
      * subscriber yet. Throws when the API call fails; the caller
-     * turns that into an 'error' result.
+     * turns that into an 'error' result with the reason.
+     *
+     * The confirmation and welcome mail are on by default (the
+     * frontend signup flow keeps double opt-in). The admin sync
+     * passes both off: it syncs addresses that are already
+     * subscribed on the site, so mail delivery must never fail
+     * the sync - a failed confirmation send used to report a
+     * successful add as a failure, with the local row left
+     * behind as still pending.
+     *
+     * Names ride along when given: a new subscriber is created
+     * with them, an existing one is updated with them before
+     * the list subscription. Empty names send nothing, so a
+     * push can never wipe the names MailPoet already has. The
+     * signup address rides along the same way (MailPoet
+     * accepts subscribed_ip on both add and update). The
+     * confirmation address is never sent: MailPoet owns it and
+     * sets it when the subscriber confirms, and the API strips
+     * it from incoming data.
      *
      * @param mixed $api
      * @param array<int, int> $listIds
+     * @param array{send_confirmation_email?: bool, schedule_welcome_email?: bool} $options
      */
-    private static function mailPoetAddToLists($api, string $email, array $listIds): void
+    private static function mailPoetAddToLists($api, string $email, array $listIds, array $options = [], string $firstName = '', string $lastName = '', string $subscribedIp = ''): void
     {
-        $existing = null;
+        $mailOptions = [
+            'send_confirmation_email' => $options['send_confirmation_email'] ?? true,
+            'schedule_welcome_email' => $options['schedule_welcome_email'] ?? true,
+        ];
 
-        if (method_exists($api, 'getSubscriber')) {
-            try {
-                // Throws when the address is not a subscriber yet.
-                $existing = $api->getSubscriber($email);
-            } catch (\Throwable) {
-                $existing = null;
+        $subscriberData = ['email' => $email];
+
+        if ($firstName !== '') {
+            $subscriberData['first_name'] = $firstName;
+        }
+
+        if ($lastName !== '') {
+            $subscriberData['last_name'] = $lastName;
+        }
+
+        if ($subscribedIp !== '') {
+            $subscriberData['subscribed_ip'] = $subscribedIp;
+        }
+
+        $existing = self::mailPoetFindSubscriber($api, $email);
+
+        if ($existing !== null) {
+            // subscribeToLists takes the subscriber id; the
+            // getSubscriber response carries it, so an existing
+            // subscriber is subscribed by id, never re-added.
+            // Names go in first, through updateSubscriber, so a
+            // local name lands on the MailPoet record too.
+            $subscriberId = (int) ($existing['id'] ?? 0);
+            $target = $subscriberId > 0 ? $subscriberId : $email;
+
+            if (count($subscriberData) > 1) {
+                $nameData = $subscriberData;
+                unset($nameData['email']);
+                $api->updateSubscriber($target, $nameData);
+            }
+
+            $api->subscribeToLists($target, $listIds, $mailOptions);
+
+            return;
+        }
+
+        try {
+            $api->addSubscriber(
+                $subscriberData,
+                $listIds,
+                $mailOptions
+            );
+        } catch (\Throwable $e) {
+            // Created between the lookup and the add: subscribe
+            // the existing subscriber instead of reporting a
+            // failure for an address that is already there.
+            $existing = self::mailPoetFindSubscriber($api, $email);
+
+            if ($existing === null) {
+                throw $e;
+            }
+
+            $subscriberId = (int) ($existing['id'] ?? 0);
+            $target = $subscriberId > 0 ? $subscriberId : $email;
+
+            if (count($subscriberData) > 1) {
+                $nameData = $subscriberData;
+                unset($nameData['email']);
+                $api->updateSubscriber($target, $nameData);
+            }
+
+            $api->subscribeToLists($target, $listIds, $mailOptions);
+        }
+    }
+
+    /**
+     * One subscriber by email, or null when MailPoet has no such
+     * subscriber. getSubscriber throws for a missing address; a
+     * missing address is a normal case here, not an error.
+     *
+     * @param mixed $api
+     * @return array<string, mixed>|null
+     */
+    private static function mailPoetFindSubscriber($api, string $email): ?array
+    {
+        if (!method_exists($api, 'getSubscriber')) {
+            return null;
+        }
+
+        try {
+            $found = $api->getSubscriber($email);
+        } catch (\Throwable) {
+            return null;
+        }
+
+        return is_array($found) ? $found : null;
+    }
+
+    /**
+     * Subscribed contacts on the sync lists, oldest first,
+     * capped. Only status 'subscribed' contacts on the sync
+     * (default) lists: unconfirmed, unsubscribed, inactive,
+     * bounced, and WordPress users who never subscribed to the
+     * newsletter are never pulled. Ignored test addresses are
+     * skipped here too.
+     *
+     * @param array<int, int> $listIds
+     * @return array<int, string>
+     */
+    public static function mailPoetSubscribedEmails(array $listIds, int $limit = 100): array
+    {
+        return array_column(self::mailPoetSubscribedRows($listIds, $limit), 'email');
+    }
+
+    /**
+     * The same contacts as mailPoetSubscribedEmails, with the
+     * first and last name and the audit IPs per contact, so the
+     * pull stores the names and the signup and confirmation
+     * addresses on the local rows. The IPs come straight off
+     * the MailPoet record; only valid addresses are kept.
+     *
+     * @param array<int, int> $listIds
+     * @return array<int, array{email: string, first_name: string, last_name: string, subscribed_ip: string, confirmed_ip: string}>
+     */
+    public static function mailPoetSubscribedRows(array $listIds, int $limit = 100): array
+    {
+        $api = self::mailPoetApi();
+
+        if ($api === null || !method_exists($api, 'getSubscribers') || $listIds === []) {
+            return [];
+        }
+
+        $contacts = [];
+        $seen = [];
+
+        foreach ($listIds as $listId) {
+            $offset = 0;
+
+            while (count($contacts) < $limit) {
+                $pageSize = min(100, $limit - count($contacts));
+
+                try {
+                    $rows = $api->getSubscribers(
+                        ['status' => 'subscribed', 'listId' => (int) $listId],
+                        $pageSize,
+                        $offset
+                    );
+                } catch (\Throwable) {
+                    break;
+                }
+
+                if (!is_array($rows) || $rows === []) {
+                    break;
+                }
+
+                $offset += count($rows);
+
+                foreach ($rows as $row) {
+                    if (!is_array($row)) {
+                        continue;
+                    }
+
+                    // The server-side filter is the first gate; the
+                    // per-row check is the second, so a list that
+                    // ignores the filter can never leak a
+                    // non-subscriber into the pull.
+                    if ((string) ($row['status'] ?? '') !== 'subscribed') {
+                        continue;
+                    }
+
+                    $email = sanitize_email((string) ($row['email'] ?? ''));
+
+                    if ($email === '' || !is_email($email) || Subscribers::isIgnoredSyncAddress($email)) {
+                        continue;
+                    }
+
+                    $key = strtolower($email);
+
+                    if (isset($seen[$key])) {
+                        continue;
+                    }
+
+                    $seen[$key] = true;
+                    $contacts[] = [
+                        'email' => $email,
+                        'first_name' => trim(sanitize_text_field((string) ($row['first_name'] ?? ''))),
+                        'last_name' => trim(sanitize_text_field((string) ($row['last_name'] ?? ''))),
+                        'subscribed_ip' => self::cleanApiIp((string) ($row['subscribed_ip'] ?? '')),
+                        'confirmed_ip' => self::cleanApiIp((string) ($row['confirmed_ip'] ?? '')),
+                    ];
+
+                    if (count($contacts) >= $limit) {
+                        break;
+                    }
+                }
+
+                if (count($rows) < $pageSize) {
+                    break;
+                }
+            }
+
+            if (count($contacts) >= $limit) {
+                break;
             }
         }
 
-        if ($existing) {
-            $api->subscribeToLists($email, $listIds);
-        } else {
-            $api->addSubscriber(
-                ['email' => $email],
-                $listIds,
-                [
-                    'send_confirmation_email' => true,
-                    'schedule_welcome_email' => true,
-                ]
+        return $contacts;
+    }
+
+    /**
+     * One IP address off a MailPoet record: only a valid IPv4
+     * or IPv6 address is kept, anything else reads as empty.
+     */
+    private static function cleanApiIp(string $ip): string
+    {
+        $ip = trim($ip);
+
+        return filter_var($ip, FILTER_VALIDATE_IP) !== false ? $ip : '';
+    }
+
+    /**
+     * One two-way MailPoet sync click: push the locally stored
+     * subscribers into MailPoet, then pull the MailPoet
+     * subscribers that are not stored here yet. Both directions
+     * only move real subscribers (status 'subscribed'); test
+     * addresses and non-subscribers are skipped and never
+     * counted. A successful add is a success even when
+     * MailPoet's confirmation mail cannot be sent - the admin
+     * sync never sends mail, so delivery can never fail the
+     * sync (see mailPoetAddToLists).
+     *
+     * @return array{lines: array<int, string>, summary: string, pushed: int, pulled: int, already: int, failed: int, ignored: int, remaining: int}
+     */
+    public static function runTwoWaySync(int $batch = 100): array
+    {
+        $batch = max(1, $batch);
+        $listIds = self::mailPoetSyncLists();
+
+        $lines = [];
+        $pushed = 0;
+        $pulled = 0;
+        $already = 0;
+        $failed = 0;
+        $ignored = 0;
+
+        $api = self::mailPoetApi();
+
+        /* Push: local subscribed rows into MailPoet. The batch
+         * already excludes ignored addresses and non-subscribed
+         * rows; the checks below are defence in depth. Names and
+         * the signup address ride along with each address. */
+        if ($api !== null && $listIds !== []) {
+            $mailOptions = ['send_confirmation_email' => false, 'schedule_welcome_email' => false];
+
+            foreach (Subscribers::localSubscribedRows($batch) as $row) {
+                $email = $row['email'];
+
+                if (Subscribers::isIgnoredSyncAddress($email)) {
+                    $ignored++;
+                    $lines[] = sprintf(__('%s: ignored (test address)', 'koperasikita'), $email);
+                    continue;
+                }
+
+                $result = self::pushEmailToMailPoetLists($api, $email, $listIds, $mailOptions, $row['first_name'], $row['last_name'], $row['subscribed_ip']);
+
+                if ($result['status'] === 'ok' && Subscribers::setSource($email, Subscribers::SOURCE_MAILPOET)) {
+                    $pushed++;
+                    $lines[] = sprintf(__('%s: pushed to MailPoet', 'koperasikita'), $email);
+                } elseif ($result['status'] === 'ok') {
+                    $failed++;
+                    $lines[] = sprintf(__('%s: failed - could not update the local record', 'koperasikita'), $email);
+                } else {
+                    $failed++;
+                    $lines[] = sprintf(__('%s: failed - %s', 'koperasikita'), $email, $result['reason']);
+                }
+            }
+        }
+
+        /* Pull: MailPoet subscribed contacts not stored here yet.
+         * An address already in the local table is left exactly
+         * as it is - the local row wins, so a local unsubscribe
+         * is never overwritten by a pull. The only exception is
+         * the audit IPs: a stored row that has none yet takes the
+         * addresses off the MailPoet record, so a confirmation
+         * that happened in MailPoet still lands here. */
+        foreach (self::mailPoetSubscribedRows($listIds, $batch) as $contact) {
+            $email = $contact['email'];
+
+            if (Subscribers::isIgnoredSyncAddress($email)) {
+                $ignored++;
+                $lines[] = sprintf(__('%s: ignored (test address)', 'koperasikita'), $email);
+                continue;
+            }
+
+            if (Subscribers::exists($email)) {
+                Subscribers::backfillIps($email, $contact['subscribed_ip'], $contact['confirmed_ip']);
+                $already++;
+                $lines[] = sprintf(__('%s: already synced', 'koperasikita'), $email);
+                continue;
+            }
+
+            if (Subscribers::record($email, Subscribers::SOURCE_MAILPOET, Subscribers::STATUS_SUBSCRIBED, $contact['first_name'], $contact['last_name'], $contact['subscribed_ip'], $contact['confirmed_ip'])) {
+                $pulled++;
+                $lines[] = sprintf(__('%s: pulled from MailPoet', 'koperasikita'), $email);
+            } else {
+                $failed++;
+                $lines[] = sprintf(__('%s: failed - could not save the local record', 'koperasikita'), $email);
+            }
+        }
+
+        $remaining = Subscribers::countLocalPending();
+
+        $summary = sprintf(
+            /* translators: %d counts: pushed, pulled, already synced, failed, remaining. */
+            __('Sync complete: %d pushed, %d pulled, %d already synced, %d failed, %d remaining.', 'koperasikita'),
+            $pushed,
+            $pulled,
+            $already,
+            $failed,
+            $remaining
+        );
+
+        return [
+            'lines' => $lines,
+            'summary' => $summary,
+            'pushed' => $pushed,
+            'pulled' => $pulled,
+            'already' => $already,
+            'failed' => $failed,
+            'ignored' => $ignored,
+            'remaining' => $remaining,
+        ];
+    }
+
+    /**
+     * The AJAX MailPoet sync (Subscribers page popup): one call
+     * runs both directions and answers with the per-address
+     * lines and the totals, so the popup renders them without
+     * a reload.
+     *
+     * @return array<string, mixed>
+     */
+    public static function ajaxSync(): array
+    {
+        if (self::mailPoetStatus() !== self::MAILPOET_ACTIVE) {
+            throw new ApiException(
+                Response::ERR_UPSTREAM_FAILED,
+                __('MailPoet is not available, so nothing was synced.', 'koperasikita'),
+                503
             );
         }
+
+        return self::runTwoWaySync(self::SYNC_BATCH);
     }
 
     private static function isRateLimited(): bool
@@ -503,10 +904,13 @@ final class Subscribe
     }
 
     /**
-     * Salted hash of the visitor's address. The raw address is never
-     * stored, logged or put in a transient key.
+     * The visitor's address, from the Cloudflare header when
+     * present, then X-Forwarded-For, then REMOTE_ADDR. Only a
+     * single valid address is ever returned - a header dump or
+     * a spoofed value reads as empty. The same source the rate
+     * limit trusts.
      */
-    private static function clientIpHash(): string
+    private static function clientIp(): string
     {
         $headers = [
             isset($_SERVER['HTTP_CF_CONNECTING_IP']) ? wp_unslash($_SERVER['HTTP_CF_CONNECTING_IP']) : '',
@@ -514,19 +918,27 @@ final class Subscribe
             isset($_SERVER['REMOTE_ADDR']) ? wp_unslash($_SERVER['REMOTE_ADDR']) : '',
         ];
 
-        $ip = '';
-
         foreach ($headers as $header) {
             // A forwarded-for header can hold a chain; the first entry
             // is the client.
             $candidate = trim(explode(',', (string) $header)[0]);
 
             if ($candidate !== '' && filter_var($candidate, FILTER_VALIDATE_IP) !== false) {
-                $ip = $candidate;
-                break;
+                return $candidate;
             }
         }
 
-        return hash('sha256', $ip . wp_salt());
+        return '';
+    }
+
+    /**
+     * Salted hash of the visitor's address, for the rate-limit
+     * transient key. The key holds the hash only; the raw
+     * address itself is stored nowhere here - it lives on the
+     * subscriber row as subscribed_ip.
+     */
+    private static function clientIpHash(): string
+    {
+        return hash('sha256', self::clientIp() . wp_salt());
     }
 }

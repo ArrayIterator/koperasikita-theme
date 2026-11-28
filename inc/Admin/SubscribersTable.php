@@ -35,6 +35,7 @@ final class SubscribersTable extends \WP_List_Table
         return [
             'cb' => '<input type="checkbox" />',
             'email' => __('Email', 'koperasikita'),
+            'name' => __('Name', 'koperasikita'),
             'date' => __('Date subscribed', 'koperasikita'),
             'status' => __('Status', 'koperasikita'),
             'source' => __('Source', 'koperasikita'),
@@ -60,7 +61,7 @@ final class SubscribersTable extends \WP_List_Table
         ];
     }
 
-    /** @param array{id: int, email: string, status: string, source: string, created_at: string, updated_at: string} $item */
+    /** @param array{id: int, email: string, first_name: string, last_name: string, subscribed_ip: string, confirmed_ip: string, status: string, source: string, created_at: string, updated_at: string} $item */
     protected function column_cb($item): string
     {
         return sprintf(
@@ -69,7 +70,7 @@ final class SubscribersTable extends \WP_List_Table
         );
     }
 
-    /** @param array{id: int, email: string, status: string, source: string, created_at: string, updated_at: string} $item */
+    /** @param array{id: int, email: string, first_name: string, last_name: string, subscribed_ip: string, confirmed_ip: string, status: string, source: string, created_at: string, updated_at: string} $item */
     protected function column_email($item): string
     {
         $pageUrl = admin_url('admin.php?page=' . SubscribersPage::PAGE_SLUG);
@@ -91,25 +92,40 @@ final class SubscribersTable extends \WP_List_Table
         );
     }
 
-    /** @param array{id: int, email: string, status: string, source: string, created_at: string, updated_at: string} $item */
+    /**
+     * The subscriber's name: first + last name, or the email
+     * when no name was ever given. The signup and confirmation
+     * addresses stay out of the list - they are audit data, not
+     * display data.
+     *
+     * @param array{id: int, email: string, first_name: string, last_name: string, subscribed_ip: string, confirmed_ip: string, status: string, source: string, created_at: string, updated_at: string} $item
+     */
+    protected function column_name($item): string
+    {
+        $name = trim((string) ($item['first_name'] ?? '') . ' ' . (string) ($item['last_name'] ?? ''));
+
+        return esc_html($name !== '' ? $name : $item['email']);
+    }
+
+    /** @param array{id: int, email: string, first_name: string, last_name: string, subscribed_ip: string, confirmed_ip: string, status: string, source: string, created_at: string, updated_at: string} $item */
     protected function column_date($item): string
     {
         return esc_html(self::formatDate($item['created_at']));
     }
 
-    /** @param array{id: int, email: string, status: string, source: string, created_at: string, updated_at: string} $item */
+    /** @param array{id: int, email: string, first_name: string, last_name: string, subscribed_ip: string, confirmed_ip: string, status: string, source: string, created_at: string, updated_at: string} $item */
     protected function column_status($item): string
     {
         return esc_html(self::statusLabel($item['status']));
     }
 
-    /** @param array{id: int, email: string, status: string, source: string, created_at: string, updated_at: string} $item */
+    /** @param array{id: int, email: string, first_name: string, last_name: string, subscribed_ip: string, confirmed_ip: string, status: string, source: string, created_at: string, updated_at: string} $item */
     protected function column_source($item): string
     {
         return esc_html(self::sourceLabel($item['source']));
     }
 
-    /** @param array{id: int, email: string, status: string, source: string, created_at: string, updated_at: string} $item */
+    /** @param array{id: int, email: string, first_name: string, last_name: string, subscribed_ip: string, confirmed_ip: string, status: string, source: string, created_at: string, updated_at: string} $item */
     protected function column_default($item, $columnName): string
     {
         return isset($item[$columnName]) ? esc_html((string) $item[$columnName]) : '&mdash;';

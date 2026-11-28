@@ -1746,6 +1746,89 @@
 	margin-bottom: 0;
 }
 
+/* MailPoet sync progress: status in one pre that scrolls instead
+ * of growing the popup, summary once in a notice below it - the
+ * same shape as the gold scrape popup. */
+.kk-subscribers-page [data-kk-mailpoet-sync-status] {
+	margin: 12px 0 0;
+	max-height: 16rem;
+	overflow: auto;
+	font-family: inherit;
+	white-space: pre-wrap;
+}
+
+.kk-subscribers-page .notice[data-kk-mailpoet-sync-result] {
+	margin: 12px 0 0;
+}
+
+.kk-subscribers-page .notice[data-kk-mailpoet-sync-result][hidden] {
+	display: none;
+}
+
+/* MailPoet on/off toggle: a real checkbox driving a switch, so the
+ * setting reads as one switch instead of two radios. ON is the WP
+ * admin blue, the same blue as the primary button on this card. */
+.kk-subscribers-toggle {
+	display: inline-flex;
+	align-items: center;
+	gap: 10px;
+	cursor: pointer;
+}
+
+.kk-subscribers-toggle-switch {
+	position: relative;
+	display: inline-block;
+	flex: none;
+	width: 40px;
+	height: 22px;
+}
+
+.kk-subscribers-toggle-switch input {
+	position: absolute;
+	inset: 0;
+	width: 100%;
+	height: 100%;
+	margin: 0;
+	opacity: 0;
+	cursor: pointer;
+}
+
+.kk-subscribers-toggle-track {
+	position: relative;
+	display: block;
+	width: 100%;
+	height: 100%;
+	border-radius: 999px;
+	background: #c3c4c7;
+	transition: background-color 0.15s ease;
+}
+
+.kk-subscribers-toggle-track::after {
+	content: "";
+	position: absolute;
+	top: 3px;
+	left: 3px;
+	width: 16px;
+	height: 16px;
+	border-radius: 50%;
+	background: #fff;
+	box-shadow: 0 1px 3px rgb(0 0 0 / 0.35);
+	transition: transform 0.15s ease;
+}
+
+.kk-subscribers-toggle-switch input:checked + .kk-subscribers-toggle-track {
+	background: #3858e9;
+}
+
+.kk-subscribers-toggle-switch input:checked + .kk-subscribers-toggle-track::after {
+	transform: translateX(18px);
+}
+
+.kk-subscribers-toggle-switch input:focus-visible + .kk-subscribers-toggle-track {
+	outline: 2px solid #3858e9;
+	outline-offset: 2px;
+}
+
 /* Sync card head: the title and the Sync now button share one
  * row, title left and button right, with the head carrying the
  * title's old margin, padding and border. */

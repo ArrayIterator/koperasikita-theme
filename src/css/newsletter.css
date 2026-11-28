@@ -207,11 +207,17 @@
  */
 .kk-newsletter-subscribe .kk-subscribe-form,
 .kk-newsletter-subscribe form {
-	@apply mx-auto mt-5 flex max-w-[560px] gap-3;
+	@apply mx-auto mt-5 flex max-w-[560px] flex-wrap gap-3;
 }
 
-.kk-newsletter-subscribe input[type="email"] {
+.kk-newsletter-subscribe input[type="email"],
+.kk-newsletter-subscribe input.kk-subscribe-name {
 	@apply min-h-11 min-w-0 flex-1 rounded-kk border border-kk-border bg-kk-paper px-3 py-2.5 text-kk-ink;
+}
+
+/* The name fields share a row below the email + button row. */
+.kk-newsletter-subscribe input.kk-subscribe-name {
+	flex-basis: calc(50% - 6px);
 }
 
 /* Small screens */
@@ -248,6 +254,11 @@
 	.kk-newsletter-subscribe .kk-subscribe-form,
 	.kk-newsletter-subscribe form {
 		@apply flex-col;
+	}
+
+	.kk-newsletter-subscribe input.kk-subscribe-name {
+		@apply w-full;
+		flex-basis: auto;
 	}
 
 	.kk-newsletter-subscribe .kk-subscribe-submit {

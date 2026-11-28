@@ -25,12 +25,13 @@ namespace KoperasiKita\Features;
  * the first successful subscribe creates it. Reads against a
  * missing table return empty results instead of erroring.
  *
- * Columns: id, email, status (subscribed/pending/unsubscribed),
- * source (local/mailpoet), created_at, updated_at.
+ * Columns: id, email, first_name, last_name, subscribed_ip,
+ * confirmed_ip, status (subscribed/pending/unsubscribed), source
+ * (local/mailpoet), created_at, updated_at.
  */
 final class Subscribers
 {
-    public const VERSION = '1';
+    public const VERSION = '3';
 
     public const VERSION_OPTION = 'kk_subscribers_table_version';
 
@@ -43,6 +44,44 @@ final class Subscribers
     public const SOURCE_LOCAL = 'local';
 
     public const SOURCE_MAILPOET = 'mailpoet';
+
+    /**
+     * Test addresses the MailPoet sync never touches, in either
+     * direction: never pushed, never pulled, never counted as
+     * pending or failed. Hardcoded on purpose - these are test
+     * addresses, not a user setting.
+     */
+    public const IGNORED_SYNC_EMAIL = 'test-newsletter@example.com';
+
+    /**
+     * Local part the MailPoet sync never touches, on any domain
+     * (test-subscriber@example.com, test-subscriber@koperasikita.com,
+     * ...). Same rule as IGNORED_SYNC_EMAIL.
+     */
+    public const IGNORED_SYNC_LOCAL_PART = 'test-subscriber';
+
+    /**
+     * Whether an address is on the sync ignore list: the exact
+     * test address, or any address with the test local part.
+     * Compared case-insensitively; an invalid address is never
+     * ignored here (it is rejected by the caller instead).
+     */
+    public static function isIgnoredSyncAddress(string $email): bool
+    {
+        $email = strtolower(sanitize_email($email));
+
+        if ($email === '' || !is_email($email)) {
+            return false;
+        }
+
+        if ($email === self::IGNORED_SYNC_EMAIL) {
+            return true;
+        }
+
+        $at = strpos($email, '@');
+
+        return $at !== false && substr($email, 0, $at) === self::IGNORED_SYNC_LOCAL_PART;
+    }
 
     public static function table(): string
     {
@@ -67,6 +106,10 @@ final class Subscribers
         $sql = "CREATE TABLE {$table} (
             id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
             email varchar(254) NOT NULL,
+            first_name varchar(100) NOT NULL DEFAULT '',
+            last_name varchar(100) NOT NULL DEFAULT '',
+            subscribed_ip varchar(45) NOT NULL DEFAULT '',
+            confirmed_ip varchar(45) NOT NULL DEFAULT '',
             status varchar(20) NOT NULL DEFAULT 'subscribed',
             source varchar(20) NOT NULL DEFAULT 'local',
             created_at datetime NOT NULL,
@@ -91,12 +134,21 @@ final class Subscribers
     /**
      * Store one address, or refresh the existing row for it. Returns
      * false only when the write itself failed - a duplicate address
-     * is a success, not an error.
+     * is a success, not an error. Names are optional: a re-submit
+     * that leaves them empty keeps the stored names, so a later
+     * submit without names can never wipe them. The IPs are audit
+     * data: the first non-empty value wins, so a re-submit from
+     * another address can never rewrite the signup or the
+     * confirmation address.
      */
     public static function record(
         string $email,
         string $source = self::SOURCE_LOCAL,
-        string $status = self::STATUS_SUBSCRIBED
+        string $status = self::STATUS_SUBSCRIBED,
+        string $firstName = '',
+        string $lastName = '',
+        string $subscribedIp = '',
+        string $confirmedIp = ''
     ): bool {
         $email = sanitize_email($email);
 
@@ -112,6 +164,11 @@ final class Subscribers
             $source = self::SOURCE_LOCAL;
         }
 
+        $firstName = self::cleanName($firstName);
+        $lastName = self::cleanName($lastName);
+        $subscribedIp = self::cleanIp($subscribedIp);
+        $confirmedIp = self::cleanIp($confirmedIp);
+
         self::maybeCreate();
 
         global $wpdb;
@@ -122,11 +179,31 @@ final class Subscribers
         // Upsert on the email UNIQUE key: a re-submit refreshes
         // status, source and updated_at but keeps the original
         // created_at and id, so the same address is always one row.
+        // Names only overwrite when given: an empty name means
+        // "not provided", not "clear the stored name". The IPs
+        // only fill when the stored value is empty: the first
+        // signup or confirmation address is the audit fact.
+        $update = 'status = VALUES(status), source = VALUES(source), updated_at = VALUES(updated_at)'
+            . ", subscribed_ip = IF(subscribed_ip = '', VALUES(subscribed_ip), subscribed_ip)"
+            . ", confirmed_ip = IF(confirmed_ip = '', VALUES(confirmed_ip), confirmed_ip)";
+
+        if ($firstName !== '') {
+            $update .= ', first_name = VALUES(first_name)';
+        }
+
+        if ($lastName !== '') {
+            $update .= ', last_name = VALUES(last_name)';
+        }
+
         $sql = $wpdb->prepare(
-            "INSERT INTO {$table} (email, status, source, created_at, updated_at)
-             VALUES (%s, %s, %s, %s, %s)
-             ON DUPLICATE KEY UPDATE status = VALUES(status), source = VALUES(source), updated_at = VALUES(updated_at)",
+            "INSERT INTO {$table} (email, first_name, last_name, subscribed_ip, confirmed_ip, status, source, created_at, updated_at)
+             VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+             ON DUPLICATE KEY UPDATE {$update}",
             $email,
+            $firstName,
+            $lastName,
+            $subscribedIp,
+            $confirmedIp,
             $status,
             $source,
             $now,
@@ -137,10 +214,86 @@ final class Subscribers
     }
 
     /**
+     * Fill the audit IPs of an existing row, but only where the
+     * row has none yet: the first signup or confirmation address
+     * is never rewritten. Used by the MailPoet pull, which reads
+     * the IPs off the MailPoet record. Returns true when at least
+     * one address was filled.
+     */
+    public static function backfillIps(string $email, string $subscribedIp = '', string $confirmedIp = ''): bool
+    {
+        global $wpdb;
+
+        $email = sanitize_email($email);
+        $subscribedIp = self::cleanIp($subscribedIp);
+        $confirmedIp = self::cleanIp($confirmedIp);
+
+        if ($email === '' || !is_email($email) || !self::tableExists()) {
+            return false;
+        }
+
+        $filled = false;
+
+        if ($subscribedIp !== '') {
+            $updated = $wpdb->update(
+                self::table(),
+                ['subscribed_ip' => $subscribedIp, 'updated_at' => current_time('mysql')],
+                ['email' => $email, 'subscribed_ip' => ''],
+                ['%s', '%s'],
+                ['%s', '%s']
+            );
+
+            $filled = $filled || ($updated !== false && $updated > 0);
+        }
+
+        if ($confirmedIp !== '') {
+            $updated = $wpdb->update(
+                self::table(),
+                ['confirmed_ip' => $confirmedIp, 'updated_at' => current_time('mysql')],
+                ['email' => $email, 'confirmed_ip' => ''],
+                ['%s', '%s'],
+                ['%s', '%s']
+            );
+
+            $filled = $filled || ($updated !== false && $updated > 0);
+        }
+
+        return $filled;
+    }
+
+    /**
+     * One name for storage: plain text, trimmed, capped at the
+     * column width. Anything longer is cut, never rejected - a
+     * name must never fail a signup.
+     */
+    private static function cleanName(string $name): string
+    {
+        $name = trim(sanitize_text_field($name));
+
+        if (strlen($name) > 100) {
+            $name = substr($name, 0, 100);
+        }
+
+        return $name;
+    }
+
+    /**
+     * One IP address for storage: only a valid IPv4 or IPv6
+     * address is stored, anything else reads as empty. The
+     * caller passes a single address, never a header dump.
+     */
+    private static function cleanIp(string $ip): string
+    {
+        $ip = trim($ip);
+
+        return filter_var($ip, FILTER_VALIDATE_IP) !== false ? $ip : '';
+    }
+
+    /**
      * One page of subscribers, newest first.
      *
      * @param array{search?: string, page?: int, per_page?: int} $args
-     * @return array{rows: array<int, array{id: int, email: string, status: string, source: string, created_at: string, updated_at: string}>, total: int}
+     * @return array{rows: array<int, array{id: int, email: string, first_name: string, last_name: string, subscribed_ip: string, confirmed_ip: string, status: string, source: string, created_at: string, updated_at: string}>, total: int}
      */
     public static function list(array $args = []): array
     {
@@ -177,7 +330,7 @@ final class Subscribers
             $total = (int) $wpdb->get_var("SELECT COUNT(*) FROM {$table}");
             $rows = $wpdb->get_results(
                 $wpdb->prepare(
-                    "SELECT id, email, status, source, created_at, updated_at
+                    "SELECT id, email, first_name, last_name, subscribed_ip, confirmed_ip, status, source, created_at, updated_at
                      FROM {$table}
                      ORDER BY {$orderSql} LIMIT %d OFFSET %d",
                     $perPage,
@@ -191,7 +344,7 @@ final class Subscribers
             );
             $rows = $wpdb->get_results(
                 $wpdb->prepare(
-                    "SELECT id, email, status, source, created_at, updated_at
+                    "SELECT id, email, first_name, last_name, subscribed_ip, confirmed_ip, status, source, created_at, updated_at
                      FROM {$table}{$where}
                      ORDER BY {$orderSql} LIMIT %d OFFSET %d",
                     array_merge($params, [$perPage, $offset])
@@ -245,9 +398,30 @@ final class Subscribers
     }
 
     /**
+     * Whether an address already has a local row, in any status.
+     * The MailPoet pull inserts only addresses that are not
+     * stored here yet, so a local row - including an
+     * unsubscribed one - is never overwritten by a pull.
+     */
+    public static function exists(string $email): bool
+    {
+        global $wpdb;
+
+        $email = sanitize_email($email);
+
+        if ($email === '' || !is_email($email) || !self::tableExists()) {
+            return false;
+        }
+
+        $table = self::table();
+
+        return $wpdb->get_var($wpdb->prepare("SELECT id FROM {$table} WHERE email = %s LIMIT 1", $email)) !== null;
+    }
+
+    /**
      * How many subscribed rows are stored here but not in MailPoet
      * yet (source 'local'). The admin sync button only shows when
-     * this is above zero.
+     * this is above zero. Ignored test addresses never count.
      */
     public static function countLocalPending(): int
     {
@@ -261,9 +435,13 @@ final class Subscribers
 
         return (int) $wpdb->get_var(
             $wpdb->prepare(
-                "SELECT COUNT(*) FROM {$table} WHERE status = %s AND source = %s",
+                // The sync ignore list (see isIgnoredSyncAddress):
+                // test addresses never count as pending.
+                "SELECT COUNT(*) FROM {$table} WHERE status = %s AND source = %s AND LOWER(email) <> %s AND LOWER(SUBSTRING_INDEX(email, '@', 1)) <> %s",
                 self::STATUS_SUBSCRIBED,
-                self::SOURCE_LOCAL
+                self::SOURCE_LOCAL,
+                self::IGNORED_SYNC_EMAIL,
+                self::IGNORED_SYNC_LOCAL_PART
             )
         );
     }
@@ -276,6 +454,19 @@ final class Subscribers
      */
     public static function localSubscribedEmails(int $limit): array
     {
+        return array_column(self::localSubscribedRows($limit), 'email');
+    }
+
+    /**
+     * The same batch as localSubscribedEmails, with the stored
+     * first and last name and the audit IPs per address, so the
+     * push carries the names and the signup address into
+     * MailPoet.
+     *
+     * @return array<int, array{email: string, first_name: string, last_name: string, subscribed_ip: string, confirmed_ip: string}>
+     */
+    public static function localSubscribedRows(int $limit): array
+    {
         global $wpdb;
 
         $table = self::table();
@@ -284,30 +475,47 @@ final class Subscribers
             return [];
         }
 
-        $rows = $wpdb->get_col(
+        $rows = $wpdb->get_results(
             $wpdb->prepare(
-                "SELECT email FROM {$table} WHERE status = %s AND source = %s ORDER BY created_at ASC, id ASC LIMIT %d",
+                // The sync ignore list (see isIgnoredSyncAddress):
+                // test addresses never enter a sync batch.
+                "SELECT email, first_name, last_name, subscribed_ip, confirmed_ip FROM {$table} WHERE status = %s AND source = %s AND LOWER(email) <> %s AND LOWER(SUBSTRING_INDEX(email, '@', 1)) <> %s ORDER BY created_at ASC, id ASC LIMIT %d",
                 self::STATUS_SUBSCRIBED,
                 self::SOURCE_LOCAL,
+                self::IGNORED_SYNC_EMAIL,
+                self::IGNORED_SYNC_LOCAL_PART,
                 max(1, $limit)
-            )
+            ),
+            ARRAY_A
         );
 
         if (!is_array($rows)) {
             return [];
         }
 
-        $emails = [];
+        $batch = [];
 
-        foreach ($rows as $email) {
-            $email = sanitize_email((string) $email);
-
-            if ($email !== '' && is_email($email)) {
-                $emails[] = $email;
+        foreach ($rows as $row) {
+            if (!is_array($row)) {
+                continue;
             }
+
+            $email = sanitize_email((string) ($row['email'] ?? ''));
+
+            if ($email === '' || !is_email($email)) {
+                continue;
+            }
+
+            $batch[] = [
+                'email' => $email,
+                'first_name' => (string) ($row['first_name'] ?? ''),
+                'last_name' => (string) ($row['last_name'] ?? ''),
+                'subscribed_ip' => (string) ($row['subscribed_ip'] ?? ''),
+                'confirmed_ip' => (string) ($row['confirmed_ip'] ?? ''),
+            ];
         }
 
-        return $emails;
+        return $batch;
     }
 
     /**
@@ -345,7 +553,7 @@ final class Subscribers
      * Every subscriber, newest first, for the CSV export. Capped so
      * a very large list cannot exhaust memory.
      *
-     * @return array<int, array{id: int, email: string, status: string, source: string, created_at: string, updated_at: string}>
+     * @return array<int, array{id: int, email: string, first_name: string, last_name: string, subscribed_ip: string, confirmed_ip: string, status: string, source: string, created_at: string, updated_at: string}>
      */
     public static function exportRows(): array
     {
@@ -358,7 +566,7 @@ final class Subscribers
         }
 
         $rows = $wpdb->get_results(
-            "SELECT id, email, status, source, created_at, updated_at
+            "SELECT id, email, first_name, last_name, subscribed_ip, confirmed_ip, status, source, created_at, updated_at
              FROM {$table}
              ORDER BY created_at DESC, id DESC LIMIT 10000",
             ARRAY_A
@@ -376,7 +584,7 @@ final class Subscribers
      * no usable email.
      *
      * @param array<int, mixed> $rows
-     * @return array<int, array{id: int, email: string, status: string, source: string, created_at: string, updated_at: string}>
+     * @return array<int, array{id: int, email: string, first_name: string, last_name: string, subscribed_ip: string, confirmed_ip: string, status: string, source: string, created_at: string, updated_at: string}>
      */
     private static function cleanRows(array $rows): array
     {
@@ -396,6 +604,10 @@ final class Subscribers
             $clean[] = [
                 'id' => (int) ($row['id'] ?? 0),
                 'email' => $email,
+                'first_name' => (string) ($row['first_name'] ?? ''),
+                'last_name' => (string) ($row['last_name'] ?? ''),
+                'subscribed_ip' => (string) ($row['subscribed_ip'] ?? ''),
+                'confirmed_ip' => (string) ($row['confirmed_ip'] ?? ''),
                 'status' => (string) ($row['status'] ?? self::STATUS_SUBSCRIBED),
                 'source' => (string) ($row['source'] ?? self::SOURCE_LOCAL),
                 'created_at' => (string) ($row['created_at'] ?? ''),
