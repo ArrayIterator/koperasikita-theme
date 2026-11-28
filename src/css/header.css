@@ -439,12 +439,6 @@ html.kk-nav-open .kk-primary-nav {
 	visibility: visible;
 }
 
-/* Lock the page behind the open drawer. */
-html.kk-nav-open,
-html.kk-nav-open body {
-	overflow: hidden;
-}
-
 /* Drawer header: logo + close button. */
 .kk-drawer-head {
 	display: flex;

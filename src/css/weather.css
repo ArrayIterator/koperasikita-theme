@@ -252,8 +252,8 @@
  * area under the URL bar), so the dialog ran past the visible bottom
  * and its actions were cut off. 100dvh tracks the visible viewport,
  * so the dialog fits and the backdrop genuinely reaches the bottom
- * edge. The page behind is scroll-locked while the picker is open
- * (see openPicker in weather.ts), so no section below can peek out. */
+ * edge. The fixed backdrop covers the whole viewport, so no section
+ * below can peek out. */
 
 /* Dark mode: keep ghost-button text readable inside the picker.
  *

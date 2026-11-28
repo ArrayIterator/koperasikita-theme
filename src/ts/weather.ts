@@ -1326,12 +1326,6 @@ function openPicker(opener: HTMLElement): void {
 		: { kind: 'topbar' };
 	lastFocusedElement = document.activeElement as HTMLElement | null;
 	modal.hidden = false;
-	// Lock the page behind the modal on both scroll roots: locking body
-	// alone does not stop scrolling on every mobile browser, and a page
-	// that still scrolls behind the overlay leaves sections reachable
-	// below the fold.
-	document.body.style.overflow = 'hidden';
-	document.documentElement.style.overflow = 'hidden';
 	updateCurrentLine();
 	syncCoordsInputs();
 	renderStrip();
@@ -1352,8 +1346,6 @@ function closePicker(): void {
 	}
 	modal.hidden = true;
 	stagedFullName = null;
-	document.body.style.overflow = '';
-	document.documentElement.style.overflow = '';
 	if (lastFocusedElement) {
 		lastFocusedElement.focus();
 		lastFocusedElement = null;

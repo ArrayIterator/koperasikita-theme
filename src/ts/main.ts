@@ -349,9 +349,9 @@ function initMobileNav(): void {
 			closeNav(true);
 		}
 	});
-	// While the drawer is open the page is scroll-locked, but the
-	// lock can leak on mobile (and a rotation changes the bar from
-	// absolute to fixed) - keep the offset tracking the bar.
+	// The page can still scroll while the drawer is open (and a
+	// rotation changes the bar from absolute to fixed) - keep the
+	// offset tracking the bar.
 	window.addEventListener('scroll', () => {
 		if (nav.classList.contains('is-open')) {
 			syncDrawerTop();
@@ -390,10 +390,6 @@ let lastFocusedElement: HTMLElement | null = null;
 function openModal(modal: HTMLElement): void {
 	lastFocusedElement = document.activeElement as HTMLElement | null;
 	modal.hidden = false;
-	// Lock the page behind the modal on both scroll roots: locking body
-	// alone does not stop scrolling on every mobile browser.
-	document.body.style.overflow = 'hidden';
-	document.documentElement.style.overflow = 'hidden';
 	const focusable = modal.querySelector<HTMLElement>(
 		'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])',
 	);
@@ -404,8 +400,6 @@ function openModal(modal: HTMLElement): void {
 
 function closeModal(modal: HTMLElement): void {
 	modal.hidden = true;
-	document.body.style.overflow = '';
-	document.documentElement.style.overflow = '';
 	if (lastFocusedElement) {
 		lastFocusedElement.focus();
 		lastFocusedElement = null;
