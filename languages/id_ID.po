@@ -546,6 +546,14 @@ msgstr "Gunakan judul artikel sebagai teks ALT gambar utama ketika gambar tidak 
 
 #: inc/Customizer/Customizer.php
 
+msgid "Custom JS"
+msgstr "JS Kustom"
+
+#: inc/Customizer/Customizer.php
+msgid "JavaScript added to every page, after the theme scripts. Only administrators can edit this."
+msgstr "JavaScript yang ditambahkan ke setiap halaman, setelah skrip tema. Hanya administrator yang dapat mengubah ini."
+
+#: inc/Customizer/Customizer.php
 msgid "Breadcrumb Separator"
 msgstr "Pemisah Breadcrumb"
 
