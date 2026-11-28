@@ -12,6 +12,7 @@ use KoperasiKita\Features\Performance;
 use KoperasiKita\Features\StyleVariant;
 use WP_Customize_Code_Editor_Control;
 use WP_Customize_Color_Control;
+use WP_Customize_Cropped_Image_Control;
 use WP_Customize_Manager;
 use WP_Customize_Media_Control;
 
@@ -264,6 +265,7 @@ final class Customizer
                 'label' => esc_html__($label, 'koperasikita'),
                 'section' => 'koperasikita_homepage',
                 'type' => 'checkbox',
+                'active_callback' => [self::class, 'isHeroGrid'],
             ]);
         }
 
@@ -278,6 +280,7 @@ final class Customizer
             'label' => esc_html__('Card Title Position', 'koperasikita'),
             'section' => 'koperasikita_homepage',
             'type' => 'select',
+            'active_callback' => [self::class, 'isHeroGrid'],
             'choices' => [
                 'below' => esc_html__('Title Below', 'koperasikita'),
                 'above' => esc_html__('Title Above', 'koperasikita'),
@@ -422,6 +425,7 @@ final class Customizer
             'description' => esc_html__('Used when the hero source is Selected categories. Leave it empty to fall back to the latest posts.', 'koperasikita'),
             'section' => 'koperasikita_homepage',
             'taxonomy' => 'category',
+            'active_callback' => [self::class, 'isHeroSourceCategory'],
         ]));
 
         self::addSetting(
@@ -436,6 +440,7 @@ final class Customizer
             'description' => esc_html__('Used when the hero source is Selected tags. Leave it empty to fall back to the latest posts.', 'koperasikita'),
             'section' => 'koperasikita_homepage',
             'taxonomy' => 'post_tag',
+            'active_callback' => [self::class, 'isHeroSourceTag'],
         ]));
 
         // Highlights ("Sorotan"): editor-picked posts filtered by
@@ -466,6 +471,7 @@ final class Customizer
             'label' => esc_html__('Highlights Title', 'koperasikita'),
             'section' => 'koperasikita_homepage',
             'type' => 'text',
+            'active_callback' => [self::class, 'isHighlightsEnabled'],
         ]);
 
         self::addSetting(
@@ -479,6 +485,7 @@ final class Customizer
             'label' => esc_html__('Enable Title', 'koperasikita'),
             'section' => 'koperasikita_homepage',
             'type' => 'checkbox',
+            'active_callback' => [self::class, 'isHighlightsEnabled'],
         ]);
 
         /* Item Style: how each highlight looks - thumbnail with the
@@ -495,6 +502,7 @@ final class Customizer
             'label' => esc_html__('Item Style', 'koperasikita'),
             'section' => 'koperasikita_homepage',
             'type' => 'select',
+            'active_callback' => [self::class, 'isHighlightsEnabled'],
             'choices' => [
                 'thumb-inside' => esc_html__('Thumb Title Inside', 'koperasikita'),
                 'thumb-below' => esc_html__('Thumb With Title Below', 'koperasikita'),
@@ -515,6 +523,7 @@ final class Customizer
             'label' => esc_html__('Layout Style', 'koperasikita'),
             'section' => 'koperasikita_homepage',
             'type' => 'select',
+            'active_callback' => [self::class, 'isHighlightsEnabled'],
             'choices' => [
                 'classic' => esc_html__('Classic', 'koperasikita'),
                 'no-border' => esc_html__('No Border', 'koperasikita'),
@@ -537,6 +546,7 @@ final class Customizer
             'label' => esc_html__('Display', 'koperasikita'),
             'section' => 'koperasikita_homepage',
             'type' => 'select',
+            'active_callback' => [self::class, 'isHighlightsEnabled'],
             'choices' => [
                 'slider-grid' => esc_html__('Slider Grid', 'koperasikita'),
                 'slider-full' => esc_html__('Slider Full', 'koperasikita'),
@@ -663,6 +673,7 @@ final class Customizer
                 'label' => esc_html__($label, 'koperasikita'),
                 'section' => 'koperasikita_homepage',
                 'type' => 'checkbox',
+                'active_callback' => [self::class, 'isHighlightsEnabled'],
             ]);
         }
 
@@ -678,6 +689,7 @@ final class Customizer
             'section' => 'koperasikita_homepage',
             'type' => 'number',
             'input_attrs' => ['min' => 1, 'max' => 9],
+            'active_callback' => [self::class, 'isHighlightsEnabled'],
         ]);
 
         self::addSetting(
@@ -692,6 +704,7 @@ final class Customizer
             'description' => esc_html__('Posts from these categories (or any of the tags below). Leave both empty for the latest posts.', 'koperasikita'),
             'section' => 'koperasikita_homepage',
             'taxonomy' => 'category',
+            'active_callback' => [self::class, 'isHighlightsEnabled'],
         ]));
 
         self::addSetting(
@@ -706,6 +719,7 @@ final class Customizer
             'description' => esc_html__('Posts with any of these tags (or any of the categories above). Leave both empty for the latest posts.', 'koperasikita'),
             'section' => 'koperasikita_homepage',
             'taxonomy' => 'post_tag',
+            'active_callback' => [self::class, 'isHighlightsEnabled'],
         ]));
 
         /* Latest-news heading: an editable title and eyebrow for the
@@ -820,6 +834,7 @@ final class Customizer
                 'section' => 'koperasikita_homepage',
                 'taxonomy' => 'category',
                 'static_choices' => [0 => esc_html__('Automatic (most posts)', 'koperasikita')],
+                'active_callback' => static fn () => self::isCategoryBlockEnabled($slot),
             ]));
 
             self::addSetting(
@@ -834,6 +849,7 @@ final class Customizer
                 'section' => 'koperasikita_homepage',
                 'type' => 'number',
                 'input_attrs' => ['min' => 1, 'max' => 8],
+                'active_callback' => static fn () => self::isCategoryBlockEnabled($slot),
             ]);
 
             self::addSetting(
@@ -847,6 +863,7 @@ final class Customizer
                 'label' => sprintf(esc_html__('Category Block %d: Display Style', 'koperasikita'), $slot),
                 'section' => 'koperasikita_homepage',
                 'type' => 'select',
+                'active_callback' => static fn () => self::isCategoryBlockEnabled($slot),
                 'choices' => [
                     'grid' => esc_html__('Grid', 'koperasikita'),
                     'list' => esc_html__('List', 'koperasikita'),
@@ -932,6 +949,7 @@ final class Customizer
             'label' => esc_html__('News Pagination', 'koperasikita'),
             'section' => 'koperasikita_accessibility',
             'type' => 'select',
+            'priority' => 20,
             'choices' => [
                 'load-more' => esc_html__('Load More', 'koperasikita'),
                 'pagination' => esc_html__('Numbered Pagination', 'koperasikita'),
@@ -953,6 +971,8 @@ final class Customizer
             'label' => esc_html__('Pagination Prev / Next Style', 'koperasikita'),
             'section' => 'koperasikita_accessibility',
             'type' => 'select',
+            'priority' => 21,
+            'active_callback' => [self::class, 'isPaginationNavStyleShown'],
             'choices' => [
                 'text' => esc_html__('Text', 'koperasikita'),
                 'icons' => esc_html__('Icons', 'koperasikita'),
@@ -982,6 +1002,7 @@ final class Customizer
             'section' => 'koperasikita_accessibility',
             'type' => 'select',
             'choices' => $nav_icons,
+            'priority' => 22,
             'active_callback' => [self::class, 'isPaginationNavIcons'],
         ]);
         self::addSetting(
@@ -1002,6 +1023,7 @@ final class Customizer
                 'arrow-right-circle' => esc_html__('Arrow right (circle)', 'koperasikita'),
                 'next' => esc_html__('Skip forward', 'koperasikita'),
             ],
+            'priority' => 23,
             'active_callback' => [self::class, 'isPaginationNavIcons'],
         ]);
 
@@ -1020,6 +1042,7 @@ final class Customizer
             'label' => esc_html__('Load More Button Text', 'koperasikita'),
             'section' => 'koperasikita_accessibility',
             'type' => 'text',
+            'priority' => 24,
             'active_callback' => [self::class, 'isLoadMoreMode'],
         ]);
         self::addSetting(
@@ -1038,6 +1061,7 @@ final class Customizer
                 'icon' => esc_html__('Icon Only', 'koperasikita'),
                 'text' => esc_html__('Text "Loading"', 'koperasikita'),
             ],
+            'priority' => 25,
             'active_callback' => [self::class, 'isLoadMoreMode'],
         ]);
         self::addSetting(
@@ -1053,6 +1077,7 @@ final class Customizer
             'section' => 'koperasikita_accessibility',
             'type' => 'number',
             'input_attrs' => ['min' => 0, 'max' => 10],
+            'priority' => 26,
             'active_callback' => [self::class, 'isLoadMoreMode'],
         ]);
 
@@ -1271,7 +1296,7 @@ final class Customizer
             'label' => esc_html__('Enable News Ticker', 'koperasikita'),
             'section' => 'koperasikita_header',
             'type' => 'checkbox',
-            'priority' => 10,
+            'priority' => 24,
         ]);
 
         /* Header: Weather group */
@@ -1345,7 +1370,7 @@ final class Customizer
             'label' => esc_html__('Mobile Menu Slide Side', 'koperasikita'),
             'section' => 'koperasikita_header',
             'type' => 'select',
-            'priority' => 40,
+            'priority' => 32,
             'choices' => [
                 'left' => esc_html__('Left', 'koperasikita'),
                 'right' => esc_html__('Right', 'koperasikita'),
@@ -1420,44 +1445,51 @@ final class Customizer
 
         /* The 4th element is the Header-section display priority
          * (feature-group order: top bar 30, clock 33, sticky nav 39).
-         * Other sections keep the default priority. */
+         * Other sections keep the default priority. The optional 5th
+         * element is an active_callback: the control only shows
+         * while its parent toggle is on. */
         $checkboxes = [
             'kk_single_featured' => ['koperasikita_single', 'Show Featured Image', true, 10],
             'kk_single_author_box' => ['koperasikita_single', 'Show Author Box', true, 10],
             'kk_single_related' => ['koperasikita_single', 'Show Related News', true, 10],
             'kk_single_reading_time' => ['koperasikita_single', 'Show Reading Time', true, 10],
             'kk_single_show_share' => ['koperasikita_single', 'Show Share Buttons', true, 10],
-            'kk_agenda_location_enabled' => ['koperasikita_agenda', 'Show Event Location on Agenda Pages', true, 10],
-            'kk_agenda_show_excerpt' => ['koperasikita_agenda', 'Show Excerpt on Agenda List', true, 10],
-            'kk_comments_avatars' => ['koperasikita_comments', 'Show Comment Avatars', true, 10],
+            'kk_agenda_location_enabled' => ['koperasikita_agenda', 'Show Event Location on Agenda Pages', true, 10, [self::class, 'isAgendaEnabled']],
+            'kk_agenda_show_excerpt' => ['koperasikita_agenda', 'Show Excerpt on Agenda List', true, 10, [self::class, 'isAgendaEnabled']],
+            'kk_comments_avatars' => ['koperasikita_comments', 'Show Comment Avatars', true, 10, [self::class, 'isCommentsEnabled']],
             'kk_images_lazy' => ['koperasikita_media', 'Lazy-Load Images', true, 10],
             'kk_images_srcset' => ['koperasikita_media', 'Enable Responsive Images', true, 10],
             'kk_breadcrumb_enabled' => ['koperasikita_breadcrumb', 'Show Breadcrumbs', true, 10],
-            'kk_breadcrumb_home' => ['koperasikita_breadcrumb', 'Show Breadcrumbs on the Homepage', false, 10],
-            'kk_breadcrumb_post' => ['koperasikita_breadcrumb', 'Show Breadcrumbs on Articles', true, 10],
-            'kk_breadcrumb_page' => ['koperasikita_breadcrumb', 'Show Breadcrumbs on Pages', true, 10],
-            'kk_breadcrumb_archive' => ['koperasikita_breadcrumb', 'Show Breadcrumbs on Archives', true, 10],
-            'kk_breadcrumb_search' => ['koperasikita_breadcrumb', 'Show Breadcrumbs on Search Results', true, 10],
-            'kk_breadcrumb_404' => ['koperasikita_breadcrumb', 'Show Breadcrumbs on 404 Pages', true, 10],
-            'kk_topbar_enabled' => ['koperasikita_header', 'Show Top Bar', true, 30],
-            'kk_clock_enabled' => ['koperasikita_header', 'Show Live Clock in Top Bar', true, 33],
-            'kk_clock_seconds' => ['koperasikita_header', 'Show Seconds on the Clock', false, 34],
-            'kk_clock_24h' => ['koperasikita_header', 'Use the 24-Hour Clock', true, 35],
-            'kk_clock_show_date' => ['koperasikita_header', 'Show Date on the Clock', true, 36],
-            'kk_clock_show_mobile' => ['koperasikita_header', 'Show Clock on Mobile', true, 37],
-            'kk_sticky_header' => ['koperasikita_header', 'Sticky Header Navigation', true, 41],
+            'kk_breadcrumb_home' => ['koperasikita_breadcrumb', 'Show Breadcrumbs on the Homepage', false, 10, [self::class, 'isBreadcrumbEnabled']],
+            'kk_breadcrumb_post' => ['koperasikita_breadcrumb', 'Show Breadcrumbs on Articles', true, 10, [self::class, 'isBreadcrumbEnabled']],
+            'kk_breadcrumb_page' => ['koperasikita_breadcrumb', 'Show Breadcrumbs on Pages', true, 10, [self::class, 'isBreadcrumbEnabled']],
+            'kk_breadcrumb_archive' => ['koperasikita_breadcrumb', 'Show Breadcrumbs on Archives', true, 10, [self::class, 'isBreadcrumbEnabled']],
+            'kk_breadcrumb_search' => ['koperasikita_breadcrumb', 'Show Breadcrumbs on Search Results', true, 10, [self::class, 'isBreadcrumbEnabled']],
+            'kk_breadcrumb_404' => ['koperasikita_breadcrumb', 'Show Breadcrumbs on 404 Pages', true, 10, [self::class, 'isBreadcrumbEnabled']],
+            'kk_topbar_enabled' => ['koperasikita_header', 'Show Top Bar', true, 10],
+            'kk_clock_enabled' => ['koperasikita_header', 'Show Live Clock in Top Bar', true, 11, [self::class, 'isTopBarEnabled']],
+            'kk_clock_seconds' => ['koperasikita_header', 'Show Seconds on the Clock', false, 12, [self::class, 'isClockEnabled']],
+            'kk_clock_24h' => ['koperasikita_header', 'Use the 24-Hour Clock', true, 13, [self::class, 'isClockEnabled']],
+            'kk_clock_show_date' => ['koperasikita_header', 'Show Date on the Clock', true, 14, [self::class, 'isClockEnabled']],
+            'kk_clock_show_mobile' => ['koperasikita_header', 'Show Clock on Mobile', true, 15, [self::class, 'isClockEnabled']],
+            'kk_sticky_header' => ['koperasikita_header', 'Sticky Header Navigation', true, 23],
             'kk_list_show_time' => ['koperasikita_accessibility', 'Show Time on Article List & Archive', false, 10],
             'kk_single_show_time' => ['koperasikita_accessibility', 'Show Time on Single Post & Page', false, 10],
         ];
 
-        foreach ($checkboxes as $id => [$section, $label, $default, $priority]) {
-            self::addSetting($wpCustomize, $id, $default, [self::class, 'sanitizeBool'], 'refresh');
-            $wpCustomize->add_control($id, [
+        foreach ($checkboxes as $id => $row) {
+            [$section, $label, $default, $priority] = $row;
+            $control = [
                 'label' => esc_html__($label, 'koperasikita'),
                 'section' => $section,
                 'type' => 'checkbox',
                 'priority' => $priority,
-            ]);
+            ];
+            if (isset($row[4])) {
+                $control['active_callback'] = $row[4];
+            }
+            self::addSetting($wpCustomize, $id, $default, [self::class, 'sanitizeBool'], 'refresh');
+            $wpCustomize->add_control($id, $control);
         }
 
         /* Article List Thumbnail Size: the thumbnail column width
@@ -1512,6 +1544,7 @@ final class Customizer
             'section' => 'koperasikita_single',
             'type' => 'number',
             'input_attrs' => ['min' => 1, 'max' => 6],
+            'active_callback' => [self::class, 'isSingleRelated'],
         ]);
 
         // Header: breaking-news title and source, top bar, live clock,
@@ -1529,7 +1562,7 @@ final class Customizer
             'section' => 'koperasikita_header',
             'type' => 'text',
             'active_callback' => [self::class, 'isTickerEnabled'],
-            'priority' => 11,
+            'priority' => 25,
         ]);
 
         /* Breaking ribbon style: five label designs, all high
@@ -1549,7 +1582,7 @@ final class Customizer
             'section' => 'koperasikita_header',
             'type' => 'select',
             'active_callback' => [self::class, 'isTickerEnabled'],
-            'priority' => 12,
+            'priority' => 26,
             'choices' => [
                 'gold' => esc_html__('Gold (solid gold, black text)', 'koperasikita'),
                 'green' => esc_html__('Green (brand green, white text)', 'koperasikita'),
@@ -1561,7 +1594,8 @@ final class Customizer
 
         /* Agenda event location position: where the location picker
          * (venue + map link) is shown on a single agenda page. Only
-         * shown when the location itself is enabled. */
+         * shown when the agenda itself is on and the location itself
+         * is enabled. */
         self::addSetting(
             $wpCustomize,
             'kk_agenda_location_position',
@@ -1574,7 +1608,7 @@ final class Customizer
             'description' => esc_html__('Where the event location is shown on a single agenda page.', 'koperasikita'),
             'section' => 'koperasikita_agenda',
             'type' => 'select',
-            'active_callback' => [self::class, 'isAgendaLocationEnabled'],
+            'active_callback' => [self::class, 'isAgendaLocationShown'],
             'priority' => 11,
             'choices' => [
                 'below-info' => esc_html__('Below Agenda Info', 'koperasikita'),
@@ -1597,7 +1631,7 @@ final class Customizer
             'section' => 'koperasikita_header',
             'type' => 'select',
             'active_callback' => [self::class, 'isTickerEnabled'],
-            'priority' => 13,
+            'priority' => 27,
             'choices' => [
                 'latest' => esc_html__('Latest posts', 'koperasikita'),
                 'category' => esc_html__('Selected categories', 'koperasikita'),
@@ -1616,8 +1650,8 @@ final class Customizer
             'label' => esc_html__('Ticker Categories', 'koperasikita'),
             'description' => esc_html__('Used when the source above is "Selected categories". Leave empty to fall back to the latest posts.', 'koperasikita'),
             'section' => 'koperasikita_header',
-            'active_callback' => [self::class, 'isTickerEnabled'],
-            'priority' => 14,
+            'active_callback' => [self::class, 'isBreakingSourceCategory'],
+            'priority' => 28,
             'taxonomy' => 'category',
         ]));
 
@@ -1632,8 +1666,8 @@ final class Customizer
             'label' => esc_html__('Ticker Tags', 'koperasikita'),
             'description' => esc_html__('Used when the source above is "Selected tags". Leave empty to fall back to the latest posts.', 'koperasikita'),
             'section' => 'koperasikita_header',
-            'active_callback' => [self::class, 'isTickerEnabled'],
-            'priority' => 15,
+            'active_callback' => [self::class, 'isBreakingSourceTag'],
+            'priority' => 29,
             'taxonomy' => 'post_tag',
         ]));
 
@@ -1645,11 +1679,11 @@ final class Customizer
             'refresh'
         );
         $wpCustomize->add_control('kk_breaking_speed', [
-            'label' => esc_html__('Seconds Between Breaking News Headlines', 'koperasikita'),
+            'label' => esc_html__('Ticker Interval (seconds)', 'koperasikita'),
             'section' => 'koperasikita_header',
             'type' => 'number',
             'active_callback' => [self::class, 'isTickerEnabled'],
-            'priority' => 16,
+            'priority' => 30,
             'input_attrs' => ['min' => 2, 'max' => 120],
         ]);
 
@@ -1661,11 +1695,11 @@ final class Customizer
             'refresh'
         );
         $wpCustomize->add_control('kk_breaking_count', [
-            'label' => esc_html__('Breaking News Headlines', 'koperasikita'),
+            'label' => esc_html__('Number of Ticker Headlines', 'koperasikita'),
             'section' => 'koperasikita_header',
             'type' => 'number',
             'active_callback' => [self::class, 'isTickerEnabled'],
-            'priority' => 17,
+            'priority' => 31,
             'input_attrs' => ['min' => 1, 'max' => 10],
         ]);
 
@@ -1680,7 +1714,7 @@ final class Customizer
             'label' => esc_html__('Date Format', 'koperasikita'),
             'section' => 'koperasikita_header',
             'type' => 'select',
-            'priority' => 37,
+            'priority' => 16,
             'active_callback' => [self::class, 'isClockDateShown'],
             'choices' => [
                 'full' => esc_html__('Full', 'koperasikita'),
@@ -1700,7 +1734,8 @@ final class Customizer
             'label' => esc_html__('Clock Time Zone', 'koperasikita'),
             'section' => 'koperasikita_header',
             'type' => 'select',
-            'priority' => 38,
+            'priority' => 17,
+            'active_callback' => [self::class, 'isClockEnabled'],
             'choices' => [
                 'site' => esc_html__('Site time zone (Settings > General)', 'koperasikita'),
                 'device' => esc_html__('Visitor device time', 'koperasikita'),
@@ -1719,7 +1754,8 @@ final class Customizer
             'label' => esc_html__('Custom Time Zone', 'koperasikita'),
             'section' => 'koperasikita_header',
             'type' => 'select',
-            'priority' => 39,
+            'priority' => 18,
+            'active_callback' => [self::class, 'isClockCustomTimezone'],
             'choices' => self::timezoneChoices(),
         ]);
 
@@ -1734,7 +1770,8 @@ final class Customizer
             'label' => esc_html__('Clock Separator', 'koperasikita'),
             'section' => 'koperasikita_header',
             'type' => 'select',
-            'priority' => 40,
+            'priority' => 19,
+            'active_callback' => [self::class, 'isClockEnabled'],
             'choices' => [
                 'colon' => esc_html__('Colon (14:05:30)', 'koperasikita'),
                 'dot' => esc_html__('Dot (14.05.30)', 'koperasikita'),
@@ -1754,6 +1791,7 @@ final class Customizer
             'label' => esc_html__('App Name', 'koperasikita'),
             'section' => 'koperasikita_pwa',
             'type' => 'text',
+            'active_callback' => [self::class, 'isPwaEnabled'],
         ]);
 
         self::addSetting(
@@ -1767,6 +1805,7 @@ final class Customizer
             'label' => esc_html__('App Short Name', 'koperasikita'),
             'section' => 'koperasikita_pwa',
             'type' => 'text',
+            'active_callback' => [self::class, 'isPwaEnabled'],
         ]);
 
         self::addSetting(
@@ -1780,20 +1819,28 @@ final class Customizer
             'label' => esc_html__('App Description', 'koperasikita'),
             'section' => 'koperasikita_pwa',
             'type' => 'text',
+            'active_callback' => [self::class, 'isPwaEnabled'],
         ]);
 
         // App icon (the PWA logo). Pick an image from the media
         // library; it becomes the manifest icons and the
         // apple-touch-icon. Leave empty to use the shipped logo
-        // (assets/img/logo-192.png / logo-512.png).
+        // (assets/img/logo-192.png / logo-512.png). A cropped-image
+        // control, like the core Custom Logo picker, so picking a
+        // non-square image offers the crop step to a square 512x512
+        // icon instead of silently using the whole image.
         self::addSetting($wpCustomize, 'kk_pwa_icon', 0, 'absint', 'refresh');
 
-        $wpCustomize->add_control(new WP_Customize_Media_Control($wpCustomize, 'kk_pwa_icon', [
+        $wpCustomize->add_control(new WP_Customize_Cropped_Image_Control($wpCustomize, 'kk_pwa_icon', [
             'label' => esc_html__('App Icon', 'koperasikita'),
             'description' => esc_html__('The app logo used when installing the PWA (manifest icons and home-screen icon). Defaults to the Koperasi Kita logo. Use a square image, at least 512×512, to replace it.', 'koperasikita'),
             'section' => 'koperasikita_pwa',
             'settings' => 'kk_pwa_icon',
-            'mime_type' => 'image',
+            'width' => 512,
+            'height' => 512,
+            'flex_width' => true,
+            'flex_height' => true,
+            'active_callback' => [self::class, 'isPwaEnabled'],
         ]));
 
         $pwa_colors = [
@@ -1808,6 +1855,7 @@ final class Customizer
                 'label' => esc_html__($label, 'koperasikita'),
                 'section' => 'koperasikita_pwa',
                 'settings' => $id,
+                'active_callback' => [self::class, 'isPwaEnabled'],
             ]));
         }
 
@@ -1823,6 +1871,7 @@ final class Customizer
             'label' => esc_html__('Install Button Text', 'koperasikita'),
             'section' => 'koperasikita_pwa',
             'type' => 'text',
+            'active_callback' => [self::class, 'isPwaButtonEnabled'],
         ]);
 
         // Whether the install button/banner shows at all. When off,
@@ -1839,6 +1888,7 @@ final class Customizer
             'section' => 'koperasikita_pwa',
             'type' => 'checkbox',
             'description' => esc_html__('Shows an install button/banner on the site when PWA is available.', 'koperasikita'),
+            'active_callback' => [self::class, 'isPwaEnabled'],
         ]);
 
         // Where and how the install button shows: floating at the
@@ -1866,6 +1916,7 @@ final class Customizer
                 'above-header' => esc_html__('Above Top Header (Slide Animation)', 'koperasikita'),
             ],
             'description' => esc_html__('Select where and how the install app prompt button is displayed: floating at the bottom corners/center, full bottom bar, inline in the top bar header, or sliding down as a banner above the top header.', 'koperasikita'),
+            'active_callback' => [self::class, 'isPwaButtonEnabled'],
         ]);
 
         // Description shown on the banner and the full bottom bar,
@@ -1881,6 +1932,7 @@ final class Customizer
             'label' => esc_html__('Banner & Floating Description', 'koperasikita'),
             'section' => 'koperasikita_pwa',
             'type' => 'text',
+            'active_callback' => [self::class, 'isPwaButtonEnabled'],
         ]);
 
         // Seconds to wait after the browser offers installation before
@@ -1902,6 +1954,7 @@ final class Customizer
                 'max' => 60,
                 'step' => 0.5,
             ],
+            'active_callback' => [self::class, 'isPwaPromptEnabled'],
         ]);
 
         // Whether the install prompt modal shows at all. Off leaves
@@ -1912,6 +1965,7 @@ final class Customizer
             'description' => esc_html__('Shows the install popup after the browser offers installation. Turn off to keep only the install button/banner.', 'koperasikita'),
             'section' => 'koperasikita_pwa',
             'type' => 'checkbox',
+            'active_callback' => [self::class, 'isPwaEnabled'],
         ]);
 
         // Prompt modal title and body text. {app_name} is replaced by
@@ -1928,7 +1982,7 @@ final class Customizer
             'description' => esc_html__('Title of the install popup. {app_name} is replaced by the app name.', 'koperasikita'),
             'section' => 'koperasikita_pwa',
             'type' => 'text',
-            'active_callback' => static fn () => (bool) get_theme_mod('kk_pwa_prompt_enabled', true),
+            'active_callback' => [self::class, 'isPwaPromptEnabled'],
         ]);
 
         self::addSetting(
@@ -1943,7 +1997,7 @@ final class Customizer
             'description' => esc_html__('Body text of the install popup. {app_name} is replaced by the app name.', 'koperasikita'),
             'section' => 'koperasikita_pwa',
             'type' => 'textarea',
-            'active_callback' => static fn () => (bool) get_theme_mod('kk_pwa_prompt_enabled', true),
+            'active_callback' => [self::class, 'isPwaPromptEnabled'],
         ]);
 
         // Install screenshots for the manifest (shown by the browser
@@ -1970,6 +2024,7 @@ final class Customizer
                 'description' => esc_html__($description, 'koperasikita'),
                 'section' => 'koperasikita_pwa',
                 'settings' => $id,
+                'active_callback' => [self::class, 'isPwaEnabled'],
             ]));
         }
 
@@ -2082,6 +2137,7 @@ final class Customizer
             'label' => esc_html__('Hide Comments', 'koperasikita'),
             'section' => 'koperasikita_comments',
             'type' => 'select',
+            'active_callback' => [self::class, 'isCommentsEnabled'],
             'choices' => [
                 'disabled' => esc_html__('Hide If comment disabled', 'koperasikita'),
                 'post' => esc_html__('Hide If Comment disabled By the post / page', 'koperasikita'),
@@ -2100,6 +2156,7 @@ final class Customizer
             'label' => esc_html__('Comment Order', 'koperasikita'),
             'section' => 'koperasikita_comments',
             'type' => 'select',
+            'active_callback' => [self::class, 'isCommentsEnabled'],
             'choices' => [
                 'oldest' => esc_html__('Oldest First', 'koperasikita'),
                 'newest' => esc_html__('Newest First', 'koperasikita'),
@@ -2166,6 +2223,7 @@ final class Customizer
             'description' => esc_html__('Use the article title as the featured image ALT text when the image has no ALT text of its own.', 'koperasikita'),
             'section' => 'koperasikita_media',
             'type' => 'checkbox',
+            'priority' => 5,
         ]);
 
         self::addSetting(
@@ -2179,6 +2237,7 @@ final class Customizer
             'label' => esc_html__('Breadcrumb Separator', 'koperasikita'),
             'section' => 'koperasikita_breadcrumb',
             'type' => 'select',
+            'active_callback' => [self::class, 'isBreadcrumbEnabled'],
             'choices' => [
                 '›' => esc_html__('› Angle Bracket', 'koperasikita'),
                 '/' => esc_html__('/ Slash', 'koperasikita'),
@@ -2198,6 +2257,7 @@ final class Customizer
             'label' => esc_html__('Style Variant', 'koperasikita'),
             'section' => 'koperasikita_accessibility',
             'type' => 'select',
+            'priority' => 5,
             'choices' => [
                 'classic' => esc_html__('Classic Editorial', 'koperasikita'),
                 'compact' => esc_html__('Compact', 'koperasikita'),
@@ -2617,9 +2677,107 @@ final class Customizer
         return (bool) get_theme_mod('kk_ticker_enabled', true);
     }
 
+    public static function isTopBarEnabled(): bool
+    {
+        return (bool) get_theme_mod('kk_topbar_enabled', true);
+    }
+
+    /* The live clock lives in the top bar, so its toggle and every
+     * clock option hide while the top bar is off as well. */
+    public static function isClockEnabled(): bool
+    {
+        return self::isTopBarEnabled() && (bool) get_theme_mod('kk_clock_enabled', true);
+    }
+
+    /* The custom time zone picker only matters while the clock
+     * timezone itself is set to a custom zone. */
+    public static function isClockCustomTimezone(): bool
+    {
+        return self::isClockEnabled() && (string) get_theme_mod('kk_clock_timezone', 'site') === 'custom';
+    }
+
+    public static function isBreakingSourceCategory(): bool
+    {
+        return self::isTickerEnabled() && (string) get_theme_mod('kk_breaking_source', 'latest') === 'category';
+    }
+
+    public static function isBreakingSourceTag(): bool
+    {
+        return self::isTickerEnabled() && (string) get_theme_mod('kk_breaking_source', 'latest') === 'tag';
+    }
+
+    /* The Prev / Next style only matters while the pagination is
+     * numbered or next/prev - Load More has no prev/next links. */
+    public static function isPaginationNavStyleShown(): bool
+    {
+        return (string) get_theme_mod('kk_pagination_mode', 'pagination') !== 'load-more';
+    }
+
+    public static function isBreadcrumbEnabled(): bool
+    {
+        return (bool) get_theme_mod('kk_breadcrumb_enabled', true);
+    }
+
+    public static function isAgendaEnabled(): bool
+    {
+        return (bool) get_theme_mod('kk_agenda_enabled', true);
+    }
+
+    /* The location position only shows while the agenda itself is
+     * on and the location is enabled. */
+    public static function isAgendaLocationShown(): bool
+    {
+        return self::isAgendaEnabled() && self::isAgendaLocationEnabled();
+    }
+
+    public static function isHighlightsEnabled(): bool
+    {
+        return (bool) get_theme_mod('kk_highlights_enabled', true);
+    }
+
+    public static function isCategoryBlockEnabled(int $slot): bool
+    {
+        return (bool) get_theme_mod('kk_homepage_category_' . $slot . '_enabled', true);
+    }
+
+    public static function isHeroSourceCategory(): bool
+    {
+        return (string) get_theme_mod('kk_hero_source', 'latest') === 'category';
+    }
+
+    public static function isHeroSourceTag(): bool
+    {
+        return (string) get_theme_mod('kk_hero_source', 'latest') === 'tag';
+    }
+
+    public static function isSingleRelated(): bool
+    {
+        return (bool) get_theme_mod('kk_single_related', true);
+    }
+
+    public static function isCommentsEnabled(): bool
+    {
+        return (string) get_theme_mod('kk_comments_mode', 'follow') !== 'disabled';
+    }
+
+    public static function isPwaEnabled(): bool
+    {
+        return (bool) get_theme_mod('kk_pwa_enabled', true);
+    }
+
+    public static function isPwaButtonEnabled(): bool
+    {
+        return self::isPwaEnabled() && (bool) get_theme_mod('kk_pwa_button_enabled', true);
+    }
+
+    public static function isPwaPromptEnabled(): bool
+    {
+        return self::isPwaEnabled() && (bool) get_theme_mod('kk_pwa_prompt_enabled', true);
+    }
+
     public static function isClockDateShown(): bool
     {
-        return (bool) get_theme_mod('kk_clock_show_date', true);
+        return self::isClockEnabled() && (bool) get_theme_mod('kk_clock_show_date', true);
     }
 
     public static function isWeatherEnabled(): bool
@@ -2721,7 +2879,7 @@ final class Customizer
 
         $wpCustomize->add_control('kk_market_header_snapshot_show_mobile', [
             'label' => esc_html__('Show snapshot label on mobile', 'koperasikita'),
-            'description' => esc_html__('On small screens, hides the snapshot label so the strip gets the full width. Desktop is not affected.', 'koperasikita'),
+            'description' => esc_html__('Shows the snapshot label on small screens. Turn it off to hide the label so the strip gets the full width. Desktop is not affected.', 'koperasikita'),
             'section' => 'koperasikita_market_header',
             'settings' => 'kk_market_header_index[snapshot_show_mobile]',
             'type' => 'checkbox',
@@ -2884,7 +3042,7 @@ final class Customizer
      * mode is Load More. */
     public static function isPaginationNavIcons(): bool
     {
-        return (string) get_theme_mod('kk_pagination_nav_style', 'text') === 'icons';
+        return self::isPaginationNavStyleShown() && (string) get_theme_mod('kk_pagination_nav_style', 'text') === 'icons';
     }
 
     public static function isLoadMoreMode(): bool
@@ -2960,21 +3118,21 @@ final class Customizer
      * while the Highlights Display is Slider Grid. */
     public static function isHighlightsSliderGrid(): bool
     {
-        return self::highlightsDisplay() === 'slider-grid';
+        return self::isHighlightsEnabled() && self::highlightsDisplay() === 'slider-grid';
     }
 
     /* The Slider Full sub-settings (Autoplay + interval) only show
      * while the Highlights Display is Slider Full. */
     public static function isHighlightsSliderFull(): bool
     {
-        return self::highlightsDisplay() === 'slider-full';
+        return self::isHighlightsEnabled() && self::highlightsDisplay() === 'slider-full';
     }
 
     /* The List sub-settings (Columns / Rows / Enable slider) only
      * show while the Highlights Display is List. */
     public static function isHighlightsList(): bool
     {
-        return self::highlightsDisplay() === 'list';
+        return self::isHighlightsEnabled() && self::highlightsDisplay() === 'list';
     }
 
     /* The Slider Grid interval only shows while Slider Grid autoplay
@@ -3146,7 +3304,7 @@ final class Customizer
      * (Columns). */
     public static function isCategoryListColumns(int $slot): bool
     {
-        return \KoperasiKita\Features\Homepage::categoryBlockLayout($slot) === 'list-columns';
+        return self::isCategoryBlockEnabled($slot) && \KoperasiKita\Features\Homepage::categoryBlockLayout($slot) === 'list-columns';
     }
 
     /* Latest-news layout: Grid / List / Newsletter only. Featured
