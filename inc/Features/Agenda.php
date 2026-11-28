@@ -80,6 +80,14 @@ final class Agenda
      */
     public const NO_DATE_TS = 4102444800;
 
+    /** Index on wp_postmeta serving the event-date sort subquery. */
+    public const INDEX_NAME = 'kk_agenda_start_ts';
+
+    /** Schema version guarding the postmeta index creation. */
+    public const INDEX_VERSION = '1';
+
+    public const INDEX_VERSION_OPTION = 'kk_agenda_index_version';
+
     public static function isEnabled(): bool
     {
         return Features::isEnabled('agenda');
@@ -139,8 +147,17 @@ final class Agenda
         // the admin menu and admin bar (see the popup stylesheet).
         add_action('admin_footer', [self::class, 'renderPickLocationPopup']);
         add_action('pre_get_posts', [self::class, 'orderArchive']);
+        add_action('pre_get_posts', [self::class, 'orderAdminList']);
         add_filter('manage_' . self::POST_TYPE . '_posts_columns', [self::class, 'adminColumns']);
+        add_filter('manage_edit-' . self::POST_TYPE . '_sortable_columns', [self::class, 'adminSortableColumns']);
         add_action('manage_' . self::POST_TYPE . '_posts_custom_column', [self::class, 'renderAdminColumn'], 10, 2);
+        // The postmeta index backing the event-date sort: after_switch_theme
+        // covers a fresh activation, admin_init covers the upgrade path -
+        // the live site is already active, so a deploy never fires the
+        // switch hook. The version guard inside makes this one cheap
+        // option read once the index exists.
+        add_action('admin_init', [self::class, 'maybeCreateIndex']);
+        add_action('after_switch_theme', [self::class, 'maybeCreateIndex']);
         add_shortcode(self::SHORTCODE, [self::class, 'renderShortcode']);
     }
 
@@ -861,30 +878,103 @@ final class Agenda
 
         remove_filter('posts_orderby', [self::class, 'orderByStartTsSql'], 10);
 
-        return self::orderByStartTsFragment();
+        $direction = strtolower((string) $query->get('kk_agenda_order_dir')) === 'desc' ? 'desc' : 'asc';
+
+        return self::orderByStartTsFragment($direction);
     }
 
     /**
-     * ORDER BY fragment: soonest event first, dateless items last,
-     * deterministic tie-break by post date then ID.
+     * ORDER BY fragment: soonest event first (asc) or latest first
+     * (desc), dateless items last either way, deterministic tie-break
+     * by post date then ID.
      *
      * MIN over every timestamp row for the post: an imported item
      * carries the NO_DATE_TS sentinel as its first row and the real
      * timestamp as a second row - MIN picks the real one. A dateless
      * item only has the sentinel, so it sinks to the end. COALESCE
      * covers an item with no timestamp row at all (it also sorts last).
-     * The key is a class constant, never user input, so interpolating
-     * it is safe.
+     * Descending maps the sentinel to 0 first (NULLIF + COALESCE), so
+     * dateless items still sort last instead of floating to the top
+     * with the far-future key. The key is a class constant, never user
+     * input, so interpolating it is safe.
      */
-    public static function orderByStartTsFragment(): string
+    public static function orderByStartTsFragment(string $direction = 'asc'): string
     {
         global $wpdb;
 
         $posts = $wpdb->posts;
         $postmeta = $wpdb->postmeta;
         $sentinel = self::NO_DATE_TS;
+        $subquery = "(SELECT MIN(CAST(pm.meta_value AS UNSIGNED)) FROM {$postmeta} pm WHERE pm.post_id = {$posts}.ID AND pm.meta_key = '" . self::META_START_TS . "' AND pm.meta_value <> '')";
 
-        return "COALESCE((SELECT MIN(CAST(pm.meta_value AS UNSIGNED)) FROM {$postmeta} pm WHERE pm.post_id = {$posts}.ID AND pm.meta_key = '" . self::META_START_TS . "' AND pm.meta_value <> ''), {$sentinel}) ASC, {$posts}.post_date ASC, {$posts}.ID ASC";
+        if ($direction === 'desc') {
+            return "COALESCE(NULLIF({$subquery}, {$sentinel}), 0) DESC, {$posts}.post_date DESC, {$posts}.ID DESC";
+        }
+
+        return "COALESCE({$subquery}, {$sentinel}) ASC, {$posts}.post_date ASC, {$posts}.ID ASC";
+    }
+
+    /**
+     * Create the postmeta index backing the event-date sort, once.
+     * The version guard makes this a single option read on later
+     * loads; a failed ALTER leaves the version unset so the next
+     * admin load retries instead of silently skipping the index.
+     */
+    public static function maybeCreateIndex(): void
+    {
+        if (get_option(self::INDEX_VERSION_OPTION) === self::INDEX_VERSION) {
+            return;
+        }
+
+        if (!current_user_can('manage_options')) {
+            return;
+        }
+
+        if (!self::indexExists()) {
+            global $wpdb;
+            $wpdb->query(self::indexSql());
+        }
+
+        if (self::indexExists()) {
+            update_option(self::INDEX_VERSION_OPTION, self::INDEX_VERSION, false);
+        }
+    }
+
+    /**
+     * Whether the event-date sort index exists on wp_postmeta.
+     * Same information_schema check the FastSearch index manager uses.
+     */
+    public static function indexExists(): bool
+    {
+        global $wpdb;
+
+        $exists = $wpdb->get_var(
+            $wpdb->prepare(
+                'SELECT COUNT(1) FROM information_schema.statistics WHERE table_schema = DATABASE() AND table_name = %s AND index_name = %s',
+                $wpdb->postmeta,
+                self::INDEX_NAME
+            )
+        );
+
+        return (int) $exists > 0;
+    }
+
+    /**
+     * The index creation SQL. The subquery behind the sort filters by
+     * post_id then meta_key and takes the MIN of meta_value, so the
+     * index follows that order: the ref lookup narrows to the
+     * timestamp rows for the post instead of every meta row it
+     * carries. meta_key follows core's own 191 prefix; meta_value
+     * takes a 20 prefix, more than enough for a Unix timestamp. The
+     * prefix means the lookup is not index-only (the full longtext
+     * value still comes from the row for the CAST), but the rows
+     * examined per subquery drop to the timestamp rows alone.
+     */
+    public static function indexSql(): string
+    {
+        global $wpdb;
+
+        return "ALTER TABLE `{$wpdb->postmeta}` ADD INDEX `" . self::INDEX_NAME . "` (`post_id`, `meta_key`(191), `meta_value`(20));";
     }
 
     // Admin: meta box and list columns
@@ -1047,10 +1137,44 @@ final class Agenda
     /** @param array<string, string> $columns */
     public static function adminColumns(array $columns): array
     {
+        // Core's `date` is the publish date. The list shows the event
+        // date instead, so the publish column goes: one Tanggal only.
+        unset($columns['date']);
         $columns['kk_agenda_date'] = __('Date', 'koperasikita');
         $columns['kk_agenda_location'] = __('Location', 'koperasikita');
 
         return $columns;
+    }
+
+    /** @param array<string, string> $columns */
+    public static function adminSortableColumns(array $columns): array
+    {
+        $columns['kk_agenda_date'] = 'kk_agenda_date';
+
+        return $columns;
+    }
+
+    /**
+     * Admin list sort by event date: the column header sets
+     * orderby=kk_agenda_date, this hands the query to the same
+     * timestamp ordering the archive uses, with the direction the
+     * header asked for.
+     */
+    public static function orderAdminList(\WP_Query $query): void
+    {
+        if (!is_admin() || !$query->is_main_query()) {
+            return;
+        }
+
+        $postType = $query->get('post_type');
+        $types = is_array($postType) ? $postType : [$postType];
+
+        if (!in_array(self::POST_TYPE, $types, true) || $query->get('orderby') !== 'kk_agenda_date') {
+            return;
+        }
+
+        $query->set('kk_agenda_order', true);
+        $query->set('kk_agenda_order_dir', strtolower((string) $query->get('order')) === 'desc' ? 'desc' : 'asc');
     }
 
     public static function renderAdminColumn(string $column, int $postId): void
