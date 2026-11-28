@@ -81,6 +81,7 @@ interface AdminStrings {
 	syncMarketDone: string;
 	syncMarketSkipped: string;
 	marketSyncDone: string;
+	syncingMailPoet: string;
 }
 
 interface AdminData {
@@ -192,6 +193,7 @@ const FALLBACK_STRINGS: AdminStrings = {
 	syncMarketDone: 'Synced %s (%s symbols)',
 	syncMarketSkipped: 'Skipped %s — manual snapshots are not synced.',
 	marketSyncDone: 'Sync complete.',
+	syncingMailPoet: 'Syncing with MailPoet…',
 };
 
 function adminData(): AdminData | null {
@@ -255,6 +257,7 @@ function adminStrings(): AdminStrings {
 		syncMarketDone: strings?.syncMarketDone ?? FALLBACK_STRINGS.syncMarketDone,
 		syncMarketSkipped: strings?.syncMarketSkipped ?? FALLBACK_STRINGS.syncMarketSkipped,
 		marketSyncDone: strings?.marketSyncDone ?? FALLBACK_STRINGS.marketSyncDone,
+		syncingMailPoet: strings?.syncingMailPoet ?? FALLBACK_STRINGS.syncingMailPoet,
 	};
 }
 
@@ -461,6 +464,7 @@ function initAdmin(): void {
 		initAgendaWidgetFields,
 		initGoldSync,
 		initMarketSync,
+		initMailPoetSync,
 		initGoldSummaryChart,
 		initFastSearchBuild,
 		initDataDeskPreview,
@@ -2880,6 +2884,128 @@ function initMarketSync(): void {
 			current = '';
 			lines.push(errorMessage(error));
 			renderStatus();
+			setRunning(false);
+		}
+	});
+}
+
+interface MailPoetSyncResult {
+	lines: string[];
+	summary: string;
+	pushed: number;
+	pulled: number;
+	already: number;
+	failed: number;
+	ignored: number;
+	remaining: number;
+}
+
+/*
+ * MailPoet two-way sync (Subscribers page): the Sync With MailPoet
+ * button opens a popup and runs both directions in one AJAX call
+ * (kk_mailpoet_sync) - local subscribers into MailPoet, then
+ * MailPoet subscribers not stored here yet into the local table.
+ * One pre holds the per-address lines, the run summary shows once
+ * in a success notice below it - the same shape as the gold sync
+ * popup (initGoldSync). The settings form is disabled while the
+ * sync runs. The popup stays open with the full result until the
+ * user closes it (Close, backdrop, Escape); the close reloads
+ * the page, so the pending count and the list show the synced
+ * rows. Without the button (any other admin screen) this does
+ * nothing. Without MailPoet the button is not rendered at all,
+ * and a call that reports it missing shows the server's error
+ * instead of finishing as if a sync had run.
+ */
+function initMailPoetSync(): void {
+	const button = document.querySelector<HTMLButtonElement>('[data-kk-mailpoet-sync]');
+	const popup = document.getElementById('kk-mailpoet-sync-popup');
+	if (!button || !popup) {
+		return;
+	}
+	const bar = popup.querySelector<HTMLProgressElement>('[data-kk-mailpoet-sync-bar]');
+	const statusEl = popup.querySelector<HTMLElement>('[data-kk-mailpoet-sync-status]');
+	const resultEl = popup.querySelector<HTMLElement>('[data-kk-mailpoet-sync-result]');
+	const closeButton = popup.querySelector<HTMLButtonElement>('[data-kk-mailpoet-sync-popup-close]');
+	if (!bar || !statusEl || !resultEl || !closeButton) {
+		return;
+	}
+	const settingsForm = document.querySelector<HTMLFormElement>('[data-kk-mailpoet-settings]');
+
+	let running = false;
+
+	/* Every close path reloads: the numbers behind the popup are
+	 * stale once a sync has run, and the popup itself says so. */
+	const close = (): void => {
+		popup.hidden = true;
+		button.focus();
+		window.location.reload();
+	};
+
+	popup.querySelectorAll('[data-kk-mailpoet-sync-popup-close]').forEach((el) => {
+		el.addEventListener('click', close);
+	});
+
+	document.addEventListener('keydown', (event) => {
+		if (event.key === 'Escape' && !popup.hidden) {
+			close();
+		}
+	});
+
+	const setRunning = (isRunning: boolean): void => {
+		running = isRunning;
+		button.disabled = isRunning;
+		if (isRunning) {
+			button.setAttribute('aria-busy', 'true');
+		} else {
+			button.removeAttribute('aria-busy');
+		}
+		if (settingsForm) {
+			settingsForm.querySelectorAll<HTMLInputElement | HTMLSelectElement | HTMLButtonElement>('input, select, button').forEach((el) => {
+				el.disabled = isRunning;
+			});
+		}
+	};
+
+	/* Localize data missing (stale page, cached markup, blocked
+	 * script): never leave a dead button - a click opens the popup
+	 * and says so honestly instead of doing nothing. */
+	const config = adminData();
+	if (!config) {
+		button.addEventListener('click', () => {
+			statusEl.textContent = adminStrings().adminDataMissing;
+			popup.hidden = false;
+			closeButton.focus();
+		});
+		return;
+	}
+
+	button.addEventListener('click', async () => {
+		if (running) {
+			return;
+		}
+		const strings = adminStrings();
+		setRunning(true);
+		/* The whole status lives in one pre, set from the lines the
+		 * server returns: one line per address, pushed / pulled /
+		 * already synced / failed with its reason. The summary is
+		 * never a pre line - it shows once in the notice below. */
+		statusEl.textContent = strings.syncingMailPoet;
+		resultEl.textContent = '';
+		resultEl.hidden = true;
+		bar.max = 100;
+		bar.value = 0;
+		popup.hidden = false;
+		closeButton.focus();
+
+		try {
+			const data = await postAjax<MailPoetSyncResult>(config, 'kk_mailpoet_sync', {});
+			statusEl.textContent = data.lines.join('\n');
+			resultEl.textContent = data.summary;
+			resultEl.hidden = false;
+			bar.value = bar.max;
+			setRunning(false);
+		} catch (error) {
+			statusEl.textContent = formatTemplate(strings.failed, errorMessage(error));
 			setRunning(false);
 		}
 	});

@@ -935,6 +935,71 @@ msgstr "Terlalu banyak percobaan berlangganan. Silakan coba lagi nanti."
 msgid "Your email address"
 msgstr "Alamat email Anda"
 
+#: inc/Features/Subscribe.php
+
+msgid "Sync complete: %d pushed, %d pulled, %d already synced, %d failed, %d remaining."
+msgstr "Sinkronisasi selesai: %d didorong, %d ditarik, %d sudah tersinkron, %d gagal, %d tersisa."
+
+#: inc/Features/Subscribe.php
+
+msgid "%s: pushed to MailPoet"
+msgstr "%s: didorong ke MailPoet"
+
+#: inc/Features/Subscribe.php
+
+msgid "%s: pulled from MailPoet"
+msgstr "%s: ditarik dari MailPoet"
+
+#: inc/Features/Subscribe.php
+
+msgid "%s: already synced"
+msgstr "%s: sudah tersinkron"
+
+#: inc/Features/Subscribe.php
+
+msgid "%s: ignored (test address)"
+msgstr "%s: diabaikan (alamat tes)"
+
+#: inc/Features/Subscribe.php
+
+msgid "%s: failed - %s"
+msgstr "%s: gagal - %s"
+
+#: inc/Features/Subscribe.php
+
+msgid "%s: failed - could not update the local record"
+msgstr "%s: gagal - tidak dapat memperbarui data lokal"
+
+#: inc/Features/Subscribe.php
+
+msgid "%s: failed - could not save the local record"
+msgstr "%s: gagal - tidak dapat menyimpan data lokal"
+
+#: inc/Features/Subscribe.php
+
+msgid "MailPoet reported an error."
+msgstr "MailPoet melaporkan kesalahan."
+
+#: inc/Features/Subscribe.php
+
+msgid "First name"
+msgstr "Nama depan"
+
+#: inc/Features/Subscribe.php
+
+msgid "Your first name"
+msgstr "Nama depan Anda"
+
+#: inc/Features/Subscribe.php
+
+msgid "Last name"
+msgstr "Nama belakang"
+
+#: inc/Features/Subscribe.php
+
+msgid "Your last name"
+msgstr "Nama belakang Anda"
+
 #: inc/Features/Weather.php
 
 msgid "Feels like"
@@ -4747,6 +4812,11 @@ msgstr "Pencarian tidak tersedia saat ini. Coba koordinat."
 
 #: inc/Assets/Enqueue.php
 
+msgid "Syncing with MailPoet…"
+msgstr "Menyinkronkan dengan MailPoet…"
+
+#: inc/Assets/Enqueue.php
+
 msgid "Moved the map to %s. Press \"Update\" to apply it."
 msgstr "Peta dipindah ke %s. Tekan \"Update\" untuk menerapkannya."
 
@@ -6534,14 +6604,6 @@ msgid "Add new subscribers to the MailPoet database"
 msgstr "Masukkan pelanggan baru ke database MailPoet"
 
 #: inc/Admin/SubscribersPage.php
-msgid "Yes"
-msgstr "Ya"
-
-#: inc/Admin/SubscribersPage.php
-msgid "No"
-msgstr "Tidak"
-
-#: inc/Admin/SubscribersPage.php
 msgid "Save MailPoet settings"
 msgstr "Simpan pengaturan MailPoet"
 
@@ -6554,10 +6616,6 @@ msgid "Sync With MailPoet"
 msgstr "Sync With MailPoet"
 
 #: inc/Admin/SubscribersPage.php
-msgid "Copies the subscribers stored here into MailPoet."
-msgstr "Menyalin pelanggan yang tersimpan di sini ke MailPoet."
-
-#: inc/Admin/SubscribersPage.php
 msgid "Subscribers stored here but not in MailPoet yet: %d."
 msgstr "Pelanggan yang tersimpan di sini tetapi belum di MailPoet: %d."
 
@@ -6566,9 +6624,16 @@ msgid "All subscribers are already in MailPoet."
 msgstr "Semua pelanggan sudah ada di MailPoet."
 
 #: inc/Admin/SubscribersPage.php
-msgid "Sync complete: %d synced, %d failed, %d remaining."
-msgstr "Sinkronisasi selesai: %d berhasil, %d gagal, %d tersisa."
-
-#: inc/Admin/SubscribersPage.php
 msgid "MailPoet is not available, so nothing was synced."
 msgstr "MailPoet tidak tersedia, jadi tidak ada yang disinkronkan."
+
+
+#: inc/Admin/SubscribersPage.php
+
+msgid "Syncs subscribers with MailPoet in both directions."
+msgstr "Menyinkronkan pelanggan dengan MailPoet dua arah."
+
+#: inc/Admin/SubscribersPage.php
+
+msgid "Closing this popup reloads the page so the subscriber list and the pending count show the synced addresses."
+msgstr "Menutup popup ini memuat ulang halaman agar daftar pelanggan dan jumlah tertunda menampilkan alamat yang sudah disinkronkan."

@@ -96,7 +96,6 @@ final class Theme
         add_action('admin_post_kk_export_subscribers', [SubscribersPage::class, 'handleExport']);
         add_action('admin_init', [SubscribersPage::class, 'maybeHandleActions']);
         add_action('admin_post_kk_save_mailpoet_settings', [SubscribersPage::class, 'handleMailPoetSettings']);
-        add_action('admin_post_kk_sync_subscribers_mailpoet', [SubscribersPage::class, 'handleMailPoetSync']);
         add_action('admin_post_kk_export_gold_prices', [GoldPricesPage::class, 'handleExport']);
     }
 }
