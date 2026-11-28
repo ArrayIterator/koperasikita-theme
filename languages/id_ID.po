@@ -2373,13 +2373,13 @@ msgstr "Dipakai saat sumber di atas adalah \"Tag terpilih\". Kosongkan untuk kem
 
 #: inc/Customizer/Customizer.php
 
-msgid "Seconds Between Breaking News Headlines"
-msgstr "Detik Antar Judul Berita Terkini"
+msgid "Ticker Interval (seconds)"
+msgstr "Interval Ticker (detik)"
 
 #: inc/Customizer/Customizer.php
 
-msgid "Breaking News Headlines"
-msgstr "Judul Berita Terkini"
+msgid "Number of Ticker Headlines"
+msgstr "Jumlah Judul Ticker"
 
 #: inc/Customizer/Customizer.php
 
@@ -6045,8 +6045,8 @@ msgstr "Tampilkan label snapshot di mobile"
 
 #: inc/Customizer/Customizer.php
 
-msgid "On small screens, hides the snapshot label so the strip gets the full width. Desktop is not affected."
-msgstr "Di layar kecil, menyembunyikan label snapshot agar strip mendapat lebar penuh. Desktop tidak terpengaruh."
+msgid "Shows the snapshot label on small screens. Turn it off to hide the label so the strip gets the full width. Desktop is not affected."
+msgstr "Menampilkan label snapshot di layar kecil. Matikan untuk menyembunyikan label agar strip mendapat lebar penuh. Desktop tidak terpengaruh."
 
 #: inc/Customizer/Customizer.php
 #: inc/Admin/MarketHeaderPage.php
