@@ -270,7 +270,8 @@ final class QuoteWidget extends WP_Widget
         // The colour rows mirror the agenda widget's Choose Own rows:
         // the visible swatch is only the picker, the hidden input
         // holds the real value (empty = fall back to the theme
-        // colour), and the x button clears it back to empty.
+        // colour), and the x button clears it back to empty. No hex
+        // readout: the Reset button below restores the defaults.
         $colorRows = [
             'bg_color' => ['label' => __('Background', 'koperasikita'), 'value' => $bgColor, 'default' => self::DEFAULT_BG_COLOR],
             'text_color' => ['label' => __('Text color', 'koperasikita'), 'value' => $textColor, 'default' => self::DEFAULT_TEXT_COLOR],
@@ -286,11 +287,13 @@ final class QuoteWidget extends WP_Widget
                         <input type="color" class="kk-quote-color" value="<?php echo esc_attr('' !== $row['value'] ? $row['value'] : $row['default']); ?>" data-kk-quote-color="<?php echo esc_attr($key); ?>" aria-label="<?php echo esc_attr($row['label']); ?>">
                     </span>
                     <button type="button" class="kk-quote-color-clear" data-kk-quote-color-clear="<?php echo esc_attr($key); ?>" title="<?php esc_attr_e('Clear color', 'koperasikita'); ?>"<?php echo '' === $row['value'] ? ' hidden' : ''; ?>>&times;</button>
-                    <span class="kk-quote-color-hex" data-kk-quote-color-hex="<?php echo esc_attr($key); ?>"><?php echo esc_html($row['value']); ?></span>
                 </span>
                 <input type="hidden" name="<?php echo esc_attr($this->get_field_name($key)); ?>" value="<?php echo esc_attr($row['value']); ?>" data-kk-quote-color-input="<?php echo esc_attr($key); ?>">
             </p>
         <?php endforeach; ?>
+        <p>
+            <button type="button" class="button" data-kk-quote-color-reset><?php esc_html_e('Reset', 'koperasikita'); ?></button>
+        </p>
         <p>
             <label for="<?php echo esc_attr($this->get_field_id('link_url')); ?>">
                 <?php esc_html_e('Link URL', 'koperasikita'); ?>

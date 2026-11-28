@@ -45,8 +45,14 @@ type FieldDef =
 	 * showWhen hides the field unless another attribute has the
 	 * given value - the Choose Own colours only show for the custom
 	 * card style. fallback is the picker starting value while the
-	 * stored value is empty; it is never stored itself. */
-	| { key: string; kind: 'color'; label: string; help?: string; showWhen?: ShowWhen; fallback?: string };
+	 * stored value is empty; it is never stored itself. hideHex
+	 * drops the readout (the Quote widget hides it - its Reset
+	 * button restores the defaults instead). */
+	| { key: string; kind: 'color'; label: string; help?: string; showWhen?: ShowWhen; fallback?: string; hideHex?: boolean }
+	/* A reset button: clears every attribute named in keys back to
+	 * empty (which for colours means the theme default). The key is
+	 * only the element identity - it names no attribute itself. */
+	| { key: string; kind: 'reset'; label: string; help?: string; keys: string[] };
 
 interface BlockDef {
 	slug: string;
@@ -1613,7 +1619,7 @@ function renderField(
 			 * The input always holds a colour (the dialog needs a
 			 * starting value), so the stored value is what counts:
 			 * empty means "fall back to the theme colour", and the
-			 * x button restores it. */
+			 * x button restores it. hideHex drops the readout. */
 			const hex = typeof value === 'string' ? value : '';
 			return api.element.createElement(
 				'div',
@@ -1624,7 +1630,9 @@ function renderField(
 					value: hex !== '' ? hex : (field.fallback ?? '#ffffff'),
 					onChange: (event: { target: { value: string } }) => set(key, event.target.value),
 				}),
-				api.element.createElement('span', null, hex),
+				field.hideHex === true
+					? null
+					: api.element.createElement('span', null, hex),
 				hex !== ''
 					? api.element.createElement(
 							'button',
@@ -1635,6 +1643,23 @@ function renderField(
 				field.help !== undefined
 					? api.element.createElement('p', { className: 'components-base-control__help' }, field.help)
 					: null,
+			);
+		}
+		case 'reset': {
+			/* One button that clears every named attribute back to
+			 * empty - for colours that is the theme default. Each
+			 * set merges one key, so the four clears land together. */
+			return api.element.createElement(
+				'button',
+				{
+					key,
+					type: 'button',
+					className: 'button',
+					onClick: () => {
+						field.keys.forEach((resetKey) => set(resetKey, ''));
+					},
+				},
+				field.label,
 			);
 		}
 	}
@@ -1924,10 +1949,11 @@ function buildDefinitions(api: Wp): BlockDef[] {
 				{ key: 'italic', kind: 'toggle', label: __('Italic') },
 				{ key: 'author', kind: 'text', label: __('Author') },
 				{ key: 'role', kind: 'text', label: __('Role') },
-				{ key: 'bgColor', kind: 'color', label: __('Background'), fallback: '#3A2D1E' },
-				{ key: 'textColor', kind: 'color', label: __('Text color'), fallback: '#F5EEDD' },
-				{ key: 'roleColor', kind: 'color', label: __('Role color'), fallback: '#e9dabe' },
-				{ key: 'linkColor', kind: 'color', label: __('Link color'), fallback: '#e5e9cc' },
+				{ key: 'bgColor', kind: 'color', label: __('Background'), fallback: '#3A2D1E', hideHex: true },
+				{ key: 'textColor', kind: 'color', label: __('Text color'), fallback: '#F5EEDD', hideHex: true },
+				{ key: 'roleColor', kind: 'color', label: __('Role color'), fallback: '#e9dabe', hideHex: true },
+				{ key: 'linkColor', kind: 'color', label: __('Link color'), fallback: '#e5e9cc', hideHex: true },
+				{ key: 'resetColors', kind: 'reset', label: __('Reset'), keys: ['bgColor', 'textColor', 'roleColor', 'linkColor'] },
 				{ key: 'linkUrl', kind: 'text', label: __('Link URL'), help: __('Leave empty to hide the link.') },
 				{ key: 'linkLabel', kind: 'text', label: __('Link label'), help: __('Leave empty for the default label.') },
 			],

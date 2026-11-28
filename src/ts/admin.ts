@@ -3609,13 +3609,10 @@ function initAgendaWidgetFields(): void {
 	/* Quote widget colour rows: the same shape as the agenda rows -
 	 * the visible swatch is only the picker, the hidden input holds
 	 * the real value (empty = fall back to the theme colour), and
-	 * the x button clears it back to empty. */
+	 * the x button clears it back to empty. No hex readout. */
 	const syncQuoteColorRow = (scope: HTMLElement | null, key: string): void => {
 		const input = scope?.querySelector<HTMLInputElement>(
 			`[data-kk-quote-color-input="${key}"]`,
-		);
-		const hex = scope?.querySelector<HTMLElement>(
-			`[data-kk-quote-color-hex="${key}"]`,
 		);
 		const wrap = scope?.querySelector<HTMLElement>(
 			`[data-kk-quote-color-wrap="${key}"]`,
@@ -3623,9 +3620,6 @@ function initAgendaWidgetFields(): void {
 		const clear = scope?.querySelector<HTMLElement>(
 			`[data-kk-quote-color-clear="${key}"]`,
 		);
-		if (hex && input) {
-			hex.textContent = input.value;
-		}
 		if (wrap) {
 			wrap.classList.toggle('is-empty', !input || input.value === '');
 		}
@@ -3668,6 +3662,28 @@ function initAgendaWidgetFields(): void {
 			input.value = '';
 		}
 		syncQuoteColorRow(scope, key);
+	});
+
+	/* Reset clears every Quote colour back to empty in one go -
+	 * empty is the theme default for each slot, same as the x
+	 * button does for one row. */
+	document.addEventListener('click', (event) => {
+		const reset = (event.target as HTMLElement).closest(
+			'[data-kk-quote-color-reset]',
+		) as HTMLElement | null;
+		if (!reset) {
+			return;
+		}
+		const scope = scopeFor(reset);
+		['bg_color', 'text_color', 'role_color', 'link_color'].forEach((resetKey) => {
+			const input = scope?.querySelector<HTMLInputElement>(
+				`[data-kk-quote-color-input="${resetKey}"]`,
+			);
+			if (input) {
+				input.value = '';
+			}
+			syncQuoteColorRow(scope, resetKey);
+		});
 	});
 
 	const scopeFor = (el: HTMLElement): HTMLElement | null =>
