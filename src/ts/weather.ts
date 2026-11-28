@@ -189,7 +189,10 @@ function getCacheLifetimeMs(): number {
 	return Math.max(0, minutes) * 60 * 1000;
 }
 
-function getCachedWeather(cacheKey: string, location: Location): WeatherData | null {
+// The stored cache entry for a surface and location, whatever its
+// age: the live refresh schedules its next tick from the entry's
+// fetchedAt, so it needs the entry even after the lifetime has passed.
+function readCacheEntry(cacheKey: string, location: Location): CachedWeather | null {
 	if (getCacheLifetimeMs() === 0) {
 		return null;
 	}
@@ -202,20 +205,25 @@ function getCachedWeather(cacheKey: string, location: Location): WeatherData | n
 		if (!cached || typeof cached.fetchedAt !== 'number' || !cached.weather) {
 			return null;
 		}
-		// Same place (within ~1 km) and still within the lifetime.
+		// Same place (within ~1 km); the age check lives in the caller.
 		if (
 			Math.abs((cached.latitude ?? Number.NaN) - location.latitude) > 0.01 ||
 			Math.abs((cached.longitude ?? Number.NaN) - location.longitude) > 0.01
 		) {
 			return null;
 		}
-		if (Date.now() - cached.fetchedAt > getCacheLifetimeMs()) {
-			return null;
-		}
-		return cached.weather;
+		return cached as CachedWeather;
 	} catch {
 		return null;
 	}
+}
+
+function getCachedWeather(cacheKey: string, location: Location): WeatherData | null {
+	const entry = readCacheEntry(cacheKey, location);
+	if (entry === null || Date.now() - entry.fetchedAt > getCacheLifetimeMs()) {
+		return null;
+	}
+	return entry.weather;
 }
 
 function setCachedWeather(cacheKey: string, location: Location, weather: WeatherData): void {
@@ -648,10 +656,13 @@ function renderWidgetEmpty(body: HTMLElement): void {
 	body.appendChild(empty);
 }
 
-async function refreshTopbar(location: Location): Promise<void> {
+// The fresh weather on success, null when the fetch failed - the
+// live update broadcasts the returned weather, so it needs it back.
+async function refreshTopbar(location: Location): Promise<WeatherData | null> {
 	try {
 		const weather = await fetchWeather(TOPBAR_DATA_KEY, location);
 		renderTopbar(weather);
+		return weather;
 	} catch {
 		// A failed revalidation keeps a cached display (it is still
 		// fresh); only a page with no data at all - still showing the
@@ -660,13 +671,15 @@ async function refreshTopbar(location: Location): Promise<void> {
 		if (slot && slot.querySelector('.kk-topbar-weather-loading')) {
 			hideTopbar();
 		}
+		return null;
 	}
 }
 
-async function refreshWidget(widget: HTMLElement, location: Location): Promise<void> {
+async function refreshWidget(widget: HTMLElement, location: Location): Promise<WeatherData | null> {
 	try {
 		const weather = await fetchWeather(widgetDataKey(widgetKey(widget)), location);
 		renderWidget(widget, weather);
+		return weather;
 	} catch {
 		// Keep the server-side first paint when it already shows the
 		// widget's location; only a stale paint gets the honest empty.
@@ -675,12 +688,13 @@ async function refreshWidget(widget: HTMLElement, location: Location): Promise<v
 			Math.abs(def.latitude - location.latitude) < 0.01 &&
 			Math.abs(def.longitude - location.longitude) < 0.01;
 		if (samePlace) {
-			return;
+			return null;
 		}
 		const body = widget.querySelector<HTMLElement>('[data-kk-weather-body]');
 		if (body) {
 			renderWidgetEmpty(body);
 		}
+		return null;
 	}
 }
 
@@ -1397,6 +1411,393 @@ function initPicker(): void {
 	initGeolocate();
 }
 
+/* Live update                                                        */
+/*                                                                    */
+/* A tab left open re-checks its surfaces on the cache lifetime, so   */
+/* the numbers stay current without a reload. The check is            */
+/* cache-first; when the cache is stale, one tab fetches and the      */
+/* rest repaint from its broadcast. The fetch is claimed in           */
+/* localStorage - a broadcast alone cannot stop two tabs whose       */
+/* timers fire in the same beat from fetching twice. A hidden tab     */
+/* fetches nothing: the timer stops on hide and the surfaces          */
+/* re-check when the tab comes back.                                  */
+
+const WEATHER_CHANNEL_NAME = 'kk-weather';
+// A claim older than this belongs to a tab that died mid-fetch.
+const CLAIM_TTL_MS = 30 * 1000;
+// The beat between claiming a fetch and re-reading the claim: the
+// last writer wins, so a tab that lost the race sees the winner.
+const CLAIM_VERIFY_MS = 100;
+// How long a tab that stood down waits for the winner's broadcast
+// before retrying on its own.
+const BROADCAST_WAIT_MS = 30 * 1000;
+// Minimum gap between live-refresh ticks; keeps the timer chain from
+// spinning while a fetch is still in flight.
+const LIVE_TICK_FLOOR_MS = 1000;
+
+const LIVE_TAB_ID = `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`;
+
+type WeatherBroadcast =
+	| { type: 'kk-weather-fetching'; key: string; tab: string }
+	| { type: 'kk-weather-updated'; key: string; weather: WeatherData; latitude: number; longitude: number; fetchedAt: number };
+
+let weatherChannel: BroadcastChannel | null = null;
+const lastBroadcastAt = new Map<string, number>();
+const fetchingElsewhereAt = new Map<string, number>();
+const lastFetchFailedAt = new Map<string, number>();
+const pendingRecheck = new Map<string, number>();
+let liveRefreshTimer: number | null = null;
+
+function claimKey(dataKey: string): string {
+	return `kk-weather-claim-${dataKey}`;
+}
+
+function readClaim(dataKey: string): { tab: string; at: number } | null {
+	try {
+		const raw = window.localStorage.getItem(claimKey(dataKey));
+		if (!raw) {
+			return null;
+		}
+		const parsed = JSON.parse(raw) as { tab?: unknown; at?: unknown };
+		if (typeof parsed.tab !== 'string' || typeof parsed.at !== 'number') {
+			return null;
+		}
+		return { tab: parsed.tab, at: parsed.at };
+	} catch {
+		return null;
+	}
+}
+
+// One tab fetches a stale surface: it claims the key in localStorage
+// and re-reads it after a beat, so a tab that lost the race sees the
+// winner's claim and stands down instead of fetching too. A claim
+// older than CLAIM_TTL_MS belongs to a tab that died mid-fetch and
+// may be taken over.
+async function tryClaim(dataKey: string): Promise<boolean> {
+	const existing = readClaim(dataKey);
+	if (existing !== null && Date.now() - existing.at < CLAIM_TTL_MS) {
+		return false;
+	}
+	try {
+		window.localStorage.setItem(claimKey(dataKey), JSON.stringify({ tab: LIVE_TAB_ID, at: Date.now() }));
+	} catch {
+		return false;
+	}
+	await new Promise<void>((resolve) => {
+		window.setTimeout(resolve, CLAIM_VERIFY_MS);
+	});
+	const after = readClaim(dataKey);
+	return after !== null && after.tab === LIVE_TAB_ID;
+}
+
+function releaseClaim(dataKey: string): void {
+	const claim = readClaim(dataKey);
+	if (claim !== null && claim.tab === LIVE_TAB_ID) {
+		try {
+			window.localStorage.removeItem(claimKey(dataKey));
+		} catch {
+			// A stale claim expires on its own.
+		}
+	}
+}
+
+function openWeatherChannel(): BroadcastChannel | null {
+	if (typeof window.BroadcastChannel !== 'function') {
+		return null;
+	}
+	try {
+		const channel = new BroadcastChannel(WEATHER_CHANNEL_NAME);
+		channel.addEventListener('message', onWeatherBroadcast);
+		return channel;
+	} catch {
+		return null;
+	}
+}
+
+function broadcastWeather(message: WeatherBroadcast): void {
+	if (weatherChannel === null) {
+		return;
+	}
+	try {
+		weatherChannel.postMessage(message);
+	} catch {
+		// A closed channel just means no other tab hears it.
+	}
+}
+
+function isWeatherBroadcast(value: unknown): value is WeatherBroadcast {
+	if (!value || typeof value !== 'object') {
+		return false;
+	}
+	const message = value as {
+		type?: unknown;
+		key?: unknown;
+		tab?: unknown;
+		weather?: unknown;
+		latitude?: unknown;
+		longitude?: unknown;
+		fetchedAt?: unknown;
+	};
+	if (message.type !== 'kk-weather-fetching' && message.type !== 'kk-weather-updated') {
+		return false;
+	}
+	if (typeof message.key !== 'string' || message.key === '') {
+		return false;
+	}
+	if (message.type === 'kk-weather-fetching') {
+		return typeof message.tab === 'string';
+	}
+	return (
+		typeof message.weather === 'object' &&
+		message.weather !== null &&
+		typeof message.latitude === 'number' &&
+		typeof message.longitude === 'number' &&
+		typeof message.fetchedAt === 'number'
+	);
+}
+
+function onWeatherBroadcast(event: MessageEvent): void {
+	if (!isWeatherBroadcast(event.data)) {
+		return;
+	}
+	const message = event.data;
+	if (message.type === 'kk-weather-fetching') {
+		fetchingElsewhereAt.set(message.key, Date.now());
+		return;
+	}
+	// The fetch is done: the sibling is no longer in flight, so a
+	// later tick must not stand down on its stale "fetching" note.
+	// Without this the loser of a boot race stays blocked for the
+	// whole BROADCAST_WAIT_MS and its interval never fetches.
+	fetchingElsewhereAt.delete(message.key);
+	lastBroadcastAt.set(message.key, message.fetchedAt);
+	repaintSurfaceFromBroadcast(message.key, message.weather, message.latitude, message.longitude);
+}
+
+// A sibling tab fetched fresh weather: repaint the surface that owns
+// this data key, but only when its location still matches the fetch -
+// a tab that moved its top bar to another city must not paint the
+// other tab's city over its own.
+function repaintSurfaceFromBroadcast(key: string, weather: WeatherData, latitude: number, longitude: number): void {
+	const matches = (location: Location): boolean =>
+		Math.abs(location.latitude - latitude) < 0.01 && Math.abs(location.longitude - longitude) < 0.01;
+	if (key === TOPBAR_DATA_KEY) {
+		if (matches(topbarLocation)) {
+			renderTopbar(weather);
+		}
+		return;
+	}
+	$all<HTMLElement>('[data-kk-weather-widget]').forEach((widget) => {
+		if (widgetDataKey(widgetKey(widget)) !== key) {
+			return;
+		}
+		const location = getTargetLocation({ kind: 'widget', element: widget, key: widgetKey(widget) });
+		if (matches(location)) {
+			renderWidget(widget, weather);
+		}
+	});
+}
+
+interface SurfaceRefresh {
+	key: string;
+	location: () => Location;
+	refresh: () => Promise<WeatherData | null>;
+	repaint: (weather: WeatherData) => void;
+}
+
+function topbarSurface(): SurfaceRefresh {
+	return {
+		key: TOPBAR_DATA_KEY,
+		location: () => topbarLocation,
+		refresh: () => refreshTopbar(topbarLocation),
+		repaint: (weather) => renderTopbar(weather),
+	};
+}
+
+function widgetSurface(widget: HTMLElement): SurfaceRefresh {
+	const key = widgetKey(widget);
+	return {
+		key: widgetDataKey(key),
+		location: () => getTargetLocation({ kind: 'widget', element: widget, key }),
+		refresh: () => refreshWidget(widget, getTargetLocation({ kind: 'widget', element: widget, key })),
+		repaint: (weather) => renderWidget(widget, weather),
+	};
+}
+
+function weatherSurfaces(): SurfaceRefresh[] {
+	const surfaces: SurfaceRefresh[] = [];
+	if ($('#kk-topbar-weather')) {
+		surfaces.push(topbarSurface());
+	}
+	$all<HTMLElement>('[data-kk-weather-widget]').forEach((widget) => {
+		surfaces.push(widgetSurface(widget));
+	});
+	return surfaces;
+}
+
+// Fetch one surface with multi-tab dedup: claim the key, fetch, and
+// broadcast the result so sibling tabs repaint without fetching.
+// Null when another tab owns the fetch (its broadcast repaints this
+// tab) or the fetch failed.
+async function fetchSurfaceShared(surface: SurfaceRefresh): Promise<WeatherData | null> {
+	if (!(await tryClaim(surface.key))) {
+		scheduleRecheck(surface, true);
+		return null;
+	}
+	try {
+		broadcastWeather({ type: 'kk-weather-fetching', key: surface.key, tab: LIVE_TAB_ID });
+		const weather = await surface.refresh();
+		if (weather === null) {
+			lastFetchFailedAt.set(surface.key, Date.now());
+			return null;
+		}
+		const fetchedAt = Date.now();
+		lastBroadcastAt.set(surface.key, fetchedAt);
+		const location = surface.location();
+		broadcastWeather({
+			type: 'kk-weather-updated',
+			key: surface.key,
+			weather,
+			latitude: location.latitude,
+			longitude: location.longitude,
+			fetchedAt,
+		});
+		return weather;
+	} finally {
+		// This tab's fetch is over (success or failure): the key is
+		// no longer in flight, so a stale "fetching" note from an
+		// earlier sibling fetch must not block the next tick.
+		fetchingElsewhereAt.delete(surface.key);
+		releaseClaim(surface.key);
+	}
+}
+
+// One interval tick per surface: a fresh cache means paint it and
+// move on - another tab may have fetched it while this one stood
+// down. A stale cache means claim the fetch; the loser waits for the
+// winner's broadcast instead of fetching too.
+async function refreshSurfaceIfStale(surface: SurfaceRefresh, allowRetry = true): Promise<void> {
+	const location = surface.location();
+	const cached = getCachedWeather(surface.key, location);
+	if (cached !== null) {
+		surface.repaint(cached);
+		return;
+	}
+	const broadcastAt = lastBroadcastAt.get(surface.key);
+	if (broadcastAt !== undefined && Date.now() - broadcastAt < getRefreshIntervalMs()) {
+		return;
+	}
+	const fetchingAt = fetchingElsewhereAt.get(surface.key);
+	if (fetchingAt !== undefined && Date.now() - fetchingAt < BROADCAST_WAIT_MS) {
+		scheduleRecheck(surface, allowRetry);
+		return;
+	}
+	await fetchSurfaceShared(surface);
+}
+
+// A tab that stood down retries once after the winner should have
+// answered - the winner may have failed its fetch, in which case no
+// broadcast ever arrives and the next interval tick is too far away.
+function scheduleRecheck(surface: SurfaceRefresh, allowRetry: boolean): void {
+	if (!allowRetry || pendingRecheck.has(surface.key)) {
+		return;
+	}
+	const timer = window.setTimeout(() => {
+		pendingRecheck.delete(surface.key);
+		void refreshSurfaceIfStale(surface, false);
+	}, BROADCAST_WAIT_MS);
+	pendingRecheck.set(surface.key, timer);
+}
+
+function clearPendingRechecks(): void {
+	for (const timer of pendingRecheck.values()) {
+		window.clearTimeout(timer);
+	}
+	pendingRecheck.clear();
+}
+
+// Refresh cadence: the cache lifetime, so a tick lands just as the
+// cache goes stale. A 0 lifetime (cache disabled) still refreshes on
+// the default 15-minute cadence - the setting only disables the
+// browser cache, not the live update.
+function getRefreshIntervalMs(): number {
+	const lifetime = getCacheLifetimeMs();
+	return lifetime > 0 ? lifetime : 15 * 60 * 1000;
+}
+
+// Delay until the next tick: the moment the oldest surface cache goes
+// stale, so the tick lands on the lifetime boundary instead of a
+// fixed grid that drifts a full interval late. No cache entry means
+// the cadence; a recent failure means one interval after the failure,
+// not an immediate retry storm.
+function nextRefreshDelayMs(): number {
+	const interval = getRefreshIntervalMs();
+	let delay = interval;
+	for (const surface of weatherSurfaces()) {
+		const entry = readCacheEntry(surface.key, surface.location());
+		if (entry === null) {
+			continue;
+		}
+		const failedAt = lastFetchFailedAt.get(surface.key);
+		if (failedAt !== undefined && Date.now() - failedAt < interval) {
+			const retryIn = interval - (Date.now() - failedAt);
+			if (retryIn < delay) {
+				delay = retryIn;
+			}
+			continue;
+		}
+		const remaining = interval - (Date.now() - entry.fetchedAt);
+		if (remaining < delay) {
+			delay = remaining;
+		}
+	}
+	return Math.max(LIVE_TICK_FLOOR_MS, delay);
+}
+
+function refreshAllSurfaces(): void {
+	for (const surface of weatherSurfaces()) {
+		void refreshSurfaceIfStale(surface);
+	}
+}
+
+function scheduleLiveRefresh(): void {
+	stopLiveRefresh();
+	liveRefreshTimer = window.setTimeout(() => {
+		liveRefreshTimer = null;
+		refreshAllSurfaces();
+		scheduleLiveRefresh();
+	}, nextRefreshDelayMs());
+}
+
+function stopLiveRefresh(): void {
+	if (liveRefreshTimer !== null) {
+		window.clearTimeout(liveRefreshTimer);
+		liveRefreshTimer = null;
+	}
+}
+
+// A hidden tab fetches nothing: the timer stops when the page hides
+// and the surfaces re-check the moment it comes back, so idle tabs
+// never join a fetch storm.
+function initLiveRefresh(): void {
+	if (weatherSurfaces().length === 0) {
+		return;
+	}
+	weatherChannel = openWeatherChannel();
+	document.addEventListener('visibilitychange', () => {
+		if (document.visibilityState === 'hidden') {
+			stopLiveRefresh();
+			clearPendingRechecks();
+			return;
+		}
+		refreshAllSurfaces();
+		scheduleLiveRefresh();
+	});
+	if (document.visibilityState !== 'hidden') {
+		scheduleLiveRefresh();
+	}
+}
+
 /* Boot                                                                */
 
 // A stored "My location" / "Custom location" predates area names:
@@ -1455,20 +1856,23 @@ document.addEventListener('DOMContentLoaded', () => {
 	if (topbar) {
 		// Paint instantly from the browser cache when it is fresh, or
 		// hold the slot with a loading state so the top bar does not
-		// bounce - then always revalidate in the background so the
-		// numbers stay current.
+		// bounce - then revalidate in the background so the numbers
+		// stay current. The shared fetch dedupes across tabs: only
+		// one tab fetches a stale surface, the rest repaint from its
+		// broadcast.
 		const cached = getCachedWeather(TOPBAR_DATA_KEY, topbarLocation);
 		if (cached) {
 			renderTopbar(cached);
 		} else {
 			renderTopbarLoading(topbarLocation);
 		}
-		void refreshTopbar(topbarLocation);
+		void fetchSurfaceShared(topbarSurface());
 	}
 	// Every widget revalidates for its own location; a widget without
 	// a stored location keeps its server-side first paint on failure.
 	$all<HTMLElement>('[data-kk-weather-widget]').forEach((widget) => {
-		void refreshWidget(widget, getTargetLocation({ kind: 'widget', element: widget, key: widgetKey(widget) }));
+		void fetchSurfaceShared(widgetSurface(widget));
 	});
 	initPicker();
+	initLiveRefresh();
 });
