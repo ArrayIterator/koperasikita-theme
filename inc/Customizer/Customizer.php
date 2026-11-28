@@ -1444,6 +1444,7 @@ final class Customizer
             'kk_clock_seconds' => ['koperasikita_header', 'Show Seconds on the Clock', false, 34],
             'kk_clock_24h' => ['koperasikita_header', 'Use the 24-Hour Clock', true, 35],
             'kk_clock_show_date' => ['koperasikita_header', 'Show Date on the Clock', true, 36],
+            'kk_clock_show_mobile' => ['koperasikita_header', 'Show Clock on Mobile', true, 37],
             'kk_sticky_header' => ['koperasikita_header', 'Sticky Header Navigation', true, 41],
             'kk_list_show_time' => ['koperasikita_accessibility', 'Show Time on Article List & Archive', false, 10],
             'kk_single_show_time' => ['koperasikita_accessibility', 'Show Time on Single Post & Page', false, 10],
@@ -2681,6 +2682,13 @@ final class Customizer
             'transport' => 'refresh',
         ]);
 
+        $wpCustomize->add_setting('kk_market_header_index[snapshot_show_mobile]', [
+            'type' => 'option',
+            'default' => true,
+            'sanitize_callback' => [MarketHeaderIndex::class, 'sanitizeSnapshotShowMobile'],
+            'transport' => 'refresh',
+        ]);
+
         $wpCustomize->add_control('kk_market_header_enabled', [
             'label' => esc_html__('Show the market index strip', 'koperasikita'),
             'description' => esc_html__('Shows the picked market indices in a strip below the header. Requires the Markets feature.', 'koperasikita'),
@@ -2707,6 +2715,15 @@ final class Customizer
             'description' => esc_html__('Shows the day and time the strip data was taken, after the label.', 'koperasikita'),
             'section' => 'koperasikita_market_header',
             'settings' => 'kk_market_header_index[snapshot_show_datetime]',
+            'type' => 'checkbox',
+            'active_callback' => [self::class, 'isMarketHeaderEnabled'],
+        ]);
+
+        $wpCustomize->add_control('kk_market_header_snapshot_show_mobile', [
+            'label' => esc_html__('Show snapshot label on mobile', 'koperasikita'),
+            'description' => esc_html__('On small screens, hides the snapshot label so the strip gets the full width. Desktop is not affected.', 'koperasikita'),
+            'section' => 'koperasikita_market_header',
+            'settings' => 'kk_market_header_index[snapshot_show_mobile]',
             'type' => 'checkbox',
             'active_callback' => [self::class, 'isMarketHeaderEnabled'],
         ]);

@@ -40,7 +40,7 @@ if ($items === []) {
 		]);
 		?>
 		<?php if ($caption !== '') : ?>
-			<span class="kk-market-header-snapshot"><?php echo esc_html($caption); ?></span>
+			<span class="kk-market-header-snapshot<?php echo \KoperasiKita\Features\MarketHeaderIndex::settings()['snapshot_show_mobile'] ? '' : ' kk-market-header-snapshot--hide-mobile'; ?>"><?php echo esc_html($caption); ?></span>
 		<?php endif; ?>
 	</div>
 </div>

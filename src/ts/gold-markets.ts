@@ -771,23 +771,22 @@ function initLivePrices(): void {
 // per-market containers above: it fetches the whole strip at once
 // from the rewrite endpoint (/kk-market-prices/) and caches it
 // under its own key with the strip's 30-minute lifetime. The
-// endpoint also returns the pre-formatted snapshot caption, so the
-// caption refreshes with the prices instead of going stale under
-// a full-page cache. A failed fetch leaves the server-rendered
-// strip in place; the strip never goes blank because the live
-// call failed.
+// snapshot caption is server-rendered only: this script never
+// touches its text, so the label a visitor sees on first paint
+// stays exactly that label - a stale cache, a changed setting
+// or a failed fetch can never blank or replace it. A failed
+// fetch leaves the server-rendered strip in place; the strip
+// never goes blank because the live call failed.
 
 const STRIP_CACHE_KEY = 'kk-market-strip';
 
 interface StripCache {
 	savedAt: number;
 	markets: Record<string, LivePriceMap>;
-	caption: string;
 }
 
 interface StripPrices {
 	markets: Record<string, LivePriceMap>;
-	caption: string;
 }
 
 function readStripCache(ttlMs: number): StripCache | null {
@@ -802,7 +801,6 @@ function readStripCache(ttlMs: number): StripCache | null {
 			|| typeof parsed.savedAt !== 'number'
 			|| typeof parsed.markets !== 'object'
 			|| parsed.markets === null
-			|| typeof parsed.caption !== 'string'
 		) {
 			return null;
 		}
@@ -815,11 +813,11 @@ function readStripCache(ttlMs: number): StripCache | null {
 	}
 }
 
-function writeStripCache(markets: Record<string, LivePriceMap>, caption: string): void {
+function writeStripCache(markets: Record<string, LivePriceMap>): void {
 	try {
 		window.localStorage.setItem(
 			STRIP_CACHE_KEY,
-			JSON.stringify({ savedAt: Date.now(), markets, caption }),
+			JSON.stringify({ savedAt: Date.now(), markets }),
 		);
 	} catch {
 		// Storage full or private mode - the next load just fetches again.
@@ -834,7 +832,6 @@ async function fetchStripPrices(endpoint: string): Promise<StripPrices | null> {
 		}
 		const data = (await response.json()) as {
 			markets?: Record<string, Record<string, { price?: unknown; change?: unknown; updated?: unknown }>>;
-			caption?: unknown;
 		};
 		if (typeof data !== 'object' || data === null || typeof data.markets !== 'object' || data.markets === null) {
 			return null;
@@ -862,22 +859,13 @@ async function fetchStripPrices(endpoint: string): Promise<StripPrices | null> {
 		if (Object.keys(markets).length === 0) {
 			return null;
 		}
-		return { markets, caption: typeof data.caption === 'string' ? data.caption : '' };
+		return { markets };
 	} catch {
 		return null;
 	}
 }
 
-function updateStripCaption(container: HTMLElement, caption: string): void {
-	const captionEl = container.querySelector<HTMLElement>('.kk-market-header-snapshot');
-	if (!captionEl) {
-		return;
-	}
-	captionEl.textContent = caption;
-	captionEl.style.display = caption === '' ? 'none' : '';
-}
-
-function applyStripData(container: HTMLElement, markets: Record<string, LivePriceMap>, caption: string): void {
+function applyStripData(container: HTMLElement, markets: Record<string, LivePriceMap>): void {
 	const flat: LivePriceMap = {};
 	for (const [market, prices] of Object.entries(markets)) {
 		for (const [symbol, entry] of Object.entries(prices)) {
@@ -885,13 +873,12 @@ function applyStripData(container: HTMLElement, markets: Record<string, LivePric
 		}
 	}
 	updatePriceDom(container, flat);
-	updateStripCaption(container, caption);
 }
 
 function initStripPrices(container: HTMLElement, endpoint: string, ttlMs: number): void {
 	const cached = readStripCache(ttlMs);
 	if (cached !== null) {
-		applyStripData(container, cached.markets, cached.caption);
+		applyStripData(container, cached.markets);
 		return;
 	}
 
@@ -899,14 +886,14 @@ function initStripPrices(container: HTMLElement, endpoint: string, ttlMs: number
 		if (data === null) {
 			return;
 		}
-		writeStripCache(data.markets, data.caption);
+		writeStripCache(data.markets);
 		// The strip fetch covers every market, so the widgets on
 		// this page find a fresh per-market cache on their next
 		// load instead of fetching again.
 		for (const [market, prices] of Object.entries(data.markets)) {
 			writeLiveCache(market, prices);
 		}
-		applyStripData(container, data.markets, data.caption);
+		applyStripData(container, data.markets);
 	});
 }
 

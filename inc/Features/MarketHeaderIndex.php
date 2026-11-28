@@ -28,7 +28,8 @@ use KoperasiKita\Widgets\MarketsWidget;
  * Customizer section and the Koperasi Kita -> Market Index admin
  * page: ['enabled' => bool, 'items' => [{item, hidden}],
  * 'cycle_interval' => int, 'snapshot_label' => string,
- * 'snapshot_show_datetime' => bool, 'snapshot_format' => string].
+ * 'snapshot_show_datetime' => bool, 'snapshot_format' => string,
+ * 'snapshot_show_mobile' => bool].
  * `cycle_interval` is the seconds between items when the strip
  * cycles one item at a time on small screens - 7 by default,
  * deliberately not the news ticker's 5, so the two rotations
@@ -43,6 +44,9 @@ use KoperasiKita\Widgets\MarketsWidget;
  * hides the label), `snapshot_show_datetime` toggles the day and
  * time, and `snapshot_format` is the PHP date format for them
  * (default 'l H.i T', e.g. "Sabtu 08.30 WIB").
+ * `snapshot_show_mobile` toggles the whole snapshot caption on
+ * small screens only; off hides it below 768px so the strip gets
+ * the full row, desktop is untouched.
  */
 final class MarketHeaderIndex
 {
@@ -84,7 +88,7 @@ final class MarketHeaderIndex
         ];
     }
 
-    /** @return array{enabled: bool, items: array<int, array{item: string, hidden: bool}>, cycle_interval: int, snapshot_label: string, snapshot_show_datetime: bool, snapshot_format: string} */
+    /** @return array{enabled: bool, items: array<int, array{item: string, hidden: bool}>, cycle_interval: int, snapshot_label: string, snapshot_show_datetime: bool, snapshot_format: string, snapshot_show_mobile: bool} */
     public static function settings(): array
     {
         $stored = get_option(self::OPTION, []);
@@ -97,6 +101,7 @@ final class MarketHeaderIndex
                 'snapshot_label' => __('Market Snapshot', 'koperasikita'),
                 'snapshot_show_datetime' => true,
                 'snapshot_format' => self::DEFAULT_SNAPSHOT_FORMAT,
+                'snapshot_show_mobile' => true,
             ];
         }
 
@@ -109,6 +114,7 @@ final class MarketHeaderIndex
             'snapshot_label' => isset($stored['snapshot_label']) ? self::sanitizeSnapshotLabel($stored['snapshot_label']) : __('Market Snapshot', 'koperasikita'),
             'snapshot_show_datetime' => isset($stored['snapshot_show_datetime']) ? self::sanitizeSnapshotShowDatetime($stored['snapshot_show_datetime']) : true,
             'snapshot_format' => isset($stored['snapshot_format']) ? self::sanitizeSnapshotFormat($stored['snapshot_format']) : self::DEFAULT_SNAPSHOT_FORMAT,
+            'snapshot_show_mobile' => isset($stored['snapshot_show_mobile']) ? self::sanitizeSnapshotShowMobile($stored['snapshot_show_mobile']) : true,
         ];
     }
 
@@ -142,6 +148,11 @@ final class MarketHeaderIndex
     }
 
     public static function sanitizeSnapshotShowDatetime(mixed $value): bool
+    {
+        return (bool) $value;
+    }
+
+    public static function sanitizeSnapshotShowMobile(mixed $value): bool
     {
         return (bool) $value;
     }
@@ -317,7 +328,7 @@ final class MarketHeaderIndex
      * cannot reset the rest to defaults.
      *
      * @param array<string, mixed> $settings
-     * @return array{enabled: bool, items: array<int, array{item: string, hidden: bool}>, cycle_interval: int, snapshot_label: string, snapshot_show_datetime: bool, snapshot_format: string}
+     * @return array{enabled: bool, items: array<int, array{item: string, hidden: bool}>, cycle_interval: int, snapshot_label: string, snapshot_show_datetime: bool, snapshot_format: string, snapshot_show_mobile: bool}
      */
     public static function update(array $settings): array
     {
@@ -330,6 +341,7 @@ final class MarketHeaderIndex
             'snapshot_label' => isset($settings['snapshot_label']) ? self::sanitizeSnapshotLabel($settings['snapshot_label']) : $current['snapshot_label'],
             'snapshot_show_datetime' => isset($settings['snapshot_show_datetime']) ? self::sanitizeSnapshotShowDatetime($settings['snapshot_show_datetime']) : $current['snapshot_show_datetime'],
             'snapshot_format' => isset($settings['snapshot_format']) ? self::sanitizeSnapshotFormat($settings['snapshot_format']) : $current['snapshot_format'],
+            'snapshot_show_mobile' => isset($settings['snapshot_show_mobile']) ? self::sanitizeSnapshotShowMobile($settings['snapshot_show_mobile']) : $current['snapshot_show_mobile'],
         ];
 
         update_option(self::OPTION, $saved);

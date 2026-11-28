@@ -289,6 +289,13 @@ html[data-kk-scheme="system"] .kk-icon-monitor {
 	.kk-brand--hide-text-mobile .kk-brand-text {
 		display: none;
 	}
+
+	/* The live clock stays off the top bar on small screens when
+	 * the "Show Clock on Mobile" setting is off. Desktop is
+	 * untouched. */
+	.kk-topbar-clock.kk-topbar-clock--hide-mobile {
+		display: none;
+	}
 }
 
 /* Primary nav */

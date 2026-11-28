@@ -57,8 +57,11 @@ if ( $show_clock ) {
 		$clock_inner = '<span class="kk-topbar-clock-date">' . esc_html( wp_date( $date_php_format, $now->getTimestamp(), $clock_zone ) ) . '</span>, ' . $clock_inner;
 	}
 
+	$clock_class = (bool) get_theme_mod( 'kk_clock_show_mobile', true ) ? 'kk-topbar-clock' : 'kk-topbar-clock kk-topbar-clock--hide-mobile';
+
 	$clock_html = sprintf(
-		'<time id="kk-clock" class="kk-topbar-clock" datetime="%s" data-mode="%s" data-timezone="%s" data-seconds="%s" data-24h="%s" data-separator="%s" data-show-date="%s" data-date-format="%s">%s</time>',
+		'<time id="kk-clock" class="%s" datetime="%s" data-mode="%s" data-timezone="%s" data-seconds="%s" data-24h="%s" data-separator="%s" data-show-date="%s" data-date-format="%s">%s</time>',
+		esc_attr( $clock_class ),
 		esc_attr( $now->format( 'c' ) ),
 		esc_attr( $clock_mode ),
 		esc_attr( 'device' === $clock_mode ? '' : $clock_zone_name ),

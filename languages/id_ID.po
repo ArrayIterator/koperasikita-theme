@@ -2453,6 +2453,11 @@ msgstr "Tampilkan Tanggal pada Jam"
 
 #: inc/Customizer/Customizer.php
 
+msgid "Show Clock on Mobile"
+msgstr "Tampilkan jam di mobile"
+
+#: inc/Customizer/Customizer.php
+
 msgid "Sticky Header Navigation"
 msgstr "Navigasi Header Menempel"
 
@@ -6033,6 +6038,16 @@ msgstr "Tampilkan hari & jam"
 
 msgid "Shows the day and time the strip data was taken, after the label."
 msgstr "Menampilkan hari dan jam data strip diambil, setelah label."
+
+#: inc/Customizer/Customizer.php
+
+msgid "Show snapshot label on mobile"
+msgstr "Tampilkan label snapshot di mobile"
+
+#: inc/Customizer/Customizer.php
+
+msgid "On small screens, hides the snapshot label so the strip gets the full width. Desktop is not affected."
+msgstr "Di layar kecil, menyembunyikan label snapshot agar strip mendapat lebar penuh. Desktop tidak terpengaruh."
 
 #: inc/Customizer/Customizer.php
 #: inc/Admin/MarketHeaderPage.php
