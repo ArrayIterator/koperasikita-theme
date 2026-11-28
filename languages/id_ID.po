@@ -264,6 +264,11 @@ msgstr "Gabungkan semua stylesheet tema menjadi satu file CSS (satu request rend
 
 #: inc/Customizer/Customizer.php
 
+msgid "Print the combined stylesheet inside the page instead of loading it as a file. First paint is faster, but the CSS is sent again with every page and cannot be cached, so pages get heavier. Only worth it when the combined file is small."
+msgstr "Cetak stylesheet gabungan di dalam halaman, bukan sebagai file terpisah. First paint lebih cepat, tetapi CSS dikirim lagi di setiap halaman dan tidak bisa di-cache, jadi halaman jadi lebih berat. Hanya layak dipakai kalau file gabungannya kecil."
+
+#: inc/Customizer/Customizer.php
+
 msgid "Footer Copyright Text"
 msgstr "Teks Hak Cipta Footer"
 
@@ -3377,6 +3382,11 @@ msgstr "Sembunyikan Semua"
 
 msgid "Use Combined CSS (one file)"
 msgstr "Pakai CSS Gabungan (satu file)"
+
+#: inc/Customizer/Customizer.php
+
+msgid "Use Inline CSS"
+msgstr "Gunakan Inline CSS"
 
 msgid "The app logo used when installing the PWA (manifest icons and home-screen icon). Defaults to the Koperasi Kita logo. Use a square image, at least 512×512, to replace it."
 msgstr "Logo aplikasi yang dipakai saat menginstal PWA (ikon manifest dan ikon layar utama). Bawaan: logo Koperasi Kita. Pakai gambar persegi, minimal 512×512, untuk menggantinya."

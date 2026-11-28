@@ -213,6 +213,17 @@ final class Enqueue
     }
 
     /**
+     * Whether the "Use Inline CSS" toggle (Advanced Performance &
+     * Cleanup) is on. Only applies when combined CSS is on: the
+     * combined stylesheet is printed inside the page instead of
+     * loaded as a file.
+     */
+    public static function isInlineCss(): bool
+    {
+        return (bool) get_theme_mod('kk_inline_css', false);
+    }
+
+    /**
      * The split stylesheets in cascade order for the current page,
      * as [handle => entry] pairs. The same list drives both modes:
      * split mode enqueues each file, combined mode concatenates them
@@ -293,11 +304,30 @@ final class Enqueue
      * so the Customizer palette/font inline styles (attached to
      * kk-app) print right after the combined file, exactly where
      * they belong - no moveAppInlineStyles needed in combined mode.
-     * Returns false (and the caller falls back to split mode) when
-     * the file cannot be built.
+     * With inline CSS on, kk-app carries the combined CSS as an
+     * inline style instead (no <link>), and the palette/font styles
+     * still follow it in the same style tag. Returns false (and the
+     * caller falls back to split mode) when the file cannot be
+     * built.
      */
     private static function enqueueCombinedStyles(): void
     {
+        if (self::isInlineCss()) {
+            $combined = self::combinedCssContent();
+
+            if ($combined === '') {
+                self::enqueueSplitStyles();
+
+                return;
+            }
+
+            wp_register_style('kk-app', false, [], KK_VERSION);
+            wp_enqueue_style('kk-app');
+            wp_add_inline_style('kk-app', $combined);
+
+            return;
+        }
+
         $url = self::combinedCssUrl();
 
         if ($url === '') {
@@ -310,11 +340,14 @@ final class Enqueue
     }
 
     /**
-     * URL of the cached combined stylesheet for this page, building
-     * it when the sources changed. Empty string when it cannot be
-     * built (missing dist files or an unwritable uploads dir).
+     * The built CSS files for this page, in cascade order, as
+     * absolute filesystem paths. Empty when any source file is
+     * missing (dist not built or entry removed) - the caller falls
+     * back to split mode.
+     *
+     * @return list<string>
      */
-    public static function combinedCssUrl(): string
+    private static function combinedCssPaths(): array
     {
         $paths = [];
 
@@ -322,10 +355,49 @@ final class Enqueue
             $path = ViteLoader::cssPath($entry);
 
             if ($path === '') {
-                return '';
+                return [];
             }
 
             $paths[] = $path;
+        }
+
+        return $paths;
+    }
+
+    /**
+     * The concatenated combined CSS for this page (same cascade
+     * order and file markers as the cached combined file). Empty
+     * when a source file is missing - the caller falls back to
+     * split mode.
+     */
+    private static function combinedCssContent(): string
+    {
+        $paths = self::combinedCssPaths();
+
+        if ($paths === []) {
+            return '';
+        }
+
+        $combined = '';
+
+        foreach ($paths as $path) {
+            $combined .= '/* ' . basename($path) . " */\n" . (string) file_get_contents($path) . "\n";
+        }
+
+        return $combined;
+    }
+
+    /**
+     * URL of the cached combined stylesheet for this page, building
+     * it when the sources changed. Empty string when it cannot be
+     * built (missing dist files or an unwritable uploads dir).
+     */
+    public static function combinedCssUrl(): string
+    {
+        $paths = self::combinedCssPaths();
+
+        if ($paths === []) {
+            return '';
         }
 
         $hash = md5(implode('|', $paths) . '|' . implode('|', array_map('filemtime', $paths)) . '|' . KK_VERSION);
@@ -344,13 +416,7 @@ final class Enqueue
                 return '';
             }
 
-            $combined = '';
-
-            foreach ($paths as $path) {
-                $combined .= '/* ' . basename($path) . " */\n" . (string) file_get_contents($path) . "\n";
-            }
-
-            if (file_put_contents($file, $combined) === false) {
+            if (file_put_contents($file, self::combinedCssContent()) === false) {
                 return '';
             }
         }

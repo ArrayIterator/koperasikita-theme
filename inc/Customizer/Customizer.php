@@ -2019,8 +2019,29 @@ final class Customizer
         $wpCustomize->add_control('kk_combine_css', [
             'label' => esc_html__('Use Combined CSS (one file)', 'koperasikita'),
             'description' => esc_html__('Combine all theme stylesheets into a single CSS file (one render-blocking request instead of ~13 chained ones). The file is rebuilt automatically when the theme is updated.', 'koperasikita'),
-            'section' => 'koperasikita_accessibility',
+            'section' => 'koperasikita_advanced',
             'type' => 'checkbox',
+        ]);
+
+        /* Print the combined stylesheet inside the page instead of
+         * loading it as a file. First paint is faster, but the CSS
+         * is sent again with every page and cannot be cached, so
+         * pages get heavier. Only worth it when the combined file
+         * is small - the file stays the default. Shown only when
+         * combined CSS is on. */
+        self::addSetting(
+            $wpCustomize,
+            'kk_inline_css',
+            false,
+            [self::class, 'sanitizeBool'],
+            'refresh'
+        );
+        $wpCustomize->add_control('kk_inline_css', [
+            'label' => esc_html__('Use Inline CSS', 'koperasikita'),
+            'description' => esc_html__('Print the combined stylesheet inside the page instead of loading it as a file. First paint is faster, but the CSS is sent again with every page and cannot be cached, so pages get heavier. Only worth it when the combined file is small.', 'koperasikita'),
+            'section' => 'koperasikita_advanced',
+            'type' => 'checkbox',
+            'active_callback' => static fn () => (bool) get_theme_mod('kk_combine_css', true),
         ]);
 
         /* Comments mode: Follow The Post (default) keeps each post /
