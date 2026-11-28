@@ -8,6 +8,7 @@ use KoperasiKita\Admin\AdminMenu;
 use KoperasiKita\Features\Features;
 use KoperasiKita\Features\Fonts;
 use KoperasiKita\Features\Pwa;
+use KoperasiKita\Features\Subscribe;
 use KoperasiKita\Setup\Setup;
 
 final class Enqueue
@@ -274,6 +275,10 @@ final class Enqueue
 
         if (Features::isEnabled('pwa')) {
             $entries['kk-pwa'] = 'src/css/pwa.css';
+        }
+
+        if (Subscribe::mailPoetActive()) {
+            $entries['kk-mailpoet'] = 'src/css/mailpoet.css';
         }
 
         return $entries;

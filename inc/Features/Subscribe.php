@@ -46,6 +46,18 @@ final class Subscribe
 
     public const NONCE_ACTION = 'kk_subscribe';
 
+    /** Theme option for the MailPoet sync: 'yes' or 'no'. */
+    public const OPTION_MAILPOET_SYNC = 'kk_mailpoet_sync';
+
+    /** MailPoet readiness values returned by mailPoetStatus(). */
+    public const MAILPOET_ACTIVE = 'active';
+
+    public const MAILPOET_INACTIVE = 'inactive';
+
+    public const MAILPOET_NO_LISTS = 'no_lists';
+
+    public const MAILPOET_ERROR = 'error';
+
     /** Maximum submits from one address within the rate window. */
     public const RATE_LIMIT_MAX = 5;
 
@@ -130,14 +142,18 @@ final class Subscribe
             return;
         }
 
-        // MailPoet sync is best-effort. Only a confirmed sync
-        // flips the row's source to 'mailpoet'; anything else
-        // (absent, not set up, no lists, call failed) leaves the
-        // honest 'local' source and still succeeds.
+        // MailPoet sync is best-effort and gated by the admin's
+        // yes/no setting on the Subscribers page (default yes, so
+        // the behaviour that shipped first stays on unless the
+        // admin turns it off). Only a confirmed sync flips the
+        // row's source to 'mailpoet'; anything else (off, absent,
+        // not set up, no lists, call failed) leaves the honest
+        // 'local' source and still succeeds.
         $source = Subscribers::SOURCE_LOCAL;
 
         if (
-            self::subscribeWithMailPoet($email) === 'ok'
+            self::mailPoetSyncEnabled()
+            && self::syncEmailWithMailPoet($email) === 'ok'
             && Subscribers::setSource($email, Subscribers::SOURCE_MAILPOET)
         ) {
             $source = Subscribers::SOURCE_MAILPOET;
@@ -230,22 +246,154 @@ final class Subscribe
     }
 
     /**
-     * Subscribe through MailPoet's public API.
+     * Whether new signups may be synced to MailPoet. The admin
+     * yes/no setting on the Subscribers page; yes by default, so
+     * the best-effort sync that shipped first stays on unless the
+     * admin turns it off.
+     */
+    public static function mailPoetSyncEnabled(): bool
+    {
+        return get_option(self::OPTION_MAILPOET_SYNC, 'yes') !== 'no';
+    }
+
+    /**
+     * Whether the MailPoet plugin is active at all (its API class
+     * is loaded). Cheap check for the frontend stylesheet gate;
+     * mailPoetStatus() is the full readiness check for the admin
+     * section and the signup flow.
+     */
+    public static function mailPoetActive(): bool
+    {
+        return class_exists(\MailPoet\API\API::class);
+    }
+
+    /**
+     * MailPoet readiness for syncing. One source of truth for the
+     * admin section and the signup flow: 'active' (API works and at
+     * least one list exists), 'inactive' (plugin not active),
+     * 'no_lists' (active but no list to sync into), 'error' (the
+     * API call itself failed).
+     */
+    public static function mailPoetStatus(): string
+    {
+        $api = self::mailPoetApi();
+
+        if ($api === null) {
+            return self::MAILPOET_INACTIVE;
+        }
+
+        $lists = self::mailPoetLists($api);
+
+        if ($lists === null) {
+            return self::MAILPOET_ERROR;
+        }
+
+        if (!is_array($lists)) {
+            return self::MAILPOET_INACTIVE;
+        }
+
+        return self::mailPoetListIds($lists) === [] ? self::MAILPOET_NO_LISTS : self::MAILPOET_ACTIVE;
+    }
+
+    /**
+     * The list ids to sync into, or an empty array when MailPoet is
+     * not ready. The admin batch fetches these once and reuses them
+     * for every address instead of asking for the lists per email.
+     *
+     * @return array<int, int>
+     */
+    public static function mailPoetSyncLists(): array
+    {
+        $api = self::mailPoetApi();
+
+        if ($api === null) {
+            return [];
+        }
+
+        return self::mailPoetListIds(self::mailPoetLists($api));
+    }
+
+    /**
+     * Subscribe one address through MailPoet's public API.
      *
      * @return 'ok'|'unavailable'|'error' 'unavailable' means MailPoet is
      *         not active (or has no lists): the caller must say so
      *         honestly instead of faking a success.
      */
-    private static function subscribeWithMailPoet(string $email): string
+    public static function syncEmailWithMailPoet(string $email): string
     {
-        if (!class_exists(\MailPoet\API\API::class)) {
+        $api = self::mailPoetApi();
+
+        if ($api === null) {
             return 'unavailable';
+        }
+
+        $lists = self::mailPoetLists($api);
+
+        if ($lists === null) {
+            return 'error';
+        }
+
+        $listIds = self::mailPoetListIds($lists);
+
+        if ($listIds === []) {
+            return 'unavailable';
+        }
+
+        try {
+            self::mailPoetAddToLists($api, $email, $listIds);
+        } catch (\Throwable) {
+            return 'error';
+        }
+
+        return 'ok';
+    }
+
+    /**
+     * Add one address to the given MailPoet lists. The batch
+     * version of syncEmailWithMailPoet(): the caller already has
+     * the list ids, so no list call happens per address.
+     *
+     * @param array<int, int> $listIds
+     * @return 'ok'|'error'
+     */
+    public static function syncEmailToMailPoetLists(string $email, array $listIds): string
+    {
+        if ($listIds === []) {
+            return 'error';
+        }
+
+        $api = self::mailPoetApi();
+
+        if ($api === null) {
+            return 'error';
+        }
+
+        try {
+            self::mailPoetAddToLists($api, $email, $listIds);
+        } catch (\Throwable) {
+            return 'error';
+        }
+
+        return 'ok';
+    }
+
+    /**
+     * The MailPoet v1 API, or null when the plugin is not active or
+     * does not expose the methods the theme needs.
+     *
+     * @return mixed
+     */
+    private static function mailPoetApi()
+    {
+        if (!self::mailPoetActive()) {
+            return null;
         }
 
         try {
             $api = \MailPoet\API\API::MP('v1');
         } catch (\Throwable) {
-            return 'unavailable';
+            return null;
         }
 
         if (
@@ -253,17 +401,37 @@ final class Subscribe
             || !method_exists($api, 'addSubscriber')
             || !method_exists($api, 'subscribeToLists')
         ) {
-            return 'unavailable';
+            return null;
         }
 
+        return $api;
+    }
+
+    /**
+     * The raw getLists() result, or null when the call itself failed.
+     *
+     * @param mixed $api
+     * @return mixed
+     */
+    private static function mailPoetLists($api)
+    {
         try {
-            $lists = $api->getLists();
+            return $api->getLists();
         } catch (\Throwable) {
-            return 'error';
+            return null;
         }
+    }
 
+    /**
+     * The numeric list ids from a getLists() result.
+     *
+     * @param mixed $lists
+     * @return array<int, int>
+     */
+    private static function mailPoetListIds($lists): array
+    {
         if (!is_array($lists)) {
-            return 'unavailable';
+            return [];
         }
 
         $listIds = [];
@@ -274,39 +442,42 @@ final class Subscribe
             }
         }
 
-        if ($listIds === []) {
-            return 'unavailable';
+        return $listIds;
+    }
+
+    /**
+     * Add one address to the lists, creating it when it is not a
+     * subscriber yet. Throws when the API call fails; the caller
+     * turns that into an 'error' result.
+     *
+     * @param mixed $api
+     * @param array<int, int> $listIds
+     */
+    private static function mailPoetAddToLists($api, string $email, array $listIds): void
+    {
+        $existing = null;
+
+        if (method_exists($api, 'getSubscriber')) {
+            try {
+                // Throws when the address is not a subscriber yet.
+                $existing = $api->getSubscriber($email);
+            } catch (\Throwable) {
+                $existing = null;
+            }
         }
 
-        try {
-            $existing = null;
-
-            if (method_exists($api, 'getSubscriber')) {
-                try {
-                    // Throws when the address is not a subscriber yet.
-                    $existing = $api->getSubscriber($email);
-                } catch (\Throwable) {
-                    $existing = null;
-                }
-            }
-
-            if ($existing) {
-                $api->subscribeToLists($email, $listIds);
-            } else {
-                $api->addSubscriber(
-                    ['email' => $email],
-                    $listIds,
-                    [
-                        'send_confirmation_email' => true,
-                        'schedule_welcome_email' => true,
-                    ]
-                );
-            }
-        } catch (\Throwable) {
-            return 'error';
+        if ($existing) {
+            $api->subscribeToLists($email, $listIds);
+        } else {
+            $api->addSubscriber(
+                ['email' => $email],
+                $listIds,
+                [
+                    'send_confirmation_email' => true,
+                    'schedule_welcome_email' => true,
+                ]
+            );
         }
-
-        return 'ok';
     }
 
     private static function isRateLimited(): bool

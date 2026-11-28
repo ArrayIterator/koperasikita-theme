@@ -73,6 +73,7 @@ export default defineConfig({
         'variants-css': 'src/css/variants.css',
         'responsive-css': 'src/css/responsive.css',
         'newsletter-css': 'src/css/newsletter.css',
+        'mailpoet-css': 'src/css/mailpoet.css',
         'gold-markets': 'src/ts/gold-markets.ts',
         'gold-markets-css': 'src/css/gold-markets.css',
         weather: 'src/ts/weather.ts',

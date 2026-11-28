@@ -6501,3 +6501,71 @@ msgstr "Belum ada template."
 msgid "Templates duplicated."
 msgstr "Template diduplikasi."
 
+
+#: inc/Admin/SubscribersPage.php
+msgid "MailPoet"
+msgstr "MailPoet"
+
+#: inc/Admin/SubscribersPage.php
+msgid "MailPoet is the newsletter plugin. When it is active, new subscribers can also be added to the MailPoet database, and the subscribers already stored here can be synced into it."
+msgstr "MailPoet adalah plugin newsletter. Saat aktif, pelanggan baru juga bisa ditambahkan ke database MailPoet, dan pelanggan yang sudah tersimpan di sini bisa disinkronkan ke MailPoet."
+
+#: inc/Admin/SubscribersPage.php
+msgid "MailPoet is active."
+msgstr "MailPoet aktif."
+
+#: inc/Admin/SubscribersPage.php
+msgid "MailPoet is not installed or not active."
+msgstr "MailPoet belum terpasang atau belum aktif."
+
+#: inc/Admin/SubscribersPage.php
+msgid "MailPoet is active but has no lists yet. Create a list in MailPoet before syncing."
+msgstr "MailPoet aktif tetapi belum ada daftar. Buat daftar di MailPoet sebelum sinkronisasi."
+
+#: inc/Admin/SubscribersPage.php
+msgid "MailPoet is active but could not be reached. Please try again later."
+msgstr "MailPoet aktif tetapi tidak bisa dihubungi. Silakan coba lagi nanti."
+
+#: inc/Admin/SubscribersPage.php
+msgid "Add new subscribers to the MailPoet database"
+msgstr "Masukkan pelanggan baru ke database MailPoet"
+
+#: inc/Admin/SubscribersPage.php
+msgid "Yes"
+msgstr "Ya"
+
+#: inc/Admin/SubscribersPage.php
+msgid "No"
+msgstr "Tidak"
+
+#: inc/Admin/SubscribersPage.php
+msgid "Save MailPoet settings"
+msgstr "Simpan pengaturan MailPoet"
+
+#: inc/Admin/SubscribersPage.php
+msgid "MailPoet settings saved."
+msgstr "Pengaturan MailPoet disimpan."
+
+#: inc/Admin/SubscribersPage.php
+msgid "Sync subscribers to MailPoet"
+msgstr "Sinkronkan pelanggan ke MailPoet"
+
+#: inc/Admin/SubscribersPage.php
+msgid "Copies the subscribers stored here into MailPoet."
+msgstr "Menyalin pelanggan yang tersimpan di sini ke MailPoet."
+
+#: inc/Admin/SubscribersPage.php
+msgid "Subscribers stored here but not in MailPoet yet: %d."
+msgstr "Pelanggan yang tersimpan di sini tetapi belum di MailPoet: %d."
+
+#: inc/Admin/SubscribersPage.php
+msgid "All subscribers are already in MailPoet."
+msgstr "Semua pelanggan sudah ada di MailPoet."
+
+#: inc/Admin/SubscribersPage.php
+msgid "Sync complete: %d synced, %d failed, %d remaining."
+msgstr "Sinkronisasi selesai: %d berhasil, %d gagal, %d tersisa."
+
+#: inc/Admin/SubscribersPage.php
+msgid "MailPoet is not available, so nothing was synced."
+msgstr "MailPoet tidak tersedia, jadi tidak ada yang disinkronkan."
