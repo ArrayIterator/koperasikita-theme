@@ -5934,18 +5934,18 @@ msgstr "Sinkronisasi otomatis pasar"
 
 #: inc/Setup/Setup.php
 
-msgid "WP-Cron is disabled in wp-config.php, but the auto-sync is running — a server cronjob is calling wp-cron.php, so this setup is fine. For reference, the cronjob looks like this:"
-msgstr "WP-Cron dinonaktifkan di wp-config.php, tetapi sinkronisasi otomatis berjalan — cronjob server memanggil wp-cron.php, jadi pengaturan ini sudah benar. Sebagai referensi, cronjob-nya seperti ini:"
+msgid "WP-Cron is disabled in wp-config.php, but the auto-sync is running — a server cronjob is running wp-cron.php with PHP, so this setup is fine. For reference, the cronjob looks like this:"
+msgstr "WP-Cron dinonaktifkan di wp-config.php, tetapi sinkronisasi otomatis berjalan — cronjob server menjalankan wp-cron.php dengan PHP, jadi pengaturan ini sudah benar. Sebagai referensi, cronjob-nya seperti ini:"
 
 #: inc/Setup/Setup.php
 
-msgid "WP-Cron is disabled in wp-config.php, and the auto-sync has not run recently. Without a server cronjob calling wp-cron.php, the auto-sync will not run at all. Either remove the DISABLE_WP_CRON line from wp-config.php, or set up a server cronjob like this:"
-msgstr "WP-Cron dinonaktifkan di wp-config.php, dan sinkronisasi otomatis belum berjalan baru-baru ini. Tanpa cronjob server yang memanggil wp-cron.php, sinkronisasi otomatis tidak akan berjalan sama sekali. Hapus baris DISABLE_WP_CRON dari wp-config.php, atau siapkan cronjob server seperti ini:"
+msgid "WP-Cron is disabled in wp-config.php, and the auto-sync has not run recently. Without a server cronjob running wp-cron.php with PHP, the auto-sync will not run at all. Either remove the DISABLE_WP_CRON line from wp-config.php, or set up a server cronjob like this:"
+msgstr "WP-Cron dinonaktifkan di wp-config.php, dan sinkronisasi otomatis belum berjalan baru-baru ini. Tanpa cronjob server yang menjalankan wp-cron.php dengan PHP, sinkronisasi otomatis tidak akan berjalan sama sekali. Hapus baris DISABLE_WP_CRON dari wp-config.php, atau siapkan cronjob server seperti ini:"
 
 #: inc/Setup/Setup.php
 
-msgid "Reference only — nothing to do here unless the sync must run on time. WordPress runs scheduled tasks (WP-Cron) only when the site gets visits, so on a quiet site the market auto-sync can run late. A server cron that calls wp-cron.php every hour makes it reliable:"
-msgstr "Hanya referensi — tidak ada yang perlu dilakukan di sini kecuali sinkronisasi harus berjalan tepat waktu. WordPress menjalankan tugas terjadwal (WP-Cron) hanya saat situs dikunjungi, jadi di situs yang sepi, sinkronisasi otomatis pasar bisa terlambat. Cron server yang memanggil wp-cron.php setiap jam membuatnya andal:"
+msgid "Reference only — nothing to do here unless the sync must run on time. WordPress runs scheduled tasks (WP-Cron) only when the site gets visits, so on a quiet site the market auto-sync can run late. A server cron that runs wp-cron.php with PHP every 5 minutes makes it reliable:"
+msgstr "Hanya referensi — tidak ada yang perlu dilakukan di sini kecuali sinkronisasi harus berjalan tepat waktu. WordPress menjalankan tugas terjadwal (WP-Cron) hanya saat situs dikunjungi, jadi di situs yang sepi, sinkronisasi otomatis pasar bisa terlambat. Cron server yang menjalankan wp-cron.php dengan PHP setiap 5 menit membuatnya andal:"
 
 
 #: inc/Features/MarketHeaderIndex.php
