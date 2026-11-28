@@ -443,6 +443,16 @@ final class Enqueue
         // be registered here too.
         self::addModuleScriptFilter();
 
+        /* The Dashboard menu icon (KK K mark, src/css/admin-menu.css)
+         * shows on EVERY admin page, so its stylesheet loads
+         * unconditionally here, ahead of the per-page branches below
+         * (which return early for most screens). */
+        $menuCss = ViteLoader::css('src/css/admin-menu.css');
+
+        if ($menuCss !== '') {
+            wp_enqueue_style('kk-admin-menu', $menuCss, [], KK_VERSION);
+        }
+
         $isWidgets = str_contains($hookSuffix, 'widgets');
         $isCustomizer = str_contains($hookSuffix, 'customize');
         $isSetup = $hookSuffix === 'toplevel_page_' . Setup::PAGE_SLUG;
