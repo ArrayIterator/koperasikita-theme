@@ -2726,7 +2726,7 @@ final class Customizer
 
         $wpCustomize->add_control('kk_market_header_cycle_interval', [
             'label' => esc_html__('Seconds per item', 'koperasikita'),
-            'description' => esc_html__('On small screens the strip shows one item at a time for this long; on desktop it scrolls as a marquee, passing one item per this many seconds.', 'koperasikita'),
+            'description' => esc_html__('On desktop the strip scrolls as a marquee, passing one item per this many seconds; on small screens the strip is swiped by touch.', 'koperasikita'),
             'section' => 'koperasikita_market_header',
             'settings' => 'kk_market_header_index[cycle_interval]',
             'type' => 'number',

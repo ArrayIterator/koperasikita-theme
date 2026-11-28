@@ -919,15 +919,14 @@ function initStripPrices(container: HTMLElement, endpoint: string, ttlMs: number
  * translates -50% on a linear loop (the same two-set pattern as the
  * markets marquee), so the seam never shows. The loop passes one
  * item per cycle interval (the strip's data-speed, 7s by default),
- * so the pace follows the same Customizer setting as the mobile
- * rotation - no new setting.
+ * so the pace follows the cycle interval Customizer setting - no
+ * new setting.
  *
  * The marquee only exists on desktop (min-width: 768px, the mirror
- * of the mobile rotation's max-width: 767px) and never under reduced
- * motion; below the breakpoint the markup is restored to exactly
- * what the server rendered, so the mobile rotation and the plain
- * swipeable row are untouched. The clones carry the same
- * data-kk-symbol attributes, so updatePriceDom() refreshes them in
+ * of the mobile swipeable row's max-width: 767px) and never under
+ * reduced motion; below the breakpoint the markup is restored to
+ * exactly what the server rendered, so the mobile swipeable row is
+ * untouched. The clones carry the same data-kk-symbol attributes, so updatePriceDom() refreshes them in
  * place with the originals. Hover/focus pauses the loop (CSS); the
  * animation itself is CSS, so a hidden tab pauses it too.
  */
