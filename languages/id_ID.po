@@ -942,6 +942,21 @@ msgstr "Sinkronisasi selesai: %d didorong, %d ditarik, %d sudah tersinkron, %d g
 
 #: inc/Features/Subscribe.php
 
+msgid "Import complete: %d pulled, %d already synced, %d failed, %d remaining."
+msgstr "Impor selesai: %d ditarik, %d sudah tersinkron, %d gagal, %d tersisa."
+
+#: inc/Features/Subscribe.php
+
+msgid "Could not confirm the subscriber in MailPoet."
+msgstr "Tidak dapat mengonfirmasi pelanggan di MailPoet."
+
+#: inc/Features/Subscribe.php
+
+msgid "The subscriber table could not be updated."
+msgstr "Tabel pelanggan tidak dapat diperbarui."
+
+#: inc/Features/Subscribe.php
+
 msgid "%s: pushed to MailPoet"
 msgstr "%s: didorong ke MailPoet"
 
@@ -4817,6 +4832,11 @@ msgstr "Menyinkronkan dengan MailPoet…"
 
 #: inc/Assets/Enqueue.php
 
+msgid "Importing from MailPoet…"
+msgstr "Mengimpor dari MailPoet…"
+
+#: inc/Assets/Enqueue.php
+
 msgid "Moved the map to %s. Press \"Update\" to apply it."
 msgstr "Peta dipindah ke %s. Tekan \"Update\" untuk menerapkannya."
 
@@ -6611,6 +6631,10 @@ msgid "Sync With MailPoet"
 msgstr "Sync With MailPoet"
 
 #: inc/Admin/SubscribersPage.php
+msgid "Import from MailPoet"
+msgstr "Ambil dari MailPoet"
+
+#: inc/Admin/SubscribersPage.php
 msgid "Subscribers stored here but not in MailPoet yet: %d."
 msgstr "Pelanggan yang tersimpan di sini tetapi belum di MailPoet: %d."
 
@@ -6627,6 +6651,11 @@ msgstr "MailPoet tidak tersedia, jadi tidak ada yang disinkronkan."
 
 msgid "Syncs subscribers with MailPoet in both directions."
 msgstr "Menyinkronkan pelanggan dengan MailPoet dua arah."
+
+#: inc/Admin/SubscribersPage.php
+
+msgid "Imports subscribers from MailPoet into this list."
+msgstr "Mengimpor pelanggan dari MailPoet ke daftar ini."
 
 #: inc/Admin/SubscribersPage.php
 

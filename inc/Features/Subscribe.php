@@ -401,7 +401,7 @@ final class Subscribe
      *
      * @param mixed $api
      * @param array<int, int> $listIds
-     * @param array{send_confirmation_email?: bool, schedule_welcome_email?: bool} $options
+     * @param array{send_confirmation_email?: bool, schedule_welcome_email?: bool, confirm?: bool} $options
      * @return array{status: string, reason: string}
      */
     private static function pushEmailToMailPoetLists($api, string $email, array $listIds, array $options = [], string $firstName = '', string $lastName = '', string $subscribedIp = ''): array
@@ -525,9 +525,23 @@ final class Subscribe
      * sets it when the subscriber confirms, and the API strips
      * it from incoming data.
      *
+     * The 'confirm' option is admin-sync only: when it is set,
+     * the push is a trusted confirmation - the local row is
+     * already subscribed - so an unconfirmed MailPoet record
+     * is confirmed by the push instead of being left
+     * unconfirmed. The MP v1 API cannot do that on its own:
+     * addSubscriber and updateSubscriber filter 'status' out
+     * of incoming data, and subscribeToLists sets the status
+     * from MailPoet's global signup-confirmation setting, so
+     * with double opt-in on it leaves an unconfirmed
+     * subscriber unconfirmed (and the pull, which only takes
+     * subscribed contacts, would never see it). The frontend
+     * signup never passes 'confirm', so double opt-in there is
+     * untouched.
+     *
      * @param mixed $api
      * @param array<int, int> $listIds
-     * @param array{send_confirmation_email?: bool, schedule_welcome_email?: bool} $options
+     * @param array{send_confirmation_email?: bool, schedule_welcome_email?: bool, confirm?: bool} $options
      */
     private static function mailPoetAddToLists($api, string $email, array $listIds, array $options = [], string $firstName = '', string $lastName = '', string $subscribedIp = ''): void
     {
@@ -568,37 +582,109 @@ final class Subscribe
             }
 
             $api->subscribeToLists($target, $listIds, $mailOptions);
+        } else {
+            try {
+                $api->addSubscriber(
+                    $subscriberData,
+                    $listIds,
+                    $mailOptions
+                );
+            } catch (\Throwable $e) {
+                // Created between the lookup and the add: subscribe
+                // the existing subscriber instead of reporting a
+                // failure for an address that is already there.
+                $existing = self::mailPoetFindSubscriber($api, $email);
 
+                if ($existing === null) {
+                    throw $e;
+                }
+
+                $subscriberId = (int) ($existing['id'] ?? 0);
+                $target = $subscriberId > 0 ? $subscriberId : $email;
+
+                if (count($subscriberData) > 1) {
+                    $nameData = $subscriberData;
+                    unset($nameData['email']);
+                    $api->updateSubscriber($target, $nameData);
+                }
+
+                $api->subscribeToLists($target, $listIds, $mailOptions);
+            }
+        }
+
+        if (($options['confirm'] ?? false) !== true) {
             return;
         }
 
-        try {
-            $api->addSubscriber(
-                $subscriberData,
-                $listIds,
-                $mailOptions
-            );
-        } catch (\Throwable $e) {
-            // Created between the lookup and the add: subscribe
-            // the existing subscriber instead of reporting a
-            // failure for an address that is already there.
-            $existing = self::mailPoetFindSubscriber($api, $email);
+        // Admin-confirmed push: the MailPoet record must end up
+        // subscribed, or the push did not land - a record left
+        // unconfirmed is invisible to the pull and would be
+        // reported as pushed while still pending. The confirmed
+        // address is the request that ran the sync (the admin),
+        // falling back to the subscriber's own signup address.
+        $confirmedIp = self::clientIp() !== '' ? self::clientIp() : $subscribedIp;
 
-            if ($existing === null) {
-                throw $e;
-            }
-
-            $subscriberId = (int) ($existing['id'] ?? 0);
-            $target = $subscriberId > 0 ? $subscriberId : $email;
-
-            if (count($subscriberData) > 1) {
-                $nameData = $subscriberData;
-                unset($nameData['email']);
-                $api->updateSubscriber($target, $nameData);
-            }
-
-            $api->subscribeToLists($target, $listIds, $mailOptions);
+        if (!self::mailPoetConfirmSubscriber($api, $email, $confirmedIp)) {
+            throw new \RuntimeException(__('Could not confirm the subscriber in MailPoet.', 'koperasikita'));
         }
+    }
+
+    /**
+     * Set a MailPoet subscriber's status to subscribed, the way
+     * a confirmation does: status, confirmed_at, confirmed_ip
+     * and last_subscribed_at on the MailPoet subscribers row.
+     * The row is written directly because the MP v1 API offers
+     * no call for it (see mailPoetAddToLists). The flip is
+     * verified by re-reading the record through the API, so a
+     * write that did not land reads as a failure, never as a
+     * success. No welcome mail, no notification, no automation
+     * hook: the admin sync is a silent import, and the list
+     * subscriptions were already ensured by subscribeToLists.
+     *
+     * @param mixed $api
+     */
+    private static function mailPoetConfirmSubscriber($api, string $email, string $confirmedIp): bool
+    {
+        $found = self::mailPoetFindSubscriber($api, $email);
+
+        if ($found === null) {
+            return false;
+        }
+
+        if ((string) ($found['status'] ?? '') === 'subscribed') {
+            return true;
+        }
+
+        $subscriberId = (int) ($found['id'] ?? 0);
+
+        if ($subscriberId <= 0) {
+            return false;
+        }
+
+        global $wpdb;
+
+        $now = current_time('mysql');
+
+        $updated = $wpdb->update(
+            $wpdb->prefix . 'mailpoet_subscribers',
+            [
+                'status' => 'subscribed',
+                'confirmed_at' => $now,
+                'confirmed_ip' => self::cleanApiIp($confirmedIp),
+                'last_subscribed_at' => $now,
+            ],
+            ['id' => $subscriberId],
+            ['%s', '%s', '%s', '%s'],
+            ['%d']
+        );
+
+        if ($updated === false) {
+            return false;
+        }
+
+        $confirmed = self::mailPoetFindSubscriber($api, $email);
+
+        return $confirmed !== null && (string) ($confirmed['status'] ?? '') === 'subscribed';
     }
 
     /**
@@ -757,11 +843,32 @@ final class Subscribe
      * sync never sends mail, so delivery can never fail the
      * sync (see mailPoetAddToLists).
      *
+     * The push direction follows the MailPoet setting
+     * (mailPoetSyncEnabled): when it is off, the click imports
+     * only - MailPoet subscribers land here, nothing is sent
+     * to MailPoet at all. $pushEnabled overrides the setting
+     * when given, so the two modes are testable without
+     * rewriting the option. The schema is ensured first: the
+     * push batch SELECTs the name and IP columns, and a table
+     * that was never upgraded would fail that read quietly and
+     * report 0 pushed with the row still pending. A table that
+     * cannot be upgraded is a server error, not a sync result.
+     *
      * @return array{lines: array<int, string>, summary: string, pushed: int, pulled: int, already: int, failed: int, ignored: int, remaining: int}
      */
-    public static function runTwoWaySync(int $batch = 100): array
+    public static function runTwoWaySync(int $batch = 100, ?bool $pushEnabled = null): array
     {
         $batch = max(1, $batch);
+        $pushEnabled ??= self::mailPoetSyncEnabled();
+
+        if (!Subscribers::maybeCreate()) {
+            throw new ApiException(
+                Response::ERR_INTERNAL,
+                __('The subscriber table could not be updated.', 'koperasikita'),
+                500
+            );
+        }
+
         $listIds = self::mailPoetSyncLists();
 
         $lines = [];
@@ -776,9 +883,12 @@ final class Subscribe
         /* Push: local subscribed rows into MailPoet. The batch
          * already excludes ignored addresses and non-subscribed
          * rows; the checks below are defence in depth. Names and
-         * the signup address ride along with each address. */
-        if ($api !== null && $listIds !== []) {
-            $mailOptions = ['send_confirmation_email' => false, 'schedule_welcome_email' => false];
+         * the signup address ride along with each address. The
+         * whole push is skipped when the setting is off: a
+         * pull-only click never calls the MailPoet add or
+         * subscribe APIs at all. */
+        if ($api !== null && $listIds !== [] && $pushEnabled) {
+            $mailOptions = ['send_confirmation_email' => false, 'schedule_welcome_email' => false, 'confirm' => true];
 
             foreach (Subscribers::localSubscribedRows($batch) as $row) {
                 $email = $row['email'];
@@ -838,15 +948,26 @@ final class Subscribe
 
         $remaining = Subscribers::countLocalPending();
 
-        $summary = sprintf(
-            /* translators: %d counts: pushed, pulled, already synced, failed, remaining. */
-            __('Sync complete: %d pushed, %d pulled, %d already synced, %d failed, %d remaining.', 'koperasikita'),
-            $pushed,
-            $pulled,
-            $already,
-            $failed,
-            $remaining
-        );
+        if ($pushEnabled) {
+            $summary = sprintf(
+                /* translators: %d counts: pushed, pulled, already synced, failed, remaining. */
+                __('Sync complete: %d pushed, %d pulled, %d already synced, %d failed, %d remaining.', 'koperasikita'),
+                $pushed,
+                $pulled,
+                $already,
+                $failed,
+                $remaining
+            );
+        } else {
+            $summary = sprintf(
+                /* translators: %d counts: pulled, already synced, failed, remaining. No pushed count: the push is off, so nothing was sent. */
+                __('Import complete: %d pulled, %d already synced, %d failed, %d remaining.', 'koperasikita'),
+                $pulled,
+                $already,
+                $failed,
+                $remaining
+            );
+        }
 
         return [
             'lines' => $lines,

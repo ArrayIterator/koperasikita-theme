@@ -35,6 +35,11 @@ final class SubscribersPage
             wp_die(esc_html__('You do not have permission to access this page.', 'koperasikita'));
         }
 
+        // The list and the pending count read the name and IP
+        // columns: ensure the upgrade ran before they do, so a
+        // version bump ships its columns on first view.
+        Subscribers::maybeCreate();
+
         // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- deleted flag is display-only.
         $deleted = isset($_GET['deleted']);
 
@@ -159,6 +164,10 @@ final class SubscribersPage
 
         check_admin_referer(self::NONCE_EXPORT);
 
+        // The export reads the name and IP columns: ensure the
+        // upgrade ran before it does.
+        Subscribers::maybeCreate();
+
         $rows = Subscribers::exportRows();
 
         nocache_headers();
@@ -183,7 +192,7 @@ final class SubscribersPage
 
     /**
      * The MailPoet card above the list: the plugin status, the
-     * on/off setting for new signups, and the two-way sync with
+     * on/off setting for new signups, and the sync with
      * MailPoet. Same card language as the Setup page - a head
      * row with the title and the sync action, then a body with
      * the description, the status line and the setting form -
@@ -192,6 +201,13 @@ final class SubscribersPage
      * so the button is a plain button, not a form. When
      * MailPoet is not active there is nothing to sync with, so
      * the button stays hidden and only the status line shows.
+     *
+     * The setting gates the push direction, not the button:
+     * on, the click syncs both ways (local into MailPoet and
+     * MailPoet into the local list); off, it only imports from
+     * MailPoet, and the button says so. The button carries
+     * both labels, so flipping the toggle swaps it at once
+     * without a save.
      */
     private static function renderMailPoetSection(): void
     {
@@ -203,7 +219,8 @@ final class SubscribersPage
             <div class="kk-subscribers-card-head">
                 <h2 class="kk-subscribers-card-title"><?php esc_html_e('MailPoet', 'koperasikita'); ?></h2>
                 <?php if ($status === Subscribe::MAILPOET_ACTIVE) : ?>
-                    <button type="button" class="button" data-kk-mailpoet-sync><?php esc_html_e('Sync With MailPoet', 'koperasikita'); ?></button>
+                    <?php $syncLabel = $syncEnabled ? __('Sync With MailPoet', 'koperasikita') : __('Import from MailPoet', 'koperasikita'); ?>
+                    <button type="button" class="button" data-kk-mailpoet-sync data-kk-mailpoet-label-sync="<?php echo esc_attr__('Sync With MailPoet', 'koperasikita'); ?>" data-kk-mailpoet-label-import="<?php echo esc_attr__('Import from MailPoet', 'koperasikita'); ?>"><?php echo esc_html($syncLabel); ?></button>
                 <?php endif; ?>
             </div>
             <div class="kk-subscribers-card-body">
@@ -213,7 +230,7 @@ final class SubscribersPage
                             // translators: %d is the number of subscribers not in MailPoet yet.
                             printf(esc_html__('Subscribers stored here but not in MailPoet yet: %d.', 'koperasikita'), $pending);
                         ?></p>
-                        <p><?php esc_html_e('Syncs subscribers with MailPoet in both directions.', 'koperasikita'); ?></p>
+                        <p><?php echo esc_html($syncEnabled ? __('Syncs subscribers with MailPoet in both directions.', 'koperasikita') : __('Imports subscribers from MailPoet into this list.', 'koperasikita')); ?></p>
                     <?php else : ?>
                         <p><?php esc_html_e('All subscribers are already in MailPoet.', 'koperasikita'); ?></p>
                     <?php endif; ?>
@@ -253,12 +270,17 @@ final class SubscribersPage
      */
     private static function renderMailPoetSyncPopup(): void
     {
+        // The title follows the button: two-way sync when the
+        // setting is on, import only when it is off. The script
+        // updates it again on open, so a toggle flip without a
+        // save still shows the right title.
+        $syncEnabled = Subscribe::mailPoetSyncEnabled();
         ?>
         <div class="kk-data-desk-popup" id="kk-mailpoet-sync-popup" hidden role="dialog" aria-modal="true" aria-labelledby="kk-mailpoet-sync-popup-title">
             <div class="kk-data-desk-popup-backdrop" data-kk-mailpoet-sync-popup-close></div>
             <div class="kk-data-desk-popup-panel" role="document">
                 <div class="kk-data-desk-popup-head">
-                    <h2 id="kk-mailpoet-sync-popup-title"><?php esc_html_e('Sync With MailPoet', 'koperasikita'); ?></h2>
+                    <h2 id="kk-mailpoet-sync-popup-title"><?php echo esc_html($syncEnabled ? __('Sync With MailPoet', 'koperasikita') : __('Import from MailPoet', 'koperasikita')); ?></h2>
                     <div class="kk-data-desk-popup-actions">
                         <button type="button" class="button" data-kk-mailpoet-sync-popup-close><?php esc_html_e('Close', 'koperasikita'); ?></button>
                     </div>
