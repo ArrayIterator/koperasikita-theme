@@ -525,7 +525,7 @@ final class Enqueue
         // be registered here too.
         self::addModuleScriptFilter();
 
-        /* The Dashboard menu icon (KK K mark, src/css/admin-menu.css)
+        /* The Koperasi Kita menu icon (KK K mark, src/css/admin-menu.css)
          * shows on EVERY admin page, so its stylesheet loads
          * unconditionally here, ahead of the per-page branches below
          * (which return early for most screens). */
