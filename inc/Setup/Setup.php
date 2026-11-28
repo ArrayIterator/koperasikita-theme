@@ -225,6 +225,30 @@ final class Setup
     }
 
     /**
+     * The PHP executable for the server cronjob, resolved from the
+     * running PHP instead of hardcoded: the versioned binary in
+     * PHP_BINDIR first, then the plain php binary. PHP_BINARY is
+     * not used: under PHP-FPM it points at the php-fpm binary,
+     * which cannot run a script.
+     */
+    private static function phpExecutable(): string
+    {
+        $versioned = PHP_BINDIR . '/php' . PHP_MAJOR_VERSION . '.' . PHP_MINOR_VERSION;
+
+        if (is_executable($versioned)) {
+            return $versioned;
+        }
+
+        $plain = PHP_BINDIR . '/php';
+
+        if (is_executable($plain)) {
+            return $plain;
+        }
+
+        return 'php';
+    }
+
+    /**
      * Market auto-sync cron card: a state-aware reference about
      * the server cron that triggers wp-cron.php. Only when the
      * Markets feature and the market auto-sync are on - with the
@@ -244,7 +268,7 @@ final class Setup
             return;
         }
 
-        $cronLine = '0 * * * * curl -s ' . home_url('wp-cron.php') . ' > /dev/null 2>&1';
+        $cronLine = '*/5 * * * * ' . self::phpExecutable() . ' -q ' . ABSPATH . 'wp-cron.php > /dev/null 2>&1';
         $state = \KoperasiKita\Features\MarketSync::wpCronState();
 
         echo '<section class="kk-setup-card">';
@@ -253,17 +277,17 @@ final class Setup
 
         if ($state === 'disabled-with-cronjob') {
             echo '<p>' . esc_html__(
-                'WP-Cron is disabled in wp-config.php, but the auto-sync is running — a server cronjob is calling wp-cron.php, so this setup is fine. For reference, the cronjob looks like this:',
+                'WP-Cron is disabled in wp-config.php, but the auto-sync is running — a server cronjob is running wp-cron.php with PHP, so this setup is fine. For reference, the cronjob looks like this:',
                 'koperasikita'
             ) . '</p>';
         } elseif ($state === 'disabled-no-cronjob') {
             echo '<p>' . esc_html__(
-                'WP-Cron is disabled in wp-config.php, and the auto-sync has not run recently. Without a server cronjob calling wp-cron.php, the auto-sync will not run at all. Either remove the DISABLE_WP_CRON line from wp-config.php, or set up a server cronjob like this:',
+                'WP-Cron is disabled in wp-config.php, and the auto-sync has not run recently. Without a server cronjob running wp-cron.php with PHP, the auto-sync will not run at all. Either remove the DISABLE_WP_CRON line from wp-config.php, or set up a server cronjob like this:',
                 'koperasikita'
             ) . '</p>';
         } else {
             echo '<p>' . esc_html__(
-                'Reference only — nothing to do here unless the sync must run on time. WordPress runs scheduled tasks (WP-Cron) only when the site gets visits, so on a quiet site the market auto-sync can run late. A server cron that calls wp-cron.php every hour makes it reliable:',
+                'Reference only — nothing to do here unless the sync must run on time. WordPress runs scheduled tasks (WP-Cron) only when the site gets visits, so on a quiet site the market auto-sync can run late. A server cron that runs wp-cron.php with PHP every 5 minutes makes it reliable:',
                 'koperasikita'
             ) . '</p>';
         }
