@@ -4369,6 +4369,9 @@ msgstr "Tambah Lokasi Baru"
 msgid "Search Locations"
 msgstr "Cari Lokasi"
 
+msgid "Search Templates"
+msgstr "Cari Template"
+
 msgid "Location saved."
 msgstr "Lokasi disimpan."
 
@@ -6491,3 +6494,10 @@ msgstr "Badai petir dengan hujan es lebat"
 
 msgid "Unknown conditions"
 msgstr "Kondisi tidak diketahui"
+
+msgid "No templates yet."
+msgstr "Belum ada template."
+
+msgid "Templates duplicated."
+msgstr "Template diduplikasi."
+

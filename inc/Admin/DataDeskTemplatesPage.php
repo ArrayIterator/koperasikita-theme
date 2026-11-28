@@ -180,6 +180,55 @@ final class DataDeskTemplatesPage
             ));
             exit;
         }
+
+        // Bulk duplicate from the list table: action=duplicate (or
+        // action2, the bottom Apply button) + template[] + the
+        // bulk-templates nonce the table itself renders. A built-in
+        // duplicates into a new user template, exactly like Use;
+        // nothing is deleted here.
+        // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- bulk duplicate uses the table nonce.
+        $bulkAction = isset($_GET['action']) ? sanitize_key((string) wp_unslash($_GET['action'])) : '';
+        if ($bulkAction === '' || $bulkAction === '-1') {
+            // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- bulk duplicate uses the table nonce.
+            $bulkAction = isset($_GET['action2']) ? sanitize_key((string) wp_unslash($_GET['action2'])) : '';
+        }
+
+        if ($bulkAction === 'duplicate' && isset($_GET['template']) && is_array($_GET['template'])) {
+            if (!current_user_can('manage_options')) {
+                wp_die(esc_html__('You do not have permission to access this page.', 'koperasikita'));
+            }
+
+            check_admin_referer('bulk-templates');
+
+            $ids = array_values(array_map('sanitize_key', wp_unslash($_GET['template'])));
+            $made = 0;
+
+            foreach ($ids as $id) {
+                $source = DataDesk::getTemplate($id);
+
+                if ($source === null) {
+                    continue;
+                }
+
+                $copy = $source;
+                $copy['name'] = sprintf(
+                    /* translators: %s: template name. */
+                    __('%s (copy)', 'koperasikita'),
+                    $source['name']
+                );
+                DataDesk::saveTemplate('', $copy);
+                $made++;
+            }
+
+            $url = admin_url('admin.php?page=' . self::PAGE_SLUG);
+
+            if ($made > 0) {
+                $url = add_query_arg('duplicated', '1', $url);
+            }
+
+            wp_safe_redirect($url);
+            exit;
+        }
     }
 
     /**
@@ -202,6 +251,11 @@ final class DataDeskTemplatesPage
         // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- restored flag is display-only.
         if (isset($_GET['restored']) && $_GET['restored'] === '1') {
             return __('Template restored to its built-in values.', 'koperasikita');
+        }
+
+        // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- duplicated flag is display-only.
+        if (isset($_GET['duplicated']) && $_GET['duplicated'] === '1') {
+            return __('Templates duplicated.', 'koperasikita');
         }
 
         return '';
@@ -304,8 +358,8 @@ final class DataDeskTemplatesPage
      */
     private static function renderList(string $pageUrl): void
     {
-        $templates = DataDesk::templates();
-        $kinds = DataDesk::kinds();
+        $table = new DataDeskTemplatesTable(DataDesk::templates(), $pageUrl);
+        $table->prepare_items();
         ?>
         <?php /* Start from an existing template: pick any built-in
          * or user template as the base - it is duplicated into a
@@ -325,69 +379,11 @@ final class DataDeskTemplatesPage
             </select>
             <input type="submit" class="button" value="<?php echo esc_attr(__('Use template', 'koperasikita')); ?>">
         </form>
-        <table class="wp-list-table widefat fixed striped">
-            <thead>
-                <tr>
-                    <th scope="col" class="column-primary"><?php esc_html_e('Name', 'koperasikita'); ?></th>
-                    <th scope="col"><?php esc_html_e('Kind', 'koperasikita'); ?></th>
-                    <th scope="col"><?php esc_html_e('Shows', 'koperasikita'); ?></th>
-                    <th scope="col"><?php esc_html_e('Palette', 'koperasikita'); ?></th>
-                    <th scope="col"><?php esc_html_e('Days', 'koperasikita'); ?></th>
-                    <th scope="col"><?php esc_html_e('Actions', 'koperasikita'); ?></th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php foreach ($templates as $id => $template) : ?>
-                    <?php
-                    $shows = $template['kind'] === DataDesk::KIND_TABLE
-                        ? ($template['brands'] !== [] ? implode(', ', array_map(static fn(string $slug): string => Gold::brands()[$slug] ?? $slug, $template['brands'])) : __('All brands', 'koperasikita'))
-                        : (DataDesk::symbols()[$template['symbol']] ?? $template['symbol']);
-                    ?>
-                    <tr>
-                        <td class="column-primary" data-colname="<?php echo esc_attr(__('Name', 'koperasikita')); ?>">
-                            <strong><?php echo esc_html($template['name']); ?></strong>
-                            <?php if (DataDesk::isBuiltIn($id)) : ?>
-                                <?php $builtInLabel = __('Built-in', 'koperasikita'); ?>
-                                <span class="kk-data-desk-built-in">
-                                    <?php
-                                    // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Icon::svg returns the theme's own SVG markup.
-                                    echo Icon::svg('lock', 13);
-                                    ?>
-                                    <?php if (strcasecmp($template['name'], $builtInLabel) !== 0) : ?>
-                                        <?php echo esc_html($builtInLabel); ?>
-                                    <?php endif; ?>
-                                </span>
-                            <?php endif; ?>
-                        </td>
-                        <td data-colname="<?php echo esc_attr(__('Kind', 'koperasikita')); ?>"><?php echo esc_html($kinds[$template['kind']] ?? $template['kind']); ?></td>
-                        <td data-colname="<?php echo esc_attr(__('Shows', 'koperasikita')); ?>"><?php echo esc_html($shows); ?></td>
-                        <td data-colname="<?php echo esc_attr(__('Palette', 'koperasikita')); ?>"><?php echo esc_html(DataDesk::paletteLabel($template['palette'])); ?></td>
-                        <td data-colname="<?php echo esc_attr(__('Days', 'koperasikita')); ?>"><?php echo ($template['kind'] === DataDesk::KIND_PANEL || ($template['kind'] === DataDesk::KIND_TABLE && ($template['table_style'] ?? '') === 'chart')) ? esc_html((string) $template['days']) : '&mdash;'; ?></td>
-                        <td data-colname="<?php echo esc_attr(__('Actions', 'koperasikita')); ?>">
-                            <?php if (DataDesk::isBuiltIn($id)) : ?>
-                                <a href="<?php echo esc_url(wp_nonce_url(add_query_arg('kk_data_desk_duplicate', $id, $pageUrl), 'kk_data_desk_duplicate')); ?>"><?php esc_html_e('Use', 'koperasikita'); ?></a>
-                                |
-                                <a href="<?php echo esc_url(add_query_arg(['action' => 'edit', 'id' => $id], $pageUrl)); ?>"><?php esc_html_e('Edit', 'koperasikita'); ?></a>
-                                <?php if (DataDesk::isOverridden($id)) : ?>
-                                    |
-                                    <a href="<?php echo esc_url(wp_nonce_url(add_query_arg('kk_data_desk_restore', $id, $pageUrl), 'kk_data_desk_restore')); ?>" onclick="return confirm('<?php echo esc_js(__('Restore this template to its built-in values?', 'koperasikita')); ?>');"><?php esc_html_e('Restore', 'koperasikita'); ?></a>
-                                <?php endif; ?>
-                                |
-                                <a href="#" data-kk-data-desk-preview-link data-kk-template-id="<?php echo esc_attr($id); ?>" data-kk-template-name="<?php echo esc_attr($template['name']); ?>"><?php esc_html_e('Preview', 'koperasikita'); ?></a>
-                            <?php else : ?>
-                                <a href="<?php echo esc_url(add_query_arg(['action' => 'edit', 'id' => $id], $pageUrl)); ?>"><?php esc_html_e('Edit', 'koperasikita'); ?></a>
-                                |
-                                <a href="<?php echo esc_url(wp_nonce_url(add_query_arg('kk_data_desk_duplicate', $id, $pageUrl), 'kk_data_desk_duplicate')); ?>"><?php esc_html_e('Duplicate', 'koperasikita'); ?></a>
-                                |
-                                <a href="<?php echo esc_url(wp_nonce_url(add_query_arg('kk_data_desk_delete', $id, $pageUrl), 'kk_data_desk_delete')); ?>" onclick="return confirm('<?php echo esc_js(__('Delete this template?', 'koperasikita')); ?>');"><?php esc_html_e('Delete', 'koperasikita'); ?></a>
-                                |
-                                <a href="#" data-kk-data-desk-preview-link data-kk-template-id="<?php echo esc_attr($id); ?>" data-kk-template-name="<?php echo esc_attr($template['name']); ?>"><?php esc_html_e('Preview', 'koperasikita'); ?></a>
-                            <?php endif; ?>
-                        </td>
-                    </tr>
-                <?php endforeach; ?>
-            </tbody>
-        </table>
+        <form method="get" action="<?php echo esc_url($pageUrl); ?>">
+            <input type="hidden" name="page" value="<?php echo esc_attr(self::PAGE_SLUG); ?>">
+            <?php $table->search_box(__('Search Templates', 'koperasikita'), 'kk-template'); ?>
+            <?php $table->display(); ?>
+        </form>
         <?php /* One shared preview popup, reused by every row's Preview
          * link. The panel is filled by admin.ts (kk_data_desk_preview
          * by template id); without JS the link does nothing and the
