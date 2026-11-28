@@ -281,10 +281,10 @@ final class Logo
                 return '';
             }
 
-            return '<img class="' . esc_attr($class) . '" src="' . esc_url($url) . '" alt="">';
+            return '<img class="' . esc_attr($class) . '" src="' . esc_url($url) . '" alt="' . esc_attr((string) get_bloginfo('name')) . '">';
         }
 
-        $html = wp_get_attachment_image($id, 'full', false, ['class' => $class]);
+        $html = wp_get_attachment_image($id, 'full', false, ['class' => $class, 'alt' => (string) get_bloginfo('name')]);
 
         return is_string($html) ? $html : '';
     }
@@ -404,7 +404,7 @@ final class Logo
                 $dark = self::ignoreDefault() ? 0 : self::mobileDarkId();
 
                 if (0 === $light && 0 === $dark) {
-                    $html .= '<img class="kk-drawer-brand-logo" src="' . esc_url(get_template_directory_uri() . '/assets/img/logo-k.svg') . '" alt="" width="32" height="32" aria-hidden="true">';
+                    $html .= '<img class="kk-drawer-brand-logo" src="' . esc_url(get_template_directory_uri() . '/assets/img/logo-k.svg') . '" alt="' . esc_attr((string) get_bloginfo('name')) . '" width="32" height="32">';
                 } else {
                     $html .= self::pair($light, $dark, 'kk-drawer-brand-logo kk-logo--light', 'kk-drawer-brand-logo kk-logo--dark', 'kk-drawer-brand-logos');
                 }
