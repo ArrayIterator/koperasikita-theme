@@ -442,3 +442,20 @@
 .kk-market-items-add .select2-selection--single .select2-selection__arrow {
 	height: 28px;
 }
+
+/* WordPress standard input height: 30px on desktop, 36px at
+ * <=782px. The single selection matches the Add button beside it
+ * at every width. */
+@media (max-width: 782px) {
+	.kk-market-items-add .select2-selection--single {
+		height: 36px;
+	}
+
+	.kk-market-items-add .select2-selection--single .select2-selection__rendered {
+		line-height: 36px;
+	}
+
+	.kk-market-items-add .select2-selection--single .select2-selection__arrow {
+		height: 34px;
+	}
+}

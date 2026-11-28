@@ -969,9 +969,19 @@ function initMarketItems(container: HTMLElement): void {
 		sync();
 	});
 
-	select.addEventListener('change', () => {
-		addButton.disabled = rows().length >= MAX_MARKET_ITEMS || select.value === '';
-	});
+	/* Select2 fires a jQuery-only change ($element.trigger('change')),
+	 * which never reaches a native addEventListener('change') - so
+	 * the Add button stayed disabled after picking in Select2 and
+	 * the click did nothing. Listen through jQuery as well; the
+	 * handler only sets a boolean, so a native change firing both
+	 * listeners is harmless. */
+	const updateAddButton = (): void => {
+		addButton.disabled =
+			rows().length >= MAX_MARKET_ITEMS || select.value === '';
+	};
+
+	select.addEventListener('change', updateAddButton);
+	window.jQuery?.(select).on('change', updateAddButton);
 
 	sync();
 }
