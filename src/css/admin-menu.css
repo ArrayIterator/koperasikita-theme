@@ -39,3 +39,55 @@
 #adminmenu #menu-dashboard .wp-menu-image::before {
 	content: none;
 }
+
+/* Admin bar: the site-name item shows the KK K mark instead of the
+ * home dashicon.
+ *
+ * Core renders the site-name icon as a ::before glyph
+ * (dashicons-admin-home, \f102 in wp-admin) and, when a site icon
+ * is set, a 20px <img class="site-icon"> instead. Both are replaced
+ * here by the same shipped square K (assets/img/logo-k.svg) the
+ * Dashboard menu icon uses, as a background on the link itself:
+ * core forces `background-image: none !important` on
+ * .ab-item:before, so the glyph slot cannot carry the image.
+ * The same relative URL as the Dashboard rule is used; it survives
+ * the build verbatim for the reason above.
+ *
+ * The selectors carry #wp-admin-bar-root-default so they beat
+ * core's `.wp-admin #wpadminbar #wp-admin-bar-site-name >
+ * .ab-item:before` rule on specificity alone, whatever the
+ * stylesheet load order. Only the site-name item is touched.
+ *
+ * Layout mirrors the glyph it replaces: a top-level admin-bar link
+ * has 7px left padding, the glyph is 20px wide with a 6px gap, so
+ * the text starts at 33px. The background sits at 7px and the
+ * padding-left moves the text to 33px.
+ */
+#wpadminbar #wp-admin-bar-root-default #wp-admin-bar-site-name > .ab-item {
+	background-image: url('../../../assets/img/logo-k.svg');
+	background-repeat: no-repeat;
+	background-position: 7px center;
+	background-size: 20px 20px;
+	padding-left: 33px;
+}
+
+#wpadminbar #wp-admin-bar-root-default #wp-admin-bar-site-name > .ab-item:before {
+	content: none;
+}
+
+/* With a site icon set, core prepends the 20px <img> and hides the
+ * glyph itself; hide the image too so the K mark is the only icon. */
+#wpadminbar #wp-admin-bar-root-default #wp-admin-bar-site-name > .ab-item img.site-icon {
+	display: none;
+}
+
+/* Narrow screens: core turns the item into a 52px icon-only slot
+ * (text indented away). The mark centres in it at the 28px core
+ * uses for the site-icon image there. */
+@media screen and (max-width: 782px) {
+	#wpadminbar #wp-admin-bar-root-default #wp-admin-bar-site-name > .ab-item {
+		padding-left: 0;
+		background-position: center;
+		background-size: 28px 28px;
+	}
+}
