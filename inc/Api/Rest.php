@@ -369,6 +369,10 @@ final class Rest
             'html' => $html,
             'page' => $page,
             'pages' => $pages,
+            // The loader's data-max-pages, from the response: the
+            // client re-checks the max after each load instead of
+            // trusting only the value the server rendered on page one.
+            'maxPages' => $pages,
             'hasMore' => $page < $pages,
             'perPage' => $per_page,
         ]);

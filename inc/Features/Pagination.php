@@ -230,6 +230,13 @@ final class Pagination
         $load_more_max = self::loadMoreMaxPages();
         $paged = $query !== null ? (int) $query->get('paged') : (int) get_query_var('paged');
         $paged = max(1, $paged);
+
+        // No next page: nothing to load, so no button at all. The
+        // script's finish() only hides a rendered button after a
+        // click; the last page never shows one in the first place.
+        if ($paged >= $max_pages) {
+            return;
+        }
         ?>
         <div
             class="kk-pagination kk-pagination-loader"
