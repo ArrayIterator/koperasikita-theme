@@ -18,676 +18,844 @@ msgstr ""
 "X-Domain: koperasikita\n"
 
 #: functions.php
+
 msgid "The Koperasi Kita theme requires PHP 8.3 or higher."
 msgstr "Tema Koperasi Kita membutuhkan PHP 8.3 atau lebih tinggi."
 
 #: functions.php
+
 msgid "The TrayDigita Stack plugin is not active. Some integrations are unavailable."
 msgstr "Plugin TrayDigita Stack tidak aktif. Beberapa integrasi tidak tersedia."
 
 #: inc/Setup/ThemeSupport.php
+
 msgid "Primary Menu"
 msgstr "Menu Utama"
 
 #: inc/Setup/ThemeSupport.php
+
 msgid "Footer Menu"
 msgstr "Menu Footer"
 
 #: inc/Setup/ThemeSupport.php
+
 msgid "Mobile Bottom Menu"
 msgstr "Menu Bawah Seluler"
 
 #: inc/Setup/Sidebars.php
+
 msgid "Main Sidebar"
 msgstr "Sidebar Utama"
 
 #: inc/Setup/Sidebars.php
+
 msgid "Article Sidebar"
 msgstr "Sidebar Artikel"
 
 #: inc/Setup/Sidebars.php
+
 msgid "Page Sidebar"
 msgstr "Sidebar Halaman"
 
 #: inc/Setup/Sidebars.php
+
 msgid "News Sidebar"
 msgstr "Sidebar Berita"
 
 #: inc/Customizer/Customizer.php
+
 msgid "Koperasi Kita Theme Options"
 msgstr "Opsi Tema Koperasi Kita"
 
 #: inc/Customizer/Customizer.php
+
 msgid "Color Palette"
 msgstr "Palet Warna"
 
 #: inc/Customizer/Customizer.php
+
 msgid "Typography"
 msgstr "Tipografi"
 
 #: inc/Customizer/Customizer.php
+
 msgid "Header & Breaking News"
 msgstr "Header & Berita Terkini"
 
 #: inc/Customizer/Customizer.php
+
 msgid "Homepage Layout"
 msgstr "Tata Letak Beranda"
 
 #: inc/Customizer/Customizer.php
+
 msgid "Single Post"
 msgstr "Artikel Tunggal"
 
 #: inc/Customizer/Customizer.php
+
 msgid "Comments"
 msgstr "Komentar"
 
 #: inc/Customizer/Customizer.php
+
 msgid "Appearance & Accessibility"
 msgstr "Tampilan & Aksesibilitas"
 
 #: inc/Customizer/Customizer.php
+
 msgid "Images & Performance"
 msgstr "Gambar & Performa"
 
 #: inc/Customizer/Customizer.php
+
 msgid "Advanced Performance & Cleanup"
 msgstr "Performa Lanjutan & Pembersihan"
 
 #: inc/Customizer/Customizer.php
+
 msgid "Breadcrumbs"
 msgstr "Breadcrumb"
 
 #: inc/Customizer/Customizer.php
+
 msgid "Footer"
 msgstr "Footer"
 
 #: inc/Customizer/Customizer.php
+
 msgid "Progressive Web App"
 msgstr "Aplikasi Web Progresif"
 
 #: inc/Customizer/Customizer.php
+
 msgid "Primary Color"
 msgstr "Warna Utama"
 
 #: inc/Customizer/Customizer.php
+
 msgid "Primary Dark Color"
 msgstr "Warna Utama Gelap"
 
 #: inc/Customizer/Customizer.php
+
 msgid "Primary Light Color"
 msgstr "Warna Utama Terang"
 
 #: inc/Customizer/Customizer.php
+
 msgid "Gold Color"
 msgstr "Warna Emas"
 
 #: inc/Customizer/Customizer.php
+
 msgid "Gold Light Color"
 msgstr "Warna Emas Terang"
 
 #: inc/Customizer/Customizer.php
+
 msgid "Ink Color"
 msgstr "Warna Tinta"
 
 #: inc/Customizer/Customizer.php
+
 msgid "Muted Color"
 msgstr "Warna Redup"
 
 #: inc/Customizer/Customizer.php
+
 msgid "Paper Color"
 msgstr "Warna Kertas"
 
 #: inc/Customizer/Customizer.php
+
 msgid "Surface Color"
 msgstr "Warna Permukaan"
 
 #: inc/Customizer/Customizer.php
+
 msgid "Border Color"
 msgstr "Warna Garis Tepi"
 
 #: inc/Customizer/Customizer.php
+
 msgid "System UI"
 msgstr "System UI"
 
 #: inc/Customizer/Customizer.php
+
 msgid "Georgia editorial serif"
 msgstr "Georgia (serif editorial)"
 
 #: inc/Customizer/Customizer.php
+
 msgid "Palatino editorial serif"
 msgstr "Palatino (serif editorial)"
 
 #: inc/Customizer/Customizer.php
+
 msgid "Trebuchet MS"
 msgstr "Trebuchet MS"
 
 #: inc/Customizer/Customizer.php
+
 msgid "Verdana"
 msgstr "Verdana"
 
 #: inc/Customizer/Customizer.php
+
 msgid "Arial"
 msgstr "Arial"
 
 #: inc/Customizer/Customizer.php
+
 msgid "Post Title Size"
 msgstr "Ukuran Judul Artikel"
 
 #: inc/Customizer/Customizer.php
+
 msgid "Card Title Size"
 msgstr "Ukuran Judul Kartu"
 
 #: inc/Customizer/Customizer.php
+
 msgid "Excerpt Size"
 msgstr "Ukuran Kutipan"
 
 #: inc/Customizer/Customizer.php
+
 msgid "Hero Posts"
 msgstr "Artikel Hero"
 
 #: inc/Customizer/Customizer.php
+
 msgid "Invert Logo in Dark Mode"
 msgstr "Balik Logo dalam Mode Gelap"
 
 #: inc/Customizer/Customizer.php
+
 msgid "Excerpt Length (words)"
 msgstr "Panjang Kutipan (kata)"
 
 #: inc/Customizer/Customizer.php
+
 msgid "How many words the excerpt shows before it is cut short. Applies to card and hero excerpts."
 msgstr "Berapa kata yang ditampilkan kutipan sebelum dipotong. Berlaku untuk kutipan kartu dan hero."
 
 #: inc/Customizer/Customizer.php
+
 msgid "Excerpt Ending"
 msgstr "Akhir Kutipan"
 
 #: inc/Customizer/Customizer.php
+
 msgid "The text shown when an excerpt is cut short. Leave the default three dots, or type your own ending."
 msgstr "Teks yang ditampilkan saat kutipan dipotong. Biarkan tiga titik bawaan, atau ketik akhiran Anda sendiri."
 
 #: inc/Customizer/Customizer.php
+
 msgid "Serve Combined CSS (one file)"
 msgstr "Sajikan CSS Gabungan (satu file)"
 
 #: inc/Customizer/Customizer.php
+
 msgid "Combine all theme stylesheets into a single CSS file (one render-blocking request instead of ~13 chained ones). The file is rebuilt automatically when the theme is updated."
 msgstr "Gabungkan semua stylesheet tema menjadi satu file CSS (satu request render-blocking, bukan ~13 file berantai). File dibuat ulang otomatis saat tema diperbarui."
 
 #: inc/Customizer/Customizer.php
+
 msgid "Footer Copyright Text"
 msgstr "Teks Hak Cipta Footer"
 
 #: inc/Customizer/Customizer.php
+
 msgid "Tokens: {year}, {month}, {month_number}, {day}, {date}, {site_name}, {site_url}, {home_url}."
 msgstr "Token: {year}, {month}, {month_number}, {day}, {date}, {site_name}, {site_url}, {home_url}."
 
 #: inc/Customizer/Customizer.php
+
 msgid "Copyright Alignment"
 msgstr "Perataan Hak Cipta"
 
 #: inc/Customizer/Customizer.php
+
 msgid "Left"
 msgstr "Kiri"
 
 #: inc/Customizer/Customizer.php
+
 msgid "Center"
 msgstr "Tengah"
 
 #: inc/Customizer/Customizer.php
+
 msgid "Right"
 msgstr "Kanan"
 
 #: inc/Customizer/Customizer.php
+
 msgid "%s URL"
 msgstr "URL %s"
 
 #: inc/Features/Footer.php
+
 msgid "Copyright &copy; %1$s %2$s. All rights reserved."
 msgstr "Hak cipta &copy; %1$s %2$s. Semua hak dilindungi."
 
 #: footer.php
+
 msgid "Social media"
 msgstr "Media sosial"
 
 #: inc/Customizer/Customizer.php
+
 msgid "Enable News Ticker"
 msgstr "Aktifkan Ticker Berita"
 
 #: inc/Customizer/Customizer.php
+
 msgid "Enable Weather"
 msgstr "Aktifkan Cuaca"
 
 #: inc/Customizer/Customizer.php
+
 msgid "Enable Markets"
 msgstr "Aktifkan Pasar"
 
 #: inc/Customizer/Customizer.php
+
 msgid "Enable Bookmarks"
 msgstr "Aktifkan Bookmark"
 
 #: inc/Customizer/Customizer.php
+
 msgid "Enable Progressive Web App"
 msgstr "Aktifkan Progressive Web App"
 
 #: inc/Customizer/Customizer.php
+
 msgid "Enable Agenda"
 msgstr "Aktifkan Agenda"
 
 #: inc/Customizer/Customizer.php
+
 msgid "Grid"
 msgstr "Grid"
 
 #: inc/Customizer/Customizer.php
+
 msgid "List"
 msgstr "Daftar"
 
 #: inc/Customizer/Customizer.php
 #: template-parts/content/layout-switcher.php
+
 msgid "Featured"
 msgstr "Unggulan"
 
 #: inc/Customizer/TermSelectControl.php
+
 msgid "Search…"
 msgstr "Cari…"
 
 #: inc/Customizer/TermSelectControl.php
 #: inc/Customizer/TermCheckboxControl.php
+
 msgid "Search terms"
 msgstr "Cari istilah"
 
 #: src/ts/widget-blocks.ts
+
 msgid "Showing %1$s of %2$s — type to search."
 msgstr "Menampilkan %1$s dari %2$s — ketik untuk mencari."
 
 #: src/ts/admin.ts
+
 msgid "Showing %s of %s — type to search."
 msgstr "Menampilkan %s dari %s — ketik untuk mencari."
 
 #: inc/Customizer/TermCheckboxControl.php
+
 msgid "Search terms…"
 msgstr "Cari istilah…"
 
 #: inc/Customizer/TermSelectControl.php
+
 msgid "No terms match your search."
 msgstr "Tidak ada istilah yang cocok dengan pencarian Anda."
 
 #: inc/Breadcrumb/Breadcrumb.php
+
 msgid "Home"
 msgstr "Beranda"
 
 #: inc/Customizer/Customizer.php
+
 msgid "Show Featured Image"
 msgstr "Tampilkan Gambar Unggulan"
 
 #: inc/Customizer/Customizer.php
+
 msgid "Show Author Box"
 msgstr "Tampilkan Kotak Penulis"
 
 #: inc/Customizer/Customizer.php
+
 msgid "Show Related News"
 msgstr "Tampilkan Berita Terkait"
 
 #: inc/Customizer/Customizer.php
+
 msgid "Show Reading Time"
 msgstr "Tampilkan Waktu Baca"
 
 #: inc/Customizer/Customizer.php
+
 msgid "Enable Comments"
 msgstr "Aktifkan Komentar"
 
 #: inc/Customizer/Customizer.php
+
 msgid "Show Comment Avatars"
 msgstr "Tampilkan Avatar Komentar"
 
 #: inc/Customizer/Customizer.php
+
 msgid "Lazy-Load Images"
 msgstr "Muat Gambar secara Lazy"
 
 #: inc/Customizer/Customizer.php
+
 msgid "Enable Responsive Images"
 msgstr "Aktifkan Gambar Responsif"
 
 #: inc/Features/Performance.php
+
 msgid "Disable texturize on content and excerpts"
 msgstr "Nonaktifkan texturize pada konten dan kutipan"
 
 #: inc/Features/Performance.php
+
 msgid "Disable texturize on titles"
 msgstr "Nonaktifkan texturize pada judul"
 
 #: inc/Features/Performance.php
+
 msgid "Disable texturize everywhere (comments, widgets, site name)"
 msgstr "Nonaktifkan texturize di mana-mana (komentar, widget, nama situs)"
 
 #: inc/Features/Performance.php
+
 msgid "Remove jQuery Migrate on the front end"
 msgstr "Hapus jQuery Migrate di front end"
 
 #: inc/Features/Performance.php
+
 msgid "Remove version query strings from CSS and JS"
 msgstr "Hapus query string versi dari CSS dan JS"
 
 #: inc/Features/Performance.php
+
 msgid "Remove the WordPress generator tag"
 msgstr "Hapus tag generator WordPress"
 
 #: inc/Features/Performance.php
+
 msgid "Disable emoji scripts and styles"
 msgstr "Nonaktifkan skrip dan gaya emoji"
 
 #: inc/Features/Performance.php
+
 msgid "Remove RSD, WLW, shortlink and REST discovery links from the head"
 msgstr "Hapus tautan discovery RSD, WLW, shortlink, dan REST dari head"
 
 #: inc/Features/Performance.php
+
 msgid "Disable oEmbed discovery and the embed script"
 msgstr "Nonaktifkan discovery oEmbed dan skrip embed"
 
 #: inc/Features/Performance.php
+
 msgid "Remove block library and global styles CSS (classic widgets only)"
 msgstr "Hapus CSS pustaka blok dan gaya global (hanya widget klasik)"
 
 #: inc/Features/Performance.php
+
 msgid "Remove Dashicons for visitors"
 msgstr "Hapus Dashicons untuk pengunjung"
 
 #: inc/Features/Performance.php
+
 msgid "Disable the Heartbeat script on the front end"
 msgstr "Nonaktifkan skrip Heartbeat di front end"
 
 #: inc/Features/Performance.php
+
 msgid "Disable XML-RPC"
 msgstr "Nonaktifkan XML-RPC"
 
 #: inc/Features/Performance.php
+
 msgid "Disable self pingbacks"
 msgstr "Nonaktifkan pingback mandiri"
 
 #: inc/Customizer/Customizer.php
+
 msgid "Show Breadcrumbs"
 msgstr "Tampilkan Breadcrumb"
 
 #: inc/Customizer/Customizer.php
+
 msgid "Show Breadcrumbs on the Homepage"
 msgstr "Tampilkan Breadcrumb di Beranda"
 
 #: inc/Customizer/Customizer.php
+
 msgid "Comment Order"
 msgstr "Urutan Komentar"
 
 #: inc/Customizer/Customizer.php
+
 msgid "Oldest First"
 msgstr "Terlama Dulu"
 
 #: inc/Customizer/Customizer.php
+
 msgid "Newest First"
 msgstr "Terbaru Dulu"
 
 #: inc/Customizer/Customizer.php
+
 msgid "JPEG Quality"
 msgstr "Kualitas JPEG"
 
 #: inc/Customizer/Customizer.php
+
 msgid "Auto Resolve ALT"
 msgstr "Isi ALT Otomatis"
 
 #: inc/Customizer/Customizer.php
+
 msgid "Use the article title as the featured image ALT text when the image has no ALT text of its own."
 msgstr "Gunakan judul artikel sebagai teks ALT gambar utama ketika gambar tidak memiliki teks ALT sendiri."
 
 #: inc/Customizer/Customizer.php
+
 msgid "Breadcrumb Separator"
 msgstr "Pemisah Breadcrumb"
 
 #: inc/Customizer/Customizer.php
+
 msgid "› Angle Bracket"
 msgstr "› Kurung Sudut"
 
 #: inc/Customizer/Customizer.php
+
 msgid "/ Slash"
 msgstr "/ Garis Miring"
 
 #: inc/Customizer/Customizer.php
+
 msgid "» Double Angle Bracket"
 msgstr "» Kurung Sudut Ganda"
 
 #: inc/Customizer/Customizer.php
+
 msgid "— Em Dash"
 msgstr "— Strip Em"
 
 #: inc/Customizer/Customizer.php
+
 msgid "Style Variant"
 msgstr "Varian Gaya"
 
 #: inc/Customizer/Customizer.php
+
 msgid "Classic Editorial"
 msgstr "Editorial Klasik"
 
 #: inc/Customizer/Customizer.php
+
 msgid "Compact"
 msgstr "Ringkas"
 
 #: inc/Customizer/Customizer.php
+
 msgid "Bold Headlines"
 msgstr "Judul Tebal"
 
 #: single.php
+
 msgid "About the author"
 msgstr "Tentang penulis"
 
 #: single.php
+
 msgid "More from %s"
 msgstr "Lainnya dari %s"
 
 #: template-parts/content/single-article.php
+
 msgid "%d min read"
 msgstr "%d mnt baca"
 
 #: 404.php
+
 msgid "Latest news"
 msgstr "Berita terbaru"
 
 #: 404.php
+
 msgid "Page not found"
 msgstr "Halaman tidak ditemukan"
 
 #: 404.php
+
 msgid "The page you are looking for may have moved, or it no longer exists. Try searching, or start from the latest news."
 msgstr "Halaman yang Anda cari mungkin sudah dipindah, atau tidak ada lagi. Coba cari, atau mulai dari berita terbaru."
 
 #: archive-agenda.php
+
 msgid "No agenda items yet. Check back soon for upcoming events."
 msgstr "Belum ada agenda. Cek lagi nanti untuk acara mendatang."
 
 #: archive.php
+
 msgid "No posts were found in this archive."
 msgstr "Tidak ada artikel di arsip ini."
 
 #: comments.php
+
 msgid "%s comments"
 msgstr "%s komentar"
 
 #: comments.php
+
 msgid "Comments are closed."
 msgstr "Komentar ditutup."
 
 #: comments.php
+
 msgid "Leave a comment"
 msgstr "Tinggalkan komentar"
 
 #: comments.php
+
 msgid "One comment"
 msgstr "Satu komentar"
 
 #: footer.php
+
 msgid "Back to top"
 msgstr "Kembali ke atas"
 
 #: footer.php
+
 msgid "Mobile navigation"
 msgstr "Navigasi seluler"
 
 #: footer.php
+
 msgid "News, announcements and market updates from the cooperative, delivered to your inbox."
 msgstr "Berita, pengumuman, dan kabar pasar dari koperasi, dikirim ke kotak masuk Anda."
 
 #: footer.php
+
 msgid "Stay informed"
 msgstr "Tetap terinformasi"
 
 #: header.php
+
 msgid "Skip to content"
 msgstr "Lewati ke konten"
 
 #: inc/Features/Agenda.php
+
 msgid "Add New"
 msgstr "Tambah Baru"
 
 #: inc/Features/Agenda.php
+
 msgid "Add New Agenda Item"
 msgstr "Tambah Item Agenda Baru"
 
 #: inc/Features/Agenda.php
+
 msgid "Agenda"
 msgstr "Agenda"
 
 #: inc/Features/Agenda.php
+
 msgid "Agenda Item"
 msgstr "Item Agenda"
 
 #: inc/Features/Agenda.php
+
 msgid "Agenda Item Attributes"
 msgstr "Atribut Item Agenda"
 
 #: inc/Features/Agenda.php
+
 msgid "Agenda item published privately."
 msgstr "Item agenda diterbitkan secara privat."
 
 #: inc/Features/Agenda.php
+
 msgid "Agenda item published."
 msgstr "Item agenda diterbitkan."
 
 #: inc/Features/Agenda.php
+
 msgid "Agenda item reverted to draft."
 msgstr "Item agenda dikembalikan ke draf."
 
 #: inc/Features/Agenda.php
+
 msgid "Agenda item scheduled."
 msgstr "Item agenda dijadwalkan."
 
 #: inc/Features/Agenda.php
+
 msgid "Agenda item updated."
 msgstr "Item agenda diperbarui."
 
 #: inc/Features/Agenda.php
+
 msgid "Agenda items list"
 msgstr "Daftar item agenda"
 
 #: inc/Features/Agenda.php
+
 msgid "Agenda items list navigation"
 msgstr "Navigasi daftar item agenda"
 
 #: inc/Features/Agenda.php
+
 msgid "All Agenda Items"
 msgstr "Semua Item Agenda"
 
 #: inc/Features/Agenda.php
+
 msgid "Date"
 msgstr "Tanggal"
 
 #: inc/Features/Agenda.php
+
 msgid "Date, start time and location are required for the event to show up properly on the agenda archive."
 msgstr "Tanggal, waktu mulai, dan lokasi wajib diisi agar acara tampil dengan benar di arsip agenda."
 
 #: inc/Features/Agenda.php
+
 msgid "Dated cooperative events: meetings, gatherings and activities."
 msgstr "Acara koperasi terjadwal: rapat, pertemuan, dan kegiatan."
 
 #: inc/Features/Agenda.php
+
 msgid "Edit Agenda Item"
 msgstr "Ubah Item Agenda"
 
 #: inc/Features/Agenda.php
+
 msgid "Event Details"
 msgstr "Detail Acara"
 
 #: inc/Features/Agenda.php
+
 msgid "Filter agenda items"
 msgstr "Filter item agenda"
 
 #: inc/Features/Agenda.php
+
 msgid "Insert into agenda item"
 msgstr "Sisipkan ke item agenda"
 
 #: inc/Features/Agenda.php
+
 msgid "Location"
 msgstr "Lokasi"
 
 #: inc/Features/Agenda.php
+
 msgid "New Agenda Item"
 msgstr "Item Agenda Baru"
 
 #: inc/Features/Agenda.php
+
 msgid "No agenda items found in Trash."
 msgstr "Tidak ada item agenda di Sampah."
 
 #: inc/Features/Agenda.php
+
 msgid "No agenda items found."
 msgstr "Tidak ada item agenda ditemukan."
 
 #: inc/Features/Agenda.php
+
 msgid "Please sign in to submit an agenda item."
 msgstr "Silakan masuk untuk mengirim item agenda."
 
 #: inc/Features/Agenda.php
+
 msgid "Search Agenda"
 msgstr "Cari Agenda"
 
 #: inc/Features/Agenda.php
+
 msgid "Sign in"
 msgstr "Masuk"
 
 #: inc/Features/Agenda.php
+
 msgid "Start time"
 msgstr "Waktu mulai"
 
 #: inc/Features/Agenda.php
+
 msgid "Uploaded to this agenda item"
 msgstr "Diunggah ke item agenda ini"
 
 #: inc/Features/Agenda.php
+
 msgid "View Agenda"
 msgstr "Lihat Agenda"
 
 #: inc/Features/Agenda.php
+
 msgid "View Agenda Item"
 msgstr "Lihat Item Agenda"
 
 #: inc/Features/Agenda.php
+
 msgid "Your account cannot submit agenda items. Please contact an editor if you need contributor access."
 msgstr "Akun Anda tidak dapat mengirim item agenda. Hubungi editor jika Anda membutuhkan akses kontributor."
 
 #: inc/Features/Markets.php
+
 msgid "Choose which provider supplies each market and keep the manual snapshot prices up to date. A market with no saved price shows an honest \"no data\" message on the site — prices are never invented."
 msgstr "Pilih penyedia untuk setiap pasar dan jaga harga snapshot manual tetap terbaru. Pasar tanpa harga tersimpan menampilkan pesan \"tidak ada data\" yang jujur di situs — harga tidak pernah dikarang."
 
 #: inc/Features/Markets.php
+
 msgid "Crypto"
 msgstr "Kripto"
 
 #: inc/Features/Markets.php
+
 msgid "Gold"
 msgstr "Emas"
 
 #: inc/Features/Markets.php
+
 msgid "Gold spot"
 msgstr "Harga spot emas"
 
 #: inc/Features/Markets.php
+
 msgid "Last saved: %s"
 msgstr "Terakhir disimpan: %s"
 
 #: inc/Features/Markets.php
+
 msgid "Markets"
 msgstr "Pasar"
 
@@ -695,46 +863,57 @@ msgid "KK Markets"
 msgstr "KK Pasar"
 
 #: inc/Features/Markets.php
+
 msgid "Provider"
 msgstr "Penyedia"
 
 #: inc/Features/Markets.php
+
 msgid "Stocks"
 msgstr "Saham"
 
 #: inc/Features/Markets.php
+
 msgid "You do not have permission to access this page."
 msgstr "Anda tidak memiliki izin untuk mengakses halaman ini."
 
 #: inc/Features/Subscribe.php
+
 msgid "Email address"
 msgstr "Alamat email"
 
 #: inc/Features/Subscribe.php
+
 msgid "Leave this field empty"
 msgstr "Biarkan kolom ini kosong"
 
 #: inc/Features/Subscribe.php
+
 msgid "Please enter a valid email address."
 msgstr "Masukkan alamat email yang valid."
 
 #: inc/Features/Subscribe.php
+
 msgid "Something went wrong. Please try again later."
 msgstr "Terjadi kesalahan. Silakan coba lagi nanti."
 
 #: inc/Features/Subscribe.php
+
 msgid "Something went wrong. Please try again."
 msgstr "Terjadi kesalahan. Silakan coba lagi."
 
 #: inc/Features/Subscribe.php
+
 msgid "Subscribe"
 msgstr "Berlangganan"
 
 #: inc/Features/Subscribe.php
+
 msgid "Subscriptions are unavailable right now. Please try again later."
 msgstr "Langganan tidak tersedia saat ini. Silakan coba lagi nanti."
 
 #: inc/Features/Subscribe.php
+
 msgid "Thank you for subscribing. Please check your inbox to confirm your subscription."
 msgstr "Terima kasih sudah berlangganan. Periksa kotak masuk Anda untuk mengonfirmasi langganan."
 
@@ -742,42 +921,52 @@ msgid "Thank you for subscribing."
 msgstr "Terima kasih sudah berlangganan."
 
 #: inc/Features/Subscribe.php
+
 msgid "Too many subscription attempts. Please try again later."
 msgstr "Terlalu banyak percobaan berlangganan. Silakan coba lagi nanti."
 
 #: inc/Features/Subscribe.php
+
 msgid "Your email address"
 msgstr "Alamat email Anda"
 
 #: inc/Features/Weather.php
+
 msgid "Feels like"
 msgstr "Terasa seperti"
 
 #: inc/Features/Weather.php
+
 msgid "High / Low"
 msgstr "Tertinggi / Terendah"
 
 #: inc/Features/Weather.php
+
 msgid "Humidity"
 msgstr "Kelembapan"
 
 #: inc/Features/Weather.php
+
 msgid "Weather is unavailable right now. Please try again later."
 msgstr "Cuaca tidak tersedia saat ini. Silakan coba lagi nanti."
 
 #: inc/Features/Weather.php
+
 msgid "Wind"
 msgstr "Angin"
 
 #: inc/Widgets/GoldWidget.php
+
 msgid "Brands to show:"
 msgstr "Merek yang ditampilkan:"
 
 #: inc/Widgets/GoldWidget.php
+
 msgid "Edit the prices in %s."
 msgstr "Ubah harga di %s."
 
 #: inc/Widgets/GoldWidget.php
+
 msgid "Gold Prices"
 msgstr "Harga Emas"
 
@@ -785,218 +974,272 @@ msgid "KK Gold Prices"
 msgstr "KK Harga Emas"
 
 #: inc/Widgets/GoldWidget.php
+
 msgid "Gold prices for Indonesian gold brands in an auto-scrolling slider. Prices are edited in Settings -> Markets."
 msgstr "Harga emas untuk merek emas Indonesia dalam slider gulir otomatis. Harga diedit di Pengaturan -> Pasar."
 
 #: inc/Widgets/GoldWidget.php
+
 msgid "Koperasi Kita Gold Prices"
 msgstr "Harga Emas Koperasi Kita"
 
 #: inc/Widgets/GoldWidget.php src/ts/widget-blocks.ts
+
 msgid "Vertical Carousel"
 msgstr "Carousel Vertikal"
 
 #: inc/Widgets/GoldWidget.php src/ts/widget-blocks.ts
+
 msgid "Horizontal Carousel"
 msgstr "Carousel Horizontal"
 
 #: inc/Widgets/GoldWidget.php src/ts/widget-blocks.ts
+
 msgid "Slider Horizontal"
 msgstr "Slider Horizontal"
 
 #: inc/Widgets/GoldWidget.php src/ts/widget-blocks.ts
+
 msgid "Slider style"
 msgstr "Gaya Slider"
 
 #: inc/Widgets/GoldWidget.php src/ts/widget-blocks.ts
+
 msgid "Items per view"
 msgstr "Item per tampilan"
 
 #: inc/Widgets/GoldWidget.php src/ts/widget-blocks.ts
+
 msgid "1 item"
 msgstr "1 item"
 
 #: inc/Widgets/GoldWidget.php src/ts/widget-blocks.ts
+
 msgid "2 items"
 msgstr "2 item"
 
 #: inc/Widgets/GoldWidget.php src/ts/widget-blocks.ts
+
 msgid "3 items"
 msgstr "3 item"
 
 #: inc/Widgets/GoldWidget.php src/ts/widget-blocks.ts
+
 msgid "Colour style"
 msgstr "Gaya Warna"
 
 #: inc/Widgets/GoldWidget.php src/ts/widget-blocks.ts
+
 msgid "Autoplay"
 msgstr "Autoplay"
 
 #: inc/Widgets/GoldWidget.php src/ts/widget-blocks.ts
+
 msgid "Show dots"
 msgstr "Tampilkan dot"
 
 #: inc/Widgets/GoldWidget.php src/ts/widget-blocks.ts
+
 msgid "Autoplay interval (seconds)"
 msgstr "Interval Autoplay (detik)"
 
 #: inc/Widgets/AgendaWidget.php
+
 msgid "Koperasi Kita Agenda"
 msgstr "Agenda Koperasi Kita"
 
 #: template-parts/agenda/widget.php
+
 msgid "No agenda items yet."
 msgstr "Belum ada agenda."
 
 #: inc/Widgets/AgendaWidget.php
+
 msgid "Agenda Koperasi"
 msgstr "Agenda Koperasi"
 
 #: inc/Widgets/AgendaWidget.php
+
 msgid "Show past events"
 msgstr "Tampilkan acara lalu"
 
 #: inc/Widgets/AgendaWidget.php
+
 msgid "Fill the remaining slots with finished events, most recent first."
 msgstr "Isi slot tersisa dengan acara yang sudah selesai, terbaru dulu."
 
 #: template-parts/agenda/widget.php
+
 msgid "Berlangsung"
 msgstr "Berlangsung"
 
 #: template-parts/agenda/widget.php
+
 msgid "Selesai"
 msgstr "Selesai"
 
 #: inc/Widgets/Blocks.php
+
 msgid "KK Agenda"
 msgstr "KK Agenda"
 
 #: inc/Widgets/AbstractTermListContentWidget.php
+
 msgid "Enable Link To"
 msgstr "Aktifkan Taut Ke"
 
 #: inc/Widgets/AbstractTermListContentWidget.php
+
 msgid "Leave empty to use the term name."
 msgstr "Kosongkan untuk memakai nama istilah."
 
 #: inc/Widgets/AbstractTermListContentWidget.php
+
 msgid "Link the title to the term archive."
 msgstr "Tautkan judul ke arsip istilah."
 
 #: inc/Widgets/AbstractTermListContentWidget.php
+
 msgid "— Select —"
 msgstr "— Pilih —"
 
 #: inc/Widgets/CategoryListContentWidget.php
+
 msgid "Koperasi Kita Category List Content"
 msgstr "Konten Daftar Kategori Koperasi Kita"
 
 #: inc/Widgets/CategoryListContentWidget.php
+
 msgid "Posts from one category, in a Featured, Grid, List, Featured Right or List Column layout."
 msgstr "Artikel dari satu kategori, dalam tata letak Featured, Grid, List, Featured Right atau List Column."
 
 #: inc/Widgets/TagListContentWidget.php
+
 msgid "Koperasi Kita Tag List Content"
 msgstr "Konten Daftar Tag Koperasi Kita"
 
 #: inc/Widgets/TagListContentWidget.php
+
 msgid "Posts from one tag, in a Featured, Grid, List, Featured Right or List Column layout."
 msgstr "Artikel dari satu tag, dalam tata letak Featured, Grid, List, Featured Right atau List Column."
 
 #: inc/Widgets/Blocks.php
+
 msgid "KK Category List Content"
 msgstr "KK Konten Daftar Kategori"
 
 #: inc/Widgets/Blocks.php
+
 msgid "KK Tag List Content"
 msgstr "KK Konten Daftar Tag"
 
 #: src/ts/widget-blocks.ts
+
 msgid "Leave empty to use the category name."
 msgstr "Kosongkan untuk memakai nama kategori."
 
 #: src/ts/widget-blocks.ts
+
 msgid "Leave empty to use the tag name."
 msgstr "Kosongkan untuk memakai nama tag."
 
 #: inc/Widgets/MarketsWidget.php
+
 msgid "No Margin"
 msgstr "Tanpa Margin"
 
 #: inc/Widgets/MarketsWidget.php
+
 msgid "No Margin sits flush, with no top border, padding or bottom margin."
 msgstr "Tanpa Margin menempel rapat, tanpa garis atas, padding, atau margin bawah."
 
 #: inc/Admin/GoldPricesPage.php
+
 msgid "Gold price provider"
 msgstr "Penyedia harga emas"
 
 #: inc/Admin/GoldPricesPage.php
+
 msgid "Gold provider saved."
 msgstr "Penyedia emas disimpan."
 
 #: inc/Admin/GoldPricesPage.php
+
 msgid "Save provider"
 msgstr "Simpan penyedia"
 
 #: inc/Widgets/GoldWidget.php
+
 msgid "Settings -> Markets"
 msgstr "Pengaturan -> Pasar"
 
 #: inc/Widgets/GoldWidget.php
+
 msgid "Title"
 msgstr "Judul"
 
 #: inc/Widgets/MarketsWidget.php
+
 msgid "Gold, stock, forex, commodity and crypto prices from the Markets providers. Prices are edited in Settings -> Markets."
 msgstr "Harga emas, saham, forex, komoditas, dan kripto dari penyedia Pasar. Harga diubah di Pengaturan -> Pasar."
 
 #: inc/Widgets/MarketsWidget.php
+
 msgid "Index Strip"
 msgstr "Strip Indeks"
 
 #: inc/Widgets/MarketsWidget.php
+
 msgid "Items to show:"
 msgstr "Item yang ditampilkan:"
 
 #: inc/Widgets/MarketsWidget.php
+
 msgid "Leave empty to show all items of the markets above. Pick up to 16 items."
 msgstr "Kosongkan untuk menampilkan semua item dari pasar di atas. Pilih maksimal 16 item."
 
 #: inc/Widgets/MarketsWidget.php
+
 msgid "Koperasi Kita Markets"
 msgstr "Pasar Koperasi Kita"
 
 #: inc/Widgets/MarketsWidget.php
+
 msgid "Markets to show:"
 msgstr "Pasar yang ditampilkan:"
 
 #: inc/Widgets/MarketsWidget.php
+
 msgid "Show day change"
 msgstr "Tampilkan perubahan harian"
 
 #: inc/Widgets/WeatherWidget.php
+
 msgid "Change location"
 msgstr "Ubah lokasi"
 
 #: inc/Widgets/WeatherWidget.php
+
 msgid "Current weather for a city, with a location picker."
 msgstr "Cuaca terkini sebuah kota, dengan pemilih lokasi."
 
 #: inc/Widgets/WeatherWidget.php
+
 msgid "Default city"
 msgstr "Kota default"
 
 #: inc/Widgets/WeatherWidget.php
+
 msgid "Koperasi Kita Weather"
 msgstr "Cuaca Koperasi Kita"
 
 #: inc/Widgets/WeatherWidget.php
+
 msgid "Shown until a visitor picks another location."
 msgstr "Ditampilkan sampai pengunjung memilih lokasi lain."
 
 #: inc/Widgets/WeatherWidget.php
+
 msgid "Weather"
 msgstr "Cuaca"
 
@@ -1004,693 +1247,865 @@ msgid "KK: Cuaca"
 msgstr "KK: Cuaca"
 
 #: inc/Widgets/WeatherWidget.php
+
 msgid "Weather is unavailable right now."
 msgstr "Cuaca tidak tersedia saat ini."
 
 #: index.php
+
 msgid "No posts were found. Try a different search."
 msgstr "Tidak ada artikel ditemukan. Coba pencarian lain."
 
 #: index.php
+
 msgid "Nothing found"
 msgstr "Tidak ada yang ditemukan"
 
 #: search.php
+
 msgid "No results found"
 msgstr "Tidak ada hasil ditemukan"
 
 #: search.php
+
 msgid "Results for \"%s\""
 msgstr "Hasil untuk \"%s\""
 
 #: search.php
+
 msgid "Results: %s"
 msgstr "Hasil: %s"
 
 #: search.php
+
 msgid "Search results"
 msgstr "Hasil pencarian"
 
 #: search.php
+
 msgid "Try different keywords, or browse the latest news below."
 msgstr "Coba kata kunci lain, atau jelajahi berita terbaru di bawah."
 
 #: sidebar-news.php
+
 msgid "Sidebar"
 msgstr "Sidebar"
 
 #: single-agenda.php
+
 msgid "Back to the agenda"
 msgstr "Kembali ke agenda"
 
 #: single.php
+
 msgid "Related news"
 msgstr "Berita terkait"
 
 #: template-bookmarks.php
+
 msgid "Articles you saved on this device. Bookmarks are stored only in this browser."
 msgstr "Artikel yang Anda simpan di perangkat ini. Bookmark hanya tersimpan di browser ini."
 
 #: template-bookmarks.php
+
 msgid "Bookmarks"
 msgstr "Bookmark"
 
 #: template-bookmarks.php
+
 msgid "Bookmarks are currently disabled."
 msgstr "Bookmark saat ini dinonaktifkan."
 
 #: template-bookmarks.php
+
 msgid "Browse the latest news"
 msgstr "Jelajahi berita terbaru"
 
 #: template-bookmarks.php
+
 msgid "No bookmarks yet"
 msgstr "Belum ada bookmark"
 
 #: template-bookmarks.php
+
 msgid "Tap the bookmark button on any article to save it here for later reading."
 msgstr "Ketuk tombol bookmark di artikel mana pun untuk menyimpannya di sini dan membacanya nanti."
 
 #: template-parts/agenda/agenda-meta.php
+
 msgid "Time"
 msgstr "Waktu"
 
 #: template-parts/agenda/form-submit.php
+
 msgid "Description"
 msgstr "Deskripsi"
 
 #: template-parts/agenda/form-submit.php
+
 msgid "Event title"
 msgstr "Judul acara"
 
 #: template-parts/agenda/form-submit.php
+
 msgid "Please fix the highlighted fields and submit again."
 msgstr "Perbaiki kolom yang ditandai lalu kirim lagi."
 
 #: template-parts/agenda/form-submit.php
+
 msgid "Please give the event a title of at least 3 characters."
 msgstr "Beri acara judul minimal 3 karakter."
 
 #: template-parts/agenda/form-submit.php
+
 msgid "Please pick a valid date."
 msgstr "Pilih tanggal yang valid."
 
 #: template-parts/agenda/form-submit.php
+
 msgid "Please pick a valid end time."
 msgstr "Pilih waktu selesai yang valid."
 
 #: template-parts/agenda/form-submit.php
+
 msgid "Please pick a valid start time."
 msgstr "Pilih waktu mulai yang valid."
 
 #: template-parts/agenda/form-submit.php
+
 msgid "Please write a short description of the event."
 msgstr "Tulis deskripsi singkat tentang acara."
 
 #: template-parts/agenda/form-submit.php
+
 msgid "Something went wrong while saving your submission. Please try again."
 msgstr "Terjadi kesalahan saat menyimpan kiriman Anda. Silakan coba lagi."
 
 #: template-parts/agenda/form-submit.php
+
 msgid "Submit for review"
 msgstr "Kirim untuk ditinjau"
 
 #: template-parts/agenda/form-submit.php
+
 msgid "Thank you! Your agenda item was submitted for review. An editor will publish it once it has been checked."
 msgstr "Terima kasih! Item agenda Anda telah dikirim untuk ditinjau. Editor akan menerbitkannya setelah diperiksa."
 
 #: template-parts/agenda/form-submit.php
+
 msgid "The description is too long. Please keep it under 5000 characters."
 msgstr "Deskripsi terlalu panjang. Maksimal 5000 karakter."
 
 #: template-parts/agenda/form-submit.php
+
 msgid "The end time must be after the start time."
 msgstr "Waktu selesai harus setelah waktu mulai."
 
 #: template-parts/agenda/form-submit.php
+
 msgid "The event date is in the past. Please pick a future date."
 msgstr "Tanggal acara sudah lewat. Pilih tanggal di masa depan."
 
 #: template-parts/agenda/form-submit.php
+
 msgid "The location is too long. Please keep it under 200 characters."
 msgstr "Lokasi terlalu panjang. Maksimal 200 karakter."
 
 #: template-parts/agenda/form-submit.php
+
 msgid "The title is too long. Please keep it under 200 characters."
 msgstr "Judul terlalu panjang. Maksimal 200 karakter."
 
 #: template-parts/agenda/form-submit.php
+
 msgid "Too many submissions. Please wait an hour and try again."
 msgstr "Terlalu banyak kiriman. Tunggu satu jam lalu coba lagi."
 
 #: template-parts/agenda/form-submit.php
+
 msgid "Website"
 msgstr "Situs web"
 
 #: template-parts/agenda/form-submit.php
+
 msgid "Your account cannot submit agenda items."
 msgstr "Akun Anda tidak dapat mengirim item agenda."
 
 #: template-parts/agenda/form-submit.php
+
 msgid "Your session expired. Please try submitting again."
 msgstr "Sesi Anda berakhir. Silakan coba kirim lagi."
 
 #: template-parts/agenda/form-submit.php
+
 msgid "Your submission is saved as a draft for review. It only appears on the agenda once an editor publishes it."
 msgstr "Kiriman Anda disimpan sebagai draf untuk ditinjau. Kiriman baru muncul di agenda setelah editor menerbitkannya."
 
 #: template-parts/agenda/form-submit.php
+
 msgid "e.g. Cooperative Hall, 2nd floor"
 msgstr "cth. Aula Koperasi, lantai 2"
 
 #: template-parts/content/card-news.php
+
 msgid "Bookmark"
 msgstr "Bookmark"
 
 #: template-parts/content/card-news.php
+
 msgid "Bookmarked"
 msgstr "Sudah di-bookmark"
 
 #: template-parts/content/card-news.php
+
 msgid "Save"
 msgstr "Simpan"
 
 #: template-parts/content/card-news.php
+
 msgid "Save bookmark"
 msgstr "Simpan bookmark"
 
 #: template-parts/content/layout-switcher.php
+
 msgid "Layout"
 msgstr "Tata letak"
 
 #: template-parts/content/single-article.php
+
 msgid "By %s"
 msgstr "Oleh %s"
 
 #: template-parts/content/single-article.php
+
 msgid "Copy link"
 msgstr "Salin tautan"
 
 #: template-parts/content/single-article.php
+
 msgid "Link copied"
 msgstr "Tautan disalin"
 
 #: template-parts/content/single-article.php
+
 msgid "Print"
 msgstr "Cetak"
 
 #: template-parts/content/single-article.php
+
 msgid "Share"
 msgstr "Bagikan"
 
 #: template-parts/content/single-article.php
+
 msgid "Share by email"
 msgstr "Bagikan lewat email"
 
 #: template-parts/content/single-article.php
+
 msgid "Share on Facebook"
 msgstr "Bagikan ke Facebook"
 
 #: template-parts/content/single-article.php
+
 msgid "Share on Telegram"
 msgstr "Bagikan ke Telegram"
 
 #: template-parts/content/single-article.php
+
 msgid "Share on WhatsApp"
 msgstr "Bagikan ke WhatsApp"
 
 #: template-parts/content/single-article.php
+
 msgid "Share on X"
 msgstr "Bagikan ke X"
 
 #: template-parts/content/single-article.php
+
 msgid "Share this article"
 msgstr "Bagikan artikel ini"
 
 #: template-parts/content/single-article.php
+
 msgid "The link could not be copied."
 msgstr "Tautan tidak dapat disalin."
 
 #: template-parts/gold/slider.php
+
 msgid "Gold brands"
 msgstr "Merek emas"
 
 #: template-parts/gold/slider.php
+
 msgid "Gold prices are not available yet."
 msgstr "Harga emas belum tersedia."
 
 #: template-parts/gold/slider.php
+
 msgid "Next brand"
 msgstr "Merek berikutnya"
 
 #: template-parts/gold/slider.php
+
 msgid "Pause gold prices"
 msgstr "Jeda harga emas"
 
 #: template-parts/gold/slider.php
+
 msgid "Previous brand"
 msgstr "Merek sebelumnya"
 
 #: template-parts/gold/slider.php
+
 msgid "Updated %s"
 msgstr "Diperbarui %s"
 
 #: template-parts/gold/slider.php
+
 msgid "per gram"
 msgstr "per gram"
 
 #: template-parts/header/site-nav.php
+
 msgid "Close search"
 msgstr "Tutup pencarian"
 
 #: template-parts/header/site-nav.php
+
 msgid "Open menu"
 msgstr "Buka menu"
 
 #: template-parts/header/site-nav.php
+
 msgid "Primary"
 msgstr "Utama"
 
 #: template-parts/header/site-nav.php
+
 msgid "Search"
 msgstr "Cari"
 
 #: template-parts/header/ticker.php
+
 msgid "Breaking"
 msgstr "Terkini"
 
 #: inc/Customizer/Customizer.php
 #: template-parts/header/ticker.php
+
 msgid "New"
 msgstr "Baru"
 
 #: template-parts/header/ticker.php
+
 msgid "Breaking news"
 msgstr "Berita Terkini"
 
 #: template-parts/header/ticker.php
+
 msgid "Next headline"
 msgstr "Judul berikutnya"
 
 #: template-parts/header/ticker.php
+
 msgid "Pause headlines"
 msgstr "Jeda judul"
 
 #: template-parts/header/ticker.php
+
 msgid "Previous headline"
 msgstr "Judul sebelumnya"
 
 #: template-parts/header/top-bar.php
+
 msgid "Change weather location"
 msgstr "Ubah lokasi cuaca"
 
 #: template-parts/header/top-bar.php
+
 msgid "Toggle color scheme"
 msgstr "Ganti skema warna"
 
 #: template-parts/home/category-block.php
+
 msgid "More in %s"
 msgstr "Lainnya di %s"
 
 #: template-parts/home/category-block.php
+
 msgid "Section"
 msgstr "Bagian"
 
 #: template-parts/home/hero-grid.php
+
 msgid "Top stories"
 msgstr "Berita Utama"
 
 #: template-parts/home/latest-news.php
+
 msgid "Latest News"
 msgstr "Berita Terbaru"
 
 #: template-parts/markets/strip.php
+
 msgid "Market data is not available yet."
 msgstr "Data pasar belum tersedia."
 
 #: template-parts/markets/strip.php
+
 msgid "No data yet."
 msgstr "Belum ada data."
 
 #: inc/Customizer/Customizer.php:604
 #: inc/Features/Pwa.php:187
 #: inc/Features/Pwa.php:189
+
 msgid "Install app"
 msgstr "Instal aplikasi"
 
 #: template-parts/pwa/install-prompt.php
+
 msgid "Add Koperasi Kita to your home screen for faster access to news, announcements and market updates — even offline."
 msgstr "Tambahkan Koperasi Kita ke layar utama untuk akses berita, pengumuman, dan kabar pasar yang lebih cepat — bahkan offline."
 
 #: template-parts/pwa/install-prompt.php
+
 msgid "Dismiss"
 msgstr "Tutup"
 
 #: template-parts/pwa/install-prompt.php
+
 msgid "Install"
 msgstr "Instal"
 
 #: template-parts/pwa/install-prompt.php
+
 msgid "Install Koperasi Kita"
 msgstr "Instal Koperasi Kita"
 
 #: template-parts/pwa/install-prompt.php
+
 msgid "No app store download needed"
 msgstr "Tidak perlu unduh dari toko aplikasi"
 
 #: template-parts/pwa/install-prompt.php
+
 msgid "Not now"
 msgstr "Nanti saja"
 
 #: template-parts/pwa/install-prompt.php
+
 msgid "Quick access from your home screen"
 msgstr "Akses cepat dari layar utama"
 
 #: template-parts/pwa/install-prompt.php
+
 msgid "Read the latest news offline"
 msgstr "Baca berita terbaru secara offline"
 
 #: template-parts/weather/location-picker.php
+
 msgid "+ Add current location"
 msgstr "+ Tambah lokasi saat ini"
 
 #: template-parts/weather/location-picker.php
+
 msgid "Choose location"
 msgstr "Pilih lokasi"
 
 #: template-parts/weather/location-picker.php
+
 msgid "Close location picker"
 msgstr "Tutup pemilih lokasi"
 
 #: template-parts/weather/location-picker.php
+
 msgid "Current location: %s"
 msgstr "Lokasi saat ini: %s"
 
 #: template-parts/weather/location-picker.php
+
 msgid "Done"
 msgstr "Selesai"
 
 #: template-parts/weather/location-picker.php
+
 msgid "Latitude"
 msgstr "Lintang"
 
 #: template-parts/weather/location-picker.php
+
 msgid "Longitude"
 msgstr "Bujur"
 
 #: template-parts/weather/location-picker.php
+
 msgid "Or enter coordinates"
 msgstr "Atau masukkan koordinat"
 
 #: template-parts/weather/location-picker.php
+
 msgid "Quick picks"
 msgstr "Pilihan cepat"
 
 #: template-parts/weather/location-picker.php
+
 msgid "Reset to default"
 msgstr "Kembalikan ke default"
 
 #: template-parts/weather/location-picker.php
+
 msgid "Search for a city"
 msgstr "Cari kota"
 
 #: template-parts/weather/location-picker.php
+
 msgid "Type a city name…"
 msgstr "Ketik nama kota…"
 
 #: template-parts/weather/location-picker.php
+
 msgid "Use my location"
 msgstr "Gunakan lokasi saya"
 
 #: template-parts/weather/location-picker.php
+
 msgid "Use these coordinates"
 msgstr "Gunakan koordinat ini"
 
 #: inc/Setup/Setup.php
+
 msgid "Activate TrayDigita Stack"
 msgstr "Aktifkan TrayDigita Stack"
 
 #: inc/Setup/Setup.php
+
 msgid "Activation failed."
 msgstr "Aktivasi gagal."
 
 #: inc/Setup/Setup.php
+
 msgid "Active"
 msgstr "Aktif"
 
 #: inc/Setup/Setup.php
+
 msgid "Another Stack installation is already running. Please wait a moment and try again."
 msgstr "Instalasi Stack lain sedang berjalan. Tunggu sebentar lalu coba lagi."
 
 #: inc/Setup/Setup.php
+
 msgid "Attention"
 msgstr "Perhatian"
 
 #: inc/Setup/Setup.php
+
 msgid "Bookmarks page"
 msgstr "Halaman bookmark"
 
 #: inc/Setup/Setup.php
+
 msgid "Could not reach the GitHub release feed. Check the connection and try again."
 msgstr "Tidak dapat menjangkau feed rilis GitHub. Periksa koneksi lalu coba lagi."
 
 #: inc/Setup/Setup.php
+
 msgid "Direct filesystem access is not available. Upload the plugin from Plugins → Add New instead."
 msgstr "Akses filesystem langsung tidak tersedia. Unggah plugin dari Plugin → Tambah Baru."
 
 #: inc/Setup/Setup.php
+
 msgid "Everything the theme needs, in one place."
 msgstr "Semua yang dibutuhkan tema, di satu tempat."
 
 #: inc/Setup/Setup.php
+
 msgid "GitHub answered with an unexpected status."
 msgstr "GitHub menjawab dengan status yang tidak terduga."
 
 #: inc/Setup/Setup.php
+
 msgid "Gold, markets and weather widgets for the sidebars."
 msgstr "Widget emas, pasar, dan cuaca untuk sidebar."
 
 #: inc/Setup/Setup.php
+
 msgid "Install it from Setup"
 msgstr "Instal dari Setup"
 
 #: inc/Setup/Setup.php
+
 msgid "Install latest release from GitHub"
 msgstr "Instal rilis terbaru dari GitHub"
 
 #: inc/Setup/Setup.php
+
 msgid "Installation failed."
 msgstr "Instalasi gagal."
 
 #: inc/Setup/Setup.php
+
 msgid "Installed, not active"
 msgstr "Terinstal, belum aktif"
 
 #: inc/Setup/Setup.php
+
 msgid "Koperasi Kita Setup"
 msgstr "Setup Koperasi Kita"
 
 #: inc/Setup/Setup.php
+
 msgid "Koperasi Kita theme"
 msgstr "Tema Koperasi Kita"
 
 #: inc/Setup/Setup.php
+
 msgid "Logo, colours, layout and typography, with live preview."
 msgstr "Logo, warna, tata letak, dan tipografi, dengan pratinjau live."
 
 #: inc/Setup/Setup.php
+
 msgid "Menus"
 msgstr "Menu"
 
 #: inc/Setup/Setup.php
+
 msgid "Missing"
 msgstr "Tidak ada"
 
 #: inc/Setup/Setup.php
+
 msgid "No Stack release asset was found."
 msgstr "Tidak ditemukan aset rilis Stack."
 
 #: inc/Setup/Setup.php
+
 msgid "No page uses the Bookmarks template yet"
 msgstr "Belum ada halaman yang memakai template Bookmark"
 
 #: inc/Setup/Setup.php
+
 msgid "No release assets were found."
 msgstr "Tidak ditemukan aset rilis."
 
 #: inc/Setup/Setup.php
+
 msgid "Not installed"
 msgstr "Belum terinstal"
 
 #: inc/Setup/Setup.php
+
 msgid "Not writable"
 msgstr "Tidak dapat ditulisi"
 
 #: inc/Setup/Setup.php
+
 msgid "PHP version"
 msgstr "Versi PHP"
 
 #: inc/Setup/Setup.php
+
 msgid "Page found"
 msgstr "Halaman ditemukan"
 
 #: inc/Setup/Setup.php
+
 msgid "Primary menu and the mobile bottom navigation."
 msgstr "Menu utama dan navigasi bawah seluler."
 
 #: inc/Setup/Setup.php
+
 msgid "Quick start"
 msgstr "Mulai cepat"
 
 #: inc/Features/FontsManagementControl.php:42
+
 msgid "Ready"
 msgstr "Siap"
 
 #: inc/Setup/Setup.php
+
 msgid "Requirements"
 msgstr "Persyaratan"
 
 #: inc/Setup/Setup.php
+
 msgid "Something went wrong."
 msgstr "Terjadi kesalahan."
 
 #: inc/Setup/Setup.php
+
 msgid "Sorry, you are not allowed to access this page."
 msgstr "Maaf, Anda tidak diizinkan mengakses halaman ini."
 
 #: inc/Setup/Setup.php
+
 msgid "Sorry, you are not allowed to activate plugins."
 msgstr "Maaf, Anda tidak diizinkan mengaktifkan plugin."
 
 #: inc/Setup/Setup.php
+
 msgid "Sorry, you are not allowed to install plugins."
 msgstr "Maaf, Anda tidak diizinkan menginstal plugin."
 
 #: inc/Setup/Setup.php
+
 msgid "The Stack is installed and active. All integrations are available."
 msgstr "Stack sudah terinstal dan aktif. Semua integrasi tersedia."
 
 #: inc/Setup/Setup.php
+
 msgid "The Stack is installed but not active."
 msgstr "Stack sudah terinstal tetapi belum aktif."
 
 #: inc/Setup/Setup.php
+
 msgid "The Stack is not installed yet."
 msgstr "Stack belum terinstal."
 
 #: inc/Setup/Setup.php
+
 msgid "The Stack is the theme’s companion plugin. It provides the image, popular-posts and messaging helpers. The theme works without it, but those helpers fall back to basic behaviour."
 msgstr "Stack adalah plugin pendamping tema. Plugin ini menyediakan helper gambar, artikel populer, dan pesan. Tema tetap berjalan tanpanya, tetapi helper tersebut kembali ke perilaku dasar."
 
 #: inc/Setup/Setup.php
+
 msgid "The plugin could not be installed."
 msgstr "Plugin tidak dapat diinstal."
 
 #: inc/Setup/Setup.php
+
 msgid "The release download URL was rejected."
 msgstr "URL unduhan rilis ditolak."
 
 #: inc/Setup/Setup.php
+
 msgid "The saved-articles page. Bookmarks live in the browser, per reader."
 msgstr "Halaman artikel tersimpan. Bookmark hidup di browser, per pembaca."
 
 #: inc/Setup/Setup.php
+
 msgid "Theme options"
 msgstr "Opsi tema"
 
 #: inc/Setup/Setup.php
+
 msgid "TrayDigita Stack"
 msgstr "TrayDigita Stack"
 
 #: inc/Setup/Setup.php
+
 msgid "TrayDigita Stack installed. Activate it below to enable the integrations."
 msgstr "TrayDigita Stack terinstal. Aktifkan di bawah untuk mengaktifkan integrasi."
 
 #: inc/Setup/Setup.php
+
 msgid "TrayDigita Stack is already active."
 msgstr "TrayDigita Stack sudah aktif."
 
 #: inc/Setup/Setup.php
+
 msgid "TrayDigita Stack is now active."
 msgstr "TrayDigita Stack kini aktif."
 
 #: inc/Setup/Setup.php
+
 msgid "Upload & install"
 msgstr "Unggah & instal"
 
 #: inc/Setup/Setup.php
+
 msgid "Upload failed."
 msgstr "Unggahan gagal."
 
 #: inc/Setup/Setup.php
+
 msgid "Uploads directory"
 msgstr "Direktori unggahan"
 
 #: inc/Setup/Setup.php
+
 msgid "Widgets"
 msgstr "Widget"
 
 #: inc/Setup/Setup.php
+
 msgid "WordPress version"
 msgstr "Versi WordPress"
 
 #: inc/Setup/Setup.php
+
 msgid "Writable"
 msgstr "Dapat ditulisi"
 
 #: inc/Setup/Setup.php
+
 msgid "Or upload a release zip (max 20 MB):"
 msgstr "Atau unggah zip rilis (maks 20 MB):"
 
 #: inc/Features/Fonts.php:424
+
 msgid "Google Fonts"
 msgstr "Google Fonts"
 
 #: inc/Features/Fonts.php:724
+
 msgid "The %1$s font could not be downloaded (%2$s). The site is using a system font instead."
 msgstr "Font %1$s tidak dapat diunduh (%2$s). Situs memakai font sistem sebagai gantinya."
 
 #: inc/Features/Fonts.php:732
+
 msgid "Open Typography settings"
 msgstr "Buka pengaturan Tipografi"
 
 #: inc/Features/FontsManagementControl.php:28
+
 msgid "No Google font is selected. Pick one above to download it for offline use."
 msgstr "Belum ada font Google yang dipilih. Pilih di atas untuk mengunduhnya agar bisa dipakai offline."
 
 #: inc/Features/FontsManagementControl.php:40
+
 msgid "Downloading"
 msgstr "Mengunduh"
 
 #: inc/Features/FontsManagementControl.php:46
+
 msgid "Failed: %s"
 msgstr "Gagal: %s"
 
 #: inc/Features/FontsManagementControl.php:50
+
 msgid "Not downloaded yet"
 msgstr "Belum diunduh"
 
 #: inc/Features/FontsManagementControl.php:61
+
 msgid "Download fonts now"
 msgstr "Unduh font sekarang"
 
 #: inc/Features/FontsManagementControl.php:64
+
 msgid "Clear font cache"
 msgstr "Bersihkan cache font"
 
 #: inc/Features/FontsManagementControl.php:68
+
 msgid "Google fonts are downloaded once and served from this site. Until a font is downloaded, the site keeps using a system font."
 msgstr "Font Google diunduh sekali lalu disajikan dari situs ini. Sampai font diunduh, situs tetap memakai font sistem."
 
 #: inc/Api/Ajax.php
+
 msgid "You do not have permission to do that."
 msgstr "Anda tidak memiliki izin untuk melakukan itu."
 
 #: inc/Api/Rest.php
+
 msgid "Markets are disabled."
 msgstr "Pasar dinonaktifkan."
 
 #: inc/Api/Rest.php
+
 msgid "Unknown market."
 msgstr "Pasar tidak dikenal."
 
@@ -1699,380 +2114,474 @@ msgid "No market is selected for sync. Select one above and save the settings fi
 msgstr "Tidak ada market yang dipilih untuk sinkronisasi. Pilih di atas lalu simpan pengaturan dulu."
 
 #: inc/Api/Rest.php
+
 msgid "Weather is disabled."
 msgstr "Cuaca dinonaktifkan."
 
 #: inc/Api/Rest.php
+
 msgid "Coordinates are out of range."
 msgstr "Koordinat di luar jangkauan."
 
 #: inc/Api/Rest.php
+
 msgid "Unknown city."
 msgstr "Kota tidak dikenal."
 
 #: inc/Api/Rest.php
+
 msgid "Weather service unavailable."
 msgstr "Layanan cuaca tidak tersedia."
 
 #: inc/Features/Fonts.php
+
 msgid "Unknown Google font."
 msgstr "Font Google tidak dikenal."
 
 #: inc/Features/Fonts.php
+
 msgid "Could not create the font directory."
 msgstr "Tidak dapat membuat direktori font."
 
 #: inc/Features/Fonts.php
+
 msgid "Download already in progress."
 msgstr "Unduhan sudah berjalan."
 
 #: inc/Features/Fonts.php
+
 msgid "Download failed."
 msgstr "Unduhan gagal."
 
 #: inc/Features/FontDownloader.php
+
 msgid "Could not reach Google Fonts."
 msgstr "Tidak dapat menjangkau Google Fonts."
 
 #: inc/Features/FontDownloader.php
+
 msgid "Google Fonts returned an unexpected response."
 msgstr "Google Fonts mengembalikan respons yang tidak terduga."
 
 #: inc/Features/FontDownloader.php
+
 msgid "Google Fonts returned an unexpected stylesheet."
 msgstr "Google Fonts mengembalikan stylesheet yang tidak terduga."
 
 #: inc/Features/FontDownloader.php
+
 msgid "Google Fonts returned no usable font files."
 msgstr "Google Fonts tidak mengembalikan file font yang bisa dipakai."
 
 #: inc/Features/FontDownloader.php
+
 msgid "Refused an unexpected font file URL."
 msgstr "Menolak URL file font yang tidak terduga."
 
 #: inc/Features/FontDownloader.php
+
 msgid "Could not download the font file."
 msgstr "Tidak dapat mengunduh file font."
 
 #: inc/Features/FontDownloader.php
+
 msgid "The font file could not be downloaded."
 msgstr "File font tidak dapat diunduh."
 
 #: inc/Features/FontDownloader.php
+
 msgid "The downloaded font file is not a valid woff2 file."
 msgstr "File font yang diunduh bukan file woff2 yang valid."
 
 #: inc/Features/FontDownloader.php
+
 msgid "Could not save the font file."
 msgstr "Tidak dapat menyimpan file font."
 
 #: inc/Features/FontDownloader.php
+
 msgid "Could not write the font stylesheet."
 msgstr "Tidak dapat menulis stylesheet font."
 
 #: inc/Api/Ajax.php
+
 msgid "Missing security token. Please reload the page and try again."
 msgstr "Token keamanan hilang. Muat ulang halaman lalu coba lagi."
 
 #: inc/Api/Ajax.php
+
 msgid "Security token expired. Please reload the page and try again."
 msgstr "Token keamanan kedaluwarsa. Muat ulang halaman lalu coba lagi."
 
 #: inc/Api/Ajax.php
+
 msgid "Unexpected response from the server."
 msgstr "Respons server yang tidak terduga."
 
 #: inc/Api/Rest.php
+
 msgid "Both latitude and longitude are required."
 msgstr "Lintang dan bujur wajib diisi."
 
 #: inc/Admin/MarketsSettings.php
+
 msgid "Change (%)"
 msgstr "Perubahan (%)"
 
 #: inc/Customizer/Customizer.php
+
 msgid "Article Text Size"
 msgstr "Ukuran Teks Artikel"
 
 #: inc/Customizer/Customizer.php
+
 msgid "Mobile Text Size"
 msgstr "Ukuran Teks Mobile"
 
 #: inc/Customizer/Customizer.php
+
 msgid "Body text size on phones, in pixels. Default 16."
 msgstr "Ukuran teks isi di ponsel, dalam piksel. Default 16."
 
 #: inc/Features/ArticleFontSize.php
+
 msgid "Text size"
 msgstr "Ukuran teks"
 
 #: inc/Features/ArticleFontSize.php
+
 msgid "Decrease text size"
 msgstr "Perkecil ukuran teks"
 
 #: inc/Features/ArticleFontSize.php
+
 msgid "Increase text size"
 msgstr "Perbesar ukuran teks"
 
 #: inc/Features/ArticleFontSize.php
+
 msgid "Reset"
 msgstr "Atur ulang"
 
 #: inc/Customizer/Customizer.php
+
 msgid "Breaking News Posts"
 msgstr "Artikel Berita Terkini"
 
 #: inc/Customizer/Customizer.php
+
 msgid "Latest posts"
 msgstr "Artikel terbaru"
 
 #: inc/Customizer/Customizer.php
+
 msgid "Selected categories"
 msgstr "Kategori terpilih"
 
 #: inc/Customizer/Customizer.php
+
 msgid "Selected tags"
 msgstr "Tag terpilih"
 
 #: inc/Customizer/Customizer.php
+
 msgid "Ticker Categories"
 msgstr "Kategori Ticker"
 
 #: inc/Customizer/Customizer.php
+
 msgid "Used when the source above is \"Selected categories\". Leave empty to fall back to the latest posts."
 msgstr "Dipakai saat sumber di atas adalah \"Kategori terpilih\". Kosongkan untuk kembali ke artikel terbaru."
 
 #: inc/Customizer/Customizer.php
+
 msgid "Ticker Tags"
 msgstr "Tag Ticker"
 
 #: inc/Customizer/Customizer.php
+
 msgid "Used when the source above is \"Selected tags\". Leave empty to fall back to the latest posts."
 msgstr "Dipakai saat sumber di atas adalah \"Tag terpilih\". Kosongkan untuk kembali ke artikel terbaru."
 
 #: inc/Customizer/Customizer.php
+
 msgid "Seconds Between Breaking News Headlines"
 msgstr "Detik Antar Judul Berita Terkini"
 
 #: inc/Customizer/Customizer.php
+
 msgid "Breaking News Headlines"
 msgstr "Judul Berita Terkini"
 
 #: inc/Customizer/Customizer.php
+
 msgid "Date Format"
 msgstr "Format Tanggal"
 
 #: inc/Customizer/Customizer.php
+
 msgid "Clock Time Zone"
 msgstr "Zona Waktu Jam"
 
 #: inc/Customizer/Customizer.php
+
 msgid "Site time zone (Settings > General)"
 msgstr "Zona waktu situs (Pengaturan > Umum)"
 
 #: inc/Customizer/Customizer.php
+
 msgid "Visitor device time"
 msgstr "Waktu perangkat pengunjung"
 
 #: inc/Customizer/Customizer.php
+
 msgid "Custom time zone"
 msgstr "Zona waktu kustom"
 
 #: inc/Customizer/Customizer.php
+
 msgid "Custom Time Zone"
 msgstr "Zona Waktu Kustom"
 
 #: inc/Customizer/Customizer.php
+
 msgid "Clock Separator"
 msgstr "Pemisah Jam"
 
 #: inc/Customizer/Customizer.php
+
 msgid "Colon (14:05:30)"
 msgstr "Titik dua (14:05:30)"
 
 #: inc/Customizer/Customizer.php
+
 msgid "Dot (14.05.30)"
 msgstr "Titik (14.05.30)"
 
 #: inc/Customizer/Customizer.php
+
 msgid "Show Top Bar"
 msgstr "Tampilkan Bar Atas"
 
 #: inc/Customizer/Customizer.php
+
 msgid "Show Live Clock in Top Bar"
 msgstr "Tampilkan Jam Live di Bar Atas"
 
 #: inc/Customizer/Customizer.php
+
 msgid "Show Seconds on the Clock"
 msgstr "Tampilkan Detik pada Jam"
 
 #: inc/Customizer/Customizer.php
+
 msgid "Use the 24-Hour Clock"
 msgstr "Gunakan Jam 24 Jam"
 
 #: inc/Customizer/Customizer.php
+
 msgid "Show Date on the Clock"
 msgstr "Tampilkan Tanggal pada Jam"
 
 #: inc/Customizer/Customizer.php
+
 msgid "Sticky Header Navigation"
 msgstr "Navigasi Header Menempel"
 
 #: inc/Customizer/TermCheckboxControl.php
+
 msgid "No terms found."
 msgstr "Tidak ada istilah ditemukan."
 
 #: inc/Customizer/Customizer.php
+
 msgid "Show Share Buttons"
 msgstr "Tampilkan Tombol Bagikan"
 
 #: inc/Customizer/Customizer.php
+
 msgid "Serve Images Through the WordPress.com CDN (i0.wp.com)"
 msgstr "Sajikan Gambar Lewat CDN WordPress.com (i0.wp.com)"
 
 #: inc/Customizer/Customizer.php
+
 msgid "Rewrites uploaded image URLs to i0.wp.com and adds DNS prefetch and preconnect hints. Only applies on a publicly reachable domain — local and test hosts keep serving images directly."
 msgstr "Menulis ulang URL gambar yang diunggah ke i0.wp.com dan menambahkan hint DNS prefetch dan preconnect. Hanya berlaku di domain yang dapat dijangkau publik — host lokal dan pengujian tetap menyajikan gambar langsung."
 
 #: inc/Customizer/Customizer.php
+
 msgid "App Name"
 msgstr "Nama Aplikasi"
 
 #: inc/Customizer/Customizer.php
+
 msgid "App Short Name"
 msgstr "Nama Pendek Aplikasi"
 
 #: inc/Customizer/Customizer.php
+
 msgid "App Description"
 msgstr "Deskripsi Aplikasi"
 
 #: inc/Customizer/Customizer.php
+
 msgid "App Theme Color"
 msgstr "Warna Tema Aplikasi"
 
 #: inc/Customizer/Customizer.php
+
 msgid "App Background Color"
 msgstr "Warna Latar Aplikasi"
 
 #: inc/Customizer/Customizer.php
+
 msgid "Show Category Block %d"
 msgstr "Tampilkan Blok Kategori %d"
 
 #: inc/Customizer/Customizer.php
+
 msgid "Category Block %d"
 msgstr "Blok Kategori %d"
 
 #: inc/Customizer/Customizer.php
 #: inc/Customizer/Customizer.php
+
 msgid "Automatic (most posts)"
 msgstr "Otomatis (artikel terbanyak)"
 
 #: inc/Customizer/Customizer.php
+
 msgid "Sticky Sidebar While Scrolling"
 msgstr "Sidebar Menempel saat Menggulir"
 
 #: inc/Customizer/Customizer.php
+
 msgid "Archive and Search Article Layout"
 msgstr "Tata Letak Artikel Arsip dan Pencarian"
 
 #: inc/Customizer/Customizer.php
+
 msgid "Cards"
 msgstr "Kartu"
 
 #: inc/Customizer/Customizer.php
+
 msgid "News Pagination"
 msgstr "Paginasi Berita"
 
 #: inc/Customizer/Customizer.php
+
 msgid "Page numbers"
 msgstr "Nomor halaman"
 
 #: inc/Customizer/Customizer.php
+
 msgid "Load more"
 msgstr "Muat lebih banyak"
 
 #: inc/Features/Pagination.php
+
 msgid "No more posts."
 msgstr "Tidak ada artikel lagi."
 
 #: inc/Customizer/Customizer.php
+
 msgid "Install Button Text"
 msgstr "Teks Tombol Instal"
 
 #: inc/Customizer/Customizer.php
+
 msgid "Install Prompt Delay"
 msgstr "Jeda Prompt Instal"
 
 #: inc/Customizer/Customizer.php
+
 msgid "Install Screenshot (Wide)"
 msgstr "Screenshot Instal (Lebar)"
 
 #: inc/Customizer/Customizer.php
+
 msgid "Desktop screenshot shown when installing the app (landscape, e.g. 1280x720). Leave empty to skip."
 msgstr "Screenshot desktop yang ditampilkan saat menginstal aplikasi (lanskap, cth. 1280x720). Kosongkan untuk melewati."
 
 #: inc/Customizer/Customizer.php
+
 msgid "Install Screenshot (Narrow)"
 msgstr "Screenshot Instal (Sempit)"
 
 #: inc/Customizer/Customizer.php
+
 msgid "Phone screenshot shown when installing the app (portrait, e.g. 390x844). Leave empty to skip."
 msgstr "Screenshot ponsel yang ditampilkan saat menginstal aplikasi (potret, cth. 390x844). Kosongkan untuk melewati."
 
 #: inc/Customizer/Customizer.php
+
 msgid "Seconds to wait after the browser offers installation before showing the install prompt. 0 shows it immediately."
 msgstr "Detik menunggu setelah browser menawarkan instalasi sebelum menampilkan prompt instal. 0 langsung menampilkannya."
 
 #: inc/Assets/Enqueue.php
+
 msgid "Admin data is not available."
 msgstr "Data admin tidak tersedia."
 
 #: inc/Breadcrumb/Breadcrumb.php
+
 msgid "Breadcrumb"
 msgstr "Breadcrumb"
 
 #: inc/Breadcrumb/Breadcrumb.php
+
 msgid "Search results for \"%s\""
 msgstr "Hasil pencarian untuk \"%s\""
 
 #: inc/Breadcrumb/Breadcrumb.php
+
 msgid "Archives"
 msgstr "Arsip"
 
 #: template-parts/content/pagination.php:20
+
 msgid "&larr; Newer"
 msgstr "&larr; Lebih baru"
 
 #: template-parts/content/pagination.php:21
+
 msgid "Older &rarr;"
 msgstr "Lebih lama &rarr;"
 
 #: comments.php:48
+
 msgid "&larr; Older comments"
 msgstr "&larr; Komentar lebih lama"
 
 #: comments.php:49
+
 msgid "Newer comments &rarr;"
 msgstr "Komentar lebih baru &rarr;"
 
 #: inc/Customizer/Customizer.php:102
+
 msgid "Body Font"
 msgstr "Font Isi"
 
 #: inc/Customizer/Customizer.php:116
+
 msgid "Headings Font"
 msgstr "Font Judul"
 
 #: inc/Customizer/Customizer.php:208
 #: template-parts/content/layout-switcher.php:23
+
 msgid "Newsletter"
 msgstr "Buletin"
 
 #: template-parts/home/newsletter.php:49
+
 msgid "More stories"
 msgstr "Artikel lainnya"
 
 #: template-parts/home/newsletter-subscribe.php:17
+
 msgid "Get the newsletter"
 msgstr "Dapatkan buletin"
 
@@ -2080,119 +2589,148 @@ msgstr "Dapatkan buletin"
 #: sidebar-news.php:12
 #: sidebar-page.php:12
 #: sidebar-single.php:12
+
 msgid "No widgets added yet. Add widgets in Appearance &rarr; Widgets."
 msgstr "Belum ada widget. Tambahkan widget di Tampilan &rarr; Widget."
 
 #: inc/Features/Agenda.php:491
 #: template-parts/agenda/form-submit.php:145
+
 msgid "End time (optional)"
 msgstr "Waktu selesai (opsional)"
 
 #: template-parts/agenda/form-submit.php:46
+
 msgid "Please tell us where the event takes place (at least 3 characters)."
 msgstr "Beri tahu kami di mana acara berlangsung (minimal 3 karakter)."
 
 #: inc/Widgets/WeatherWidget.php:115
+
 msgid "Show details (feels like, high/low, humidity, wind)"
 msgstr "Tampilkan detail (terasa seperti, tertinggi/terendah, kelembapan, angin)"
 
 #: inc/Setup/Setup.php:612
+
 msgid "The uploaded file is not a valid plugin zip (max 20 MB)."
 msgstr "File yang diunggah bukan zip plugin yang valid (maks 20 MB)."
 
 #: inc/Customizer/Customizer.php:272
+
 msgid "Show Market Strip on Homepage"
 msgstr "Tampilkan Strip Pasar di Beranda"
 
 #: inc/Customizer/Customizer.php:275
+
 msgid "Gold spot, stocks and crypto prices above the latest news. Prices are edited in Settings -> Markets."
 msgstr "Harga spot emas, saham, dan kripto di atas berita terbaru. Harga diubah di Pengaturan -> Pasar."
 
 #: template-parts/header/site-nav.php:34
+
 msgid "Menu"
 msgstr "Menu"
 
 #: template-parts/header/site-nav.php:36
+
 msgid "Close menu"
 msgstr "Tutup menu"
 
 #: template-parts/header/site-nav.php:84
+
 msgid "Search for:"
 msgstr "Cari:"
 
 #: template-parts/header/site-nav.php:85
+
 msgid "Search news…"
 msgstr "Cari berita…"
 
 #: inc/Customizer/Customizer.php:642
+
 msgid "Show Install App Button"
 msgstr "Tampilkan Tombol Install App"
 
 #: inc/Customizer/Customizer.php:645
+
 msgid "Shows an install button/banner on the site when PWA is available."
 msgstr "Menampilkan tombol/banner install di situs saat PWA tersedia."
 
 #: inc/Customizer/Customizer.php:660
+
 msgid "Install Button Position & Style"
 msgstr "Posisi & Gaya Tombol Install"
 
 #: inc/Customizer/Customizer.php:664
+
 msgid "Bottom Float"
 msgstr "Mengambang Bawah"
 
 #: inc/Customizer/Customizer.php:665
+
 msgid "Float Bottom Right"
 msgstr "Mengambang Kanan Bawah"
 
 #: inc/Customizer/Customizer.php:666
+
 msgid "Float Bottom Left"
 msgstr "Mengambang Kiri Bawah"
 
 #: inc/Customizer/Customizer.php:667
+
 msgid "Float Bottom Center"
 msgstr "Mengambang Tengah Bawah"
 
 #: inc/Customizer/Customizer.php:668
+
 msgid "Beside Weather (Right)"
 msgstr "Di Sebelah Cuaca (Kanan)"
 
 #: inc/Customizer/Customizer.php:669
+
 msgid "Beside Clock (Left)"
 msgstr "Di Sebelah Jam (Kiri)"
 
 #: inc/Customizer/Customizer.php:670
+
 msgid "Above Top Header (Slide Animation)"
 msgstr "Di Atas Header (Animasi Geser)"
 
 #: inc/Customizer/Customizer.php:672
+
 msgid "Select where and how the install app prompt button is displayed: floating at the bottom corners/center, full bottom bar, inline in the top bar header, or sliding down as a banner above the top header."
 msgstr "Pilih di mana dan bagaimana tombol install app ditampilkan: mengambang di sudut/tengah bawah, bar bawah penuh, inline di top bar, atau banner yang meluncur di atas header."
 
 #: inc/Customizer/Customizer.php:680
+
 msgid "Install {app_name} on your device for a faster and smoother experience."
 msgstr "Install {app_name} di perangkatmu untuk pengalaman yang lebih cepat dan lancar."
 
 #: inc/Customizer/Customizer.php:685
+
 msgid "Banner & Floating Description"
 msgstr "Deskripsi Banner & Mengambang"
 
 #: template-parts/content/card-news.php:29
+
 msgid "Read more"
 msgstr "Baca selengkapnya"
 
 #: inc/Customizer/Customizer.php:222
+
 msgid "Show Comment Count on Cards"
 msgstr "Tampilkan Jumlah Komentar di Kartu"
 
 #: inc/Customizer/Customizer.php:227
+
 msgid "Shows the \"N comments\" line on news cards."
 msgstr "Menampilkan baris \"N komentar\" di kartu berita."
 
 #: inc/Customizer/Customizer.php:417
+
 msgid "Weather Cache Lifetime"
 msgstr "Masa Cache Cuaca"
 
 #: inc/Customizer/Customizer.php:418
+
 msgid "Minutes the browser keeps weather data in local storage before fetching fresh data. The top bar shows the cached weather instantly while fresh data loads in the background. 0 disables the browser cache."
 msgstr "Menit data cuaca disimpan browser di local storage sebelum mengambil data baru. Top bar langsung menampilkan cuaca dari cache selagi data baru dimuat di latar belakang. 0 menonaktifkan cache browser."
 
@@ -2257,82 +2795,102 @@ msgid "Phone screenshots shown when installing the app (portrait, e.g. 390x844).
 msgstr "Tangkapan layar ponsel yang ditampilkan saat menginstal aplikasi (potret, mis. 390x844). Tambahkan sebanyak yang Anda mau. Kosongkan untuk melewati."
 
 #: inc/Widgets/Blocks.php
+
 msgid "A list of page links, in menu order, by date or by title."
 msgstr "Daftar tautan halaman, urut menu, tanggal, atau judul."
 
 #: inc/Widgets/GoldWidget.php
+
 msgid "Brands to show"
 msgstr "Merek yang ditampilkan"
 
 #: src/ts/widget-blocks.ts
+
 msgid "Leave empty to show all brands."
 msgstr "Kosongkan untuk menampilkan semua merek."
 
 #: inc/Widgets/TaxonomyPostsWidget.php
+
 msgid "Categories"
 msgstr "Kategori"
 
 #: inc/Widgets/AbstractStoryWidget.php
+
 msgid "Category News"
 msgstr "Berita Kategori"
 
 #: src/ts/widget-blocks.ts
+
 msgid "Configure this widget in the block settings."
 msgstr "Atur widget ini di pengaturan blok."
 
 #: inc/Widgets/Blocks.php
+
 msgid "Gold prices for Indonesian gold brands in an auto-scrolling slider."
 msgstr "Harga emas untuk merek emas Indonesia dalam slider gulir otomatis."
 
 #: inc/Widgets/Blocks.php
+
 msgid "Gold, stock, forex, commodity and crypto prices from the Markets providers."
 msgstr "Harga emas, saham, forex, komoditas, dan kripto dari penyedia Markets."
 
 #: inc/Widgets/Blocks.php
+
 msgid "Koperasi Kita"
 msgstr "Koperasi Kita"
 
 #: inc/Widgets/TaxonomyPostsWidget.php
+
 msgid "Koperasi Kita Category News"
 msgstr "Koperasi Kita Category News"
 
 #: inc/Widgets/PagesWidget.php
+
 msgid "Koperasi Kita Pages"
 msgstr "Koperasi Kita Pages"
 
 #: inc/Widgets/PopularPostsWidget.php
+
 msgid "Koperasi Kita Popular News"
 msgstr "Koperasi Kita Popular News"
 
 #: inc/Widgets/RecentPostsWidget.php
+
 msgid "Koperasi Kita Recent News"
 msgstr "Koperasi Kita Recent News"
 
 #: inc/Widgets/RelatedPostsWidget.php
+
 msgid "Koperasi Kita Related News"
 msgstr "Koperasi Kita Related News"
 
 #: inc/Widgets/TaxonomyPostsWidget.php
+
 msgid "Leave all unchecked to show posts from every category."
 msgstr "Biarkan semua tidak dicentang untuk menampilkan artikel dari semua kategori."
 
 #: inc/Widgets/MarketsWidget.php
+
 msgid "Markets to show"
 msgstr "Market yang ditampilkan"
 
 #: inc/Widgets/PagesWidget.php
+
 msgid "Menu order"
 msgstr "Urutan menu"
 
 #: inc/Widgets/Blocks.php
+
 msgid "Most discussed posts, ranked by comment count."
 msgstr "Artikel paling banyak dibahas, diurutkan menurut jumlah komentar."
 
 #: inc/Widgets/AbstractStoryWidget.php
+
 msgid "Number of items"
 msgstr "Jumlah item"
 
 #: inc/Widgets/Blocks.php
+
 msgid "Pages"
 msgstr "Halaman"
 
@@ -2348,65 +2906,78 @@ msgstr "Formulir berlangganan buletin, untuk area widget mana pun."
 #: inc/Widgets/Blocks.php
 #: inc/Widgets/QuoteWidget.php
 #: src/ts/widget-blocks.ts
+
 msgid "KK Quote"
 msgstr "KK Kutipan"
 
 #: inc/Widgets/Blocks.php
 #: inc/Widgets/QuoteWidget.php
 #: src/ts/widget-blocks.ts
+
 msgid "A single quote card, for any widget area."
 msgstr "Satu kartu kutipan, untuk area widget mana pun."
 
 #: inc/Widgets/QuoteWidget.php
 #: src/ts/widget-blocks.ts
+
 msgid "Quote"
 msgstr "Kutipan"
 
 #: inc/Widgets/QuoteWidget.php
 #: src/ts/widget-blocks.ts
+
 msgid "Author"
 msgstr "Penulis"
 
 #: inc/Widgets/QuoteWidget.php
 #: src/ts/widget-blocks.ts
+
 msgid "Role"
 msgstr "Peran"
 
 #: inc/Widgets/QuoteWidget.php
 #: src/ts/widget-blocks.ts
+
 msgid "Link URL"
 msgstr "URL Tautan"
 
 #: inc/Widgets/QuoteWidget.php
 #: src/ts/widget-blocks.ts
+
 msgid "Link label"
 msgstr "Label Tautan"
 
 #: inc/Widgets/QuoteWidget.php
 #: src/ts/widget-blocks.ts
+
 msgid "Italic"
 msgstr "Miring"
 
 #: inc/Widgets/QuoteWidget.php
 #: src/ts/widget-blocks.ts
+
 msgid "Text color"
 msgstr "Warna teks"
 
 #: inc/Widgets/QuoteWidget.php
 #: src/ts/widget-blocks.ts
+
 msgid "Role color"
 msgstr "Warna jabatan"
 
 #: inc/Widgets/QuoteWidget.php
 #: src/ts/widget-blocks.ts
+
 msgid "Link color"
 msgstr "Warna tautan"
 
 #: src/ts/widget-blocks.ts
+
 msgid "Leave empty to hide the link."
 msgstr "Biarkan kosong untuk menyembunyikan tautan."
 
 #: inc/Widgets/Blocks.php
+
 msgid "Popular News"
 msgstr "Berita Populer"
 
@@ -2414,14 +2985,17 @@ msgid "KK Popular News"
 msgstr "KK Berita Populer"
 
 #: inc/Widgets/Blocks.php
+
 msgid "Posts from the categories you pick, newest first."
 msgstr "Artikel dari kategori yang Anda pilih, terbaru dulu."
 
 #: inc/Widgets/Blocks.php
+
 msgid "Posts related to the one being read, or the latest posts elsewhere."
 msgstr "Artikel terkait dengan yang sedang dibaca, atau artikel terbaru di tempat lain."
 
 #: inc/Widgets/Blocks.php
+
 msgid "Recent News"
 msgstr "Berita Terbaru"
 
@@ -2429,6 +3003,7 @@ msgid "KK Recent News"
 msgstr "KK Berita Terbaru"
 
 #: inc/Widgets/Blocks.php
+
 msgid "Related News"
 msgstr "Berita Terkait"
 
@@ -2436,190 +3011,237 @@ msgid "KK Related News"
 msgstr "KK Berita Terkait"
 
 #: inc/Widgets/AbstractStoryWidget.php
+
 msgid "Settings"
 msgstr "Pengaturan"
 
 #: inc/Widgets/AbstractStoryWidget.php
+
 msgid "Show thumbnails"
 msgstr "Tampilkan thumbnail"
 
 #: inc/Widgets/AbstractStoryWidget.php
+
 msgid "Show Date"
 msgstr "Tampilkan tanggal"
 
 #: inc/Widgets/AbstractStoryWidget.php
+
 msgid "Show Category"
 msgstr "Tampilkan kategori"
 
 #: inc/Widgets/AbstractStoryWidget.php
+
 msgid "Show Clock"
 msgstr "Tampilkan jam"
 
 #: inc/Widgets/PagesWidget.php
+
 msgid "Sort order"
 msgstr "Urutan"
 
 #: inc/Widgets/Blocks.php
+
 msgid "The latest published posts, newest first."
 msgstr "Artikel terbaru yang diterbitkan, terbaru dulu."
 
 #: inc/Customizer/Customizer.php
+
 msgid "Hero Presentation"
 msgstr "Tampilan Hero"
 
 #: inc/Customizer/Customizer.php
+
 msgid "Grid (lead + cards)"
 msgstr "Grid (lead + kartu)"
 
 #: inc/Customizer/Customizer.php
+
 msgid "Slider (one story at a time)"
 msgstr "Slider (satu cerita sekali)"
 
 #: inc/Customizer/Customizer.php
+
 msgid "Hero Source"
 msgstr "Sumber Hero"
 
 #: inc/Customizer/Customizer.php
+
 msgid "Hero Categories"
 msgstr "Kategori Hero"
 
 #: inc/Customizer/Customizer.php
+
 msgid "Used when the hero source is Selected categories. Leave it empty to fall back to the latest posts."
 msgstr "Dipakai saat sumber hero adalah Kategori terpilih. Kosongkan untuk kembali ke artikel terbaru."
 
 #: inc/Customizer/Customizer.php
+
 msgid "Latest News Title"
 msgstr "Judul Berita Terbaru"
 
 #: inc/Customizer/Customizer.php
+
 msgid "The heading of the latest-news section. Leave it empty to hide the heading."
 msgstr "Judul bagian berita terbaru. Kosongkan untuk menyembunyikan judul."
 
 #: inc/Customizer/Customizer.php
+
 msgid "Latest News Eyebrow"
 msgstr "Eyebrow Berita Terbaru"
 
 #: inc/Customizer/Customizer.php
+
 msgid "The small line above the latest-news title. Leave it empty to hide it."
 msgstr "Baris kecil di atas judul berita terbaru. Kosongkan untuk menyembunyikannya."
 
 #: inc/Customizer/Customizer.php
+
 msgid "Show Highlights (Sorotan)"
 msgstr "Tampilkan Sorotan"
 
 #: template-parts/home/highlights.php
+
 msgid "Sorotan"
 msgstr "Sorotan"
 
 #: inc/Customizer/Customizer.php
+
 msgid "Highlights Title"
 msgstr "Judul Sorotan"
 
 #: inc/Customizer/Customizer.php
+
 msgid "Highlights Display Style"
 msgstr "Gaya Tampilan Sorotan"
 
 #: inc/Customizer/Customizer.php
+
 msgid "Grid (Cards)"
 msgstr "Grid (Kartu)"
 
 #: inc/Customizer/Customizer.php
+
 msgid "Horizontal Slider"
 msgstr "Slider Horizontal"
 
 #: inc/Customizer/Customizer.php
+
 msgid "Highlights Posts"
 msgstr "Artikel Sorotan"
 
 #: inc/Customizer/Customizer.php
+
 msgid "Highlights Categories"
 msgstr "Kategori Sorotan"
 
 #: inc/Customizer/Customizer.php
+
 msgid "Posts from these categories (or any of the tags below). Leave both empty for the latest posts."
 msgstr "Artikel dari kategori ini (atau salah satu tag di bawah). Kosongkan keduanya untuk artikel terbaru."
 
 #: inc/Customizer/Customizer.php
+
 msgid "Highlights Tags"
 msgstr "Tag Sorotan"
 
 #: inc/Customizer/Customizer.php
+
 msgid "Posts with any of these tags (or any of the categories above). Leave both empty for the latest posts."
 msgstr "Artikel dengan salah satu tag ini (atau salah satu kategori di atas). Kosongkan keduanya untuk artikel terbaru."
 
 #: inc/Customizer/Customizer.php
+
 msgid "The app logo used when installing the PWA (manifest icons and home-screen icon). Use a square image, at least 512×512. Leave empty to use the shipped logo."
 msgstr "Logo aplikasi yang dipakai saat menginstal PWA (ikon manifest dan ikon layar utama). Pakai gambar persegi, minimal 512×512. Kosongkan untuk memakai logo bawaan."
 
 #: inc/Customizer/Customizer.php
+
 msgid "Default Colour Scheme"
 msgstr "Skema Warna Default"
 
 #: inc/Customizer/Customizer.php
+
 msgid "The colour scheme for visitors who have not picked one yet. System follows the device setting."
 msgstr "Skema warna untuk pengunjung yang belum memilih. Sistem mengikuti pengaturan perangkat."
 
 #: inc/Customizer/Customizer.php
+
 msgid "System (follow device)"
 msgstr "Sistem (ikuti perangkat)"
 
 #: inc/Customizer/Customizer.php
+
 msgid "Light"
 msgstr "Terang"
 
 #: inc/Customizer/Customizer.php
+
 msgid "Dark"
 msgstr "Gelap"
 
 #: inc/Customizer/Customizer.php
+
 msgid "Show Dark-Mode Switch"
 msgstr "Tampilkan Saklar Mode Gelap"
 
 #: inc/Customizer/Customizer.php
+
 msgid "Weather Temperature Unit"
 msgstr "Satuan Suhu Cuaca"
 
 #: inc/Customizer/Customizer.php
+
 msgid "Celsius (°C)"
 msgstr "Celcius (°C)"
 
 #: inc/Customizer/Customizer.php
+
 msgid "Fahrenheit (°F)"
 msgstr "Fahrenheit (°F)"
 
 #: inc/Customizer/Customizer.php
+
 msgid "Mobile Menu Slide Side"
 msgstr "Sisi Geser Menu Seluler"
 
 #: inc/Customizer/Customizer.php
+
 msgid "Related News Posts"
 msgstr "Artikel Berita Terkait"
 
 #: inc/Customizer/Customizer.php
+
 msgid "Default Thumbnail"
 msgstr "Thumbnail Default"
 
 #: inc/Customizer/Customizer.php
+
 msgid "The image shown for posts without a featured image, and used as the SEO/social image when a post has none. Leave it empty to use the built-in placeholder."
 msgstr "Gambar yang ditampilkan untuk artikel tanpa gambar unggulan, dan dipakai sebagai gambar SEO/sosial saat artikel tidak punya. Kosongkan untuk memakai placeholder bawaan."
 
 #: inc/Customizer/Customizer.php
+
 msgid "Show Breadcrumbs on Articles"
 msgstr "Tampilkan Breadcrumb di Artikel"
 
 #: inc/Customizer/Customizer.php
+
 msgid "Show Breadcrumbs on Pages"
 msgstr "Tampilkan Breadcrumb di Halaman"
 
 #: inc/Customizer/Customizer.php
+
 msgid "Show Breadcrumbs on Archives"
 msgstr "Tampilkan Breadcrumb di Arsip"
 
 #: inc/Customizer/Customizer.php
+
 msgid "Show Breadcrumbs on Search Results"
 msgstr "Tampilkan Breadcrumb di Hasil Pencarian"
 
 #: inc/Customizer/Customizer.php
+
 msgid "Show Breadcrumbs on 404 Pages"
 msgstr "Tampilkan Breadcrumb di Halaman 404"
 
@@ -2798,6 +3420,7 @@ msgid "Posts from the categories and tags you pick, in your chosen order."
 msgstr "Posting dari kategori dan tag yang Anda pilih, sesuai urutan pilihan Anda."
 
 #: inc/Admin/MarketHeaderPage.php
+
 msgid "Order"
 msgstr "Urutan"
 
@@ -2955,20 +3578,24 @@ msgid "View map"
 msgstr "Lihat peta"
 
 #: inc/Features/Agenda.php
+
 msgid "Map"
 msgstr "Peta"
 
 #: inc/Features/Agenda.php
 #: template-parts/agenda/form-submit.php
 #: inc/Admin/AgendaLocationsSettings.php
+
 msgid "Search for a place…"
 msgstr "Cari tempat…"
 
 #: inc/Features/Agenda.php
+
 msgid "Click the map to place the pin, or drag the pin to move it. The coordinates are saved with the location."
 msgstr "Klik peta untuk menaruh pin, atau seret pin untuk memindahkannya. Koordinat tersimpan bersama lokasi."
 
 #: inc/Features/Agenda.php
+
 msgid "No pin placed"
 msgstr "Belum ada pin"
 
@@ -2979,10 +3606,12 @@ msgid "Sticky while scrolling"
 msgstr "Menempel saat menggulir"
 
 #: inc/Admin/SidebarSettings.php
+
 msgid "Sidebar settings saved."
 msgstr "Pengaturan sidebar disimpan."
 
 #: inc/Setup/Setup.php
+
 msgid "Save settings"
 msgstr "Simpan pengaturan"
 
@@ -3026,271 +3655,337 @@ msgid "Showing: %s"
 msgstr "Menampilkan: %s"
 
 #: inc/Setup/MenuIcons.php
+
 msgid "Icon"
 msgstr "Ikon"
 
 #: inc/Setup/MenuIcons.php
+
 msgid "No icon"
 msgstr "Tanpa ikon"
 
 #: inc/Setup/ThemeSupport.php
 #: sidebar.php
+
 msgid "Sidebar Menu"
 msgstr "Menu Sidebar"
 
 #: inc/Setup/MenuIcons.php
+
 msgid "Choose icon"
 msgstr "Pilih ikon"
 
 #: inc/Setup/MenuIcons.php
+
 msgid "Icon color"
 msgstr "Warna ikon"
 
 #: inc/Setup/MenuIcons.php
+
 msgid "Clear color"
 msgstr "Hapus warna"
 
 #: inc/Setup/MenuIcons.php
+
 msgid "Choose menu icon"
 msgstr "Pilih ikon menu"
 
 #: inc/Setup/MenuIcons.php
+
 msgid "Remove icon"
 msgstr "Hapus ikon"
 
 #: inc/Setup/MenuIcons.php
+
 msgid "Close"
 msgstr "Tutup"
 
 #: inc/Setup/MenuIcons.php
+
 msgid "Search icons"
 msgstr "Cari ikon"
 
 #: inc/Setup/MenuIcons.php
+
 msgid "Type to filter icons…"
 msgstr "Ketik untuk memfilter ikon…"
 
 #: inc/Setup/MenuIcons.php
+
 msgid "No icons match your search."
 msgstr "Tidak ada ikon yang cocok dengan pencarian Anda."
 
 #: inc/Customizer/Customizer.php
+
 msgid "Logo"
 msgstr "Logo"
 
 #: inc/Customizer/Customizer.php
+
 msgid "Mobile Logo"
 msgstr "Logo Seluler"
 
 #: inc/Customizer/Customizer.php
+
 msgid "Mobile Logo Dark"
 msgstr "Logo Seluler Gelap"
 
 #: inc/Customizer/Customizer.php
+
 msgid "Dark Logo"
 msgstr "Logo Gelap"
 
 #: inc/Features/Agenda.php
 #: template-parts/agenda/form-submit.php
 #: template-parts/agenda/popup-pick-location.php
+
 msgid "Pick Location"
 msgstr "Pilih Lokasi"
 
 #: template-parts/agenda/popup-pick-location.php
+
 msgid "Use this location"
 msgstr "Gunakan lokasi ini"
 
 #: template-parts/agenda/popup-pick-location.php
+
 msgid "Saved location"
 msgstr "Lokasi tersimpan"
 
 #: template-parts/agenda/popup-pick-location.php
+
 msgid "Choose a saved location…"
 msgstr "Pilih lokasi tersimpan…"
 
 #: inc/Admin/AgendaLocationsSettings.php
 #: template-parts/agenda/popup-pick-location.php
+
 msgid "Location description"
 msgstr "Deskripsi lokasi"
 
 #: template-parts/agenda/popup-pick-location.php
+
 msgid "No places found"
 msgstr "Tidak ada tempat ditemukan"
 
 #: inc/Admin/AgendaLocationsSettings.php
+
 msgid "Locations"
 msgstr "Lokasi"
 
 #: inc/Admin/AgendaLocationsSettings.php
+
 msgid "Add location"
 msgstr "Tambah lokasi"
 
 #: inc/Admin/AgendaLocationsSettings.php
+
 msgid "Address"
 msgstr "Alamat"
 
 #: template-parts/agenda/popup-pick-location.php
+
 msgid "Cancel"
 msgstr "Batal"
 
 #: inc/Admin/AgendaLocationsSettings.php
+
 msgid "Name"
 msgstr "Nama"
 
 #: inc/Admin/AgendaLocationsSettings.php
+
 msgid "No saved locations yet. Add one below."
 msgstr "Belum ada lokasi tersimpan. Tambahkan di bawah."
 
 #: inc/Admin/AgendaLocationsSettings.php
+
 msgid "Save the places you use often. They appear in the Pick Location popup, so you can reuse a place instead of searching for it again."
 msgstr "Simpan tempat yang sering Anda gunakan. Tempat tersebut muncul di popup Pilih Lokasi, sehingga Anda bisa menggunakannya lagi tanpa mencari dari awal."
 
 #: inc/Customizer/Customizer.php:73
+
 msgid "Mobile Menu"
 msgstr "Menu Seluler"
 
 #: inc/Customizer/Customizer.php:1182
+
 msgid "Display Mobile Menu"
 msgstr "Tampilkan Menu Seluler"
 
 #: inc/Customizer/Customizer.php:1195
+
 msgid "Icon Size"
 msgstr "Ukuran Ikon"
 
 #: inc/Customizer/Customizer.php:1210
+
 msgid "Maximum Menu Count"
 msgstr "Jumlah Menu Maksimum"
 
 #: inc/Customizer/Customizer.php:1219
+
 msgid "Display Menu Title"
 msgstr "Tampilkan Judul Menu"
 
 #: inc/Customizer/Customizer.php:1233
+
 msgid "Menu Title Size"
 msgstr "Ukuran Judul Menu"
 
 #: inc/Customizer/Customizer.php:71
+
 msgid "Advanced Logo & Sidebar"
 msgstr "Logo Lanjutan & Sidebar"
 
 #: inc/Customizer/Customizer.php:998
+
 msgid "Show Back to Top Button"
 msgstr "Tampilkan Tombol Kembali ke Atas"
 
 #: inc/Customizer/Customizer.php:2093
+
 msgid "Ignore Default Logo"
 msgstr "Abaikan Logo Default"
 
 #: inc/Customizer/Customizer.php:2094
+
 msgid "Ignore the default logo and use the square logo (or the built-in mark) instead."
 msgstr "Abaikan logo default dan gunakan logo kotak (atau mark bawaan)."
 
 #: inc/Customizer/Customizer.php:2102
+
 msgid "Square Logo / Icon"
 msgstr "Logo / Ikon Kotak"
 
 #: inc/Customizer/Customizer.php:2103
+
 msgid "A square mark for the drawer and as the masthead fallback. SVG files are accepted."
 msgstr "Mark kotak untuk drawer dan sebagai cadangan masthead. File SVG diterima."
 
 #: inc/Customizer/Customizer.php:2111
+
 msgid "Show Title Text"
 msgstr "Tampilkan Teks Judul"
 
 #: inc/Customizer/Customizer.php:2112
+
 msgid "Show the site title as text next to the logo in the masthead."
 msgstr "Tampilkan judul situs sebagai teks di samping logo pada masthead."
 
 #: inc/Customizer/Customizer.php:2120
+
 msgid "Logo Title Text"
 msgstr "Teks Judul Logo"
 
 #: inc/Customizer/Customizer.php:2121
+
 msgid "Leave empty to use the site title."
 msgstr "Kosongkan untuk memakai judul situs."
 
 #: inc/Customizer/Customizer.php:2130
+
 msgid "Show Slogan"
 msgstr "Tampilkan Slogan"
 
 #: inc/Customizer/Customizer.php:2131
+
 msgid "Show the subtitle under the title."
 msgstr "Tampilkan subjudul di bawah judul."
 
 #: inc/Customizer/Customizer.php:2140
+
 msgid "Logo Subtitle"
 msgstr "Subjudul Logo"
 
 #: inc/Customizer/Customizer.php:2141
+
 msgid "Leave empty to use the site tagline."
 msgstr "Kosongkan untuk memakai tagline situs."
 
 #: inc/Customizer/Customizer.php:2150
+
 msgid "Center Brand on Mobile"
 msgstr "Ratakan Brand ke Tengah di Mobile"
 
 #: inc/Customizer/Customizer.php:2158
+
 msgid "Hide Text on Mobile"
 msgstr "Sembunyikan Teks di Mobile"
 
 #: inc/Customizer/Customizer.php:2159
+
 msgid "Hide the title and slogan on mobile, logo only."
 msgstr "Sembunyikan judul dan slogan di mobile, logo saja."
 
 #: inc/Customizer/Customizer.php:2173
+
 msgid "Sidebar Brand"
 msgstr "Brand Sidebar"
 
 #: inc/Customizer/Customizer.php:2174
+
 msgid "How the brand renders in the drawer (mobile sidebar)."
 msgstr "Cara brand tampil di drawer (sidebar mobile)."
 
 #: inc/Customizer/Customizer.php:2178
+
 msgid "Logo Only"
 msgstr "Logo Saja"
 
 #: inc/Customizer/Customizer.php:2179
+
 msgid "Logo + Title"
 msgstr "Logo + Judul"
 
 #: inc/Customizer/Customizer.php:2180
+
 msgid "Logo + Title + Slogan"
 msgstr "Logo + Judul + Slogan"
 
 #: inc/Customizer/Customizer.php:2181
+
 msgid "Title Only"
 msgstr "Judul Saja"
 
 #: inc/Customizer/Customizer.php:2182
+
 msgid "Hidden"
 msgstr "Disembunyikan"
 
 #: inc/Features/Logo.php:162
+
 msgid "This SVG file could not be read."
 msgstr "File SVG ini tidak bisa dibaca."
 
 #: inc/Features/Logo.php:179
+
 msgid "This SVG file contains active content and cannot be uploaded. Use a plain image SVG."
 msgstr "File SVG ini mengandung konten aktif dan tidak bisa diunggah. Gunakan SVG gambar biasa."
 
 #: inc/Customizer/Customizer.php:1332
+
 msgid "Single Post Title Size"
 msgstr "Ukuran Judul Single Post"
 
 #: inc/Customizer/Customizer.php:2179
+
 msgid "Header Logo Position (Desktop)"
 msgstr "Posisi Logo Header (Desktop)"
 
 #: inc/Customizer/Customizer.php:2193
+
 msgid "Header Logo Position (Mobile)"
 msgstr "Posisi Logo Header (Mobile)"
 
 #: inc/Customizer/Customizer.php:2184
 #: inc/Customizer/Customizer.php:2198
+
 msgid "Centered"
 msgstr "Tengah"
 
 #: inc/Customizer/Customizer.php
+
 msgid "Centered Bar"
 msgstr "Bar Tengah"
 
@@ -3364,10 +4059,12 @@ msgid "Brand"
 msgstr "Merek"
 
 #: inc/Widgets/GoldDataDeskWidget.php
+
 msgid "Price per gram"
 msgstr "Harga per gram"
 
 #: inc/Widgets/GoldDataDeskWidget.php
+
 msgid "Updated"
 msgstr "Diperbarui"
 
@@ -3420,26 +4117,32 @@ msgid "Manual sync"
 msgstr "Sinkronisasi manual"
 
 #: inc/Admin/GoldPricesPage.php
+
 msgid "History"
 msgstr "Riwayat"
 
 #: inc/Admin/GoldPricesPage.php
+
 msgid "Enabled Gold Brands"
 msgstr "Merek Emas yang Diaktifkan"
 
 #: inc/Admin/GoldPricesPage.php
+
 msgid "Choose which gold brands are shown on the site. Disabled brands are hidden from the Gold widget and from the widget's Brands to show picker. The widget's own Brands to show setting then picks from the enabled brands only."
 msgstr "Pilih merek emas mana yang ditampilkan di situs. Merek yang dinonaktifkan disembunyikan dari widget Emas dan dari pemilih Merek yang ditampilkan di widget. Pengaturan Merek yang ditampilkan di widget lalu hanya memilih dari merek yang diaktifkan."
 
 #: inc/Admin/GoldPricesPage.php
+
 msgid "Enabled"
 msgstr "Diaktifkan"
 
 #: inc/Admin/GoldPricesPage.php
+
 msgid "Enabled brands saved."
 msgstr "Merek yang diaktifkan disimpan."
 
 #: inc/Admin/GoldPricesPage.php
+
 msgid "Save brands"
 msgstr "Simpan merek"
 
@@ -3921,6 +4624,7 @@ msgid "Add a location"
 msgstr "Tambah lokasi"
 
 #: src/ts/widget-blocks.ts
+
 msgid "Pick on map"
 msgstr "Pilih di peta"
 
@@ -3934,82 +4638,102 @@ msgid "No places found. Try another name."
 msgstr "Tidak ada tempat ditemukan. Coba nama lain."
 
 #: src/ts/widget-blocks.ts
+
 msgid "Show map"
 msgstr "Tampilkan peta"
 
 #: src/ts/widget-blocks.ts
+
 msgid "Hide map"
 msgstr "Sembunyikan peta"
 
 #: src/ts/widget-blocks.ts
+
 msgid "Asking for your location..."
 msgstr "Meminta lokasi Anda…"
 
 #: src/ts/widget-blocks.ts
+
 msgid "Geolocation is not supported by this browser. Search for a city or enter coordinates."
 msgstr "Geolokasi tidak didukung browser ini. Cari kota atau masukkan koordinat."
 
 #: src/ts/widget-blocks.ts
+
 msgid "Location permission was denied. You can still search for a city or enter coordinates."
 msgstr "Izin lokasi ditolak. Anda tetap bisa mencari kota atau memasukkan koordinat."
 
 #: src/ts/widget-blocks.ts
+
 msgid "Finding your location timed out. Try again, or search for a city."
 msgstr "Mencari lokasi Anda kehabisan waktu. Coba lagi, atau cari kota."
 
 #: src/ts/widget-blocks.ts
+
 msgid "Your location could not be determined. Search for a city or enter coordinates."
 msgstr "Lokasi Anda tidak dapat ditentukan. Cari kota atau memasukkan koordinat."
 
 #: inc/Assets/Enqueue.php
+
 msgid "Location set to %s."
 msgstr "Lokasi diatur ke %s."
 
 #: inc/Assets/Enqueue.php
+
 msgid "%s is already in your quick picks."
 msgstr "%s sudah ada di pilihan cepat Anda."
 
 #: inc/Assets/Enqueue.php
+
 msgid "Quick picks is full. Remove one first."
 msgstr "Pilihan cepat sudah penuh. Hapus salah satu dulu."
 
 #: inc/Assets/Enqueue.php
+
 msgid "%s added to quick picks."
 msgstr "%s ditambahkan ke pilihan cepat."
 
 #: inc/Assets/Enqueue.php
+
 msgid "Remove %s from quick picks"
 msgstr "Hapus %s dari pilihan cepat"
 
 #: inc/Assets/Enqueue.php
+
 msgid "Searching..."
 msgstr "Mencari…"
 
 #: inc/Assets/Enqueue.php
+
 msgid "Search is unavailable right now. Try coordinates instead."
 msgstr "Pencarian tidak tersedia saat ini. Coba koordinat."
 
 #: inc/Assets/Enqueue.php
+
 msgid "Moved the map to %s. Press \"Use this location\" to apply it."
 msgstr "Peta dipindah ke %s. Tekan \"Gunakan lokasi ini\" untuk menerapkannya."
 
 #: inc/Assets/Enqueue.php
+
 msgid "Enter a latitude between -90 and 90 and a longitude between -180 and 180."
 msgstr "Masukkan lintang antara -90 dan 90 dan bujur antara -180 dan 180."
 
 #: inc/Assets/Enqueue.php
+
 msgid "You're near %s - showing its weather."
 msgstr "Anda berada di dekat %s - menampilkan cuacanya."
 
 #: inc/Assets/Enqueue.php
+
 msgid "Location reset to %s."
 msgstr "Lokasi dikembalikan ke %s."
 
 #: inc/Assets/Enqueue.php
+
 msgid "My location"
 msgstr "Lokasi saya"
 
 #: inc/Assets/Enqueue.php
+
 msgid "Custom location"
 msgstr "Lokasi khusus"
 
@@ -4074,84 +4798,104 @@ msgid "Daily gold prices from the Logam Mulia API price history (backup/prices C
 msgstr "Harga emas harian dari riwayat harga Logam Mulia API (CSV backup/prices di GitHub). Sinkronisasi berjalan otomatis lewat WP-Cron sesuai jadwal di bawah dan hanya menyisipkan baris yang belum ada di database — satu baris per brand per hari. Gunakan tombol di bawah untuk sinkronisasi manual."
 
 #: inc/Features/Agenda.php
+
 msgid "Save this location for reuse"
 msgstr "Simpan lokasi ini untuk dipakai lagi"
 
 #: inc/Features/Agenda.php
+
 msgid "Type to search saved locations and places."
 msgstr "Ketik untuk mencari lokasi tersimpan dan tempat."
 
 #: inc/Admin/AgendaLocationsSettings.php
+
 msgid "Type to search saved locations and places. Picking one fills the fields below."
 msgstr "Ketik untuk mencari lokasi tersimpan dan tempat. Memilih salah satunya akan mengisi kolom di bawah."
 
 #: inc/Features/Agenda.php
 #: template-parts/agenda/form-submit.php
 #: inc/Admin/AgendaLocationsSettings.php
+
 msgid "Places"
 msgstr "Tempat"
 
 #: inc/Admin/GoldPricesPage.php
+
 msgid "Gold price providers"
 msgstr "Penyedia harga emas"
 
 #: inc/Admin/GoldPricesPage.php
+
 msgid "Brand providers saved."
 msgstr "Penyedia tiap merek disimpan."
 
 #: inc/Admin/GoldPricesPage.php
+
 msgid "Save brand providers"
 msgstr "Simpan penyedia tiap merek"
 
 #: inc/Admin/GoldPricesPage.php
+
 msgid "Current price"
 msgstr "Harga saat ini"
 
 #: inc/Admin/GoldPricesPage.php
+
 msgid "Fallback"
 msgstr "Cadangan"
 
 #: inc/Admin/GoldPricesPage.php
+
 msgid "Supplied by"
 msgstr "Dipasok oleh"
 
 #: inc/Admin/GoldPricesPage.php
+
 msgid "Provider for %s"
 msgstr "Penyedia untuk %s"
 
 #: inc/Admin/GoldPricesPage.php
+
 msgid "Fallback provider for %s"
 msgstr "Penyedia cadangan untuk %s"
 
 #: inc/Admin/GoldPricesPage.php
+
 msgid "Source: %s"
 msgstr "Sumber: %s"
 
 #: inc/Admin/GoldPricesPage.php
+
 msgid "A manual sync is running. Automatic sync settings are paused until it finishes."
 msgstr "Sinkronisasi manual sedang berjalan. Pengaturan sinkronisasi otomatis dijeda sampai selesai."
 
 #: inc/Admin/GoldPricesPage.php
+
 msgid "Choose which provider supplies the price for each brand. Only providers that can actually supply that brand are listed. When the primary provider has no price for a brand, its fallback provider is tried automatically. A brand neither provider can price shows no price on the site."
 msgstr "Pilih penyedia yang memasok harga untuk tiap merek. Hanya penyedia yang memang bisa memasok merek itu yang ditampilkan. Bila penyedia utama tidak punya harga untuk suatu merek, penyedia cadangannya dicoba otomatis. Merek yang tidak bisa dipasok kedua penyedia tidak menampilkan harga di situs."
 
 #: inc/Admin/GoldPricesPage.php
+
 msgid "Syncing %s…"
 msgstr "Menyinkronkan %s…"
 
 #: inc/Admin/GoldPricesPage.php
+
 msgid "%s: inserted %s, skipped %s"
 msgstr "%s: dimasukkan %s, dilewati %s"
 
 #: inc/Admin/GoldPricesPage.php
+
 msgid " (latest %s)"
 msgstr " (terbaru %s)"
 
 #: inc/Admin/GoldPricesPage.php
+
 msgid "Done - inserted %s, skipped %s (already in database)."
 msgstr "Selesai - dimasukkan %s, dilewati %s (sudah ada di database)."
 
 #: inc/Admin/GoldPricesPage.php
+
 msgid "Closing this popup reloads the page so the status, history list and chart show the new prices."
 msgstr "Menutup popup ini memuat ulang halaman agar status, daftar riwayat, dan grafik menampilkan harga terbaru."
 
@@ -4160,94 +4904,117 @@ msgid "Closing this popup reloads the page so the last sync and status show the 
 msgstr "Menutup popup ini memuat ulang halaman agar sinkronisasi terakhir dan status menampilkan data baru."
 
 #: inc/Admin/GoldPricesPage.php
+
 msgid "Sync sources"
 msgstr "Sumber sinkronisasi"
 
 #: inc/Admin/GoldPricesPage.php
+
 msgid "Choose which Logam Mulia sources the sync imports. Only enabled sources are synced, manually and automatically. The default source is synced first."
 msgstr "Pilih sumber Logam Mulia mana yang diimpor sinkronisasi. Hanya sumber yang diaktifkan yang disinkronkan, manual maupun otomatis. Sumber default disinkronkan pertama."
 
 #: inc/Admin/GoldPricesPage.php
+
 msgid "Imports"
 msgstr "Mengimpor"
 
 #: inc/Admin/GoldPricesPage.php
+
 msgid "Sync %s"
 msgstr "Sinkronkan %s"
 
 #: inc/Admin/GoldPricesPage.php
+
 msgid "Default source: %s"
 msgstr "Sumber default: %s"
 
 #: inc/Providers/LogamMuliaApiProvider.php
+
 msgid "Galeri 24, UBS, Antam and Lotus Archi 1-gram prices."
 msgstr "Harga 1 gram Galeri 24, UBS, Antam, dan Lotus Archi."
 
 #: inc/Providers/LogamMuliaApiProvider.php
+
 msgid "Pegadaian 0.01-gram price, scaled to 1 gram."
 msgstr "Harga Pegadaian 0,01 gram, dikonversi ke 1 gram."
 
 #: inc/Providers/LogamMuliaApiProvider.php
+
 msgid "Antam 1-gram price (fallback when Galeri 24 has no Antam price)."
 msgstr "Harga Antam 1 gram (cadangan bila Galeri 24 tidak punya harga Antam)."
 
 #: inc/Admin/SubscribersPage.php
+
 msgid "Subscribers"
 msgstr "Pelanggan"
 
 #: inc/Admin/SubscribersPage.php
+
 msgid "No subscribers yet."
 msgstr "Belum ada pelanggan."
 
 #: inc/Admin/SubscribersPage.php
+
 msgid "Email"
 msgstr "Email"
 
 #: inc/Admin/SubscribersPage.php
+
 msgid "Date subscribed"
 msgstr "Tanggal berlangganan"
 
 #: inc/Admin/SubscribersPage.php
+
 msgid "Search by email"
 msgstr "Cari berdasarkan email"
 
 #: inc/Admin/SubscribersPage.php
+
 msgid "Search Subscribers"
 msgstr "Cari Pelanggan"
 
 #: inc/Admin/SubscribersPage.php
+
 msgid "Export CSV"
 msgstr "Ekspor CSV"
 
 #: inc/Admin/SubscribersPage.php
+
 msgid "Total: %d subscribers"
 msgstr "Total: %d pelanggan"
 
 #: inc/Admin/SubscribersPage.php
+
 msgid "Subscriber deleted."
 msgstr "Pelanggan dihapus."
 
 #: inc/Admin/SubscribersPage.php
+
 msgid "Are you sure you want to delete this subscriber?"
 msgstr "Yakin ingin menghapus pelanggan ini?"
 
 #: inc/Admin/SubscribersPage.php
+
 msgid "Subscribed"
 msgstr "Berlangganan"
 
 #: inc/Admin/SubscribersPage.php
+
 msgid "Pending"
 msgstr "Menunggu"
 
 #: inc/Admin/SubscribersPage.php
+
 msgid "Unsubscribed"
 msgstr "Berhenti berlangganan"
 
 #: inc/Admin/SubscribersPage.php
+
 msgid "Local"
 msgstr "Lokal"
 
 #: inc/Admin/SubscribersPage.php
+
 msgid "Confirm delete?"
 msgstr "Konfirmasi hapus?"
 
@@ -4255,70 +5022,87 @@ msgid "Leave empty for the automatic title. Use {label} for the symbol name and 
 msgstr "Biarkan kosong untuk judul otomatis. Gunakan {label} untuk nama simbol dan {day} untuk jumlah hari."
 
 #: inc/Features/Gold.php
+
 msgid "Produced by a state-owned enterprise with integrated certificate packaging (CertiEye), generally available from 0.5 grams to 1 kg, and known for its wide liquidity."
 msgstr "Diproduksi oleh BUMN dengan kemasan sertifikat terintegrasi (CertiEye), umumnya tersedia mulai dari 0,5 gram hingga 1 kg, dan dikenal memiliki likuiditas luas."
 
 #: inc/Features/Gold.php
+
 msgid "Founded in 1981, offering a wide choice of sizes and designs (including themed series such as Disney/Hello Kitty) at prices often more affordable than Antam."
 msgstr "Berdiri sejak 1981, menawarkan berbagai pilihan ukuran dan desain (termasuk seri tematik seperti Disney/Hello Kitty) dengan harga yang sering kali lebih terjangkau dibanding Antam."
 
 #: inc/Features/Gold.php
+
 msgid "Gold products from a subsidiary of PT Pegadaian, meeting SNI standards, available as bars and jewelry, and easily accessible through the Pegadaian network and online or offline channels. Galeri 24 also reviews this range of gold bar brands."
 msgstr "Produk emas dari anak perusahaan PT Pegadaian yang berstandar SNI, tersedia dalam bentuk batangan maupun perhiasan, serta mudah diakses melalui jaringan Pegadaian dan saluran daring maupun luring. Ragam merek emas batangan ini juga diulas oleh Galeri 24."
 
 #: inc/Features/Gold.php
+
 msgid "Produced since 1975 and a member of the gold/jewelry industry association, available in a wide choice of weights and classic or themed designs."
 msgstr "Diproduksi sejak 1975 dan tergabung dalam asosiasi industri emas/perhiasan, hadir dalam berbagai pilihan gramasi serta desain klasik maupun tematik."
 
 #: inc/Features/Gold.php
+
 msgid "A local gold producer offering gold bars and jewelry in a wide choice of weight sizes."
 msgstr "Produsen emas lokal yang menawarkan emas batangan dan perhiasan dengan beragam pilihan ukuran gramasi"
 
 #: inc/Features/Gold.php
+
 msgid "Emasku (HRTA GOLD)"
 msgstr "Emasku (HRTA GOLD)"
 
 #: inc/Admin/GoldPricesPage.php
+
 msgid "Status"
 msgstr "Status"
 
 #: inc/Admin/GoldPricesPage.php
+
 msgid "Setting"
 msgstr "Pengaturan"
 
 #: inc/Admin/GoldPricesPage.php
+
 msgid "Sync"
 msgstr "Sinkronisasi"
 
 #: inc/Admin/GoldPricesPage.php
+
 msgid "Daily gold prices from the Logam Mulia API price history (backup/prices CSV on GitHub). The sync runs automatically via WP-Cron on the schedule on the Setting tab and only inserts rows that are not in the database yet — one row per brand per day. Use the button below to sync on demand."
 msgstr "Harga emas harian dari riwayat harga Logam Mulia API (CSV backup/prices di GitHub). Sinkronisasi berjalan otomatis lewat WP-Cron sesuai jadwal di tab Setting dan hanya menyisipkan baris yang belum ada di database — satu baris per merek per hari. Gunakan tombol di bawah untuk sinkronisasi manual."
 
 #: inc/Admin/GoldPricesPage.php
+
 msgid "No sync source is enabled. Enable one on the Setting tab."
 msgstr "Tidak ada sumber sinkronisasi yang diaktifkan. Aktifkan satu di tab Setting."
 
 #: inc/Admin/GoldPricesPage.php
+
 msgid "From"
 msgstr "Dari"
 
 #: inc/Admin/GoldPricesPage.php
+
 msgid "To"
 msgstr "Sampai"
 
 #: inc/Admin/GoldPricesPage.php
+
 msgid "Filter"
 msgstr "Filter"
 
 #: inc/Admin/GoldPricesPage.php
+
 msgid "Clear filters"
 msgstr "Hapus filter"
 
 #: inc/Admin/GoldPricesPage.php
+
 msgid "No prices match the selected filters."
 msgstr "Tidak ada harga yang cocok dengan filter yang dipilih."
 
 #: inc/Admin/GoldPricesPage.php
+
 msgid "All providers"
 msgstr "Semua penyedia"
 
@@ -4458,114 +5242,142 @@ msgid "Show this stat"
 msgstr "Tampilkan stat ini"
 
 #: inc/Widgets/AgendaWidget.php
+
 msgid "Upcoming cooperative events as a card that follows the site colour scheme; live events get a green dot, finished events are dimmed."
 msgstr "Acara koperasi mendatang sebagai kartu yang mengikuti skema warna situs; acara live mendapat titik hijau, acara selesai diredupkan."
 
 #: inc/Widgets/AgendaWidget.php
+
 msgid "Show icon"
 msgstr "Tampilkan ikon"
 
 #: inc/Widgets/AgendaWidget.php
+
 msgid "Card style"
 msgstr "Gaya kartu"
 
 #: inc/Widgets/AgendaWidget.php src/ts/widget-blocks.ts
+
 msgid "Choose Own"
 msgstr "Pilih sendiri"
 
 #: inc/Widgets/AgendaWidget.php src/ts/widget-blocks.ts
+
 msgid "Background"
 msgstr "Latar belakang"
 
 #: inc/Widgets/AgendaWidget.php src/ts/widget-blocks.ts
+
 msgid "Accent text"
 msgstr "Teks aksen"
 
 #: inc/Widgets/AgendaWidget.php
+
 msgid "Dark card"
 msgstr "Kartu gelap"
 
 #: inc/Widgets/AgendaWidget.php
+
 msgid "Light card"
 msgstr "Kartu terang"
 
 #: inc/Widgets/AgendaWidget.php
+
 msgid "Link to"
 msgstr "Taut ke"
 
 #: inc/Widgets/AgendaWidget.php
+
 msgid "Search posts and pages by title…"
 msgstr "Cari postingan dan halaman berdasarkan judul…"
 
 #: inc/Widgets/AgendaWidget.php
+
 msgid "Search posts and pages by title"
 msgstr "Cari postingan dan halaman berdasarkan judul"
 
 #: inc/Widgets/AgendaWidget.php
+
 msgid "The card title links to this post or page."
 msgstr "Judul kartu menaut ke postingan atau halaman ini."
 
 #: inc/Widgets/AgendaWidget.php
+
 msgid "Remove link"
 msgstr "Hapus tautan"
 
 #: src/ts/admin.ts
+
 msgid "No results."
 msgstr "Tidak ada hasil."
 
 #: src/ts/widget-blocks.ts
+
 msgid "Post not found."
 msgstr "Postingan tidak ditemukan."
 
 #: src/ts/widget-blocks.ts
+
 msgid "selected."
 msgstr "dipilih."
 
 #: inc/Features/DataDesk.php
+
 msgid "Full"
 msgstr "Lengkap"
 
 #: inc/Features/DataDesk.php
+
 msgid "Short"
 msgstr "Singkat"
 
 #: inc/Features/DataDesk.php
+
 msgid "Numeric"
 msgstr "Angka"
 
 #: inc/Features/DataDesk.php
+
 msgid "Daily change"
 msgstr "Perubahan harian"
 
 #: inc/Features/DataDesk.php
+
 msgid "Whole period"
 msgstr "Seluruh periode"
 
 #: inc/Features/DataDesk.php
+
 msgid "Red"
 msgstr "Merah"
 
 #: inc/Features/DataDesk.php
+
 msgid "zona hijau"
 msgstr "zona hijau"
 
 #: inc/Features/DataDesk.php
+
 msgid "zona merah"
 msgstr "zona merah"
 
 #: template-parts/data-desk/panel.php
+
 msgid "dari awal periode (%s)"
 msgstr "dari awal periode (%s)"
 
 #: inc/Admin/DataDeskTemplatesPage.php
+
 msgid "Placeholders"
 msgstr "Placeholder"
 
 #: inc/Admin/DataDeskTemplatesPage.php
+
 msgid "Placeholders resolve from the panel's own data. Insert opens a popup showing what the placeholder resolves to - pick the field it goes into. You can also right-click a title, date line or stat note, or type { while editing one. The title takes {label} and {day} only."
 msgstr "Placeholder diisi dari data panel itu sendiri. Insert membuka popup yang menunjukkan nilai placeholder tersebut - pilih kolom tujuannya. Anda juga bisa klik kanan pada judul, baris tanggal, atau catatan stat, atau ketik { saat mengeditnya. Judul hanya menerima {label} dan {day}."
 
 #: inc/Admin/DataDeskTemplatesPage.php
+
 msgid "Insert placeholder"
 msgstr "Sisipkan placeholder"
 
@@ -4597,413 +5409,514 @@ msgid "Select all"
 msgstr "Pilih semua"
 
 #: inc/Admin/DataDeskTemplatesPage.php
+
 msgid "First date of the chart range"
 msgstr "Tanggal pertama rentang grafik"
 
 #: inc/Admin/DataDeskTemplatesPage.php
+
 msgid "Last date of the chart range"
 msgstr "Tanggal terakhir rentang grafik"
 
 #: inc/Admin/DataDeskTemplatesPage.php
+
 msgid "Last date (today)"
 msgstr "Tanggal terakhir (hari ini)"
 
 #: inc/Admin/DataDeskTemplatesPage.php
+
 msgid "Year of the last date"
 msgstr "Tahun dari tanggal terakhir"
 
 #: inc/Admin/DataDeskTemplatesPage.php
+
 msgid "Symbol name"
 msgstr "Nama simbol"
 
 #: inc/Admin/DataDeskTemplatesPage.php
+
 msgid "Number of days in the chart"
 msgstr "Jumlah hari dalam grafik"
 
 #: inc/Admin/DataDeskTemplatesPage.php
+
 msgid "Direction arrow (up or down)"
 msgstr "Panah arah (naik atau turun)"
 
 #: inc/Admin/DataDeskTemplatesPage.php
+
 msgid "Change amount"
 msgstr "Jumlah perubahan"
 
 #: inc/Admin/DataDeskTemplatesPage.php
+
 msgid "Change amount, coloured by direction"
 msgstr "Jumlah perubahan, diwarnai sesuai arah"
 
 #: inc/Admin/DataDeskTemplatesPage.php
+
 msgid "Change in percent"
 msgstr "Perubahan dalam persen"
 
 #: inc/Admin/DataDeskTemplatesPage.php
+
 msgid "Sell–buyback spread"
 msgstr "Selisih jual–buyback"
 
 #: inc/Admin/DataDeskTemplatesPage.php
+
 msgid "Consecutive up days"
 msgstr "Hari naik beruntun"
 
 #: inc/Admin/DataDeskTemplatesPage.php
+
 msgid "Zone name, in the chosen zone colour"
 msgstr "Nama zona, dengan warna zona yang dipilih"
 
 #: inc/Admin/DataDeskTemplatesPage.php
+
 msgid "Zone name, in the zone colour (auto follows the trend)"
 msgstr "Nama zona, dengan warna zona (auto mengikuti tren)"
 
 #: inc/Admin/DataDeskTemplatesPage.php
+
 msgid "Placeholder"
 msgstr "Placeholder"
 
 #: inc/Admin/DataDeskTemplatesPage.php
+
 msgid "Resolves to"
 msgstr "Berisi"
 
 #: inc/Admin/DataDeskTemplatesPage.php
+
 msgid "Sample"
 msgstr "Contoh"
 
 #: inc/Admin/DataDeskTemplatesPage.php
+
 msgid "Insert"
 msgstr "Sisipkan"
 
 #: inc/Admin/DataDeskTemplatesPage.php
+
 msgid "Configure placeholders"
 msgstr "Atur placeholder"
 
 #: inc/Admin/DataDeskTemplatesPage.php
+
 msgid "Placeholder settings"
 msgstr "Pengaturan placeholder"
 
 #: inc/Admin/DataDeskTemplatesPage.php
+
 msgid "These settings change how placeholders resolve in the date line and the stat notes. They apply to the preview immediately and are saved with the template."
 msgstr "Pengaturan ini mengubah cara placeholder diisi pada baris tanggal dan catatan stat. Berlaku langsung pada pratinjau dan tersimpan bersama template."
 
 #: inc/Admin/DataDeskTemplatesPage.php
+
 msgid "Date format"
 msgstr "Format tanggal"
 
 #: inc/Admin/DataDeskTemplatesPage.php
+
 msgid "Percent type"
 msgstr "Jenis persen"
 
 #: inc/Admin/DataDeskTemplatesPage.php
+
 msgid "Zone colour"
 msgstr "Warna zona"
 
 #: inc/Admin/DataDeskTemplatesPage.php
+
 msgid "Custom"
 msgstr "Kustom"
 
 #: inc/Admin/DataDeskTemplatesPage.php
+
 msgid "Custom zone colour"
 msgstr "Warna zona kustom"
 
 #: inc/Admin/DataDeskTemplatesPage.php
+
 msgid "Daily change (today vs yesterday)"
 msgstr "Perubahan harian (hari ini vs kemarin)"
 
 #: inc/Admin/DataDeskTemplatesPage.php
+
 msgid "Whole period (first day to today)"
 msgstr "Seluruh periode (hari pertama sampai hari ini)"
 
 #: inc/Features/Markets.php
+
 msgid "Forex"
 msgstr "Forex"
 
 #: inc/Features/Markets.php
+
 msgid "Commodity"
 msgstr "Komoditas"
 
 #: inc/Providers/YahooStockProvider.php
+
 msgid "Yahoo Finance (live, free)"
 msgstr "Yahoo Finance (live, gratis)"
 
 #: src/ts/widget-blocks.ts
+
 msgid "Items to show"
 msgstr "Item yang ditampilkan"
 
 #: inc/Widgets/WidgetSpacing.php
 #: src/ts/widget-blocks.ts
+
 msgid "Margin top (px)"
 msgstr "Margin atas (px)"
 
 #: inc/Widgets/WidgetSpacing.php
 #: src/ts/widget-blocks.ts
+
 msgid "Margin bottom (px)"
 msgstr "Margin bawah (px)"
 
 #: inc/Admin/SidebarSettings.php
+
 msgid "Left column of the homepage hero."
 msgstr "Kolom kiri hero di beranda."
 
 #: inc/Admin/SidebarSettings.php
+
 msgid "Right column of the homepage hero."
 msgstr "Kolom kanan hero di beranda."
 
 #: template-parts/data-desk/panel.php
+
 msgid "Data Desk"
 msgstr "Data Desk"
 
 #: inc/Features/DataDesk.php
+
 msgid "Antam 7 Hari"
 msgstr "Antam 7 Hari"
 
 #: inc/Features/DataDesk.php
+
 msgid "Harga Emas {label}, {day} Hari Terakhir"
 msgstr "Harga Emas {label}, {day} Hari Terakhir"
 
 #: inc/Features/DataDesk.php
+
 msgid "{arrow} {delta} dari kemarin ({delta_pct})"
 msgstr "{arrow} {delta} dari kemarin ({delta_pct})"
 
 #: inc/Features/DataDesk.php
+
 msgid "Spread jual–buyback {spread}"
 msgstr "Spread jual–buyback {spread}"
 
 #: inc/Features/DataDesk.php
+
 msgid "{streak} hari beruntun di {zone} ({delta_pct})"
 msgstr "{streak} hari beruntun di {zone} ({delta_pct})"
 
 #: inc/Assets/Enqueue.php
+
 msgid "Click to edit the date line in a popup."
 msgstr "Klik untuk mengedit baris tanggal dalam popup."
 
 #: inc/Assets/Enqueue.php
+
 msgid "Click to edit this stat in a popup."
 msgstr "Klik untuk mengedit stat ini dalam popup."
 
 #: inc/Admin/DataDeskTemplatesPage.php
+
 msgid "Click the title or 'Data Desk' in the preview to edit them. In the title you can use {label} for the symbol name and {day} for the number of days. Click the date line under the title to edit it in a popup. Click a stat block to edit it in a popup, or the eye button on a stat to hide it or show it again."
 msgstr "Klik judul atau 'Data Desk' pada pratinjau untuk mengeditnya. Pada judul, gunakan {label} untuk nama simbol dan {day} untuk jumlah hari. Klik baris tanggal di bawah judul untuk mengeditnya dalam popup. Klik blok stat untuk mengeditnya dalam popup, atau tombol mata pada stat untuk menyembunyikan atau menampilkannya lagi."
 
 #: inc/Admin/DataDeskTemplatesPage.php
+
 msgid "Label"
 msgstr "Label"
 
 #: inc/Admin/DataDeskTemplatesPage.php
+
 msgid "Note"
 msgstr "Catatan"
 
 #: inc/Widgets/DataDeskWidget.php
 #: src/ts/widget-blocks.ts
+
 msgid "Use template (%s)"
 msgstr "Gunakan template (%s)"
 
 #: inc/Widgets/DataDeskWidget.php
 #: src/ts/widget-blocks.ts
+
 msgid "Empty uses the template days."
 msgstr "Kosong berarti memakai jumlah hari template."
 
 #: inc/Widgets/DataDeskWidget.php
 #: src/ts/widget-blocks.ts
+
 msgid "Show or hide each stat for this widget only. The template is unchanged."
 msgstr "Tampilkan atau sembunyikan tiap stat hanya untuk widget ini. Template tidak berubah."
 
 #: inc/Widgets/DataDeskWidget.php
 #: src/ts/widget-blocks.ts
+
 msgid "Hidden by the template."
 msgstr "Disembunyikan oleh template."
 
 #: inc/Features/FastSearch/FastSearch.php
+
 msgid "You are not allowed to change Fast Search settings."
 msgstr "Anda tidak diizinkan mengubah pengaturan Fast Search."
 
 #: inc/Features/FastSearch/FastSearch.php
+
 msgid "Fast Search settings saved."
 msgstr "Pengaturan Fast Search disimpan."
 
 #: inc/Features/FastSearch/FastSearch.php
+
 msgid "Speed up frontend search with FULLTEXT and composite database indexes, with a safe fallback to standard WordPress search while the indexes are missing."
 msgstr "Mempercepat pencarian frontend dengan indeks FULLTEXT dan indeks gabungan, dengan cadangan aman ke pencarian standar WordPress selama indeks belum ada."
 
 #: inc/Features/FastSearch/FastSearch.php
+
 msgid "FULLTEXT search is active on frontend search queries."
 msgstr "Pencarian FULLTEXT aktif pada kueri pencarian frontend."
 
 #: inc/Features/FastSearch/FastSearch.php
+
 msgid "Fallback mode"
 msgstr "Mode cadangan"
 
 #: inc/Features/FastSearch/FastSearch.php
+
 msgid "Required FULLTEXT indexes are missing. WordPress is safely using standard search until you install the indexes below."
 msgstr "Indeks FULLTEXT yang diperlukan belum ada. WordPress aman menggunakan pencarian standar sampai Anda memasang indeks di bawah ini."
 
 #: inc/Features/FastSearch/FastSearch.php
+
 msgid "Index name"
 msgstr "Nama indeks"
 
 #: inc/Features/FastSearch/FastSearch.php
+
 msgid "Type"
 msgstr "Tipe"
 
 #: inc/Features/FastSearch/FastSearch.php
+
 msgid "Columns"
 msgstr "Kolom"
 
 #: inc/Features/FastSearch/FastSearch.php
+
 msgid "Installed"
 msgstr "Terpasang"
 
 #: inc/Features/FastSearch/FastSearch.php
+
 msgid "An index build is already running. Wait for it to finish before starting another one."
 msgstr "Pembuatan indeks sedang berjalan. Tunggu sampai selesai sebelum memulai yang lain."
 
 #: inc/Features/FastSearch/FastSearch.php
+
 msgid "Build indexes"
 msgstr "Bangun indeks"
 
 #: inc/Features/FastSearch/FastSearch.php
+
 msgid "Installs the missing indexes one at a time. Large tables can take a while per index; the page stays responsive and shows progress in a popup."
 msgstr "Memasang indeks yang belum ada satu per satu. Tabel besar bisa memakan waktu per indeks; halaman tetap responsif dan menampilkan progres di popup."
 
 #: inc/Features/FastSearch/FastSearch.php
+
 msgid "Run these statements in the MariaDB / MySQL console to install the missing indexes manually, then reload this page."
 msgstr "Jalankan pernyataan ini di konsol MariaDB / MySQL untuk memasang indeks yang belum ada secara manual, lalu muat ulang halaman ini."
 
 #: inc/Features/FastSearch/FastSearch.php
+
 msgid "Use FULLTEXT search"
 msgstr "Gunakan pencarian FULLTEXT"
 
 #: inc/Features/FastSearch/FastSearch.php
+
 msgid "When on (and the indexes are installed), frontend search uses MATCH ... AGAINST in boolean mode, including matches on category and tag names. When off, or while the indexes are missing, standard WordPress search is used."
 msgstr "Saat aktif (dan indeks terpasang), pencarian frontend menggunakan MATCH ... AGAINST dalam mode boolean, termasuk kecocokan nama kategori dan tag. Saat nonaktif, atau selama indeks belum ada, pencarian standar WordPress digunakan."
 
 #: inc/Features/FastSearch/FastSearch.php
+
 msgid "Limit frontend search to posts"
 msgstr "Batasi pencarian frontend ke pos"
 
 #: inc/Features/FastSearch/FastSearch.php
+
 msgid "A search with no post type requested only searches posts, not pages or attachments. A search that explicitly asks for another post type is left alone."
 msgstr "Pencarian tanpa tipe pos yang diminta hanya mencari pos, bukan halaman atau lampiran. Pencarian yang secara eksplisit meminta tipe pos lain dibiarkan apa adanya."
 
 #: inc/Features/FastSearch/FastSearch.php
+
 msgid "Build search indexes"
 msgstr "Bangun indeks pencarian"
 
 #: inc/Features/FastSearch/FastSearch.php
+
 msgid "Closing this popup reloads the page so the index status shows the new state."
 msgstr "Menutup popup ini memuat ulang halaman agar status indeks menampilkan kondisi terbaru."
 
 #: inc/Features/FastSearch/FastSearch.php
+
 msgid "Fast Search"
 msgstr "Fast Search"
 
 #: inc/Features/FastSearch/FastSearchAjax.php
+
 msgid "An index build is already running."
 msgstr "Pembuatan indeks sedang berjalan."
 
 #: inc/Features/FastSearch/FastSearchAjax.php
+
 msgid "All search indexes are already installed."
 msgstr "Semua indeks pencarian sudah terpasang."
 
 #: inc/Features/FastSearch/FastSearchAjax.php
+
 msgid "The index build could not run. Please try again."
 msgstr "Pembuatan indeks tidak dapat berjalan. Silakan coba lagi."
 
 #: inc/Features/FastSearch/FastSearchAjax.php
+
 msgid "Index build started."
 msgstr "Pembuatan indeks dimulai."
 
 #: inc/Features/FastSearch/FastSearchAjax.php
+
 msgid "Missing build job."
 msgstr "Tugas pembuatan tidak ditemukan."
 
 #: inc/Features/FastSearch/FastSearchAjax.php
+
 msgid "Build job not found or expired."
 msgstr "Tugas pembuatan tidak ditemukan atau sudah kedaluwarsa."
 
 #: inc/Features/FastSearch/FastSearchAjax.php
+
 msgid "Index build finished with errors."
 msgstr "Pembuatan indeks selesai dengan galat."
 
 #: inc/Assets/Enqueue.php
+
 msgid "Starting index build..."
 msgstr "Memulai pembuatan indeks..."
 
 #: inc/Assets/Enqueue.php
+
 msgid "Building search indexes..."
 msgstr "Membangun indeks pencarian..."
 
 #: inc/Assets/Enqueue.php
+
 msgid "Building search indexes... %s of %s done."
 msgstr "Membangun indeks pencarian... %s dari %s selesai."
 
 #: inc/Assets/Enqueue.php
+
 msgid "Index build finished with errors. See the index status below."
 msgstr "Pembuatan indeks selesai dengan galat. Lihat status indeks di bawah."
 
 #: inc/Assets/Enqueue.php
+
 msgid "Failed"
 msgstr "Gagal"
 
 #: inc/Setup/Setup.php
+
 msgid "Fast Search settings could not be saved."
 msgstr "Pengaturan Fast Search tidak dapat disimpan."
 #: inc/Customizer/Customizer.php
 #: inc/Admin/AdminMenu.php
 #: inc/Admin/MarketHeaderPage.php
+
 msgid "Market Index"
 msgstr "Indeks Pasar"
 
 #: inc/Admin/MarketHeaderPage.php
+
 msgid "Strip items"
 msgstr "Item strip"
 
 #: inc/Admin/MarketHeaderPage.php
+
 msgid "Enable auto-sync"
 msgstr "Aktifkan sinkronisasi otomatis"
 
 #: inc/Admin/MarketHeaderPage.php
+
 msgid "Auto-sync interval"
 msgstr "Interval sinkronisasi otomatis"
 
 #: inc/Admin/MarketHeaderPage.php
+
 msgid "Auto-sync"
 msgstr "Sinkronisasi otomatis"
 
 #: inc/Admin/MarketHeaderPage.php
+
 msgid "Fetches the selected markets automatically on a schedule, like the manual sync."
 msgstr "Mengambil pasar yang dipilih secara otomatis sesuai jadwal, seperti sinkronisasi manual."
 
 #: inc/Admin/MarketHeaderPage.php
+
 msgid "Auto-sync is on — %s."
 msgstr "Sinkronisasi otomatis aktif — %s."
 
 #: inc/Admin/MarketHeaderPage.php
+
 msgid "Auto-sync is off."
 msgstr "Sinkronisasi otomatis nonaktif."
 
 #: inc/Admin/MarketHeaderPage.php
+
 msgid "Off"
 msgstr "Nonaktif"
 
 #: inc/Admin/MarketHeaderPage.php
+
 msgid "Next sync: %s"
 msgstr "Sinkronisasi berikutnya: %s"
 
 #: inc/Admin/MarketHeaderPage.php
+
 msgid "Next sync"
 msgstr "Sinkronisasi berikutnya"
 
 #: inc/Admin/MarketHeaderPage.php
+
 msgid "Not scheduled."
 msgstr "Belum terjadwal."
 
 #: inc/Setup/Setup.php
+
 msgid "Market auto-sync"
 msgstr "Sinkronisasi otomatis pasar"
 
 #: inc/Setup/Setup.php
+
 msgid "WP-Cron is disabled in wp-config.php, but the auto-sync is running — a server cronjob is calling wp-cron.php, so this setup is fine. For reference, the cronjob looks like this:"
 msgstr "WP-Cron dinonaktifkan di wp-config.php, tetapi sinkronisasi otomatis berjalan — cronjob server memanggil wp-cron.php, jadi pengaturan ini sudah benar. Sebagai referensi, cronjob-nya seperti ini:"
 
 #: inc/Setup/Setup.php
+
 msgid "WP-Cron is disabled in wp-config.php, and the auto-sync has not run recently. Without a server cronjob calling wp-cron.php, the auto-sync will not run at all. Either remove the DISABLE_WP_CRON line from wp-config.php, or set up a server cronjob like this:"
 msgstr "WP-Cron dinonaktifkan di wp-config.php, dan sinkronisasi otomatis belum berjalan baru-baru ini. Tanpa cronjob server yang memanggil wp-cron.php, sinkronisasi otomatis tidak akan berjalan sama sekali. Hapus baris DISABLE_WP_CRON dari wp-config.php, atau siapkan cronjob server seperti ini:"
 
 #: inc/Setup/Setup.php
+
 msgid "Reference only — nothing to do here unless the sync must run on time. WordPress runs scheduled tasks (WP-Cron) only when the site gets visits, so on a quiet site the market auto-sync can run late. A server cron that calls wp-cron.php every hour makes it reliable:"
 msgstr "Hanya referensi — tidak ada yang perlu dilakukan di sini kecuali sinkronisasi harus berjalan tepat waktu. WordPress menjalankan tugas terjadwal (WP-Cron) hanya saat situs dikunjungi, jadi di situs yang sepi, sinkronisasi otomatis pasar bisa terlambat. Cron server yang memanggil wp-cron.php setiap jam membuatnya andal:"
 
@@ -5011,60 +5924,73 @@ msgstr "Hanya referensi — tidak ada yang perlu dilakukan di sini kecuali sinkr
 #: inc/Features/MarketHeaderIndex.php
 #: inc/Admin/MarketHeaderPage.php
 #: inc/Customizer/Customizer.php
+
 msgid "Market Snapshot"
 msgstr "Snapshot Pasar"
 
 #: inc/Customizer/Customizer.php
 #: inc/Admin/MarketHeaderPage.php
+
 msgid "Snapshot label"
 msgstr "Label snapshot"
 
 #: inc/Customizer/Customizer.php
 #: inc/Admin/MarketHeaderPage.php
+
 msgid "The text before the date and time. Leave empty to hide the label. Default: %s."
 msgstr "Teks sebelum tanggal dan jam. Kosongkan untuk menyembunyikan label. Default: %s."
 
 #: inc/Customizer/Customizer.php
 #: inc/Admin/MarketHeaderPage.php
+
 msgid "Show day and time"
 msgstr "Tampilkan hari & jam"
 
 #: inc/Customizer/Customizer.php
 #: inc/Admin/MarketHeaderPage.php
+
 msgid "Shows the day and time the strip data was taken, after the label."
 msgstr "Menampilkan hari dan jam data strip diambil, setelah label."
 
 #: inc/Customizer/Customizer.php
 #: inc/Admin/MarketHeaderPage.php
+
 msgid "Day and time format"
 msgstr "Format hari dan jam"
 
 #: inc/Customizer/Customizer.php
 #: inc/Admin/MarketHeaderPage.php
+
 msgid "PHP date format for the snapshot day and time. Default: %1$s — for example: %2$s."
 msgstr "Format tanggal PHP untuk hari dan jam snapshot. Default: %1$s — contoh: %2$s."
 
 #: inc/Admin/MarketHeaderPage.php
+
 msgid "The market index strip below the header shows the picked market indices - symbol, price and day change - with a snapshot caption. Data comes only from the Markets providers; an item with no price is skipped, never invented."
 msgstr "Strip indeks pasar di bawah header menampilkan indeks pasar yang dipilih - simbol, harga, dan perubahan harian - dengan caption snapshot. Data hanya berasal dari provider Markets; item tanpa harga dilewati, tidak pernah dibuat-buat."
 
 #: inc/Admin/MarketHeaderPage.php
+
 msgid "The strip data is fetched by a sync and stored, like the gold prices: a manual sync here, plus an automatic sync on a schedule. A market that is not selected is not synced and keeps its stored data."
 msgstr "Data strip diambil lewat sinkronisasi dan disimpan, seperti harga emas: sinkronisasi manual di sini, ditambah sinkronisasi otomatis sesuai jadwal. Pasar yang tidak dipilih tidak disinkronkan dan tetap memakai data tersimpannya."
 
 #: inc/Admin/MarketHeaderPage.php
+
 msgid "Last sync: %s"
 msgstr "Sinkronisasi terakhir: %s"
 
 #: inc/Admin/MarketHeaderPage.php
+
 msgid "Never synced yet."
 msgstr "Belum pernah disinkronkan."
 
 #: inc/Admin/MarketHeaderPage.php
+
 msgid "Market"
 msgstr "Pasar"
 
 #: inc/Admin/MarketHeaderPage.php
+
 msgid "Skipped — manual snapshots are not synced."
 msgstr "Dilewati — snapshot manual tidak disinkronkan."
 
@@ -5073,10 +5999,12 @@ msgid "Skipped %s — manual snapshots are not synced."
 msgstr "Dilewati %s — snapshot manual tidak disinkronkan."
 
 #: inc/Admin/MarketHeaderPage.php
+
 msgid "Sync failed."
 msgstr "Sinkronisasi gagal."
 
 #: inc/Admin/MarketHeaderPage.php
+
 msgid "Synced %1$s (%2$d symbols)"
 msgstr "Disinkronkan %1$s (%2$d simbol)"
 
@@ -5085,252 +6013,454 @@ msgid "Synced %s (%s symbols)"
 msgstr "Disinkronkan %s (%s simbol)"
 
 #: inc/Admin/MarketHeaderPage.php
+
 msgid "Synced."
 msgstr "Disinkronkan."
 
 #: inc/Admin/MarketHeaderPage.php
+
 msgid "Markets to sync. A market that is not selected is not synced."
 msgstr "Pasar yang akan disinkronkan. Pasar yang tidak dipilih tidak disinkronkan."
 
 #: inc/Admin/MarketHeaderPage.php
+
 msgid "Sync complete."
 msgstr "Sinkronisasi selesai."
 
 #: inc/Admin/MarketHeaderPage.php
+
 msgid "Sync finished with errors — see the status below."
 msgstr "Sinkronisasi selesai dengan error — lihat status di bawah."
 
 #: inc/Admin/MarketHeaderPage.php
+
 msgid "No order was sent."
 msgstr "Tidak ada urutan yang dikirim."
 
 #: inc/Admin/MarketHeaderPage.php
+
 msgid "The order could not be read."
 msgstr "Urutan tidak dapat dibaca."
 
 #: inc/Admin/MarketHeaderPage.php
+
 msgid "The order is empty."
 msgstr "Urutan kosong."
 
 #: inc/Features/MarketSync.php
+
 msgid "Could not fetch the latest %s prices. The last good value is still shown."
 msgstr "Tidak dapat mengambil harga %s terbaru. Nilai terakhir yang baik masih ditampilkan."
 
 #: inc/Assets/Enqueue.php
+
 msgid "Could not move the item."
 msgstr "Tidak dapat memindahkan item."
 
 
 #: inc/Customizer/Customizer.php
 #: inc/Admin/MarketHeaderPage.php
+
 msgid "Show the market index strip"
 msgstr "Tampilkan strip indeks pasar"
 
 #: inc/Customizer/Customizer.php
+
 msgid "Shows the picked market indices in a strip below the header. Requires the Markets feature."
 msgstr "Menampilkan indeks pasar yang dipilih dalam strip di bawah header. Membutuhkan fitur Markets."
 
 #: inc/Customizer/Customizer.php
 #: inc/Admin/MarketHeaderPage.php
+
 msgid "Seconds between items on mobile"
 msgstr "Detik antar item di ponsel"
 
 #: inc/Customizer/Customizer.php
 #: inc/Admin/MarketHeaderPage.php
+
 msgid "On small screens the strip shows one item at a time; this is how long each item shows."
 msgstr "Di layar kecil, strip menampilkan satu item setiap kalinya; ini lamanya setiap item tampil."
 
 #: inc/Customizer/Customizer.php
+
 msgid "Market items"
 msgstr "Item pasar"
 
 #: inc/Customizer/Customizer.php
+
 msgid "Pick up to 16 items, in the order they show. Empty means the default set (IHSG, USD/IDR, Antam, Brent)."
 msgstr "Pilih hingga 16 item, sesuai urutan tampil. Kosong berarti set default (IHSG, USD/IDR, Antam, Brent)."
 
 #: inc/Customizer/MarketItemsControl.php
+
 msgid "No items picked. The default set shows instead."
 msgstr "Tidak ada item yang dipilih. Set default yang ditampilkan."
 
 #: inc/Customizer/MarketItemsControl.php
 #: inc/Admin/MarketHeaderPage.php
+
 msgid "Add item…"
 msgstr "Tambah item…"
 
 #: inc/Customizer/MarketItemsControl.php
 #: inc/Admin/MarketHeaderPage.php
+
 msgid "Add item"
 msgstr "Tambah item"
 
 #: inc/Customizer/MarketItemsControl.php
 #: inc/Admin/MarketHeaderPage.php
+
 msgid "Add"
 msgstr "Tambah"
 
 #: inc/Customizer/MarketItemsControl.php
 #: inc/Admin/MarketHeaderPage.php
+
 msgid "Move up"
 msgstr "Pindah ke atas"
 
 #: inc/Customizer/MarketItemsControl.php
 #: inc/Admin/MarketHeaderPage.php
+
 msgid "Move down"
 msgstr "Pindah ke bawah"
 
 #: inc/Customizer/MarketItemsControl.php
+
 msgid "Hide item"
 msgstr "Sembunyikan item"
 
 #: inc/Customizer/MarketItemsControl.php
+
 msgid "Show item"
 msgstr "Tampilkan item"
 
 #: inc/Admin/MarketHeaderPage.php
+
 msgid "Item"
 msgstr "Item"
 
 #: inc/Admin/MarketHeaderPage.php
+
 msgid "Show"
 msgstr "Tampilkan"
 
 #: inc/Admin/MarketHeaderPage.php
+
 msgid "Maximum 16 items."
 msgstr "Maksimal 16 item."
 
 #: inc/Admin/MarketHeaderPage.php
+
 msgid "Settings saved."
 msgstr "Pengaturan disimpan."
 
 #: inc/Admin/MarketHeaderPage.php
+
 msgid "Remove this item from the strip?"
 msgstr "Hapus item ini dari strip?"
 #: inc/Features/DataDesk.php
+
 msgid "Flat"
 msgstr "Rata"
 
 #: inc/Features/DataDesk.php
+
 msgid "Striped"
 msgstr "Garis-garis"
 
 #: inc/Features/DataDesk.php
+
 msgid "Chart"
 msgstr "Grafik"
 
 #: inc/Features/DataDesk.php
+
 msgid "Above the table"
 msgstr "Di atas tabel"
 
 #: inc/Features/DataDesk.php
+
 msgid "Inline with the table"
 msgstr "Sejajar dengan tabel"
 
 #: template-parts/gold/data-desk.php
+
 msgid "No price history yet."
 msgstr "Riwayat harga belum tersedia."
 
 #: template-parts/gold/data-desk.php
+
 msgid "Gold price history"
 msgstr "Riwayat harga emas"
 
 #: inc/Admin/DataDeskTemplatesPage.php
+
 msgid "Table style"
 msgstr "Gaya tabel"
 
 #: inc/Admin/DataDeskTemplatesPage.php
+
 msgid "Title display"
 msgstr "Tampilan judul"
 
 #: inc/Admin/DataDeskTemplatesPage.php
+
 msgid "Font size (px)"
 msgstr "Ukuran font (px)"
 
 #: inc/Admin/DataDeskTemplatesPage.php
+
 msgid "Cell padding (px)"
 msgstr "Padding sel (px)"
 
 #: inc/Admin/DataDeskTemplatesPage.php
+
 msgid "Animate chart"
 msgstr "Animasikan grafik"
 
 #: inc/Admin/DataDeskTemplatesPage.php
+
 msgid "Draw the chart lines on load. Always off when reduced motion is on."
 msgstr "Gambar garis grafik saat dimuat. Selalu mati bila reduced motion aktif."
 
 #: inc/Admin/DataDeskTemplatesPage.php
+
 msgid "Chart line colours"
 msgstr "Warna garis grafik"
 
 #: inc/Admin/DataDeskTemplatesPage.php
+
 msgid "Reset colours"
 msgstr "Reset warna"
 
 #: inc/Admin/DataDeskTemplatesPage.php
+
 msgid "Header colours"
 msgstr "Warna header"
 
 #: inc/Admin/DataDeskTemplatesPage.php
+
 msgid "Palette default"
 msgstr "Default palet"
 
 #: inc/Admin/DataDeskTemplatesPage.php
+
 msgid "Hex colour, e.g. #0B3D24. Empty uses the palette colours."
 msgstr "Warna hex, mis. #0B3D24. Kosong memakai warna palet."
 
 #: inc/Admin/DataDeskTemplatesPage.php
+
 msgid "Edit the title in the top bar above. In the title you can use {label} for the first brand and {day} for the number of days. Click a column header in the preview to edit it."
 msgstr "Edit judul di bilah atas. Di judul Anda dapat memakai {label} untuk merek pertama dan {day} untuk jumlah hari. Klik header kolom di pratinjau untuk mengeditnya."
 
 #: inc/Widgets/WeatherWidget.php
 #: src/ts/widget-blocks.ts
+
 msgid "Style"
 msgstr "Gaya"
 
 #: template-parts/weather/location-picker.php
+
 msgid "Location name"
 msgstr "Nama lokasi"
 
 #: template-parts/weather/location-picker.php
+
 msgid "Click the map to place the marker, or drag it."
 msgstr "Klik peta untuk menaruh penanda, atau seret penanda."
 
 #: inc/Widgets/WeatherWidget.php
 #: src/ts/widget-blocks.ts
+
 msgid "Show condition icon"
 msgstr "Tampilkan ikon kondisi"
 
 #: inc/Widgets/WeatherWidget.php
 #: src/ts/widget-blocks.ts
+
 msgid "Temperature layout"
 msgstr "Tata letak suhu"
 
 #: inc/Widgets/WeatherWidget.php
 #: src/ts/widget-blocks.ts
+
 msgid "Between"
 msgstr "Di antara"
 
 #: inc/Widgets/WeatherWidget.php
 #: src/ts/widget-blocks.ts
+
 msgid "Temperature unit"
 msgstr "Satuan suhu"
 
 #: inc/Widgets/WeatherWidget.php
 #: src/ts/widget-blocks.ts
+
 msgid "Auto (site setting)"
 msgstr "Otomatis (pengaturan situs)"
 
 #: inc/Widgets/WeatherWidget.php
 #: src/ts/widget-blocks.ts
+
 msgid "Kelvin (K)"
 msgstr "Kelvin (K)"
 
 #: inc/Admin/GoldPricesPage.php
+
 msgid "Incremental Export"
 msgstr "Ekspor Bertahap"
 
 #: inc/Admin/GoldPricesPage.php
+
 msgid "Export All"
 msgstr "Ekspor Semua"
 
 #: inc/Admin/GoldPricesPage.php
+
 msgid "Download the price history as CSV. Exports stream row by row from the database, so exporting the full history uses almost no memory."
 msgstr "Unduh riwayat harga sebagai CSV. Ekspor mengalir baris demi baris dari database, jadi mengekspor seluruh riwayat hampir tidak memakai memori."
+
+msgid "Clear sky"
+msgstr "Langit cerah"
+
+#: inc/Providers/OpenMeteoProvider.php
+
+msgid "Mainly clear"
+msgstr "Sebagian besar cerah"
+
+#: inc/Providers/OpenMeteoProvider.php
+
+msgid "Partly cloudy"
+msgstr "Berawan sebagian"
+
+#: inc/Providers/OpenMeteoProvider.php
+
+msgid "Overcast"
+msgstr "Mendung"
+
+#: inc/Providers/OpenMeteoProvider.php
+
+msgid "Fog"
+msgstr "Kabut"
+
+#: inc/Providers/OpenMeteoProvider.php
+
+msgid "Depositing rime fog"
+msgstr "Kabut es"
+
+#: inc/Providers/OpenMeteoProvider.php
+
+msgid "Light drizzle"
+msgstr "Gerimis ringan"
+
+#: inc/Providers/OpenMeteoProvider.php
+
+msgid "Drizzle"
+msgstr "Gerimis"
+
+#: inc/Providers/OpenMeteoProvider.php
+
+msgid "Dense drizzle"
+msgstr "Gerimis lebat"
+
+#: inc/Providers/OpenMeteoProvider.php
+
+msgid "Light freezing drizzle"
+msgstr "Gerimis beku ringan"
+
+#: inc/Providers/OpenMeteoProvider.php
+
+msgid "Dense freezing drizzle"
+msgstr "Gerimis beku lebat"
+
+#: inc/Providers/OpenMeteoProvider.php
+
+msgid "Slight rain"
+msgstr "Hujan ringan"
+
+#: inc/Providers/OpenMeteoProvider.php
+
+msgid "Rain"
+msgstr "Hujan"
+
+#: inc/Providers/OpenMeteoProvider.php
+
+msgid "Heavy rain"
+msgstr "Hujan lebat"
+
+#: inc/Providers/OpenMeteoProvider.php
+
+msgid "Light freezing rain"
+msgstr "Hujan beku ringan"
+
+#: inc/Providers/OpenMeteoProvider.php
+
+msgid "Heavy freezing rain"
+msgstr "Hujan beku lebat"
+
+#: inc/Providers/OpenMeteoProvider.php
+
+msgid "Slight snow"
+msgstr "Salju ringan"
+
+#: inc/Providers/OpenMeteoProvider.php
+
+msgid "Snow"
+msgstr "Salju"
+
+#: inc/Providers/OpenMeteoProvider.php
+
+msgid "Heavy snow"
+msgstr "Salju lebat"
+
+#: inc/Providers/OpenMeteoProvider.php
+
+msgid "Snow grains"
+msgstr "Butiran salju"
+
+#: inc/Providers/OpenMeteoProvider.php
+
+msgid "Slight rain showers"
+msgstr "Hujan singkat ringan"
+
+#: inc/Providers/OpenMeteoProvider.php
+
+msgid "Rain showers"
+msgstr "Hujan singkat"
+
+#: inc/Providers/OpenMeteoProvider.php
+
+msgid "Violent rain showers"
+msgstr "Hujan singkat deras"
+
+#: inc/Providers/OpenMeteoProvider.php
+
+msgid "Slight snow showers"
+msgstr "Hujan salju singkat ringan"
+
+#: inc/Providers/OpenMeteoProvider.php
+
+msgid "Heavy snow showers"
+msgstr "Hujan salju singkat lebat"
+
+#: inc/Providers/OpenMeteoProvider.php
+
+msgid "Thunderstorm"
+msgstr "Badai petir"
+
+#: inc/Providers/OpenMeteoProvider.php
+
+msgid "Thunderstorm with slight hail"
+msgstr "Badai petir dengan hujan es ringan"
+
+#: inc/Providers/OpenMeteoProvider.php
+
+msgid "Thunderstorm with heavy hail"
+msgstr "Badai petir dengan hujan es lebat"
+
+#: inc/Providers/OpenMeteoProvider.php
+
+msgid "Unknown conditions"
+msgstr "Kondisi tidak diketahui"

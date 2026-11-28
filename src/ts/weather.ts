@@ -639,7 +639,7 @@ function renderWidgetBody(body: HTMLElement, weather: WeatherData, showDetails: 
 	for (const [label, value] of rows) {
 		const item = document.createElement('li');
 		const labelEl = document.createElement('span');
-		labelEl.textContent = label;
+		labelEl.textContent = t(label);
 		const valueEl = document.createElement('strong');
 		valueEl.textContent = value;
 		item.append(labelEl, valueEl);
