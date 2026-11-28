@@ -1591,10 +1591,6 @@
 	gap: 8px;
 }
 
-.kk-data-desk-start-from select {
-	min-height: 44px;
-}
-
 /* Buttons: the Setup button language - green outline by default,
  * filled green primary. The blue WP button-primary is gone from
  * this page entirely. */
@@ -1808,6 +1804,16 @@
 	border-radius: 12px;
 }
 
+/* List tables on the three KK admin lists carry no border or
+ * shadow of their own: the page frame is the edge. Scoped to the
+ * three list pages so the other admin tables keep WP's border. */
+.kk-data-desk-page .wp-list-table,
+.kk-locations-page .wp-list-table,
+.kk-subscribers-page .wp-list-table {
+	border: none;
+	box-shadow: none;
+}
+
 /* Market Index: Sync now is the outline secondary so it reads as a
  * separate action from the solid Save primary; the column gap keeps
  * the pair from touching. Both share the 36px height. */
@@ -1899,8 +1905,7 @@
 
 .kk-locations-page input[type="text"],
 .kk-locations-page input[type="number"],
-.kk-locations-page textarea,
-.kk-locations-page select {
+.kk-locations-page textarea {
 	min-height: 40px;
 	border-radius: 8px;
 }
