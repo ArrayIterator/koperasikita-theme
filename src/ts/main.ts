@@ -42,6 +42,7 @@ type ColorScheme = 'system' | 'light' | 'dark';
 
 const SCHEME_KEY = 'kk-color-scheme';
 const LAYOUT_KEY = 'kk-layout';
+const ARCHIVE_LAYOUT_KEY = 'kk-archive-layout';
 const DB_NAME = 'koperasikita';
 const DB_VERSION = 1;
 const STORE_NAME = 'kk-bookmarks';
@@ -953,6 +954,69 @@ function initLayoutSwitcher(): void {
 	});
 }
 
+/* Archive layout switcher (grid / list)                               */
+
+/* Read the saved archive layout from the `kk_archive_layout` cookie
+ * (the value the server renders from). Returns null when there is
+ * no valid cookie. */
+function readArchiveLayoutCookie(): 'grid' | 'list' | null {
+	const match = document.cookie.match(/(?:^|;)\s*kk_archive_layout=([^;]*)/);
+	if (!match) {
+		return null;
+	}
+	const value = decodeURIComponent(match[1] ?? '');
+	return value === 'grid' || value === 'list' ? value : null;
+}
+
+function initArchiveLayoutSwitcher(): void {
+	const toolbar = $('.kk-archive-toolbar');
+	if (!toolbar) {
+		return;
+	}
+	const content = toolbar.closest('.kk-content-area');
+	const grid = content ? $('.kk-card-grid', content) : null;
+	if (!grid) {
+		return;
+	}
+	const buttons = $all<HTMLButtonElement>('[data-kk-archive-layout]', toolbar);
+	const applyLayout = (layout: string): void => {
+		grid.classList.remove('kk-layout-grid', 'kk-layout-list');
+		grid.classList.add(`kk-layout-${layout}`);
+		buttons.forEach((other) => {
+			const active = other.dataset.kkArchiveLayout === layout;
+			other.classList.toggle('is-active', active);
+			other.setAttribute('aria-pressed', active ? 'true' : 'false');
+		});
+	};
+	const stored = window.localStorage.getItem(ARCHIVE_LAYOUT_KEY);
+	/* The server already rendered the saved layout from the cookie,
+	 * so on load we only sync the active button - but re-applying
+	 * the stored layout here keeps the switcher correct even when
+	 * the server rendered the Customizer default (e.g. the cookie
+	 * was set after the HTML was cached). The cookie is the source
+	 * the server reads; localStorage is kept for backwards
+	 * compatibility with the earlier switcher. */
+	const saved = stored === 'grid' || stored === 'list'
+		? stored
+		: readArchiveLayoutCookie();
+	if (saved !== null) {
+		applyLayout(saved);
+	}
+	buttons.forEach((button) => {
+		button.addEventListener('click', () => {
+			const layout = button.dataset.kkArchiveLayout;
+			if (layout !== 'grid' && layout !== 'list') {
+				return;
+			}
+			window.localStorage.setItem(ARCHIVE_LAYOUT_KEY, layout);
+			/* A real cookie so the server can render the saved
+			 * layout on the next page load (first paint, no flash). */
+			document.cookie = `kk_archive_layout=${layout}; path=/; max-age=31536000; SameSite=Lax`;
+			applyLayout(layout);
+		});
+	});
+}
+
 /* Bookmarks (IndexedDB only)                                          */
 
 function openBookmarksDb(): Promise<IDBDatabase> {
@@ -1539,6 +1603,7 @@ document.addEventListener('DOMContentLoaded', () => {
 	initSliders();
 	initClock();
 	initLayoutSwitcher();
+	initArchiveLayoutSwitcher();
 	initBookmarks();
 	initPwa();
 	initBottomNav();

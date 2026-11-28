@@ -13,6 +13,8 @@ get_header();
 		<?php get_template_part( 'template-parts/content/breadcrumb' ); ?>
 
 		<?php if ( have_posts() ) : ?>
+			<?php get_template_part( 'template-parts/content/archive-layout-switcher' ); ?>
+
 			<div class="kk-card-grid kk-layout-<?php echo esc_attr( \KoperasiKita\Features\Pagination::archiveLayout() ); ?>">
 				<?php
 				while ( have_posts() ) :

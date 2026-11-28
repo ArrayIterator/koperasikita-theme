@@ -115,7 +115,23 @@ final class Pagination
     {
         $layout = (string) get_theme_mod('kk_archive_layout', 'grid');
 
-        return in_array($layout, ['grid', 'list'], true) ? $layout : 'grid';
+        if (!in_array($layout, ['grid', 'list'], true)) {
+            $layout = 'grid';
+        }
+
+        /* The visitor's saved layout wins over the Customizer default:
+         * the switcher stores the choice in a `kk_archive_layout`
+         * cookie (and in localStorage), and the server reads the cookie
+         * so the archive renders in the right layout on first paint -
+         * no flash, no JS dependency. */
+        if (isset($_COOKIE['kk_archive_layout'])) {
+            $saved = sanitize_key(wp_unslash($_COOKIE['kk_archive_layout']));
+            if (in_array($saved, ['grid', 'list'], true)) {
+                $layout = $saved;
+            }
+        }
+
+        return $layout;
     }
 
     /**
