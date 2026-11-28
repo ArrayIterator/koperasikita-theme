@@ -522,6 +522,7 @@ final class GoldPricesPage
         $prices = Markets::prices('gold');
         $configured = Gold::brandProviders();
         ?>
+        <div class="kk-gold-table-wrap">
         <table class="widefat striped kk-gold-table">
             <thead>
                 <tr>
@@ -552,6 +553,7 @@ final class GoldPricesPage
                 <?php endforeach; ?>
             </tbody>
         </table>
+        </div>
         <?php
     }
 
@@ -688,6 +690,7 @@ final class GoldPricesPage
         <p data-kk-gold-sync-running hidden><em><?php esc_html_e('A manual sync is running. Automatic sync settings are paused until it finishes.', 'koperasikita'); ?></em></p>
         <form method="post" data-kk-gold-sync-settings action="<?php echo esc_url(admin_url('admin.php?page=' . self::PAGE_SLUG . '&tab=setting')); ?>">
             <?php wp_nonce_field('kk_gold_sync_settings', 'kk_gold_sync_settings_nonce'); ?>
+            <div class="kk-gold-table-wrap">
             <table class="widefat striped kk-gold-table">
                 <thead>
                     <tr>
@@ -718,6 +721,7 @@ final class GoldPricesPage
                     <?php endforeach; ?>
                 </tbody>
             </table>
+            </div>
 
             <h3 class="kk-gold-card-subtitle"><?php esc_html_e('Automatic sync', 'koperasikita'); ?></h3>
             <table class="form-table kk-gold-facts" role="presentation">
@@ -1132,6 +1136,7 @@ final class GoldPricesPage
                 . '</tr>';
         }
         ?>
+        <div class="kk-gold-table-wrap">
         <table class="widefat striped kk-gold-table">
             <thead>
                 <tr>
@@ -1145,6 +1150,7 @@ final class GoldPricesPage
             </thead>
             <tbody><?php echo $rows; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- rows are escaped above. ?></tbody>
         </table>
+        </div>
         <?php
     }
 
@@ -1287,6 +1293,7 @@ final class GoldPricesPage
                 . '</tr>';
         }
         ?>
+        <div class="kk-gold-table-wrap">
         <table class="widefat striped kk-gold-table">
             <thead>
                 <tr>
@@ -1299,6 +1306,7 @@ final class GoldPricesPage
             </thead>
             <tbody><?php echo $rows; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- rows are escaped above. ?></tbody>
         </table>
+        </div>
         <?php
     }
 }

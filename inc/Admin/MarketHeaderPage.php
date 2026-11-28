@@ -145,12 +145,10 @@ final class MarketHeaderPage
 
                     <p class="kk-market-header-card-actions">
                         <input type="submit" class="button button-primary kk-market-header-button kk-market-header-button--primary" value="<?php esc_attr_e('Save settings', 'koperasikita'); ?>">
+                        <button type="button" class="button kk-market-header-button" data-kk-market-sync <?php disabled($syncStatus['markets'] === []); ?>><?php esc_html_e('Sync now', 'koperasikita'); ?></button>
                     </p>
                 </form>
 
-                <p>
-                    <button type="button" class="button button-primary kk-market-header-button kk-market-header-button--primary" data-kk-market-sync <?php disabled($syncStatus['markets'] === []); ?>><?php esc_html_e('Sync now', 'koperasikita'); ?></button>
-                </p>
                 <?php if ($syncStatus['markets'] === []) : ?>
                     <p><?php esc_html_e('No market is selected for sync. Select one above and save the settings first.', 'koperasikita'); ?></p>
                 <?php endif; ?>

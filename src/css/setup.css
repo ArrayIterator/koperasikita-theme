@@ -345,6 +345,21 @@
 	background: #fbf3df;
 }
 
+/* The index table is wider than a phone (five columns of code
+ * names), so the wrapper scrolls horizontally like the Gold
+ * tables instead of the columns being cut off. The floor width
+ * keeps the code identifiers from breaking mid-token when the
+ * table squeezes. */
+.kk-setup-fast-search-table-wrap {
+	overflow-x: auto;
+}
+
+@media screen and (max-width: 782px) {
+	.kk-setup-fast-search-table {
+		min-width: 600px;
+	}
+}
+
 .kk-setup-fast-search-table {
 	margin: 0 0 16px;
 }
