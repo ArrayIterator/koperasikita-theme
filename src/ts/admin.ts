@@ -2661,8 +2661,8 @@ function initGoldSync(): void {
 
 /* Manual market sync (Market Index page): the Sync now button
  * syncs the saved market selection, one market per AJAX call
- * (kk_market_sync), in order, with a progress line per market
- * inside a popup - the same shape as the gold sync (initGoldSync).
+ * (kk_market_sync), in order, with the status in one pre inside
+ * a popup - the same shape as the gold sync (initGoldSync).
  * A per-market failure is reported as its own line and does not
  * stop the remaining markets. The settings form is disabled with
  * a note saying it is paused. The popup stays open with the full
@@ -2681,10 +2681,8 @@ function initMarketSync(): void {
 	}
 	const bar = popup.querySelector<HTMLProgressElement>('[data-kk-market-sync-bar]');
 	const statusEl = popup.querySelector<HTMLElement>('[data-kk-market-sync-status]');
-	const stepsEl = popup.querySelector<HTMLElement>('[data-kk-market-sync-steps]');
-	const result = popup.querySelector<HTMLElement>('[data-kk-market-sync-result]');
 	const closeButton = popup.querySelector<HTMLButtonElement>('[data-kk-market-sync-popup-close]');
-	if (!bar || !statusEl || !stepsEl || !result || !closeButton) {
+	if (!bar || !statusEl || !closeButton) {
 		return;
 	}
 	const settingsForm = document.querySelector<HTMLFormElement>('[data-kk-market-sync-settings]');
@@ -2734,9 +2732,7 @@ function initMarketSync(): void {
 	const config = adminData();
 	if (!config) {
 		button.addEventListener('click', () => {
-			statusEl.textContent = '';
-			stepsEl.textContent = '';
-			result.textContent = adminStrings().adminDataMissing;
+			statusEl.textContent = adminStrings().adminDataMissing;
 			popup.hidden = false;
 			closeButton.focus();
 		});
@@ -2749,9 +2745,28 @@ function initMarketSync(): void {
 		}
 		const strings = adminStrings();
 		setRunning(true);
-		result.textContent = '';
-		stepsEl.textContent = '';
-		statusEl.textContent = '';
+		/* The whole status lives in one pre, set from these lines:
+		 * one line per finished market, the in-progress line while
+		 * a call runs, the summary once at the end. A market the
+		 * server chains back to rewrites its own line instead of
+		 * adding a second one. */
+		const lines: string[] = [];
+		const lineBySource = new Map<string, number>();
+		let current = '';
+		let total = 0;
+		const renderStatus = (): void => {
+			statusEl.textContent = [...lines, current].filter((line) => line !== '').join('\n');
+		};
+		const setSourceLine = (source: string, text: string): void => {
+			const at = lineBySource.get(source);
+			if (at !== undefined) {
+				lines[at] = text;
+			} else {
+				lineBySource.set(source, lines.length);
+				lines.push(text);
+			}
+		};
+		renderStatus();
 		bar.max = 100;
 		bar.value = 0;
 		popup.hidden = false;
@@ -2766,13 +2781,14 @@ function initMarketSync(): void {
 			 * in `next`. */
 			for (let step = 0; step < 10; step += 1) {
 				const params: Record<string, string> = market === null ? {} : { market };
-				const current = market ?? '';
-				/* The step line appears first as "Syncing <market>..."
-				 * and is rewritten with its result when the call
-				 * returns, so the list always shows live progress. */
-				const line = document.createElement('li');
-				line.textContent = formatTemplate(strings.syncingMarket, current);
-				stepsEl.appendChild(line);
+				const currentMarket = market ?? '';
+				/* The in-progress line shows first as "Syncing
+				 * <market>..." and is replaced by its result when
+				 * the call returns, so the pre always shows live
+				 * progress. */
+				current = formatTemplate(strings.syncingMarket, currentMarket)
+					+ (total > 0 ? ` (${lines.length}/${total})` : '');
+				renderStatus();
 
 				const data: MarketSyncStep = await postAjax<MarketSyncStep>(config, 'kk_market_sync', params);
 
@@ -2782,10 +2798,11 @@ function initMarketSync(): void {
 				 * or the remaining markets were unselected mid-run
 				 * (total > 0 - finish with what already synced). */
 				if (!data.market) {
+					current = '';
 					if (data.total === 0) {
 						if (data.error) {
-							line.textContent = formatTemplate(strings.failed, data.error);
-							result.textContent = data.error;
+							setSourceLine('', formatTemplate(strings.failed, data.error));
+							renderStatus();
 						}
 						setRunning(false);
 						return;
@@ -2793,17 +2810,18 @@ function initMarketSync(): void {
 					break;
 				}
 
-				const total = typeof data.total === 'number' && data.total > 0 ? data.total : 3;
+				total = typeof data.total === 'number' && data.total > 0 ? data.total : 3;
 				const done = typeof data.step === 'number' && data.step > 0 ? data.step : step + 1;
 				bar.max = total;
 				bar.value = done;
-				statusEl.textContent = `${formatTemplate(strings.syncingMarket, data.label)} (${done}/${total})`;
+				current = '';
 
-				line.textContent = !data.ok
+				setSourceLine(data.market, !data.ok
 					? formatTemplate(strings.failed, `${data.label}: ${data.error ?? ''}`)
 					: data.skipped
 						? formatTemplate(strings.syncMarketSkipped, data.label)
-						: formatTemplate(strings.syncMarketDone, data.label, data.symbols);
+						: formatTemplate(strings.syncMarketDone, data.label, data.symbols));
+				renderStatus();
 
 				if (data.next === null) {
 					break;
@@ -2812,15 +2830,16 @@ function initMarketSync(): void {
 			}
 
 			bar.value = bar.max;
-			statusEl.textContent = strings.marketSyncDone;
-			const summary = document.createElement('div');
-			summary.textContent = strings.marketSyncDone;
-			result.appendChild(summary);
+			current = '';
+			/* The summary goes first, never after the lines: the
+			 * bottom copy was the duplicate. */
+			lines.unshift(strings.marketSyncDone);
+			renderStatus();
 			setRunning(false);
 		} catch (error) {
-			const line = document.createElement('div');
-			line.textContent = errorMessage(error);
-			result.appendChild(line);
+			current = '';
+			lines.push(errorMessage(error));
+			renderStatus();
 			setRunning(false);
 		}
 	});
