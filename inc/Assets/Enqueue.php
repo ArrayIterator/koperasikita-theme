@@ -610,9 +610,11 @@ final class Enqueue
             return;
         }
 
-        /* Agenda editor and Locations page: the Pick Location popup
-         * (agenda.ts + agenda.css). The branch runs before the
-         * widgets/customizer early return below, which would drop it. */
+        /* Agenda editor: the Pick Location popup (agenda.ts +
+         * agenda.css). The Locations page loads the same bundle for
+         * its inline map picker and location search, not the popup.
+         * The branch runs before the widgets/customizer early return
+         * below, which would drop it. */
         if (Features::isEnabled('agenda')) {
             $screen = function_exists('get_current_screen') ? get_current_screen() : null;
             $isAgendaEditor = $screen instanceof \WP_Screen
