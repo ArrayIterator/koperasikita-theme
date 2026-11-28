@@ -9,8 +9,6 @@ use KoperasiKita\Customizer\Customizer;
 
 final class FeaturedImage
 {
-    private const CDN_HOST = 'i0.wp.com';
-
     public static function register(): void
     {
         add_filter('wp_get_attachment_image_attributes', [self::class, 'filterImageAttributes'], 10, 3);
@@ -49,28 +47,88 @@ final class FeaturedImage
     }
 
     /**
-     * Rewrite uploaded image URLs in a URL or HTML fragment to the
-     * CDN host. Only the uploads base URL is touched, so theme assets
-     * and external images pass through unchanged - and a URL that is
-     * already on the CDN does not match the pattern, so it is never
-     * rewritten twice.
+     * Pass an image URL through the TrayDigita Stack's JetpackPhoton
+     * provider. The provider decides eligibility itself: only
+     * same-host raster images (jpg, jpeg, png, gif, webp, avif,
+     * heic) are rewritten to the CDN; SVGs, external URLs and URLs
+     * already on the CDN pass through unchanged. When the CDN toggle
+     * is off, the site is not on a public domain, or the Stack is
+     * unavailable, the original URL is returned unchanged. The theme
+     * never builds a CDN URL itself.
      */
-    public static function rewrite(string $subject): string
+    private static function photon(string $url): string
     {
-        if (!self::isCdnEnabled()) {
-            return $subject;
+        if ($url === '' || !self::isCdnEnabled()) {
+            return $url;
         }
 
-        $uploads = wp_get_upload_dir();
-        $base = (string) preg_replace('#^https?://#', '', (string) ($uploads['baseurl'] ?? ''));
-
-        if ($base === '') {
-            return $subject;
+        if (!class_exists('TrayDigita\\WP\\Stack\\Source\\Stack')) {
+            return $url;
         }
 
-        $pattern = '#https?://' . preg_quote($base, '#') . '#';
+        try {
+            $photon = \TrayDigita\WP\Stack\Source\Stack::getInstance()->getJetpackPhoton();
 
-        return (string) preg_replace($pattern, 'https://' . self::CDN_HOST . '/' . $base, $subject);
+            return $photon->replace($url);
+        } catch (\Throwable) {
+            return $url;
+        }
+    }
+
+    /**
+     * Rewrite the URLs in a srcset attribute value through Photon.
+     * A srcset is a comma-separated list of "URL [descriptor]"
+     * entries; only the URL part of each entry is rewritten.
+     */
+    private static function photonSrcset(string $srcset): string
+    {
+        $entries = explode(',', $srcset);
+
+        foreach ($entries as &$entry) {
+            $entry = trim($entry);
+
+            if ($entry === '') {
+                continue;
+            }
+
+            $parts = preg_split('/\s+/', $entry, 2);
+
+            if (!is_array($parts) || $parts === [] || $parts[0] === '') {
+                continue;
+            }
+
+            $parts[0] = self::photon($parts[0]);
+            $entry = implode(' ', $parts);
+        }
+
+        unset($entry);
+
+        return implode(', ', $entries);
+    }
+
+    /**
+     * The CDN host for the resource hints, taken from the Stack's
+     * JetpackPhoton provider, never hardcoded here. Empty when the
+     * Stack is unavailable.
+     */
+    private static function cdnHost(): string
+    {
+        if (!class_exists('TrayDigita\\WP\\Stack\\Source\\Stack')) {
+            return '';
+        }
+
+        try {
+            $photon = \TrayDigita\WP\Stack\Source\Stack::getInstance()->getJetpackPhoton();
+            $cdnUrl = $photon->urlIndex(0);
+        } catch (\Throwable) {
+            return '';
+        }
+
+        if (!is_string($cdnUrl) || $cdnUrl === '') {
+            return '';
+        }
+
+        return (string) wp_parse_url($cdnUrl, PHP_URL_HOST);
     }
 
     /**
@@ -84,7 +142,7 @@ final class FeaturedImage
         }
 
         if (isset($image[0]) && is_string($image[0])) {
-            $image[0] = self::rewrite($image[0]);
+            $image[0] = self::photon($image[0]);
         }
 
         return $image;
@@ -96,7 +154,32 @@ final class FeaturedImage
             return $content;
         }
 
-        return self::rewrite($content);
+        if (!self::isCdnEnabled()) {
+            return $content;
+        }
+
+        // Rewrite the src and srcset URLs in the markup through the
+        // Stack's Photon provider. The provider only rewrites
+        // eligible same-host raster images, so SVGs, external URLs
+        // and non-image sources pass through unchanged. The lookbehind
+        // keeps data-src and other *-src attributes out of the match.
+        return (string) preg_replace_callback(
+            '/(?<![\w-])(srcset|src)\s*=\s*([\'"])(.*?)\2/i',
+            static function (array $matches): string {
+                $isSrcset = strtolower($matches[1]) === 'srcset';
+                $quote = $matches[2];
+                $value = $matches[3];
+
+                if ($isSrcset) {
+                    $value = self::photonSrcset($value);
+                } else {
+                    $value = self::photon($value);
+                }
+
+                return $matches[1] . '=' . $quote . $value . $quote;
+            },
+            $content
+        );
     }
 
     /**
@@ -109,12 +192,18 @@ final class FeaturedImage
             return $urls;
         }
 
+        $host = self::cdnHost();
+
+        if ($host === '') {
+            return $urls;
+        }
+
         if ($relationType === 'dns-prefetch') {
-            $urls[] = '//' . self::CDN_HOST;
+            $urls[] = '//' . $host;
         }
 
         if ($relationType === 'preconnect') {
-            $urls[] = ['href' => 'https://' . self::CDN_HOST, 'crossorigin'];
+            $urls[] = ['href' => 'https://' . $host, 'crossorigin'];
         }
 
         return $urls;
@@ -182,7 +271,7 @@ final class FeaturedImage
 
         foreach ($sources as $width => $source) {
             if (isset($source['url']) && is_string($source['url'])) {
-                $sources[$width]['url'] = self::rewrite($source['url']);
+                $sources[$width]['url'] = self::photon($source['url']);
             }
         }
 
