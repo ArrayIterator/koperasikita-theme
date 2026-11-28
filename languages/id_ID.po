@@ -3876,6 +3876,10 @@ msgstr "Satu lokasi per baris: Nama, lintang, bujur. Lokasi pertama adalah bawaa
 msgid "Add a location"
 msgstr "Tambah lokasi"
 
+#: src/ts/widget-blocks.ts
+msgid "Pick on map"
+msgstr "Pilih di peta"
+
 msgid "Searching…"
 msgstr "Mencari…"
 

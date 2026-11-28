@@ -16,6 +16,8 @@
  * site's categories and tags without a page reload.
  */
 
+import * as L from 'leaflet';
+
 export {};
 
 interface OptionItem {
@@ -123,6 +125,7 @@ interface Wp {
 		FormTokenField: unknown;
 		PanelBody: unknown;
 		Spinner: unknown;
+		Modal: unknown;
 	};
 	blockEditor: {
 		InspectorControls: unknown;
@@ -196,6 +199,378 @@ function isSameWeatherLocation(a: WeatherLocation, b: WeatherLocation): boolean 
 	return Math.abs(a.latitude - b.latitude) < 0.01 && Math.abs(a.longitude - b.longitude) < 0.01;
 }
 
+/* A "latitude, longitude" pair typed into a search box: two numbers
+ * separated by a comma, a semicolon, or whitespace. Anything else
+ * (a city name) is not coordinates, so the caller falls through to
+ * the geocoding search. Out-of-range numbers are not coordinates
+ * either - they are a typo, not a place. */
+function parseCoordinates(query: string): { latitude: number; longitude: number } | null {
+	const match = /^\s*([+-]?\d+(?:\.\d+)?)\s*[,;\s]\s*([+-]?\d+(?:\.\d+)?)\s*$/.exec(query);
+	if (match === null) {
+		return null;
+	}
+	const latitude = Number(match[1]);
+	const longitude = Number(match[2]);
+	if (
+		!Number.isFinite(latitude) ||
+		!Number.isFinite(longitude) ||
+		latitude < -90 ||
+		latitude > 90 ||
+		longitude < -180 ||
+		longitude > 180
+	) {
+		return null;
+	}
+	return { latitude, longitude };
+}
+
+/* A coordinate pair from two input strings, or null when either is
+ * empty or out of range. */
+function parseCoordPair(latText: string, lngText: string): { latitude: number; longitude: number } | null {
+	if (latText.trim() === '' || lngText.trim() === '') {
+		return null;
+	}
+	const latitude = Number(latText);
+	const longitude = Number(lngText);
+	if (
+		!Number.isFinite(latitude) ||
+		!Number.isFinite(longitude) ||
+		latitude < -90 ||
+		latitude > 90 ||
+		longitude < -180 ||
+		longitude > 180
+	) {
+		return null;
+	}
+	return { latitude, longitude };
+}
+
+/* POST one theme AJAX action (shared nonce in the body, like every
+ * other theme endpoint) and return the parsed JSON. Null when the
+ * request itself fails - the caller shows the generic unavailable
+ * status. */
+async function postWeatherAjax(action: string, params: Record<string, string>): Promise<unknown> {
+	const ajaxUrl = kkWidgetBlocks?.ajaxUrl ?? '';
+	const nonce = kkWidgetBlocks?.nonce ?? '';
+	if (ajaxUrl === '' || nonce === '') {
+		return null;
+	}
+	try {
+		const response = await fetch(ajaxUrl, {
+			method: 'POST',
+			credentials: 'same-origin',
+			body: new URLSearchParams({ action, nonce, ...params }),
+		});
+		return (await response.json()) as unknown;
+	} catch {
+		return null;
+	}
+}
+
+/* City search through the theme's own kk_weather_search endpoint -
+ * the same geocoding the inline locations search and the frontend
+ * picker use. */
+async function searchWeatherPlaces(query: string): Promise<WeatherSearchResult[]> {
+	const json = await postWeatherAjax('kk_weather_search', { query });
+	const data = json as { success?: boolean; data?: { results?: WeatherSearchResult[] } };
+	return Array.isArray(data?.data?.results) ? data.data.results : [];
+}
+
+/* Area name for coordinates (kk_weather_reverse): the label for a
+ * pin the user placed by hand. Null when it cannot be resolved -
+ * the caller keeps whatever label it already has. */
+async function reverseGeocodeWeather(latitude: number, longitude: number): Promise<string | null> {
+	const json = await postWeatherAjax('kk_weather_reverse', {
+		latitude: String(latitude),
+		longitude: String(longitude),
+	});
+	const data = json as { success?: boolean; data?: { name?: string | null } };
+	const name = typeof data?.data?.name === 'string' ? data.data.name.trim() : '';
+	return name !== '' ? name : null;
+}
+
+/** The KK-green map pin: a CSS teardrop, no marker-image assets. The
+ * teardrop's tip sits ~6px below the 28px box, so the anchor is
+ * [14, 34]: the tip, not the box, marks the place (same pin as the
+ * agenda maps). */
+function makeLocationPin(): L.DivIcon {
+	return L.divIcon({
+		className: 'kk-locations-pin-icon',
+		html: '<span class="kk-locations-pin"></span>',
+		iconSize: [28, 28],
+		iconAnchor: [14, 34],
+	});
+}
+
+const LOCATION_TILE_URL = 'https://tile.openstreetmap.org/{z}/{x}/{y}.png';
+const LOCATION_TILE_ATTRIBUTION =
+	'&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors';
+const LOCATION_DEFAULT_LAT = -0.9471;
+const LOCATION_DEFAULT_LNG = 100.4172;
+const LOCATION_DEFAULT_ZOOM = 15;
+
+/* The map picker popup for one weather location: a Leaflet map the
+ * user clicks (or drags the pin on), a city search that also takes
+ * raw coordinates, Latitude / Longitude inputs, and a free name
+ * label. The location is the lat/lon the pin sits on - the name is
+ * only the label for it. Nothing is saved until "Use this
+ * location": Cancel leaves the saved list untouched. */
+function LocationPickerModal(props: {
+	api: Wp;
+	onUse: (location: WeatherLocation) => void;
+	onClose: () => void;
+}): unknown {
+	const { api, onUse, onClose } = props;
+	const __ = (text: string): string => api.i18n.__(text, 'koperasikita');
+	const [name, setName] = api.element.useState('');
+	const [latText, setLatText] = api.element.useState('');
+	const [lngText, setLngText] = api.element.useState('');
+	const [query, setQuery] = api.element.useState('');
+	const [results, setResults] = api.element.useState<WeatherSearchResult[]>([]);
+	const [searching, setSearching] = api.element.useState(false);
+	const [status, setStatus] = api.element.useState('');
+	const mapBox = api.element.useRef<HTMLElement | null>(null);
+	const mapState = api.element.useRef<{ map: L.Map; marker: L.Marker | null } | null>(null);
+	const nameTyped = api.element.useRef(false);
+	const reverseToken = api.element.useRef(0);
+	const timer = api.element.useRef<number | null>(null);
+
+	const coords = parseCoordPair(latText, lngText);
+
+	/* Move the pin (and the readout) to a coordinate pair: the
+	 * lat/lon inputs are the source of truth, the marker follows
+	 * them. Only the state setters and the map ref are used, so the
+	 * function captured by the map handlers never goes stale. Every
+	 * move bumps the reverse token, so a reverse lookup started for
+	 * an earlier pin never overwrites a newer one. */
+	const setPin = (latitude: number, longitude: number): void => {
+		reverseToken.current += 1;
+		setLatText(String(latitude));
+		setLngText(String(longitude));
+		const state = mapState.current;
+		if (state === null) {
+			return;
+		}
+		if (state.marker === null) {
+			state.marker = L.marker([latitude, longitude], { icon: makeLocationPin(), draggable: true }).addTo(state.map);
+			state.marker.on('dragend', () => {
+				const pos = state.marker?.getLatLng();
+				if (pos) {
+					setPin(pos.lat, pos.lng);
+				}
+			});
+		} else {
+			state.marker.setLatLng([latitude, longitude]);
+		}
+		state.map.setView([latitude, longitude], state.map.getZoom());
+	};
+
+	/* Build the map once the modal is mounted (the container has a
+	 * laid-out box then) and destroy it on unmount, so reopening
+	 * the popup never hits "Map container is already initialized". */
+	api.element.useEffect(() => {
+		const el = mapBox.current;
+		if (el === null) {
+			return undefined;
+		}
+		const map = L.map(el, { scrollWheelZoom: false }).setView(
+			[LOCATION_DEFAULT_LAT, LOCATION_DEFAULT_LNG],
+			LOCATION_DEFAULT_ZOOM,
+		);
+		L.tileLayer(LOCATION_TILE_URL, { attribution: LOCATION_TILE_ATTRIBUTION, maxZoom: 19 }).addTo(map);
+		map.on('click', (event: L.LeafletMouseEvent) => {
+			setPin(event.latlng.lat, event.latlng.lng);
+		});
+		mapState.current = { map, marker: null };
+		requestAnimationFrame(() => map.invalidateSize());
+		return () => {
+			map.remove();
+			mapState.current = null;
+		};
+	}, []);
+
+	const runSearch = (nextQuery: string): void => {
+		if (timer.current !== null) {
+			window.clearTimeout(timer.current);
+			timer.current = null;
+		}
+		if (nextQuery.trim().length < 2) {
+			setResults([]);
+			setStatus('');
+			return;
+		}
+		setStatus(__('Searching…'));
+		timer.current = window.setTimeout(() => {
+			/* Coordinates first: a "lat, lon" pair places the pin
+			 * exactly there, with no geocoding round-trip. The name
+			 * comes from reverse geocoding when one resolves and
+			 * the user has not typed a label of their own. */
+			const parsed = parseCoordinates(nextQuery);
+			if (parsed !== null) {
+				setPin(parsed.latitude, parsed.longitude);
+				setResults([]);
+				setStatus('');
+				const token = reverseToken.current;
+				void reverseGeocodeWeather(parsed.latitude, parsed.longitude).then((resolved) => {
+					if (resolved !== null && !nameTyped.current && token === reverseToken.current) {
+						setName(resolved);
+					}
+				});
+				return;
+			}
+			setSearching(true);
+			void searchWeatherPlaces(nextQuery.trim())
+				.then((found) => {
+					setSearching(false);
+					setResults(found);
+					setStatus(found.length === 0 ? __('No places found. Try another name.') : '');
+				})
+				.catch(() => {
+					setSearching(false);
+					setStatus(__('Search is unavailable right now.'));
+				});
+		}, 300);
+	};
+
+	const pickResult = (place: WeatherSearchResult): void => {
+		setPin(place.latitude, place.longitude);
+		setName(place.name);
+		setResults([]);
+		setQuery(place.name);
+		setStatus('');
+	};
+
+	const applyCoords = (): void => {
+		if (coords !== null) {
+			setPin(coords.latitude, coords.longitude);
+		}
+	};
+
+	const useLocation = (): void => {
+		if (coords === null) {
+			return;
+		}
+		onUse({
+			name: name.trim() !== '' ? name.trim() : `${coords.latitude.toFixed(4)}, ${coords.longitude.toFixed(4)}`,
+			latitude: coords.latitude,
+			longitude: coords.longitude,
+		});
+	};
+
+	const resultButtons = results.map((place) =>
+		api.element.createElement(
+			'li',
+			{ key: `${place.name}-${place.latitude}-${place.longitude}` },
+			api.element.createElement(
+				'button',
+				{
+					type: 'button',
+					className: 'kk-locations-result',
+					onClick: () => pickResult(place),
+				},
+				place.country && place.country !== place.name ? `${place.name}, ${place.country}` : place.name,
+			),
+		),
+	);
+
+	return api.element.createElement(
+		api.components.Modal,
+		{
+			title: __('Choose location'),
+			onRequestClose: onClose,
+			className: 'kk-locations-picker-modal',
+		},
+		api.element.createElement(
+			'p',
+			{ className: 'kk-locations-picker-hint' },
+			__('Click the map to place the pin, or drag the pin to move it. The coordinates are saved with the location.'),
+		),
+		api.element.createElement(api.components.TextControl, {
+			label: __('Search for a city'),
+			value: query,
+			onChange: (next: string) => {
+				setQuery(next);
+				runSearch(next);
+			},
+		}),
+		searching ? api.element.createElement(api.components.Spinner, null) : null,
+		resultButtons.length > 0
+			? api.element.createElement('ul', { className: 'kk-locations-results' }, ...resultButtons)
+			: null,
+		api.element.createElement('div', {
+			className: 'kk-locations-picker-map',
+			ref: (el: HTMLElement | null) => {
+				mapBox.current = el;
+			},
+		}),
+		api.element.createElement(
+			'p',
+			{ className: 'kk-locations-picker-coords' },
+			coords !== null ? `${coords.latitude}, ${coords.longitude}` : __('No pin placed'),
+		),
+		api.element.createElement(
+			'div',
+			{ className: 'kk-locations-picker-coords-row' },
+			api.element.createElement(api.components.TextControl, {
+				label: __('Latitude'),
+				type: 'number',
+				value: latText,
+				onChange: (next: string) => setLatText(next),
+			}),
+			api.element.createElement(api.components.TextControl, {
+				label: __('Longitude'),
+				type: 'number',
+				value: lngText,
+				onChange: (next: string) => setLngText(next),
+			}),
+		),
+		api.element.createElement(
+			'button',
+			{
+				type: 'button',
+				className: 'components-button is-secondary kk-locations-picker-apply-coords',
+				disabled: coords === null,
+				onClick: applyCoords,
+			},
+			__('Use these coordinates'),
+		),
+		api.element.createElement(api.components.TextControl, {
+			label: __('Name'),
+			value: name,
+			onChange: (next: string) => {
+				nameTyped.current = true;
+				setName(next);
+			},
+		}),
+		status !== ''
+			? api.element.createElement('p', { className: 'components-base-control__help' }, status)
+			: null,
+		api.element.createElement(
+			'div',
+			{ className: 'kk-locations-picker-actions' },
+			api.element.createElement(
+				'button',
+				{
+					type: 'button',
+					className: 'components-button is-secondary',
+					onClick: onClose,
+				},
+				__('Cancel'),
+			),
+			api.element.createElement(
+				'button',
+				{
+					type: 'button',
+					className: 'components-button is-primary',
+					disabled: coords === null,
+					onClick: useLocation,
+				},
+				__('Use this location'),
+			),
+		),
+	);
+}
+
 /* The weather locations field: the saved list (name + coordinates
  * with a remove button each) plus a search box that adds places
  * through the theme's own kk_weather_search endpoint - the same
@@ -214,6 +589,7 @@ function LocationsField(props: {
 	const [results, setResults] = api.element.useState<WeatherSearchResult[]>([]);
 	const [searching, setSearching] = api.element.useState(false);
 	const [status, setStatus] = api.element.useState('');
+	const [pickerOpen, setPickerOpen] = api.element.useState(false);
 	const timer = api.element.useRef<number | null>(null);
 
 	const search = (nextQuery: string): void => {
@@ -256,16 +632,21 @@ function LocationsField(props: {
 		}, 300);
 	};
 
-	const add = (place: WeatherSearchResult): void => {
-		const candidate: WeatherLocation = { name: place.name, latitude: place.latitude, longitude: place.longitude };
+	/* Append one location to the saved list, unless it is already
+	 * there (same name, or within 0.01 degrees of a kept one). */
+	const addLocation = (candidate: WeatherLocation): void => {
 		if (locations.some((kept) => isSameWeatherLocation(kept, candidate))) {
-			setStatus(`${place.name} ${__('is already in the list.')}`);
+			setStatus(`${candidate.name} ${__('is already in the list.')}`);
 			return;
 		}
 		set(field.key, [...locations, candidate]);
+		setStatus(`${candidate.name} ${__('added.')}`);
+	};
+
+	const add = (place: WeatherSearchResult): void => {
+		addLocation({ name: place.name, latitude: place.latitude, longitude: place.longitude });
 		setResults([]);
 		setQuery('');
-		setStatus(`${place.name} ${__('added.')}`);
 	};
 
 	const rows = locations.map((location, index) =>
@@ -320,12 +701,31 @@ function LocationsField(props: {
 				search(next);
 			},
 		}),
+		api.element.createElement(
+			'button',
+			{
+				type: 'button',
+				className: 'components-button is-secondary kk-locations-pick',
+				onClick: () => setPickerOpen(true),
+			},
+			__('Pick on map'),
+		),
 		searching ? api.element.createElement(api.components.Spinner, null) : null,
 		resultButtons.length > 0
 			? api.element.createElement('ul', { className: 'kk-locations-results' }, ...resultButtons)
 			: null,
 		status !== ''
 			? api.element.createElement('p', { className: 'components-base-control__help' }, status)
+			: null,
+		pickerOpen
+			? api.element.createElement(LocationPickerModal, {
+					api,
+					onUse: (location: WeatherLocation) => {
+						addLocation(location);
+						setPickerOpen(false);
+					},
+					onClose: () => setPickerOpen(false),
+				})
 			: null,
 	);
 }
