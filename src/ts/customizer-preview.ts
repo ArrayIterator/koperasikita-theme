@@ -256,6 +256,35 @@ function applyStyleVariant(next: SettingValue): void {
 }
 
 /*
+ * The Agenda toggle hides the feature in the preview the moment it is
+ * switched off, without waiting for a server round-trip. The server
+ * still owns the real behaviour (the archive/single 302 and the widget
+ * render gate in Agenda::maybeRedirectWhenDisabled / AgendaWidget), and
+ * the toggle's refresh transport reloads the preview so the server
+ * render takes over; this class is the instant feedback in between,
+ * and it also covers a preview navigation that arrives before the
+ * changeset autosave has persisted the new value (the pane's JS state
+ * is the source of truth here, not the saved theme mod). The class is
+ * only ever set by this preview script, so it can never appear on the
+ * live site.
+ */
+function applyAgendaEnabled(next: SettingValue): void {
+	const enabled = next === true || next === '1' || next === 'on' || next === 1;
+	document.documentElement.classList.toggle('kk-agenda-off', !enabled);
+}
+
+function bindAgendaEnabled(): void {
+	if (typeof wp === 'undefined' || !wp.customize) {
+		return;
+	}
+	wp.customize('kk_agenda_enabled', (value) => {
+		/* Apply the pane's current value on load, then follow changes. */
+		applyAgendaEnabled(value.get());
+		value.bind((next) => applyAgendaEnabled(next));
+	});
+}
+
+/*
  * Footer copyright preview. The copyright element carries the token values
  * (data-kk-footer-tokens, JSON) and the default line (data-kk-footer-default)
  * as data attributes, so the preview can replace {tokens} in the incoming
@@ -322,6 +351,7 @@ function initCustomizerPreview(): void {
 	bindSetting('kk_homepage_layout', applyHomepageLayout);
 	bindSetting('kk_logo_invert_dark', applyLogoInvert);
 	bindSetting('kk_style_variant', applyStyleVariant);
+	bindAgendaEnabled();
 
 	bindSetting('kk_footer_text', applyFooterText);
 	bindSetting('kk_footer_alignment', applyFooterAlignment);

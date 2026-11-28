@@ -345,6 +345,15 @@
  * in dark mode - and the widget's Card style setting can force either
  * variant regardless of scheme (see variants.css). */
 
+/* Customizer preview: the agenda toggle is off (unsaved). The preview
+ * script sets kk-agenda-off on <html> the moment the toggle changes,
+ * so the widget hides instantly while the refresh transport reloads
+ * the preview and the server-side render gate takes over. The class
+ * is only ever set by the preview script, never on the live site. */
+html.kk-agenda-off .kk-agenda-widget {
+	display: none;
+}
+
 .kk-agenda-widget-card {
 	/* Scheme-aware colours, as variables so dark mode and the forced
 	 * variants (variants.css) only override the palette, never the

@@ -40,6 +40,18 @@
 	padding: 24px 0;
 }
 
+/* Customizer preview: the agenda toggle is off (unsaved). The preview
+ * script sets kk-agenda-off on <html> the moment the toggle changes,
+ * so the agenda archive content and the single agenda article hide
+ * instantly while the refresh transport reloads the preview and the
+ * server-side 302 takes over. Scoped to the agenda body classes so no
+ * other archive or single page is affected, and the class is only ever
+ * set by the preview script, never on the live site. */
+html.kk-agenda-off body.post-type-archive-agenda .kk-content-area,
+html.kk-agenda-off body.single-agenda .kk-agenda-single {
+	display: none;
+}
+
 .kk-no-results .kk-section-title {
 	/* No top rule here: the search header already ends in a 2px
 	 * bottom border, and a second rule 24px below it reads as a
