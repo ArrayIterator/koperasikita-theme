@@ -2439,6 +2439,18 @@ msgstr "Pengaturan"
 msgid "Show thumbnails"
 msgstr "Tampilkan thumbnail"
 
+#: inc/Widgets/AbstractStoryWidget.php
+msgid "Show Date"
+msgstr "Tampilkan tanggal"
+
+#: inc/Widgets/AbstractStoryWidget.php
+msgid "Show Category"
+msgstr "Tampilkan kategori"
+
+#: inc/Widgets/AbstractStoryWidget.php
+msgid "Show Clock"
+msgstr "Tampilkan jam"
+
 #: inc/Widgets/PagesWidget.php
 msgid "Sort order"
 msgstr "Urutan"

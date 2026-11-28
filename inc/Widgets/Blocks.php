@@ -115,6 +115,9 @@ final class Blocks
             'count' => ['type' => 'number', 'default' => 5],
             'layout' => ['type' => 'string', 'default' => 'list'],
             'showThumbnail' => ['type' => 'boolean', 'default' => true],
+            'showDate' => ['type' => 'boolean', 'default' => true],
+            'showClock' => ['type' => 'boolean', 'default' => false],
+            'showCategory' => ['type' => 'boolean', 'default' => false],
             'marginTop' => ['type' => 'number', 'default' => 0],
             'marginBottom' => ['type' => 'number', 'default' => 10],
         ];
@@ -124,6 +127,9 @@ final class Blocks
             'count' => 'count',
             'layout' => 'layout',
             'showThumbnail' => 'show_thumbnail',
+            'showDate' => 'show_date',
+            'showClock' => 'show_clock',
+            'showCategory' => 'show_category',
             'marginTop' => 'margin_top',
             'marginBottom' => 'margin_bottom',
         ];

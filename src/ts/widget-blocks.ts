@@ -1552,6 +1552,9 @@ function buildDefinitions(api: Wp): BlockDef[] {
 		count: { type: 'number', default: 5 },
 		layout: { type: 'string', default: 'list' },
 		showThumbnail: { type: 'boolean', default: true },
+		showDate: { type: 'boolean', default: true },
+		showClock: { type: 'boolean', default: false },
+		showCategory: { type: 'boolean', default: false },
 		marginTop: { type: 'number', default: 0 },
 		marginBottom: { type: 'number', default: 10 },
 	};
@@ -1611,6 +1614,9 @@ function buildDefinitions(api: Wp): BlockDef[] {
 			],
 		},
 		{ key: 'showThumbnail', kind: 'toggle', label: __('Show thumbnails') },
+		{ key: 'showDate', kind: 'toggle', label: __('Show Date') },
+		{ key: 'showClock', kind: 'toggle', label: __('Show Clock') },
+		{ key: 'showCategory', kind: 'toggle', label: __('Show Category') },
 	];
 
 	const definitions: BlockDef[] = [
