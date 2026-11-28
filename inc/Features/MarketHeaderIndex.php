@@ -40,10 +40,10 @@ use KoperasiKita\Widgets\MarketsWidget;
  * again, but never render. An empty picked list means the default
  * set, the same as the Customizer picker's empty state.
  * The snapshot caption under the strip is customizable:
- * `snapshot_label` is the text before the date and time (empty
- * hides the label), `snapshot_show_datetime` toggles the day and
- * time, and `snapshot_format` is the PHP date format for them
- * (default 'l H.i T', e.g. "Sabtu 08.30 WIB").
+ * `snapshot_label` is the text before the date and time (an empty
+ * label falls back to the default), `snapshot_show_datetime`
+ * toggles the day and time, and `snapshot_format` is the PHP date
+ * format for them (default 'l H.i T', e.g. "Sabtu 08.30 WIB").
  * `snapshot_show_mobile` toggles the whole snapshot caption on
  * small screens only; off hides it below 768px so the strip gets
  * the full row, desktop is untouched.
@@ -134,7 +134,8 @@ final class MarketHeaderIndex
 
     /**
      * The caption label: plain text, trimmed, at most 80 chars.
-     * An empty string is kept - it hides the label.
+     * An empty label falls back to the default, so the label never
+     * renders as nothing by accident.
      */
     public static function sanitizeSnapshotLabel(mixed $value): string
     {
@@ -143,6 +144,10 @@ final class MarketHeaderIndex
         }
 
         $label = trim(sanitize_text_field(wp_unslash($value)));
+
+        if ($label === '') {
+            return __('Market Snapshot', 'koperasikita');
+        }
 
         return mb_substr($label, 0, self::MAX_SNAPSHOT_LABEL_LENGTH);
     }
@@ -297,13 +302,12 @@ final class MarketHeaderIndex
 
     /**
      * The snapshot caption text: the label, the day and time, or
-     * both, joined with a middot - or '' when there is nothing to
-     * show (empty label and day/time off, or day/time on with no
-     * snapshot timestamp). The day and time use wp_date() with the
-     * true Unix timestamp: date_i18n() with a true timestamp
-     * renders 7 hours early under Asia/Jakarta (WP 7.1.5), which
-     * is why the caption used to read 08.30 for data taken at
-     * 15.30.
+     * both, joined with a middot. The label always renders - an
+     * empty label falls back to the default - so the caption is
+     * never empty. The day and time use wp_date() with the true
+     * Unix timestamp: date_i18n() with a true timestamp renders 7
+     * hours early under Asia/Jakarta (WP 7.1.5), which is why the
+     * caption used to read 08.30 for data taken at 15.30.
      */
     public static function captionText(?int $snapshot): string
     {

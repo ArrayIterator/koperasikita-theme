@@ -2701,7 +2701,7 @@ final class Customizer
             'label' => esc_html__('Snapshot label', 'koperasikita'),
             'description' => esc_html(sprintf(
                 /* translators: %s: the default snapshot label. */
-                __('The text before the date and time. Leave empty to hide the label. Default: %s.', 'koperasikita'),
+                __('The text before the date and time. Leave empty to use the default: %s.', 'koperasikita'),
                 __('Market Snapshot', 'koperasikita')
             )),
             'section' => 'koperasikita_market_header',
