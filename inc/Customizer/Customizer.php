@@ -92,6 +92,7 @@ final class Customizer
             'koperasikita_market_header' => esc_html__('Market Index', 'koperasikita'),
             'koperasikita_mobile_menu' => esc_html__('Mobile Menu', 'koperasikita'),
             'koperasikita_homepage' => esc_html__('Homepage Layout', 'koperasikita'),
+            'koperasikita_agenda' => esc_html__('Agenda', 'koperasikita'),
             'koperasikita_single' => esc_html__('Single Post', 'koperasikita'),
             'koperasikita_comments' => esc_html__('Comments', 'koperasikita'),
             'koperasikita_accessibility' => esc_html__('Appearance & Accessibility', 'koperasikita'),
@@ -1249,7 +1250,7 @@ final class Customizer
         $toggles = [
             'kk_bookmarks_enabled' => ['koperasikita_accessibility', 'Enable Bookmarks'],
             'kk_pwa_enabled' => ['koperasikita_pwa', 'Enable Progressive Web App'],
-            'kk_agenda_enabled' => ['koperasikita_homepage', 'Enable Agenda'],
+            'kk_agenda_enabled' => ['koperasikita_agenda', 'Enable Agenda'],
         ];
 
         foreach ($toggles as $id => [$section, $label]) {
@@ -1426,7 +1427,7 @@ final class Customizer
             'kk_single_related' => ['koperasikita_single', 'Show Related News', true, 10],
             'kk_single_reading_time' => ['koperasikita_single', 'Show Reading Time', true, 10],
             'kk_single_show_share' => ['koperasikita_single', 'Show Share Buttons', true, 10],
-            'kk_agenda_location_enabled' => ['koperasikita_single', 'Show Event Location on Agenda Pages', true, 10],
+            'kk_agenda_location_enabled' => ['koperasikita_agenda', 'Show Event Location on Agenda Pages', true, 10],
             'kk_comments_avatars' => ['koperasikita_comments', 'Show Comment Avatars', true, 10],
             'kk_images_lazy' => ['koperasikita_media', 'Lazy-Load Images', true, 10],
             'kk_images_srcset' => ['koperasikita_media', 'Enable Responsive Images', true, 10],
@@ -1569,7 +1570,7 @@ final class Customizer
         $wpCustomize->add_control('kk_agenda_location_position', [
             'label' => esc_html__('Event Location Position', 'koperasikita'),
             'description' => esc_html__('Where the event location is shown on a single agenda page.', 'koperasikita'),
-            'section' => 'koperasikita_single',
+            'section' => 'koperasikita_agenda',
             'type' => 'select',
             'active_callback' => [self::class, 'isAgendaLocationEnabled'],
             'priority' => 11,
