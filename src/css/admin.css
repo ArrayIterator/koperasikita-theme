@@ -445,7 +445,7 @@
 	color: #646970;
 }
 
-/* Quote widget colours: the same swatch + hex + clear row as the
+/* Quote widget colours: the same swatch + clear row as the
  * agenda Choose Own colours - an empty value reads as "no colour"
  * via the checkerboard, so the card falls back to the theme colour. */
 .kk-quote-color-row {
@@ -495,10 +495,6 @@
 
 .kk-quote-color-clear:hover {
 	color: #d63638;
-}
-
-.kk-quote-color-hex {
-	color: #646970;
 }
 
 /* "Link to": the search results reuse the term picker list/option
