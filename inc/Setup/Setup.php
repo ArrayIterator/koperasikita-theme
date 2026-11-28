@@ -108,7 +108,7 @@ final class Setup
 
         echo '<div class="wrap kk-setup">';
         echo '<header class="kk-setup-header">';
-        echo '<img class="kk-setup-logo" src="' . esc_url(KK_URI . '/assets/img/logo-k.svg') . '" alt="' . esc_attr((string) get_bloginfo('name')) . '" width="64" height="64">';
+        echo '<img class="kk-setup-logo" src="' . esc_url(KK_URI . '/assets/img/kk-v2-gradient-gold.svg') . '" alt="' . esc_attr((string) get_bloginfo('name')) . '" width="64" height="64">';
         echo '<div><h1 class="kk-setup-title">' . esc_html__('Koperasi Kita Setup', 'koperasikita') . '</h1>';
         echo '<p class="kk-setup-subtitle">' . esc_html__('Everything the theme needs, in one place.', 'koperasikita') . '</p></div>';
         echo '</header>';

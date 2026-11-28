@@ -97,7 +97,7 @@ final class Pwa
             return;
         }
 
-        $logo = get_template_directory() . '/assets/img/logo-512.png';
+        $logo = get_template_directory() . '/assets/img/kk-v2-gradient-gold-512.png';
 
         if (!is_file($logo)) {
             return;
@@ -109,7 +109,7 @@ final class Pwa
             return;
         }
 
-        $bits = wp_upload_bits('koperasi-kita-logo-512.png', null, $contents);
+        $bits = wp_upload_bits('koperasi-kita-logo-v2-512.png', null, $contents);
 
         if (!empty($bits['error']) || empty($bits['file'])) {
             return;
@@ -208,6 +208,11 @@ final class Pwa
     /**
      * Manifest link (+ theme colour) in <head>. The install prompt and
      * the service worker both depend on this link existing.
+     *
+     * Also the favicon, but only while no site icon is set: WordPress
+     * core prints the site icon's own links, and a second icon link
+     * would compete with it, so the shipped favicon.ico (the v2 K
+     * mark, 16/32/48) is the fallback for sites without one.
      */
     public static function printManifestLink(): void
     {
@@ -215,11 +220,16 @@ final class Pwa
         echo '<meta name="theme-color" content="' . esc_attr(self::themeColor()) . '">' . "\n";
         echo '<link rel="apple-touch-icon" href="'
             . esc_url(self::appIconUrl()) . '">' . "\n";
+
+        if (get_site_icon_url() === '') {
+            echo '<link rel="icon" type="image/x-icon" href="'
+                . esc_url(get_template_directory_uri() . '/assets/img/favicon.ico') . '">' . "\n";
+        }
     }
 
     /**
      * The app icon URL: the Customizer-picked image when one is set,
-     * otherwise the shipped logo (assets/img/logo-192.png).
+     * otherwise the shipped logo (assets/img/kk-v2-gradient-gold-192.png).
      */
     public static function appIconUrl(): string
     {
@@ -233,7 +243,7 @@ final class Pwa
             }
         }
 
-        return get_template_directory_uri() . '/assets/img/logo-192.png';
+        return get_template_directory_uri() . '/assets/img/kk-v2-gradient-gold-192.png';
     }
 
     /**
@@ -297,13 +307,13 @@ final class Pwa
 
         return [
             [
-                'src' => $iconsBase . 'logo-192.png',
+                'src' => $iconsBase . 'kk-v2-gradient-gold-192.png',
                 'sizes' => '192x192',
                 'type' => 'image/png',
                 'purpose' => 'any',
             ],
             [
-                'src' => $iconsBase . 'logo-512.png',
+                'src' => $iconsBase . 'kk-v2-gradient-gold-512.png',
                 'sizes' => '512x512',
                 'type' => 'image/png',
                 'purpose' => 'any',

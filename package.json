@@ -17,7 +17,7 @@
     "typecheck": "tsc --noEmit"
   },
   "type": "module",
-  "version": "1.0.1",
+  "version": "2.0.0",
   "dependencies": {
     "leaflet": "1.9.4",
     "select2": "^4.1.0"

@@ -1,6 +1,7 @@
 /* Admin menu: the Koperasi Kita top-level item shows the KK K
- * mark. The Dashboard item keeps WordPress core's default
- * dashboard icon (nothing here touches it).
+ * mark, and the Dashboard item shows the same mark too (v2.0.0
+ * total rebrand: the old rule that the Dashboard keeps WordPress
+ * core's default dashboard icon is gone).
  *
  * The rule lives in its own entry because the kk-admin bundle is
  * only enqueued on a few admin screens (Setup, nav-menus, Gold
@@ -9,12 +10,12 @@
  * This stylesheet is enqueued unconditionally by
  * Enqueue::registerAdmin(), so the icon is the KK mark everywhere.
  *
- * Only the Koperasi Kita item is touched in the sidebar; every
- * other menu keeps its own icon. The mark is the shipped square
- * K (assets/img/logo-k.svg), shown at the admin menu's 20px icon
- * size. The SVG's own artwork is 282..1319 x 204..1415 inside a
- * 1600 viewBox, so it is centred in the slot rather than cropped
- * to the viewBox edge.
+ * Only the Koperasi Kita and Dashboard items are touched in the
+ * sidebar; every other menu keeps its own icon. The mark is the
+ * shipped v2 grayscale K (assets/img/kk-v2-gradient-grayscale.svg),
+ * shown at the admin menu's 20px icon size. The SVG's own artwork
+ * spans roughly 48..865 inside a 913 viewBox, so it is centred in
+ * the slot rather than cropped to the viewBox edge.
  *
  * The mark is inlined as a data URI at build time
  * (url('...?inline')) and kept in one custom property so the rules
@@ -30,7 +31,7 @@
  */
 
 :root {
-	--kk-logo-k: url('../../assets/img/logo-k.svg?inline');
+	--kk-logo-v2: url('../../assets/img/kk-v2-gradient-grayscale.svg?inline');
 }
 
 /* The Koperasi Kita top-level item shows the K mark.
@@ -39,10 +40,27 @@
  * The item's id is the top-level hook name, toplevel_page_ +
  * the menu slug. */
 #adminmenu #toplevel_page_koperasikita .wp-menu-image {
-	background-image: var(--kk-logo-k) !important;
+	background-image: var(--kk-logo-v2) !important;
 	background-repeat: no-repeat;
 	background-position: center;
 	background-size: 20px 20px;
+}
+
+/* The Dashboard item shows the same K mark.
+ * Core renders the dashboard dashicon as a :before glyph inside
+ * the image div and forces `background-image: none !important`
+ * on built-in .menu-icon-<x> image divs, so the rule needs
+ * !important plus the #adminmenu #menu-dashboard specificity to
+ * win, and the glyph itself is removed with content: none. */
+#adminmenu #menu-dashboard .wp-menu-image {
+	background-image: var(--kk-logo-v2) !important;
+	background-repeat: no-repeat;
+	background-position: center;
+	background-size: 20px 20px;
+}
+
+#adminmenu #menu-dashboard .wp-menu-image:before {
+	content: none;
 }
 
 /* Admin bar: the site-name item shows the KK K mark instead of the
@@ -51,8 +69,9 @@
  * Core renders the site-name icon as a ::before glyph
  * (dashicons-admin-home, \f102 in wp-admin) and, when a site icon
  * is set, a 20px <img class="site-icon"> instead. Both are replaced
- * here by the same shipped square K (assets/img/logo-k.svg) the
- * Koperasi Kita menu icon uses, as a background on the link itself:
+ * here by the same shipped v2 grayscale K
+ * (assets/img/kk-v2-gradient-grayscale.svg) the menu icons use, as
+ * a background on the link itself:
  * core forces `background-image: none !important` on
  * .ab-item:before, so the glyph slot cannot carry the image.
  * The same inlined mark as the Koperasi Kita menu rule is used,
@@ -69,7 +88,7 @@
  * padding-left moves the text to 33px.
  */
 #wpadminbar #wp-admin-bar-root-default #wp-admin-bar-site-name > .ab-item {
-	background-image: var(--kk-logo-k);
+	background-image: var(--kk-logo-v2);
 	background-repeat: no-repeat;
 	background-position: 7px center;
 	background-size: 20px 20px;
