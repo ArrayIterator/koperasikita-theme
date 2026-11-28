@@ -70,6 +70,16 @@
 	gap: 32px;
 	align-content: start;
 	margin-bottom: 32px;
+	max-width: 100%;
+}
+
+/* A grid item's automatic minimum size is its content's minimum, so
+ * a wide child (the weather details grid) forces the area wider
+ * than its track instead of letting it shrink. min-width: 0 lets
+ * each widget shrink to the area's width. */
+.kk-widget-area > *,
+.kk-sidebar > * {
+	min-width: 0;
 }
 
 .kk-widget-area--below-header {
@@ -92,6 +102,7 @@
 	display: grid;
 	gap: 32px;
 	align-content: start;
+	max-width: 100%;
 }
 
 /* Front-page strips carry no .kk-sidebar wrapper, so the sidebar

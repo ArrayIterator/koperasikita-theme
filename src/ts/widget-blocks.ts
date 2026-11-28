@@ -2089,6 +2089,8 @@ function buildDefinitions(api: Wp): BlockDef[] {
 				defaultCity: { type: 'string', default: 'Padang' },
 				showDetails: { type: 'boolean', default: false },
 				showIcon: { type: 'boolean', default: true },
+				tempAlign: { type: 'string', default: 'left' },
+				tempUnit: { type: 'string', default: 'auto' },
 				locations: { type: 'array', default: [] },
 			},
 			fields: [
@@ -2105,6 +2107,28 @@ function buildDefinitions(api: Wp): BlockDef[] {
 						{ value: 'dark-green', label: __('Dark Green') },
 						{ value: 'light', label: __('Light') },
 						{ value: 'dark', label: __('Dark') },
+					],
+				},
+				{
+					key: 'tempAlign',
+					kind: 'select',
+					label: __('Temperature layout'),
+					options: [
+						{ value: 'left', label: __('Left') },
+						{ value: 'center', label: __('Centered') },
+						{ value: 'between', label: __('Between') },
+						{ value: 'right', label: __('Right') },
+					],
+				},
+				{
+					key: 'tempUnit',
+					kind: 'select',
+					label: __('Temperature unit'),
+					options: [
+						{ value: 'auto', label: __('Auto (site setting)') },
+						{ value: 'celsius', label: __('Celsius (°C)') },
+						{ value: 'fahrenheit', label: __('Fahrenheit (°F)') },
+						{ value: 'kelvin', label: __('Kelvin (K)') },
 					],
 				},
 				{

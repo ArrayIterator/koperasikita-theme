@@ -69,18 +69,37 @@ interface KkData {
 // window.kkData, and a second declaration with a different shape breaks
 // the build. Read it through a narrow cast instead.
 
-/* Temperature unit: the API returns Celsius, and Fahrenheit is a
- * display conversion (degF = degC x 9/5 + 32). */
+type TempUnit = 'celsius' | 'fahrenheit' | 'kelvin';
+
+/* Temperature unit: the API returns Celsius, and Fahrenheit and
+ * Kelvin are display conversions (degF = degC x 9/5 + 32,
+ * K = degC + 273.15). A widget carries its own resolved unit in
+ * data-temp-unit; without one the site-wide unit applies. */
 function isFahrenheit(): boolean {
 	const data = window.kkData as unknown as KkData | undefined;
 	return data?.weatherUnit === 'fahrenheit';
 }
 
-function formatTemp(celsius: number): string {
-	const value = isFahrenheit()
-		? Math.round((celsius * 9) / 5 + 32)
-		: Math.round(celsius);
-	return `${value}°${isFahrenheit() ? 'F' : 'C'}`;
+function formatTemp(celsius: number, unit?: TempUnit): string {
+	const resolved: TempUnit = unit ?? (isFahrenheit() ? 'fahrenheit' : 'celsius');
+	if (resolved === 'kelvin') {
+		return `${Math.round(celsius + 273.15)}K`;
+	}
+	if (resolved === 'fahrenheit') {
+		return `${Math.round((celsius * 9) / 5 + 32)}°F`;
+	}
+	return `${Math.round(celsius)}°C`;
+}
+
+/* A widget's resolved temperature unit: the data-temp-unit the
+ * server rendered, or the site-wide unit for a widget saved before
+ * the per-widget setting existed. */
+function widgetTempUnit(widget: HTMLElement): TempUnit {
+	const unit = widget.dataset.tempUnit;
+	if (unit === 'celsius' || unit === 'fahrenheit' || unit === 'kelvin') {
+		return unit;
+	}
+	return isFahrenheit() ? 'fahrenheit' : 'celsius';
 }
 
 interface Location {
@@ -461,7 +480,7 @@ function renderWidget(widget: HTMLElement, weather: WeatherData): void {
 		place.textContent = weather.name;
 	}
 	if (body) {
-		renderWidgetBody(body, weather, widget.dataset.showDetails === '1', widget.dataset.showIcon !== '0');
+		renderWidgetBody(body, weather, widget.dataset.showDetails === '1', widget.dataset.showIcon !== '0', widgetTempUnit(widget));
 	}
 }
 
@@ -476,7 +495,7 @@ function hideTopbar(): void {
 	}
 }
 
-function renderWidgetBody(body: HTMLElement, weather: WeatherData, showDetails: boolean, showIcon: boolean): void {
+function renderWidgetBody(body: HTMLElement, weather: WeatherData, showDetails: boolean, showIcon: boolean, unit: TempUnit): void {
 	body.textContent = '';
 	// The condition icon rides in the response as the theme's own icon
 	// SVG (trusted markup from the server, no user input in it) - the
@@ -492,7 +511,7 @@ function renderWidgetBody(body: HTMLElement, weather: WeatherData, showDetails: 
 	}
 	const temp = document.createElement('p');
 	temp.className = 'kk-weather-temp';
-	temp.textContent = formatTemp(weather.temperature);
+	temp.textContent = formatTemp(weather.temperature, unit);
 	current.appendChild(temp);
 	body.appendChild(current);
 	const condition = document.createElement('p');
@@ -505,10 +524,10 @@ function renderWidgetBody(body: HTMLElement, weather: WeatherData, showDetails: 
 	}
 	const rows: Array<[string, string]> = [];
 	if (weather.feels_like !== null) {
-		rows.push(['Feels like', formatTemp(weather.feels_like)]);
+		rows.push(['Feels like', formatTemp(weather.feels_like, unit)]);
 	}
 	if (weather.high !== null && weather.low !== null) {
-		rows.push(['High / Low', `${formatTemp(weather.high)} / ${formatTemp(weather.low)}`]);
+		rows.push(['High / Low', `${formatTemp(weather.high, unit)} / ${formatTemp(weather.low, unit)}`]);
 	}
 	if (weather.humidity !== null) {
 		rows.push(['Humidity', `${weather.humidity}%`]);

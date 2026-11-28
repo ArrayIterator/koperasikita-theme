@@ -428,6 +428,8 @@ final class Blocks
                     'defaultCity' => ['type' => 'string', 'default' => 'Padang'],
                     'showDetails' => ['type' => 'boolean', 'default' => false],
                     'showIcon' => ['type' => 'boolean', 'default' => true],
+                    'tempAlign' => ['type' => 'string', 'default' => 'left'],
+                    'tempUnit' => ['type' => 'string', 'default' => 'auto'],
                     'locations' => [
                         'type' => 'array',
                         'default' => [],
@@ -448,6 +450,8 @@ final class Blocks
                     'defaultCity' => 'default_city',
                     'showDetails' => 'show_details',
                     'showIcon' => 'show_icon',
+                    'tempAlign' => 'temp_align',
+                    'tempUnit' => 'temp_unit',
                     'locations' => 'locations',
                 ],
             ];

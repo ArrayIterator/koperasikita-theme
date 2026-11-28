@@ -314,6 +314,86 @@ final class Weather
     }
 
     /**
+     * Clamp a resolved temperature unit to the three display units.
+     * Anything else falls back to Celsius.
+     */
+    public static function sanitizeTempUnit(string $unit): string
+    {
+        return in_array($unit, ['celsius', 'fahrenheit', 'kelvin'], true) ? $unit : 'celsius';
+    }
+
+    /**
+     * Clamp a stored temperature-unit setting to the four values the
+     * widget offers. 'auto' follows the site-wide Customizer unit;
+     * anything else falls back to 'auto'.
+     */
+    public static function sanitizeTempUnitSetting(string $unit): string
+    {
+        return in_array($unit, ['auto', 'celsius', 'fahrenheit', 'kelvin'], true) ? $unit : 'auto';
+    }
+
+    /**
+     * Resolve a stored temperature-unit setting to a display unit.
+     * 'auto' follows the site-wide Customizer unit (Celsius or
+     * Fahrenheit); an explicit unit is used as-is.
+     */
+    public static function resolveTempUnit(string $unit): string
+    {
+        $unit = self::sanitizeTempUnitSetting($unit);
+
+        if ($unit !== 'auto') {
+            return $unit;
+        }
+
+        $site = get_theme_mod('kk_weather_unit', 'celsius');
+
+        return in_array($site, ['celsius', 'fahrenheit'], true) ? (string) $site : 'celsius';
+    }
+
+    /**
+     * Convert a Celsius temperature to the display unit.
+     */
+    public static function convertTemp(float $celsius, string $unit): float
+    {
+        if ($unit === 'fahrenheit') {
+            return ($celsius * 9) / 5 + 32;
+        }
+
+        if ($unit === 'kelvin') {
+            return $celsius + 273.15;
+        }
+
+        return $celsius;
+    }
+
+    /**
+     * The unit label shown after a temperature: the degree mark is
+     * part of the label for Celsius and Fahrenheit; Kelvin takes
+     * none.
+     */
+    public static function tempUnitLabel(string $unit): string
+    {
+        if ($unit === 'fahrenheit') {
+            return '&deg;F';
+        }
+
+        if ($unit === 'kelvin') {
+            return 'K';
+        }
+
+        return '&deg;C';
+    }
+
+    /**
+     * The degree mark for a temperature pair (high / low): Celsius
+     * and Fahrenheit mark each number, Kelvin marks neither.
+     */
+    public static function tempDegreeMark(string $unit): string
+    {
+        return $unit === 'kelvin' ? '' : '&deg;';
+    }
+
+    /**
      * Render the inner markup for one fetched forecast.
      *
      * The widget uses this for its server-side first paint; the frontend
@@ -322,14 +402,15 @@ final class Weather
      *
      * @param array{temperature: float, feels_like: float|null, humidity: int|null, wind_speed: float|null, high: float|null, low: float|null, code: int, condition: string} $weather
      */
-    public static function renderCurrentHtml(array $weather, bool $showDetails, bool $showIcon = true): string
+    public static function renderCurrentHtml(array $weather, bool $showDetails, bool $showIcon = true, string $unit = 'celsius'): string
     {
-        $temperature = number_format_i18n((float) $weather['temperature'], 0);
+        $unit = self::sanitizeTempUnit($unit);
+        $temperature = number_format_i18n(self::convertTemp((float) $weather['temperature'], $unit), 0);
 
         $icon = $showIcon
             ? '<span class="kk-weather-icon" aria-hidden="true">' . Icon::svg(self::codeIcon((int) ($weather['code'] ?? 3)), 28) . '</span>'
             : '';
-        $html = '<div class="kk-weather-now">' . $icon . '<p class="kk-weather-temp">' . esc_html($temperature) . '<span aria-hidden="true">&deg;C</span></p></div>';
+        $html = '<div class="kk-weather-now">' . $icon . '<p class="kk-weather-temp">' . esc_html($temperature) . '<span aria-hidden="true">' . self::tempUnitLabel($unit) . '</span></p></div>';
         $html .= '<p class="kk-weather-condition">' . esc_html((string) $weather['condition']) . '</p>';
 
         if ($showDetails) {
@@ -337,13 +418,15 @@ final class Weather
 
             if ($weather['feels_like'] !== null) {
                 $details[] = '<li><span>' . esc_html__('Feels like', 'koperasikita') . '</span><strong>'
-                    . esc_html(number_format_i18n((float) $weather['feels_like'], 0)) . '&deg;C</strong></li>';
+                    . esc_html(number_format_i18n(self::convertTemp((float) $weather['feels_like'], $unit), 0)) . self::tempUnitLabel($unit) . '</strong></li>';
             }
 
             if ($weather['high'] !== null && $weather['low'] !== null) {
+                $degree = self::tempDegreeMark($unit);
+                $letter = $unit === 'fahrenheit' ? 'F' : ($unit === 'kelvin' ? 'K' : 'C');
                 $details[] = '<li><span>' . esc_html__('High / Low', 'koperasikita') . '</span><strong>'
-                    . esc_html(number_format_i18n((float) $weather['high'], 0)) . '&deg; / '
-                    . esc_html(number_format_i18n((float) $weather['low'], 0)) . '&deg;C</strong></li>';
+                    . esc_html(number_format_i18n(self::convertTemp((float) $weather['high'], $unit), 0)) . $degree . ' / '
+                    . esc_html(number_format_i18n(self::convertTemp((float) $weather['low'], $unit), 0)) . $degree . $letter . '</strong></li>';
             }
 
             if ($weather['humidity'] !== null) {

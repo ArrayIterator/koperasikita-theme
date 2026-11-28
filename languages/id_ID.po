@@ -5003,3 +5003,28 @@ msgstr "Klik peta untuk menaruh penanda, atau seret penanda."
 #: src/ts/widget-blocks.ts
 msgid "Show condition icon"
 msgstr "Tampilkan ikon kondisi"
+
+#: inc/Widgets/WeatherWidget.php
+#: src/ts/widget-blocks.ts
+msgid "Temperature layout"
+msgstr "Tata letak suhu"
+
+#: inc/Widgets/WeatherWidget.php
+#: src/ts/widget-blocks.ts
+msgid "Between"
+msgstr "Di antara"
+
+#: inc/Widgets/WeatherWidget.php
+#: src/ts/widget-blocks.ts
+msgid "Temperature unit"
+msgstr "Satuan suhu"
+
+#: inc/Widgets/WeatherWidget.php
+#: src/ts/widget-blocks.ts
+msgid "Auto (site setting)"
+msgstr "Otomatis (pengaturan situs)"
+
+#: inc/Widgets/WeatherWidget.php
+#: src/ts/widget-blocks.ts
+msgid "Kelvin (K)"
+msgstr "Kelvin (K)"

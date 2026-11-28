@@ -28,6 +28,12 @@ final class WeatherWidget extends WP_Widget
     /** Allowed widget style values; anything else falls back to 'auto'. */
     private const STYLES = ['auto', 'dark-green', 'light', 'dark'];
 
+    /** Allowed icon-and-temperature layouts; 'left' is the default. */
+    private const TEMP_ALIGNS = ['left', 'center', 'between', 'right'];
+
+    /** Allowed temperature-unit settings; 'auto' follows the site unit. */
+    private const TEMP_UNITS = ['auto', 'celsius', 'fahrenheit', 'kelvin'];
+
     public function __construct()
     {
         parent::__construct(
@@ -51,6 +57,8 @@ final class WeatherWidget extends WP_Widget
         $showDetails = !empty($instance['show_details']);
         $showIcon = !isset($instance['show_icon']) || !empty($instance['show_icon']);
         $style = self::sanitizeStyle(isset($instance['style']) ? (string) $instance['style'] : self::DEFAULT_STYLE);
+        $tempAlign = self::sanitizeTempAlign(isset($instance['temp_align']) ? (string) $instance['temp_align'] : 'left');
+        $tempUnit = Weather::resolveTempUnit(isset($instance['temp_unit']) ? (string) $instance['temp_unit'] : 'auto');
 
         $locations = $this->instanceLocations($instance);
         $location = $locations[0];
@@ -62,19 +70,20 @@ final class WeatherWidget extends WP_Widget
         WidgetHeader::render($args, $title, WidgetHeader::style($instance));
 
         ?>
-        <div class="kk-weather-widget<?php echo $style !== self::DEFAULT_STYLE ? ' kk-weather-widget--' . esc_attr($style) : ''; ?>" data-kk-weather-widget
+        <div class="kk-weather-widget<?php echo $style !== self::DEFAULT_STYLE ? ' kk-weather-widget--' . esc_attr($style) : ''; ?><?php echo $tempAlign !== 'left' ? ' kk-weather-widget--temp-' . esc_attr($tempAlign) : ''; ?>" data-kk-weather-widget
             data-weather-key="<?php echo esc_attr($storageKey); ?>"
             data-default-city="<?php echo esc_attr($location['name']); ?>"
             data-default-latitude="<?php echo esc_attr((string) $location['latitude']); ?>"
             data-default-longitude="<?php echo esc_attr((string) $location['longitude']); ?>"
             data-locations="<?php echo esc_attr(wp_json_encode($locations) ?: '[]'); ?>"
             data-show-details="<?php echo $showDetails ? '1' : '0'; ?>"
-            data-show-icon="<?php echo $showIcon ? '1' : '0'; ?>">
+            data-show-icon="<?php echo $showIcon ? '1' : '0'; ?>"
+            data-temp-unit="<?php echo esc_attr($tempUnit); ?>">
             <p class="kk-weather-place"><?php echo esc_html($location['name']); ?></p>
             <div class="kk-weather-body" data-kk-weather-body>
                 <?php
                 if ($weather !== null) {
-                    echo Weather::renderCurrentHtml($weather, $showDetails, $showIcon); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+                    echo Weather::renderCurrentHtml($weather, $showDetails, $showIcon, $tempUnit); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
                 } else {
                     ?>
                     <p class="kk-widget-empty"><?php esc_html_e('Weather is unavailable right now.', 'koperasikita'); ?></p>
@@ -139,6 +148,53 @@ final class WeatherWidget extends WP_Widget
     }
 
     /**
+     * The icon-and-temperature layout options for the settings select.
+     *
+     * @return array<string, string>
+     */
+    public static function tempAlignOptions(): array
+    {
+        return [
+            'left' => __('Left', 'koperasikita'),
+            'center' => __('Centered', 'koperasikita'),
+            'between' => __('Between', 'koperasikita'),
+            'right' => __('Right', 'koperasikita'),
+        ];
+    }
+
+    /**
+     * Clamp a saved temperature layout to the allowed list.
+     */
+    public static function sanitizeTempAlign(string $align): string
+    {
+        return in_array($align, self::TEMP_ALIGNS, true) ? $align : 'left';
+    }
+
+    /**
+     * The temperature-unit options for the settings select. 'auto'
+     * follows the site-wide Customizer unit.
+     *
+     * @return array<string, string>
+     */
+    public static function tempUnitOptions(): array
+    {
+        return [
+            'auto' => __('Auto (site setting)', 'koperasikita'),
+            'celsius' => __('Celsius (°C)', 'koperasikita'),
+            'fahrenheit' => __('Fahrenheit (°F)', 'koperasikita'),
+            'kelvin' => __('Kelvin (K)', 'koperasikita'),
+        ];
+    }
+
+    /**
+     * Clamp a saved temperature-unit setting to the allowed list.
+     */
+    public static function sanitizeTempUnit(string $unit): string
+    {
+        return in_array($unit, self::TEMP_UNITS, true) ? $unit : 'auto';
+    }
+
+    /**
      * The widget's locations: the saved list, or the single default
      * city for an old instance that never had a list.
      *
@@ -170,6 +226,8 @@ final class WeatherWidget extends WP_Widget
         $showDetails = !empty($instance['show_details']);
         $showIcon = !isset($instance['show_icon']) || !empty($instance['show_icon']);
         $style = self::sanitizeStyle(isset($instance['style']) ? (string) $instance['style'] : self::DEFAULT_STYLE);
+        $tempAlign = self::sanitizeTempAlign(isset($instance['temp_align']) ? (string) $instance['temp_align'] : 'left');
+        $tempUnit = self::sanitizeTempUnit(isset($instance['temp_unit']) ? (string) $instance['temp_unit'] : 'auto');
         ?>
         <p>
             <label for="<?php echo esc_attr($this->get_field_id('title')); ?>">
@@ -189,6 +247,28 @@ final class WeatherWidget extends WP_Widget
                 name="<?php echo esc_attr($this->get_field_name('style')); ?>">
                 <?php foreach (self::styleOptions() as $value => $label) : ?>
                     <option value="<?php echo esc_attr($value); ?>" <?php selected($style, $value); ?>><?php echo esc_html($label); ?></option>
+                <?php endforeach; ?>
+            </select>
+        </p>
+        <p>
+            <label for="<?php echo esc_attr($this->get_field_id('temp_align')); ?>">
+                <?php esc_html_e('Temperature layout', 'koperasikita'); ?>
+            </label>
+            <select class="widefat" id="<?php echo esc_attr($this->get_field_id('temp_align')); ?>"
+                name="<?php echo esc_attr($this->get_field_name('temp_align')); ?>">
+                <?php foreach (self::tempAlignOptions() as $value => $label) : ?>
+                    <option value="<?php echo esc_attr($value); ?>" <?php selected($tempAlign, $value); ?>><?php echo esc_html($label); ?></option>
+                <?php endforeach; ?>
+            </select>
+        </p>
+        <p>
+            <label for="<?php echo esc_attr($this->get_field_id('temp_unit')); ?>">
+                <?php esc_html_e('Temperature unit', 'koperasikita'); ?>
+            </label>
+            <select class="widefat" id="<?php echo esc_attr($this->get_field_id('temp_unit')); ?>"
+                name="<?php echo esc_attr($this->get_field_name('temp_unit')); ?>">
+                <?php foreach (self::tempUnitOptions() as $value => $label) : ?>
+                    <option value="<?php echo esc_attr($value); ?>" <?php selected($tempUnit, $value); ?>><?php echo esc_html($label); ?></option>
                 <?php endforeach; ?>
             </select>
         </p>
@@ -261,6 +341,8 @@ final class WeatherWidget extends WP_Widget
         $instance['show_details'] = !empty($newInstance['show_details']) ? 1 : 0;
         $instance['show_icon'] = !empty($newInstance['show_icon']) ? 1 : 0;
         $instance['style'] = self::sanitizeStyle(isset($newInstance['style']) ? (string) $newInstance['style'] : self::DEFAULT_STYLE);
+        $instance['temp_align'] = self::sanitizeTempAlign(isset($newInstance['temp_align']) ? (string) $newInstance['temp_align'] : 'left');
+        $instance['temp_unit'] = self::sanitizeTempUnit(isset($newInstance['temp_unit']) ? (string) $newInstance['temp_unit'] : 'auto');
         $instance['header_style'] = WidgetHeader::sanitize($newInstance['header_style'] ?? WidgetHeader::CLASSIC_TOP);
         $instance = array_merge($instance, WidgetSpacing::sanitizeInstance($newInstance, $oldInstance));
 
