@@ -1172,6 +1172,7 @@ function stageMapForTarget(): void {
 	if (weatherMap === null) {
 		const map = L.map(els.map, { scrollWheelZoom: false }).setView([location.latitude, location.longitude], MAP_ZOOM);
 		L.tileLayer(MAP_TILE_URL, { attribution: MAP_ATTRIBUTION, maxZoom: 19 }).addTo(map);
+		map.attributionControl.setPrefix(false);
 		map.on('click', (event: L.LeafletMouseEvent) => {
 			void placeMapPin(event.latlng.lat, event.latlng.lng);
 		});

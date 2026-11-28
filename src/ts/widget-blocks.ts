@@ -437,6 +437,7 @@ function LocationPickerModal(props: {
 			coords !== null ? [coords.latitude, coords.longitude] : [LOCATION_DEFAULT_LAT, LOCATION_DEFAULT_LNG];
 		const map = L.map(el, { scrollWheelZoom: false }).setView(start, LOCATION_DEFAULT_ZOOM);
 		L.tileLayer(LOCATION_TILE_URL, { attribution: LOCATION_TILE_ATTRIBUTION, maxZoom: 19 }).addTo(map);
+		map.attributionControl.setPrefix(false);
 		map.on('click', (event: L.LeafletMouseEvent) => {
 			placePin(event.latlng.lat, event.latlng.lng);
 		});

@@ -518,9 +518,10 @@ function initAgendaDateTimePickers(): void {
 
 /* Maps (Leaflet + OpenStreetMap) */
 /* Free and keyless, so no billing account and no API key: the tiles load
- * on demand and the library only loads on agenda pages. The attribution
- * is the Leaflet default ("Leaflet | (c) OpenStreetMap contributors") -
- * the ODbL licence requires it, so it stays. */
+ * on demand and the library only loads on agenda pages. The tile
+ * attribution ("(c) OpenStreetMap contributors") stays - the ODbL
+ * licence requires it. The Leaflet prefix is dropped (setPrefix(false)
+ * in addTileLayer), so the control shows only the tile attribution. */
 
 const TILE_URL = 'https://tile.openstreetmap.org/{z}/{x}/{y}.png';
 const TILE_ATTRIBUTION = '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors';
@@ -556,6 +557,7 @@ function makePin(): L.DivIcon {
 
 function addTileLayer(map: L.Map): void {
 	L.tileLayer(TILE_URL, { attribution: TILE_ATTRIBUTION, maxZoom: 19 }).addTo(map);
+	map.attributionControl.setPrefix(false);
 }
 
 /* Display maps (single event view) */
