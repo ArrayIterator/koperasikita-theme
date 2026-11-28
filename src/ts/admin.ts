@@ -728,8 +728,9 @@ function initDataDeskPreview(): void {
 	 * previous text. The edit starts from the RAW stored value
 	 * (the hidden field), not the resolved text the preview
 	 * shows, so placeholders survive the round-trip; an empty
-	 * stored value opens an empty field with the resolved text
-	 * as its placeholder. Clearing the title means empty
+	 * stored value edits the resolved text the preview shows
+	 * instead, so the title never vanishes on click. Clearing
+	 * the title means empty
 	 * (automatic title); clearing the kicker means empty
 	 * (default 'Data Desk'); clearing a header means empty
 	 * (the default label). The date line and the stat blocks
@@ -1136,11 +1137,15 @@ function initDataDeskPreview(): void {
 		 * resolved text the preview shows, so a placeholder
 		 * survives the round-trip; the resolved text stays as
 		 * the placeholder for an empty field and as the
-		 * Escape-restore text. */
+		 * Escape-restore text. An empty stored value would
+		 * wipe the resolved text the user sees, so the edit
+		 * starts from the displayed text instead. */
 		editingOriginal = target.textContent ?? '';
 		const field = fieldForEdit(target);
 		if (field) {
-			target.textContent = field.value;
+			if (field.value.trim() !== '') {
+				target.textContent = field.value;
+			}
 			target.setAttribute('data-kk-placeholder', editingOriginal);
 		}
 		target.setAttribute('contenteditable', 'true');
