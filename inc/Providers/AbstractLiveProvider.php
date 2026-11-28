@@ -133,6 +133,39 @@ abstract class AbstractLiveProvider implements MarketPriceProvider
     }
 
     /**
+     * Force a fresh upstream fetch and store it, regardless of the
+     * transient or the failure backoff: this is the sync path (the
+     * Market Index manual sync and the daily cron), not the page
+     * render path. A manual sync must actually fetch even when the
+     * last render just failed, so the admin sees a fresh result
+     * instead of the backoff. Returns the fetched symbol map, or
+     * null when the fetch failed (the backoff is set, the last
+     * good value stays untouched so the strip keeps serving it).
+     *
+     * @return array<string, array{price: float, change: float|null, updated: int}>|null
+     */
+    public function forceRefresh(string $market): ?array
+    {
+        if (!$this->supports($market)) {
+            return null;
+        }
+
+        $fetched = $this->fetch($market);
+
+        if (!is_array($fetched) || $fetched === []) {
+            set_transient($this->failedKey(), 1, $this->failedBackoffSeconds());
+
+            return null;
+        }
+
+        set_transient($this->transientKey(), $fetched, $this->cacheSeconds());
+        update_option($this->lastGoodOption(), $fetched, false);
+        delete_transient($this->failedKey());
+
+        return $fetched;
+    }
+
+    /**
      * Stored prices only: the fresh transient, else the last-good
      * option. Never fetches upstream, so a page render that serves
      * stored prices never stalls on the network - a cold transient

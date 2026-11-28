@@ -8,9 +8,9 @@ use KoperasiKita\Providers\MarketPrice;
 use KoperasiKita\Widgets\MarketsWidget;
 
 /**
- * Market header index: the strip below the header (after the
- * nav and the ticker, above the hero) showing picked market
- * indices - symbol, price, day change - with a snapshot timestamp.
+ * Market Index: the strip below the header (after the nav and
+ * the ticker, above the hero) showing picked market indices -
+ * symbol, price, day change - with a snapshot caption.
  *
  * Data comes only from the Markets providers (Markets::prices(),
  * 15-minute transient plus last good, the same as the Markets
@@ -21,17 +21,24 @@ use KoperasiKita\Widgets\MarketsWidget;
  * on the page background and follow the site colour scheme.
  *
  * One option holds the whole configuration, shared by the
- * Customizer section and the Koperasi Kita -> Market Header Index
- * admin page: ['enabled' => bool, 'items' => [{item, hidden}],
- * 'cycle_interval' => int]. `cycle_interval` is the seconds
- * between items when the strip cycles one item at a time on small
- * screens - 7 by default, deliberately not the news ticker's 5,
- * so the two rotations never step together.
+ * Customizer section and the Koperasi Kita -> Market Index admin
+ * page: ['enabled' => bool, 'items' => [{item, hidden}],
+ * 'cycle_interval' => int, 'snapshot_label' => string,
+ * 'snapshot_show_datetime' => bool, 'snapshot_format' => string].
+ * `cycle_interval` is the seconds between items when the strip
+ * cycles one item at a time on small screens - 7 by default,
+ * deliberately not the news ticker's 5, so the two rotations
+ * never step together.
  * `items` is the picked set in picked order (max 16, market|symbol
  * values from MarketsWidget::allItems()); `hidden` flags items the
  * admin page hid - hidden items stay stored so they can be shown
  * again, but never render. An empty picked list means the default
  * set, the same as the Customizer picker's empty state.
+ * The snapshot caption under the strip is customizable:
+ * `snapshot_label` is the text before the date and time (empty
+ * hides the label), `snapshot_show_datetime` toggles the day and
+ * time, and `snapshot_format` is the PHP date format for them
+ * (default 'l H.i T', e.g. "Sabtu 08.30 WIB").
  */
 final class MarketHeaderIndex
 {
@@ -40,6 +47,12 @@ final class MarketHeaderIndex
     public const DEFAULT_CYCLE_INTERVAL = 7;
     public const MIN_CYCLE_INTERVAL = 2;
     public const MAX_CYCLE_INTERVAL = 120;
+
+    /** PHP date format for the snapshot day and time. */
+    public const DEFAULT_SNAPSHOT_FORMAT = 'l H.i T';
+
+    public const MAX_SNAPSHOT_LABEL_LENGTH = 80;
+    public const MAX_SNAPSHOT_FORMAT_LENGTH = 64;
 
     /** @return array<int, array{item: string, hidden: bool}> */
     public static function defaultItems(): array
@@ -52,7 +65,7 @@ final class MarketHeaderIndex
         ];
     }
 
-    /** @return array{enabled: bool, items: array<int, array{item: string, hidden: bool}>, cycle_interval: int} */
+    /** @return array{enabled: bool, items: array<int, array{item: string, hidden: bool}>, cycle_interval: int, snapshot_label: string, snapshot_show_datetime: bool, snapshot_format: string} */
     public static function settings(): array
     {
         $stored = get_option(self::OPTION, []);
@@ -62,6 +75,9 @@ final class MarketHeaderIndex
                 'enabled' => true,
                 'items' => self::defaultItems(),
                 'cycle_interval' => self::DEFAULT_CYCLE_INTERVAL,
+                'snapshot_label' => __('Market Snapshot', 'koperasikita'),
+                'snapshot_show_datetime' => true,
+                'snapshot_format' => self::DEFAULT_SNAPSHOT_FORMAT,
             ];
         }
 
@@ -71,6 +87,9 @@ final class MarketHeaderIndex
             'enabled' => isset($stored['enabled']) ? (bool) $stored['enabled'] : true,
             'items' => $items !== [] ? $items : self::defaultItems(),
             'cycle_interval' => self::sanitizeCycleInterval($stored['cycle_interval'] ?? self::DEFAULT_CYCLE_INTERVAL),
+            'snapshot_label' => isset($stored['snapshot_label']) ? self::sanitizeSnapshotLabel($stored['snapshot_label']) : __('Market Snapshot', 'koperasikita'),
+            'snapshot_show_datetime' => isset($stored['snapshot_show_datetime']) ? self::sanitizeSnapshotShowDatetime($stored['snapshot_show_datetime']) : true,
+            'snapshot_format' => isset($stored['snapshot_format']) ? self::sanitizeSnapshotFormat($stored['snapshot_format']) : self::DEFAULT_SNAPSHOT_FORMAT,
         ];
     }
 
@@ -86,6 +105,46 @@ final class MarketHeaderIndex
         }
 
         return max(self::MIN_CYCLE_INTERVAL, min(self::MAX_CYCLE_INTERVAL, (int) $value));
+    }
+
+    /**
+     * The caption label: plain text, trimmed, at most 80 chars.
+     * An empty string is kept - it hides the label.
+     */
+    public static function sanitizeSnapshotLabel(mixed $value): string
+    {
+        if (!is_string($value)) {
+            return __('Market Snapshot', 'koperasikita');
+        }
+
+        $label = trim(sanitize_text_field(wp_unslash($value)));
+
+        return mb_substr($label, 0, self::MAX_SNAPSHOT_LABEL_LENGTH);
+    }
+
+    public static function sanitizeSnapshotShowDatetime(mixed $value): bool
+    {
+        return (bool) $value;
+    }
+
+    /**
+     * The caption day/time format: a PHP date format, trimmed, at
+     * most 64 chars. An empty format falls back to the default, so
+     * the date never renders as nothing by accident.
+     */
+    public static function sanitizeSnapshotFormat(mixed $value): string
+    {
+        if (!is_string($value)) {
+            return self::DEFAULT_SNAPSHOT_FORMAT;
+        }
+
+        $format = trim(sanitize_text_field(wp_unslash($value)));
+
+        if ($format === '') {
+            return self::DEFAULT_SNAPSHOT_FORMAT;
+        }
+
+        return mb_substr($format, 0, self::MAX_SNAPSHOT_FORMAT_LENGTH);
     }
 
     /**
@@ -207,15 +266,51 @@ final class MarketHeaderIndex
     }
 
     /**
+     * The snapshot caption text: the label, the day and time, or
+     * both, joined with a middot - or '' when there is nothing to
+     * show (empty label and day/time off, or day/time on with no
+     * snapshot timestamp). The day and time use wp_date() with the
+     * true Unix timestamp: date_i18n() with a true timestamp
+     * renders 7 hours early under Asia/Jakarta (WP 7.1.5), which
+     * is why the caption used to read 08.30 for data taken at
+     * 15.30.
+     */
+    public static function captionText(?int $snapshot): string
+    {
+        $settings = self::settings();
+        $parts = [];
+
+        if ($settings['snapshot_label'] !== '') {
+            $parts[] = $settings['snapshot_label'];
+        }
+
+        if ($settings['snapshot_show_datetime'] && $snapshot !== null && $snapshot > 0) {
+            $parts[] = wp_date($settings['snapshot_format'], $snapshot);
+        }
+
+        return implode(' · ', $parts);
+    }
+
+    /**
+     * Keys the caller does not pass keep their stored value, so a
+     * form that only edits part of the option (the admin page
+     * never sends `enabled`, the Customizer never calls this)
+     * cannot reset the rest to defaults.
+     *
      * @param array<string, mixed> $settings
-     * @return array{enabled: bool, items: array<int, array{item: string, hidden: bool}>, cycle_interval: int}
+     * @return array{enabled: bool, items: array<int, array{item: string, hidden: bool}>, cycle_interval: int, snapshot_label: string, snapshot_show_datetime: bool, snapshot_format: string}
      */
     public static function update(array $settings): array
     {
+        $current = self::settings();
+
         $saved = [
-            'enabled' => self::sanitizeEnabled($settings['enabled'] ?? true),
-            'items' => self::sanitizeItems($settings['items'] ?? []),
-            'cycle_interval' => self::sanitizeCycleInterval($settings['cycle_interval'] ?? self::DEFAULT_CYCLE_INTERVAL),
+            'enabled' => isset($settings['enabled']) ? self::sanitizeEnabled($settings['enabled']) : $current['enabled'],
+            'items' => isset($settings['items']) ? self::sanitizeItems($settings['items']) : $current['items'],
+            'cycle_interval' => isset($settings['cycle_interval']) ? self::sanitizeCycleInterval($settings['cycle_interval']) : $current['cycle_interval'],
+            'snapshot_label' => isset($settings['snapshot_label']) ? self::sanitizeSnapshotLabel($settings['snapshot_label']) : $current['snapshot_label'],
+            'snapshot_show_datetime' => isset($settings['snapshot_show_datetime']) ? self::sanitizeSnapshotShowDatetime($settings['snapshot_show_datetime']) : $current['snapshot_show_datetime'],
+            'snapshot_format' => isset($settings['snapshot_format']) ? self::sanitizeSnapshotFormat($settings['snapshot_format']) : $current['snapshot_format'],
         ];
 
         update_option(self::OPTION, $saved);
@@ -236,9 +331,12 @@ final class MarketHeaderIndex
             return;
         }
 
+        $snapshot = self::snapshotTime($items);
+
         get_template_part('template-parts/header/market-index', null, [
             'items' => $items,
-            'snapshot' => self::snapshotTime($items),
+            'snapshot' => $snapshot,
+            'caption' => self::captionText($snapshot),
             'cycle_interval' => self::settings()['cycle_interval'],
         ]);
     }

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace KoperasiKita\Features;
 
 use KoperasiKita\Admin\GoldPricesPage;
+use KoperasiKita\Admin\MarketHeaderPage;
 use KoperasiKita\Admin\MarketsSettings;
 use KoperasiKita\Api\Ajax;
 use KoperasiKita\Api\ApiException;
@@ -871,9 +872,21 @@ final class Markets
         // default (see Gold::brandProviders()).
         LogamMuliaApiProvider::registerSync();
 
+        // Market Index automatic sync (WP-Cron) for the strip's
+        // live markets - the same gold-style pattern: fetch on
+        // purpose and store, instead of only refreshing on a cold
+        // transient. Auto-sync is on by default, once an hour,
+        // over the markets the admin selected; the manual sync
+        // lives on the Market Index admin page.
+        MarketSync::registerSync();
+
         // Gold Prices admin page: the Summary chart AJAX endpoint
         // + the contextual help tabs.
         GoldPricesPage::register();
+
+        // Market Index admin page: the move-order AJAX endpoint
+        // (the up/down buttons reorder over AJAX, no page reload).
+        MarketHeaderPage::register();
 
         MarketsSettings::register();
     }

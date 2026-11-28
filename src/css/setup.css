@@ -145,6 +145,21 @@
 	color: #1a1a1a;
 }
 
+/* The wp-cron reference line on the Market auto-sync card: a
+ * block so the long command wraps instead of overflowing the
+ * card on narrow screens. */
+.kk-setup-cron {
+	display: block;
+	padding: 12px 16px;
+	overflow-wrap: anywhere;
+	font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace;
+	font-size: 13px;
+	color: #1a1a1a;
+	background: #f6f6f6;
+	border: 1px solid #e5e5e5;
+	border-radius: 8px;
+}
+
 .kk-setup-pill {
 	flex-shrink: 0;
 	display: inline-flex;

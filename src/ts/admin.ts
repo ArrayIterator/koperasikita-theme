@@ -77,6 +77,7 @@ interface AdminStrings {
 	fastSearchError: string;
 	fastSearchInstalled: string;
 	fastSearchFailed: string;
+	moveFailed: string;
 }
 
 interface AdminData {
@@ -169,6 +170,7 @@ const FALLBACK_STRINGS: AdminStrings = {
 	fastSearchError: 'The index build could not run. Please try again.',
 	fastSearchInstalled: 'Installed',
 	fastSearchFailed: 'Failed',
+	moveFailed: 'Could not move the item.',
 };
 
 function adminData(): AdminData | null {
@@ -228,6 +230,7 @@ function adminStrings(): AdminStrings {
 		fastSearchError: strings?.fastSearchError ?? FALLBACK_STRINGS.fastSearchError,
 		fastSearchInstalled: strings?.fastSearchInstalled ?? FALLBACK_STRINGS.fastSearchInstalled,
 		fastSearchFailed: strings?.fastSearchFailed ?? FALLBACK_STRINGS.fastSearchFailed,
+		moveFailed: strings?.moveFailed ?? FALLBACK_STRINGS.moveFailed,
 	};
 }
 
@@ -435,6 +438,7 @@ function initAdmin(): void {
 		initGoldSync,
 		initGoldSummaryChart,
 		initFastSearchBuild,
+		initMarketHeaderMove,
 		initDataDeskPreview,
 		initDataDeskAjaxSave,
 		initDataDeskWidgetPreview,
@@ -2467,6 +2471,93 @@ function initSidebarSettingsPopup(): void {
  * server-side, and a step that reports no source shows the
  * server's error instead of finishing as if a sync had run.
  */
+/* Market Index page: the up/down buttons reorder the item list in
+ * the browser and persist the new order over AJAX, with no page
+ * reload. The DOM order is the saved order - the hidden inputs
+ * ride along with their rows, so the Save button still submits
+ * the same order afterwards. A failed save puts the rows back
+ * where they were and says so in the status line. */
+function initMarketHeaderMove(): void {
+	const table = document.querySelector<HTMLTableElement>('[data-kk-market-header-table]');
+	if (!table) {
+		return;
+	}
+	const tbody = table.tBodies[0];
+	const statusEl = document.querySelector<HTMLElement>('[data-kk-market-header-move-status]');
+	if (!tbody) {
+		return;
+	}
+
+	const setDisabled = (): void => {
+		const rows = Array.from(tbody.rows);
+		rows.forEach((row, index) => {
+			const up = row.querySelector<HTMLButtonElement>('[data-direction="up"]');
+			const down = row.querySelector<HTMLButtonElement>('[data-direction="down"]');
+			if (up) {
+				up.disabled = index === 0;
+			}
+			if (down) {
+				down.disabled = index === rows.length - 1;
+			}
+		});
+	};
+
+	const order = (): string[] =>
+		Array.from(tbody.rows)
+			.map((row) => row.querySelector<HTMLInputElement>('input[name="kk_market_header_items[]"]')?.value ?? '')
+			.filter((value) => value !== '');
+
+	const move = async (button: HTMLButtonElement): Promise<void> => {
+		const row = button.closest('tr');
+		if (!row) {
+			return;
+		}
+		const direction = button.dataset.direction;
+		const sibling = direction === 'up' ? row.previousElementSibling : row.nextElementSibling;
+		if (!(sibling instanceof HTMLTableRowElement)) {
+			return;
+		}
+		const config = adminData();
+		if (!config) {
+			return;
+		}
+
+		if (direction === 'up') {
+			tbody.insertBefore(row, sibling);
+		} else {
+			tbody.insertBefore(sibling, row);
+		}
+		setDisabled();
+
+		try {
+			await postAjax<{ items: string[] }>(config, 'kk_market_header_move', {
+				items: JSON.stringify(order()),
+			});
+			if (statusEl) {
+				statusEl.hidden = true;
+				statusEl.textContent = '';
+			}
+		} catch (error) {
+			if (direction === 'up') {
+				tbody.insertBefore(sibling, row);
+			} else {
+				tbody.insertBefore(row, sibling);
+			}
+			setDisabled();
+			if (statusEl) {
+				statusEl.textContent = error instanceof Error ? error.message : adminStrings().moveFailed;
+				statusEl.hidden = false;
+			}
+		}
+	};
+
+	tbody.querySelectorAll<HTMLButtonElement>('.kk-market-header-move').forEach((button) => {
+		button.addEventListener('click', () => {
+			void move(button);
+		});
+	});
+}
+
 function initGoldSync(): void {
 	const button = document.querySelector<HTMLButtonElement>('[data-kk-gold-sync]');
 	const popup = document.getElementById('kk-gold-sync-popup');

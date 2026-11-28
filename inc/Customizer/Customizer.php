@@ -88,7 +88,7 @@ final class Customizer
             'koperasikita_advanced_logo' => esc_html__('Advanced Logo & Sidebar', 'koperasikita'),
             'koperasikita_typography' => esc_html__('Typography', 'koperasikita'),
             'koperasikita_header' => esc_html__('Header & Breaking News', 'koperasikita'),
-            'koperasikita_market_header' => esc_html__('Market Header Index', 'koperasikita'),
+            'koperasikita_market_header' => esc_html__('Market Index', 'koperasikita'),
             'koperasikita_mobile_menu' => esc_html__('Mobile Menu', 'koperasikita'),
             'koperasikita_homepage' => esc_html__('Homepage Layout', 'koperasikita'),
             'koperasikita_single' => esc_html__('Single Post', 'koperasikita'),
@@ -2558,7 +2558,7 @@ final class Customizer
         return MarketHeaderIndex::settings()['enabled'];
     }
 
-    /* Market Header Index: the strip settings live in one option
+    /* Market Index: the strip settings live in one option
      * (kk_market_header_index) shared with the admin page, so these
      * settings are 'option' type - the only option-type settings in
      * the Customizer. Transport is refresh: the strip renders
@@ -2587,12 +2587,69 @@ final class Customizer
             'transport' => 'refresh',
         ]);
 
+        $wpCustomize->add_setting('kk_market_header_index[snapshot_label]', [
+            'type' => 'option',
+            'default' => __('Market Snapshot', 'koperasikita'),
+            'sanitize_callback' => [MarketHeaderIndex::class, 'sanitizeSnapshotLabel'],
+            'transport' => 'refresh',
+        ]);
+
+        $wpCustomize->add_setting('kk_market_header_index[snapshot_show_datetime]', [
+            'type' => 'option',
+            'default' => true,
+            'sanitize_callback' => [MarketHeaderIndex::class, 'sanitizeSnapshotShowDatetime'],
+            'transport' => 'refresh',
+        ]);
+
+        $wpCustomize->add_setting('kk_market_header_index[snapshot_format]', [
+            'type' => 'option',
+            'default' => MarketHeaderIndex::DEFAULT_SNAPSHOT_FORMAT,
+            'sanitize_callback' => [MarketHeaderIndex::class, 'sanitizeSnapshotFormat'],
+            'transport' => 'refresh',
+        ]);
+
         $wpCustomize->add_control('kk_market_header_enabled', [
             'label' => esc_html__('Show the market index strip', 'koperasikita'),
             'description' => esc_html__('Shows the picked market indices in a strip below the header. Requires the Markets feature.', 'koperasikita'),
             'section' => 'koperasikita_market_header',
             'settings' => 'kk_market_header_index[enabled]',
             'type' => 'checkbox',
+        ]);
+
+        $wpCustomize->add_control('kk_market_header_snapshot_label', [
+            'label' => esc_html__('Snapshot label', 'koperasikita'),
+            'description' => esc_html(sprintf(
+                /* translators: %s: the default snapshot label. */
+                __('The text before the date and time. Leave empty to hide the label. Default: %s.', 'koperasikita'),
+                __('Market Snapshot', 'koperasikita')
+            )),
+            'section' => 'koperasikita_market_header',
+            'settings' => 'kk_market_header_index[snapshot_label]',
+            'type' => 'text',
+            'active_callback' => [self::class, 'isMarketHeaderEnabled'],
+        ]);
+
+        $wpCustomize->add_control('kk_market_header_snapshot_show_datetime', [
+            'label' => esc_html__('Show day and time', 'koperasikita'),
+            'description' => esc_html__('Shows the day and time the strip data was taken, after the label.', 'koperasikita'),
+            'section' => 'koperasikita_market_header',
+            'settings' => 'kk_market_header_index[snapshot_show_datetime]',
+            'type' => 'checkbox',
+            'active_callback' => [self::class, 'isMarketHeaderEnabled'],
+        ]);
+
+        $wpCustomize->add_control('kk_market_header_snapshot_format', [
+            'label' => esc_html__('Day and time format', 'koperasikita'),
+            'description' => esc_html(sprintf(
+                /* translators: 1: the default date format, 2: an example rendered with it. */
+                __('PHP date format for the snapshot day and time. Default: %1$s — for example: %2$s.', 'koperasikita'),
+                MarketHeaderIndex::DEFAULT_SNAPSHOT_FORMAT,
+                wp_date(MarketHeaderIndex::DEFAULT_SNAPSHOT_FORMAT, time())
+            )),
+            'section' => 'koperasikita_market_header',
+            'settings' => 'kk_market_header_index[snapshot_format]',
+            'type' => 'text',
+            'active_callback' => [self::class, 'isMarketHeaderEnabled'],
         ]);
 
         $wpCustomize->add_control('kk_market_header_cycle_interval', [
