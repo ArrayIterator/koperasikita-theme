@@ -21,12 +21,27 @@ use KoperasiKita\Features\Agenda;
  */
 final class AgendaLocationsSettings
 {
+    /**
+     * The result of the early action handling (admin_init): the
+     * notice / error / submitted values the page render shows.
+     * Set by maybeHandleActions(); renderSettingsPage() only reads
+     * it, never handles a submission itself.
+     *
+     * @var array{notice: string, error: string, id: string, values: array{name: string, address: string, lat: string, lng: string, description: string}|null}|null
+     */
+    private static ?array $pendingResult = null;
+
     public static function register(): void
     {
         // The page itself lives under the single "Koperasi Kita"
         // top-level menu (AdminMenu); only the settings
         // registration stays here.
         add_action('admin_init', [self::class, 'registerSettings']);
+        // The save / delete submissions are handled here, before any
+        // output: the page callback runs after the admin header, so a
+        // redirect attempted there fails (headers already sent) and
+        // the exit leaves a blank content area after saving.
+        add_action('admin_init', [self::class, 'maybeHandleActions']);
     }
 
     public static function registerSettings(): void
@@ -148,13 +163,54 @@ final class AgendaLocationsSettings
         return null;
     }
 
+    /**
+     * Handle the save / delete submissions before any output, so the
+     * redirect after a write can actually be sent. Runs on
+     * admin_init, only on this page; the render only reads the
+     * stored result. A failed save stores its error plus the
+     * submitted values, so the form re-opens with them.
+     */
+    public static function maybeHandleActions(): void
+    {
+        // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- page is display-only.
+        $page = isset($_GET['page']) ? sanitize_key((string) wp_unslash($_GET['page'])) : '';
+
+        if ($page !== Agenda::LOCATIONS_PAGE_SLUG) {
+            return;
+        }
+
+        self::$pendingResult = self::handleActions();
+    }
+
+    /** The ?saved=1 / ?deleted=N notice after a redirect, with no writes. */
+    private static function flagNotices(): array
+    {
+        $empty = ['notice' => '', 'error' => '', 'id' => '', 'values' => null];
+
+        // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- saved/deleted flags are display-only.
+        if (isset($_GET['saved']) && $_GET['saved'] === '1') {
+            $empty['notice'] = __('Location saved.', 'koperasikita');
+        }
+
+        // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- saved/deleted flags are display-only.
+        if (isset($_GET['deleted'])) {
+            $empty['notice'] = __('Location deleted.', 'koperasikita');
+        }
+
+        return $empty;
+    }
+
     public static function renderSettingsPage(): void
     {
         if (!current_user_can('manage_options')) {
             wp_die(esc_html__('You do not have permission to access this page.', 'koperasikita'));
         }
 
-        $result = self::handleActions();
+        // The submission was already handled on admin_init (before
+        // any output); the render only reads the stored result. If
+        // the early handler did not run, only the redirect flags are
+        // read here - a submission is never processed at render time.
+        $result = self::$pendingResult ?? self::flagNotices();
 
         // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- action/id are display-only.
         $action = isset($_GET['action']) ? sanitize_key((string) wp_unslash($_GET['action'])) : 'list';
@@ -206,18 +262,9 @@ final class AgendaLocationsSettings
         $pageUrl = admin_url('admin.php?page=' . Agenda::LOCATIONS_PAGE_SLUG);
         $empty = ['notice' => '', 'error' => '', 'id' => '', 'values' => null];
 
-        // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- saved/deleted flags are display-only.
-        if (isset($_GET['saved']) && $_GET['saved'] === '1') {
-            $empty['notice'] = __('Location saved.', 'koperasikita');
-
-            return $empty;
-        }
-
-        // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- saved/deleted flags are display-only.
-        if (isset($_GET['deleted'])) {
-            $empty['notice'] = __('Location deleted.', 'koperasikita');
-
-            return $empty;
+        $flags = self::flagNotices();
+        if ($flags['notice'] !== '') {
+            return $flags;
         }
 
         if (isset($_POST['kk_agenda_location_nonce'])) {
@@ -384,10 +431,15 @@ final class AgendaLocationsSettings
         $coords = ($form['lat'] !== '' && $form['lng'] !== '')
             ? $form['lat'] . ', ' . $form['lng']
             : __('No pin placed', 'koperasikita');
+        // No empty id on the add URL: the add form posts to
+        // ?action=new only, so a failed save re-opens at a clean URL.
+        $formAction = $id !== ''
+            ? add_query_arg(['action' => 'edit', 'id' => $id], $pageUrl)
+            : add_query_arg('action', 'new', $pageUrl);
         ?>
         <section class="kk-locations-card">
         <h2 class="kk-locations-card-title"><?php echo $id !== '' ? esc_html__('Edit Location', 'koperasikita') : esc_html__('Add New Location', 'koperasikita'); ?></h2>
-        <form method="post" action="<?php echo esc_url(add_query_arg(['action' => $id !== '' ? 'edit' : 'new', 'id' => $id], $pageUrl)); ?>">
+        <form method="post" action="<?php echo esc_url($formAction); ?>">
             <?php wp_nonce_field('kk_agenda_location', 'kk_agenda_location_nonce'); ?>
             <input type="hidden" name="kk_location_id" value="<?php echo esc_attr($id); ?>">
             <table class="form-table">
