@@ -625,12 +625,12 @@ final class GoldPricesPage
      * sources, default first - see
      * LogamMuliaApiProvider::enabledSyncSources(). The popup uses
      * the same centered + blurred-backdrop pattern as the Data Desk
-     * preview popup: progress bar + per-source lines, filled by
-     * admin.ts (initGoldSync) as each source finishes. A failed
-     * source is reported on its own line and does not stop the
-     * rest. The popup stays open with the full result until
-     * closed; closing it reloads the page, so the status, history
-     * list and chart show the new rows.
+     * preview popup: progress bar + one pre holding every status
+     * line, set by admin.ts (initGoldSync) as each source
+     * finishes. A failed source is reported on its own line and
+     * does not stop the rest. The popup stays open with the full
+     * result until closed; closing it reloads the page, so the
+     * status, history list and chart show the new rows.
      */
     private static function renderManualSync(): void
     {
@@ -646,9 +646,7 @@ final class GoldPricesPage
                 </div>
                 <div class="kk-data-desk-popup-body">
                     <p><progress data-kk-gold-sync-bar max="100" value="0" style="width: 100%; max-width: 30rem;"></progress></p>
-                    <p data-kk-gold-sync-status role="status" aria-live="polite"></p>
-                    <ul data-kk-gold-sync-steps aria-live="polite"></ul>
-                    <div data-kk-gold-sync-result role="status" aria-live="polite"></div>
+                    <pre data-kk-gold-sync-status role="status" aria-live="polite"></pre>
                     <p class="description"><?php esc_html_e('Closing this popup reloads the page so the status, history list and chart show the new prices.', 'koperasikita'); ?></p>
                 </div>
             </div>

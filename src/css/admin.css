@@ -1496,19 +1496,18 @@
 	color: #666;
 }
 
-/* Manual sync progress: green bar, unstyled step list. */
+/* Manual sync progress: green bar, status in one pre that scrolls
+ * instead of growing the popup. */
 .kk-gold-page progress {
 	accent-color: #0b6b3a;
 }
 
-.kk-gold-page [data-kk-gold-sync-steps] {
+.kk-gold-page [data-kk-gold-sync-status] {
 	margin: 12px 0 0;
-	padding: 0;
-	list-style: none;
-}
-
-.kk-gold-page [data-kk-gold-sync-steps] li {
-	padding: 4px 0;
+	max-height: 16rem;
+	overflow: auto;
+	font-family: inherit;
+	white-space: pre-wrap;
 }
 
 /* Narrow screens: cards tighten like Setup's, buttons go full width. */
