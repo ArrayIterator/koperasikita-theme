@@ -54,6 +54,12 @@
 		height: 24px;
 	}
 
+	/* The open search field ends just left of the actions: two
+	 * 48px buttons + 4px gap, + the 8px gap to the field. */
+	.kk-nav-wrap.kk-search-open .kk-search-expand.is-open .kk-search-expand-input {
+		right: calc(var(--kk-shell-padding, 16px) + 48px + 4px + 48px + var(--kk-gap-sm, 8px));
+	}
+
 	/* The colour-scheme toggle stays in the sticky bar at every width
 	 * (it used to hide below 1024px and live only in the drawer
 	 * footer, so the bar had no switcher at all on mobile/tablet
@@ -76,27 +82,22 @@
 	}
 
 	/* The desktop bar is its own nav now (Primary menu); the drawer
-	 * (Sidebar menu) is hidden at this width. The nav takes the
-	 * free row width so the search actions sit at the right edge
-	 * - and when the search opens, the nav hides and the actions
-	 * stretch to the full bar (header.css .kk-search-open). */
+	 * (Sidebar menu) stays off-canvas at this width. The nav takes
+	 * the free row width so the search actions sit at the right
+	 * edge - and when the search opens, the field overlays the nav
+	 * (header.css .kk-search-open) instead of hiding it. */
 	.kk-desktop-nav {
 		display: block;
 		flex: 1;
 		min-width: 0;
 	}
 
-	.kk-primary-nav {
-		display: none;
-	}
-
-	/* The drawer chrome exists only below this breakpoint. */
-	.kk-drawer-head,
-	.kk-drawer-back,
-	.kk-drawer-foot,
-	.kk-nav-backdrop,
-	.kk-submenu-toggle {
-		display: none;
+	/* The header actions wrapper carries a .25rem vertical margin
+	 * on desktop only; margin-left stays auto so the actions keep
+	 * sitting at the right edge. */
+	.kk-nav-wrap .kk-nav-actions {
+		margin: .25rem 0;
+		margin-left: auto;
 	}
 
 	.kk-primary-menu {
