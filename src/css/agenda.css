@@ -705,3 +705,189 @@ li:last-child > .kk-agenda-location-result {
 	border-radius: 50%;
 	background: #fff;
 }
+
+/* Event Details datetime pickers (admin meta box) */
+/* Dimulai / Selesai show their value as a link (Publish-panel
+ * pattern): clicking it opens the picker panel with the WordPress
+ * built-in datepicker calendar and the hour/minute + AM/PM time
+ * row. The calendar is WordPress core's jQuery UI Datepicker;
+ * core ships no theme CSS for it, so the calendar rules below
+ * dress it in the WP admin look. */
+
+.kk-agenda-datetime-picker {
+	box-sizing: border-box;
+	margin-top: 8px;
+	padding: 10px;
+	border: 1px solid #c3c4c7;
+	border-radius: 4px;
+	background: #fff;
+}
+
+.kk-agenda-datetime-calendar .ui-datepicker {
+	width: 100%;
+	padding: 0;
+	border: 0;
+	background: transparent;
+	font-size: 13px;
+	line-height: 1.4;
+}
+
+.kk-agenda-datetime-calendar .ui-datepicker-header {
+	position: relative;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding: 2px 0 8px;
+}
+
+.kk-agenda-datetime-calendar .ui-datepicker-title {
+	font-weight: 600;
+	color: #1d2327;
+}
+
+.kk-agenda-datetime-calendar .ui-datepicker-prev,
+.kk-agenda-datetime-calendar .ui-datepicker-next {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 28px;
+	height: 28px;
+	padding: 0;
+	border: 1px solid #c3c4c7;
+	border-radius: 3px;
+	background: #fff;
+	cursor: pointer;
+}
+
+.kk-agenda-datetime-calendar .ui-datepicker-prev:hover,
+.kk-agenda-datetime-calendar .ui-datepicker-next:hover {
+	border-color: #8c8f94;
+	background: #f6f7f7;
+}
+
+.kk-agenda-datetime-calendar .ui-datepicker-prev span,
+.kk-agenda-datetime-calendar .ui-datepicker-next span {
+	display: none;
+}
+
+.kk-agenda-datetime-calendar .ui-datepicker-prev::before,
+.kk-agenda-datetime-calendar .ui-datepicker-next::before {
+	content: "";
+	display: block;
+	width: 7px;
+	height: 7px;
+	border-top: 2px solid #50575e;
+	border-left: 2px solid #50575e;
+	transform: rotate(-45deg);
+	margin-left: 3px;
+}
+
+.kk-agenda-datetime-calendar .ui-datepicker-next::before {
+	transform: rotate(135deg);
+	margin-left: -3px;
+}
+
+.kk-agenda-datetime-calendar .ui-datepicker-calendar {
+	width: 100%;
+	margin: 0;
+	border-collapse: collapse;
+	table-layout: fixed;
+}
+
+.kk-agenda-datetime-calendar .ui-datepicker-calendar th,
+.kk-agenda-datetime-calendar .ui-datepicker-calendar td {
+	padding: 0;
+	text-align: center;
+}
+
+.kk-agenda-datetime-calendar .ui-datepicker-calendar th {
+	padding-bottom: 4px;
+	font-weight: 600;
+	color: #50575e;
+}
+
+.kk-agenda-datetime-calendar .ui-datepicker-calendar td a,
+.kk-agenda-datetime-calendar .ui-datepicker-calendar td span {
+	display: block;
+	padding: 5px 0;
+	border-radius: 3px;
+	color: #1d2327;
+	text-decoration: none;
+}
+
+.kk-agenda-datetime-calendar .ui-datepicker-calendar td a:hover {
+	background: #f0f0f1;
+}
+
+.kk-agenda-datetime-calendar .ui-datepicker-calendar td a.ui-state-highlight {
+	background: #f0f6fc;
+	color: #2271b1;
+	font-weight: 600;
+}
+
+.kk-agenda-datetime-calendar .ui-datepicker-calendar td a.ui-state-active {
+	background: #2271b1;
+	color: #fff;
+}
+
+.kk-agenda-datetime-calendar .ui-datepicker-calendar td.ui-datepicker-other-month a,
+.kk-agenda-datetime-calendar .ui-datepicker-calendar td.ui-datepicker-other-month span {
+	color: #a7aaad;
+}
+
+.kk-agenda-datetime-calendar .ui-datepicker-calendar td.ui-state-disabled span {
+	color: #dcdcde;
+}
+
+.kk-agenda-datetime-calendar .ui-datepicker-calendar td a.ui-state-disabled {
+	color: #dcdcde;
+}
+
+/* Publish-panel time row: hour : minute + AM/PM toggle. */
+.kk-agenda-time {
+	display: flex;
+	align-items: center;
+	gap: 4px;
+	margin-top: 10px;
+}
+
+.kk-agenda-time input[data-kk-agenda-time-hour],
+.kk-agenda-time input[data-kk-agenda-time-minute] {
+	width: 3.2em;
+	padding: 4px 2px;
+	text-align: center;
+}
+
+.kk-agenda-time-separator {
+	color: #50575e;
+}
+
+.kk-agenda-time-ampm {
+	display: inline-flex;
+	margin-left: 4px;
+}
+
+.kk-agenda-time-ampm-button {
+	padding: 4px 10px;
+	border: 1px solid #c3c4c7;
+	background: #fff;
+	color: #1d2327;
+	font-size: 13px;
+	line-height: 1.4;
+	cursor: pointer;
+}
+
+.kk-agenda-time-ampm-button:first-child {
+	border-radius: 3px 0 0 3px;
+}
+
+.kk-agenda-time-ampm-button:last-child {
+	margin-left: -1px;
+	border-radius: 0 3px 3px 0;
+}
+
+.kk-agenda-time-ampm-button[aria-pressed="true"] {
+	border-color: #1d2327;
+	background: #1d2327;
+	color: #fff;
+}
