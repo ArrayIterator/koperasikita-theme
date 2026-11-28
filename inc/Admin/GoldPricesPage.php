@@ -596,18 +596,22 @@ final class GoldPricesPage
     private static function renderSyncTab(): void
     {
         $status = LogamMuliaApiProvider::status();
+        $enabled = LogamMuliaApiProvider::enabledSyncSources();
         ?>
         <p class="kk-gold-intro"><?php esc_html_e('Scraping fetches the daily gold prices and stores one row per brand per day — only rows that are not in the database yet. It runs automatically via WP-Cron on the schedule on the Setting tab. Use the button below to scrape on demand.', 'koperasikita'); ?></p>
 
         <section class="kk-gold-card">
+        <div class="kk-gold-card-head">
         <h2 class="kk-gold-card-title"><?php esc_html_e('Sync status', 'koperasikita'); ?></h2>
+        <button type="button" class="button button-primary" data-kk-gold-sync <?php disabled(empty($enabled)); ?>><?php esc_html_e('Scrape now', 'koperasikita'); ?></button>
+        </div>
         <?php self::renderStatus($status); ?>
+        <?php if ($enabled === []) : ?>
+            <p><?php esc_html_e('No scraping source is enabled. Enable one on the Setting tab.', 'koperasikita'); ?></p>
+        <?php endif; ?>
         </section>
 
-        <section class="kk-gold-card">
-        <h2 class="kk-gold-card-title"><?php esc_html_e('Manual scraping', 'koperasikita'); ?></h2>
         <?php self::renderManualSync(); ?>
-        </section>
 
         <section class="kk-gold-card">
         <h2 class="kk-gold-card-title"><?php esc_html_e('Scraping sources', 'koperasikita'); ?></h2>
@@ -617,29 +621,22 @@ final class GoldPricesPage
     }
 
     /**
-     * The manual scrape block, on the Sync tab only. The button
-     * scrapes ONLY the enabled sources, default first - see
-     * LogamMuliaApiProvider::enabledSyncSources(). With no source
-     * enabled the button is disabled with an honest note, so it
-     * can never be clicked to no effect. The scrape runs inside
-     * the popup below (same centered + blurred-backdrop pattern as
-     * the Data Desk preview popup): progress bar + per-source
-     * lines, filled by admin.ts (initGoldSync) as each source
-     * finishes. A failed source is reported on its own line and
-     * does not stop the rest. The popup stays open with the full
-     * result until closed; closing it reloads the page, so the
-     * status, history list and chart show the new rows.
+     * The manual scrape popup, on the Sync tab only. The Scrape
+     * now button lives in the Sync status card head; this renders
+     * only the popup it opens. The scrape runs ONLY the enabled
+     * sources, default first - see
+     * LogamMuliaApiProvider::enabledSyncSources(). The popup uses
+     * the same centered + blurred-backdrop pattern as the Data Desk
+     * preview popup: progress bar + per-source lines, filled by
+     * admin.ts (initGoldSync) as each source finishes. A failed
+     * source is reported on its own line and does not stop the
+     * rest. The popup stays open with the full result until
+     * closed; closing it reloads the page, so the status, history
+     * list and chart show the new rows.
      */
     private static function renderManualSync(): void
     {
-        $enabled = LogamMuliaApiProvider::enabledSyncSources();
         ?>
-        <p>
-            <button type="button" class="kk-gold-button kk-gold-button--primary" data-kk-gold-sync <?php disabled(empty($enabled)); ?>><?php esc_html_e('Scrape now', 'koperasikita'); ?></button>
-        </p>
-        <?php if ($enabled === []) : ?>
-            <p><?php esc_html_e('No scraping source is enabled. Enable one on the Setting tab.', 'koperasikita'); ?></p>
-        <?php endif; ?>
         <div class="kk-data-desk-popup" id="kk-gold-sync-popup" hidden role="dialog" aria-modal="true" aria-labelledby="kk-gold-sync-popup-title">
             <div class="kk-data-desk-popup-backdrop" data-kk-gold-sync-popup-close></div>
             <div class="kk-data-desk-popup-panel" role="document">
