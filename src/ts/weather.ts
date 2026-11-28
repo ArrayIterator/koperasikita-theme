@@ -817,7 +817,7 @@ function syncCoordsInputs(): void {
 /* OpenStreetMap tiles, same source the agenda maps use. */
 const MAP_TILE_URL = 'https://tile.openstreetmap.org/{z}/{x}/{y}.png';
 const MAP_ATTRIBUTION = '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors';
-const MAP_ZOOM = 12;
+const MAP_ZOOM = 15;
 
 /** The KK-green map pin: a CSS teardrop, no marker-image assets - the
  * same pin the agenda maps use, under the weather class names. */
