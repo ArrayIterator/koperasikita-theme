@@ -4501,6 +4501,10 @@ msgid "Change amount"
 msgstr "Jumlah perubahan"
 
 #: inc/Admin/DataDeskTemplatesPage.php
+msgid "Change amount, coloured by direction"
+msgstr "Jumlah perubahan, diwarnai sesuai arah"
+
+#: inc/Admin/DataDeskTemplatesPage.php
 msgid "Change in percent"
 msgstr "Perubahan dalam persen"
 
@@ -4515,6 +4519,10 @@ msgstr "Hari naik beruntun"
 #: inc/Admin/DataDeskTemplatesPage.php
 msgid "Zone name, in the chosen zone colour"
 msgstr "Nama zona, dengan warna zona yang dipilih"
+
+#: inc/Admin/DataDeskTemplatesPage.php
+msgid "Zone name, in the zone colour (auto follows the trend)"
+msgstr "Nama zona, dengan warna zona (auto mengikuti tren)"
 
 #: inc/Admin/DataDeskTemplatesPage.php
 msgid "Placeholder"
@@ -4555,6 +4563,14 @@ msgstr "Jenis persen"
 #: inc/Admin/DataDeskTemplatesPage.php
 msgid "Zone colour"
 msgstr "Warna zona"
+
+#: inc/Admin/DataDeskTemplatesPage.php
+msgid "Custom"
+msgstr "Kustom"
+
+#: inc/Admin/DataDeskTemplatesPage.php
+msgid "Custom zone colour"
+msgstr "Warna zona kustom"
 
 #: inc/Admin/DataDeskTemplatesPage.php
 msgid "Daily change (today vs yesterday)"

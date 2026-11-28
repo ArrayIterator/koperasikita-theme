@@ -152,7 +152,7 @@ $polyline = implode(' ', array_map(static fn(array $c): string => number_format(
 		<p class="kk-data-desk-kicker"><?php echo $kicker !== '' ? esc_html($kicker) : esc_html__('Data Desk', 'koperasikita'); ?></p>
 		<h2 class="kk-data-desk-title"><?php echo esc_html($title); ?></h2>
 		<p class="kk-data-desk-subtitle"<?php echo $editable ? ' data-kk-date-line' : ''; ?>><?php
-		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- replacePlaceholders escapes the literal text; the only markup is the {zone} span.
+		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- replacePlaceholders escapes the literal text; the only markup is the {zone} span and the {arrow} / {delta} direction spans.
 		echo $subtitle;
 		?></p>
 	</header>
@@ -245,7 +245,7 @@ $polyline = implode(' ', array_map(static fn(array $c): string => number_format(
 				<p class="kk-data-desk-stat-note"<?php echo $editable ? ' data-kk-stat-field="sell-sub"' : ''; ?>>
 					<?php if ($sellSub !== null) : ?>
 						<?php
-						// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- replacePlaceholders escapes the literal text; the only markup is the {zone} span.
+						// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- replacePlaceholders escapes the literal text; the only markup is the {zone} span and the {arrow} / {delta} direction spans.
 						echo $sellSub;
 						?>
 					<?php elseif ($placeholders['percent'] === 'period' && $price !== null && $points !== [] && isset($data['week_change']) && $data['week_change'] !== null) : ?>
@@ -287,7 +287,7 @@ $polyline = implode(' ', array_map(static fn(array $c): string => number_format(
 				<p class="kk-data-desk-stat-note"<?php echo $editable ? ' data-kk-stat-field="buyback-sub"' : ''; ?>>
 					<?php if ($buybackSub !== null) : ?>
 						<?php
-						// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- replacePlaceholders escapes the literal text; the only markup is the {zone} span.
+						// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- replacePlaceholders escapes the literal text; the only markup is the {zone} span and the {arrow} / {delta} direction spans.
 						echo $buybackSub;
 						?>
 					<?php elseif (isset($data['spread']) && $data['spread'] !== null) : ?>
@@ -314,7 +314,7 @@ $polyline = implode(' ', array_map(static fn(array $c): string => number_format(
 				<p class="kk-data-desk-stat-note"<?php echo $editable ? ' data-kk-stat-field="performance-sub"' : ''; ?>>
 					<?php if ($performanceSub !== null) : ?>
 						<?php
-						// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- replacePlaceholders escapes the literal text; the only markup is the {zone} span.
+						// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- replacePlaceholders escapes the literal text; the only markup is the {zone} span and the {arrow} / {delta} direction spans.
 						echo $performanceSub;
 						?>
 					<?php elseif (isset($data['streak']) && (int) $data['streak'] > 0) : ?>
