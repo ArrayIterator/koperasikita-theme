@@ -34,23 +34,9 @@ $default      = \KoperasiKita\Features\Weather::defaultLocation();
 			?>
 		</p>
 
-		<div class="kk-weather-map-wrap">
-			<p class="kk-weather-map-label"><?php esc_html_e( 'Map', 'koperasikita' ); ?></p>
-			<div class="kk-weather-map" data-kk-weather-map></div>
-			<p class="kk-weather-map-coords" data-kk-weather-map-coords></p>
-			<div class="kk-weather-field">
-				<label for="kk-weather-map-name"><?php esc_html_e( 'Location name', 'koperasikita' ); ?></label>
-				<input type="text" id="kk-weather-map-name" data-kk-weather-map-name autocomplete="off">
-			</div>
-			<p class="kk-weather-map-hint"><?php esc_html_e( 'Click the map to place the marker, or drag it.', 'koperasikita' ); ?></p>
-			<div class="kk-weather-map-actions">
-				<button type="button" class="kk-button kk-button-ghost" data-kk-weather-map-cancel>
-					<?php esc_html_e( 'Cancel', 'koperasikita' ); ?>
-				</button>
-				<button type="button" class="kk-button" data-kk-weather-map-save>
-					<?php esc_html_e( 'Use this location', 'koperasikita' ); ?>
-				</button>
-			</div>
+		<div class="kk-weather-field">
+			<label for="kk-weather-map-name"><?php esc_html_e( 'Location name', 'koperasikita' ); ?></label>
+			<input type="text" id="kk-weather-map-name" data-kk-weather-map-name autocomplete="off">
 		</div>
 
 		<div class="kk-weather-field">
@@ -61,6 +47,21 @@ $default      = \KoperasiKita\Features\Weather::defaultLocation();
 		</div>
 
 		<p class="kk-weather-status" id="kk-weather-status" data-kk-weather-status role="status" aria-live="polite"></p>
+
+		<div class="kk-weather-map-wrap">
+			<p class="kk-weather-map-label"><?php esc_html_e( 'Map', 'koperasikita' ); ?></p>
+			<div class="kk-weather-map" data-kk-weather-map></div>
+			<p class="kk-weather-map-coords" data-kk-weather-map-coords></p>
+			<p class="kk-weather-map-hint"><?php esc_html_e( 'Click the map to place the marker, or drag it.', 'koperasikita' ); ?></p>
+			<div class="kk-weather-map-actions">
+				<button type="button" class="kk-button kk-button-ghost" data-kk-weather-map-cancel>
+					<?php esc_html_e( 'Cancel', 'koperasikita' ); ?>
+				</button>
+				<button type="button" class="kk-button" data-kk-weather-map-save>
+					<?php esc_html_e( 'Use this location', 'koperasikita' ); ?>
+				</button>
+			</div>
+		</div>
 
 		<fieldset class="kk-weather-field kk-weather-coords">
 			<legend><?php esc_html_e( 'Or enter coordinates', 'koperasikita' ); ?></legend>
