@@ -83,12 +83,6 @@ $default      = \KoperasiKita\Features\Weather::defaultLocation();
 			<span><?php esc_html_e( 'Use my location', 'koperasikita' ); ?></span>
 		</button>
 
-		<div class="kk-weather-strip-wrap">
-			<button type="button" class="kk-weather-add" data-kk-weather-add>
-				<?php esc_html_e( '+ Add current location', 'koperasikita' ); ?>
-			</button>
-		</div>
-
 		<div class="kk-weather-modal-actions">
 			<button type="button" class="kk-weather-cancel" data-kk-weather-close>
 				<?php esc_html_e( 'Cancel', 'koperasikita' ); ?>

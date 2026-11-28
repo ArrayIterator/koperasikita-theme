@@ -1368,30 +1368,6 @@ function initStrip(): void {
 		}
 	});
 	renderStrip();
-
-	$('[data-kk-weather-add]')?.addEventListener('click', () => {
-		// Dedupe against BOTH lists: the built-in quick picks and the
-		// user-added ones. Adding a city that is already a default
-		// (e.g. Medan) used to push a second identical chip into the
-		// strip; now the existing chip is selected instead.
-		const current = getTargetLocation(pickerTarget);
-		const existing = findExistingPick(current);
-		if (existing) {
-			stageLocation({ ...existing, source: existing.source });
-			renderStrip();
-			setStatus(tf('%s is already in your quick picks.', existing.name));
-			return;
-		}
-		const customs = getCustomCities();
-		if (customs.length >= MAX_CUSTOM_CITIES) {
-			setStatus(t('Quick picks is full. Remove one first.'));
-			return;
-		}
-		customs.push({ ...current, source: 'search' });
-		storeCustomCities(customs);
-		renderStrip();
-		setStatus(tf('%s added to quick picks.', current.name));
-	});
 }
 
 function initSearch(): void {

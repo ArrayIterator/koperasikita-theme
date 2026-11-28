@@ -283,7 +283,7 @@ html[data-color-scheme="dark"] .kk-weather-modal .kk-button-ghost {
 	padding: 0 0 12px;
 	font-size: 14px;
 	font-weight: 600;
-	color: var(--kk-link, #2563eb);
+	color: var(--kk-green, #0b6b3a);
 	cursor: pointer;
 	text-align: left;
 }
@@ -525,83 +525,6 @@ html[data-color-scheme="dark"] .kk-weather-modal .kk-button-ghost {
 .kk-weather-geolocate {
 	width: 100%;
 	margin-bottom: 20px;
-}
-
-.kk-weather-strip-wrap {
-	border-top: 1px solid var(--kk-border);
-	padding-top: 16px;
-	margin-bottom: 20px;
-}
-
-.kk-weather-strip-label {
-	font-size: 12px;
-	font-weight: 700;
-	letter-spacing: 0.12em;
-	text-transform: uppercase;
-	color: var(--kk-muted);
-	margin-bottom: 8px;
-}
-
-.kk-weather-strip {
-	display: flex;
-	gap: 8px;
-	overflow-x: auto;
-	padding-bottom: 4px;
-	-webkit-overflow-scrolling: touch;
-}
-
-.kk-weather-strip li {
-	display: flex;
-	align-items: center;
-	flex: 0 0 auto;
-}
-
-.kk-weather-chip {
-	min-height: 44px;
-	padding: 10px 16px;
-	border: 1px solid var(--kk-border);
-	border-radius: var(--kk-radius);
-	font-size: 14px;
-	font-weight: 600;
-	white-space: nowrap;
-}
-
-.kk-weather-chip:hover,
-.kk-weather-chip:focus-visible {
-	border-color: var(--kk-green, #0b6b3a);
-	color: var(--kk-green, #0b6b3a);
-}
-
-.kk-weather-chip.is-active {
-	background: var(--kk-green, #0b6b3a);
-	border-color: var(--kk-green, #0b6b3a);
-	color: #fff;
-}
-
-.kk-weather-chip-remove {
-	display: inline-flex;
-	align-items: center;
-	justify-content: center;
-	width: 44px;
-	height: 44px;
-	margin-left: -8px;
-	font-size: 20px;
-	line-height: 1;
-	color: var(--kk-muted);
-}
-
-.kk-weather-chip-remove:hover,
-.kk-weather-chip-remove:focus-visible {
-	color: var(--kk-error, #b3261e);
-}
-
-.kk-weather-add {
-	min-height: 44px;
-	margin-top: 8px;
-	padding: 10px 4px;
-	font-size: 14px;
-	font-weight: 600;
-	color: var(--kk-green, #0b6b3a);
 }
 
 .kk-weather-cancel {
