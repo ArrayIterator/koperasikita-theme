@@ -1249,6 +1249,12 @@ function initMap(): void {
 				? { ...base, fullName: stagedFullName }
 				: base;
 		applyLocation(location, pickerTarget);
+		// Whether a search result staged a full hierarchy: read
+		// before closePicker, which resets stagedFullName. The
+		// background lookup only runs when the staged place had
+		// none (a map click); a search fullName must never be
+		// overwritten by the reverse lookup.
+		const hadSearchFullName = stagedFullName !== null;
 		closePicker();
 		// After the close, resolve the area hierarchy in the
 		// background (a Promise the close never awaited). It only
@@ -1256,7 +1262,7 @@ function initMap(): void {
 		// had none (a map click): the name itself is final at
 		// apply time, so the background lookup never rewrites it
 		// and never races the weather fetch already in flight.
-		if (stagedFullName === null) {
+		if (!hadSearchFullName) {
 			void (async () => {
 				const details = await reverseGeocodeDetails(staged.latitude, staged.longitude);
 				if (details === null) {
