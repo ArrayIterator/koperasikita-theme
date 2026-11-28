@@ -237,6 +237,34 @@ final class Pwa
     }
 
     /**
+     * Icon for the install banner and the full bottom bar: the PWA
+     * app icon when one is picked, otherwise the site icon, so the
+     * banner shows the site's own mark instead of the shipped logo.
+     * Only when neither is set does it fall back to the shipped
+     * logo, so the banner is never rendered without an icon.
+     */
+    public static function bannerIconUrl(): string
+    {
+        $id = absint(get_theme_mod('kk_pwa_icon', 0));
+
+        if ($id > 0) {
+            $image = wp_get_attachment_image_src($id, 'full');
+
+            if (is_array($image) && isset($image[0]) && is_string($image[0]) && $image[0] !== '') {
+                return $image[0];
+            }
+        }
+
+        $siteIcon = get_site_icon_url();
+
+        if (is_string($siteIcon) && $siteIcon !== '') {
+            return $siteIcon;
+        }
+
+        return self::appIconUrl();
+    }
+
+    /**
      * The manifest icons: the Customizer-picked image (one URL, used
      * for both sizes - the browser scales it) when one is set,
      * otherwise the shipped 192 + 512 logo files.
