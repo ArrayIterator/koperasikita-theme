@@ -1,3 +1,5 @@
+@import 'leaflet/dist/leaflet.css';
+
 /*
    Koperasi Kita - widget-blocks.css - widget block editor styles
    Only the placeholder a widget block shows on the canvas; the real
@@ -94,6 +96,97 @@
 .kk-locations-result:hover,
 .kk-locations-result:focus-visible {
 	background: #e5e8e8;
+}
+
+/* Weather locations map picker popup */
+
+.kk-locations-pick {
+	margin-top: 0.5rem;
+}
+
+.kk-locations-picker-modal {
+	width: min(560px, calc(100vw - 2rem));
+}
+
+.kk-locations-picker-hint {
+	margin: 0 0 0.75rem;
+	font-size: 0.8125rem;
+	color: #50575e;
+}
+
+.kk-locations-picker-map {
+	height: 20rem;
+	margin: 0 0 0.5rem;
+	border: 1px solid #dcdcde;
+	border-radius: 0.25rem;
+	background: #aad3df;
+}
+
+.kk-locations-picker-coords {
+	margin: 0 0 0.75rem;
+	font-size: 0.8125rem;
+	color: #50575e;
+}
+
+.kk-locations-picker-coords-row {
+	display: flex;
+	gap: 0.75rem;
+}
+
+.kk-locations-picker-coords-row .components-base-control {
+	flex: 1;
+	min-width: 0;
+}
+
+.kk-locations-picker-apply-coords {
+	margin-bottom: 1rem;
+}
+
+.kk-locations-picker-actions {
+	display: flex;
+	justify-content: flex-end;
+	gap: 0.5rem;
+	margin-top: 1rem;
+}
+
+/* The KK-green map pin: a CSS teardrop, no marker-image assets
+ * (same pin as the agenda maps). */
+.kk-locations-pin-icon {
+	background: transparent;
+	border: none;
+}
+
+.kk-locations-pin {
+	position: relative;
+	display: block;
+	box-sizing: border-box;
+	width: 28px;
+	height: 28px;
+}
+
+.kk-locations-pin::before {
+	content: '';
+	position: absolute;
+	inset: 0;
+	box-sizing: border-box;
+	border-radius: 50% 50% 50% 0;
+	background: var(--kk-green, #0b6b3a);
+	border: 2px solid #fff;
+	box-shadow: 0 1px 4px rgba(0, 0, 0, 0.35);
+	transform: rotate(-45deg);
+}
+
+.kk-locations-pin::after {
+	content: '';
+	position: absolute;
+	left: 50%;
+	top: 50%;
+	width: 8px;
+	height: 8px;
+	margin: -4px 0 0 -4px;
+	box-sizing: border-box;
+	border-radius: 50%;
+	background: #fff;
 }
 
 /* Term search field */
