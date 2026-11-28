@@ -726,76 +726,6 @@ function initTicker(): void {
 	});
 }
 
-/* Market header index: mobile ticker rotation.
- * The same rotation as the news ticker (initTicker): one item at a
- * time, bouncing up from below (kk-ticker-in) with the old item
- * fading up and out (kk-ticker-out). Runs only below the mobile
- * breakpoint, where the row fits about one item; desktop keeps the
- * plain row. Reduced motion never auto-cycles (the CSS then shows
- * the plain swipeable row instead). */
-function initMarketHeaderTicker(): void {
-	const strip = $('#kk-market-header-strip');
-	if (!strip) {
-		return;
-	}
-	// Clones excluded: the desktop marquee (gold-markets.ts) appends
-	// a second identical set, and the rotation must only cycle the
-	// real items - the clones are aria-hidden duplicates.
-	const items = $all<HTMLElement>('.kk-index-item:not(.kk-index-item--clone)', strip);
-	if (items.length <= 1) {
-		return;
-	}
-	let current = 0;
-	let timer: number | null = null;
-	const speedSeconds = Math.min(120, Math.max(2, Number(strip.getAttribute('data-speed') ?? '5') || 5));
-	const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-	const mobile = window.matchMedia('(max-width: 767px)');
-
-	function show(index: number): void {
-		const previous = items[current];
-		current = (index + items.length) % items.length;
-		const next = items[current];
-		if (previous === next) {
-			return;
-		}
-		previous.classList.remove('is-active');
-		previous.classList.add('is-leaving');
-		window.setTimeout(() => previous.classList.remove('is-leaving'), 450);
-		next.classList.add('is-active');
-	}
-
-	function start(): void {
-		stop();
-		items[current].classList.add('is-active');
-		timer = window.setInterval(() => show(current + 1), speedSeconds * 1000);
-	}
-
-	function stop(): void {
-		if (timer !== null) {
-			window.clearInterval(timer);
-			timer = null;
-		}
-	}
-
-	function sync(): void {
-		if (mobile.matches && !reduced) {
-			start();
-		} else {
-			stop();
-		}
-	}
-
-	sync();
-	mobile.addEventListener('change', sync);
-	document.addEventListener('visibilitychange', () => {
-		if (document.hidden) {
-			stop();
-		} else if (mobile.matches && !reduced) {
-			start();
-		}
-	});
-}
-
 /* Live clock (top bar)                                                 */
 
 /*
@@ -1635,7 +1565,6 @@ document.addEventListener('DOMContentLoaded', () => {
 	initModals();
 	initExpandingSearch();
 	initTicker();
-	initMarketHeaderTicker();
 	initSliders();
 	initClock();
 	initLayoutSwitcher();

@@ -6155,8 +6155,8 @@ msgstr "Detik per item"
 
 #: inc/Customizer/Customizer.php
 
-msgid "On small screens the strip shows one item at a time for this long; on desktop it scrolls as a marquee, passing one item per this many seconds."
-msgstr "Di layar kecil, strip menampilkan satu item selama ini; di desktop strip bergulir seperti marquee, melewati satu item per sekian detik."
+msgid "On desktop the strip scrolls as a marquee, passing one item per this many seconds; on small screens the strip is swiped by touch."
+msgstr "Di desktop strip bergulir seperti marquee, melewati satu item per sekian detik; di layar kecil strip digeser dengan sentuhan."
 
 #: inc/Customizer/Customizer.php
 

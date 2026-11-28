@@ -8,12 +8,11 @@
  * and time, or both) as built by MarketHeaderIndex::captionText();
  * direct template use without it builds the caption from the
  * snapshot the same way. $args['cycle_interval'] is the seconds
- * between items when the strip cycles on small screens (7 by
- * default). Renders nothing when the list is empty - the caller
- * (MarketHeaderIndex::render) already guarantees that, this is a
- * second guard for direct template use. The strip has no
- * background of its own: the items sit directly on the page
- * background.
+ * per item in the desktop marquee (7 by default). Renders nothing
+ * when the list is empty - the caller (MarketHeaderIndex::render)
+ * already guarantees that, this is a second guard for direct
+ * template use. The strip has no background of its own: the items
+ * sit directly on the page background.
  *
  * @package KoperasiKita
  */
