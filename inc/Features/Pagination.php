@@ -264,6 +264,7 @@ final class Pagination
             data-max-pages="<?php echo esc_attr((string) $max_pages); ?>"
             data-load-more-max="<?php echo esc_attr((string) $load_more_max); ?>"
             data-loading-style="<?php echo esc_attr(self::loadingStyle()); ?>"
+            data-loading-label="<?php esc_attr_e('Loading...', 'koperasikita'); ?>"
             data-per-page="<?php echo esc_attr((string) self::perPage($query)); ?>"
         >
             <a class="kk-load-more" data-kk-load-more href="<?php echo esc_url(get_pagenum_link($paged + 1)); ?>">
