@@ -15,7 +15,6 @@ if ( ! \KoperasiKita\Features\Features::isEnabled( 'weather' ) ) {
 	return;
 }
 
-$quick_cities = \KoperasiKita\Features\Weather::quickCities();
 $default      = \KoperasiKita\Features\Weather::defaultLocation();
 ?>
 
@@ -85,19 +84,6 @@ $default      = \KoperasiKita\Features\Weather::defaultLocation();
 		</button>
 
 		<div class="kk-weather-strip-wrap">
-			<p class="kk-weather-strip-label"><?php esc_html_e( 'Quick picks', 'koperasikita' ); ?></p>
-			<ul class="kk-weather-strip" data-kk-weather-strip>
-				<?php foreach ( $quick_cities as $city ) : ?>
-					<li>
-						<button type="button" class="kk-weather-chip" data-kk-weather-chip
-							data-name="<?php echo esc_attr( $city['name'] ); ?>"
-							data-latitude="<?php echo esc_attr( (string) $city['latitude'] ); ?>"
-							data-longitude="<?php echo esc_attr( (string) $city['longitude'] ); ?>">
-							<?php echo esc_html( $city['name'] ); ?>
-						</button>
-					</li>
-				<?php endforeach; ?>
-			</ul>
 			<button type="button" class="kk-weather-add" data-kk-weather-add>
 				<?php esc_html_e( '+ Add current location', 'koperasikita' ); ?>
 			</button>
