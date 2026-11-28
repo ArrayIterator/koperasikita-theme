@@ -82,6 +82,7 @@ interface AdminStrings {
 	syncMarketSkipped: string;
 	marketSyncDone: string;
 	syncingMailPoet: string;
+	importingMailPoet: string;
 }
 
 interface AdminData {
@@ -194,6 +195,7 @@ const FALLBACK_STRINGS: AdminStrings = {
 	syncMarketSkipped: 'Skipped %s — manual snapshots are not synced.',
 	marketSyncDone: 'Sync complete.',
 	syncingMailPoet: 'Syncing with MailPoet…',
+	importingMailPoet: 'Importing from MailPoet…',
 };
 
 function adminData(): AdminData | null {
@@ -258,6 +260,7 @@ function adminStrings(): AdminStrings {
 		syncMarketSkipped: strings?.syncMarketSkipped ?? FALLBACK_STRINGS.syncMarketSkipped,
 		marketSyncDone: strings?.marketSyncDone ?? FALLBACK_STRINGS.marketSyncDone,
 		syncingMailPoet: strings?.syncingMailPoet ?? FALLBACK_STRINGS.syncingMailPoet,
+		importingMailPoet: strings?.importingMailPoet ?? FALLBACK_STRINGS.importingMailPoet,
 	};
 }
 
@@ -2901,8 +2904,8 @@ interface MailPoetSyncResult {
 }
 
 /*
- * MailPoet two-way sync (Subscribers page): the Sync With MailPoet
- * button opens a popup and runs both directions in one AJAX call
+ * MailPoet sync (Subscribers page): the Sync With MailPoet
+ * button opens a popup and runs the sync in one AJAX call
  * (kk_mailpoet_sync) - local subscribers into MailPoet, then
  * MailPoet subscribers not stored here yet into the local table.
  * One pre holds the per-address lines, the run summary shows once
@@ -2915,6 +2918,13 @@ interface MailPoetSyncResult {
  * nothing. Without MailPoet the button is not rendered at all,
  * and a call that reports it missing shows the server's error
  * instead of finishing as if a sync had run.
+ *
+ * The toggle gates the push direction, not the button: on, the
+ * click syncs both ways; off, it only imports from MailPoet,
+ * and the button says "Import from MailPoet". Flipping the
+ * toggle swaps the button label at once, and the popup title
+ * follows the button when it opens, so the mode is visible
+ * before the click and during the run.
  */
 function initMailPoetSync(): void {
 	const button = document.querySelector<HTMLButtonElement>('[data-kk-mailpoet-sync]');
@@ -2929,7 +2939,20 @@ function initMailPoetSync(): void {
 	if (!bar || !statusEl || !resultEl || !closeButton) {
 		return;
 	}
+	const titleEl = popup.querySelector<HTMLElement>('#kk-mailpoet-sync-popup-title');
 	const settingsForm = document.querySelector<HTMLFormElement>('[data-kk-mailpoet-settings]');
+
+	/* The toggle swaps the button label at once: the two labels
+	 * ride on the button itself, so no save or reload is needed
+	 * to see which direction the next click runs. */
+	const toggle = settingsForm?.querySelector<HTMLInputElement>('input[name="kk_mailpoet_sync"]') ?? null;
+	const syncLabel = button.getAttribute('data-kk-mailpoet-label-sync') ?? '';
+	const importLabel = button.getAttribute('data-kk-mailpoet-label-import') ?? '';
+	if (toggle && syncLabel !== '' && importLabel !== '') {
+		toggle.addEventListener('change', () => {
+			button.textContent = toggle.checked ? syncLabel : importLabel;
+		});
+	}
 
 	let running = false;
 
@@ -2985,11 +3008,19 @@ function initMailPoetSync(): void {
 		}
 		const strings = adminStrings();
 		setRunning(true);
+		/* The popup title follows the button that opened it, so a
+		 * toggle flip without a save still shows the right mode;
+		 * the progress line says which direction is running. */
+		const label = button.textContent?.trim() ?? '';
+		if (titleEl && label !== '') {
+			titleEl.textContent = label;
+		}
+		const pullOnly = toggle ? !toggle.checked : false;
 		/* The whole status lives in one pre, set from the lines the
 		 * server returns: one line per address, pushed / pulled /
 		 * already synced / failed with its reason. The summary is
 		 * never a pre line - it shows once in the notice below. */
-		statusEl.textContent = strings.syncingMailPoet;
+		statusEl.textContent = pullOnly ? strings.importingMailPoet : strings.syncingMailPoet;
 		resultEl.textContent = '';
 		resultEl.hidden = true;
 		bar.max = 100;

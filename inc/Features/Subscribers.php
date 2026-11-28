@@ -19,11 +19,16 @@ namespace KoperasiKita\Features;
  * is idempotent and never leaks whether the address was already
  * stored.
  *
- * The table is created lazily on the first write (dbDelta, guarded
- * by a version option), mirroring GoldPricesTable: the theme has
- * no activation hook that would run on the already-live site, so
- * the first successful subscribe creates it. Reads against a
- * missing table return empty results instead of erroring.
+ * The table is created lazily (dbDelta, guarded by a version
+ * option), mirroring GoldPricesTable: the theme has no activation
+ * hook that would run on the already-live site. The upgrade is
+ * ensured wherever the table is read, not only on the first
+ * write: the admin sync and the Subscribers page call
+ * maybeCreate() first, so a version bump ships its columns
+ * without waiting for a new signup. The version option alone
+ * is never trusted - a failed ALTER would leave the option
+ * ahead of the table, so the columns are verified against the
+ * table itself before the option is written or believed.
  *
  * Columns: id, email, first_name, last_name, subscribed_ip,
  * confirmed_ip, status (subscribed/pending/unsubscribed), source
@@ -90,10 +95,23 @@ final class Subscribers
         return $wpdb->prefix . 'kk_subscribers';
     }
 
-    public static function maybeCreate(): void
+    /**
+     * Ensure the table carries the current columns, creating or
+     * upgrading it when it does not. Returns true only when the
+     * columns are verified present afterwards: a dbDelta that
+     * silently fails to add a column must not mark the upgrade
+     * done, or every later read would fail the same quiet way
+     * (a SELECT naming a missing column returns nothing, so a
+     * sync would report 0 pushed with the row still pending).
+     * The version option is written only after the columns are
+     * confirmed, and it is believed only after the same check,
+     * so a half-applied upgrade retries on the next call instead
+     * of being trusted forever.
+     */
+    public static function maybeCreate(): bool
     {
-        if (get_option(self::VERSION_OPTION) === self::VERSION) {
-            return;
+        if (get_option(self::VERSION_OPTION) === self::VERSION && self::hasCurrentColumns()) {
+            return true;
         }
 
         global $wpdb;
@@ -119,7 +137,51 @@ final class Subscribers
         ) {$charset};";
 
         dbDelta($sql);
+
+        if (!self::hasCurrentColumns()) {
+            return false;
+        }
+
         update_option(self::VERSION_OPTION, self::VERSION, false);
+
+        return true;
+    }
+
+    /**
+     * Whether the subscribers table carries every current
+     * column. A missing table reads as not current; a SELECT
+     * naming a column that is not there fails the same way,
+     * so this is the check the upgrade is judged by.
+     */
+    private static function hasCurrentColumns(): bool
+    {
+        global $wpdb;
+
+        if (!self::tableExists()) {
+            return false;
+        }
+
+        $columns = $wpdb->get_results("SHOW COLUMNS FROM " . self::table(), ARRAY_A);
+
+        if (!is_array($columns)) {
+            return false;
+        }
+
+        $names = [];
+
+        foreach ($columns as $column) {
+            if (is_array($column) && isset($column['Field'])) {
+                $names[] = (string) $column['Field'];
+            }
+        }
+
+        foreach (['id', 'email', 'first_name', 'last_name', 'subscribed_ip', 'confirmed_ip', 'status', 'source', 'created_at', 'updated_at'] as $required) {
+            if (!in_array($required, $names, true)) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     public static function tableExists(): bool

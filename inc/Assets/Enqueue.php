@@ -706,6 +706,7 @@ final class Enqueue
 
                 if ($isSubscribers) {
                     $strings['syncingMailPoet'] = __('Syncing with MailPoet…', 'koperasikita');
+                    $strings['importingMailPoet'] = __('Importing from MailPoet…', 'koperasikita');
                 }
 
                 wp_localize_script('kk-admin', 'kkAdminData', [
