@@ -77,7 +77,10 @@ interface AdminStrings {
 	fastSearchError: string;
 	fastSearchInstalled: string;
 	fastSearchFailed: string;
-	moveFailed: string;
+	syncingMarket: string;
+	syncMarketDone: string;
+	syncMarketSkipped: string;
+	marketSyncDone: string;
 }
 
 interface AdminData {
@@ -103,6 +106,19 @@ interface GoldSyncStep {
 	skipped: number;
 	latest_date: string | null;
 	error: string | null;
+	next: string | null;
+	total?: number;
+	step?: number;
+}
+
+interface MarketSyncStep {
+	market: string;
+	label: string;
+	ok: boolean;
+	updated: number | null;
+	symbols: number;
+	error: string | null;
+	skipped: boolean;
 	next: string | null;
 	total?: number;
 	step?: number;
@@ -170,7 +186,10 @@ const FALLBACK_STRINGS: AdminStrings = {
 	fastSearchError: 'The index build could not run. Please try again.',
 	fastSearchInstalled: 'Installed',
 	fastSearchFailed: 'Failed',
-	moveFailed: 'Could not move the item.',
+	syncingMarket: 'Syncing %s…',
+	syncMarketDone: 'Synced %s (%s symbols)',
+	syncMarketSkipped: 'Skipped %s — manual snapshots are not synced.',
+	marketSyncDone: 'Sync complete.',
 };
 
 function adminData(): AdminData | null {
@@ -230,7 +249,10 @@ function adminStrings(): AdminStrings {
 		fastSearchError: strings?.fastSearchError ?? FALLBACK_STRINGS.fastSearchError,
 		fastSearchInstalled: strings?.fastSearchInstalled ?? FALLBACK_STRINGS.fastSearchInstalled,
 		fastSearchFailed: strings?.fastSearchFailed ?? FALLBACK_STRINGS.fastSearchFailed,
-		moveFailed: strings?.moveFailed ?? FALLBACK_STRINGS.moveFailed,
+		syncingMarket: strings?.syncingMarket ?? FALLBACK_STRINGS.syncingMarket,
+		syncMarketDone: strings?.syncMarketDone ?? FALLBACK_STRINGS.syncMarketDone,
+		syncMarketSkipped: strings?.syncMarketSkipped ?? FALLBACK_STRINGS.syncMarketSkipped,
+		marketSyncDone: strings?.marketSyncDone ?? FALLBACK_STRINGS.marketSyncDone,
 	};
 }
 
@@ -436,9 +458,9 @@ function initAdmin(): void {
 		initMenuIconPickers,
 		initAgendaWidgetFields,
 		initGoldSync,
+		initMarketSync,
 		initGoldSummaryChart,
 		initFastSearchBuild,
-		initMarketHeaderMove,
 		initDataDeskPreview,
 		initDataDeskAjaxSave,
 		initDataDeskWidgetPreview,
@@ -2471,92 +2493,6 @@ function initSidebarSettingsPopup(): void {
  * server-side, and a step that reports no source shows the
  * server's error instead of finishing as if a sync had run.
  */
-/* Market Index page: the up/down buttons reorder the item list in
- * the browser and persist the new order over AJAX, with no page
- * reload. The DOM order is the saved order - the hidden inputs
- * ride along with their rows, so the Save button still submits
- * the same order afterwards. A failed save puts the rows back
- * where they were and says so in the status line. */
-function initMarketHeaderMove(): void {
-	const table = document.querySelector<HTMLTableElement>('[data-kk-market-header-table]');
-	if (!table) {
-		return;
-	}
-	const tbody = table.tBodies[0];
-	const statusEl = document.querySelector<HTMLElement>('[data-kk-market-header-move-status]');
-	if (!tbody) {
-		return;
-	}
-
-	const setDisabled = (): void => {
-		const rows = Array.from(tbody.rows);
-		rows.forEach((row, index) => {
-			const up = row.querySelector<HTMLButtonElement>('[data-direction="up"]');
-			const down = row.querySelector<HTMLButtonElement>('[data-direction="down"]');
-			if (up) {
-				up.disabled = index === 0;
-			}
-			if (down) {
-				down.disabled = index === rows.length - 1;
-			}
-		});
-	};
-
-	const order = (): string[] =>
-		Array.from(tbody.rows)
-			.map((row) => row.querySelector<HTMLInputElement>('input[name="kk_market_header_items[]"]')?.value ?? '')
-			.filter((value) => value !== '');
-
-	const move = async (button: HTMLButtonElement): Promise<void> => {
-		const row = button.closest('tr');
-		if (!row) {
-			return;
-		}
-		const direction = button.dataset.direction;
-		const sibling = direction === 'up' ? row.previousElementSibling : row.nextElementSibling;
-		if (!(sibling instanceof HTMLTableRowElement)) {
-			return;
-		}
-		const config = adminData();
-		if (!config) {
-			return;
-		}
-
-		if (direction === 'up') {
-			tbody.insertBefore(row, sibling);
-		} else {
-			tbody.insertBefore(sibling, row);
-		}
-		setDisabled();
-
-		try {
-			await postAjax<{ items: string[] }>(config, 'kk_market_header_move', {
-				items: JSON.stringify(order()),
-			});
-			if (statusEl) {
-				statusEl.hidden = true;
-				statusEl.textContent = '';
-			}
-		} catch (error) {
-			if (direction === 'up') {
-				tbody.insertBefore(sibling, row);
-			} else {
-				tbody.insertBefore(row, sibling);
-			}
-			setDisabled();
-			if (statusEl) {
-				statusEl.textContent = error instanceof Error ? error.message : adminStrings().moveFailed;
-				statusEl.hidden = false;
-			}
-		}
-	};
-
-	tbody.querySelectorAll<HTMLButtonElement>('.kk-market-header-move').forEach((button) => {
-		button.addEventListener('click', () => {
-			void move(button);
-		});
-	});
-}
 
 function initGoldSync(): void {
 	const button = document.querySelector<HTMLButtonElement>('[data-kk-gold-sync]');
@@ -2703,6 +2639,173 @@ function initGoldSync(): void {
 			statusEl.textContent = formatTemplate(strings.syncDone, totalInserted, totalSkipped);
 			const summary = document.createElement('div');
 			summary.textContent = formatTemplate(strings.syncDone, totalInserted, totalSkipped);
+			result.appendChild(summary);
+			setRunning(false);
+		} catch (error) {
+			const line = document.createElement('div');
+			line.textContent = errorMessage(error);
+			result.appendChild(line);
+			setRunning(false);
+		}
+	});
+}
+
+/* Manual market sync (Market Index page): the Sync now button
+ * syncs the saved market selection, one market per AJAX call
+ * (kk_market_sync), in order, with a progress line per market
+ * inside a popup - the same shape as the gold sync (initGoldSync).
+ * A per-market failure is reported as its own line and does not
+ * stop the remaining markets. The settings form is disabled with
+ * a note saying it is paused. The popup stays open with the full
+ * result until the user closes it (Close, backdrop, Escape); the
+ * close reloads the page, so the last sync and status show the
+ * new data. Without the button (any other admin screen) this
+ * does nothing. With no market selected the button is disabled
+ * server-side, and a call that reports no market shows the
+ * server's error instead of finishing as if a sync had run.
+ */
+function initMarketSync(): void {
+	const button = document.querySelector<HTMLButtonElement>('[data-kk-market-sync]');
+	const popup = document.getElementById('kk-market-sync-popup');
+	if (!button || !popup) {
+		return;
+	}
+	const bar = popup.querySelector<HTMLProgressElement>('[data-kk-market-sync-bar]');
+	const statusEl = popup.querySelector<HTMLElement>('[data-kk-market-sync-status]');
+	const stepsEl = popup.querySelector<HTMLElement>('[data-kk-market-sync-steps]');
+	const result = popup.querySelector<HTMLElement>('[data-kk-market-sync-result]');
+	const closeButton = popup.querySelector<HTMLButtonElement>('[data-kk-market-sync-popup-close]');
+	if (!bar || !statusEl || !stepsEl || !result || !closeButton) {
+		return;
+	}
+	const settingsForm = document.querySelector<HTMLFormElement>('[data-kk-market-sync-settings]');
+	const runningNote = document.querySelector<HTMLElement>('[data-kk-market-sync-running]');
+
+	let running = false;
+
+	/* Every close path reloads: the numbers behind the popup are
+	 * stale once a sync has run, and the popup itself says so. */
+	const close = (): void => {
+		popup.hidden = true;
+		button.focus();
+		window.location.reload();
+	};
+
+	popup.querySelectorAll('[data-kk-market-sync-popup-close]').forEach((el) => {
+		el.addEventListener('click', close);
+	});
+
+	document.addEventListener('keydown', (event) => {
+		if (event.key === 'Escape' && !popup.hidden) {
+			close();
+		}
+	});
+
+	const setRunning = (isRunning: boolean): void => {
+		running = isRunning;
+		button.disabled = isRunning;
+		if (isRunning) {
+			button.setAttribute('aria-busy', 'true');
+		} else {
+			button.removeAttribute('aria-busy');
+		}
+		if (runningNote) {
+			runningNote.hidden = !isRunning;
+		}
+		if (settingsForm) {
+			settingsForm.querySelectorAll<HTMLInputElement | HTMLSelectElement | HTMLButtonElement>('input, select, button').forEach((el) => {
+				el.disabled = isRunning;
+			});
+		}
+	};
+
+	/* Localize data missing (stale page, cached markup, blocked
+	 * script): never leave a dead button - a click opens the popup
+	 * and says so honestly instead of doing nothing. */
+	const config = adminData();
+	if (!config) {
+		button.addEventListener('click', () => {
+			statusEl.textContent = '';
+			stepsEl.textContent = '';
+			result.textContent = adminStrings().adminDataMissing;
+			popup.hidden = false;
+			closeButton.focus();
+		});
+		return;
+	}
+
+	button.addEventListener('click', async () => {
+		if (running) {
+			return;
+		}
+		const strings = adminStrings();
+		setRunning(true);
+		result.textContent = '';
+		stepsEl.textContent = '';
+		statusEl.textContent = '';
+		bar.max = 100;
+		bar.value = 0;
+		popup.hidden = false;
+		closeButton.focus();
+
+		/* null = first call, no market (starts from the first one). */
+		let market: string | null = null;
+
+		try {
+			/* At most one call per selected market; the cap is a
+			 * guard against a server that ever returns a cycle
+			 * in `next`. */
+			for (let step = 0; step < 10; step += 1) {
+				const params: Record<string, string> = market === null ? {} : { market };
+				const current = market ?? '';
+				/* The step line appears first as "Syncing <market>..."
+				 * and is rewritten with its result when the call
+				 * returns, so the list always shows live progress. */
+				const line = document.createElement('li');
+				line.textContent = formatTemplate(strings.syncingMarket, current);
+				stepsEl.appendChild(line);
+
+				const data: MarketSyncStep = await postAjax<MarketSyncStep>(config, 'kk_market_sync', params);
+
+				/* No market in the step: either nothing is selected
+				 * at all (total 0 - show the server's honest error
+				 * and stop, never finishing as if a sync had run),
+				 * or the remaining markets were unselected mid-run
+				 * (total > 0 - finish with what already synced). */
+				if (!data.market) {
+					if (data.total === 0) {
+						if (data.error) {
+							line.textContent = formatTemplate(strings.failed, data.error);
+							result.textContent = data.error;
+						}
+						setRunning(false);
+						return;
+					}
+					break;
+				}
+
+				const total = typeof data.total === 'number' && data.total > 0 ? data.total : 3;
+				const done = typeof data.step === 'number' && data.step > 0 ? data.step : step + 1;
+				bar.max = total;
+				bar.value = done;
+				statusEl.textContent = `${formatTemplate(strings.syncingMarket, data.label)} (${done}/${total})`;
+
+				line.textContent = !data.ok
+					? formatTemplate(strings.failed, `${data.label}: ${data.error ?? ''}`)
+					: data.skipped
+						? formatTemplate(strings.syncMarketSkipped, data.label)
+						: formatTemplate(strings.syncMarketDone, data.label, data.symbols);
+
+				if (data.next === null) {
+					break;
+				}
+				market = data.next;
+			}
+
+			bar.value = bar.max;
+			statusEl.textContent = strings.marketSyncDone;
+			const summary = document.createElement('div');
+			summary.textContent = strings.marketSyncDone;
 			result.appendChild(summary);
 			setRunning(false);
 		} catch (error) {

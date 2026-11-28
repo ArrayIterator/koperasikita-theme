@@ -647,11 +647,11 @@ final class Enqueue
             }
         }
 
-        /* Subscribers + Market Index pages: server-rendered, but
+        /* Subscribers + Market Index pages: server-rendered, and
          * their card, title, button and table chrome lives in
          * admin.css. The Market Index page also needs the admin
-         * script: its up/down buttons reorder the item list over
-         * AJAX, with no page reload. */
+         * script: its Sync now button syncs one market per AJAX
+         * call, with a progress popup (admin.ts initMarketSync). */
         $isSubscribers = $hookSuffix === AdminMenu::submenuHookSuffix(\KoperasiKita\Admin\SubscribersPage::PAGE_SLUG);
         $isMarketHeader = $hookSuffix === AdminMenu::submenuHookSuffix(\KoperasiKita\Admin\MarketHeaderPage::PAGE_SLUG);
 
@@ -668,11 +668,20 @@ final class Enqueue
                 if ($adminJs !== '') {
                     wp_enqueue_script('kk-admin', $adminJs, [], KK_VERSION, true);
 
+                    // The manual market sync progress strings
+                    // (admin.ts initMarketSync) and the shared admin
+                    // strings, so the progress lines are translated
+                    // in the admin language.
                     wp_localize_script('kk-admin', 'kkAdminData', [
                         'ajaxUrl' => admin_url('admin-ajax.php'),
                         'nonce' => wp_create_nonce('koperasikita_nonce'),
                         'strings' => [
-                            'moveFailed' => __('Could not move the item.', 'koperasikita'),
+                            'adminDataMissing' => __('Admin data is not available.', 'koperasikita'),
+                            'failed' => __('Failed: %s', 'koperasikita'),
+                            'syncingMarket' => __('Syncing %s…', 'koperasikita'),
+                            'syncMarketDone' => __('Synced %s (%s symbols)', 'koperasikita'),
+                            'syncMarketSkipped' => __('Skipped %s — manual snapshots are not synced.', 'koperasikita'),
+                            'marketSyncDone' => __('Sync complete.', 'koperasikita'),
                         ],
                     ]);
                 }
