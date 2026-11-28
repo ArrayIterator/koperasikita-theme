@@ -65,7 +65,11 @@ final class AdminMenu
             'manage_options',
             self::MENU_SLUG,
             [Setup::class, 'render'],
-            'dashicons-store',
+            /* 'none' on purpose: core renders no icon, so the KK K
+             * mark is painted on div.wp-menu-image by admin-menu.css
+             * (the same data-URI mark the Dashboard item uses). A
+             * dashicon here would render its glyph on top of it. */
+            'none',
             30
         );
 

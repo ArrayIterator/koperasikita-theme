@@ -1,50 +1,48 @@
-/* Admin menu: the Dashboard item shows the KK K mark.
+/* Admin menu: the Koperasi Kita top-level item shows the KK K
+ * mark. The Dashboard item keeps WordPress core's default
+ * dashboard icon (nothing here touches it).
  *
  * The rule lives in its own entry because the kk-admin bundle is
  * only enqueued on a few admin screens (Setup, nav-menus, Gold
  * Prices, Data Desk, Agenda, Subscribers, Market Header, widgets,
- * Customizer) - while the admin sidebar, Dashboard included, is on
- * every admin page. This stylesheet is enqueued unconditionally by
+ * Customizer) - while the admin sidebar is on every admin page.
+ * This stylesheet is enqueued unconditionally by
  * Enqueue::registerAdmin(), so the icon is the KK mark everywhere.
  *
- * Only the Dashboard item is touched; every other menu keeps its
- * own icon. The mark is the shipped square K (assets/img/logo-k.svg),
- * shown at the admin menu's 20px icon size. The SVG's own artwork
- * is 282..1319 x 204..1415 inside a 1600 viewBox, so it is centred
- * in the slot rather than cropped to the viewBox edge.
+ * Only the Koperasi Kita item is touched in the sidebar; every
+ * other menu keeps its own icon. The mark is the shipped square
+ * K (assets/img/logo-k.svg), shown at the admin menu's 20px icon
+ * size. The SVG's own artwork is 282..1319 x 204..1415 inside a
+ * 1600 viewBox, so it is centred in the slot rather than cropped
+ * to the viewBox edge.
  *
  * The mark is inlined as a data URI at build time
- * (url('...?inline')) and kept in one custom property so both
- * rules below share a single copy. Inlining is deliberate: a
- * plain relative url() cannot survive the build - Vite resolves
- * CSS url() against the source file and rewrites a resolvable
- * asset to a site-root absolute path (base '/'), which 404s
- * because the theme lives under /wp-content/themes/koperasikita;
- * an unresolvable relative url() is left verbatim but then
- * points at the wrong depth from the served dist/assets/
- * location. A data URI has no path to resolve, so the mark
- * renders wherever the stylesheet loads.
+ * (url('...?inline')) and kept in one custom property so the rules
+ * below share a single copy. Inlining is deliberate: a plain
+ * relative url() cannot survive the build - Vite resolves CSS
+ * url() against the source file and rewrites a resolvable asset
+ * to a site-root absolute path (base '/'), which 404s because the
+ * theme lives under /wp-content/themes/koperasikita; an
+ * unresolvable relative url() is left verbatim but then points at
+ * the wrong depth from the served dist/assets/ location. A data
+ * URI has no path to resolve, so the mark renders wherever the
+ * stylesheet loads.
  */
 
 :root {
 	--kk-logo-k: url('../../assets/img/logo-k.svg?inline');
 }
 
-/* Core hides every built-in menu icon's background with
- * `.menu-icon-dashboard div.wp-menu-image { background-image: none !important; }`
- * (wp-admin/css/admin-menu.css), so the image needs !important too;
- * with both important, this selector's two IDs outrank core's one class. */
-#adminmenu #menu-dashboard .wp-menu-image {
+/* The Koperasi Kita top-level item shows the K mark.
+ * AdminMenu passes 'none' as the icon, so core renders no glyph
+ * (just a <br> in the image div) and the mark is the only icon.
+ * The item's id is the top-level hook name, toplevel_page_ +
+ * the menu slug. */
+#adminmenu #toplevel_page_koperasikita .wp-menu-image {
 	background-image: var(--kk-logo-k) !important;
 	background-repeat: no-repeat;
 	background-position: center;
 	background-size: 20px 20px;
-}
-
-/* The dashicon glyph renders in ::before; without this it would
- * sit on top of the K mark. */
-#adminmenu #menu-dashboard .wp-menu-image::before {
-	content: none;
 }
 
 /* Admin bar: the site-name item shows the KK K mark instead of the
@@ -54,11 +52,11 @@
  * (dashicons-admin-home, \f102 in wp-admin) and, when a site icon
  * is set, a 20px <img class="site-icon"> instead. Both are replaced
  * here by the same shipped square K (assets/img/logo-k.svg) the
- * Dashboard menu icon uses, as a background on the link itself:
+ * Koperasi Kita menu icon uses, as a background on the link itself:
  * core forces `background-image: none !important` on
  * .ab-item:before, so the glyph slot cannot carry the image.
- * The same inlined mark as the Dashboard rule is used, via the
- * shared custom property above.
+ * The same inlined mark as the Koperasi Kita menu rule is used,
+ * via the shared custom property above.
  *
  * The selectors carry #wp-admin-bar-root-default so they beat
  * core's `.wp-admin #wpadminbar #wp-admin-bar-site-name >
