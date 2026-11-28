@@ -7,10 +7,12 @@
 
 // An empty sidebar renders nothing - no placeholder box. The
 // editor adds widgets in Appearance -> Widgets. A menu assigned to
-// the Sidebar Menu location (Appearance -> Menus) also counts: the
-// sidebar renders when it has widgets, a sidebar menu, or both.
+// the Sidebar Menu location (Appearance -> Menus) also counts -
+// except on archive and search pages, where the sidebar shows only
+// the widgets the editor placed: when none are placed it renders
+// nothing, so an unfilled archive sidebar stays empty.
 $has_widgets = is_active_sidebar( 'sidebar-1' );
-$has_menu = has_nav_menu( 'sidebar' );
+$has_menu = has_nav_menu( 'sidebar' ) && ! is_archive() && ! is_search();
 
 if ( ! $has_widgets && ! $has_menu ) {
 	return;

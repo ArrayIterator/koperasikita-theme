@@ -6,9 +6,16 @@
  */
 
 get_header();
+
+// On archive pages the sidebar shows only the widgets the editor
+// placed (the Sidebar Menu never counts there), so the two-column
+// layout applies only when the Main Sidebar has widgets. When it
+// does not, the page is full width - the same rule search.php and
+// 404.php already use - instead of leaving an empty sidebar column.
+$kk_has_sidebar = is_active_sidebar( 'sidebar-1' );
 ?>
 
-<div class="kk-shell kk-archive-layout">
+<div class="kk-shell<?php echo $kk_has_sidebar ? ' kk-archive-layout' : ''; ?>">
 	<div class="kk-content-area">
 		<?php get_template_part( 'template-parts/content/breadcrumb' ); ?>
 
@@ -41,7 +48,9 @@ get_header();
 		<?php endif; ?>
 	</div>
 
-	<?php get_sidebar(); ?>
+	<?php if ( $kk_has_sidebar ) : ?>
+		<?php get_sidebar(); ?>
+	<?php endif; ?>
 </div>
 
 <?php
