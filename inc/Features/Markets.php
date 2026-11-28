@@ -552,6 +552,78 @@ final class Markets
     }
 
     /**
+     * Stored prices for one market, keyed by symbol: the same
+     * symbols as prices(), but read from what the sync already
+     * stored (fresh transient, else the last-good option) and
+     * NEVER fetched from the upstream. A page render or an
+     * endpoint that serves these never stalls on the network and
+     * never triggers a live fetch outside the sync's schedule -
+     * only the manual sync in wp-admin and the cron auto-sync
+     * fetch fresh data (MarketSync::syncMarkets() via
+     * forceRefresh()). A market with nothing stored returns an
+     * empty array, and the caller renders an honest empty state.
+     *
+     * Gold keeps its existing behaviour (see goldPrices()):
+     * stored first per brand, with the live fetch as the last
+     * resort only when a brand has nothing stored anywhere.
+     *
+     * @return array<string, MarketPrice>
+     */
+    public static function storedPrices(string $market): array
+    {
+        if (!self::isEnabled() || !in_array($market, self::markets(), true)) {
+            return [];
+        }
+
+        if ($market === 'gold') {
+            return self::goldPrices();
+        }
+
+        $enabled = self::enabledSymbols($market);
+
+        if ($enabled === []) {
+            return [];
+        }
+
+        $provider = self::providerFor($market);
+
+        if ($provider instanceof AbstractLiveProvider) {
+            $prices = $provider->storedPrices($market);
+        } elseif ($provider instanceof MarketPriceProvider) {
+            // A non-live provider (Manual) reads its snapshots,
+            // never the network, so its live read is already
+            // stored-only (same split as goldProviderStoredPrices()).
+            $prices = $provider->prices($market);
+        } else {
+            $prices = [];
+        }
+
+        return array_intersect_key($prices, $enabled);
+    }
+
+    /**
+     * Every market's stored prices as plain arrays, keyed by
+     * market then symbol - the stored-only twin of allPrices(),
+     * for callers that must never fetch (the header strip render
+     * and its refresh endpoint).
+     *
+     * @return array<string, array<string, array<string, mixed>>>
+     */
+    public static function allStoredPrices(): array
+    {
+        $prices = [];
+
+        foreach (self::markets() as $market) {
+            $prices[$market] = array_map(
+                static fn ($price) => $price->toArray(),
+                self::storedPrices($market)
+            );
+        }
+
+        return $prices;
+    }
+
+    /**
      * In-request cache of one provider's gold prices: a provider is
      * fetched at most once per page render / request, no matter how
      * many brands use it (the transient underneath already caches

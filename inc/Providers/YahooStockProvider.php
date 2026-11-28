@@ -212,6 +212,20 @@ final class YahooStockProvider extends AbstractLiveProvider
         return parent::forceRefresh($market);
     }
 
+    /**
+     * The transient and last-good keys are per-market (see
+     * transientKey()), so the market must be remembered before
+     * the base storedPrices() reads anything - same as prices().
+     * Without this, a stored read for forex or commodity would
+     * silently read the stock keys and come back empty.
+     */
+    public function storedPrices(string $market): array
+    {
+        $this->market = $market;
+
+        return parent::storedPrices($market);
+    }
+
     protected function transientKey(): string
     {
         return $this->market === 'stock' ? 'kk_stock_yahoo' : 'kk_' . $this->market . '_yahoo';
