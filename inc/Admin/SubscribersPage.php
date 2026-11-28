@@ -73,20 +73,19 @@ final class SubscribersPage
                 <p class="search-box">
                     <label class="screen-reader-text" for="kk-subscribers-search"><?php esc_html_e('Search by email', 'koperasikita'); ?></label>
                     <input type="search" id="kk-subscribers-search" name="s" value="<?php echo esc_attr($search); ?>">
-                    <input type="submit" class="kk-subscribers-button" value="<?php esc_attr_e('Search Subscribers', 'koperasikita'); ?>">
+                    <input type="submit" class="button" value="<?php esc_attr_e('Search Subscribers', 'koperasikita'); ?>">
                 </p>
             </form>
             <p class="kk-subscribers-card-actions">
-                <a class="kk-subscribers-button kk-subscribers-button--primary" href="<?php echo esc_url($exportUrl); ?>"><?php esc_html_e('Export CSV', 'koperasikita'); ?></a>
+                <a class="button button-primary" href="<?php echo esc_url($exportUrl); ?>"><?php esc_html_e('Export CSV', 'koperasikita'); ?></a>
             </p>
             <?php if ($rows === []) : ?>
                 <p><?php esc_html_e('No subscribers yet.', 'koperasikita'); ?></p>
             <?php else : ?>
-                <div class="kk-subscribers-table-wrap">
-                <table class="wp-list-table widefat fixed striped kk-subscribers-table">
+                <table class="wp-list-table widefat fixed striped">
                     <thead>
                         <tr>
-                            <th scope="col"><?php esc_html_e('Email', 'koperasikita'); ?></th>
+                            <th scope="col" class="column-primary"><?php esc_html_e('Email', 'koperasikita'); ?></th>
                             <th scope="col"><?php esc_html_e('Date subscribed', 'koperasikita'); ?></th>
                             <th scope="col"><?php esc_html_e('Status', 'koperasikita'); ?></th>
                             <th scope="col"><?php esc_html_e('Source', 'koperasikita'); ?></th>
@@ -96,11 +95,11 @@ final class SubscribersPage
                     <tbody>
                         <?php foreach ($rows as $row) : ?>
                             <tr>
-                                <td><?php echo esc_html($row['email']); ?></td>
-                                <td><?php echo esc_html(self::formatDate($row['created_at'])); ?></td>
-                                <td><?php echo esc_html(self::statusLabel($row['status'])); ?></td>
-                                <td><?php echo esc_html(self::sourceLabel($row['source'])); ?></td>
-                                <td>
+                                <td class="column-primary" data-colname="<?php echo esc_attr(__('Email', 'koperasikita')); ?>"><?php echo esc_html($row['email']); ?></td>
+                                <td data-colname="<?php echo esc_attr(__('Date subscribed', 'koperasikita')); ?>"><?php echo esc_html(self::formatDate($row['created_at'])); ?></td>
+                                <td data-colname="<?php echo esc_attr(__('Status', 'koperasikita')); ?>"><?php echo esc_html(self::statusLabel($row['status'])); ?></td>
+                                <td data-colname="<?php echo esc_attr(__('Source', 'koperasikita')); ?>"><?php echo esc_html(self::sourceLabel($row['source'])); ?></td>
+                                <td data-colname="<?php echo esc_attr(__('Actions', 'koperasikita')); ?>">
                                     <form method="post" action="<?php echo esc_url(admin_url('admin-post.php')); ?>" style="display:inline;">
                                         <input type="hidden" name="action" value="kk_delete_subscriber">
                                         <?php wp_nonce_field(self::NONCE_DELETE, 'kk_subscribers_delete_nonce'); ?>
@@ -112,7 +111,6 @@ final class SubscribersPage
                         <?php endforeach; ?>
                     </tbody>
                 </table>
-                </div>
                 <?php if ($pages > 1) : ?>
                     <div class="tablenav">
                         <div class="tablenav-pages">
