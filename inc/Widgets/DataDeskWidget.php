@@ -25,7 +25,7 @@ final class DataDeskWidget extends WP_Widget
     {
         parent::__construct(
             'kk_data_desk',
-            __('Koperasi Kita Data Desk', 'koperasikita'),
+            __('KK Data Desk', 'koperasikita'),
             [
                 'description' => __('One market symbol as a data desk panel: price chart and stats. Pick a template.', 'koperasikita'),
                 'classname' => 'kk-data-desk-widget',

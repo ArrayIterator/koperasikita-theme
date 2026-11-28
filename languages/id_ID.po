@@ -1076,11 +1076,6 @@ msgstr "KK Harga Emas"
 msgid "Gold prices for Indonesian gold brands in an auto-scrolling slider. Prices are edited in Settings -> Markets."
 msgstr "Harga emas untuk merek emas Indonesia dalam slider gulir otomatis. Harga diedit di Pengaturan -> Pasar."
 
-#: inc/Widgets/GoldWidget.php
-
-msgid "Koperasi Kita Gold Prices"
-msgstr "Harga Emas Koperasi Kita"
-
 #: inc/Widgets/GoldWidget.php src/ts/widget-blocks.ts
 
 msgid "Vertical Carousel"
@@ -1141,11 +1136,6 @@ msgstr "Tampilkan dot"
 msgid "Autoplay interval (seconds)"
 msgstr "Interval Autoplay (detik)"
 
-#: inc/Widgets/AgendaWidget.php
-
-msgid "Koperasi Kita Agenda"
-msgstr "Agenda Koperasi Kita"
-
 #: template-parts/agenda/widget.php
 
 msgid "No agenda items yet."
@@ -1203,18 +1193,8 @@ msgstr "— Pilih —"
 
 #: inc/Widgets/CategoryListContentWidget.php
 
-msgid "Koperasi Kita Category List Content"
-msgstr "Konten Daftar Kategori Koperasi Kita"
-
-#: inc/Widgets/CategoryListContentWidget.php
-
 msgid "Posts from one category, in a Featured, Grid, List, Featured Right or List Column layout."
 msgstr "Artikel dari satu kategori, dalam tata letak Featured, Grid, List, Featured Right atau List Column."
-
-#: inc/Widgets/TagListContentWidget.php
-
-msgid "Koperasi Kita Tag List Content"
-msgstr "Konten Daftar Tag Koperasi Kita"
 
 #: inc/Widgets/TagListContentWidget.php
 
@@ -1298,11 +1278,6 @@ msgstr "Kosongkan untuk menampilkan semua item dari pasar di atas. Pilih maksima
 
 #: inc/Widgets/MarketsWidget.php
 
-msgid "Koperasi Kita Markets"
-msgstr "Pasar Koperasi Kita"
-
-#: inc/Widgets/MarketsWidget.php
-
 msgid "Markets to show:"
 msgstr "Pasar yang ditampilkan:"
 
@@ -1325,11 +1300,6 @@ msgstr "Cuaca terkini sebuah kota, dengan pemilih lokasi."
 
 msgid "Default city"
 msgstr "Kota default"
-
-#: inc/Widgets/WeatherWidget.php
-
-msgid "Koperasi Kita Weather"
-msgstr "Cuaca Koperasi Kita"
 
 #: inc/Widgets/WeatherWidget.php
 
@@ -2947,26 +2917,6 @@ msgstr "Koperasi Kita"
 msgid "Koperasi Kita Category News"
 msgstr "Koperasi Kita Category News"
 
-#: inc/Widgets/PagesWidget.php
-
-msgid "Koperasi Kita Pages"
-msgstr "Koperasi Kita Pages"
-
-#: inc/Widgets/PopularPostsWidget.php
-
-msgid "Koperasi Kita Popular News"
-msgstr "Koperasi Kita Popular News"
-
-#: inc/Widgets/RecentPostsWidget.php
-
-msgid "Koperasi Kita Recent News"
-msgstr "Koperasi Kita Recent News"
-
-#: inc/Widgets/RelatedPostsWidget.php
-
-msgid "Koperasi Kita Related News"
-msgstr "Koperasi Kita Related News"
-
 #: inc/Widgets/TaxonomyPostsWidget.php
 
 msgid "Leave all unchecked to show posts from every category."
@@ -4296,9 +4246,6 @@ msgstr "Berkas harga tidak memiliki baris 1-gram yang dapat dipakai."
 msgid "Unknown source."
 msgstr "Sumber tidak dikenal."
 
-msgid "Koperasi Kita Post By Terms"
-msgstr "Koperasi Kita Post Berdasarkan Term"
-
 msgid "Post By Terms"
 msgstr "Post Berdasarkan Term"
 
@@ -4352,9 +4299,6 @@ msgstr "KK Yahoo Finance"
 
 msgid "Live IHSG index from Yahoo Finance (free, no API key)."
 msgstr "IHSG live dari Yahoo Finance (gratis, tanpa API key)."
-
-msgid "Koperasi Kita Yahoo Finance"
-msgstr "Koperasi Kita Yahoo Finance"
 
 msgid "Yahoo Finance"
 msgstr "Yahoo Finance"
@@ -4521,9 +4465,6 @@ msgstr "Koordinat"
 msgid "Shown in the map marker popup for the event."
 msgstr "Ditampilkan di popup penanda peta untuk acara tersebut."
 
-msgid "Koperasi Kita Category Summary"
-msgstr "Ringkasan Kategori Koperasi Kita"
-
 msgid "The latest post from each picked category, side by side in columns."
 msgstr "Artikel terbaru dari setiap kategori yang dipilih, berdampingan dalam kolom."
 
@@ -4667,9 +4608,6 @@ msgstr "Jenis"
 
 msgid "Kinerja Sepekan"
 msgstr "Kinerja Sepekan"
-
-msgid "Koperasi Kita Data Desk"
-msgstr "Koperasi Kita Data Desk"
 
 msgid "Leave empty for the automatic title."
 msgstr "Biarkan kosong untuk judul otomatis."

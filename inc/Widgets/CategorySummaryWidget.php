@@ -59,7 +59,7 @@ final class CategorySummaryWidget extends WP_Widget
     {
         parent::__construct(
             'kk_category_summary',
-            __('Koperasi Kita Category Summary', 'koperasikita'),
+            __('KK Category Summary', 'koperasikita'),
             [
                 'description' => __('The latest post from each picked category, side by side in columns.', 'koperasikita'),
                 'classname' => 'kk-category-summary-widget',

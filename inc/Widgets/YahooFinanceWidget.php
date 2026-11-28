@@ -30,7 +30,7 @@ final class YahooFinanceWidget extends WP_Widget
     {
         parent::__construct(
             'kk_yahoo_finance',
-            __('Koperasi Kita Yahoo Finance', 'koperasikita'),
+            __('KK Yahoo Finance', 'koperasikita'),
             [
                 'description' => __('Live IHSG index from Yahoo Finance (free, no API key).', 'koperasikita'),
                 'classname' => 'kk-yahoo-finance-widget',

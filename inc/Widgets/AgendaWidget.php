@@ -38,7 +38,7 @@ final class AgendaWidget extends WP_Widget
     {
         parent::__construct(
             'kk_agenda',
-            __('Koperasi Kita Agenda', 'koperasikita'),
+            __('KK Agenda', 'koperasikita'),
             [
                 'description' => __('Upcoming cooperative events as a card that follows the site colour scheme; live events get a green dot, finished events are dimmed.', 'koperasikita'),
                 'classname' => 'kk-agenda-widget',
