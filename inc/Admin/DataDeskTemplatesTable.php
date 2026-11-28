@@ -59,7 +59,6 @@ final class DataDeskTemplatesTable extends \WP_List_Table
             'shows' => __('Shows', 'koperasikita'),
             'palette' => __('Palette', 'koperasikita'),
             'days' => __('Days', 'koperasikita'),
-            'actions' => __('Actions', 'koperasikita'),
         ];
     }
 
@@ -82,6 +81,10 @@ final class DataDeskTemplatesTable extends \WP_List_Table
     /** @param array{id: string, name: string, kind: string, symbol: string, brands: array<int, string>, palette: string, days: int, table_style: string} $item */
     protected function column_cb($item): string
     {
+        if (DataDesk::isBuiltIn($item['id'])) {
+            return '';
+        }
+
         return sprintf(
             '<input type="checkbox" name="template[]" value="%s" />',
             esc_attr($item['id'])
@@ -107,7 +110,36 @@ final class DataDeskTemplatesTable extends \WP_List_Table
             $name .= ' ' . $badge;
         }
 
-        return $name;
+        return $name . $this->row_actions($this->actionLinks($item));
+    }
+
+    /** @param array{id: string, name: string, kind: string, symbol: string, brands: array<int, string>, palette: string, days: int, table_style: string} $item @return list<string> */
+    private function actionLinks(array $item): array
+    {
+        $id = $item['id'];
+        $pageUrl = $this->pageUrl;
+
+        if (DataDesk::isBuiltIn($id)) {
+            $links = [
+                '<a href="' . esc_url(wp_nonce_url(add_query_arg('kk_data_desk_duplicate', $id, $pageUrl), 'kk_data_desk_duplicate')) . '">' . esc_html__('Use', 'koperasikita') . '</a>',
+                '<a href="' . esc_url(add_query_arg(['action' => 'edit', 'id' => $id], $pageUrl)) . '">' . esc_html__('Edit', 'koperasikita') . '</a>',
+            ];
+
+            if (DataDesk::isOverridden($id)) {
+                $links[] = '<a href="' . esc_url(wp_nonce_url(add_query_arg('kk_data_desk_restore', $id, $pageUrl), 'kk_data_desk_restore')) . '" onclick="return confirm(\'' . esc_js(__('Restore this template to its built-in values?', 'koperasikita')) . '\');">' . esc_html__('Restore', 'koperasikita') . '</a>';
+            }
+
+            $links[] = '<a href="#" data-kk-data-desk-preview-link data-kk-template-id="' . esc_attr($id) . '" data-kk-template-name="' . esc_attr($item['name']) . '">' . esc_html__('Preview', 'koperasikita') . '</a>';
+
+            return $links;
+        }
+
+        return [
+            '<a href="' . esc_url(add_query_arg(['action' => 'edit', 'id' => $id], $pageUrl)) . '">' . esc_html__('Edit', 'koperasikita') . '</a>',
+            '<a href="' . esc_url(wp_nonce_url(add_query_arg('kk_data_desk_duplicate', $id, $pageUrl), 'kk_data_desk_duplicate')) . '">' . esc_html__('Duplicate', 'koperasikita') . '</a>',
+            '<a href="' . esc_url(wp_nonce_url(add_query_arg('kk_data_desk_delete', $id, $pageUrl), 'kk_data_desk_delete')) . '" onclick="return confirm(\'' . esc_js(__('Delete this template?', 'koperasikita')) . '\');">' . esc_html__('Delete', 'koperasikita') . '</a>',
+            '<a href="#" data-kk-data-desk-preview-link data-kk-template-id="' . esc_attr($id) . '" data-kk-template-name="' . esc_attr($item['name']) . '">' . esc_html__('Preview', 'koperasikita') . '</a>',
+        ];
     }
 
     /** @param array{id: string, name: string, kind: string, symbol: string, brands: array<int, string>, palette: string, days: int, table_style: string} $item */
@@ -150,37 +182,6 @@ final class DataDeskTemplatesTable extends \WP_List_Table
         }
 
         return '&mdash;';
-    }
-
-    /** @param array{id: string, name: string, kind: string, symbol: string, brands: array<int, string>, palette: string, days: int, table_style: string} $item */
-    protected function column_actions($item): string
-    {
-        $id = $item['id'];
-        $pageUrl = $this->pageUrl;
-
-        if (DataDesk::isBuiltIn($id)) {
-            $links = [
-                '<a href="' . esc_url(wp_nonce_url(add_query_arg('kk_data_desk_duplicate', $id, $pageUrl), 'kk_data_desk_duplicate')) . '">' . esc_html__('Use', 'koperasikita') . '</a>',
-                '<a href="' . esc_url(add_query_arg(['action' => 'edit', 'id' => $id], $pageUrl)) . '">' . esc_html__('Edit', 'koperasikita') . '</a>',
-            ];
-
-            if (DataDesk::isOverridden($id)) {
-                $links[] = '<a href="' . esc_url(wp_nonce_url(add_query_arg('kk_data_desk_restore', $id, $pageUrl), 'kk_data_desk_restore')) . '" onclick="return confirm(\'' . esc_js(__('Restore this template to its built-in values?', 'koperasikita')) . '\');">' . esc_html__('Restore', 'koperasikita') . '</a>';
-            }
-
-            $links[] = '<a href="#" data-kk-data-desk-preview-link data-kk-template-id="' . esc_attr($id) . '" data-kk-template-name="' . esc_attr($item['name']) . '">' . esc_html__('Preview', 'koperasikita') . '</a>';
-
-            return implode(' | ', $links);
-        }
-
-        $links = [
-            '<a href="' . esc_url(add_query_arg(['action' => 'edit', 'id' => $id], $pageUrl)) . '">' . esc_html__('Edit', 'koperasikita') . '</a>',
-            '<a href="' . esc_url(wp_nonce_url(add_query_arg('kk_data_desk_duplicate', $id, $pageUrl), 'kk_data_desk_duplicate')) . '">' . esc_html__('Duplicate', 'koperasikita') . '</a>',
-            '<a href="' . esc_url(wp_nonce_url(add_query_arg('kk_data_desk_delete', $id, $pageUrl), 'kk_data_desk_delete')) . '" onclick="return confirm(\'' . esc_js(__('Delete this template?', 'koperasikita')) . '\');">' . esc_html__('Delete', 'koperasikita') . '</a>',
-            '<a href="#" data-kk-data-desk-preview-link data-kk-template-id="' . esc_attr($id) . '" data-kk-template-name="' . esc_attr($item['name']) . '">' . esc_html__('Preview', 'koperasikita') . '</a>',
-        ];
-
-        return implode(' | ', $links);
     }
 
     /** @param array{id: string, name: string, kind: string, symbol: string, brands: array<int, string>, palette: string, days: int, table_style: string} $item */
