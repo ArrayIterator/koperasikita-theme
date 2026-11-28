@@ -14,20 +14,16 @@ use KoperasiKita\Features\Subscribers;
  * Every valid [kk_subscribe] submit is stored in the local
  * subscribers table first (Subscribers::record), whether MailPoet
  * is active or not, so this page is the record of who subscribed.
+ * The list is a WP_List_Table (checkboxes, bulk delete, search,
+ * sortable columns, pagination), like the Locations list.
  * Server-rendered with WP admin styles only - no custom CSS and
- * no admin.js, so it cannot be bitten by the submenu hook-suffix
- * trap. The CSV export runs through admin-post.php (registered in
- * Theme::boot) because the page callback itself runs after the
- * admin headers are already sent.
+ * no admin.js. The CSV export runs through admin-post.php
+ * (registered in Theme::boot) because the page callback itself
+ * runs after the admin headers are already sent.
  */
 final class SubscribersPage
 {
     public const PAGE_SLUG = 'kk-subscribers';
-
-    /** Rows per page in the list. */
-    private const PER_PAGE = 20;
-
-    private const NONCE_DELETE = 'kk_subscribers_delete';
 
     private const NONCE_EXPORT = 'kk_subscribers_export';
 
@@ -44,12 +40,9 @@ final class SubscribersPage
             wp_die(esc_html__('You do not have permission to access this page.', 'koperasikita'));
         }
 
-        // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- search and paging are display-only.
-        $search = isset($_GET['s']) ? sanitize_text_field((string) wp_unslash($_GET['s'])) : '';
-        // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- search and paging are display-only.
-        $page = isset($_GET['paged']) ? max(1, absint((string) wp_unslash($_GET['paged']))) : 1;
-        // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- display-only flag.
-        $deleted = isset($_GET['deleted']) && (string) wp_unslash($_GET['deleted']) === '1';
+        // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- deleted flag is display-only.
+        $deleted = isset($_GET['deleted']);
+
         // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- display-only flags.
         $mailpoetSettings = isset($_GET['mailpoet_settings']) && (string) wp_unslash($_GET['mailpoet_settings']) === '1';
         // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- display-only flags.
@@ -61,14 +54,8 @@ final class SubscribersPage
         // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- display-only flags.
         $mailpoetRemaining = isset($_GET['mailpoet_remaining']) ? absint((string) wp_unslash($_GET['mailpoet_remaining'])) : 0;
 
-        $result = Subscribers::list([
-            'search' => $search,
-            'page' => $page,
-            'per_page' => self::PER_PAGE,
-        ]);
-        $rows = $result['rows'];
-        $total = $result['total'];
-        $pages = (int) ceil($total / self::PER_PAGE);
+        $table = new SubscribersTable();
+        $table->prepare_items();
 
         $pageUrl = admin_url('admin.php?page=' . self::PAGE_SLUG);
         $exportUrl = wp_nonce_url(
@@ -95,99 +82,90 @@ final class SubscribersPage
             <?php endif; ?>
             <?php self::renderMailPoetSection(); ?>
             <section class="kk-subscribers-card">
-            <p><?php
-                // translators: %d is the number of subscribers.
-                printf(esc_html__('Total: %d subscribers', 'koperasikita'), (int) $total);
-            ?></p>
-            <form method="get" action="<?php echo esc_url($pageUrl); ?>">
-                <input type="hidden" name="page" value="<?php echo esc_attr(self::PAGE_SLUG); ?>">
-                <p class="search-box">
-                    <label class="screen-reader-text" for="kk-subscribers-search"><?php esc_html_e('Search by email', 'koperasikita'); ?></label>
-                    <input type="search" id="kk-subscribers-search" name="s" value="<?php echo esc_attr($search); ?>">
-                    <input type="submit" class="button" value="<?php esc_attr_e('Search Subscribers', 'koperasikita'); ?>">
-                </p>
-            </form>
             <p class="kk-subscribers-card-actions">
                 <a class="button button-primary" href="<?php echo esc_url($exportUrl); ?>"><?php esc_html_e('Export CSV', 'koperasikita'); ?></a>
             </p>
-            <?php if ($rows === []) : ?>
-                <p><?php esc_html_e('No subscribers yet.', 'koperasikita'); ?></p>
-            <?php else : ?>
-                <table class="wp-list-table widefat fixed striped">
-                    <thead>
-                        <tr>
-                            <th scope="col" class="column-primary"><?php esc_html_e('Email', 'koperasikita'); ?></th>
-                            <th scope="col"><?php esc_html_e('Date subscribed', 'koperasikita'); ?></th>
-                            <th scope="col"><?php esc_html_e('Status', 'koperasikita'); ?></th>
-                            <th scope="col"><?php esc_html_e('Source', 'koperasikita'); ?></th>
-                            <th scope="col"><?php esc_html_e('Actions', 'koperasikita'); ?></th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php foreach ($rows as $row) : ?>
-                            <tr>
-                                <td class="column-primary" data-colname="<?php echo esc_attr(__('Email', 'koperasikita')); ?>"><?php echo esc_html($row['email']); ?></td>
-                                <td data-colname="<?php echo esc_attr(__('Date subscribed', 'koperasikita')); ?>"><?php echo esc_html(self::formatDate($row['created_at'])); ?></td>
-                                <td data-colname="<?php echo esc_attr(__('Status', 'koperasikita')); ?>"><?php echo esc_html(self::statusLabel($row['status'])); ?></td>
-                                <td data-colname="<?php echo esc_attr(__('Source', 'koperasikita')); ?>"><?php echo esc_html(self::sourceLabel($row['source'])); ?></td>
-                                <td data-colname="<?php echo esc_attr(__('Actions', 'koperasikita')); ?>">
-                                    <form method="post" action="<?php echo esc_url(admin_url('admin-post.php')); ?>" style="display:inline;">
-                                        <input type="hidden" name="action" value="kk_delete_subscriber">
-                                        <?php wp_nonce_field(self::NONCE_DELETE, 'kk_subscribers_delete_nonce'); ?>
-                                        <input type="hidden" name="subscriber_id" value="<?php echo esc_attr((string) $row['id']); ?>">
-                                        <input type="submit" class="button-link-delete kk-subscribers-delete" value="<?php esc_attr_e('Delete', 'koperasikita'); ?>" data-confirm="<?php esc_attr_e('Confirm delete?', 'koperasikita'); ?>">
-                                    </form>
-                                </td>
-                            </tr>
-                        <?php endforeach; ?>
-                    </tbody>
-                </table>
-                <?php if ($pages > 1) : ?>
-                    <div class="tablenav">
-                        <div class="tablenav-pages">
-                            <?php
-                            echo paginate_links([ // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-                                'base' => add_query_arg('paged', '%#%', $search !== '' ? add_query_arg('s', $search, $pageUrl) : $pageUrl),
-                                'format' => '',
-                                'total' => $pages,
-                                'current' => $page,
-                            ]);
-                            ?>
-                        </div>
-                    </div>
-                <?php endif; ?>
-            <?php endif; ?>
+            <form method="get" action="<?php echo esc_url($pageUrl); ?>">
+                <input type="hidden" name="page" value="<?php echo esc_attr(self::PAGE_SLUG); ?>">
+                <?php $table->search_box(__('Search Subscribers', 'koperasikita'), 'kk-subscriber'); ?>
+                <?php $table->display(); ?>
+            </form>
             </section>
         </div>
-        <script>
-        // Two-step delete: the first click arms the button
-        // ("Confirm delete?"), the second submits. No native
-        // confirm() dialog - some browsers and automation dismiss
-        // those without a trace, which silently swallowed the
-        // delete entirely. Without JS the button submits at once.
-        (function () {
-            var buttons = document.querySelectorAll('.kk-subscribers-delete');
-            buttons.forEach(function (btn) {
-                btn.addEventListener('click', function (ev) {
-                    if (!btn.classList.contains('is-armed')) {
-                        ev.preventDefault();
-                        if (!btn.dataset.original) {
-                            btn.dataset.original = btn.value;
-                        }
-                        btn.classList.add('is-armed');
-                        btn.value = btn.getAttribute('data-confirm');
-                    }
-                });
-                btn.addEventListener('blur', function () {
-                    if (btn.classList.contains('is-armed')) {
-                        btn.classList.remove('is-armed');
-                        btn.value = btn.dataset.original || btn.value;
-                    }
-                });
-            });
-        })();
-        </script>
         <?php
+    }
+
+    /**
+     * Handle the single / bulk delete submissions before any output,
+     * so the redirect after a write can actually be sent. Runs on
+     * admin_init, only on this page; the render only reads the
+     * deleted flag.
+     */
+    public static function maybeHandleActions(): void
+    {
+        // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- page is display-only.
+        $page = isset($_GET['page']) ? sanitize_key((string) wp_unslash($_GET['page'])) : '';
+
+        if ($page !== self::PAGE_SLUG) {
+            return;
+        }
+
+        self::handleActions();
+    }
+
+    /**
+     * Single delete (row action link) and bulk delete (Tindakan
+     * Massal, top or bottom): nonce + capability checked, then
+     * redirect back with a deleted flag so a refresh never
+     * resubmits the form.
+     */
+    private static function handleActions(): void
+    {
+        $pageUrl = admin_url('admin.php?page=' . self::PAGE_SLUG);
+
+        // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- single delete uses a nonce in the URL.
+        if (isset($_GET['kk_subscriber_delete']) && isset($_GET['_wpnonce'])) {
+            if (!current_user_can('manage_options')) {
+                wp_die(esc_html__('You do not have permission to access this page.', 'koperasikita'));
+            }
+
+            check_admin_referer('kk_subscriber_delete', '_wpnonce');
+
+            $id = absint((string) wp_unslash($_GET['kk_subscriber_delete']));
+            $removed = $id > 0 && Subscribers::delete($id) ? 1 : 0;
+
+            wp_safe_redirect(add_query_arg('deleted', (string) max(1, $removed), $pageUrl));
+            exit;
+        }
+
+        // Bulk delete from the list table: action=delete (top) or
+        // action2=delete (bottom) + subscriber[] + the
+        // bulk-subscribers nonce the table itself renders.
+        // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- bulk delete uses the table nonce.
+        $action = isset($_GET['action']) ? sanitize_key((string) wp_unslash($_GET['action'])) : '';
+        // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- bulk delete uses the table nonce.
+        $action2 = isset($_GET['action2']) ? sanitize_key((string) wp_unslash($_GET['action2'])) : '';
+        // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- bulk delete uses the table nonce.
+        if (($action === 'delete' || $action2 === 'delete') && isset($_GET['subscriber']) && is_array($_GET['subscriber'])) {
+            if (!current_user_can('manage_options')) {
+                wp_die(esc_html__('You do not have permission to access this page.', 'koperasikita'));
+            }
+
+            check_admin_referer('bulk-subscribers');
+
+            // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- sanitised below.
+            $ids = array_values(array_map(static fn($id): int => absint((string) $id), wp_unslash($_GET['subscriber'])));
+            $removed = 0;
+
+            foreach ($ids as $id) {
+                if ($id > 0 && Subscribers::delete($id)) {
+                    $removed++;
+                }
+            }
+
+            wp_safe_redirect(add_query_arg('deleted', (string) max(1, $removed), $pageUrl));
+            exit;
+        }
     }
 
     /**
@@ -222,34 +200,6 @@ final class SubscribersPage
         }
 
         fclose($out);
-        exit;
-    }
-
-    /**
-     * Delete one subscriber (admin-post.php): nonce + capability
-     * checked, then redirect back with a deleted flag so a refresh
-     * never resubmits the form. Runs on admin-post.php, before any
-     * output - handling the POST inside render() would redirect
-     * after the admin headers are already sent.
-     */
-    public static function handleDelete(): void
-    {
-        if (!current_user_can('manage_options')) {
-            wp_die(esc_html__('You do not have permission to access this page.', 'koperasikita'));
-        }
-
-        check_admin_referer(self::NONCE_DELETE, 'kk_subscribers_delete_nonce');
-
-        // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- sanitised below.
-        $id = isset($_POST['subscriber_id']) ? absint((string) wp_unslash($_POST['subscriber_id'])) : 0;
-
-        if ($id > 0) {
-            Subscribers::delete($id);
-        }
-
-        $pageUrl = admin_url('admin.php?page=' . self::PAGE_SLUG);
-
-        wp_safe_redirect(add_query_arg('deleted', '1', $pageUrl));
         exit;
     }
 
@@ -391,38 +341,5 @@ final class SubscribersPage
             'mailpoet_remaining' => (string) $remaining,
         ], $pageUrl));
         exit;
-    }
-
-    private static function formatDate(string $mysqlDate): string
-    {
-        $timestamp = strtotime($mysqlDate);
-
-        if ($timestamp === false) {
-            return $mysqlDate;
-        }
-
-        return date_i18n(get_option('date_format') . ' ' . get_option('time_format'), $timestamp);
-    }
-
-    private static function statusLabel(string $status): string
-    {
-        if ($status === Subscribers::STATUS_PENDING) {
-            return __('Pending', 'koperasikita');
-        }
-
-        if ($status === Subscribers::STATUS_UNSUBSCRIBED) {
-            return __('Unsubscribed', 'koperasikita');
-        }
-
-        return __('Subscribed', 'koperasikita');
-    }
-
-    private static function sourceLabel(string $source): string
-    {
-        if ($source === Subscribers::SOURCE_MAILPOET) {
-            return 'MailPoet';
-        }
-
-        return __('Local', 'koperasikita');
     }
 }

@@ -157,6 +157,14 @@ final class Subscribers
         $perPage = min(100, max(1, (int) ($args['per_page'] ?? 20)));
         $offset = ($page - 1) * $perPage;
 
+        // Sort: whitelisted column + direction only, so the order
+        // clause is built from literals, never from raw input.
+        $orderBy = isset($args['orderby']) ? (string) $args['orderby'] : 'date';
+        $orderColumns = ['email' => 'email', 'date' => 'created_at', 'status' => 'status', 'source' => 'source'];
+        $orderColumn = $orderColumns[$orderBy] ?? 'created_at';
+        $orderDirection = isset($args['order']) && strtolower((string) $args['order']) === 'asc' ? 'ASC' : 'DESC';
+        $orderSql = $orderColumn . ' ' . $orderDirection . ', id DESC';
+
         $where = '';
         $params = [];
 
@@ -171,7 +179,7 @@ final class Subscribers
                 $wpdb->prepare(
                     "SELECT id, email, status, source, created_at, updated_at
                      FROM {$table}
-                     ORDER BY created_at DESC, id DESC LIMIT %d OFFSET %d",
+                     ORDER BY {$orderSql} LIMIT %d OFFSET %d",
                     $perPage,
                     $offset
                 ),
@@ -185,7 +193,7 @@ final class Subscribers
                 $wpdb->prepare(
                     "SELECT id, email, status, source, created_at, updated_at
                      FROM {$table}{$where}
-                     ORDER BY created_at DESC, id DESC LIMIT %d OFFSET %d",
+                     ORDER BY {$orderSql} LIMIT %d OFFSET %d",
                     array_merge($params, [$perPage, $offset])
                 ),
                 ARRAY_A
