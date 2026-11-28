@@ -63,6 +63,7 @@
 .kk-agenda-field input[type="text"],
 .kk-agenda-field input[type="date"],
 .kk-agenda-field input[type="time"],
+.kk-agenda-field input[type="number"],
 .kk-agenda-field textarea {
 	box-sizing: border-box;
 	width: 100%;
@@ -461,6 +462,13 @@
 	border-radius: var(--kk-radius);
 }
 
+/* WordPress core caps every admin select at 25rem (.wp-core-ui select
+   in forms.css), which left the saved-location select narrower than the
+   search input beside it. Lift the cap so it spans the popup width. */
+.kk-agenda-popup-field select {
+	max-width: none;
+}
+
 .kk-agenda-popup-field input:focus-visible,
 .kk-agenda-popup-field select:focus-visible {
 	outline: 2px solid var(--kk-gold, #c9962e);
@@ -484,54 +492,11 @@
 	margin: 0 0 8px;
 }
 
-/* Place search results: a plain list under the search box. */
-.kk-agenda-popup-results {
-	list-style: none;
-	margin: 0 0 8px;
-	padding: 0;
-	border: 1px solid var(--kk-border);
-	border-radius: var(--kk-radius);
-	max-height: 12rem;
-	overflow: auto;
-}
-
-.kk-agenda-popup-result {
-	display: block;
-	box-sizing: border-box;
-	width: 100%;
-	padding: 10px 12px;
-	text-align: left;
-	font-size: 15px;
-	line-height: 1.45;
-	color: var(--kk-ink);
-	background: transparent;
-	border: 0;
-	border-bottom: 1px solid var(--kk-border);
-	cursor: pointer;
-}
-
-.kk-agenda-popup-result:last-child {
-	border-bottom: 0;
-}
-
-.kk-agenda-popup-result:hover,
-.kk-agenda-popup-result:focus-visible {
-	background: rgba(11, 107, 58, 0.08);
-}
-
-.kk-agenda-popup-results-empty {
-	padding: 10px 12px;
-	font-size: 15px;
-	color: var(--kk-muted, #646970);
-}
-
-/* --- Inline location search (Event Details box, Locations form,
- * contributor form) */
+/* --- Inline location search (Locations form) */
 /* The dropdown is positioned against the field wrapper, so it
- * overlays the fields below instead of pushing them down - the meta
- * box is a narrow sidebar column and a pushing list would shove the
- * Pick Location button off the visible area. Hex fallbacks on every
- * var(): the admin loads this file without tokens.css. */
+ * overlays the fields below instead of pushing them down. Hex
+ * fallbacks on every var(): the admin loads this file without
+ * tokens.css. */
 
 .kk-agenda-location-field {
 	margin: 0 0 12px;

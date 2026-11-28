@@ -1,21 +1,18 @@
 /**
  * Koperasi Kita - inline location search for agenda events.
  *
- * One combobox, three places: the Event Details box in the agenda
- * editor, the add/edit form on the Locations admin page, and the
- * contributor submission form. Typing searches the saved locations
- * first (instant, no network - they ride along as JSON on the field
- * itself), then the geocoder straight from the browser (Open-Meteo
- * first, Nominatim when it finds nothing), debounced, so a fast
- * typist costs one request, not one per key.
+ * One combobox, on the add/edit form on the Locations admin page.
+ * Typing searches the saved locations first (instant, no network -
+ * they ride along as JSON on the field itself), then the geocoder
+ * straight from the browser (Open-Meteo first, Nominatim when it
+ * finds nothing), debounced, so a fast typist costs one request,
+ * not one per key.
  *
- * Picking a row fills the location name and the coordinates: in the
- * picker context the hidden lat/lng/description inputs of the event
- * (the same inputs the Pick Location popup writes), in the
- * location-form context the Name / Address / Latitude / Longitude
- * fields of the form. Editing the text after a pick clears the
- * coordinates again, so a stale pin can never survive a rename -
- * free text without coordinates is still allowed, exactly as before.
+ * Picking a row fills the location name, address and coordinates:
+ * the Name / Address / Latitude / Longitude fields of the form.
+ * Editing the text after a pick clears the coordinates again, so a
+ * stale pin can never survive a rename - free text without
+ * coordinates is still allowed, exactly as before.
  *
  * Keyboard: Down/Up moves through the results, Enter picks the
  * highlighted row (or the first one), Escape closes the list.
@@ -302,6 +299,7 @@ export function initLocationSearch(root: HTMLElement): void {
 		}
 		if (coordsEl) {
 			coordsEl.textContent = noPinText;
+			coordsEl.hidden = false;
 		}
 		if (detailEl) {
 			detailEl.textContent = '';
@@ -339,37 +337,10 @@ export function initLocationSearch(root: HTMLElement): void {
 				lngField.dispatchEvent(new Event('change', { bubbles: true }));
 			}
 			if (coordsEl) {
-				coordsEl.textContent = `${place.latitude}, ${place.longitude}`;
+				coordsEl.textContent = noPinText;
+				coordsEl.hidden = true;
 			}
 			return;
-		}
-
-		if (latInput) {
-			latInput.value = String(place.latitude);
-		}
-		if (lngInput) {
-			lngInput.value = String(place.longitude);
-		}
-		if (descInput) {
-			descInput.value = place.description;
-		}
-		if (addressInput) {
-			addressInput.value = place.address;
-		}
-		if (coordsEl) {
-			coordsEl.textContent = `${place.latitude}, ${place.longitude}`;
-		}
-		if (detailEl) {
-			detailEl.textContent = place.address;
-		}
-
-		// A saved place is already in the shared list; only a new
-		// (geocoded) place offers to be saved for reuse.
-		if (saveWrap) {
-			saveWrap.hidden = place.source !== 'geocoded';
-			if (place.source === 'geocoded' && saveCheckbox) {
-				saveCheckbox.checked = true;
-			}
 		}
 	}
 

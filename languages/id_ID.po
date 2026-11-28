@@ -4837,13 +4837,8 @@ msgstr "Harga emas harian dari riwayat harga Logam Mulia API (CSV backup/prices 
 
 #: inc/Features/Agenda.php
 
-msgid "Save this location for reuse"
-msgstr "Simpan lokasi ini untuk dipakai lagi"
-
-#: inc/Features/Agenda.php
-
-msgid "Type to search saved locations and places."
-msgstr "Ketik untuk mencari lokasi tersimpan dan tempat."
+msgid "Use the Pick Location button, or type a custom name."
+msgstr "Gunakan tombol Pilih Lokasi, atau ketik nama khusus."
 
 #: inc/Admin/AgendaLocationsSettings.php
 

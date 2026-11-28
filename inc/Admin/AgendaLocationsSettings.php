@@ -426,9 +426,7 @@ final class AgendaLocationsSettings
             'lng' => isset($stored['lng']) ? (string) $stored['lng'] : '',
             'description' => $stored['description'] ?? '',
         ];
-        $coords = ($form['lat'] !== '' && $form['lng'] !== '')
-            ? $form['lat'] . ', ' . $form['lng']
-            : __('No pin placed', 'koperasikita');
+        $coordsSet = $form['lat'] !== '' && $form['lng'] !== '';
         // No empty id on the add URL: the add form posts to
         // ?action=new only, so a failed save re-opens at a clean URL.
         $formAction = $id !== ''
@@ -500,7 +498,7 @@ final class AgendaLocationsSettings
                          * there is no empty box. */ ?>
                         <div class="kk-agenda-map-picker" data-kk-agenda-map-picker data-kk-agenda-default-lat="<?php echo esc_attr((string) Agenda::DEFAULT_LAT); ?>" data-kk-agenda-default-lng="<?php echo esc_attr((string) Agenda::DEFAULT_LNG); ?>" data-kk-agenda-no-pin="<?php esc_attr_e('No pin placed', 'koperasikita'); ?>">
                             <div class="kk-agenda-map" data-kk-location-preview-map></div>
-                            <p class="kk-agenda-coords" data-kk-agenda-coords><?php echo esc_html($coords); ?></p>
+                            <p class="kk-agenda-coords" data-kk-agenda-coords<?php echo $coordsSet ? ' hidden' : ''; ?>><?php esc_html_e('No pin placed', 'koperasikita'); ?></p>
                             <p class="description"><?php esc_html_e('Click the map to place the marker, or drag it.', 'koperasikita'); ?></p>
                         </div>
                     </td>

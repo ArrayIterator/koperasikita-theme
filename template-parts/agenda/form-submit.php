@@ -158,34 +158,15 @@ if (isset($errors['form']) && isset($formErrors[$errors['form']])) {
 
         <div class="kk-agenda-field">
             <label for="kk-agenda-location"><?php esc_html_e('Location', 'koperasikita'); ?></label>
-            <div
-                class="kk-agenda-location-search"
-                data-kk-agenda-location-search
-                data-kk-agenda-location-context="picker"
-                data-kk-agenda-saved-locations="<?php echo esc_attr((string) wp_json_encode(\KoperasiKita\Features\Agenda::savedLocations())); ?>"
-                data-kk-agenda-searching="<?php esc_attr_e('Searching…', 'koperasikita'); ?>"
-                data-kk-agenda-no-results="<?php esc_attr_e('No places found', 'koperasikita'); ?>"
-                data-kk-agenda-search-unavailable="<?php esc_attr_e('Search is unavailable right now.', 'koperasikita'); ?>"
-                data-kk-agenda-saved-label="<?php esc_attr_e('Saved location', 'koperasikita'); ?>"
-                data-kk-agenda-place-label="<?php esc_attr_e('Places', 'koperasikita'); ?>"
+            <input
+                type="text"
+                id="kk-agenda-location"
+                name="kk_agenda_location"
+                value="<?php echo esc_attr($value('location')); ?>"
+                maxlength="200"
+                required
+                <?php if ($fieldMessage('location') !== '') : ?>aria-invalid="true" aria-describedby="kk-agenda-location-error"<?php endif; ?>
             >
-                <input
-                    type="text"
-                    id="kk-agenda-location"
-                    name="kk_agenda_location"
-                    value="<?php echo esc_attr($value('location')); ?>"
-                    maxlength="200"
-                    placeholder="<?php esc_attr_e('Search for a place…', 'koperasikita'); ?>"
-                    required
-                    autocomplete="off"
-                    role="combobox"
-                    aria-expanded="false"
-                    aria-controls="kk-agenda-location-results"
-                    aria-autocomplete="list"
-                    <?php if ($fieldMessage('location') !== '') : ?>aria-invalid="true" aria-describedby="kk-agenda-location-error"<?php endif; ?>
-                >
-                <ul class="kk-agenda-location-results" id="kk-agenda-location-results" role="listbox" hidden></ul>
-            </div>
             <?php if ($fieldMessage('location') !== '') : ?>
                 <span class="kk-agenda-error" id="kk-agenda-location-error"><?php echo esc_html($fieldMessage('location')); ?></span>
             <?php endif; ?>
@@ -195,17 +176,21 @@ if (isset($errors['form']) && isset($formErrors[$errors['form']])) {
         $formLat = isset($values['lat']) && is_float($values['lat']) ? $values['lat'] : null;
         $formLng = isset($values['lng']) && is_float($values['lng']) ? $values['lng'] : null;
         $formDesc = isset($values['location_desc']) && is_string($values['location_desc']) ? $values['location_desc'] : '';
-        $formCoords = ($formLat !== null && $formLng !== null)
-            ? $formLat . ', ' . $formLng
-            : __('No pin placed', 'koperasikita');
+        $formHasPin = $formLat !== null && $formLng !== null;
         ?>
         <div class="kk-agenda-map-picker" data-kk-agenda-map-picker data-kk-agenda-default-lat="<?php echo esc_attr((string) \KoperasiKita\Features\Agenda::DEFAULT_LAT); ?>" data-kk-agenda-default-lng="<?php echo esc_attr((string) \KoperasiKita\Features\Agenda::DEFAULT_LNG); ?>" data-kk-agenda-no-pin="<?php esc_attr_e('No pin placed', 'koperasikita'); ?>">
             <p class="kk-agenda-field">
+                <label for="kk-agenda-lat"><?php esc_html_e('Latitude', 'koperasikita'); ?></label>
+                <input type="number" id="kk-agenda-lat" name="kk_agenda_lat" value="<?php echo esc_attr($formLat !== null ? (string) $formLat : ''); ?>" step="any" min="-90" max="90" inputmode="decimal" data-kk-agenda-lat>
+            </p>
+            <p class="kk-agenda-field">
+                <label for="kk-agenda-lng"><?php esc_html_e('Longitude', 'koperasikita'); ?></label>
+                <input type="number" id="kk-agenda-lng" name="kk_agenda_lng" value="<?php echo esc_attr($formLng !== null ? (string) $formLng : ''); ?>" step="any" min="-180" max="180" inputmode="decimal" data-kk-agenda-lng>
+            </p>
+            <p class="kk-agenda-field">
                 <button type="button" class="kk-button" data-kk-agenda-pick><?php esc_html_e('Pick Location', 'koperasikita'); ?></button>
             </p>
-            <p class="kk-agenda-coords" data-kk-agenda-coords><?php echo esc_html($formCoords); ?></p>
-            <input type="hidden" name="kk_agenda_lat" value="<?php echo esc_attr($formLat !== null ? (string) $formLat : ''); ?>" data-kk-agenda-lat>
-            <input type="hidden" name="kk_agenda_lng" value="<?php echo esc_attr($formLng !== null ? (string) $formLng : ''); ?>" data-kk-agenda-lng>
+            <p class="kk-agenda-coords" data-kk-agenda-coords<?php echo $formHasPin ? ' hidden' : ''; ?>><?php esc_html_e('No pin placed', 'koperasikita'); ?></p>
             <input type="hidden" name="kk_agenda_location_desc" value="<?php echo esc_attr($formDesc); ?>" data-kk-agenda-location-desc>
         </div>
 
