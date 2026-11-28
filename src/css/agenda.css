@@ -364,6 +364,19 @@
 	color: var(--kk-muted);
 }
 
+/* Event Details meta box: the markup is bare <p> rows with the label
+ * on the line above the input, so the inputs themselves carry a
+ * small margin on both sides - without it the label sits on the
+ * input and the input sits on the next field. Same 6px the
+ * contributor form uses between label and input. The latitude and
+ * longitude live in hidden inputs, so only the visible inputs
+ * (date, time, text) need the margin. */
+#kk-agenda-details input[type="date"],
+#kk-agenda-details input[type="time"],
+#kk-agenda-details input[type="text"] {
+	margin: 6px 0;
+}
+
 .kk-agenda-single .kk-article-content {
 	margin-top: 20px;
 	font-size: var(--article-font-size, 17px);
