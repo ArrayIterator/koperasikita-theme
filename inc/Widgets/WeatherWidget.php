@@ -38,7 +38,7 @@ final class WeatherWidget extends WP_Widget
     {
         parent::__construct(
             'kk_weather',
-            __('Koperasi Kita Weather', 'koperasikita'),
+            __('KK: Cuaca', 'koperasikita'),
             ['description' => __('Current weather for a city, with a location picker.', 'koperasikita')]
         );
     }

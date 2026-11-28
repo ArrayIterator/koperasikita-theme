@@ -13,7 +13,7 @@ final class RecentPostsWidget extends AbstractStoryWidget
     {
         parent::__construct(
             'kk_recent_posts',
-            __('Koperasi Kita Recent News', 'koperasikita'),
+            __('KK Recent News', 'koperasikita'),
             [
                 'description' => __('The latest published posts, newest first.', 'koperasikita'),
                 'classname' => 'kk-recent-posts-widget',

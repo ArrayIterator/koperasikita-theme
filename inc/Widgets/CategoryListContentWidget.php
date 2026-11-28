@@ -16,7 +16,7 @@ final class CategoryListContentWidget extends AbstractTermListContentWidget
     {
         parent::__construct(
             'kk_category_list_content',
-            __('Koperasi Kita Category List Content', 'koperasikita'),
+            __('KK Category List Content', 'koperasikita'),
             [
                 'description' => __('Posts from one category, in a Featured, Grid, List, Featured Right or List Column layout.', 'koperasikita'),
                 'classname' => 'kk-category-list-content-widget',

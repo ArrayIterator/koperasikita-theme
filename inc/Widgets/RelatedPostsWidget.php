@@ -16,7 +16,7 @@ final class RelatedPostsWidget extends AbstractStoryWidget
     {
         parent::__construct(
             'kk_related_posts',
-            __('Koperasi Kita Related News', 'koperasikita'),
+            __('KK Related News', 'koperasikita'),
             [
                 'description' => __('Posts related to the one being read, or the latest posts elsewhere.', 'koperasikita'),
                 'classname' => 'kk-related-posts-widget',

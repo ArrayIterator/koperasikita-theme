@@ -159,7 +159,7 @@ final class MarketsWidget extends WP_Widget
     {
         parent::__construct(
             'kk_markets',
-            __('Koperasi Kita Markets', 'koperasikita'),
+            __('KK Markets', 'koperasikita'),
             [
                 'description' => __('Gold, stock, forex, commodity and crypto prices from the Markets providers. Prices are edited in Settings -> Markets.', 'koperasikita'),
                 'classname' => 'kk-markets-widget',

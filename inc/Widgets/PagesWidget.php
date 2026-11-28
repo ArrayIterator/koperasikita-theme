@@ -30,7 +30,7 @@ final class PagesWidget extends WP_Widget
     {
         parent::__construct(
             'kk_pages',
-            __('Koperasi Kita Pages', 'koperasikita'),
+            __('KK Pages', 'koperasikita'),
             [
                 'description' => __('A list of page links, in menu order, by date or by title.', 'koperasikita'),
                 'classname' => 'kk-pages-widget',

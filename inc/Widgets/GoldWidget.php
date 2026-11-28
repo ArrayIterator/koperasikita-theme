@@ -37,7 +37,7 @@ final class GoldWidget extends WP_Widget
     {
         parent::__construct(
             'kk_gold',
-            __('Koperasi Kita Gold Prices', 'koperasikita'),
+            __('KK Gold Prices', 'koperasikita'),
             [
                 'description' => __('Gold prices for Indonesian gold brands in an auto-scrolling slider. Prices are edited in Settings -> Markets.', 'koperasikita'),
                 'classname' => 'kk-gold-widget',

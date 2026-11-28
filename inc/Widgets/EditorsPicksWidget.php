@@ -31,7 +31,7 @@ final class EditorsPicksWidget extends AbstractStoryWidget
     {
         parent::__construct(
             'kk_editors_picks',
-            __('Koperasi Kita Post By Terms', 'koperasikita'),
+            __('KK Post By Terms', 'koperasikita'),
             [
                 'description' => __('Posts from the categories and tags you pick, in your chosen order.', 'koperasikita'),
                 'classname' => 'kk-editors-picks-widget',

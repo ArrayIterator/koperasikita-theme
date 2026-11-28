@@ -16,7 +16,7 @@ final class TagListContentWidget extends AbstractTermListContentWidget
     {
         parent::__construct(
             'kk_tag_list_content',
-            __('Koperasi Kita Tag List Content', 'koperasikita'),
+            __('KK Tag List Content', 'koperasikita'),
             [
                 'description' => __('Posts from one tag, in a Featured, Grid, List, Featured Right or List Column layout.', 'koperasikita'),
                 'classname' => 'kk-tag-list-content-widget',

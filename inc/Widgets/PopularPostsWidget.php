@@ -19,7 +19,7 @@ final class PopularPostsWidget extends AbstractStoryWidget
     {
         parent::__construct(
             'kk_popular_posts',
-            __('Koperasi Kita Popular News', 'koperasikita'),
+            __('KK Popular News', 'koperasikita'),
             [
                 'description' => __('Most discussed posts, ranked by comment count.', 'koperasikita'),
                 'classname' => 'kk-popular-posts-widget',
