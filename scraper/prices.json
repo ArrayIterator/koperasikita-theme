@@ -1,50 +1,57 @@
 {
-  "updated": "2026-11-28T10:27:07.935Z",
+  "updated": "2026-11-28T18:22:14.252Z",
   "prices": {
-    "antam": {
-      "price": 2501000,
-      "currency": "IDR",
-      "updated": "2026-11-28T02:11:18.123Z"
-    },
     "galeri-24": {
       "price": 2372000,
+      "buyback": 2233000,
       "currency": "IDR",
-      "updated": "2026-11-28T10:27:07.935Z"
+      "updated": "2026-11-28T18:22:14.252Z"
     },
     "ubs": {
       "price": 2395000,
+      "buyback": 2208000,
       "currency": "IDR",
-      "updated": "2026-11-28T10:27:07.935Z"
+      "updated": "2026-11-28T18:22:14.252Z"
     },
     "lotus-archi": {
       "price": 2312000,
+      "buyback": 2208000,
       "currency": "IDR",
-      "updated": "2026-11-28T10:27:07.935Z"
+      "updated": "2026-11-28T18:22:14.252Z"
     },
     "spot": {
       "price": 2150098,
+      "buyback": null,
       "currency": "IDR",
-      "updated": "2026-11-28T10:27:07.935Z"
+      "updated": "2026-11-28T18:22:14.252Z"
+    },
+    "antam": {
+      "price": 2552000,
+      "buyback": 2208000,
+      "currency": "IDR",
+      "updated": "2026-11-28T18:22:14.252Z"
     },
     "hartadinata": {
       "price": 2305000,
+      "buyback": 2169000,
       "currency": "IDR",
-      "updated": "2026-11-28T10:27:07.935Z"
+      "updated": "2026-11-28T18:22:14.252Z"
     },
     "king-halim": {
       "price": 2275000,
+      "buyback": 2140000,
       "currency": "IDR",
-      "updated": "2026-11-28T10:27:07.935Z"
+      "updated": "2026-11-28T18:22:14.252Z"
     }
   },
   "sources": {
-    "antam": "harga-emas.net",
     "galeri-24": "galeri24.co.id",
     "ubs": "galeri24.co.id",
     "lotus-archi": "galeri24.co.id",
     "spot": "xaus.com",
+    "antam": "galeri24.co.id (alternative)",
     "hartadinata": "hrtagold.id",
     "king-halim": "kinghalim.com"
   },
-  "note": "Free, self-hosted gold prices for the Koperasi Kita theme. Antam is the 1-gram retail price scraped from harga-emas.net; Galeri 24, UBS and Lotus Archi are the 1-gram sell prices scraped from galeri24.co.id; Hartadinata is the 1-gram buy price from the official hrtagold.id API (HTML meta as fallback); King Halim is the 1-gram sell price scraped from kinghalim.com; spot is the live XAU price per gram in IDR from xaus.com. Mini gold is a separate category and is not scraped here."
+  "note": "Free, self-hosted gold prices for the Koperasi Kita theme. Antam is the 1-gram retail price scraped from harga-emas.net, its buyback from the galeri24.co.id ANTAM table (Logam Mulia hargaemas-net.csv as the next alternative); Galeri 24, UBS and Lotus Archi are the 1-gram sell + buyback prices scraped from galeri24.co.id (Logam Mulia galeri24.csv as the alternative when a half is missing); Hartadinata is the 1-gram buy price + buyback from the official hrtagold.id API (HTML meta as fallback); King Halim is the 1-gram sell + buyback price scraped from kinghalim.com; spot is the live XAU price per gram in IDR from xaus.com. Mini gold is a separate category and is not scraped here."
 }
