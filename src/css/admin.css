@@ -1744,6 +1744,16 @@
 	border-bottom: 0;
 }
 
+/* Manual sync status: one pre with a fixed height that scrolls
+ * instead of growing the popup. */
+.kk-market-header-page [data-kk-market-sync-status] {
+	margin: 12px 0 0;
+	height: 16rem;
+	overflow: auto;
+	font-family: inherit;
+	white-space: pre-wrap;
+}
+
 /* Sync status facts table: label/value rows like the gold card's
  * facts table - the status reads as aligned facts, not loose
  * paragraphs. */

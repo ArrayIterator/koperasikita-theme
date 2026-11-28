@@ -155,9 +155,7 @@ final class MarketHeaderPage
                         </div>
                         <div class="kk-data-desk-popup-body">
                             <p><progress data-kk-market-sync-bar max="100" value="0" style="width: 100%; max-width: 30rem;"></progress></p>
-                            <p data-kk-market-sync-status role="status" aria-live="polite"></p>
-                            <ul data-kk-market-sync-steps aria-live="polite"></ul>
-                            <div data-kk-market-sync-result role="status" aria-live="polite"></div>
+                            <pre data-kk-market-sync-status role="status" aria-live="polite"></pre>
                             <p class="description"><?php esc_html_e('Closing this popup reloads the page so the last sync and status show the new data.', 'koperasikita'); ?></p>
                         </div>
                     </div>
