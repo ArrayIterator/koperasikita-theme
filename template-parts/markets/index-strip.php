@@ -36,13 +36,13 @@ if ($items === []) {
 ?>
 <div class="kk-index-strip"<?php echo $strip_attrs; ?> role="list" aria-label="<?php esc_attr_e('Market index', 'koperasikita'); ?>">
 	<?php foreach ($items as $index => $price) : ?>
-		<span class="kk-index-item<?php echo $cycle && 0 === $index ? ' is-active' : ''; ?>" role="listitem">
+		<span class="kk-index-item<?php echo $cycle && 0 === $index ? ' is-active' : ''; ?>" role="listitem"<?php if ($cycle) : ?> data-kk-symbol="<?php echo esc_attr((string) $price->symbol); ?>" data-kk-market="<?php echo esc_attr($price->market); ?>" data-kk-currency="<?php echo esc_attr($price->currency); ?>"<?php endif; ?>>
 			<span class="kk-index-name"><?php echo esc_html($price->label); ?></span>
-			<span class="kk-index-value"><?php echo esc_html(Markets::formatPrice((float) $price->price, $price->currency)); ?></span>
+			<span class="kk-index-value"<?php if ($cycle) : ?> data-kk-price<?php endif; ?>><?php echo esc_html(Markets::formatPrice((float) $price->price, $price->currency)); ?></span>
 			<?php if ($show_change && $price->change !== null) : ?>
-				<span class="kk-index-change <?php echo $price->change >= 0 ? 'kk-market-change-up' : 'kk-market-change-down'; ?>">
+				<span class="kk-index-change <?php echo $price->change >= 0 ? 'kk-market-change-up' : 'kk-market-change-down'; ?>"<?php if ($cycle) : ?> data-kk-change data-kk-icon-up="<?php echo esc_attr(Icon::svg('trending-up', 12)); ?>" data-kk-icon-down="<?php echo esc_attr(Icon::svg('trending-down', 12)); ?>"<?php endif; ?>>
 					<?php echo Icon::svg($price->change >= 0 ? 'trending-up' : 'trending-down', 12); ?>
-					<?php echo esc_html(Markets::formatChange($price->change)); ?>
+					<?php if ($cycle) : ?><span class="kk-index-change-text"><?php echo esc_html(Markets::formatChange($price->change)); ?></span><?php else : ?><?php echo esc_html(Markets::formatChange($price->change)); ?><?php endif; ?>
 				</span>
 			<?php endif; ?>
 		</span>

@@ -531,6 +531,27 @@ final class Markets
     }
 
     /**
+     * Every market's prices as plain arrays, keyed by market then
+     * symbol - the shape the REST routes and the market strip
+     * endpoint both serve, so the two never drift apart.
+     *
+     * @return array<string, array<string, array<string, mixed>>>
+     */
+    public static function allPrices(): array
+    {
+        $prices = [];
+
+        foreach (self::markets() as $market) {
+            $prices[$market] = array_map(
+                static fn ($price) => $price->toArray(),
+                self::prices($market)
+            );
+        }
+
+        return $prices;
+    }
+
+    /**
      * In-request cache of one provider's gold prices: a provider is
      * fetched at most once per page render / request, no matter how
      * many brands use it (the transient underneath already caches

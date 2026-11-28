@@ -57,7 +57,7 @@ if ($markets === [] || !$has_data) {
 			<?php else : ?>
 				<ul class="kk-market-list">
 					<?php foreach ($prices as $symbol => $price) : ?>
-						<li class="kk-market-row" data-kk-symbol="<?php echo esc_attr((string) $symbol); ?>"<?php echo $price->provider !== '' ? ' data-kk-provider="' . esc_attr($price->provider) . '"' : ''; ?>>
+						<li class="kk-market-row" data-kk-symbol="<?php echo esc_attr((string) $symbol); ?>" data-kk-currency="<?php echo esc_attr($price->currency); ?>"<?php echo $price->provider !== '' ? ' data-kk-provider="' . esc_attr($price->provider) . '"' : ''; ?>>
 							<span class="kk-market-symbol"><?php echo esc_html($price->label); ?></span>
 							<span class="kk-market-price" data-kk-price><?php echo esc_html(Markets::formatPrice((float) $price->price, $price->currency)); ?></span>
 							<?php if ($show_change && $price->change !== null) : ?>

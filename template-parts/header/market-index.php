@@ -29,7 +29,7 @@ if ($items === []) {
 	return;
 }
 ?>
-<div class="kk-market-header" role="region" aria-label="<?php esc_attr_e('Market index', 'koperasikita'); ?>">
+<div class="kk-market-header" role="region" aria-label="<?php esc_attr_e('Market index', 'koperasikita'); ?>" data-kk-market-prices data-kk-strip-endpoint="<?php echo esc_url(\KoperasiKita\Features\MarketHeaderIndex::stripEndpointUrl()); ?>" data-kk-cache-ttl-minutes="<?php echo esc_attr((string) \KoperasiKita\Features\MarketHeaderIndex::STRIP_CACHE_TTL_MINUTES); ?>">
 	<div class="kk-shell kk-market-header-inner">
 		<?php
 		get_template_part('template-parts/markets/index-strip', null, [

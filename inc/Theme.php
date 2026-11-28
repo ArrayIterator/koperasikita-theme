@@ -16,6 +16,7 @@ use KoperasiKita\Customizer\TermSearch;
 use KoperasiKita\Features\Features;
 use KoperasiKita\Features\Fonts;
 use KoperasiKita\Features\Logo;
+use KoperasiKita\Features\MarketHeaderIndex;
 use KoperasiKita\Features\Pwa;
 use KoperasiKita\Features\StyleVariant;
 use KoperasiKita\SEO\Seo;
@@ -78,6 +79,7 @@ final class Theme
         add_action('init', [StyleVariant::class, 'register']);
         add_action('init', [SidebarSettings::class, 'register']);
         add_action('init', [Pwa::class, 'register']);
+        add_action('init', [MarketHeaderIndex::class, 'register']);
         add_action('init', [Seo::class, 'register']);
         add_action('init', [Breadcrumb::class, 'register']);
         add_action('init', [Blocks::class, 'register']);

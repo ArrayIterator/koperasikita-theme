@@ -403,15 +403,6 @@ final class Rest
      */
     private static function marketPrices(): array
     {
-        $prices = [];
-
-        foreach (Markets::markets() as $market) {
-            $prices[$market] = array_map(
-                static fn ($price) => $price->toArray(),
-                Markets::prices($market)
-            );
-        }
-
-        return $prices;
+        return Markets::allPrices();
     }
 }

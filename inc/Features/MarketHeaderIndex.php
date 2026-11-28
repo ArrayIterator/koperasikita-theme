@@ -48,6 +48,21 @@ final class MarketHeaderIndex
     public const MIN_CYCLE_INTERVAL = 2;
     public const MAX_CYCLE_INTERVAL = 120;
 
+    /**
+     * The strip's client-side refresh endpoint: GET
+     * /kk-market-prices/ answers the strip's prices for every
+     * market plus the pre-formatted snapshot caption, so the
+     * browser can refresh the strip without a page reload even
+     * when the page itself is served from a full-page cache
+     * (LiteSpeed Cache / Cloudflare). The query var is the
+     * plain-permalink form of the same endpoint.
+     */
+    public const STRIP_ENDPOINT_SLUG = 'kk-market-prices';
+    public const STRIP_QUERY_VAR = 'kk_market_strip';
+
+    /** LocalStorage lifetime of the strip's cached data, minutes. */
+    public const STRIP_CACHE_TTL_MINUTES = 30;
+
     /** PHP date format for the snapshot day and time. */
     public const DEFAULT_SNAPSHOT_FORMAT = 'l H.i T';
 
@@ -339,5 +354,117 @@ final class MarketHeaderIndex
             'caption' => self::captionText($snapshot),
             'cycle_interval' => self::settings()['cycle_interval'],
         ]);
+    }
+
+    /**
+     * The strip refresh endpoint: a pretty URL the browser fetches
+     * instead of admin-ajax.php, mirroring the PWA endpoints
+     * (add_rewrite_rule + query var + template_redirect). The rule
+     * is registered unconditionally - the handler below is what
+     * gates on the Markets feature, so enabling the feature later
+     * needs no rewrite flush. The flush on theme switch is the
+     * same as the PWA endpoints'.
+     */
+    public static function register(): void
+    {
+        add_rewrite_rule(
+            '^' . preg_quote(self::STRIP_ENDPOINT_SLUG, '/') . '/?$',
+            'index.php?' . self::STRIP_QUERY_VAR . '=1',
+            'top'
+        );
+        add_filter('query_vars', [self::class, 'registerQueryVar']);
+        // The canonical redirect would 301 /kk-market-prices to
+        // its trailing-slash version, so the fetch would answer a
+        // redirect instead of JSON. Disable it for this endpoint
+        // only; every other URL keeps its normal redirect.
+        add_filter('redirect_canonical', [self::class, 'disableCanonicalRedirect'], 10, 2);
+        add_action('template_redirect', [self::class, 'serveStripEndpoint']);
+        add_action('after_switch_theme', 'flush_rewrite_rules');
+    }
+
+    /** @param string[] $vars */
+    public static function registerQueryVar(array $vars): array
+    {
+        $vars[] = self::STRIP_QUERY_VAR;
+
+        return $vars;
+    }
+
+    /**
+     * Disable WordPress's canonical (trailing-slash) redirect for
+     * the strip endpoint. Returning false keeps the request on the
+     * exact URL the browser asked for, so the endpoint answers
+     * with a plain 200 instead of a 301.
+     *
+     * @param string|false $redirectUrl The URL WordPress wants to redirect to, or false.
+     * @param string $requestedUrl The URL the browser actually asked for.
+     * @return string|false False for the strip endpoint, untouched otherwise.
+     */
+    public static function disableCanonicalRedirect($redirectUrl, string $requestedUrl)
+    {
+        if (get_query_var(self::STRIP_QUERY_VAR) === '1') {
+            return false;
+        }
+
+        return $redirectUrl;
+    }
+
+    /** Public URL of the strip refresh endpoint. */
+    public static function stripEndpointUrl(): string
+    {
+        if (get_option('permalink_structure') === '') {
+            return add_query_arg(self::STRIP_QUERY_VAR, '1', home_url('/'));
+        }
+
+        return home_url(self::STRIP_ENDPOINT_SLUG . '/');
+    }
+
+    /**
+     * The endpoint payload: every market's prices (the same shape
+     * as the REST /markets route, via Markets::allPrices()), the
+     * pre-formatted snapshot caption, and the snapshot timestamp
+     * it was formatted from. The caption is formatted server-side
+     * with the caption settings, so the browser only swaps text.
+     *
+     * @return array{markets: array<string, array<string, array<string, mixed>>>, caption: string, snapshot: int|null}
+     */
+    public static function stripPayload(): array
+    {
+        $items = self::renderItems();
+        $snapshot = self::snapshotTime($items);
+
+        return [
+            'markets' => Markets::allPrices(),
+            'caption' => self::captionText($snapshot),
+            'snapshot' => $snapshot,
+        ];
+    }
+
+    /**
+     * Serves the strip endpoint: JSON with no-cache headers, so
+     * the endpoint itself is never page-cached (a cached response
+     * here would defeat the whole refresh). A disabled Markets
+     * feature answers 404, like the REST routes. Exits after
+     * answering, so WordPress never renders a page behind it.
+     */
+    public static function serveStripEndpoint(): void
+    {
+        if (get_query_var(self::STRIP_QUERY_VAR) !== '1') {
+            return;
+        }
+
+        if (!Markets::isEnabled()) {
+            status_header(404);
+            nocache_headers();
+            header('Content-Type: application/json; charset=' . get_bloginfo('charset'));
+            echo wp_json_encode(['error' => __('Markets are disabled.', 'koperasikita')]);
+            exit;
+        }
+
+        status_header(200);
+        nocache_headers();
+        header('Content-Type: application/json; charset=' . get_bloginfo('charset'));
+        echo wp_json_encode(self::stripPayload());
+        exit;
     }
 }
