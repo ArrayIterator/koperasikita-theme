@@ -1281,6 +1281,26 @@
 	border-bottom: 1px solid #e5e5e5;
 }
 
+/* Card head: the title and the Scrape now button share one row,
+ * title left and button right, with the head carrying the title's
+ * old margin, padding and border. */
+.kk-gold-card-head {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	justify-content: space-between;
+	gap: 16px;
+	margin: 0 0 16px;
+	padding-bottom: 12px;
+	border-bottom: 1px solid #e5e5e5;
+}
+
+.kk-gold-card-head .kk-gold-card-title {
+	margin: 0;
+	padding-bottom: 0;
+	border-bottom: 0;
+}
+
 /* Second section inside one card (Setting: Automatic sync under
  * Scraping sources) - separated by a top rule, same green title. */
 .kk-gold-card-subtitle {
@@ -1317,10 +1337,9 @@
 	margin: 0;
 }
 
-/* Buttons: the Scrape now button uses .kk-gold-button directly and
- * keeps the green treatment. WP .button / .button-primary is left
- * alone, so submit_button and the filter buttons render as WP
- * default (WP blue primary, grey secondary) on every gold tab. */
+/* Buttons: the popup Close button keeps Setup's green primary +
+ * green-outline secondary via .kk-gold-button. WP .button /
+ * .button-primary are WP default everywhere on this page. */
 .kk-gold-button {
 	display: inline-flex;
 	align-items: center;
