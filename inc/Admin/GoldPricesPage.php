@@ -601,7 +601,7 @@ final class GoldPricesPage
         <section class="kk-gold-card">
         <div class="kk-gold-card-head">
         <h2 class="kk-gold-card-title"><?php esc_html_e('Sync status', 'koperasikita'); ?></h2>
-        <button type="button" class="button button-primary" data-kk-gold-sync <?php disabled(empty($enabled)); ?>><?php esc_html_e('Scrape now', 'koperasikita'); ?></button>
+        <button type="button" class="button button-primary" data-kk-gold-sync <?php disabled(empty($enabled)); ?>><?php esc_html_e('Sync now', 'koperasikita'); ?></button>
         </div>
         <?php self::renderStatus($status); ?>
         <?php if ($enabled === []) : ?>
@@ -619,7 +619,7 @@ final class GoldPricesPage
     }
 
     /**
-     * The manual scrape popup, on the Sync tab only. The Scrape
+     * The manual scrape popup, on the Sync tab only. The Sync
      * now button lives in the Sync status card head; this renders
      * only the popup it opens. The scrape runs ONLY the enabled
      * sources, default first - see
@@ -627,9 +627,10 @@ final class GoldPricesPage
      * the same centered + blurred-backdrop pattern as the Data Desk
      * preview popup: progress bar + one pre holding every status
      * line, set by admin.ts (initGoldSync) as each source
-     * finishes. A failed source is reported on its own line and
-     * does not stop the rest. The popup stays open with the full
-     * result until closed; closing it reloads the page, so the
+     * finishes, and the run summary once in a success notice
+     * below the pre. A failed source is reported on its own line
+     * and does not stop the rest. The popup stays open with the
+     * full result until closed; closing it reloads the page, so the
      * status, history list and chart show the new rows.
      */
     private static function renderManualSync(): void
@@ -641,12 +642,13 @@ final class GoldPricesPage
                 <div class="kk-data-desk-popup-head">
                     <h2 id="kk-gold-sync-popup-title"><?php esc_html_e('Manual scraping', 'koperasikita'); ?></h2>
                     <div class="kk-data-desk-popup-actions">
-                        <button type="button" class="kk-gold-button" data-kk-gold-sync-popup-close><?php esc_html_e('Close', 'koperasikita'); ?></button>
+                        <button type="button" class="button" data-kk-gold-sync-popup-close><?php esc_html_e('Close', 'koperasikita'); ?></button>
                     </div>
                 </div>
                 <div class="kk-data-desk-popup-body">
                     <p><progress data-kk-gold-sync-bar max="100" value="0" style="width: 100%; max-width: 30rem;"></progress></p>
                     <pre data-kk-gold-sync-status role="status" aria-live="polite"></pre>
+                    <div class="notice notice-success" data-kk-gold-sync-result role="status" aria-live="polite" hidden></div>
                     <p class="description"><?php esc_html_e('Closing this popup reloads the page so the status, history list and chart show the new prices.', 'koperasikita'); ?></p>
                 </div>
             </div>

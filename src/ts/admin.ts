@@ -2494,12 +2494,13 @@ function initSidebarSettingsPopup(): void {
  * LogamMuliaApiProvider::enabledSyncSources()): the first call
  * carries no source, each step returns `next` (the following
  * source, or null when done) plus `step`/`total` for the progress
- * bar. Clicking Scrape now opens the popup (same centered +
+ * bar. Clicking Sync now opens the popup (same centered +
  * blurred-backdrop pattern as the Data Desk preview popup) and
- * runs the sync inside it: while a sync runs the Scrape now button
+ * runs the sync inside it: while a sync runs the Sync now button
  * is disabled (aria-busy), the progress bar + status pre show
  * which source is scraping ("Scraping galeri24... 1/3"), each
- * finished source gets its own line in the pre, and the
+ * finished source gets its own line in the pre, and the run
+ * summary shows once in a success notice below the pre. The
  * automatic-sync form is disabled with a note saying it is paused.
  * A per-source failure is reported as its own line and does not
  * stop the remaining sources. The popup stays open with the full
@@ -2519,8 +2520,9 @@ function initGoldSync(): void {
 	}
 	const bar = popup.querySelector<HTMLProgressElement>('[data-kk-gold-sync-bar]');
 	const statusEl = popup.querySelector<HTMLElement>('[data-kk-gold-sync-status]');
+	const resultEl = popup.querySelector<HTMLElement>('[data-kk-gold-sync-result]');
 	const closeButton = popup.querySelector<HTMLButtonElement>('[data-kk-gold-sync-popup-close]');
-	if (!bar || !statusEl || !closeButton) {
+	if (!bar || !statusEl || !resultEl || !closeButton) {
 		return;
 	}
 	const settingsForm = document.querySelector<HTMLFormElement>('[data-kk-gold-sync-settings]');
@@ -2583,11 +2585,12 @@ function initGoldSync(): void {
 		}
 		const strings = adminStrings();
 		setRunning(true);
-		/* The whole status lives in one pre, set from these lines:
-		 * one line per finished source, the in-progress line while
-		 * a call runs, the summary once at the end. A source that
-		 * somehow finishes twice rewrites its own line instead of
-		 * adding a second one. */
+		/* The per-source status lives in one pre, set from these
+		 * lines: one line per finished source, the in-progress
+		 * line while a call runs. A source that somehow finishes
+		 * twice rewrites its own line instead of adding a second
+		 * one. The run summary shows once, in the success notice
+		 * below the pre, not as another pre line. */
 		const lines: string[] = [];
 		const lineBySource = new Map<string, number>();
 		let current = '';
@@ -2605,6 +2608,8 @@ function initGoldSync(): void {
 			}
 		};
 		renderStatus();
+		resultEl.textContent = '';
+		resultEl.hidden = true;
 		bar.max = 100;
 		bar.value = 0;
 		popup.hidden = false;
@@ -2681,7 +2686,8 @@ function initGoldSync(): void {
 				totalUpdated += totals.updated;
 				totalSkipped += totals.skipped;
 			}
-			lines.push(formatTemplate(strings.syncDone, totalInserted, totalUpdated, totalSkipped));
+			resultEl.textContent = formatTemplate(strings.syncDone, totalInserted, totalUpdated, totalSkipped);
+			resultEl.hidden = false;
 			renderStatus();
 			setRunning(false);
 		} catch (error) {
