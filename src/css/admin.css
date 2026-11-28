@@ -525,10 +525,10 @@
 }
 
 /*
- * Gold Prices per-brand provider table: the selects cap at 15rem so
- * the table stays inside the admin page and the Supplied by column
- * is never cut off; the wrapper scrolls horizontally only when the
- * viewport is still too narrow.
+ * Gold Prices per-brand provider table: the wrapper scrolls
+ * horizontally only when the viewport is still too narrow, so
+ * the table stays inside the admin page and the Supplied by
+ * column is never cut off.
  */
 .kk-gold-brand-providers-wrap {
 	overflow-x: auto;
@@ -542,10 +542,6 @@
 	overflow-x: auto;
 }
 
-.kk-gold-brand-providers select {
-	width: 100%;
-	max-width: 15rem;
-}
 /* Data Desk previews */
 /* Templates list preview popup: the same centered + blurred-backdrop
  * pattern as the menu icon picker. The panel is wide enough for the
@@ -1462,8 +1458,7 @@
 
 .kk-gold-page input[type="search"],
 .kk-gold-page input[type="date"],
-.kk-gold-page input[type="number"],
-.kk-gold-page select {
+.kk-gold-page input[type="number"] {
 	min-height: 40px;
 	border-radius: 8px;
 }
