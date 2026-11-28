@@ -5,8 +5,9 @@
  * editor, the add/edit form on the Locations admin page, and the
  * contributor submission form. Typing searches the saved locations
  * first (instant, no network - they ride along as JSON on the field
- * itself), then the geocoder through `kk_agenda_place_search`
- * (debounced, so a fast typist costs one request, not one per key).
+ * itself), then the geocoder straight from the browser (Open-Meteo
+ * first, Nominatim when it finds nothing), debounced, so a fast
+ * typist costs one request, not one per key.
  *
  * Picking a row fills the location name and the coordinates: in the
  * picker context the hidden lat/lng/description inputs of the event
@@ -24,7 +25,7 @@
  * markup.
  */
 
-import { postAjax } from './api';
+import { searchPlaces } from './geocode';
 
 export interface PlaceResult {
 	source: 'saved' | 'geocoded';
@@ -43,11 +44,6 @@ export interface SavedLocation {
 	lat: number;
 	lng: number;
 	description: string;
-}
-
-export interface AjaxConfig {
-	ajaxUrl: string;
-	nonce: string;
 }
 
 const MIN_QUERY = 2;
@@ -166,7 +162,7 @@ function toPlaceResult(row: SavedLocation): PlaceResult {
 	};
 }
 
-export function initLocationSearch(root: HTMLElement, config: AjaxConfig | null): void {
+export function initLocationSearch(root: HTMLElement): void {
 	const input = root.querySelector<HTMLInputElement>('input');
 	const list = root.querySelector<HTMLUListElement>('ul');
 
@@ -387,18 +383,21 @@ export function initLocationSearch(root: HTMLElement, config: AjaxConfig | null)
 
 		const savedMatches = filterSavedLocations(saved, query).map(toPlaceResult);
 
-		if (config === null) {
-			render(savedMatches, savedMatches.length === 0 ? noResultsText : null);
-			return;
-		}
-
 		render(savedMatches, searchingText);
 
 		const seq = ++requestSeq;
 
-		let data: { results: PlaceResult[] };
+		let geocoded: PlaceResult[];
 		try {
-			data = await postAjax<{ results: PlaceResult[] }>(config, 'kk_agenda_place_search', { query });
+			geocoded = (await searchPlaces(query)).map((place) => ({
+				source: 'geocoded' as const,
+				id: '',
+				name: place.name,
+				address: place.country,
+				latitude: place.latitude,
+				longitude: place.longitude,
+				description: '',
+			}));
 		} catch {
 			// The geocoder failed; the saved matches stay listed
 			// instead of the whole search going blank.
@@ -413,7 +412,7 @@ export function initLocationSearch(root: HTMLElement, config: AjaxConfig | null)
 			return;
 		}
 
-		const merged = mergePlaceResults(savedMatches, Array.isArray(data.results) ? data.results : []);
+		const merged = mergePlaceResults(savedMatches, geocoded);
 		render(merged, merged.length === 0 ? noResultsText : null);
 	}
 
@@ -440,7 +439,7 @@ export function initLocationSearch(root: HTMLElement, config: AjaxConfig | null)
 
 		// Saved matches show instantly; the geocoder follows debounced.
 		const savedMatches = filterSavedLocations(saved, searchInput.value).map(toPlaceResult);
-		render(savedMatches, config !== null ? searchingText : null);
+		render(savedMatches, searchingText);
 		scheduleSearch();
 	});
 
