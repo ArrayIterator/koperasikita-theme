@@ -345,6 +345,13 @@
 	background: #fbf3df;
 }
 
+/* The index table is wider than a phone (five columns of code
+ * names), so the wrapper scrolls horizontally like the Gold
+ * tables instead of the columns being cut off. */
+.kk-setup-fast-search-table-wrap {
+	overflow-x: auto;
+}
+
 .kk-setup-fast-search-table {
 	margin: 0 0 16px;
 }

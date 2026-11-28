@@ -276,13 +276,13 @@ final class DataDeskTemplatesPage
             : DataDesk::defaultTemplate();
 
         $content = '<p>' . esc_html__("Placeholders resolve from the panel's own data. Insert opens a popup showing what the placeholder resolves to - pick the field it goes into. You can also right-click a title, date line or stat note, or type { while editing one. The title takes {label} and {day} only.", 'koperasikita') . '</p>';
-        $content .= '<table class="widefat striped"><thead><tr><th>' . esc_html__('Placeholder', 'koperasikita') . '</th><th>' . esc_html__('Resolves to', 'koperasikita') . '</th><th>' . esc_html__('Sample', 'koperasikita') . '</th><th></th></tr></thead><tbody>';
+        $content .= '<div class="kk-data-desk-table-wrap"><table class="widefat striped"><thead><tr><th>' . esc_html__('Placeholder', 'koperasikita') . '</th><th>' . esc_html__('Resolves to', 'koperasikita') . '</th><th>' . esc_html__('Sample', 'koperasikita') . '</th><th></th></tr></thead><tbody>';
 
         foreach (self::placeholderTokenRows($template) as $row) {
             $content .= '<tr><td><code>' . esc_html($row['token']) . '</code></td><td>' . esc_html($row['desc']) . '</td><td>' . esc_html($row['sample']) . '</td><td><button type="button" class="kk-data-desk-button" data-kk-placeholder-insert="' . esc_attr($row['token']) . '">' . esc_html__('Insert', 'koperasikita') . '</button></td></tr>';
         }
 
-        $content .= '</tbody></table>';
+        $content .= '</tbody></table></div>';
         $content .= '<p><button type="button" class="kk-data-desk-button kk-data-desk-button--primary" data-kk-placeholder-configure>' . esc_html__('Configure placeholders', 'koperasikita') . '</button></p>';
 
         $screen->add_help_tab([
@@ -348,12 +348,15 @@ final class DataDeskTemplatesPage
                         <td>
                             <strong><?php echo esc_html($template['name']); ?></strong>
                             <?php if (DataDesk::isBuiltIn($id)) : ?>
+                                <?php $builtInLabel = __('Built-in', 'koperasikita'); ?>
                                 <span class="kk-data-desk-built-in">
                                     <?php
                                     // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Icon::svg returns the theme's own SVG markup.
                                     echo Icon::svg('lock', 13);
                                     ?>
-                                    <?php esc_html_e('Built-in', 'koperasikita'); ?>
+                                    <?php if (strcasecmp($template['name'], $builtInLabel) !== 0) : ?>
+                                        <?php echo esc_html($builtInLabel); ?>
+                                    <?php endif; ?>
                                 </span>
                             <?php endif; ?>
                         </td>

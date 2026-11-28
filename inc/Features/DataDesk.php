@@ -1341,7 +1341,10 @@ final class DataDesk
     /**
      * The name a template shows in a picker: the stored name, with
      * a Built-in marker on the code-defined template, so a
-     * widget form can tell them apart from user templates.
+     * widget form can tell them apart from user templates. The
+     * marker is dropped when the name already is the marker -
+     * the default template is named "Bawaan", the Indonesian
+     * for Built-in, so "Bawaan (Bawaan)" would read as a stutter.
      */
     public static function displayName(array $template): string
     {
@@ -1351,9 +1354,13 @@ final class DataDesk
             $name = __('Untitled template', 'koperasikita');
         }
 
-        return self::isBuiltIn((string) ($template['id'] ?? ''))
-            ? $name . ' (' . __('Built-in', 'koperasikita') . ')'
-            : $name;
+        $builtInLabel = __('Built-in', 'koperasikita');
+
+        if (! self::isBuiltIn((string) ($template['id'] ?? '')) || strcasecmp($name, $builtInLabel) === 0) {
+            return $name;
+        }
+
+        return $name . ' (' . $builtInLabel . ')';
     }
 
     /**

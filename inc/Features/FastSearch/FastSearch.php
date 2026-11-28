@@ -277,6 +277,7 @@ final class FastSearch
                 . esc_html__('Required FULLTEXT indexes are missing. WordPress is safely using standard search until you install the indexes below.', 'koperasikita') . '</p>';
         }
 
+        echo '<div class="kk-setup-fast-search-table-wrap">';
         echo '<table class="widefat striped kk-setup-fast-search-table">';
         echo '<thead><tr><th>' . esc_html__('Table', 'koperasikita') . '</th><th>' . esc_html__('Index name', 'koperasikita') . '</th><th>' . esc_html__('Type', 'koperasikita') . '</th><th>' . esc_html__('Columns', 'koperasikita') . '</th><th>' . esc_html__('Status', 'koperasikita') . '</th></tr></thead>';
         echo '<tbody>';
@@ -294,6 +295,7 @@ final class FastSearch
             echo '</td></tr>';
         }
         echo '</tbody></table>';
+        echo '</div>';
 
         if ($job !== null) {
             echo '<p class="kk-setup-stack-status">' . esc_html__('An index build is already running. Wait for it to finish before starting another one.', 'koperasikita') . '</p>';
