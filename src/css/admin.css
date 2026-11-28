@@ -1996,7 +1996,7 @@
 	gap: 12px;
 }
 
-.kk-market-header-button {
+.kk-market-header-page .kk-market-header-button {
 	height: 36px;
 	min-height: 36px;
 	box-sizing: border-box;
@@ -2060,6 +2060,13 @@
 	.kk-subscribers-table-wrap .kk-subscribers-table {
 		min-width: 600px;
 	}
+
+	/* The search submit and the Export CSV link stack full-width
+	 * below 782px; without a gap they touch. Scoped to the page
+	 * so the top margin beats the .kk-subscribers-page p rule. */
+	.kk-subscribers-page .kk-subscribers-card-actions {
+		margin-top: 12px;
+	}
 }
 
 /* Narrow viewports: the fixed layout squeezes the five columns
@@ -2080,6 +2087,31 @@
 
 	.kk-locations-table-wrap .kk-locations-table {
 		min-width: 680px;
+	}
+
+	/* Below 782px core hides every header and body cell after the
+	 * primary column, and stamps a data-colname label on the body
+	 * cells. This table keeps all five columns and scrolls instead,
+	 * so the hidden cells come back and the labels - which would
+	 * sit on top of the values - are suppressed. */
+	.kk-locations-table-wrap .wp-list-table th.column-primary ~ th,
+	.kk-locations-table-wrap .wp-list-table tr:not(.inline-edit-row):not(.no-items) td.column-primary ~ td:not(.check-column),
+	.kk-locations-table-wrap .wp-list-table tr:not(.inline-edit-row):not(.no-items) th.column-primary ~ td:not(.check-column) {
+		display: table-cell;
+	}
+
+	/* Core's stacked layout also gives those cells a 35% left
+	 * padding to make room for the data-colname label. With the
+	 * label gone and the table scrolling, that padding is wider
+	 * than the cells themselves, so the values wrap one character
+	 * per line. Restore the theme's cell padding. */
+	.kk-locations-table-wrap .wp-list-table tr:not(.inline-edit-row):not(.no-items) td.column-primary ~ td:not(.check-column),
+	.kk-locations-table-wrap .wp-list-table tr:not(.inline-edit-row):not(.no-items) th.column-primary ~ td:not(.check-column) {
+		padding: 12px 16px;
+	}
+
+	.kk-locations-table-wrap .wp-list-table tr:not(.inline-edit-row):not(.no-items) td:not(.check-column)::before {
+		content: none;
 	}
 }
 
