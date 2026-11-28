@@ -681,7 +681,7 @@ final class Enqueue
                             'syncingMarket' => __('Syncing %s…', 'koperasikita'),
                             'syncMarketDone' => __('Synced %s (%s symbols)', 'koperasikita'),
                             'syncMarketSkipped' => __('Skipped %s — manual snapshots are not synced.', 'koperasikita'),
-                            'syncDone' => __('Sync complete.', 'koperasikita'),
+                            'marketSyncDone' => __('Sync complete.', 'koperasikita'),
                         ],
                     ]);
                 }

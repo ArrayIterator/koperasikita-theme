@@ -80,7 +80,7 @@ interface AdminStrings {
 	syncingMarket: string;
 	syncMarketDone: string;
 	syncMarketSkipped: string;
-	syncDone: string;
+	marketSyncDone: string;
 }
 
 interface AdminData {
@@ -189,7 +189,7 @@ const FALLBACK_STRINGS: AdminStrings = {
 	syncingMarket: 'Syncing %s…',
 	syncMarketDone: 'Synced %s (%s symbols)',
 	syncMarketSkipped: 'Skipped %s — manual snapshots are not synced.',
-	syncDone: 'Sync complete.',
+	marketSyncDone: 'Sync complete.',
 };
 
 function adminData(): AdminData | null {
@@ -252,7 +252,7 @@ function adminStrings(): AdminStrings {
 		syncingMarket: strings?.syncingMarket ?? FALLBACK_STRINGS.syncingMarket,
 		syncMarketDone: strings?.syncMarketDone ?? FALLBACK_STRINGS.syncMarketDone,
 		syncMarketSkipped: strings?.syncMarketSkipped ?? FALLBACK_STRINGS.syncMarketSkipped,
-		syncDone: strings?.syncDone ?? FALLBACK_STRINGS.syncDone,
+		marketSyncDone: strings?.marketSyncDone ?? FALLBACK_STRINGS.marketSyncDone,
 	};
 }
 
@@ -2803,9 +2803,9 @@ function initMarketSync(): void {
 			}
 
 			bar.value = bar.max;
-			statusEl.textContent = strings.syncDone;
+			statusEl.textContent = strings.marketSyncDone;
 			const summary = document.createElement('div');
-			summary.textContent = strings.syncDone;
+			summary.textContent = strings.marketSyncDone;
 			result.appendChild(summary);
 			setRunning(false);
 		} catch (error) {
