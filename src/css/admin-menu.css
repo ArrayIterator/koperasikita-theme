@@ -13,22 +13,25 @@
  * is 282..1319 x 204..1415 inside a 1600 viewBox, so it is centred
  * in the slot rather than cropped to the viewBox edge.
  *
- * The URL below is relative to the theme root on purpose: Vite
- * rewrites url() in CSS against its base ('/'), so a Vite-built
- * file would point at /assets/... - the site root, where the file
- * does not live (the theme sits at /wp-content/themes/koperasikita).
- * A path relative to this stylesheet's served location
- * (wp-content/themes/koperasikita/dist/assets/) resolves to the
- * theme's own assets/img/logo-k.svg instead. The url() climbs
- * three levels (dist/assets -> dist -> theme root -> assets/img),
- * one more than the source file's own depth, because Vite resolves
- * CSS url() against the OUTPUT file (dist/assets/), not the source
- * (src/css/). A url() Vite cannot resolve is left untouched, so the
- * relative path survives the build verbatim.
+ * The mark is inlined as a data URI at build time
+ * (url('...?inline')) and kept in one custom property so both
+ * rules below share a single copy. Inlining is deliberate: a
+ * plain relative url() cannot survive the build - Vite resolves
+ * CSS url() against the source file and rewrites a resolvable
+ * asset to a site-root absolute path (base '/'), which 404s
+ * because the theme lives under /wp-content/themes/koperasikita;
+ * an unresolvable relative url() is left verbatim but then
+ * points at the wrong depth from the served dist/assets/
+ * location. A data URI has no path to resolve, so the mark
+ * renders wherever the stylesheet loads.
  */
 
+:root {
+	--kk-logo-k: url('../../assets/img/logo-k.svg?inline');
+}
+
 #adminmenu #menu-dashboard .wp-menu-image {
-	background-image: url('../../../assets/img/logo-k.svg');
+	background-image: var(--kk-logo-k);
 	background-repeat: no-repeat;
 	background-position: center;
 	background-size: 20px 20px;
@@ -50,8 +53,8 @@
  * Dashboard menu icon uses, as a background on the link itself:
  * core forces `background-image: none !important` on
  * .ab-item:before, so the glyph slot cannot carry the image.
- * The same relative URL as the Dashboard rule is used; it survives
- * the build verbatim for the reason above.
+ * The same inlined mark as the Dashboard rule is used, via the
+ * shared custom property above.
  *
  * The selectors carry #wp-admin-bar-root-default so they beat
  * core's `.wp-admin #wpadminbar #wp-admin-bar-site-name >
@@ -64,7 +67,7 @@
  * padding-left moves the text to 33px.
  */
 #wpadminbar #wp-admin-bar-root-default #wp-admin-bar-site-name > .ab-item {
-	background-image: url('../../../assets/img/logo-k.svg');
+	background-image: var(--kk-logo-k);
 	background-repeat: no-repeat;
 	background-position: 7px center;
 	background-size: 20px 20px;
