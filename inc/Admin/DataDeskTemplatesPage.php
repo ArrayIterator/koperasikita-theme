@@ -394,7 +394,7 @@ final class DataDeskTemplatesPage
                 <div class="kk-data-desk-popup-head">
                     <h2 id="kk-data-desk-popup-title"></h2>
                     <div class="kk-data-desk-popup-actions">
-                        <button type="button" class="kk-data-desk-button" data-kk-data-desk-popup-close><?php esc_html_e('Close', 'koperasikita'); ?></button>
+                        <button type="button" class="button" data-kk-data-desk-popup-close><?php esc_html_e('Close', 'koperasikita'); ?></button>
                     </div>
                 </div>
                 <div class="kk-data-desk-popup-body" data-kk-data-desk-popup-body></div>
