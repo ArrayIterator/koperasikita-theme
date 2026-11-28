@@ -152,18 +152,23 @@ interface SearchResult {
 	fullName: string;
 }
 
-/* One location store per surface: the top bar keeps its own key
- * and every weather widget keeps one derived from its widget id, so
- * changing the location on one surface never moves the other. The
- * top bar's key is `topbar.loc`; a widget's key is
- * `kk-weather-location-<widget id>`. The quick-pick list stays
- * shared: it belongs to the one location picker modal, not to a
- * surface. */
-const TOPBAR_LOCATION_KEY = 'topbar.loc';
+/* One shared location store for every surface: the top bar and all
+ * weather widgets follow the same picked location, so changing it
+ * on one surface moves the others too. The key stays `topbar.loc`
+ * (the top bar's original key) so a location picked before this
+ * change is still read. A widget's own key,
+ * `kk-weather-location-<widget id>`, is only a legacy fallback at
+ * boot when no shared location is stored yet. The quick-pick list
+ * stays shared: it belongs to the one location picker modal, not
+ * to a surface. */
+const SHARED_LOCATION_KEY = 'topbar.loc';
 const TOPBAR_DATA_KEY = 'kk-weather-data-topbar';
 const CUSTOM_CITIES_KEY = 'kk-weather-cities';
 const MAX_CUSTOM_CITIES = 8;
 
+// Legacy per-widget location key: only read at boot when no shared
+// location is stored yet, so a widget a visitor picked before the
+// shared location existed keeps its place until the next shared pick.
 function widgetLocationKey(widgetKey: string): string {
 	return `kk-weather-location-${widgetKey}`;
 }
@@ -900,10 +905,11 @@ async function refreshWidget(widget: HTMLElement, location: Location): Promise<W
 
 /* Location picker modal                                               */
 
-/* One location per surface. The top bar keeps its own; every widget
- * keeps one keyed by its widget id. The picker edits exactly one
- * surface at a time: whichever opener was clicked sets the target,
- * and only that surface is stored and re-rendered. */
+/* One shared location for every surface. The picker target only
+ * records which opener was clicked (for the current-location line
+ * and the map staging): whichever surface opened the picker, Update
+ * stores the location once and re-renders the top bar and every
+ * widget. */
 type PickerTarget =
 	| { kind: 'topbar' }
 	| { kind: 'widget'; element: HTMLElement; key: string };
@@ -954,10 +960,6 @@ function widgetDefaultLocation(widget: HTMLElement): Location {
 	};
 }
 
-function targetStorageKey(target: PickerTarget): string {
-	return target.kind === 'topbar' ? TOPBAR_LOCATION_KEY : widgetLocationKey(target.key);
-}
-
 function getTargetLocation(target: PickerTarget): Location {
 	if (target.kind === 'topbar') {
 		return topbarLocation;
@@ -965,13 +967,15 @@ function getTargetLocation(target: PickerTarget): Location {
 	return widgetLocations.get(target.key) ?? widgetDefaultLocation(target.element);
 }
 
-function setTargetLocation(target: PickerTarget, location: Location): void {
-	if (target.kind === 'topbar') {
-		topbarLocation = location;
-	} else {
-		widgetLocations.set(target.key, location);
-	}
-	storeLocation(location, targetStorageKey(target));
+// The shared location: one store for the top bar and every widget.
+// Setting it moves all surfaces at once (the picker target only
+// decides which surface opened the picker, not where the location
+// is kept), and every widget's in-memory location is kept in sync
+// so no surface can drift back to its own place.
+function setSharedLocation(location: Location): void {
+	topbarLocation = location;
+	widgetLocations.forEach((_, key) => widgetLocations.set(key, location));
+	storeLocation(location, SHARED_LOCATION_KEY);
 }
 
 function getModal(): HTMLElement | null {
@@ -994,17 +998,16 @@ function updateCurrentLine(): void {
 }
 
 function applyLocation(location: Location, target: PickerTarget, announce = true): void {
-	setTargetLocation(target, location);
+	setSharedLocation(location);
 	updateCurrentLine();
 	syncCoordsInputs();
 	if (announce) {
 		setStatus(tf('Location set to %s.', location.name));
 	}
-	if (target.kind === 'topbar') {
-		void refreshTopbar(location);
-	} else {
-		void refreshWidget(target.element, location);
-	}
+	void refreshTopbar(location);
+	$all<HTMLElement>('[data-kk-weather-widget]').forEach((widget) => {
+		void refreshWidget(widget, location);
+	});
 	syncMapToTarget(target);
 }
 
@@ -1276,14 +1279,13 @@ function initMap(): void {
 				if (refined.fullName === current.fullName) {
 					return;
 				}
-				setTargetLocation(pickerTarget, refined);
-				if (pickerTarget.kind === 'topbar') {
-					const slot = $('#kk-topbar-weather');
-					slot?.setAttribute('title', refined.fullName ?? refined.name);
-				} else {
-					const place = pickerTarget.element.querySelector<HTMLElement>('.kk-weather-place');
+				setSharedLocation(refined);
+				const slot = $('#kk-topbar-weather');
+				slot?.setAttribute('title', refined.fullName ?? refined.name);
+				$all<HTMLElement>('[data-kk-weather-widget]').forEach((widget) => {
+					const place = widget.querySelector<HTMLElement>('.kk-weather-place');
 					place?.setAttribute('title', refined.fullName ?? refined.name);
-				}
+				});
 			})();
 		}
 	});
@@ -2121,13 +2123,12 @@ function upgradeGenericName(target: PickerTarget): void {
 			return;
 		}
 		const next = locationWithDetails({ ...stored, name: details.name }, details);
-		setTargetLocation(target, next);
+		setSharedLocation(next);
 		updateCurrentLine();
-		if (target.kind === 'topbar') {
-			void refreshTopbar(next);
-		} else {
-			void refreshWidget(target.element, next);
-		}
+		void refreshTopbar(next);
+		$all<HTMLElement>('[data-kk-weather-widget]').forEach((widget) => {
+			void refreshWidget(widget, next);
+		});
 		renderStrip();
 	});
 }
@@ -2137,17 +2138,22 @@ document.addEventListener('DOMContentLoaded', () => {
 	if (data.isWeatherEnabled === false) {
 		return;
 	}
-	// Stamp every widget's storage key first: the picker target and
-	// the per-widget locations both read from it.
+	// Read the shared location first: every surface starts on it. A
+	// widget with no shared location yet keeps its own stored place
+	// (legacy) or its server default.
+	const sharedStored = getStoredLocation(SHARED_LOCATION_KEY);
+	topbarLocation = sharedStored ?? DEFAULT_LOCATION;
 	$all<HTMLElement>('[data-kk-weather-widget]').forEach((widget, index) => {
 		const key =
 			widget.dataset.weatherKey !== undefined && widget.dataset.weatherKey !== ''
 				? widget.dataset.weatherKey
 				: `block-${index}`;
 		widgetKeys.set(widget, key);
-		widgetLocations.set(key, getStoredLocation(widgetLocationKey(key)) ?? widgetDefaultLocation(widget));
+		widgetLocations.set(
+			key,
+			sharedStored ?? getStoredLocation(widgetLocationKey(key)) ?? widgetDefaultLocation(widget),
+		);
 	});
-	topbarLocation = getStoredLocation(TOPBAR_LOCATION_KEY) ?? DEFAULT_LOCATION;
 	upgradeGenericName({ kind: 'topbar' });
 	$all<HTMLElement>('[data-kk-weather-widget]').forEach((widget) => {
 		upgradeGenericName({ kind: 'widget', element: widget, key: widgetKey(widget) });
@@ -2168,9 +2174,18 @@ document.addEventListener('DOMContentLoaded', () => {
 		}
 		void fetchSurfaceShared(topbarSurface());
 	}
-	// Every widget revalidates for its own location; a widget without
-	// a stored location keeps its server-side first paint on failure.
+	// Every widget revalidates for the shared location; a widget
+	// without a stored location keeps its server-side first paint
+	// on failure. Paint instantly from the browser cache when it
+	// is fresh, so a reload shows the shared place at once instead
+	// of flashing the server-side default while the revalidation
+	// runs - the same cache-first paint the top bar already does.
 	$all<HTMLElement>('[data-kk-weather-widget]').forEach((widget) => {
+		const location = getTargetLocation({ kind: 'widget', element: widget, key: widgetKey(widget) });
+		const cached = getCachedWeather(widgetDataKey(widgetKey(widget)), location);
+		if (cached) {
+			renderWidget(widget, cached);
+		}
 		void fetchSurfaceShared(widgetSurface(widget));
 	});
 	initPicker();
