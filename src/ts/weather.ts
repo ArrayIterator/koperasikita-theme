@@ -433,18 +433,120 @@ async function fetchWeather(cacheKey: string, location: Location): Promise<Weath
 	return result.weather;
 }
 
+/* "Cari kota" searches the geocoders directly from the browser,
+ * never through admin-ajax: Open-Meteo first, Nominatim only when
+ * it finds nothing. The browser's Referer identifies the request
+ * to Nominatim; the 300 ms debounce in initSearch keeps the call
+ * rate down. A failed lookup answers with an empty list, never an
+ * error, so the search just shows no places. */
+const GEOCODING_URL = 'https://geocoding-api.open-meteo.com/v1/search';
+const NOMINATIM_SEARCH_URL = 'https://nominatim.openstreetmap.org/search';
+
 async function searchPlaces(query: string, signal: AbortSignal): Promise<SearchResult[]> {
-	const data = getKkData();
-	if (!data.ajaxUrl || !data.nonce) {
-		throw new Error('Search endpoint is not available.');
+	const trimmed = query.trim();
+	if (trimmed.length < 2) {
+		return [];
 	}
-	const result = await postAjax<{ results?: SearchResult[] }>(
-		{ ajaxUrl: data.ajaxUrl, nonce: data.nonce },
-		'kk_weather_search',
-		{ query },
-		signal,
-	);
-	return Array.isArray(result.results) ? result.results : [];
+	const openMeteo = await searchOpenMeteo(trimmed, signal);
+	if (openMeteo.length > 0) {
+		return openMeteo;
+	}
+	return searchNominatim(trimmed, signal);
+}
+
+async function searchOpenMeteo(query: string, signal: AbortSignal): Promise<SearchResult[]> {
+	try {
+		const url = `${GEOCODING_URL}?name=${encodeURIComponent(query)}&count=5&language=en&format=json`;
+		const response = await fetch(url, { signal });
+		if (!response.ok) {
+			return [];
+		}
+		const body: unknown = await response.json();
+		if (typeof body !== 'object' || body === null || !Array.isArray((body as { results?: unknown }).results)) {
+			return [];
+		}
+		const results: SearchResult[] = [];
+		for (const place of (body as { results: unknown[] }).results) {
+			if (typeof place !== 'object' || place === null) {
+				continue;
+			}
+			const p = place as Record<string, unknown>;
+			if (typeof p.name !== 'string' || typeof p.latitude !== 'number' || typeof p.longitude !== 'number') {
+				continue;
+			}
+			results.push({
+				name: p.name,
+				latitude: p.latitude,
+				longitude: p.longitude,
+				country: placeLabel(p),
+			});
+		}
+		return results;
+	} catch (error: unknown) {
+		if (error instanceof DOMException && error.name === 'AbortError') {
+			throw error;
+		}
+		return [];
+	}
+}
+
+/* Open-Meteo's place label: admin2, admin1, country, most specific
+ * first - the same label the server built for the search results. */
+function placeLabel(place: Record<string, unknown>): string {
+	const parts: string[] = [];
+	for (const key of ['admin2', 'admin1', 'country']) {
+		const value = place[key];
+		if (typeof value === 'string' && value.trim() !== '') {
+			parts.push(value.trim());
+		}
+	}
+	return parts.join(', ');
+}
+
+async function searchNominatim(query: string, signal: AbortSignal): Promise<SearchResult[]> {
+	try {
+		const url = `${NOMINATIM_SEARCH_URL}?format=json&limit=5&accept-language=id&q=${encodeURIComponent(query)}`;
+		const response = await fetch(url, { signal });
+		if (!response.ok) {
+			return [];
+		}
+		const body: unknown = await response.json();
+		if (!Array.isArray(body)) {
+			return [];
+		}
+		const results: SearchResult[] = [];
+		for (const row of body) {
+			if (typeof row !== 'object' || row === null) {
+				continue;
+			}
+			const r = row as Record<string, unknown>;
+			if (typeof r.display_name !== 'string') {
+				continue;
+			}
+			const latitude = Number(r.lat);
+			const longitude = Number(r.lon);
+			if (!Number.isFinite(latitude) || !Number.isFinite(longitude) || latitude < -90 || latitude > 90 || longitude < -180 || longitude > 180) {
+				continue;
+			}
+			const parts = r.display_name.split(',').map((part) => part.trim()).filter((part) => part !== '');
+			const name = parts[0] ?? '';
+			if (name === '') {
+				continue;
+			}
+			results.push({
+				name,
+				latitude,
+				longitude,
+				country: parts.slice(1).join(', '),
+			});
+		}
+		return results;
+	} catch (error: unknown) {
+		if (error instanceof DOMException && error.name === 'AbortError') {
+			throw error;
+		}
+		return [];
+	}
 }
 
 /* Resolve coordinates to their area name ("Kabupaten Malang"), so a
@@ -468,38 +570,97 @@ interface ReverseGeocodeDetails {
  * the full "Kelurahan, Kecamatan, Kota/Kab" form and the levels it
  * came from. The name is what the top bar and widget show; the full
  * form rides the title attribute. */
-async function reverseGeocodeDetails(latitude: number, longitude: number): Promise<ReverseGeocodeDetails | null> {
-	const data = getKkData();
-	if (!data.ajaxUrl || !data.nonce) {
-		return null;
-	}
+/* Resolve coordinates to the area hierarchy, directly from the
+ * browser via Nominatim reverse - never through admin-ajax. Two
+ * lookups, mirroring the server: zoom 16 for the fine level
+ * (suburb/village - the kelurahan) and zoom 12 for the district
+ * level (town - the kecamatan) plus the city/regency. One zoom
+ * cannot give all three. Results are cached in memory by rounded
+ * coordinates so a repeated lookup for the same area never hits
+ * Nominatim twice. The browser's Referer identifies the request. */
+const NOMINATIM_REVERSE_URL = 'https://nominatim.openstreetmap.org/reverse';
+const reverseCache = new Map<string, ReverseGeocodeDetails | null>();
+
+async function nominatimReverse(latitude: number, longitude: number, zoom: number): Promise<Record<string, unknown> | null> {
 	try {
-		const result = await postAjax<{
-			name?: string | null;
-			fullName?: string | null;
-			kelurahan?: string | null;
-			kecamatan?: string | null;
-			kota?: string | null;
-		}>(
-			{ ajaxUrl: data.ajaxUrl, nonce: data.nonce },
-			'kk_weather_reverse',
-			{ latitude: String(latitude), longitude: String(longitude) },
-		);
-		const name = typeof result.name === 'string' ? result.name.trim() : '';
-		if (name === '') {
+		const url = `${NOMINATIM_REVERSE_URL}?format=jsonv2&lat=${latitude}&lon=${longitude}&zoom=${zoom}&addressdetails=1&accept-language=en`;
+		const response = await fetch(url);
+		if (!response.ok) {
 			return null;
 		}
-		const fullName = typeof result.fullName === 'string' && result.fullName.trim() !== '' ? result.fullName.trim() : name;
-		return {
-			name,
-			fullName,
-			kelurahan: typeof result.kelurahan === 'string' && result.kelurahan !== '' ? result.kelurahan : null,
-			kecamatan: typeof result.kecamatan === 'string' && result.kecamatan !== '' ? result.kecamatan : null,
-			kota: typeof result.kota === 'string' && result.kota !== '' ? result.kota : null,
-		};
+		const body: unknown = await response.json();
+		if (typeof body !== 'object' || body === null) {
+			return null;
+		}
+		const address = (body as { address?: unknown }).address;
+		if (typeof address !== 'object' || address === null) {
+			return null;
+		}
+		return address as Record<string, unknown>;
 	} catch {
 		return null;
 	}
+}
+
+/* First non-empty string among the address keys, or null. */
+function addressPart(address: Record<string, unknown> | null, keys: string[]): string | null {
+	if (address === null) {
+		return null;
+	}
+	for (const key of keys) {
+		const value = address[key];
+		if (typeof value === 'string' && value.trim() !== '') {
+			return value.trim();
+		}
+	}
+	return null;
+}
+
+async function reverseGeocodeDetails(latitude: number, longitude: number): Promise<ReverseGeocodeDetails | null> {
+	const cacheKey = `${latitude.toFixed(2)},${longitude.toFixed(2)}`;
+	const cached = reverseCache.get(cacheKey);
+	if (cached !== undefined) {
+		return cached;
+	}
+	const fine = await nominatimReverse(latitude, longitude, 16);
+	let district: Record<string, unknown> | null = null;
+	if (fine === null || addressPart(fine, ['town', 'city_district']) === null) {
+		district = await nominatimReverse(latitude, longitude, 12);
+	}
+	const details = buildReverseDetails(fine, district);
+	reverseCache.set(cacheKey, details);
+	return details;
+}
+
+function buildReverseDetails(fine: Record<string, unknown> | null, district: Record<string, unknown> | null): ReverseGeocodeDetails | null {
+	if (fine === null && district === null) {
+		return null;
+	}
+	let kelurahan = addressPart(fine, ['suburb', 'village']);
+	let kecamatan = addressPart(district, ['town', 'city_district']) ?? addressPart(fine, ['town', 'city_district']);
+	let kota = addressPart(district, ['city', 'county']) ?? addressPart(fine, ['city', 'county']);
+	if (kelurahan !== null && (kelurahan === kecamatan || kelurahan === kota)) {
+		kelurahan = null;
+	}
+	if (kecamatan !== null && kecamatan === kota) {
+		kecamatan = null;
+	}
+	if (kota === null) {
+		kota = addressPart(district, ['state']) ?? addressPart(fine, ['state']);
+	}
+	if (kota === null) {
+		return null;
+	}
+	const specific = kelurahan ?? kecamatan;
+	const name = specific !== null ? `${specific}, ${kota}` : kota;
+	const parts = [kelurahan, kecamatan, kota].filter((part): part is string => part !== null && part !== '');
+	return {
+		name,
+		fullName: parts.join(', '),
+		kelurahan,
+		kecamatan,
+		kota,
+	};
 }
 
 /* Attach the full hierarchy to a location, unless it adds nothing
@@ -907,16 +1068,36 @@ async function placeMapPin(latitude: number, longitude: number): Promise<void> {
 	}
 }
 
-/* Stage the map for the surface being edited: the marker starts on the
- * surface's current location, with its name in the field. The map is
- * built lazily on the first open - Leaflet needs a laid-out box, and
- * the modal is hidden until then. */
+/* The location the modal is currently staging, read from the
+ * coordinate and name fields the staging paths keep in sync. The
+ * map opens on this place, not on the applied location, so a search
+ * or a pin move made while the map was hidden is not lost. */
+function stagedLocationFromFields(): Location {
+	const applied = getTargetLocation(pickerTarget);
+	const latInput = $('[data-kk-weather-lat]') as HTMLInputElement | null;
+	const lonInput = $('[data-kk-weather-lon]') as HTMLInputElement | null;
+	const nameInput = $('[data-kk-weather-map-name]') as HTMLInputElement | null;
+	const latitude = latInput ? Number(latInput.value) : NaN;
+	const longitude = lonInput ? Number(lonInput.value) : NaN;
+	const name = nameInput ? nameInput.value.trim() : '';
+	return {
+		name: name !== '' ? name : applied.name,
+		latitude: Number.isFinite(latitude) ? latitude : applied.latitude,
+		longitude: Number.isFinite(longitude) ? longitude : applied.longitude,
+		source: applied.source,
+	};
+}
+
+/* Stage the map for the surface being edited: the marker starts on
+ * the staged place, with its name in the field. The map is built
+ * lazily on the first show - Leaflet needs a laid-out box, and the
+ * map section is hidden until the visitor asks for it. */
 function stageMapForTarget(): void {
 	const els = mapEls();
 	if (!els) {
 		return;
 	}
-	const location = getTargetLocation(pickerTarget);
+	const location = stagedLocationFromFields();
 	if (weatherMap === null) {
 		const map = L.map(els.map, { scrollWheelZoom: false }).setView([location.latitude, location.longitude], MAP_ZOOM);
 		L.tileLayer(MAP_TILE_URL, { attribution: MAP_ATTRIBUTION, maxZoom: 19 }).addTo(map);
@@ -930,6 +1111,34 @@ function stageMapForTarget(): void {
 	}
 	setMapPin(location.latitude, location.longitude, location.name);
 	requestAnimationFrame(() => weatherMap?.invalidateSize());
+}
+
+/* Show or hide the map section. Showing builds the Leaflet map on
+ * the first show and re-measures it on later shows, so the tiles
+ * always fill the box. */
+function setMapVisible(visible: boolean): void {
+	const wrap = $('.kk-weather-map-wrap');
+	const toggle = $('[data-kk-weather-map-toggle]') as HTMLButtonElement | null;
+	if (!wrap || !toggle) {
+		return;
+	}
+	wrap.hidden = !visible;
+	toggle.textContent = visible ? t('Hide map') : t('Show map');
+	toggle.setAttribute('aria-expanded', visible ? 'true' : 'false');
+	if (visible) {
+		stageMapForTarget();
+	}
+}
+
+function initMapToggle(): void {
+	const toggle = $('[data-kk-weather-map-toggle]') as HTMLButtonElement | null;
+	const wrap = $('.kk-weather-map-wrap');
+	if (!toggle || !wrap) {
+		return;
+	}
+	toggle.addEventListener('click', () => {
+		setMapVisible(wrap.hidden);
+	});
 }
 
 /* Stage a location on the map without applying it: the marker, the
@@ -1011,7 +1220,9 @@ function openPicker(opener: HTMLElement): void {
 	updateCurrentLine();
 	syncCoordsInputs();
 	renderStrip();
-	stageMapForTarget();
+	const staged = getTargetLocation(pickerTarget);
+	setMapPin(staged.latitude, staged.longitude, staged.name);
+	setMapVisible(false);
 	const search = $('[data-kk-weather-search]') as HTMLInputElement | null;
 	if (search) {
 		search.focus();
@@ -1423,6 +1634,7 @@ function initPicker(): void {
 		setStatus(tf('Location reset to %s.', def.name));
 	});
 	initMap();
+	initMapToggle();
 	initStrip();
 	initSearch();
 	initCoords();

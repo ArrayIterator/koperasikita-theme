@@ -101,6 +101,8 @@ final class Enqueue
                 'No places found. Try another name.' => __('No places found. Try another name.', 'koperasikita'),
                 'Search is unavailable right now. Try coordinates instead.' => __('Search is unavailable right now. Try coordinates instead.', 'koperasikita'),
                 'Moved the map to %s. Press "Update" to apply it.' => __('Moved the map to %s. Press "Update" to apply it.', 'koperasikita'),
+                'Show map' => __('Show map', 'koperasikita'),
+                'Hide map' => __('Hide map', 'koperasikita'),
                 'Enter a latitude between -90 and 90 and a longitude between -180 and 180.' => __('Enter a latitude between -90 and 90 and a longitude between -180 and 180.', 'koperasikita'),
                 'Geolocation is not supported by this browser. Search for a city or enter coordinates.' => __('Geolocation is not supported by this browser. Search for a city or enter coordinates.', 'koperasikita'),
                 'Asking for your location...' => __('Asking for your location...', 'koperasikita'),
