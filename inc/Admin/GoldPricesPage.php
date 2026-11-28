@@ -648,7 +648,7 @@ final class GoldPricesPage
                 <div class="kk-data-desk-popup-body">
                     <p><progress data-kk-gold-sync-bar max="100" value="0" style="width: 100%; max-width: 30rem;"></progress></p>
                     <pre data-kk-gold-sync-status role="status" aria-live="polite"></pre>
-                    <div class="notice notice-success" data-kk-gold-sync-result role="status" aria-live="polite" hidden></div>
+                    <div class="notice notice-success inline" data-kk-gold-sync-result role="status" aria-live="polite" hidden></div>
                     <p class="description"><?php esc_html_e('Closing this popup reloads the page so the status, history list and chart show the new prices.', 'koperasikita'); ?></p>
                 </div>
             </div>
