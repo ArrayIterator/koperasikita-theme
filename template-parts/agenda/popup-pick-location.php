@@ -10,8 +10,8 @@
  * saved until the editor saves the post or the contributor submits.
  *
  * The popup's own inputs carry no name attributes, so they are never
- * submitted: the real values live in the picker block's hidden
- * inputs (kk_agenda_lat / kk_agenda_lng / kk_agenda_location_desc).
+ * submitted: the real values live in the picker block's inputs
+ * (kk_agenda_lat / kk_agenda_lng / kk_agenda_location_desc).
  *
  * The popup sits above the editor but below the admin menu (z-index
  * 9999) and the admin bar (99999): container 8999, backdrop 8998.
@@ -42,18 +42,6 @@ $locations = \KoperasiKita\Features\Agenda::savedLocations();
 			</select>
 		</p>
 		<?php endif; ?>
-		<p class="kk-agenda-popup-field">
-			<input
-				type="search"
-				id="kk-agenda-popup-search"
-				data-kk-agenda-popup-search
-				data-kk-agenda-no-results="<?php esc_attr_e('No places found', 'koperasikita'); ?>"
-				placeholder="<?php esc_attr_e('Search for a place…', 'koperasikita'); ?>"
-				aria-label="<?php esc_attr_e('Search for a place…', 'koperasikita'); ?>"
-				autocomplete="off"
-			>
-		</p>
-		<ul class="kk-agenda-popup-results" data-kk-agenda-popup-results hidden></ul>
 		<div class="kk-agenda-map" data-kk-agenda-popup-map></div>
 		<p class="kk-agenda-hint"><?php esc_html_e('Click the map to place the pin, or drag the pin to move it. The coordinates are saved with the location.', 'koperasikita'); ?></p>
 		<div class="kk-agenda-popup-coords">

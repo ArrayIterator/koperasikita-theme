@@ -24,7 +24,6 @@
  */
 
 import * as L from 'leaflet';
-import { searchPlaces, type GeocodedPlace } from './geocode';
 import { initLocationSearch } from './location-search';
 
 export { filterSavedLocations, mergePlaceResults, parseSavedLocations } from './location-search';
@@ -174,7 +173,6 @@ function initAgenda(): void {
 
 const TILE_URL = 'https://tile.openstreetmap.org/{z}/{x}/{y}.png';
 const TILE_ATTRIBUTION = '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors';
-const SEARCH_DEBOUNCE_MS = 400;
 const DEFAULT_ZOOM = 15;
 
 function escapeHtml(text: string): string {
@@ -307,6 +305,7 @@ function initLocationPreviewMap(el: HTMLElement): void {
 			}
 			if (coordsEl !== null) {
 				coordsEl.textContent = noPin;
+				coordsEl.hidden = false;
 			}
 			return;
 		}
@@ -324,7 +323,8 @@ function initLocationPreviewMap(el: HTMLElement): void {
 		}
 
 		if (coordsEl !== null) {
-			coordsEl.textContent = `${lat}, ${lng}`;
+			coordsEl.textContent = noPin;
+			coordsEl.hidden = true;
 		}
 		map.setView([lat, lng], map.getZoom());
 	};
@@ -371,11 +371,12 @@ let popupMap: L.Map | null = null;
 let popupMarker: L.Marker | null = null;
 
 function pickerFromBlock(block: HTMLElement): PickerBlock | null {
-	// The block's own inputs first (the agenda editor: hidden inputs
-	// inside the block). The Locations form keeps its visible
-	// Latitude / Longitude / Description fields in their own table
-	// rows, so fall back to the form that owns the block - the same
-	// scope location-search.ts already uses for the search field.
+	// The block's own inputs first (the agenda editor: its own
+	// Latitude / Longitude inputs inside the block). The Locations
+	// form keeps its visible Latitude / Longitude / Description
+	// fields in their own table rows, so fall back to the form that
+	// owns the block - the same scope location-search.ts already
+	// uses for the search field.
 	const form = block.closest('form');
 	const latInput = block.querySelector<HTMLInputElement>('[data-kk-agenda-lat]')
 		?? form?.querySelector<HTMLInputElement>('[data-kk-agenda-lat]')
@@ -412,8 +413,6 @@ function initPickLocationPopup(): void {
 		return;
 	}
 
-	const searchInput = popup.querySelector<HTMLInputElement>('[data-kk-agenda-popup-search]');
-	const results = popup.querySelector<HTMLElement>('[data-kk-agenda-popup-results]');
 	const mapEl = popup.querySelector<HTMLElement>('[data-kk-agenda-popup-map]');
 	const latInput = popup.querySelector<HTMLInputElement>('[data-kk-agenda-popup-lat]');
 	const lngInput = popup.querySelector<HTMLInputElement>('[data-kk-agenda-popup-lng]');
@@ -421,7 +420,7 @@ function initPickLocationPopup(): void {
 	const savedSelect = popup.querySelector<HTMLSelectElement>('[data-kk-agenda-saved-location]');
 	const applyButton = popup.querySelector<HTMLButtonElement>('[data-kk-agenda-popup-apply]');
 
-	if (!searchInput || !results || !mapEl || !latInput || !lngInput || !descInput || !applyButton) {
+	if (!mapEl || !latInput || !lngInput || !descInput || !applyButton) {
 		return;
 	}
 
@@ -431,17 +430,11 @@ function initPickLocationPopup(): void {
 	// reads them as if they could run before the guard), so the aliases
 	// carry it instead.
 	const popupEl = popup;
-	const search = searchInput;
-	const resultsList = results;
 	const popupMapEl = mapEl;
 	const popupLat = latInput;
 	const popupLng = lngInput;
 	const popupDesc = descInput;
-
-	function hideResults(): void {
-		resultsList.hidden = true;
-		resultsList.innerHTML = '';
-	}
+	const popupApply = applyButton;
 
 	function setPopupPin(lat: number, lng: number): void {
 		popupLat.value = String(lat);
@@ -518,11 +511,13 @@ function initPickLocationPopup(): void {
 		if (savedSelect) {
 			savedSelect.value = '';
 		}
-		search.value = '';
-		hideResults();
 
 		popupEl.hidden = false;
-		search.focus();
+		if (savedSelect) {
+			savedSelect.focus();
+		} else {
+			popupApply.focus();
+		}
 
 		requestAnimationFrame(() => {
 			if (popupMap === null) {
@@ -537,7 +532,6 @@ function initPickLocationPopup(): void {
 	function closePopup(): void {
 		popupEl.hidden = true;
 		activePicker = null;
-		hideResults();
 		if (lastFocused) {
 			lastFocused.focus();
 			lastFocused = null;
@@ -556,7 +550,12 @@ function initPickLocationPopup(): void {
 		activePicker.latInput.value = hasPin ? String(lat) : '';
 		activePicker.lngInput.value = hasPin ? String(lng) : '';
 		activePicker.descInput.value = popupDesc.value.trim().slice(0, 200);
-		activePicker.coords.textContent = hasPin ? `${lat}, ${lng}` : activePicker.noPin;
+
+		// The coords line is only the "no pin" indicator now: it
+		// shows while the picker holds no coordinates, and hides
+		// once a pin exists - the inputs themselves carry the values.
+		activePicker.coords.textContent = activePicker.noPin;
+		activePicker.coords.hidden = hasPin;
 
 		// A programmatic value set fires no event, so announce it:
 		// the Locations form's preview map follows these inputs.
@@ -580,6 +579,21 @@ function initPickLocationPopup(): void {
 		}
 		picker.block.classList.add('is-ready');
 		picker.pickButton.addEventListener('click', () => openPopup(picker));
+
+		// The "no pin" indicator follows the picker's own inputs:
+		// typing coordinates by hand hides it once both are valid,
+		// and clearing either brings it back.
+		const syncPinIndicator = (): void => {
+			const lat = parseCoord(picker.latInput.value, -90, 90);
+			const lng = parseCoord(picker.lngInput.value, -180, 180);
+			picker.coords.textContent = picker.noPin;
+			picker.coords.hidden = lat !== null && lng !== null;
+		};
+		picker.latInput.addEventListener('input', syncPinIndicator);
+		picker.lngInput.addEventListener('input', syncPinIndicator);
+		picker.latInput.addEventListener('change', syncPinIndicator);
+		picker.lngInput.addEventListener('change', syncPinIndicator);
+		syncPinIndicator();
 	});
 
 	applyButton.addEventListener('click', applyPopup);
@@ -606,9 +620,9 @@ function initPickLocationPopup(): void {
 		});
 	});
 
-	// A saved location fills the pin and the description, and fills
-	// the event's Location text only when it is still empty - never
-	// overwriting what the editor or contributor already typed.
+	// A saved location fills the pin, the description and the
+	// event's Location text together: picking it is choosing that
+	// location, name and coordinates alike.
 	if (savedSelect) {
 		savedSelect.addEventListener('change', () => {
 			const option = savedSelect.selectedOptions[0];
@@ -626,64 +640,10 @@ function initPickLocationPopup(): void {
 			setPopupPin(lat, lng);
 
 			const locationInput = document.getElementById('kk-agenda-location');
-			if (locationInput instanceof HTMLInputElement && locationInput.value.trim() === '') {
+			if (locationInput instanceof HTMLInputElement) {
 				locationInput.value = option.value;
 			}
 		});
-	}
-
-	// Place search (debounced): results are a plain list under the
-	// search box; picking one moves the pin there.
-	let searchTimer: number | undefined;
-	search.addEventListener('input', () => {
-		window.clearTimeout(searchTimer);
-		searchTimer = window.setTimeout(() => {
-			void runSearch(search.value.trim());
-		}, SEARCH_DEBOUNCE_MS);
-	});
-
-	async function runSearch(query: string): Promise<void> {
-		if (query === '') {
-			hideResults();
-			return;
-		}
-
-		let found: GeocodedPlace[];
-		try {
-			found = await searchPlaces(query);
-		} catch {
-			hideResults();
-			return;
-		}
-
-		resultsList.innerHTML = '';
-
-		if (found.length === 0) {
-			const empty = document.createElement('li');
-			empty.className = 'kk-agenda-popup-results-empty';
-			empty.textContent = search.dataset.kkAgendaNoResults ?? 'No places found';
-			resultsList.append(empty);
-			resultsList.hidden = false;
-			return;
-		}
-
-		found.forEach((row) => {
-			const item = document.createElement('li');
-			const button = document.createElement('button');
-			button.type = 'button';
-			button.className = 'kk-agenda-popup-result';
-			const label = row.country !== '' ? `${row.name}, ${row.country}` : row.name;
-			button.textContent = label;
-			button.addEventListener('click', () => {
-				setPopupPin(row.latitude, row.longitude);
-				hideResults();
-				search.value = label;
-			});
-			item.append(button);
-			resultsList.append(item);
-		});
-
-		resultsList.hidden = false;
 	}
 }
 
@@ -696,10 +656,9 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 /**
- * The inline location search on every agenda location field: the
- * Event Details box, the Locations admin form, and the contributor
- * form. The search itself is client-side (see location-search.ts),
- * so no backend config is needed here.
+ * The inline location search on the Locations admin form. The search
+ * itself is client-side (see location-search.ts), so no backend
+ * config is needed here.
  */
 function initLocationSearchFields(): void {
 	$all<HTMLElement>('[data-kk-agenda-location-search]').forEach((root) => {
