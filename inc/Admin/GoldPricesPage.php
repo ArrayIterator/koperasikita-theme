@@ -884,11 +884,12 @@ final class GoldPricesPage
 
     /**
      * History tab: the stored price history as a chart and a
-     * list, with a brand + date-range filter and paging. The
-     * filter is GET-based, so the URL stays linkable and the
-     * filter survives refresh and paging. The chart follows the
-     * filter (same filtered set, capped) but never the page
-     * number; only the table paginates.
+     * WP_List_Table, with a brand + date-range filter, core
+     * search and sortable columns, and paging. The filter is
+     * GET-based, so the URL stays linkable and the filter
+     * survives refresh and paging. The chart follows the filter
+     * (same filtered set, capped) but never the page number,
+     * the search or the sort; only the table paginates.
      *
      * @param array<string, string> $brands Slug => label.
      */
@@ -906,8 +907,6 @@ final class GoldPricesPage
         if ($from !== '' && $to !== '' && $from > $to) {
             [$from, $to] = [$to, $from];
         }
-        // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- paging is display-only.
-        $page = isset($_GET['paged']) ? max(1, absint((string) wp_unslash($_GET['paged']))) : 1;
 
         // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- filter is display-only.
         $provider = isset($_GET['provider']) ? sanitize_key((string) wp_unslash($_GET['provider'])) : '';
@@ -921,16 +920,11 @@ final class GoldPricesPage
 
         $chart = GoldPricesTable::historyFiltered($provider, $filters, self::HISTORY_CHART_CAP, 0, Gold::officialProviders());
 
-        $total = GoldPricesTable::historyCount($provider, $filters, Gold::officialProviders());
+        $table = new GoldHistoryTable($provider, $filters, Gold::officialProviders(), $brands, $filtered);
+        $table->prepare_items();
+        $total = $table->get_total_items();
         $pages = max(1, (int) ceil($total / self::HISTORY_PER_PAGE));
-        $page = min($page, $pages);
-        $rows = GoldPricesTable::historyFiltered(
-            $provider,
-            $filters,
-            self::HISTORY_PER_PAGE,
-            ($page - 1) * self::HISTORY_PER_PAGE,
-            Gold::officialProviders()
-        );
+        $page = $table->get_current_page();
 
         $pageUrl = admin_url('admin.php?page=' . self::PAGE_SLUG);
         $filterUrl = add_query_arg('tab', 'history', $pageUrl);
@@ -945,6 +939,13 @@ final class GoldPricesPage
         }
         if ($to !== '') {
             $filterUrl = add_query_arg('to', $to, $filterUrl);
+        }
+        if ($table->get_search() !== '') {
+            $filterUrl = add_query_arg('s', $table->get_search(), $filterUrl);
+        }
+        if ($table->get_orderby() !== 'date' || $table->get_order() !== 'desc') {
+            $filterUrl = add_query_arg('orderby', $table->get_orderby(), $filterUrl);
+            $filterUrl = add_query_arg('order', $table->get_order(), $filterUrl);
         }
         $enabled = Gold::enabledBrands();
         ?>
@@ -994,7 +995,26 @@ final class GoldPricesPage
             </p>
         </form>
         <?php self::renderChart($chart, $brands, $filtered); ?>
-        <?php self::renderHistoryTable($rows, $brands, $filtered); ?>
+        <div id="kk-gold-history">
+        <form method="get" action="<?php echo esc_url(admin_url('admin.php')); ?>">
+            <input type="hidden" name="page" value="<?php echo esc_attr(self::PAGE_SLUG); ?>">
+            <input type="hidden" name="tab" value="history">
+            <?php if ($provider !== '') : ?>
+                <input type="hidden" name="provider" value="<?php echo esc_attr($provider); ?>">
+            <?php endif; ?>
+            <?php if ($brand !== '') : ?>
+                <input type="hidden" name="brand" value="<?php echo esc_attr($brand); ?>">
+            <?php endif; ?>
+            <?php if ($from !== '') : ?>
+                <input type="hidden" name="from" value="<?php echo esc_attr($from); ?>">
+            <?php endif; ?>
+            <?php if ($to !== '') : ?>
+                <input type="hidden" name="to" value="<?php echo esc_attr($to); ?>">
+            <?php endif; ?>
+            <?php $table->search_box(__('Search History', 'koperasikita'), 'kk-history'); ?>
+            <?php $table->display(); ?>
+        </form>
+        </div>
         <?php if ($pages > 1) : ?>
             <div class="tablenav">
                 <div class="tablenav-pages">
@@ -1250,58 +1270,6 @@ final class GoldPricesPage
             </svg>
             <figcaption><?php echo $legend; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- labels and colours are escaped above. ?></figcaption>
         </figure>
-        <?php
-    }
-
-    /**
-     * History list: latest per brand first (the table order is
-     * recorded_date DESC), with date, brand, sell and buyback
-     * price per gram in IDR. The rows arrive already paged from
-     * the query - this only renders them.
-     *
-     * @param array<int, array{provider: string, symbol: string, sell_price: float, buyback_price: float|null, currency: string, recorded_date: string|null, fetched_at: int}> $history
-     * @param array<string, string> $brands Slug => label.
-     */
-    private static function renderHistoryTable(array $history, array $brands, bool $filtered = false): void
-    {
-        if ($history === []) {
-            echo '<p>' . esc_html__($filtered ? 'No prices match the selected filters.' : 'No prices stored yet. Run a sync to fill the table.', 'koperasikita') . '</p>';
-
-            return;
-        }
-
-        $rows = '';
-        foreach ($history as $row) {
-            $symbol = (string) ($row['symbol'] ?? '');
-            $label = $brands[$symbol] ?? $symbol;
-            $sell = number_format_i18n((float) ($row['sell_price'] ?? 0), 0);
-            $buyback = isset($row['buyback_price']) && $row['buyback_price'] !== null
-                ? number_format_i18n((float) $row['buyback_price'], 0)
-                : '-';
-
-            $rows .= '<tr>'
-                . '<td>' . esc_html((string) ($row['recorded_date'] ?? '-')) . '</td>'
-                . '<td><strong>' . esc_html($label) . '</strong></td>'
-                . '<td>' . esc_html(Gold::providerLabel((string) ($row['provider'] ?? ''))) . '</td>'
-                . '<td>' . esc_html($sell) . '</td>'
-                . '<td>' . esc_html($buyback) . '</td>'
-                . '</tr>';
-        }
-        ?>
-        <div class="kk-gold-table-wrap">
-        <table class="widefat striped kk-gold-table">
-            <thead>
-                <tr>
-                    <th><?php esc_html_e('Date', 'koperasikita'); ?></th>
-                    <th><?php esc_html_e('Brand', 'koperasikita'); ?></th>
-                    <th><?php esc_html_e('Provider', 'koperasikita'); ?></th>
-                    <th><?php esc_html_e('Sell (per gram)', 'koperasikita'); ?></th>
-                    <th><?php esc_html_e('Buyback (per gram)', 'koperasikita'); ?></th>
-                </tr>
-            </thead>
-            <tbody><?php echo $rows; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- rows are escaped above. ?></tbody>
-        </table>
-        </div>
         <?php
     }
 }

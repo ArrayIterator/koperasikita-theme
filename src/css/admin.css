@@ -1455,12 +1455,9 @@
 	font-weight: 600;
 }
 
-.kk-gold-page input[type="search"],
-.kk-gold-page input[type="date"],
-.kk-gold-page input[type="number"] {
-	min-height: 40px;
-	border-radius: 8px;
-}
+/* Filter controls (History provider/brand/dates, Summary search/days,
+ * Setting numbers/selects) are WP default: no custom height or
+ * radius here, WP core supplies the sizing. */
 
 .kk-gold-page input[type="checkbox"],
 .kk-gold-page input[type="radio"] {
