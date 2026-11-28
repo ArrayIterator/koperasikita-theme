@@ -8,7 +8,7 @@ namespace KoperasiKita\Features;
  * Agenda custom post type with the contributor review workflow.
  *
  * An agenda item is a dated cooperative event: it always carries a start
- * date and time, an optional end time on the same day, and a location.
+ * date and time, an optional end date and time (multi-day), and a location.
  * The post type uses the standard `post` capability type with mapped meta
  * capabilities, so the WordPress roles already mean the right thing:
  * contributors can create and edit their own agenda items but cannot
@@ -991,30 +991,140 @@ final class Agenda
         );
     }
 
+    /**
+     * Whether the site time format is 12-hour (carries an AM/PM
+     * marker). The Publish-panel time row shows an AM/PM toggle for
+     * a 12-hour format and a plain 24-hour hour field otherwise.
+     */
+    private static function is12HourTimeFormat(): bool
+    {
+        $format = (string) get_option('time_format', '');
+
+        return str_contains($format, 'a') || str_contains($format, 'A');
+    }
+
+    /**
+     * Split a stored 24-hour HH:MM time into the display parts the
+     * Publish-panel time row needs: the hour as shown (1-12 with
+     * AM/PM for a 12-hour format, 00-23 otherwise), the minute, and
+     * the meridiem (null for a 24-hour format).
+     *
+     * @return array{hour: string, minute: string, ampm: string|null}
+     */
+    private static function splitTimeForDisplay(string $time24, bool $is12Hour): array
+    {
+        if (!preg_match('/^(\d{2}):(\d{2})$/', $time24, $m)) {
+            return ['hour' => '', 'minute' => '', 'ampm' => $is12Hour ? 'AM' : null];
+        }
+
+        $hour = (int) $m[1];
+        $minute = $m[2];
+
+        if (!$is12Hour) {
+            return ['hour' => sprintf('%02d', $hour), 'minute' => $minute, 'ampm' => null];
+        }
+
+        $ampm = $hour < 12 ? 'AM' : 'PM';
+        $hour12 = $hour % 12;
+
+        if ($hour12 === 0) {
+            $hour12 = 12;
+        }
+
+        return ['hour' => (string) $hour12, 'minute' => $minute, 'ampm' => $ampm];
+    }
+
+    /**
+     * The linked label text for one datetime group: the stored date
+     * and time in the site's date/time formats ("6 Desember 2026,
+     * 9:00 am"), or the pick-a-date placeholder when nothing is
+     * stored yet.
+     */
+    private static function datetimeLinkText(string $dateIso, string $time24): string
+    {
+        if ($dateIso === '' && $time24 === '') {
+            return __('Pick a date and time', 'koperasikita');
+        }
+
+        $when = $dateIso !== ''
+            ? $dateIso . ' ' . ($time24 !== '' ? $time24 : '00:00')
+            : gmdate('Y-m-d') . ' ' . $time24;
+        $parsed = date_create_immutable_from_format('Y-m-d H:i', $when, wp_timezone());
+
+        if ($parsed === false) {
+            return __('Pick a date and time', 'koperasikita');
+        }
+
+        $ts = (int) $parsed->getTimestamp();
+
+        if ($dateIso !== '' && $time24 !== '') {
+            return wp_date(get_option('date_format') . ', ' . get_option('time_format'), $ts);
+        }
+
+        if ($dateIso !== '') {
+            return wp_date((string) get_option('date_format'), $ts);
+        }
+
+        return wp_date((string) get_option('time_format'), $ts);
+    }
+
+    /**
+     * One datetime group (Dimulai / Selesai): the stored value as a
+     * link (Publish-panel pattern - clicking it opens the picker)
+     * and the picker panel itself: an inline WP datepicker calendar
+     * plus the Publish-panel hour/minute + AM/PM time row. The
+     * picked values are carried by hidden inputs in the exact shapes
+     * saveMetaBox reads, so the save path is untouched.
+     */
+    private static function renderDatetimeField(string $kind, string $label, string $dateIso, string $time24, bool $is12Hour): void
+    {
+        $dateName = $kind === 'end' ? 'kk_agenda_end_date' : 'kk_agenda_date';
+        $dateId = $kind === 'end' ? 'kk-agenda-end-date' : 'kk-agenda-date';
+        $timeName = $kind === 'end' ? 'kk_agenda_end_time' : 'kk_agenda_start_time';
+        $timeId = $kind === 'end' ? 'kk-agenda-end-time' : 'kk-agenda-start-time';
+        $time = self::splitTimeForDisplay($time24, $is12Hour);
+        ?>
+        <div class="kk-agenda-datetime" data-kk-agenda-datetime="<?php echo esc_attr($kind); ?>">
+            <p>
+                <strong><?php echo esc_html($label); ?></strong><br>
+                <a href="#" class="kk-agenda-datetime-link" data-kk-agenda-datetime-link aria-expanded="false" data-kk-agenda-datetime-empty="<?php esc_attr_e('Pick a date and time', 'koperasikita'); ?>"><?php echo esc_html(self::datetimeLinkText($dateIso, $time24)); ?></a>
+            </p>
+            <div class="kk-agenda-datetime-picker" data-kk-agenda-datetime-picker hidden>
+                <div class="kk-agenda-datetime-calendar" data-kk-agenda-datetime-calendar></div>
+                <div class="kk-agenda-time" data-kk-agenda-time>
+                    <input type="text" inputmode="numeric" pattern="[0-9]*" maxlength="2" size="2" value="<?php echo esc_attr($time['hour']); ?>" aria-label="<?php esc_attr_e('Hour', 'koperasikita'); ?>" data-kk-agenda-time-hour>
+                    <span class="kk-agenda-time-separator" aria-hidden="true">:</span>
+                    <input type="text" inputmode="numeric" pattern="[0-9]*" maxlength="2" size="2" value="<?php echo esc_attr($time['minute']); ?>" aria-label="<?php esc_attr_e('Minute', 'koperasikita'); ?>" data-kk-agenda-time-minute>
+                    <?php if ($is12Hour) : ?>
+                        <span class="kk-agenda-time-ampm" data-kk-agenda-time-ampm>
+                            <button type="button" class="kk-agenda-time-ampm-button" aria-pressed="<?php echo $time['ampm'] === 'AM' ? 'true' : 'false'; ?>" data-kk-agenda-time-am>AM</button>
+                            <button type="button" class="kk-agenda-time-ampm-button" aria-pressed="<?php echo $time['ampm'] === 'PM' ? 'true' : 'false'; ?>" data-kk-agenda-time-pm>PM</button>
+                        </span>
+                    <?php endif; ?>
+                    <input type="hidden" id="<?php echo esc_attr($timeId); ?>" name="<?php echo esc_attr($timeName); ?>" value="<?php echo esc_attr($time24); ?>" data-kk-agenda-time-value>
+                </div>
+            </div>
+            <input type="hidden" id="<?php echo esc_attr($dateId); ?>" name="<?php echo esc_attr($dateName); ?>" value="<?php echo esc_attr($dateIso); ?>" data-kk-agenda-datetime-date-value>
+        </div>
+        <?php
+    }
+
     public static function renderMetaBox(\WP_Post $post): void
     {
         $meta = self::getMeta($post->ID);
         $date = $meta['start'] !== '' ? substr($meta['start'], 0, 10) : '';
         $startTime = $meta['start'] !== '' ? substr($meta['start'], 11, 5) : '';
+        $endDate = $meta['end'] !== '' ? substr($meta['end'], 0, 10) : '';
         $endTime = $meta['end'] !== '' ? substr($meta['end'], 11, 5) : '';
         $hasPin = $meta['lat'] !== null && $meta['lng'] !== null;
+        $is12Hour = self::is12HourTimeFormat();
 
         wp_nonce_field('kk_agenda_meta_box', 'kk_agenda_meta_nonce');
+        self::renderDatetimeField('start', __('Start:', 'koperasikita'), $date, $startTime, $is12Hour);
+        self::renderDatetimeField('end', __('End:', 'koperasikita'), $endDate, $endTime, $is12Hour);
         ?>
-        <p>
-            <label for="kk-agenda-date"><strong><?php esc_html_e('Date', 'koperasikita'); ?></strong></label><br>
-            <input type="date" id="kk-agenda-date" name="kk_agenda_date" value="<?php echo esc_attr($date); ?>" style="width: 100%;">
-        </p>
-        <p>
-            <label for="kk-agenda-start-time"><strong><?php esc_html_e('Start time', 'koperasikita'); ?></strong></label><br>
-            <input type="time" id="kk-agenda-start-time" name="kk_agenda_start_time" value="<?php echo esc_attr($startTime); ?>" style="width: 100%;">
-        </p>
-        <p>
-            <label for="kk-agenda-end-time"><strong><?php esc_html_e('End time (optional)', 'koperasikita'); ?></strong></label><br>
-            <input type="time" id="kk-agenda-end-time" name="kk_agenda_end_time" value="<?php echo esc_attr($endTime); ?>" style="width: 100%;">
-        </p>
         <div class="kk-agenda-location-field">
-            <label for="kk-agenda-location"><strong><?php esc_html_e('Location', 'koperasikita'); ?></strong></label>
+            <label for="kk-agenda-location"><strong><?php esc_html_e('Location:', 'koperasikita'); ?></strong></label>
             <input
                 type="text"
                 id="kk-agenda-location"
@@ -1078,6 +1188,7 @@ final class Agenda
 
         $date = isset($_POST['kk_agenda_date']) ? sanitize_text_field(wp_unslash($_POST['kk_agenda_date'])) : '';
         $startTime = isset($_POST['kk_agenda_start_time']) ? sanitize_text_field(wp_unslash($_POST['kk_agenda_start_time'])) : '';
+        $endDate = isset($_POST['kk_agenda_end_date']) ? sanitize_text_field(wp_unslash($_POST['kk_agenda_end_date'])) : '';
         $endTime = isset($_POST['kk_agenda_end_time']) ? sanitize_text_field(wp_unslash($_POST['kk_agenda_end_time'])) : '';
         $location = isset($_POST['kk_agenda_location']) ? sanitize_text_field(wp_unslash($_POST['kk_agenda_location'])) : '';
         $lat = isset($_POST['kk_agenda_lat']) ? self::sanitizeLatitude(wp_unslash($_POST['kk_agenda_lat'])) : null;
@@ -1088,12 +1199,16 @@ final class Agenda
 
         // Only overwrite the stored details when the editor actually sent
         // the box: a quick edit or a revision save must not wipe them.
-        if ($date === '' && $startTime === '' && $endTime === '' && $location === '' && $lat === null && $lng === null && $locationDesc === '') {
+        if ($date === '' && $startTime === '' && $endDate === '' && $endTime === '' && $location === '' && $lat === null && $lng === null && $locationDesc === '') {
             return;
         }
 
         $start = ($date !== '' && $startTime !== '') ? $date . ' ' . $startTime : '';
-        $end = ($date !== '' && $endTime !== '') ? $date . ' ' . $endTime : '';
+        // Multi-day events carry their own end date; an empty end date
+        // falls back to the start date, so a same-day event saves
+        // exactly as before.
+        $endDay = $endDate !== '' ? $endDate : $date;
+        $end = ($endDay !== '' && $endTime !== '') ? $endDay . ' ' . $endTime : '';
 
         self::saveMeta($postId, $start, $end, $location, $lat, $lng, $locationDesc);
 

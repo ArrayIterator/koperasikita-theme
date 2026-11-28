@@ -6622,3 +6622,32 @@ msgstr "Mengimpor pelanggan dari MailPoet ke daftar ini."
 
 msgid "Closing this popup reloads the page so the subscriber list and the pending count show the synced addresses."
 msgstr "Menutup popup ini memuat ulang halaman agar daftar pelanggan dan jumlah tertunda menampilkan alamat yang sudah disinkronkan."
+#: inc/Features/Agenda.php
+
+msgid "Start:"
+msgstr "Dimulai:"
+
+#: inc/Features/Agenda.php
+
+msgid "End:"
+msgstr "Selesai:"
+
+#: inc/Features/Agenda.php
+
+msgid "Location:"
+msgstr "Lokasi:"
+
+#: inc/Features/Agenda.php
+
+msgid "Pick a date and time"
+msgstr "Pilih tanggal dan waktu"
+
+#: inc/Features/Agenda.php
+
+msgid "Hour"
+msgstr "Jam"
+
+#: inc/Features/Agenda.php
+
+msgid "Minute"
+msgstr "Menit"

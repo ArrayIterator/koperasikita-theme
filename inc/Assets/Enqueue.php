@@ -715,6 +715,16 @@ final class Enqueue
                 $agendaJs = ViteLoader::js('src/ts/agenda.ts');
 
                 if ($agendaJs !== '') {
+                    /* The Event Details date pickers are WordPress
+                     * core's jQuery UI Datepicker: core localises it
+                     * (Indonesian month/day names, the site's date
+                     * format, first day of week) through
+                     * wp_localize_jquery_ui_datepicker, so the
+                     * calendar needs no locale data of its own. Its
+                     * theme CSS is not in core - the agenda bundle
+                     * carries the WP-admin-styled calendar rules. */
+                    wp_enqueue_script('jquery-ui-datepicker');
+
                     wp_enqueue_script('kk-agenda', $agendaJs, [], KK_VERSION, true);
 
                     // The inline location search (Event Details box,

@@ -21,6 +21,13 @@ $endTs = \KoperasiKita\Features\Agenda::eventTimestamp($meta['end']);
 // the timezone offset (legacy quirk), so a true Unix timestamp renders
 // shifted by the offset. wp_date takes a true timestamp.
 $dateLabel = $startTs > 0 ? wp_date($dateFormat, $startTs) : '';
+$endDateLabel = $endTs > 0 ? wp_date($dateFormat, $endTs) : '';
+// A multi-day event ends on a different date than it starts: show
+// the date range instead of the start date alone. A same-day event
+// keeps the single date, exactly as before.
+$startDate = $meta['start'] !== '' ? substr($meta['start'], 0, 10) : '';
+$endDate = $meta['end'] !== '' ? substr($meta['end'], 0, 10) : '';
+$isMultiDay = $dateLabel !== '' && $endDateLabel !== '' && $endDate !== '' && $endDate !== $startDate;
 $startLabel = $startTs > 0 ? wp_date('H.i', $startTs) : '';
 $endLabel = $endTs > 0 ? wp_date('H.i', $endTs) : '';
 // Event times are WIB wall-clock times: 24-hour with a dot, and the
@@ -38,7 +45,7 @@ if ($timeLabel !== '') {
     <?php if ($dateLabel !== '') : ?>
         <div class="kk-agenda-meta-row">
             <dt><?php esc_html_e('Date', 'koperasikita'); ?></dt>
-            <dd><time datetime="<?php echo esc_attr(substr($meta['start'], 0, 10)); ?>"><?php echo esc_html($dateLabel); ?></time></dd>
+            <dd><time datetime="<?php echo esc_attr($startDate); ?>"><?php echo esc_html($dateLabel); ?></time><?php if ($isMultiDay) : ?> &ndash; <time datetime="<?php echo esc_attr($endDate); ?>"><?php echo esc_html($endDateLabel); ?></time><?php endif; ?></dd>
         </div>
     <?php endif; ?>
 

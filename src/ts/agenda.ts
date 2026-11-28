@@ -165,6 +165,357 @@ function initAgenda(): void {
 	$all<HTMLFormElement>('[data-kk-agenda-form]').forEach((form) => initAgendaForm(form));
 }
 
+declare global {
+	interface Window {
+		jQuery?: JQueryStatic;
+	}
+}
+
+/* WordPress core's jQuery UI Datepicker, not bundled: only the
+ * calls this file makes are typed. */
+interface AgendaDatepickerOptions {
+	minDate?: Date | null;
+	onSelect?: () => void;
+}
+
+interface AgendaDatepickerHandle {
+	(options: AgendaDatepickerOptions): void;
+	(method: 'option', option: string, value: unknown): void;
+	(method: 'option', option: 'dateFormat'): string;
+	(method: 'setDate', date: Date): void;
+	(method: 'getDate'): Date | null;
+}
+
+interface AgendaDatepickerStatic {
+	parseDate(format: string, value: string): Date;
+	formatDate(format: string, date: Date): string;
+}
+
+interface JQueryWithDatepicker extends JQuery {
+	datepicker: AgendaDatepickerHandle;
+}
+
+interface AgendaDatetimeGroup {
+	kind: string;
+	link: HTMLAnchorElement;
+	panel: HTMLElement;
+	dateValue: HTMLInputElement;
+	timeValue: HTMLInputElement;
+	calendar: HTMLElement | null;
+	datepicker: JQueryWithDatepicker | null;
+	is12h: boolean;
+}
+
+function closeAllDateTimePanels(box: HTMLElement): void {
+	$all<HTMLElement>('[data-kk-agenda-datetime-picker]', box).forEach((panel) => {
+		panel.hidden = true;
+	});
+	$all<HTMLAnchorElement>('[data-kk-agenda-datetime-link]', box).forEach((link) => {
+		link.setAttribute('aria-expanded', 'false');
+	});
+}
+
+/* The time part of a linked datetime label, in the site's time
+ * format: "9:00 am" for a 12-hour format, "09:00" otherwise. */
+function formatTimeForDisplay(time24: string, is12h: boolean): string {
+	const match = /^(\d{2}):(\d{2})$/.exec(time24);
+	if (!match) {
+		return '';
+	}
+	const hour = parseInt(match[1], 10);
+	const minute = match[2];
+	if (!is12h) {
+		return `${String(hour).padStart(2, '0')}:${minute}`;
+	}
+	const ampm = hour < 12 ? 'am' : 'pm';
+	let hour12 = hour % 12;
+	if (hour12 === 0) {
+		hour12 = 12;
+	}
+	return `${hour12}:${minute} ${ampm}`;
+}
+
+/* A Date as an ISO calendar date (yyyy-mm-dd), the format the hidden
+ * inputs and saveMetaBox use. */
+function toISODate(date: Date): string {
+	const month = String(date.getMonth() + 1).padStart(2, '0');
+	const day = String(date.getDate()).padStart(2, '0');
+	return `${date.getFullYear()}-${month}-${day}`;
+}
+
+/* Event Details date/time pickers (admin meta box only). Each
+ * datetime group (Dimulai / Selesai) shows its value as a link;
+ * clicking the link opens a panel with the WordPress built-in
+ * datepicker calendar (inline, core-localised) and the
+ * Publish-panel hour/minute + AM/PM time row. The picked values
+ * land in the hidden inputs saveMetaBox reads, and the link text
+ * follows the site's date/time formats. Scoped to
+ * #kk-agenda-details so the contributor form keeps its native
+ * date/time inputs. */
+function initAgendaDateTimePickers(): void {
+	const box = document.getElementById('kk-agenda-details');
+	if (!box) {
+		return;
+	}
+	const groups = $all<HTMLElement>('[data-kk-agenda-datetime]', box);
+	if (groups.length === 0) {
+		return;
+	}
+	const jq = window.jQuery;
+	const datepickerStatic = jq
+		? (jq as unknown as { datepicker?: AgendaDatepickerStatic }).datepicker ?? null
+		: null;
+	const hasDatepicker = !!jq
+		&& typeof (jq.fn as unknown as Record<string, unknown>).datepicker === 'function'
+		&& datepickerStatic !== null
+		&& typeof datepickerStatic.parseDate === 'function'
+		&& typeof datepickerStatic.formatDate === 'function';
+
+	const states: AgendaDatetimeGroup[] = [];
+
+	const updateLink = (state: AgendaDatetimeGroup): void => {
+		const empty = state.link.dataset.kkAgendaDatetimeEmpty ?? '';
+		const dateIso = state.dateValue.value;
+		const time24 = state.timeValue.value;
+		if (dateIso === '' && time24 === '') {
+			state.link.textContent = empty;
+			return;
+		}
+		let text = '';
+		if (dateIso !== '') {
+			if (datepickerStatic && state.datepicker) {
+				try {
+					const date = datepickerStatic.parseDate('yy-mm-dd', dateIso);
+					const format = state.datepicker.datepicker('option', 'dateFormat');
+					text = datepickerStatic.formatDate(format, date);
+				} catch {
+					text = dateIso;
+				}
+			} else {
+				text = dateIso;
+			}
+		}
+		if (time24 !== '') {
+			const timeText = formatTimeForDisplay(time24, state.is12h);
+			text = text === '' ? timeText : `${text}, ${timeText}`;
+		}
+		state.link.textContent = text;
+	};
+
+	/* The end date cannot precede the start date: the end
+	 * calendar's earliest day follows the picked start date. */
+	const syncEndMinDate = (): void => {
+		const start = states.find((s) => s.kind === 'start');
+		const end = states.find((s) => s.kind === 'end');
+		if (!start || !end || !end.datepicker || !datepickerStatic) {
+			return;
+		}
+		if (start.dateValue.value === '') {
+			end.datepicker.datepicker('option', 'minDate', null);
+			return;
+		}
+		try {
+			end.datepicker.datepicker('option', 'minDate', datepickerStatic.parseDate('yy-mm-dd', start.dateValue.value));
+		} catch {
+			/* A malformed start date leaves the end calendar unrestricted. */
+		}
+	};
+
+	const initCalendar = (state: AgendaDatetimeGroup): void => {
+		if (!state.calendar) {
+			return;
+		}
+		if (!hasDatepicker || !jq || !datepickerStatic) {
+			/* Core's datepicker is unavailable: a native date input
+			 * keeps the date changeable instead of a dead panel. */
+			const fallback = document.createElement('input');
+			fallback.type = 'date';
+			fallback.value = state.dateValue.value;
+			fallback.addEventListener('change', () => {
+				state.dateValue.value = fallback.value;
+				syncEndMinDate();
+				updateLink(state);
+			});
+			state.calendar.appendChild(fallback);
+			return;
+		}
+		const cal = jq(state.calendar) as JQueryWithDatepicker;
+		state.datepicker = cal;
+		/* No alternate field: the datepicker rewrites its alternate
+		 * field on init, on every re-render and on every option
+		 * change (minDate included), which clobbered the
+		 * server-rendered value with today. The picked date is
+		 * written into the hidden input explicitly, in onSelect
+		 * only. */
+		cal.datepicker({
+			onSelect: () => {
+				const picked = cal.datepicker('getDate');
+				if (picked !== null) {
+					state.dateValue.value = toISODate(picked);
+				}
+				syncEndMinDate();
+				updateLink(state);
+			},
+		});
+		if (state.dateValue.value !== '') {
+			try {
+				cal.datepicker('setDate', datepickerStatic.parseDate('yy-mm-dd', state.dateValue.value));
+			} catch {
+				/* The rendered link text stays: the hidden value is untouched. */
+			}
+		}
+	};
+
+	const initTimeRow = (state: AgendaDatetimeGroup): void => {
+		const row = state.panel.querySelector<HTMLElement>('[data-kk-agenda-time]');
+		if (!row) {
+			return;
+		}
+		const hour = row.querySelector<HTMLInputElement>('[data-kk-agenda-time-hour]');
+		const minute = row.querySelector<HTMLInputElement>('[data-kk-agenda-time-minute]');
+		if (!hour || !minute) {
+			return;
+		}
+		const ampm = row.querySelector<HTMLElement>('[data-kk-agenda-time-ampm]');
+		const amBtn = row.querySelector<HTMLButtonElement>('[data-kk-agenda-time-am]');
+		const pmBtn = row.querySelector<HTMLButtonElement>('[data-kk-agenda-time-pm]');
+		const is12h = ampm !== null;
+		state.is12h = is12h;
+
+		const clamp = (input: HTMLInputElement, min: number, max: number, pad: boolean): void => {
+			if (input.value === '') {
+				return;
+			}
+			const n = parseInt(input.value, 10);
+			if (Number.isNaN(n)) {
+				input.value = '';
+				return;
+			}
+			const clamped = Math.min(Math.max(n, min), max);
+			input.value = pad ? String(clamped).padStart(2, '0') : String(clamped);
+		};
+
+		const sync = (): void => {
+			const h = parseInt(hour.value, 10);
+			const m = parseInt(minute.value, 10);
+			if (hour.value === '' || minute.value === '' || Number.isNaN(h) || Number.isNaN(m)) {
+				state.timeValue.value = '';
+				updateLink(state);
+				return;
+			}
+			if (is12h && (h < 1 || h > 12)) {
+				return;
+			}
+			if (!is12h && (h < 0 || h > 23)) {
+				return;
+			}
+			if (m < 0 || m > 59) {
+				return;
+			}
+			let hh = h;
+			if (is12h) {
+				const isPm = pmBtn?.getAttribute('aria-pressed') === 'true';
+				hh = (h % 12) + (isPm ? 12 : 0);
+			}
+			state.timeValue.value = `${String(hh).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
+			updateLink(state);
+		};
+
+		const setAmpm = (value: 'AM' | 'PM'): void => {
+			amBtn?.setAttribute('aria-pressed', String(value === 'AM'));
+			pmBtn?.setAttribute('aria-pressed', String(value === 'PM'));
+		};
+
+		hour.addEventListener('input', sync);
+		minute.addEventListener('input', sync);
+		hour.addEventListener('change', () => {
+			clamp(hour, is12h ? 1 : 0, is12h ? 12 : 23, !is12h);
+			sync();
+		});
+		minute.addEventListener('change', () => {
+			clamp(minute, 0, 59, true);
+			sync();
+		});
+		amBtn?.addEventListener('click', () => {
+			setAmpm('AM');
+			sync();
+		});
+		pmBtn?.addEventListener('click', () => {
+			setAmpm('PM');
+			sync();
+		});
+	};
+
+	/* With no end date yet, the end calendar opens on the start
+	 * date's month instead of the current month, so the user is
+	 * not left paging forward past disabled days. setDate only
+	 * moves the calendar here: with no alternate field it writes
+	 * nothing into the hidden end input. */
+	const followStartMonth = (state: AgendaDatetimeGroup): void => {
+		if (state.kind !== 'end' || state.dateValue.value !== '' || !state.datepicker || !datepickerStatic) {
+			return;
+		}
+		const start = states.find((s) => s.kind === 'start');
+		if (!start || start.dateValue.value === '') {
+			return;
+		}
+		try {
+			state.datepicker.datepicker('setDate', datepickerStatic.parseDate('yy-mm-dd', start.dateValue.value));
+		} catch {
+			/* The calendar stays on the current month. */
+		}
+	};
+
+	groups.forEach((group) => {
+		const link = group.querySelector<HTMLAnchorElement>('[data-kk-agenda-datetime-link]');
+		const panel = group.querySelector<HTMLElement>('[data-kk-agenda-datetime-picker]');
+		const dateValue = group.querySelector<HTMLInputElement>('[data-kk-agenda-datetime-date-value]');
+		const timeValue = group.querySelector<HTMLInputElement>('[data-kk-agenda-time-value]');
+		const calendar = group.querySelector<HTMLElement>('[data-kk-agenda-datetime-calendar]');
+		if (!link || !panel || !dateValue || !timeValue) {
+			return;
+		}
+		const state: AgendaDatetimeGroup = {
+			kind: group.dataset.kkAgendaDatetime ?? '',
+			link,
+			panel,
+			dateValue,
+			timeValue,
+			calendar,
+			datepicker: null,
+			is12h: false,
+		};
+		states.push(state);
+		link.addEventListener('click', (event) => {
+			event.preventDefault();
+			const willOpen = panel.hidden;
+			closeAllDateTimePanels(box);
+			panel.hidden = !willOpen;
+			link.setAttribute('aria-expanded', String(willOpen));
+			if (willOpen) {
+				followStartMonth(state);
+			}
+		});
+		initCalendar(state);
+		initTimeRow(state);
+	});
+
+	syncEndMinDate();
+
+	document.addEventListener('click', (event) => {
+		const target = event.target;
+		if (target instanceof Element && target.closest('[data-kk-agenda-datetime]')) {
+			return;
+		}
+		closeAllDateTimePanels(box);
+	});
+	document.addEventListener('keydown', (event) => {
+		if (event.key === 'Escape') {
+			closeAllDateTimePanels(box);
+		}
+	});
+}
+
 /* Maps (Leaflet + OpenStreetMap) */
 /* Free and keyless, so no billing account and no API key: the tiles load
  * on demand and the library only loads on agenda pages. The attribution
@@ -691,6 +1042,17 @@ function initPickLocationPopup(): void {
 
 document.addEventListener('DOMContentLoaded', () => {
 	initAgenda();
+	/* Core's datepicker locale (wp_localize_jquery_ui_datepicker)
+	 * lands in a jQuery ready callback, and jQuery 3 ready
+	 * callbacks run after this listener: queue the pickers
+	 * behind it, so the calendar renders with the site's
+	 * month/day names instead of English ones. */
+	const jq = window.jQuery;
+	if (jq) {
+		jq.ready.then(() => initAgendaDateTimePickers());
+	} else {
+		initAgendaDateTimePickers();
+	}
 	$all<HTMLElement>('[data-kk-agenda-map]').forEach((el) => initDisplayMap(el));
 	$all<HTMLElement>('[data-kk-location-preview-map]').forEach((el) => initLocationPreviewMap(el));
 	initPickLocationPopup();
