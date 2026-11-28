@@ -112,11 +112,91 @@ final class GoldPricesTable
     }
 
     /**
+     * One stored row by (provider, symbol, recorded_date), or null
+     * when there is none. The sync's read-before-write: it decides
+     * insert vs update vs fill-missing-buyback from the stored row.
+     *
+     * @return array{provider: string, symbol: string, sell_price: float, buyback_price: float|null, currency: string, recorded_date: string, fetched_at: int}|null
+     */
+    public static function rowForDate(string $provider, string $symbol, string $recordedDate): ?array
+    {
+        global $wpdb;
+
+        $table = self::table();
+
+        if ($wpdb->get_var($wpdb->prepare('SHOW TABLES LIKE %s', $table)) !== $table) {
+            return null;
+        }
+
+        $row = $wpdb->get_row(
+            $wpdb->prepare(
+                "SELECT provider, symbol, sell_price, buyback_price, currency, recorded_date, fetched_at
+                 FROM {$table} WHERE provider = %s AND symbol = %s AND recorded_date = %s LIMIT 1",
+                $provider,
+                $symbol,
+                $recordedDate
+            ),
+            ARRAY_A
+        );
+
+        if (!is_array($row)) {
+            return null;
+        }
+
+        $clean = self::cleanRows([$row]);
+
+        return $clean[0] ?? null;
+    }
+
+    /**
+     * Fill a stored NULL buyback from a value obtained later, for
+     * one (provider, symbol, recorded_date) row. The UPDATE only
+     * touches rows whose buyback is NULL, so a stored buyback is
+     * never overwritten and the sell price is never touched — this
+     * is how a fallback source fills the buyback half of a row
+     * another source wrote (and how a manual re-sync fills a
+     * buyback that was missing when the row was first stored).
+     * Returns 1 when a row was filled, 0 when there was no row or
+     * its buyback was already set.
+     */
+    public static function fillMissingBuyback(
+        string $provider,
+        string $symbol,
+        float $buyback,
+        string $recordedDate
+    ): int {
+        global $wpdb;
+
+        $table = self::table();
+
+        if ($wpdb->get_var($wpdb->prepare('SHOW TABLES LIKE %s', $table)) !== $table) {
+            return 0;
+        }
+
+        $result = $wpdb->query($wpdb->prepare(
+            "UPDATE {$table} SET buyback_price = %f
+             WHERE provider = %s AND symbol = %s AND recorded_date = %s AND buyback_price IS NULL",
+            $buyback,
+            $provider,
+            $symbol,
+            $recordedDate
+        ));
+
+        return $result === false ? 0 : (int) $result;
+    }
+
+    /**
      * Insert one row, or update the row with the same
      * (provider, symbol, recorded_date) when it already exists.
-     * The update rewrites the price and the fetch time; a null
-     * buyback leaves the stored buyback alone, so an update from
-     * a source without buyback data never blanks one. Returns
+     * The update only happens when the price really differs and
+     * the incoming price is not empty: a stored sell is replaced
+     * when the incoming sell differs, a stored buyback is replaced
+     * when the incoming buyback differs, and a stored NULL buyback
+     * is filled when the incoming buyback is present. A null
+     * incoming buyback leaves the stored buyback alone, so an
+     * update from a source without buyback data never blanks one.
+     * When nothing differs, nothing is written — a re-sync of an
+     * unchanged row is a no-op, never an "update". Returns
      * 1 inserted, 2 updated, 0 when the row already held the
      * same values (or the write failed).
      */
@@ -133,6 +213,25 @@ final class GoldPricesTable
 
         if ($inserted > 0) {
             return 1;
+        }
+
+        $existing = self::rowForDate($provider, $symbol, $recordedDate);
+
+        if ($existing === null) {
+            return 0;
+        }
+
+        // Only write when something really differs — and only with
+        // a non-empty incoming price (the caller only ever passes
+        // a positive sell; a zero or negative sell never reaches
+        // here, so it can never replace a stored price).
+        $sellDiffers = $sell > 0 && (float) $existing['sell_price'] !== $sell;
+        $buybackDiffers = $buyback !== null
+            && $buyback > 0
+            && ($existing['buyback_price'] === null || (float) $existing['buyback_price'] !== $buyback);
+
+        if (!$sellDiffers && !$buybackDiffers) {
+            return 0;
         }
 
         global $wpdb;

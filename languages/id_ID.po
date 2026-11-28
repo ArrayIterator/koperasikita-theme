@@ -4092,8 +4092,8 @@ msgstr "Dalam antrean — gagal %1$d×, coba lagi %2$s."
 msgid "Inserted"
 msgstr "Dimasukkan"
 
-msgid "Inserted %1$d, skipped %2$d (already in database)."
-msgstr "Dimasukkan %1$d, dilewati %2$d (sudah ada di database)."
+msgid "Inserted %1$d, updated %2$d, skipped %3$d (already in database)."
+msgstr "Dimasukkan %1$d, diperbarui %2$d, dilewati %3$d (sudah ada di database)."
 
 msgid "Last error"
 msgstr "Kesalahan terakhir"
@@ -4880,9 +4880,8 @@ msgid "Syncing %s…"
 msgstr "Menyinkronkan %s…"
 
 #: inc/Admin/GoldPricesPage.php
-
-msgid "%s: inserted %s, skipped %s"
-msgstr "%s: dimasukkan %s, dilewati %s"
+msgid "%s: inserted %s, updated %s, skipped %s"
+msgstr "%s: dimasukkan %s, diperbarui %s, dilewati %s"
 
 #: inc/Admin/GoldPricesPage.php
 
@@ -4890,9 +4889,8 @@ msgid " (latest %s)"
 msgstr " (terbaru %s)"
 
 #: inc/Admin/GoldPricesPage.php
-
-msgid "Done - inserted %s, skipped %s (already in database)."
-msgstr "Selesai - dimasukkan %s, dilewati %s (sudah ada di database)."
+msgid "Done - inserted %s, updated %s, skipped %s (already in database)."
+msgstr "Selesai - dimasukkan %s, diperbarui %s, dilewati %s (sudah ada di database)."
 
 #: inc/Admin/GoldPricesPage.php
 

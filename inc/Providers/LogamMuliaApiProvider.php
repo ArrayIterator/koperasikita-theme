@@ -40,17 +40,25 @@ use KoperasiKita\Features\Markets;
  *  - The sync runs on WP-Cron and on demand (admin page, AJAX),
  *    ONE SOURCE AT A TIME. Each step fetches one file, checks
  *    every row against the table by (provider, symbol,
- *    recordedDate), and inserts only the rows that are not there
- *    yet (INSERT IGNORE + the UNIQUE key, so a re-run can never
- *    duplicate). Each run imports the most recent N days (the
- *    batch size setting, default 7), oldest first, so a fresh site
- *    gets a week of chart history on its first sync. A coarse
- *    fast-path reads MAX(recordedDate) first and skips a file
- *    whose max date is strictly older than the table's; the
- *    per-row check is the guarantee and heals gaps (a missed day
- *    is picked up next run because that exact date is absent).
- *    Each step commits only its own source's rows, so a request
- *    that dies mid-way leaves no half-synced state.
+ *    recordedDate), and inserts the rows that are not there yet;
+ *    a row that is there is updated when the fetched sell or
+ *    buyback really differs (upsert — only with a price the fetch
+ *    actually obtained and that is not empty), and a fetched
+ *    buyback fills a stored NULL buyback. A re-run of an
+ *    unchanged row writes nothing, so it can never duplicate or
+ *    fake an update. The hargaemas-net step is the Antam
+ *    fallback: it only inserts an Antam row while no row exists
+ *    for that date and otherwise only fills a missing buyback, so
+ *    it never overwrites the galeri24 step's Antam sell. Each
+ *    run imports the most recent N days (the batch size setting,
+ *    default 7), oldest first, so a fresh site gets a week of
+ *    chart history on its first sync. A coarse fast-path reads
+ *    MAX(recordedDate) first and skips a file whose max date is
+ *    strictly older than the table's; the per-row check is the
+ *    guarantee and heals gaps (a missed day is picked up next
+ *    run because that exact date is absent). Each step commits
+ *    only its own source's rows, so a request that dies mid-way
+ *    leaves no half-synced state.
  *  - Every fetched price is stored in the kk_gold_prices custom
  *    table (GoldPricesTable), which is also the last-good fallback
  *    when the upstream is unreachable - so the widget keeps showing
@@ -247,14 +255,33 @@ final class LogamMuliaApiProvider extends AbstractLiveProvider
 
     /**
      * Sync ONE source (one step). Fetches that source's CSV, keeps
-     * the most recent N dates (the batch size setting), and inserts
-     * only the rows whose (provider, symbol, recorded_date) is not
-     * in the table yet. Returns the step result (inserted vs
+     * the most recent N dates (the batch size setting), and writes
+     * every row whose (provider, symbol, recorded_date) is new or
+     * changed. Returns the step result (inserted vs updated vs
      * skipped, latest date, error). A failed fetch inserts nothing
      * and records the failure in the backlog (never a tight retry
      * loop); a successful fetch clears the source's backlog entry.
      *
-     * @return array{source: string, inserted: int, skipped: int, latest_date: string|null, error: string|null, deferred: bool}
+     * The write rule (manual and automatic alike — a re-sync must
+     * never silently skip a real change): a row that is not in the
+     * table yet is inserted; a row whose stored sell or buyback
+     * differs from the fetched one is replaced/updated — but only
+     * with a price the fetch actually obtained and that is not
+     * empty, never with an empty value. A fetched buyback fills a
+     * stored NULL buyback even when the row already exists.
+     *
+     * One exception keeps the Antam primary/fallback honest: the
+     * galeri24.csv ANTAM section is the primary Antam source and
+     * hargaemas-net.csv is its fallback (see the class docblock).
+     * Both files write rows under this same provider id, so a
+     * fallback row must never overwrite the primary's sell: the
+     * hargaemas-net step only inserts an Antam row while no row
+     * exists yet for that date — when one does, it only fills a
+     * stored NULL buyback. The galeri24 step owns the Antam sell
+     * whenever its file has a positive Antam row for the date, so
+     * a re-enabled primary takes the row back.
+     *
+     * @return array{source: string, inserted: int, updated: int, skipped: int, latest_date: string|null, error: string|null, deferred: bool}
      */
     public function syncSource(string $source): array
     {
@@ -264,6 +291,7 @@ final class LogamMuliaApiProvider extends AbstractLiveProvider
             return [
                 'source' => $source,
                 'inserted' => 0,
+                'updated' => 0,
                 'skipped' => 0,
                 'latest_date' => null,
                 'error' => __('Unknown source.', 'koperasikita'),
@@ -275,6 +303,7 @@ final class LogamMuliaApiProvider extends AbstractLiveProvider
         $result = [
             'source' => $source,
             'inserted' => 0,
+            'updated' => 0,
             'skipped' => 0,
             'latest_date' => null,
             'error' => null,
@@ -330,11 +359,17 @@ final class LogamMuliaApiProvider extends AbstractLiveProvider
             return $result;
         }
 
-        // Per-row check-then-insert, oldest date first: only rows
-        // whose exact (provider, symbol, recorded_date) is absent
-        // are inserted. INSERT IGNORE + the UNIQUE key make a
-        // re-run idempotent.
+        // Per-row write, oldest date first. A row whose exact
+        // (provider, symbol, recorded_date) is absent is inserted;
+        // a row that is present is updated when the fetched sell
+        // or buyback really differs — a manual re-sync applies
+        // those updates instead of skipping them, and a fetched
+        // buyback fills a stored NULL buyback. An empty fetched
+        // price never reaches here (fetchSource only yields rows
+        // with a positive sell), so an empty value can never
+        // replace a stored price.
         $inserted = 0;
+        $updated = 0;
         $skipped = 0;
 
         foreach ($byDate as $entries) {
@@ -345,20 +380,61 @@ final class LogamMuliaApiProvider extends AbstractLiveProvider
                     continue;
                 }
 
-                $n = GoldPricesTable::insertIgnore(
+                $buyback = isset($entry['buyback']) && is_numeric($entry['buyback'])
+                    ? (float) $entry['buyback']
+                    : null;
+
+                if ($source === 'hargaemas-net') {
+                    // Antam fallback: only insert while no row
+                    // exists yet for that date — the primary's sell
+                    // is never overwritten. When the row is already
+                    // there, only a stored NULL buyback is filled
+                    // from the fetched buyback (the alternative
+                    // source filling the missing half).
+                    $n = GoldPricesTable::insertIgnore(
+                        $this->id(),
+                        $symbol,
+                        (float) $entry['price'],
+                        $buyback,
+                        'IDR',
+                        $date,
+                        (int) ($entry['updated'] ?? $now)
+                    );
+
+                    if ($n > 0) {
+                        $inserted++;
+                        continue;
+                    }
+
+                    if ($buyback !== null && $buyback > 0) {
+                        $filled = GoldPricesTable::fillMissingBuyback($this->id(), $symbol, $buyback, $date);
+                        if ($filled > 0) {
+                            $updated++;
+                            continue;
+                        }
+                    }
+
+                    $skipped++;
+                    continue;
+                }
+
+                // Owning source (galeri24 / pegadaian): insert when
+                // empty, replace/update when the fetched price
+                // differs or the stored buyback is missing.
+                $written = GoldPricesTable::upsert(
                     $this->id(),
                     $symbol,
                     (float) $entry['price'],
-                    isset($entry['buyback']) && is_numeric($entry['buyback'])
-                        ? (float) $entry['buyback']
-                        : null,
+                    $buyback,
                     'IDR',
                     $date,
                     (int) ($entry['updated'] ?? $now)
                 );
 
-                if ($n > 0) {
+                if ($written === 1) {
                     $inserted++;
+                } elseif ($written === 2) {
+                    $updated++;
                 } else {
                     $skipped++;
                 }
@@ -366,11 +442,12 @@ final class LogamMuliaApiProvider extends AbstractLiveProvider
         }
 
         $result['inserted'] = $inserted;
+        $result['updated'] = $updated;
         $result['skipped'] = $skipped;
 
-        // New rows landed: drop the transient so the next read
-        // picks the fresh prices up from the table.
-        if ($inserted > 0) {
+        // New or changed rows landed: drop the transient so the
+        // next read picks the fresh prices up from the table.
+        if ($inserted > 0 || $updated > 0) {
             delete_transient($this->transientKey());
         }
 
@@ -390,12 +467,12 @@ final class LogamMuliaApiProvider extends AbstractLiveProvider
      * Manual sync calls syncSource() directly and bypasses the
      * backoff.
      *
-     * @return array{inserted: int, skipped: int, sources: array<string, array{source: string, inserted: int, skipped: int, latest_date: string|null, error: string|null, deferred: bool}>, official: array{inserted: int, updated: int, skipped: int, brands: array<string, array{provider: string, outcome: string}>}}
+     * @return array{inserted: int, updated: int, skipped: int, sources: array<string, array{source: string, inserted: int, updated: int, skipped: int, latest_date: string|null, error: string|null, deferred: bool}>, official: array{inserted: int, updated: int, skipped: int, brands: array<string, array{provider: string, outcome: string}>}}
      */
     public function syncAll(): array
     {
         $now = time();
-        $total = ['inserted' => 0, 'skipped' => 0, 'sources' => []];
+        $total = ['inserted' => 0, 'updated' => 0, 'skipped' => 0, 'sources' => []];
         $enabled = self::enabledSyncSources();
 
         foreach ($enabled as $source) {
@@ -407,6 +484,7 @@ final class LogamMuliaApiProvider extends AbstractLiveProvider
                 $total['sources'][$source] = [
                     'source' => $source,
                     'inserted' => 0,
+                    'updated' => 0,
                     'skipped' => 0,
                     'latest_date' => null,
                     'error' => null,
@@ -418,6 +496,7 @@ final class LogamMuliaApiProvider extends AbstractLiveProvider
             $step = $this->syncSource($source);
             $total['sources'][$source] = $step;
             $total['inserted'] += (int) $step['inserted'];
+            $total['updated'] += (int) $step['updated'];
             $total['skipped'] += (int) $step['skipped'];
         }
 
@@ -434,7 +513,7 @@ final class LogamMuliaApiProvider extends AbstractLiveProvider
      * failure backlog (failures, last error, next retry) and
      * whether a source is deprioritised to lowest priority.
      *
-     * @return array{synced_at: int|null, latest_date: string|null, symbols: array<int, string>, inserted: int, skipped: int, error: string|null, sources: array<string, array{synced_at: int|null, inserted: int, skipped: int, latest_date: string|null, error: string|null, failures: int, next_retry: int|null, deprioritised: bool}>, backlog: array<string, array{failures: int, last_error: string|null, last_attempt: int|null, next_retry: int|null, deprioritised: bool}>}
+     * @return array{synced_at: int|null, latest_date: string|null, symbols: array<int, string>, inserted: int, updated: int, skipped: int, error: string|null, sources: array<string, array{synced_at: int|null, inserted: int, updated: int, skipped: int, latest_date: string|null, error: string|null, failures: int, next_retry: int|null, deprioritised: bool}>, backlog: array<string, array{failures: int, last_error: string|null, last_attempt: int|null, next_retry: int|null, deprioritised: bool}>}
      */
     public static function status(): array
     {
@@ -466,6 +545,7 @@ final class LogamMuliaApiProvider extends AbstractLiveProvider
             $sources[$source] = [
                 'synced_at' => isset($s['synced_at']) ? (int) $s['synced_at'] : null,
                 'inserted' => isset($s['inserted']) ? (int) $s['inserted'] : 0,
+                'updated' => isset($s['updated']) ? (int) $s['updated'] : 0,
                 'skipped' => isset($s['skipped']) ? (int) $s['skipped'] : 0,
                 'latest_date' => isset($s['latest_date']) && is_string($s['latest_date']) ? $s['latest_date'] : null,
                 'error' => isset($s['error']) && is_string($s['error']) ? $s['error'] : null,
@@ -503,6 +583,7 @@ final class LogamMuliaApiProvider extends AbstractLiveProvider
             'latest_date' => $latestDate,
             'symbols' => array_keys($last),
             'inserted' => isset($stored['inserted']) ? (int) $stored['inserted'] : 0,
+            'updated' => isset($stored['updated']) ? (int) $stored['updated'] : 0,
             'skipped' => isset($stored['skipped']) ? (int) $stored['skipped'] : 0,
             'error' => $error,
             'sources' => $sources,
@@ -516,7 +597,7 @@ final class LogamMuliaApiProvider extends AbstractLiveProvider
      * table-derived parts (latest date, symbols) are read live by
      * status(), so they are never stale here.
      *
-     * @param array{source: string, inserted: int, skipped: int, latest_date: string|null, error: string|null} $step
+     * @param array{source: string, inserted: int, updated: int, skipped: int, latest_date: string|null, error: string|null} $step
      */
     private function recordStep(string $source, array $step, int $now): void
     {
@@ -529,6 +610,7 @@ final class LogamMuliaApiProvider extends AbstractLiveProvider
         $sources[$source] = [
             'synced_at' => $now,
             'inserted' => (int) $step['inserted'],
+            'updated' => (int) ($step['updated'] ?? 0),
             'skipped' => (int) $step['skipped'],
             'latest_date' => $step['latest_date'],
             'error' => $step['error'],
@@ -537,6 +619,7 @@ final class LogamMuliaApiProvider extends AbstractLiveProvider
         update_option(self::STATUS_OPTION, [
             'synced_at' => $now,
             'inserted' => (int) ($stored['inserted'] ?? 0) + (int) $step['inserted'],
+            'updated' => (int) ($stored['updated'] ?? 0) + (int) ($step['updated'] ?? 0),
             'skipped' => (int) ($stored['skipped'] ?? 0) + (int) $step['skipped'],
             'sources' => $sources,
             // Preserve the failure backlog (recordFailure writes
@@ -875,6 +958,7 @@ final class LogamMuliaApiProvider extends AbstractLiveProvider
                 return [
                     'source' => '',
                     'inserted' => 0,
+                    'updated' => 0,
                     'skipped' => 0,
                     'latest_date' => null,
                     'error' => __('No sync source is enabled. Enable one in Settings.', 'koperasikita'),
@@ -895,6 +979,7 @@ final class LogamMuliaApiProvider extends AbstractLiveProvider
                     return [
                         'source' => '',
                         'inserted' => 0,
+                        'updated' => 0,
                         'skipped' => 0,
                         'latest_date' => null,
                         'error' => null,

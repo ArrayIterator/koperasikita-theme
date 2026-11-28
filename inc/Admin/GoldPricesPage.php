@@ -467,9 +467,10 @@ final class GoldPricesPage
                     <td>
                         <?php
                         printf(
-                            /* translators: %1$d: rows inserted, %2$d: rows skipped (already in database). */
-                            esc_html__('Inserted %1$d, skipped %2$d (already in database).', 'koperasikita'),
+                            /* translators: %1$d: rows inserted, %2$d: rows updated (price changed or buyback filled), %3$d: rows skipped (already in database). */
+                            esc_html__('Inserted %1$d, updated %2$d, skipped %3$d (already in database).', 'koperasikita'),
                             (int) $status['inserted'],
+                            (int) ($status['updated'] ?? 0),
                             (int) $status['skipped']
                         );
                         ?>
@@ -1060,9 +1061,10 @@ final class GoldPricesPage
                     <td>
                         <?php
                         printf(
-                            /* translators: %1$d: rows inserted, %2$d: rows skipped (already in DB). */
-                            esc_html__('Inserted %1$d, skipped %2$d (already in database).', 'koperasikita'),
+                            /* translators: %1$d: rows inserted, %2$d: rows updated (price changed or buyback filled), %3$d: rows skipped (already in DB). */
+                            esc_html__('Inserted %1$d, updated %2$d, skipped %3$d (already in database).', 'koperasikita'),
                             (int) $status['inserted'],
+                            (int) ($status['updated'] ?? 0),
                             (int) $status['skipped']
                         );
                         ?>
@@ -1080,14 +1082,14 @@ final class GoldPricesPage
     }
 
     /**
-     * Per-source table: latest date, inserted/skipped, and the
-     * backlog note (a failed source stays in the backlog and is
-     * retried later; after 3 failures it drops to lowest
+     * Per-source table: latest date, inserted/updated/skipped,
+     * and the backlog note (a failed source stays in the backlog
+     * and is retried later; after 3 failures it drops to lowest
      * priority - weekly retry only). Each row leads with what the
      * source imports; the site name sits below it, muted - the
      * table is about the scraping, not about the sites.
      *
-     * @param array{sources: array<string, array{synced_at: int|null, inserted: int, skipped: int, latest_date: string|null, error: string|null, failures: int, next_retry: int|null, deprioritised: bool}>} $status
+     * @param array{sources: array<string, array{synced_at: int|null, inserted: int, updated: int, skipped: int, latest_date: string|null, error: string|null, failures: int, next_retry: int|null, deprioritised: bool}>} $status
      */
     private static function renderSourceTable(array $status): void
     {
@@ -1124,6 +1126,7 @@ final class GoldPricesPage
                 . '<td><strong>' . esc_html($descriptions[$source] ?? $source) . '</strong><br><span class="description">' . esc_html($labels[$source] ?? $source) . '</span></td>'
                 . '<td>' . esc_html($s['latest_date'] ?? '-') . '</td>'
                 . '<td>' . esc_html((string) ($s['inserted'] ?? 0)) . '</td>'
+                . '<td>' . esc_html((string) ($s['updated'] ?? 0)) . '</td>'
                 . '<td>' . esc_html((string) ($s['skipped'] ?? 0)) . '</td>'
                 . '<td>' . esc_html($note) . '</td>'
                 . '</tr>';
@@ -1135,6 +1138,7 @@ final class GoldPricesPage
                     <th><?php esc_html_e('Source', 'koperasikita'); ?></th>
                     <th><?php esc_html_e('Latest date', 'koperasikita'); ?></th>
                     <th><?php esc_html_e('Inserted', 'koperasikita'); ?></th>
+                    <th><?php esc_html_e('Updated', 'koperasikita'); ?></th>
                     <th><?php esc_html_e('Skipped', 'koperasikita'); ?></th>
                     <th><?php esc_html_e('Status / backlog', 'koperasikita'); ?></th>
                 </tr>

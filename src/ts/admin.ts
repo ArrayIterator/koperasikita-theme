@@ -97,12 +97,14 @@ interface MenuIconData {
 }
 
 /* One step of the manual gold sync (kk_logam_mulia_sync): the source
- * just synced, rows inserted vs skipped, its latest date, an error
- * (null on success), the next source to sync (null when done), and
- * the step position (step of total) for the progress bar. */
+ * just synced, rows inserted vs updated vs skipped, its latest date,
+ * an error (null on success), the next source to sync (null when
+ * done), and the step position (step of total) for the progress
+ * bar. */
 interface GoldSyncStep {
 	source: string;
 	inserted: number;
+	updated: number;
 	skipped: number;
 	latest_date: string | null;
 	error: string | null;
@@ -148,9 +150,9 @@ const FALLBACK_STRINGS: AdminStrings = {
 	downloadFailed: 'Download failed.',
 	adminDataMissing: 'Admin data is not available.',
 	syncingSource: 'Scraping %s...',
-	syncStepDone: '%s: inserted %s, skipped %s',
+	syncStepDone: '%s: inserted %s, updated %s, skipped %s',
 	syncStepLatest: ' (latest %s)',
-	syncDone: 'Done - inserted %s, skipped %s (already in database).',
+	syncDone: 'Done - inserted %s, updated %s, skipped %s (already in database).',
 	loadingPreview: 'Loading preview...',
 	loadingChart: 'Loading chart...',
 	editKickerHint: 'Click to edit the kicker.',
@@ -2579,6 +2581,7 @@ function initGoldSync(): void {
 		closeButton.focus();
 
 		let totalInserted = 0;
+		let totalUpdated = 0;
 		let totalSkipped = 0;
 		/* null = first call, no source (starts from the first one). */
 		let source: string | null = null;
@@ -2616,6 +2619,7 @@ function initGoldSync(): void {
 				}
 
 				totalInserted += data.inserted;
+				totalUpdated += data.updated;
 				totalSkipped += data.skipped;
 
 				const total = typeof data.total === 'number' && data.total > 0 ? data.total : 3;
@@ -2626,7 +2630,7 @@ function initGoldSync(): void {
 
 				line.textContent = data.error
 					? formatTemplate(strings.failed, `${data.source}: ${data.error}`)
-					: formatTemplate(strings.syncStepDone, data.source, data.inserted, data.skipped)
+					: formatTemplate(strings.syncStepDone, data.source, data.inserted, data.updated, data.skipped)
 						+ (data.latest_date ? formatTemplate(strings.syncStepLatest, data.latest_date) : '');
 
 				if (data.next === null) {
@@ -2636,9 +2640,9 @@ function initGoldSync(): void {
 			}
 
 			bar.value = bar.max;
-			statusEl.textContent = formatTemplate(strings.syncDone, totalInserted, totalSkipped);
+			statusEl.textContent = formatTemplate(strings.syncDone, totalInserted, totalUpdated, totalSkipped);
 			const summary = document.createElement('div');
-			summary.textContent = formatTemplate(strings.syncDone, totalInserted, totalSkipped);
+			summary.textContent = formatTemplate(strings.syncDone, totalInserted, totalUpdated, totalSkipped);
 			result.appendChild(summary);
 			setRunning(false);
 		} catch (error) {
