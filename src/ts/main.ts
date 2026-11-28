@@ -1588,6 +1588,45 @@ function initShare(): void {
 	}
 }
 
+/* The subscribe form's button stays disabled until the email is
+ * valid: empty or malformed means disabled, a valid address enables
+ * it. The browser's own email validity plus a dot in the domain -
+ * checkValidity() alone accepts "foo@bar", which the server's
+ * is_email() rejects, so the domain check keeps the gate honest.
+ * A submit attempt with an invalid address is stopped too, so
+ * pressing Enter in the field cannot bypass the disabled button.
+ * Server-side validation (sanitize_email + is_email) is unchanged
+ * and stays the real check. */
+function initSubscribeForm(): void {
+	const forms = $all<HTMLFormElement>('.kk-subscribe-form');
+	if (forms.length === 0) {
+		return;
+	}
+	const isValidEmail = (input: HTMLInputElement): boolean => {
+		if (!input.checkValidity()) {
+			return false;
+		}
+		return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(input.value.trim());
+	};
+	for (const form of forms) {
+		const email = form.querySelector('.kk-subscribe-email') as HTMLInputElement | null;
+		const submit = form.querySelector('.kk-subscribe-submit') as HTMLButtonElement | null;
+		if (!email || !submit) {
+			continue;
+		}
+		const sync = (): void => {
+			submit.disabled = !isValidEmail(email);
+		};
+		email.addEventListener('input', sync);
+		form.addEventListener('submit', (event) => {
+			if (!isValidEmail(email)) {
+				event.preventDefault();
+			}
+		});
+		sync();
+	}
+}
+
 /* Boot                                                                */
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -1606,4 +1645,5 @@ document.addEventListener('DOMContentLoaded', () => {
 	initBottomNav();
 	initBackToTop();
 	initShare();
+	initSubscribeForm();
 });
