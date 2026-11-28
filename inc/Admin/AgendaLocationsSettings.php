@@ -239,7 +239,7 @@ final class AgendaLocationsSettings
             <?php else : ?>
                 <section class="kk-locations-card">
                     <p class="kk-locations-card-actions">
-                        <a href="<?php echo esc_url(add_query_arg('action', 'new', $pageUrl)); ?>" class="kk-locations-button kk-locations-button--primary">
+                        <a href="<?php echo esc_url(add_query_arg('action', 'new', $pageUrl)); ?>" class="button button-primary">
                             <?php esc_html_e('Add New Location', 'koperasikita'); ?>
                         </a>
                     </p>
@@ -391,9 +391,7 @@ final class AgendaLocationsSettings
         <form method="get" action="<?php echo esc_url($pageUrl); ?>">
             <input type="hidden" name="page" value="<?php echo esc_attr(Agenda::LOCATIONS_PAGE_SLUG); ?>">
             <?php $table->search_box(__('Search Locations', 'koperasikita'), 'kk-location'); ?>
-            <div class="kk-locations-table-wrap">
-                <?php $table->display(); ?>
-            </div>
+            <?php $table->display(); ?>
         </form>
         <p class="description kk-locations-note">
             <?php esc_html_e('Save the places you use often. They appear in the Pick Location popup, so you can reuse a place instead of searching for it again.', 'koperasikita'); ?>
@@ -415,7 +413,7 @@ final class AgendaLocationsSettings
             ?>
             <section class="kk-locations-card">
                 <div class="notice notice-error inline"><p><?php esc_html_e('Location not found.', 'koperasikita'); ?></p></div>
-                <p><a href="<?php echo esc_url($pageUrl); ?>" class="kk-locations-button"><?php esc_html_e('Back to Locations', 'koperasikita'); ?></a></p>
+                <p><a href="<?php echo esc_url($pageUrl); ?>" class="button"><?php esc_html_e('Back to Locations', 'koperasikita'); ?></a></p>
             </section>
             <?php
             return;
@@ -515,8 +513,8 @@ final class AgendaLocationsSettings
                     </td>
                 </tr>
             </table>
-            <p class="submit"><input type="submit" name="submit" id="submit" class="kk-locations-button kk-locations-button--primary" value="<?php echo esc_attr($id !== '' ? __('Update Location', 'koperasikita') : __('Add Location', 'koperasikita')); ?>"></p>
-            <a href="<?php echo esc_url($pageUrl); ?>" class="kk-locations-button"><?php esc_html_e('Cancel', 'koperasikita'); ?></a>
+            <p class="submit"><input type="submit" name="submit" id="submit" class="button button-primary" value="<?php echo esc_attr($id !== '' ? __('Update Location', 'koperasikita') : __('Add Location', 'koperasikita')); ?>"></p>
+            <a href="<?php echo esc_url($pageUrl); ?>" class="button"><?php esc_html_e('Cancel', 'koperasikita'); ?></a>
         </form>
         </section>
         <?php

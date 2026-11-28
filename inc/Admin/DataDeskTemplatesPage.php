@@ -57,7 +57,7 @@ final class DataDeskTemplatesPage
             <?php else : ?>
                 <section class="kk-data-desk-card">
                     <p class="kk-data-desk-card-actions">
-                        <a href="<?php echo esc_url(add_query_arg('action', 'new', $pageUrl)); ?>" class="kk-data-desk-button kk-data-desk-button--primary">
+                        <a href="<?php echo esc_url(add_query_arg('action', 'new', $pageUrl)); ?>" class="button button-primary">
                             <?php esc_html_e('Add New Template', 'koperasikita'); ?>
                         </a>
                     </p>
@@ -276,13 +276,13 @@ final class DataDeskTemplatesPage
             : DataDesk::defaultTemplate();
 
         $content = '<p>' . esc_html__("Placeholders resolve from the panel's own data. Insert opens a popup showing what the placeholder resolves to - pick the field it goes into. You can also right-click a title, date line or stat note, or type { while editing one. The title takes {label} and {day} only.", 'koperasikita') . '</p>';
-        $content .= '<div class="kk-data-desk-table-wrap"><table class="widefat striped"><thead><tr><th>' . esc_html__('Placeholder', 'koperasikita') . '</th><th>' . esc_html__('Resolves to', 'koperasikita') . '</th><th>' . esc_html__('Sample', 'koperasikita') . '</th><th></th></tr></thead><tbody>';
+        $content .= '<table class="widefat striped"><thead><tr><th>' . esc_html__('Placeholder', 'koperasikita') . '</th><th>' . esc_html__('Resolves to', 'koperasikita') . '</th><th>' . esc_html__('Sample', 'koperasikita') . '</th><th></th></tr></thead><tbody>';
 
         foreach (self::placeholderTokenRows($template) as $row) {
             $content .= '<tr><td><code>' . esc_html($row['token']) . '</code></td><td>' . esc_html($row['desc']) . '</td><td>' . esc_html($row['sample']) . '</td><td><button type="button" class="kk-data-desk-button" data-kk-placeholder-insert="' . esc_attr($row['token']) . '">' . esc_html__('Insert', 'koperasikita') . '</button></td></tr>';
         }
 
-        $content .= '</tbody></table></div>';
+        $content .= '</tbody></table>';
         $content .= '<p><button type="button" class="kk-data-desk-button kk-data-desk-button--primary" data-kk-placeholder-configure>' . esc_html__('Configure placeholders', 'koperasikita') . '</button></p>';
 
         $screen->add_help_tab([
@@ -323,18 +323,17 @@ final class DataDeskTemplatesPage
                     <option value="<?php echo esc_attr($templateId); ?>"><?php echo esc_html(DataDesk::displayName($template)); ?></option>
                 <?php endforeach; ?>
             </select>
-            <input type="submit" class="kk-data-desk-button" value="<?php echo esc_attr(__('Use template', 'koperasikita')); ?>">
+            <input type="submit" class="button" value="<?php echo esc_attr(__('Use template', 'koperasikita')); ?>">
         </form>
-        <div class="kk-data-desk-table-wrap">
-        <table class="widefat striped kk-data-desk-table">
+        <table class="wp-list-table widefat fixed striped">
             <thead>
                 <tr>
-                    <th><?php esc_html_e('Name', 'koperasikita'); ?></th>
-                    <th><?php esc_html_e('Kind', 'koperasikita'); ?></th>
-                    <th><?php esc_html_e('Shows', 'koperasikita'); ?></th>
-                    <th><?php esc_html_e('Palette', 'koperasikita'); ?></th>
-                    <th><?php esc_html_e('Days', 'koperasikita'); ?></th>
-                    <th><?php esc_html_e('Actions', 'koperasikita'); ?></th>
+                    <th scope="col" class="column-primary"><?php esc_html_e('Name', 'koperasikita'); ?></th>
+                    <th scope="col"><?php esc_html_e('Kind', 'koperasikita'); ?></th>
+                    <th scope="col"><?php esc_html_e('Shows', 'koperasikita'); ?></th>
+                    <th scope="col"><?php esc_html_e('Palette', 'koperasikita'); ?></th>
+                    <th scope="col"><?php esc_html_e('Days', 'koperasikita'); ?></th>
+                    <th scope="col"><?php esc_html_e('Actions', 'koperasikita'); ?></th>
                 </tr>
             </thead>
             <tbody>
@@ -345,7 +344,7 @@ final class DataDeskTemplatesPage
                         : (DataDesk::symbols()[$template['symbol']] ?? $template['symbol']);
                     ?>
                     <tr>
-                        <td>
+                        <td class="column-primary" data-colname="<?php echo esc_attr(__('Name', 'koperasikita')); ?>">
                             <strong><?php echo esc_html($template['name']); ?></strong>
                             <?php if (DataDesk::isBuiltIn($id)) : ?>
                                 <?php $builtInLabel = __('Built-in', 'koperasikita'); ?>
@@ -360,11 +359,11 @@ final class DataDeskTemplatesPage
                                 </span>
                             <?php endif; ?>
                         </td>
-                        <td><?php echo esc_html($kinds[$template['kind']] ?? $template['kind']); ?></td>
-                        <td><?php echo esc_html($shows); ?></td>
-                        <td><?php echo esc_html(DataDesk::paletteLabel($template['palette'])); ?></td>
-                        <td><?php echo ($template['kind'] === DataDesk::KIND_PANEL || ($template['kind'] === DataDesk::KIND_TABLE && ($template['table_style'] ?? '') === 'chart')) ? esc_html((string) $template['days']) : '&mdash;'; ?></td>
-                        <td>
+                        <td data-colname="<?php echo esc_attr(__('Kind', 'koperasikita')); ?>"><?php echo esc_html($kinds[$template['kind']] ?? $template['kind']); ?></td>
+                        <td data-colname="<?php echo esc_attr(__('Shows', 'koperasikita')); ?>"><?php echo esc_html($shows); ?></td>
+                        <td data-colname="<?php echo esc_attr(__('Palette', 'koperasikita')); ?>"><?php echo esc_html(DataDesk::paletteLabel($template['palette'])); ?></td>
+                        <td data-colname="<?php echo esc_attr(__('Days', 'koperasikita')); ?>"><?php echo ($template['kind'] === DataDesk::KIND_PANEL || ($template['kind'] === DataDesk::KIND_TABLE && ($template['table_style'] ?? '') === 'chart')) ? esc_html((string) $template['days']) : '&mdash;'; ?></td>
+                        <td data-colname="<?php echo esc_attr(__('Actions', 'koperasikita')); ?>">
                             <?php if (DataDesk::isBuiltIn($id)) : ?>
                                 <a href="<?php echo esc_url(wp_nonce_url(add_query_arg('kk_data_desk_duplicate', $id, $pageUrl), 'kk_data_desk_duplicate')); ?>"><?php esc_html_e('Use', 'koperasikita'); ?></a>
                                 |
@@ -389,7 +388,6 @@ final class DataDeskTemplatesPage
                 <?php endforeach; ?>
             </tbody>
         </table>
-        </div>
         <?php /* One shared preview popup, reused by every row's Preview
          * link. The panel is filled by admin.ts (kk_data_desk_preview
          * by template id); without JS the link does nothing and the

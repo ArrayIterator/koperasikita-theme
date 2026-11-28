@@ -1644,82 +1644,6 @@
 	cursor: not-allowed;
 }
 
-/* Table: the WP widefat base stays, but the frame is the card's
- * (rounded, soft border) and the header reads in Setup green.
- * The wrapper scrolls horizontally on a narrow viewport: the
- * table is wider than the card, and overflow hidden clipped the
- * last columns with no way to reach them. The wrapper carries
- * the same border as the Locations table wrap, so the footer
- * note below it reads as outside the table's box, not inside it. */
-.kk-data-desk-table-wrap {
-	overflow-x: auto;
-	border: 1px solid #e5e5e5;
-	border-radius: 12px;
-}
-
-.kk-data-desk-table {
-	margin: 0;
-	border: none;
-	box-shadow: none;
-}
-
-.kk-data-desk-table thead th {
-	background: #f8f9f8;
-	color: #07522c;
-	font-weight: 600;
-	border-bottom: 1px solid #e5e5e5;
-}
-
-.kk-data-desk-table th,
-.kk-data-desk-table td {
-	padding: 12px 16px;
-}
-
-/* Desktop column proportions: the auto layout lets the two
- * widest-content columns (Name, Actions) balloon to ~420px and
- * ~500px while Kind, Palette and Days squeeze. Fixed layout at
- * desktop caps the wide columns and lets the narrow ones share
- * the rest. Desktop only: below 1200px the auto layout sizes
- * columns to content and the wrapper scrolls instead. */
-@media screen and (min-width: 1201px) {
-	.kk-data-desk-table {
-		table-layout: fixed;
-	}
-
-	.kk-data-desk-table th:nth-child(1) {
-		width: 260px;
-	}
-
-	.kk-data-desk-table th:nth-child(5) {
-		width: 80px;
-	}
-
-	.kk-data-desk-table th:nth-child(6) {
-		width: 280px;
-	}
-}
-
-/* Built-in marker on the template list: a small green pill with
- * the lock icon, so a code-defined template reads as built-in
- * at a glance. */
-.kk-data-desk-built-in {
-	display: inline-flex;
-	align-items: center;
-	gap: 4px;
-	margin-left: 8px;
-	padding: 2px 8px;
-	border-radius: 999px;
-	background: #e6f2ea;
-	color: #07522c;
-	font-size: 12px;
-	font-weight: 600;
-	white-space: nowrap;
-}
-
-.kk-data-desk-built-in svg {
-	flex: none;
-}
-
 .kk-data-desk-note {
 	margin: 16px 0 0;
 	font-size: 13px;
@@ -1825,11 +1749,7 @@
 
 /* The scoped .button rules are only a safety net for chrome WP
  * itself renders (List Table bulk and search buttons). */
-.kk-locations-button,
-.kk-subscribers-button,
 .kk-market-header-button,
-.kk-locations-page .button,
-.kk-subscribers-page .button,
 .kk-market-header-page .button {
 	display: inline-flex;
 	align-items: center;
@@ -1849,137 +1769,43 @@
 	cursor: pointer;
 }
 
-.kk-locations-button:hover,
-.kk-subscribers-button:hover,
 .kk-market-header-button:hover,
-.kk-locations-page .button:hover,
-.kk-subscribers-page .button:hover,
 .kk-market-header-page .button:hover {
 	background: #eaf4ee;
 	border-color: #0b6b3a;
 	color: #0b6b3a;
 }
 
-.kk-locations-button:focus-visible,
-.kk-subscribers-button:focus-visible,
 .kk-market-header-button:focus-visible,
-.kk-locations-page .button:focus-visible,
-.kk-subscribers-page .button:focus-visible,
 .kk-market-header-page .button:focus-visible {
 	outline: 2px solid #c9962e;
 	outline-offset: 2px;
 }
 
-.kk-locations-button--primary,
-.kk-subscribers-button--primary,
 .kk-market-header-button--primary,
-.kk-locations-page .button-primary,
-.kk-subscribers-page .button-primary,
 .kk-market-header-page .button-primary {
 	color: #fff;
 	background: #0b6b3a;
 	border-color: #0b6b3a;
 }
 
-.kk-locations-button--primary:hover,
-.kk-subscribers-button--primary:hover,
 .kk-market-header-button--primary:hover,
-.kk-locations-page .button-primary:hover,
-.kk-subscribers-page .button-primary:hover,
 .kk-market-header-page .button-primary:hover {
 	background: #07522c;
 	border-color: #07522c;
 	color: #fff;
 }
 
-.kk-locations-button:disabled,
-.kk-subscribers-button:disabled,
 .kk-market-header-button:disabled,
-.kk-locations-page .button:disabled,
-.kk-subscribers-page .button:disabled,
 .kk-market-header-page .button:disabled {
 	opacity: 0.55;
 	cursor: not-allowed;
 }
 
-.kk-locations-table-wrap,
-.kk-subscribers-table-wrap,
 .kk-market-header-table-wrap {
 	overflow-x: auto;
 	border: 1px solid #e5e5e5;
 	border-radius: 12px;
-}
-
-.kk-locations-table,
-.kk-subscribers-table {
-	margin: 0;
-	border: 0;
-}
-
-/* WP list tables on KK admin pages carry no border or shadow of
- * their own; the card frame is the edge. */
-[class^="kk-"] .wp-list-table.table.widefat {
-    border: none;
-    box-shadow: none;
-}
-
-.kk-locations-table thead th,
-.kk-subscribers-table thead th {
-	background: #f8f9f8;
-	color: #07522c;
-	font-weight: 600;
-	border-bottom: 1px solid #e5e5e5;
-}
-
-.kk-locations-table th,
-.kk-locations-table td,
-.kk-subscribers-table th,
-.kk-subscribers-table td {
-	padding: 12px 16px;
-}
-
-/* The Locations list renders WP's floated search box before the
- * wrap; the wrap is a block formatting context (overflow-x), so it
- * shrank to avoid the float and the table came out ~75% of the
- * card wide with the "1 item" count clipped behind the search
- * box. Clearing the float puts the search box on its own row and
- * the wrap - tablenav and table - back to the full card width. */
-.kk-locations-table-wrap {
-	clear: both;
-}
-
-/* WP_List_Table repeats the header row in a tfoot; on this short
- * list it reads as a duplicated header, so hide it. */
-.kk-locations-table tfoot {
-	display: none;
-}
-
-/* Headers never break mid-word: core .widefat * word-wrap lets
- * the browser split "Koordinat" once a column squeezes. */
-.kk-locations-table th,
-.kk-locations-table td.column-coordinates {
-	white-space: nowrap;
-}
-
-/* One height for every button on this page: the big "Add" link
- * renders ~48px from the shared 44px min-height while the List
- * Table buttons render ~36px. Same 36px for all, the primary
- * keeps its solid fill - no new button style, scoped to this page. */
-.kk-locations-page .kk-locations-button,
-.kk-locations-page .button {
-	height: 36px;
-	min-height: 36px;
-	box-sizing: border-box;
-}
-
-/* Same one height for the Subscribers buttons: the search submit
- * and the Export CSV link share the page's 36px button height,
- * so the pair reads as one treatment at desktop and on mobile. */
-.kk-subscribers-page .kk-subscribers-button,
-.kk-subscribers-page .button {
-	height: 36px;
-	min-height: 36px;
-	box-sizing: border-box;
 }
 
 /* Market Index: Sync now is the outline secondary so it reads as a
@@ -2005,111 +1831,18 @@
 	margin-top: 4px;
 }
 
-/* Row actions are always visible on this list: core parks them
- * off-screen until hover, which makes Edit/Delete undiscoverable
- * at rest. Same treatment core uses on hover, just always on. */
-.kk-locations-table .row-actions {
-	position: static;
-}
-
-/* Desktop column proportions: the empty description column took
- * a quarter of the table while the address wrapped. Narrow the
- * fixed-content columns and let the address take the rest. Desktop
- * only: below 1200px the auto layout sizes columns to content,
- * where these widths would only squeeze the address. */
-@media screen and (min-width: 1201px) {
-	.kk-locations-table .column-name {
-		width: 200px;
-	}
-
-	.kk-locations-table .column-coordinates {
-		width: 200px;
-	}
-
-	.kk-locations-table .column-description {
-		width: 160px;
-	}
-}
-
-/* Mobile list tables: WP core turns .wp-list-table rows into a
- * flex stack below 782px (tr becomes flex, cells 3+ go full
- * width, values get a data-colname label). These tables are
- * hand-rendered with no column-primary and no data-colname, so
- * the stack came out unlabeled and unreadable - the header
- * wrapped and the values stacked with no labels. Keep them as
- * tables instead: the scroll wrapper above does the work.
- * table-layout auto (the tables carry WP's fixed class) so the
- * table sizes to its content and the wrapper scrolls; the
- * Subscribers table gets a floor width so its columns stay
- * readable instead of squeezing to the viewport. */
+/* Market Index table: keep table rows below 782px instead of
+ * core's flex stack. */
 @media screen and (max-width: 782px) {
-	.kk-subscribers-table-wrap .wp-list-table tr,
 	.kk-market-header-page .wp-list-table tr {
 		display: table-row;
 	}
 
-	.kk-subscribers-table-wrap .wp-list-table,
 	.kk-market-header-page .wp-list-table {
 		table-layout: auto;
 	}
-
-	.kk-subscribers-table-wrap .kk-subscribers-table {
-		min-width: 600px;
-	}
-
-	/* The search submit and the Export CSV link stack full-width
-	 * below 782px; without a gap they touch. Scoped to the page
-	 * so the top margin beats the .kk-subscribers-page p rule. */
-	.kk-subscribers-page .kk-subscribers-card-actions {
-		margin-top: 12px;
-	}
 }
 
-/* Narrow viewports: the fixed layout squeezes the five columns
- * until headers break mid-word and coordinates split mid-number
- * (the 980px screenshot). The 782px core breakpoint is too low
- * for this table - a coordinate needs ~179px a column, so fixed
- * layout only fits above ~1143px viewport - so from 1200px down
- * it gets the same treatment as the other tables: stay a table,
- * auto layout, floor width, wrapper scrolls. */
-@media screen and (max-width: 1200px) {
-	.kk-locations-table-wrap .wp-list-table tr {
-		display: table-row;
-	}
-
-	.kk-locations-table-wrap .wp-list-table {
-		table-layout: auto;
-	}
-
-	.kk-locations-table-wrap .kk-locations-table {
-		min-width: 680px;
-	}
-
-	/* Below 782px core hides every header and body cell after the
-	 * primary column, and stamps a data-colname label on the body
-	 * cells. This table keeps all five columns and scrolls instead,
-	 * so the hidden cells come back and the labels - which would
-	 * sit on top of the values - are suppressed. */
-	.kk-locations-table-wrap .wp-list-table th.column-primary ~ th,
-	.kk-locations-table-wrap .wp-list-table tr:not(.inline-edit-row):not(.no-items) td.column-primary ~ td:not(.check-column),
-	.kk-locations-table-wrap .wp-list-table tr:not(.inline-edit-row):not(.no-items) th.column-primary ~ td:not(.check-column) {
-		display: table-cell;
-	}
-
-	/* Core's stacked layout also gives those cells a 35% left
-	 * padding to make room for the data-colname label. With the
-	 * label gone and the table scrolling, that padding is wider
-	 * than the cells themselves, so the values wrap one character
-	 * per line. Restore the theme's cell padding. */
-	.kk-locations-table-wrap .wp-list-table tr:not(.inline-edit-row):not(.no-items) td.column-primary ~ td:not(.check-column),
-	.kk-locations-table-wrap .wp-list-table tr:not(.inline-edit-row):not(.no-items) th.column-primary ~ td:not(.check-column) {
-		padding: 12px 16px;
-	}
-
-	.kk-locations-table-wrap .wp-list-table tr:not(.inline-edit-row):not(.no-items) td:not(.check-column)::before {
-		content: none;
-	}
-}
 
 .kk-locations-card .form-table {
 	margin: 0;
@@ -2164,20 +1897,12 @@
 	margin: 0;
 }
 
-.kk-locations-page input[type="search"],
 .kk-locations-page input[type="text"],
 .kk-locations-page input[type="number"],
 .kk-locations-page textarea,
-.kk-locations-page select,
-.kk-subscribers-page input[type="search"],
-.kk-subscribers-page select {
+.kk-locations-page select {
 	min-height: 40px;
 	border-radius: 8px;
-}
-
-.kk-locations-page input[type="checkbox"],
-.kk-subscribers-page input[type="checkbox"] {
-	accent-color: #0b6b3a;
 }
 
 @media (max-width: 782px) {
@@ -2191,12 +1916,5 @@
 	.kk-locations-card,
 	.kk-subscribers-card {
 		padding: 20px 16px;
-	}
-
-	.kk-locations-button,
-	.kk-subscribers-button,
-	.kk-locations-page .button,
-	.kk-subscribers-page .button {
-		width: 100%;
 	}
 }
