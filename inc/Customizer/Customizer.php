@@ -10,6 +10,7 @@ use KoperasiKita\Features\MarketHeaderIndex;
 use KoperasiKita\Features\Markets;
 use KoperasiKita\Features\Performance;
 use KoperasiKita\Features\StyleVariant;
+use WP_Customize_Code_Editor_Control;
 use WP_Customize_Color_Control;
 use WP_Customize_Manager;
 use WP_Customize_Media_Control;
@@ -2201,6 +2202,32 @@ final class Customizer
             ],
         ]);
 
+        // Custom JS: admin-entered JavaScript printed in the footer on
+        // every page, below the core Additional CSS box. It lives in
+        // the core 'custom_css' section (registered by WordPress core
+        // on the same hook, before this runs) with priority 20, so it
+        // sorts under the CSS control (default priority 10). The
+        // setting keeps the code verbatim - it is admin-entered code
+        // by design - and only edit_theme_options users can save it
+        // (the default setting capability). Output lives in
+        // printCustomJs(), hooked from Theme::boot() on wp_footer.
+        self::addSetting(
+            $wpCustomize,
+            'kk_custom_js',
+            '',
+            [self::class, 'sanitizeCustomJs'],
+            'refresh'
+        );
+        $wpCustomize->add_control(
+            new WP_Customize_Code_Editor_Control($wpCustomize, 'kk_custom_js', [
+                'label' => esc_html__('Custom JS', 'koperasikita'),
+                'description' => esc_html__('JavaScript added to every page, after the theme scripts. Only administrators can edit this.', 'koperasikita'),
+                'section' => 'custom_css',
+                'code_type' => 'text/javascript',
+                'priority' => 20,
+            ])
+        );
+
         // Palette overrides are hooked from Theme::boot() (wp_enqueue_scripts),
         // not here: customize_register only fires inside the Customizer, so
         // hooking here would leave the live site without the overrides.
@@ -2333,6 +2360,28 @@ final class Customizer
         }
 
         wp_add_inline_style('kk-app', '@media (max-width: 767px){body{font-size:' . $size . 'px}}');
+    }
+
+    /**
+     * Custom JS (Customizer -> Additional CSS -> Custom JS): the
+     * admin-entered script, printed in the footer on every page.
+     * Nothing is printed when the setting trims to empty - no empty
+     * script block. The code is wrapped in an IIFE so it cannot leak
+     * top-level vars into the global scope, and it lives in its own
+     * script block after the theme scripts, so a syntax error here
+     * breaks only this block. The code is printed verbatim by design
+     * (edit_theme_options only, kept as-is by sanitizeCustomJs) - the
+     * same trust level as Additional CSS.
+     */
+    public static function printCustomJs(): void
+    {
+        $js = (string) get_theme_mod('kk_custom_js', '');
+
+        if (trim($js) === '') {
+            return;
+        }
+
+        echo '<script>' . "\n" . '(function(globalThis) {' . "\n" . $js . "\n})(window);\n</script>\n";
     }
 
     /**
@@ -3127,6 +3176,15 @@ final class Customizer
     public static function sanitizeBool(mixed $value): bool
     {
         return $value === true || $value === 1 || $value === '1' || $value === 'on';
+    }
+
+    public static function sanitizeCustomJs(mixed $value): string
+    {
+        // Admin-entered code: kept verbatim on purpose. Stripping tags
+        // (sanitize_textarea_field) would destroy valid JS containing
+        // '<' or '>' - comparisons, generics, regexes. Only
+        // edit_theme_options users can save this setting.
+        return is_string($value) ? $value : '';
     }
 
     public static function clampInt(mixed $value, int $min, int $max): int
