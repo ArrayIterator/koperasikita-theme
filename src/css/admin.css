@@ -1757,27 +1757,11 @@
 	border-top: 1px solid #e5e5e5;
 }
 
-/* Sync settings table: same label/value rhythm as the facts
- * table - one row per market (label in th, checkbox in td), then
- * the auto-sync row and the interval row (label in th, control
- * in td). */
-.kk-market-header-card .form-table.kk-market-header-settings {
-	margin: 0 0 16px;
-}
-
-.kk-market-header-card .form-table.kk-market-header-settings th {
-	padding: 12px 16px 12px 0;
-	font-weight: 600;
-	color: #1a1a1a;
-}
-
-.kk-market-header-card .form-table.kk-market-header-settings td {
-	padding: 12px 0;
-}
-
-.kk-market-header-card .form-table.kk-market-header-settings tbody tr + tr th,
-.kk-market-header-card .form-table.kk-market-header-settings tbody tr + tr td {
-	border-top: 1px solid #e5e5e5;
+/* Market Index table: the first column holds only the market
+ * checkbox, so it stays narrow and the market name keeps the
+ * width. */
+.kk-market-header-page .wp-list-table .kk-market-header-check {
+	width: 36px;
 }
 
 .kk-locations-card-actions,
@@ -1804,7 +1788,7 @@
 
 /* Market Index: the auto-sync description sits on its own line
  * below the checkbox, in the page's existing description style. */
-.kk-market-header-card .form-table.kk-market-header-settings .description {
+.kk-market-header-page .wp-list-table .description {
 	display: block;
 	margin-top: 4px;
 }
