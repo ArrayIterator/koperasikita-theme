@@ -1175,6 +1175,10 @@ final class Agenda
 
         $query->set('kk_agenda_order', true);
         $query->set('kk_agenda_order_dir', strtolower((string) $query->get('order')) === 'desc' ? 'desc' : 'asc');
+        // The flag alone orders nothing: the posts_orderby filter is
+        // only attached by attachSoonestFirstOrder(), and orderArchive()
+        // returns early in admin, so attach it here for this query.
+        self::attachSoonestFirstOrder();
     }
 
     public static function renderAdminColumn(string $column, int $postId): void
