@@ -145,9 +145,15 @@ interface SearchResult {
 	latitude: number;
 	longitude: number;
 	country: string;
-	// Three-section display ("Name, Local, Province") and the full
-	// hierarchy ("Name, Kelurahan, Kecamatan, Kabupaten, Provinsi,
-	// Country") for the title attribute.
+	// Two-place comma name for the name field ("Adana, Adana",
+	// "Kedungrejo, Banyuwangi Regency"): the place plus its parent
+	// level, when one exists; the place alone otherwise. The two
+	// places are always joined by a comma and a space (", "), never
+	// any other separator. The three-section display ("Name, Local,
+	// Province") and the full hierarchy ("Name, Kelurahan,
+	// Kecamatan, Kabupaten, Provinsi, Country") for the title
+	// attribute use the same comma separator.
+	shortName: string;
 	label: string;
 	fullName: string;
 }
@@ -495,6 +501,7 @@ async function searchOpenMeteo(query: string, signal: AbortSignal): Promise<Sear
 				latitude: p.latitude,
 				longitude: p.longitude,
 				country: countryName,
+				shortName: joinHierarchy([p.name, local ?? (admin1 !== '' ? admin1 : null)]),
 				label: searchLabel(p.name, local, admin1 !== '' ? admin1 : null, countryName !== '' ? countryName : null),
 				fullName: joinHierarchy([p.name, admin4, admin3, admin2, admin1, countryName]),
 			});
@@ -575,11 +582,24 @@ async function searchNominatim(query: string, signal: AbortSignal): Promise<Sear
 			const provinsi = addressPart(address, ['state']);
 			const countryName = addressPart(address, ['country']) ?? (parts.length > 1 ? parts[parts.length - 1] : null);
 			const local = kelurahan ?? kecamatan ?? kabupaten;
+			// The parent place for the two-place name: the most
+			// specific level below the place itself. When the most
+			// specific level IS the place (the result name is the
+			// kelurahan), step down to the next level, so the name
+			// holds two different places instead of one repeated.
+			let parent: string | null = null;
+			for (const level of [kelurahan, kecamatan, kabupaten, provinsi]) {
+				if (level !== null && level !== name) {
+					parent = level;
+					break;
+				}
+			}
 			results.push({
 				name,
 				latitude,
 				longitude,
 				country: countryName ?? '',
+				shortName: joinHierarchy([name, parent]),
 				label: address !== null ? searchLabel(name, local, provinsi, countryName) : parts.slice(0, 3).join(', '),
 				fullName: address !== null ? joinHierarchy([name, hamlet, kelurahan, kecamatan, kabupaten, provinsi, countryName]) : parts.join(', '),
 			});
@@ -1526,24 +1546,24 @@ function initSearch(): void {
 							if (mapEls() === null) {
 								applyLocation(
 									{
-										name: place.name,
+										name: place.shortName,
 										latitude: place.latitude,
 										longitude: place.longitude,
 										source: 'search',
-										...(place.fullName !== '' && place.fullName !== place.name ? { fullName: place.fullName } : {}),
+										...(place.fullName !== '' && place.fullName !== place.shortName ? { fullName: place.fullName } : {}),
 									},
 									pickerTarget,
 								);
 								results.textContent = '';
-								input.value = place.name;
+								input.value = place.fullName;
 								renderStrip();
 								return;
 							}
-							setMapPin(place.latitude, place.longitude, place.name);
-							stagedFullName = place.fullName !== '' && place.fullName !== place.name ? place.fullName : null;
+							setMapPin(place.latitude, place.longitude, place.shortName);
+							stagedFullName = place.fullName !== '' && place.fullName !== place.shortName ? place.fullName : null;
 							results.textContent = '';
-							input.value = place.name;
-							setStatus(tf('Moved the map to %s. Press "Update" to apply it.', place.name));
+							input.value = place.fullName;
+							setStatus(tf('Moved the map to %s. Press "Update" to apply it.', place.shortName));
 						});
 						item.appendChild(button);
 						results.appendChild(item);
