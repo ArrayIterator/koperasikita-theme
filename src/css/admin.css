@@ -1317,13 +1317,11 @@
 	margin: 0;
 }
 
-/* Buttons: Setup's green primary + green-outline secondary. The
- * Scrape now button uses .kk-gold-button directly; WP .button
- * (Filter, Clear filters, submit_button secondaries) gets the same
- * secondary treatment, and .button-primary the same green primary
- * - no WP blue anywhere on this page. */
-.kk-gold-button,
-.kk-gold-page .button {
+/* Buttons: the Scrape now button uses .kk-gold-button directly and
+ * keeps the green treatment. WP .button / .button-primary is left
+ * alone, so submit_button and the filter buttons render as WP
+ * default (WP blue primary, grey secondary) on every gold tab. */
+.kk-gold-button {
 	display: inline-flex;
 	align-items: center;
 	justify-content: center;
@@ -1341,46 +1339,39 @@
 	cursor: pointer;
 }
 
-.kk-gold-button:hover,
-.kk-gold-page .button:hover {
+.kk-gold-button:hover {
 	background: #eaf4ee;
 	border-color: #0b6b3a;
 	color: #0b6b3a;
 }
 
-.kk-gold-button:focus-visible,
-.kk-gold-page .button:focus-visible {
+.kk-gold-button:focus-visible {
 	outline: 2px solid #c9962e;
 	outline-offset: 2px;
 }
 
-.kk-gold-button--primary,
-.kk-gold-page .button-primary {
+.kk-gold-button--primary {
 	color: #fff;
 	background: #0b6b3a;
 	border-color: #0b6b3a;
 }
 
-.kk-gold-button--primary:hover,
-.kk-gold-page .button-primary:hover {
+.kk-gold-button--primary:hover {
 	background: #07522c;
 	border-color: #07522c;
 	color: #fff;
 }
 
-.kk-gold-button:disabled,
-.kk-gold-page .button:disabled {
+.kk-gold-button:disabled {
 	opacity: 0.55;
 	cursor: not-allowed;
 }
 
-.kk-gold-button:disabled:hover,
-.kk-gold-page .button:disabled:hover {
+.kk-gold-button:disabled:hover {
 	background: #fff;
 }
 
-.kk-gold-button--primary:disabled:hover,
-.kk-gold-page .button-primary:disabled:hover {
+.kk-gold-button--primary:disabled:hover {
 	background: #0b6b3a;
 }
 
@@ -1522,8 +1513,7 @@
 }
 
 @media (max-width: 480px) {
-	.kk-gold-button,
-	.kk-gold-page .button {
+	.kk-gold-button {
 		width: 100%;
 	}
 }
