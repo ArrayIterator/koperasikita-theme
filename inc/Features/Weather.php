@@ -82,6 +82,16 @@ final class Weather
                 'longitude' => $coords[1],
             ];
 
+            // The full hierarchy ("Kelurahan, Kecamatan, Kota/Kab")
+            // rides along when the location came from reverse geocoding,
+            // so the widget can put it in the title attribute. It is
+            // dropped when it adds nothing over the display name.
+            $fullName = isset($row['fullName']) ? trim((string) $row['fullName']) : '';
+
+            if ($fullName !== '' && $fullName !== $name) {
+                $candidate['fullName'] = $fullName;
+            }
+
             $duplicate = false;
 
             foreach ($clean as $kept) {
@@ -562,14 +572,15 @@ final class Weather
      *
      * A GPS fix or a typed coordinate pair has no name of its own, so
      * the top bar used to show the anonymous "My location" / "Custom
-     * location". This resolves the coordinates to their area - city,
-     * town or regency - so the top bar reads "Kabupaten Malang"
-     * instead. Returns a null name (never an error) when the place
-     * cannot be resolved; the caller keeps the generic label then.
+     * location". This resolves the coordinates to their area - kelurahan,
+     * kecamatan and kota/kabupaten - so the top bar reads "Pakis,
+     * Kabupaten Malang" instead of just "Kabupaten Malang". Returns
+     * null names (never an error) when the place cannot be resolved;
+     * the caller keeps the generic label then.
      *
      * Called through Api\Ajax, which already verified the nonce.
      *
-     * @return array{name: string|null}
+     * @return array{name: string|null, fullName: string|null, kelurahan: string|null, kecamatan: string|null, kota: string|null}
      */
     public static function ajaxReverse(): array
     {
@@ -579,41 +590,139 @@ final class Weather
         );
 
         if ($coordinates === null) {
-            return ['name' => null];
+            return ['name' => null, 'fullName' => null, 'kelurahan' => null, 'kecamatan' => null, 'kota' => null];
         }
 
-        return ['name' => self::reverseGeocode($coordinates[0], $coordinates[1])];
+        $details = self::reverseGeocodeDetails($coordinates[0], $coordinates[1]);
+
+        if ($details === null) {
+            return ['name' => null, 'fullName' => null, 'kelurahan' => null, 'kecamatan' => null, 'kota' => null];
+        }
+
+        return $details;
     }
 
     /**
      * Resolve coordinates to the name of the area they sit in.
      *
-     * Keyless Nominatim reverse lookup, zoom 10 (city / regency
-     * level - a village would be too specific for a weather label).
-     * The most specific populated place wins: city, town, village,
-     * municipality, then the regency (county) and the province. Only
-     * successful names are cached (30 days); a failure is retried on
-     * the next lookup instead of caching an empty answer.
+     * Short display name: the most specific level available (kelurahan,
+     * else kecamatan) plus the kota/kabupaten - "Piai Tangah, Padang",
+     * "Pakis, Kabupaten Malang", or just "Padang" when no finer level
+     * resolves. The full hierarchy lives in reverseGeocodeDetails().
+     */
+    public static function reverseGeocode(float $latitude, float $longitude): ?string
+    {
+        $details = self::reverseGeocodeDetails($latitude, $longitude);
+
+        return $details === null ? null : $details['name'];
+    }
+
+    /**
+     * Resolve coordinates to the area hierarchy: kelurahan (urban ward /
+     * village), kecamatan (district) and kota/kabupaten (city/regency).
+     *
+     * Two keyless Nominatim reverse lookups: zoom 16 for the fine level
+     * (suburb/village - the kelurahan) and zoom 12 for the district
+     * level (town - the kecamatan) plus the city/regency. One zoom
+     * cannot give all three: at zoom 10 Pakis resolves to only
+     * "Kabupaten Malang", while zoom 12 gives "Pakis, Kabupaten
+     * Malang" and zoom 16 gives the kelurahan. The second lookup is
+     * skipped when the fine one already carries a district. Only
+     * successful hierarchies are cached (30 days); a failure is
+     * retried on the next lookup instead of caching an empty answer.
      *
      * This lives on the facade, not on the WeatherProvider contract:
      * reverse geocoding is city resolution (the facade's job), and
      * adding it to the interface would break third-party providers.
+     *
+     * @return array{kelurahan: string|null, kecamatan: string|null, kota: string|null, name: string, fullName: string}|null
      */
-    public static function reverseGeocode(float $latitude, float $longitude): ?string
+    public static function reverseGeocodeDetails(float $latitude, float $longitude): ?array
     {
         $cacheKey = 'kk_weather_reverse_' . md5(round($latitude, 2) . ',' . round($longitude, 2));
         $cached = get_transient($cacheKey);
 
-        if (is_string($cached) && $cached !== '') {
+        if (is_array($cached) && isset($cached['name']) && is_string($cached['name'])) {
             return $cached;
         }
 
+        // A single-string entry is the pre-hierarchy cache shape: it
+        // only ever held the city/regency, so treat it as the kota.
+        if (is_string($cached) && $cached !== '') {
+            return ['kelurahan' => null, 'kecamatan' => null, 'kota' => $cached, 'name' => $cached, 'fullName' => $cached];
+        }
+
+        $fine = self::nominatimReverse($latitude, $longitude, 16);
+        $district = null;
+
+        if ($fine === null || self::addressPart($fine, ['town', 'city_district']) === null) {
+            $district = self::nominatimReverse($latitude, $longitude, 12);
+        }
+
+        if ($fine === null && $district === null) {
+            return null;
+        }
+
+        $kelurahan = self::addressPart($fine, ['suburb', 'village']);
+        $kecamatan = self::addressPart($district, ['town', 'city_district'])
+            ?? self::addressPart($fine, ['town', 'city_district']);
+        $kota = self::addressPart($district, ['city', 'county'])
+            ?? self::addressPart($fine, ['city', 'county']);
+
+        // A fine level that duplicates the district or the city is not
+        // a level of its own.
+        if ($kelurahan !== null && ($kelurahan === $kecamatan || $kelurahan === $kota)) {
+            $kelurahan = null;
+        }
+
+        if ($kecamatan !== null && $kecamatan === $kota) {
+            $kecamatan = null;
+        }
+
+        if ($kota === null) {
+            // No city/regency at all: fall back to the province so the
+            // place still has a name.
+            $kota = self::addressPart($district, ['state']) ?? self::addressPart($fine, ['state']);
+        }
+
+        if ($kota === null) {
+            return null;
+        }
+
+        $specific = $kelurahan ?? $kecamatan;
+        $name = $specific !== null ? $specific . ', ' . $kota : $kota;
+        $parts = array_values(array_filter(
+            [$kelurahan, $kecamatan, $kota],
+            static fn ($part) => $part !== null && $part !== ''
+        ));
+
+        $details = [
+            'kelurahan' => $kelurahan,
+            'kecamatan' => $kecamatan,
+            'kota' => $kota,
+            'name' => $name,
+            'fullName' => implode(', ', $parts),
+        ];
+
+        set_transient($cacheKey, $details, 30 * DAY_IN_SECONDS);
+
+        return $details;
+    }
+
+    /**
+     * One keyless Nominatim reverse lookup at the given zoom, returning
+     * the address parts or null when the lookup fails.
+     *
+     * @return array<string, mixed>|null
+     */
+    private static function nominatimReverse(float $latitude, float $longitude, int $zoom): ?array
+    {
         $url = add_query_arg(
             [
                 'format' => 'jsonv2',
                 'lat' => $latitude,
                 'lon' => $longitude,
-                'zoom' => 10,
+                'zoom' => $zoom,
                 'addressdetails' => 1,
                 'accept-language' => 'en',
             ],
@@ -635,22 +744,31 @@ final class Weather
             return null;
         }
 
-        $address = $body['address'];
+        return $body['address'];
+    }
 
-        foreach (['city', 'town', 'village', 'municipality', 'county', 'state_district', 'state'] as $key) {
+    /**
+     * First non-empty sanitized string among the address keys, or null.
+     *
+     * @param array<string, mixed>|null $address
+     * @param string[] $keys
+     */
+    private static function addressPart(?array $address, array $keys): ?string
+    {
+        if ($address === null) {
+            return null;
+        }
+
+        foreach ($keys as $key) {
             if (!isset($address[$key]) || !is_string($address[$key])) {
                 continue;
             }
 
-            $name = sanitize_text_field($address[$key]);
+            $value = sanitize_text_field($address[$key]);
 
-            if ($name === '') {
-                continue;
+            if ($value !== '') {
+                return $value;
             }
-
-            set_transient($cacheKey, $name, 30 * DAY_IN_SECONDS);
-
-            return $name;
         }
 
         return null;

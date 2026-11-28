@@ -35,6 +35,9 @@
 	letter-spacing: 0.1em;
 	text-transform: uppercase;
 	color: var(--kk-muted);
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
 }
 
 .kk-weather-temp {

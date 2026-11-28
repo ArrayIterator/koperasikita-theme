@@ -1,0 +1,544 @@
+{
+    "translation-revision-date": "2026-11-28 08:42:08+00:00",
+    "generator": "kk-make-block-json",
+    "domain": "koperasikita",
+    "locale_data": {
+        "messages": {
+            "": {
+                "domain": "koperasikita",
+                "lang": "id_ID"
+            },
+            "Searching…": [
+                "Mencari…"
+            ],
+            "No places found. Try another name.": [
+                "Tidak ada tempat ditemukan. Coba nama lain."
+            ],
+            "Search is unavailable right now.": [
+                "Pencarian tidak tersedia saat ini."
+            ],
+            "Geolocation is not supported by this browser. Search for a city or enter coordinates.": [
+                "Geolokasi tidak didukung browser ini. Cari kota atau masukkan koordinat."
+            ],
+            "Asking for your location...": [
+                "Meminta lokasi Anda…"
+            ],
+            "Location permission was denied. You can still search for a city or enter coordinates.": [
+                "Izin lokasi ditolak. Anda tetap bisa mencari kota atau memasukkan koordinat."
+            ],
+            "Finding your location timed out. Try again, or search for a city.": [
+                "Mencari lokasi Anda kehabisan waktu. Coba lagi, atau cari kota."
+            ],
+            "Your location could not be determined. Search for a city or enter coordinates.": [
+                "Lokasi Anda tidak dapat ditentukan. Cari kota atau memasukkan koordinat."
+            ],
+            "Choose location": [
+                "Pilih lokasi"
+            ],
+            "Click the map to place the pin, or drag the pin to move it. The coordinates are saved with the location.": [
+                "Klik peta untuk menaruh pin, atau seret pin untuk memindahkannya. Koordinat tersimpan bersama lokasi."
+            ],
+            "Search for a city": [
+                "Cari kota"
+            ],
+            "Use my location": [
+                "Gunakan lokasi saya"
+            ],
+            "Hide map": [
+                "Sembunyikan peta"
+            ],
+            "Show map": [
+                "Tampilkan peta"
+            ],
+            "No pin placed": [
+                "Belum ada pin"
+            ],
+            "Latitude": [
+                "Lintang"
+            ],
+            "Longitude": [
+                "Bujur"
+            ],
+            "Use these coordinates": [
+                "Gunakan koordinat ini"
+            ],
+            "Name": [
+                "Nama"
+            ],
+            "Cancel": [
+                "Batal"
+            ],
+            "Use this location": [
+                "Gunakan lokasi ini"
+            ],
+            "is already in the list.": [
+                "sudah ada di daftar."
+            ],
+            "added.": [
+                "ditambahkan."
+            ],
+            "Remove": [
+                "Hapus"
+            ],
+            "Add a location": [
+                "Tambah lokasi"
+            ],
+            "Pick on map": [
+                "Pilih di peta"
+            ],
+            "Showing %1$s of %2$s — type to search.": [
+                "Menampilkan %1$s dari %2$s — ketik untuk mencari."
+            ],
+            "No terms found.": [
+                "Tidak ada istilah ditemukan."
+            ],
+            "No terms match your search.": [
+                "Tidak ada istilah yang cocok dengan pencarian Anda."
+            ],
+            "Search terms": [
+                "Cari istilah"
+            ],
+            "No results.": [
+                "Tidak ada hasil."
+            ],
+            "selected.": [
+                "dipilih."
+            ],
+            "Loading…": [
+                "Memuat…"
+            ],
+            "Post not found.": [
+                "Postingan tidak ditemukan."
+            ],
+            "Remove link": [
+                "Hapus tautan"
+            ],
+            "Search posts and pages by title…": [
+                "Cari postingan dan halaman berdasarkan judul…"
+            ],
+            "Hidden by the template.": [
+                "Disembunyikan oleh template."
+            ],
+            "Symbol": [
+                "Simbol"
+            ],
+            "Use template (%s)": [
+                "Gunakan template (%s)"
+            ],
+            "Days": [
+                "Hari"
+            ],
+            "Empty uses the template days.": [
+                "Kosong berarti memakai jumlah hari template."
+            ],
+            "Show or hide each stat for this widget only. The template is unchanged.": [
+                "Tampilkan atau sembunyikan tiap stat hanya untuk widget ini. Template tidak berubah."
+            ],
+            "Settings": [
+                "Pengaturan"
+            ],
+            "Configure this widget in the block settings.": [
+                "Atur widget ini di pengaturan blok."
+            ],
+            "Header Style": [
+                "Gaya Header"
+            ],
+            "Classic Top Border": [
+                "Klasik Garis Atas"
+            ],
+            "Classic Top Bottom Border": [
+                "Klasik Garis Atas Bawah"
+            ],
+            "Classic Bottom Border": [
+                "Klasik Garis Bawah"
+            ],
+            "Borderless": [
+                "Tanpa Garis"
+            ],
+            "Hide": [
+                "Sembunyikan"
+            ],
+            "Margin top (px)": [
+                "Margin atas (px)"
+            ],
+            "Margin bottom (px)": [
+                "Margin bawah (px)"
+            ],
+            "Title": [
+                "Judul"
+            ],
+            "Number of items": [
+                "Jumlah item"
+            ],
+            "Layout": [
+                "Tata letak"
+            ],
+            "List": [
+                "Daftar"
+            ],
+            "Grid": [
+                "Grid"
+            ],
+            "Show thumbnails": [
+                "Tampilkan thumbnail"
+            ],
+            "KK Recent News": [
+                "KK Berita Terbaru"
+            ],
+            "The latest published posts, newest first.": [
+                "Artikel terbaru yang diterbitkan, terbaru dulu."
+            ],
+            "KK Popular News": [
+                "KK Berita Populer"
+            ],
+            "Most discussed posts, ranked by comment count.": [
+                "Artikel paling banyak dibahas, diurutkan menurut jumlah komentar."
+            ],
+            "KK Related News": [
+                "KK Berita Terkait"
+            ],
+            "Posts related to the one being read, or the latest posts elsewhere.": [
+                "Artikel terkait dengan yang sedang dibaca, atau artikel terbaru di tempat lain."
+            ],
+            "KK Post By Terms": [
+                "KK Post Berdasarkan Term"
+            ],
+            "Posts from the categories and tags you pick, in your chosen order.": [
+                "Posting dari kategori dan tag yang Anda pilih, sesuai urutan pilihan Anda."
+            ],
+            "Categories": [
+                "Kategori"
+            ],
+            "Order": [
+                "Urutan"
+            ],
+            "Newest first": [
+                "Terbaru dulu"
+            ],
+            "Oldest first": [
+                "Terlama dulu"
+            ],
+            "KK Pages": [
+                "KK Halaman"
+            ],
+            "A list of page links, in menu order, by date or by title.": [
+                "Daftar tautan halaman, urut menu, tanggal, atau judul."
+            ],
+            "Sort order": [
+                "Urutan"
+            ],
+            "Menu order": [
+                "Urutan menu"
+            ],
+            "Date": [
+                "Tanggal"
+            ],
+            "KK Newsletter": [
+                "KK Buletin"
+            ],
+            "The newsletter subscribe form, for any widget area.": [
+                "Formulir berlangganan buletin, untuk area widget mana pun."
+            ],
+            "News, announcements and market updates from the cooperative, delivered to your inbox.": [
+                "Berita, pengumuman, dan kabar pasar dari koperasi, dikirim ke kotak masuk Anda."
+            ],
+            "Text": [
+                "Teks"
+            ],
+            "KK Quote": [
+                "KK Kutipan"
+            ],
+            "A single quote card, for any widget area.": [
+                "Satu kartu kutipan, untuk area widget mana pun."
+            ],
+            "Quote": [
+                "Kutipan"
+            ],
+            "Author": [
+                "Penulis"
+            ],
+            "Role": [
+                "Peran"
+            ],
+            "Link URL": [
+                "URL Tautan"
+            ],
+            "Leave empty to hide the link.": [
+                "Biarkan kosong untuk menyembunyikan tautan."
+            ],
+            "Link label": [
+                "Label Tautan"
+            ],
+            "Leave empty for the default label.": [
+                "Biarkan kosong untuk label bawaan."
+            ],
+            "KK Category List Content": [
+                "KK Konten Daftar Kategori"
+            ],
+            "Posts from one category, in a Featured, Grid, List, Featured Right or List Column layout.": [
+                "Artikel dari satu kategori, dalam tata letak Featured, Grid, List, Featured Right atau List Column."
+            ],
+            "Leave empty to use the category name.": [
+                "Kosongkan untuk memakai nama kategori."
+            ],
+            "Featured": [
+                "Unggulan"
+            ],
+            "Featured Right": [
+                "Featured Kanan"
+            ],
+            "Enable Link To": [
+                "Aktifkan Taut Ke"
+            ],
+            "KK Tag List Content": [
+                "KK Konten Daftar Tag"
+            ],
+            "Posts from one tag, in a Featured, Grid, List, Featured Right or List Column layout.": [
+                "Artikel dari satu tag, dalam tata letak Featured, Grid, List, Featured Right atau List Column."
+            ],
+            "Leave empty to use the tag name.": [
+                "Kosongkan untuk memakai nama tag."
+            ],
+            "KK Category Summary": [
+                "KK Category Summary"
+            ],
+            "The latest post from each picked category, side by side in columns.": [
+                "Artikel terbaru dari setiap kategori yang dipilih, berdampingan dalam kolom."
+            ],
+            "Categories to show": [
+                "Kategori yang ditampilkan"
+            ],
+            "Leave empty to show the three categories with the most posts.": [
+                "Biarkan kosong untuk menampilkan tiga kategori dengan artikel terbanyak."
+            ],
+            "Posts per category": [
+                "Artikel per kategori"
+            ],
+            "Show excerpt": [
+                "Tampilkan kutipan"
+            ],
+            "Show time": [
+                "Tampilkan waktu"
+            ],
+            "Index link label": [
+                "Label tautan indeks"
+            ],
+            "Index link URL": [
+                "URL tautan indeks"
+            ],
+            "Leave empty to hide the index link.": [
+                "Biarkan kosong untuk menyembunyikan tautan indeks."
+            ],
+            "KK Gold Prices": [
+                "KK Harga Emas"
+            ],
+            "Gold prices for Indonesian gold brands in an auto-scrolling slider.": [
+                "Harga emas untuk merek emas Indonesia dalam slider gulir otomatis."
+            ],
+            "Brands to show": [
+                "Merek yang ditampilkan"
+            ],
+            "Leave empty to show all brands.": [
+                "Kosongkan untuk menampilkan semua merek."
+            ],
+            "Slider style": [
+                "Gaya Slider"
+            ],
+            "Vertical Carousel": [
+                "Carousel Vertikal"
+            ],
+            "Horizontal Carousel": [
+                "Carousel Horizontal"
+            ],
+            "Slider Horizontal": [
+                "Slider Horizontal"
+            ],
+            "Items per view": [
+                "Item per tampilan"
+            ],
+            "1 item": [
+                "1 item"
+            ],
+            "2 items": [
+                "2 item"
+            ],
+            "3 items": [
+                "3 item"
+            ],
+            "Colour style": [
+                "Gaya Warna"
+            ],
+            "Auto": [
+                "Otomatis"
+            ],
+            "Dark Green": [
+                "Hijau Gelap"
+            ],
+            "Light": [
+                "Terang"
+            ],
+            "Autoplay": [
+                "Autoplay"
+            ],
+            "Show dots": [
+                "Tampilkan dot"
+            ],
+            "Autoplay interval (seconds)": [
+                "Interval Autoplay (detik)"
+            ],
+            "KK Data Desk": [
+                "KK Data Desk"
+            ],
+            "One market symbol as a data desk panel: price chart and stats. Pick a template.": [
+                "Satu simbol pasar sebagai panel meja data: grafik harga dan statistik. Pilih template."
+            ],
+            "Template": [
+                "Template"
+            ],
+            "KK Markets": [
+                "KK Pasar"
+            ],
+            "Gold, stock, forex, commodity and crypto prices from the Markets providers.": [
+                "Harga emas, saham, forex, komoditas, dan kripto dari penyedia Markets."
+            ],
+            "Style": [
+                "Gaya"
+            ],
+            "Default": [
+                "Bawaan"
+            ],
+            "No Margin": [
+                "Tanpa Margin"
+            ],
+            "Vertical List": [
+                "Daftar Vertikal"
+            ],
+            "Horizontal Slider": [
+                "Slider Horizontal"
+            ],
+            "Vertical Slider": [
+                "Slider Vertikal"
+            ],
+            "Full-width Strip": [
+                "Strip Lebar Penuh"
+            ],
+            "Marquee": [
+                "Marquee"
+            ],
+            "Index Strip": [
+                "Strip Indeks"
+            ],
+            "Visible items (desktop)": [
+                "Item terlihat (desktop)"
+            ],
+            "How many items show at once in the Horizontal Slider and Marquee layouts.": [
+                "Berapa banyak item yang tampil sekaligus di layout Horizontal Slider dan Marquee."
+            ],
+            "Markets to show": [
+                "Market yang ditampilkan"
+            ],
+            "Items to show": [
+                "Item yang ditampilkan"
+            ],
+            "Leave empty to show all items of the markets above. Pick up to 16 items.": [
+                "Kosongkan untuk menampilkan semua item dari pasar di atas. Pilih maksimal 16 item."
+            ],
+            "Show day change": [
+                "Tampilkan perubahan harian"
+            ],
+            "KK Yahoo Finance": [
+                "KK Yahoo Finance"
+            ],
+            "Live IHSG index from Yahoo Finance (free, no API key).": [
+                "IHSG live dari Yahoo Finance (gratis, tanpa API key)."
+            ],
+            "KK: Cuaca": [
+                "KK: Cuaca"
+            ],
+            "Current weather for a city, with a location picker.": [
+                "Cuaca terkini sebuah kota, dengan pemilih lokasi."
+            ],
+            "Dark": [
+                "Gelap"
+            ],
+            "Temperature layout": [
+                "Tata letak suhu"
+            ],
+            "Left": [
+                "Kiri"
+            ],
+            "Centered": [
+                "Tengah"
+            ],
+            "Between": [
+                "Di antara"
+            ],
+            "Right": [
+                "Kanan"
+            ],
+            "Temperature unit": [
+                "Satuan suhu"
+            ],
+            "Auto (site setting)": [
+                "Otomatis (pengaturan situs)"
+            ],
+            "Celsius (°C)": [
+                "Celcius (°C)"
+            ],
+            "Fahrenheit (°F)": [
+                "Fahrenheit (°F)"
+            ],
+            "Kelvin (K)": [
+                "Kelvin (K)"
+            ],
+            "Locations": [
+                "Lokasi"
+            ],
+            "Search for a city to add it. The first location is the default; the rest appear as quick picks in the location picker.": [
+                "Cari kota untuk menambahkannya. Lokasi pertama adalah bawaan; sisanya tampil sebagai pilihan cepat di pemilih lokasi."
+            ],
+            "Show details (feels like, high/low, humidity, wind)": [
+                "Tampilkan detail (terasa seperti, tertinggi/terendah, kelembapan, angin)"
+            ],
+            "Show condition icon": [
+                "Tampilkan ikon kondisi"
+            ],
+            "KK Agenda": [
+                "KK Agenda"
+            ],
+            "Upcoming cooperative events as a card that follows the site colour scheme; live events get a green dot, finished events are dimmed.": [
+                "Acara koperasi mendatang sebagai kartu yang mengikuti skema warna situs; acara live mendapat titik hijau, acara selesai diredupkan."
+            ],
+            "Agenda Koperasi": [
+                "Agenda Koperasi"
+            ],
+            "Show past events": [
+                "Tampilkan acara lalu"
+            ],
+            "Show icon": [
+                "Tampilkan ikon"
+            ],
+            "Icon": [
+                "Ikon"
+            ],
+            "Card style": [
+                "Gaya kartu"
+            ],
+            "Choose Own": [
+                "Pilih sendiri"
+            ],
+            "Background": [
+                "Latar belakang"
+            ],
+            "Accent text": [
+                "Teks aksen"
+            ],
+            "Link to": [
+                "Taut ke"
+            ],
+            "The card title links to this post or page.": [
+                "Judul kartu menaut ke postingan atau halaman ini."
+            ]
+        }
+    }
+}
