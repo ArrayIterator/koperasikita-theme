@@ -762,10 +762,16 @@ final class Markets
      * left the gold slider empty on the first load and made the data
      * arrive late, like a debounce. The transient is warmed in the
      * background afterwards by the browser refresh (gold-markets.ts
-     * calls the backend endpoint, which fetches live on a cold
-     * transient). Only a symbol with nothing stored anywhere falls
+     * calls the backend endpoint, which fetches live only when the
+     * stored data is missing or older than the auto-sync interval
+     * - otherwise it serves the stored value). Only a symbol with nothing stored anywhere falls
      * through to the live fetch, so a brand-new install with no
-     * saved prices still gets data.
+     * saved prices still gets data - and even then the provider
+     * only fetches when its stored data is missing or older than
+     * the auto-sync interval (see AbstractLiveProvider::prices()):
+     * a provider whose stored data is still fresh does not
+     * re-fetch for the one missing symbol, it answers an honest
+     * empty until the sync stores it.
      *
      * Request count: providers are grouped, so one fetch per provider
      * serves every brand that uses it - the scraped prices.json is

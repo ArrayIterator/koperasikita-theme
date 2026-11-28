@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace KoperasiKita\Providers;
 
 use KoperasiKita\Features\Markets;
+use KoperasiKita\Features\MarketSync;
 
 /**
  * Shared base for the live (API) price providers: Xaus (gold spot),
@@ -17,6 +18,20 @@ use KoperasiKita\Features\Markets;
  *    fails (upstream down, timeout), the stale value is served
  *    instead of an empty state, with its real `updated` timestamp
  *    so the age shown is honest.
+ *  - A live fetch from the frontend is only allowed when the
+ *    stored data is missing or stale: no fresh transient and no
+ *    last-good option, or a last-good value whose newest entry
+ *    is older than the auto-sync interval (the cron's maximum
+ *    time between syncs). While stored data is fresh it is
+ *    served from the DB and never re-fetched from the frontend -
+ *    fresh data is the sync's job (manual sync in wp-admin, cron
+ *    auto-sync), not the page render's.
+ *  - While a fetch runs, a "fetching" record sits in the DB
+ *    (a short-lived transient per provider): any other request
+ *    that would fetch sees it and stands down instead of firing
+ *    a duplicate upstream call. The record self-expires, so a
+ *    crashed or timed-out fetch can never leave a permanent
+ *    lock behind.
  *  - When there is no cached value and no last good value, prices()
  *    returns an empty array - never an invented number.
  *  - A provider must never fatal on bad input; an unreachable
@@ -46,6 +61,76 @@ abstract class AbstractLiveProvider implements MarketPriceProvider
     protected function failedKey(): string
     {
         return $this->transientKey() . '__failed';
+    }
+
+    /**
+     * How long a fetch is allowed to hold the "fetching" record
+     * (seconds). A single fetch is one 8-second upstream call per
+     * chunk at most, so 120 seconds is far above any healthy
+     * fetch and still short enough that a crashed or timed-out
+     * fetch can never block the next one for long - the
+     * transient expires on its own.
+     */
+    protected function fetchingTtlSeconds(): int
+    {
+        return 120;
+    }
+
+    /**
+     * Transient key marking this provider as mid-fetch. The value
+     * is the Unix time the fetch started; the key exists only
+     * while a fetch is in progress (set before fetch(), deleted
+     * when it finishes either way) and self-expires after
+     * fetchingTtlSeconds(), so a fetch that never returns cannot
+     * leave a permanent lock behind.
+     */
+    protected function fetchingKey(): string
+    {
+        return $this->transientKey() . '__fetching';
+    }
+
+    /**
+     * How old stored data may be before the frontend is allowed
+     * to fetch it live (seconds): the auto-sync interval from
+     * the MarketSync settings - the cron's maximum time between
+     * syncs. While the stored data is newer than this, the render
+     * serves the DB and the upstream is not touched. Auto-sync
+     * off falls back to the default interval (once an hour), so
+     * a disabled schedule never leaves the frontend fetching
+     * on every render.
+     */
+    protected function freshnessWindowSeconds(): int
+    {
+        $settings = MarketSync::autoSyncSettings();
+        $hours = $settings['enabled'] ? $settings['interval_hours'] : MarketSync::DEFAULT_INTERVAL_HOURS;
+
+        return $hours * HOUR_IN_SECONDS;
+    }
+
+    /**
+     * Whether a stored symbol map is still fresh: its newest
+     * entry is inside the freshness window. A map with no
+     * usable timestamp is treated as stale - its age cannot be
+     * proven, so the fetch is allowed rather than serving data
+     * of unknown age.
+     *
+     * @param array<string, array{price: float, change: float|null, updated: int}> $map
+     */
+    protected function storedIsFresh(array $map): bool
+    {
+        $newest = 0;
+
+        foreach ($map as $entry) {
+            if (is_array($entry) && isset($entry['updated']) && is_numeric($entry['updated'])) {
+                $newest = max($newest, (int) $entry['updated']);
+            }
+        }
+
+        if ($newest <= 0) {
+            return false;
+        }
+
+        return time() - $newest <= $this->freshnessWindowSeconds();
     }
 
     /** Provider ids already fetched (or attempted) in this request. */
@@ -90,41 +175,85 @@ abstract class AbstractLiveProvider implements MarketPriceProvider
             return $this->toMarketPrices($market, $cached);
         }
 
-        // Live fetch - at most once per request for this provider,
-        // and never while the 60-second failure backoff is set. A
-        // provider that just failed answers from its last good value
-        // (or nothing) instead of burning another timeout.
+        // Stored data (last good): while it is fresh - its newest
+        // entry inside the auto-sync interval - serve it from the
+        // DB and never fetch from the frontend. The sync (manual
+        // in wp-admin, cron auto-sync) is what refreshes stored
+        // data, not the page render. A cold transient used to
+        // re-fetch on every render; now it just serves the last
+        // good value until the sync runs.
+        $last = get_option($this->lastGoodOption());
+        $hasStored = is_array($last) && $last !== [];
+
+        if ($hasStored && $this->storedIsFresh($last)) {
+            return $this->toMarketPrices($market, $last);
+        }
+
+        // No stored data, or stored but stale (older than the
+        // auto-sync interval): a live fetch is allowed, but only
+        // one request at a time, and never while the 60-second
+        // failure backoff is set. A provider that just failed
+        // answers from its last good value (or nothing) instead
+        // of burning another timeout.
         //
         // Never in block-editor preview mode (Markets::isPreviewMode):
         // the inserter/canvas SSR render must serve the transient or
         // the last good value, never burn an 8-second upstream
         // timeout while a cold transient refetches - that is what
         // left the inserter preview a blank white box for ~5s.
+        //
+        // The fetching record is the cross-request lock: while
+        // another request is mid-fetch, this one stands down and
+        // answers from whatever is stored (or nothing) instead of
+        // firing a duplicate upstream call. The record is a
+        // short-lived transient, so a fetch that never returns
+        // expires on its own and the next request may try again.
+        // (The check-then-set is not atomic, so two requests
+        // landing in the same instant can rarely both fetch - the
+        // stampede of N fetches becomes at most a couple, never
+        // one per visitor.)
         $key = $this->transientKey();
 
-        if (!Markets::isPreviewMode() && !isset(self::$attemptedThisRequest[$key]) && get_transient($this->failedKey()) === false) {
-            self::$attemptedThisRequest[$key] = true;
-            $fetched = $this->fetch($market);
-
-            if (is_array($fetched) && $fetched !== []) {
-                set_transient($this->transientKey(), $fetched, $this->cacheSeconds());
-                update_option($this->lastGoodOption(), $fetched, false);
-                delete_transient($this->failedKey());
-
-                return $this->toMarketPrices($market, $fetched);
+        if (
+            Markets::isPreviewMode()
+            || isset(self::$attemptedThisRequest[$key])
+            || get_transient($this->failedKey()) !== false
+            || get_transient($this->fetchingKey()) !== false
+        ) {
+            // Blocked: the stale last-good value is still better
+            // than an empty state, with its real timestamp so the
+            // age shown is honest.
+            if ($hasStored) {
+                return $this->toMarketPrices($market, $last);
             }
 
-            // The fetch failed: mark the provider as recently failed
-            // so the next render inside the backoff window does not
-            // retry the upstream. The last-good value below is still
-            // served, with its real timestamp.
-            set_transient($this->failedKey(), 1, $this->failedBackoffSeconds());
+            return [];
         }
 
-        // Stale fallback: the last good value, with its real
-        // timestamp so the age shown is honest.
-        $last = get_option($this->lastGoodOption());
-        if (is_array($last) && $last !== []) {
+        self::$attemptedThisRequest[$key] = true;
+        set_transient($this->fetchingKey(), time(), $this->fetchingTtlSeconds());
+
+        try {
+            $fetched = $this->fetch($market);
+        } finally {
+            delete_transient($this->fetchingKey());
+        }
+
+        if (is_array($fetched) && $fetched !== []) {
+            set_transient($this->transientKey(), $fetched, $this->cacheSeconds());
+            update_option($this->lastGoodOption(), $fetched, false);
+            delete_transient($this->failedKey());
+
+            return $this->toMarketPrices($market, $fetched);
+        }
+
+        // The fetch failed: mark the provider as recently failed
+        // so the next render inside the backoff window does not
+        // retry the upstream. The stale last-good value below is
+        // still served, with its real timestamp.
+        set_transient($this->failedKey(), 1, $this->failedBackoffSeconds());
+
+        if ($hasStored) {
             return $this->toMarketPrices($market, $last);
         }
 
@@ -142,6 +271,12 @@ abstract class AbstractLiveProvider implements MarketPriceProvider
      * null when the fetch failed (the backoff is set, the last
      * good value stays untouched so the strip keeps serving it).
      *
+     * The sync is authoritative, so it is never blocked by a
+     * frontend "fetching" record - but it still sets the record
+     * while it runs and clears it when it finishes either way, so
+     * a render arriving mid-sync stands down instead of firing a
+     * second upstream call for the same data.
+     *
      * @return array<string, array{price: float, change: float|null, updated: int}>|null
      */
     public function forceRefresh(string $market): ?array
@@ -150,7 +285,13 @@ abstract class AbstractLiveProvider implements MarketPriceProvider
             return null;
         }
 
-        $fetched = $this->fetch($market);
+        set_transient($this->fetchingKey(), time(), $this->fetchingTtlSeconds());
+
+        try {
+            $fetched = $this->fetch($market);
+        } finally {
+            delete_transient($this->fetchingKey());
+        }
 
         if (!is_array($fetched) || $fetched === []) {
             set_transient($this->failedKey(), 1, $this->failedBackoffSeconds());
