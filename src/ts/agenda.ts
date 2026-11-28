@@ -24,7 +24,8 @@
  */
 
 import * as L from 'leaflet';
-import { initLocationSearch, type AjaxConfig } from './location-search';
+import { searchPlaces, type GeocodedPlace } from './geocode';
+import { initLocationSearch } from './location-search';
 
 export { filterSavedLocations, mergePlaceResults, parseSavedLocations } from './location-search';
 
@@ -173,7 +174,6 @@ function initAgenda(): void {
 
 const TILE_URL = 'https://tile.openstreetmap.org/{z}/{x}/{y}.png';
 const TILE_ATTRIBUTION = '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors';
-const NOMINATIM_URL = 'https://nominatim.openstreetmap.org/search';
 const SEARCH_DEBOUNCE_MS = 400;
 const DEFAULT_ZOOM = 15;
 
@@ -363,12 +363,6 @@ interface PickerBlock {
 	noPin: string;
 	defaultLat: number;
 	defaultLng: number;
-}
-
-interface NominatimResult {
-	lat: string;
-	lon: string;
-	display_name: string;
 }
 
 let activePicker: PickerBlock | null = null;
@@ -638,8 +632,8 @@ function initPickLocationPopup(): void {
 		});
 	}
 
-	// Place search (Nominatim, debounced): results are a plain list
-	// under the search box; picking one moves the pin there.
+	// Place search (debounced): results are a plain list under the
+	// search box; picking one moves the pin there.
 	let searchTimer: number | undefined;
 	search.addEventListener('input', () => {
 		window.clearTimeout(searchTimer);
@@ -654,27 +648,13 @@ function initPickLocationPopup(): void {
 			return;
 		}
 
-		let data: unknown;
+		let found: GeocodedPlace[];
 		try {
-			const response = await fetch(`${NOMINATIM_URL}?format=json&limit=5&accept-language=id&q=${encodeURIComponent(query)}`, {
-				headers: { Accept: 'application/json' },
-			});
-			if (!response.ok) {
-				hideResults();
-				return;
-			}
-			data = await response.json();
+			found = await searchPlaces(query);
 		} catch {
 			hideResults();
 			return;
 		}
-
-		if (!Array.isArray(data)) {
-			hideResults();
-			return;
-		}
-
-		const found = (data as NominatimResult[]).filter((row) => typeof row.lat === 'string' && typeof row.lon === 'string' && typeof row.display_name === 'string');
 
 		resultsList.innerHTML = '';
 
@@ -692,15 +672,12 @@ function initPickLocationPopup(): void {
 			const button = document.createElement('button');
 			button.type = 'button';
 			button.className = 'kk-agenda-popup-result';
-			button.textContent = row.display_name;
+			const label = row.country !== '' ? `${row.name}, ${row.country}` : row.name;
+			button.textContent = label;
 			button.addEventListener('click', () => {
-				const lat = parseCoord(row.lat, -90, 90);
-				const lng = parseCoord(row.lon, -180, 180);
-				if (lat !== null && lng !== null) {
-					setPopupPin(lat, lng);
-				}
+				setPopupPin(row.latitude, row.longitude);
 				hideResults();
-				search.value = row.display_name;
+				search.value = label;
 			});
 			item.append(button);
 			resultsList.append(item);
@@ -721,16 +698,11 @@ document.addEventListener('DOMContentLoaded', () => {
 /**
  * The inline location search on every agenda location field: the
  * Event Details box, the Locations admin form, and the contributor
- * form. The admin script localises kkAgendaData; on the frontend
- * the shared kkData (ajaxUrl + the same nonce) is the fallback, so
- * the contributor form searches through the same endpoint.
+ * form. The search itself is client-side (see location-search.ts),
+ * so no backend config is needed here.
  */
 function initLocationSearchFields(): void {
-	const adminData = (window as unknown as { kkAgendaData?: AjaxConfig }).kkAgendaData;
-	const frontData = (window as unknown as { kkData?: AjaxConfig }).kkData;
-	const config = adminData?.ajaxUrl && adminData?.nonce ? adminData : frontData?.ajaxUrl && frontData?.nonce ? frontData : null;
-
 	$all<HTMLElement>('[data-kk-agenda-location-search]').forEach((root) => {
-		initLocationSearch(root, config);
+		initLocationSearch(root);
 	});
 }

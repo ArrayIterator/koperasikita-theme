@@ -549,8 +549,9 @@ final class Blocks
                 'dataDeskTemplateMeta' => DataDesk::templateMeta(),
                 // The agenda block's icon picker lists every icon.
                 'icons' => self::optionList(array_combine(Icon::names(), Icon::names())),
-                // The locations field searches places through the
-                // theme's own AJAX endpoint (kk_weather_search).
+                // The locations field searches places straight from
+                // the browser now; ajaxUrl/nonce stay for the
+                // agenda link search.
                 'ajaxUrl' => admin_url('admin-ajax.php'),
                 'nonce' => Ajax::nonce(),
             ]);

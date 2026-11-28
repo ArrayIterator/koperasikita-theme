@@ -17,6 +17,7 @@
  */
 
 import * as L from 'leaflet';
+import { reverseGeocode, searchPlaces, type ReverseGeocodeDetails } from './geocode';
 
 export {};
 
@@ -249,53 +250,11 @@ function parseCoordPair(latText: string, lngText: string): { latitude: number; l
 	return { latitude, longitude };
 }
 
-/* POST one theme AJAX action (shared nonce in the body, like every
- * other theme endpoint) and return the parsed JSON. Null when the
- * request itself fails - the caller shows the generic unavailable
- * status. */
-async function postWeatherAjax(action: string, params: Record<string, string>): Promise<unknown> {
-	const ajaxUrl = kkWidgetBlocks?.ajaxUrl ?? '';
-	const nonce = kkWidgetBlocks?.nonce ?? '';
-	if (ajaxUrl === '' || nonce === '') {
-		return null;
-	}
-	try {
-		const response = await fetch(ajaxUrl, {
-			method: 'POST',
-			credentials: 'same-origin',
-			body: new URLSearchParams({ action, nonce, ...params }),
-		});
-		return (await response.json()) as unknown;
-	} catch {
-		return null;
-	}
-}
-
-/* City search through the theme's own kk_weather_search endpoint -
- * the same geocoding the inline locations search and the frontend
- * picker use. */
+/* City search, straight from the browser: Open-Meteo first,
+ * Nominatim when it finds nothing - the same geocoding the inline
+ * locations search and the frontend picker use. */
 async function searchWeatherPlaces(query: string): Promise<WeatherSearchResult[]> {
-	const json = await postWeatherAjax('kk_weather_search', { query });
-	const data = json as { success?: boolean; data?: { results?: WeatherSearchResult[] } };
-	return Array.isArray(data?.data?.results) ? data.data.results : [];
-}
-
-/* Area name for coordinates (kk_weather_reverse): the label for a
- * pin the user placed by hand. Null when it cannot be resolved -
- * the caller keeps whatever label it already has. */
-async function reverseGeocodeWeather(latitude: number, longitude: number): Promise<string | null> {
-	const details = await reverseGeocodeWeatherDetails(latitude, longitude);
-	return details === null ? null : details.name;
-}
-
-interface ReverseGeocodeDetails {
-	name: string;
-	fullName: string;
-	kelurahan: string | null;
-	kecamatan: string | null;
-	kota: string | null;
-	latitude: number;
-	longitude: number;
+	return searchPlaces(query);
 }
 
 /* Full area hierarchy for coordinates: the short display name plus
@@ -303,29 +262,7 @@ interface ReverseGeocodeDetails {
  * came from, with the queried coordinates attached so the caller can
  * tell whether the details still belong to the current pin. */
 async function reverseGeocodeWeatherDetails(latitude: number, longitude: number): Promise<ReverseGeocodeDetails | null> {
-	const json = await postWeatherAjax('kk_weather_reverse', {
-		latitude: String(latitude),
-		longitude: String(longitude),
-	});
-	const data = json as {
-		success?: boolean;
-		data?: { name?: string | null; fullName?: string | null; kelurahan?: string | null; kecamatan?: string | null; kota?: string | null };
-	};
-	const name = typeof data?.data?.name === 'string' ? data.data.name.trim() : '';
-	if (name === '') {
-		return null;
-	}
-	const fullName =
-		typeof data?.data?.fullName === 'string' && data.data.fullName.trim() !== '' ? data.data.fullName.trim() : name;
-	return {
-		name,
-		fullName,
-		kelurahan: typeof data?.data?.kelurahan === 'string' && data.data.kelurahan !== '' ? data.data.kelurahan : null,
-		kecamatan: typeof data?.data?.kecamatan === 'string' && data.data.kecamatan !== '' ? data.data.kecamatan : null,
-		kota: typeof data?.data?.kota === 'string' && data.data.kota !== '' ? data.data.kota : null,
-		latitude,
-		longitude,
-	};
+	return reverseGeocode(latitude, longitude);
 }
 
 /* Attach the full hierarchy to a location, unless it adds nothing
@@ -811,9 +748,9 @@ function LocationPickerModal(props: {
 
 /* The weather locations field: the saved list (name + coordinates
  * with a remove button each) plus a search box that adds places
- * through the theme's own kk_weather_search endpoint - the same
- * geocoding the frontend location picker uses. A real component
- * (not a renderField branch) so it can hold the search state. */
+ * through the client-side geocoder - the same geocoding the
+ * frontend location picker uses. A real component (not a renderField
+ * branch) so it can hold the search state. */
 function LocationsField(props: {
 	field: { key: string; label: string; help?: string };
 	value: unknown;
@@ -842,24 +779,10 @@ function LocationsField(props: {
 		}
 		setStatus(__('Searching…'));
 		timer.current = window.setTimeout(() => {
-			const ajaxUrl = kkWidgetBlocks?.ajaxUrl ?? '';
-			const nonce = kkWidgetBlocks?.nonce ?? '';
-			if (ajaxUrl === '' || nonce === '') {
-				setSearching(false);
-				setStatus(__('Search is unavailable right now.'));
-				return;
-			}
 			setSearching(true);
-			const body = new URLSearchParams({ action: 'kk_weather_search', nonce, query: nextQuery.trim() });
-			void fetch(ajaxUrl, { method: 'POST', credentials: 'same-origin', body })
-				.then((response) => response.json() as Promise<unknown>)
-				.then((json) => {
+			void searchWeatherPlaces(nextQuery.trim())
+				.then((found) => {
 					setSearching(false);
-					const data = json as {
-						success?: boolean;
-						data?: { results?: WeatherSearchResult[] };
-					};
-					const found = Array.isArray(data.data?.results) ? data.data.results : [];
 					setResults(found);
 					setStatus(found.length === 0 ? __('No places found. Try another name.') : '');
 				})
