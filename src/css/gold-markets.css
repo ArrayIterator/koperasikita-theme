@@ -539,17 +539,16 @@ html[data-color-scheme="dark"] .kk-market-header .kk-market-change-down {
 	white-space: nowrap;
 }
 
-/* Market header index: mobile swipeable row
- * Below 767px the strip is a horizontal row the visitor drags
- * left and right with touch (native overflow-x scrolling, hidden
- * scrollbar, scroll-snap so an item settles in view). Every item
- * stays in the flow, so all of them are reachable by swiping -
- * the old one-item rotation stacked them absolute and hid all
- * but the active one, so there was nothing to drag.
- * The snapshot keeps its place at the right end of the same row:
- * the inner row stops wrapping and the strip takes the remaining
- * width (min-width 0, so it shrinks instead of pushing the
- * snapshot off), while the snapshot stays flex-none and nowrap. */
+/* Market header index: mobile ticker rotation
+ * Below 767px the row fits about one item, so the strip cycles one
+ * item at a time with the news ticker's bouncing fade (the same
+ * kk-ticker-in / kk-ticker-out keyframes from header.css: the new
+ * item bounces up from below, the old one fades up and out). The
+ * strip shares the row with the snapshot label at the right: the
+ * inner row stops wrapping and the strip takes the remaining width
+ * (min-width 0, so it shrinks instead of pushing the snapshot
+ * off), while the snapshot stays flex-none and nowrap. Desktop
+ * keeps the marquee (min-width: 768px below). */
 @media (max-width: 767px) {
 	.kk-market-header-inner {
 		flex-wrap: nowrap;
@@ -558,18 +557,26 @@ html[data-color-scheme="dark"] .kk-market-header .kk-market-change-down {
 	.kk-market-header .kk-index-strip {
 		flex: 1 1 0;
 		min-width: 0;
-		position: static;
-		height: auto;
-		overflow-x: auto;
-		scroll-snap-type: x proximity;
+		position: relative;
+		height: 1.5em;
+		overflow: hidden;
 	}
 
 	.kk-market-header .kk-index-item {
-		position: static;
-		flex: 0 0 auto;
+		position: absolute;
+		inset: 0;
+		opacity: 0;
+		visibility: hidden;
+	}
+
+	.kk-market-header .kk-index-item.is-active {
 		opacity: 1;
 		visibility: visible;
-		scroll-snap-align: start;
+		animation: kk-ticker-in 0.5s ease;
+	}
+
+	.kk-market-header .kk-index-item.is-leaving {
+		animation: kk-ticker-out 0.4s ease forwards;
 	}
 }
 
@@ -656,14 +663,32 @@ html[data-color-scheme="dark"] .kk-market-header .kk-market-change-down {
    items in a track with two identical sets and the track translates
    -50% on a linear loop, so the seam never shows. The loop passes
    one item per cycle interval (the strip's data-speed, 7s by
-   default), so the pace follows the cycle interval Customizer
-   setting - no new setting. Mobile keeps the swipeable row
-   (max-width: 767px above) and reduced motion never builds the
-   marquee at all, so the strip stays the plain swipeable row.
-   Hover/focus pauses the loop so an item can be read. */
+   default), so the pace follows the same Customizer setting as the
+   mobile rotation - no new setting. Mobile keeps the one-item
+   rotation (max-width: 767px above) and reduced motion never builds
+   the marquee at all, so the strip stays the plain swipeable row.
+   Hover/focus pauses the loop so an item can be read, and the
+   strip is draggable on desktop too: a pointer drag takes over
+   the track (the script drives the translate while dragging and
+   resumes the loop where the drag left it), so a hovered strip
+   sits still and can be swiped. */
 @media (min-width: 768px) {
 	.kk-market-header .kk-index-strip--marquee {
 		overflow: hidden;
+		/* Draggable: touch-action pan-y keeps vertical page scroll
+		 * native while horizontal moves reach the script; the grab
+		 * cursor says the strip can be dragged. */
+		touch-action: pan-y;
+		cursor: grab;
+	}
+
+	.kk-market-header .kk-index-strip.kk-is-dragging {
+		cursor: grabbing;
+		user-select: none;
+	}
+
+	.kk-market-header .kk-index-strip--marquee.kk-is-dragging .kk-index-strip-track {
+		animation: none;
 	}
 
 	.kk-index-strip-track {
