@@ -4356,6 +4356,7 @@ msgstr "Nama dan koordinat yang valid wajib diisi."
 msgid "Update Location"
 msgstr "Perbarui Lokasi"
 
+#: template-parts/weather/location-picker.php
 msgid "Update"
 msgstr "Update"
 
