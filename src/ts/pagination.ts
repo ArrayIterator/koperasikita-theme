@@ -23,6 +23,7 @@ interface PostsData {
 	html: string;
 	page: number;
 	pages: number;
+	maxPages: number;
 	hasMore: boolean;
 	perPage: number;
 }
@@ -65,7 +66,7 @@ function initPagination(): void {
 	} catch {
 		query = {};
 	}
-	const maxPages = Math.max(1, Number(loader.getAttribute('data-max-pages') ?? '1') || 1);
+	let maxPages = Math.max(1, Number(loader.getAttribute('data-max-pages') ?? '1') || 1);
 	const loadMoreMaxRequests = Math.max(0, Number(loader.getAttribute('data-load-more-max') ?? '0') || 0);
 	const loadingStyle = loader.getAttribute('data-loading-style') ?? 'icon-text';
 	const perPage = Math.min(100, Math.max(1, Number(loader.getAttribute('data-per-page') ?? '10') || 10));
@@ -189,6 +190,11 @@ function initPagination(): void {
 			}
 			requests += 1;
 			page = data.page;
+			/* The response carries the max page count: refresh the
+			 * client-side max from it, so the no-next-page check
+			 * below uses the response's max, not only the value
+			 * the server rendered on page one. */
+			maxPages = Math.max(1, data.maxPages || maxPages);
 			/* Keep the link pointing at the page after the one just
 			 * loaded, so a later click (past the cap, or with
 			 * JavaScript off) lands on the right page. */
