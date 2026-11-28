@@ -333,11 +333,11 @@ final class DataDeskTemplatesPage
         $content .= '<table class="widefat striped"><thead><tr><th>' . esc_html__('Placeholder', 'koperasikita') . '</th><th>' . esc_html__('Resolves to', 'koperasikita') . '</th><th>' . esc_html__('Sample', 'koperasikita') . '</th><th></th></tr></thead><tbody>';
 
         foreach (self::placeholderTokenRows($template) as $row) {
-            $content .= '<tr><td><code>' . esc_html($row['token']) . '</code></td><td>' . esc_html($row['desc']) . '</td><td>' . esc_html($row['sample']) . '</td><td><button type="button" class="kk-data-desk-button" data-kk-placeholder-insert="' . esc_attr($row['token']) . '">' . esc_html__('Insert', 'koperasikita') . '</button></td></tr>';
+            $content .= '<tr><td><code>' . esc_html($row['token']) . '</code></td><td>' . esc_html($row['desc']) . '</td><td>' . esc_html($row['sample']) . '</td><td><button type="button" class="button" data-kk-placeholder-insert="' . esc_attr($row['token']) . '">' . esc_html__('Insert', 'koperasikita') . '</button></td></tr>';
         }
 
         $content .= '</tbody></table>';
-        $content .= '<p><button type="button" class="kk-data-desk-button kk-data-desk-button--primary" data-kk-placeholder-configure>' . esc_html__('Configure placeholders', 'koperasikita') . '</button></p>';
+        $content .= '<p><button type="button" class="button button-primary" data-kk-placeholder-configure>' . esc_html__('Configure placeholders', 'koperasikita') . '</button></p>';
 
         $screen->add_help_tab([
             'id' => 'kk-data-desk-placeholders',
@@ -587,17 +587,17 @@ final class DataDeskTemplatesPage
                                 value="<?php echo esc_attr($value); ?>"
                                 <?php checked($template['palette'], $value); ?>
                             >
-                            <label for="kk-template-palette-<?php echo esc_attr($value); ?>" title="<?php echo esc_attr(DataDesk::paletteLabel($value)); ?>"><?php echo esc_html($segmentLabel); ?></label>
+                            <label class="button" for="kk-template-palette-<?php echo esc_attr($value); ?>" title="<?php echo esc_attr(DataDesk::paletteLabel($value)); ?>"><?php echo esc_html($segmentLabel); ?></label>
                         <?php endforeach; ?>
                     </div>
                     <input type="hidden" id="kk-template-palette" name="kk_template_palette" value="<?php echo esc_attr($template['palette']); ?>">
                 </div>
                 <div class="kk-data-desk-topbar-actions">
                     <?php if ($id !== '' && DataDesk::isBuiltIn($id)) : ?>
-                        <a href="<?php echo esc_url(wp_nonce_url(add_query_arg(['kk_data_desk_restore' => $id, 'return' => 'edit'], $pageUrl), 'kk_data_desk_restore')); ?>" class="kk-data-desk-button" onclick="return confirm('<?php echo esc_js(__('Discard your changes and restore this template to its built-in values?', 'koperasikita')); ?>');"><?php esc_html_e('Revert to default', 'koperasikita'); ?></a>
+                        <a href="<?php echo esc_url(wp_nonce_url(add_query_arg(['kk_data_desk_restore' => $id, 'return' => 'edit'], $pageUrl), 'kk_data_desk_restore')); ?>" class="button" onclick="return confirm('<?php echo esc_js(__('Discard your changes and restore this template to its built-in values?', 'koperasikita')); ?>');"><?php esc_html_e('Revert to default', 'koperasikita'); ?></a>
                     <?php endif; ?>
-                    <input type="submit" name="submit" class="kk-data-desk-button kk-data-desk-button--primary" value="<?php echo esc_attr($id !== '' ? __('Update Template', 'koperasikita') : __('Add Template', 'koperasikita')); ?>">
-                    <a href="<?php echo esc_url($pageUrl); ?>" class="kk-data-desk-button"><?php esc_html_e('Cancel', 'koperasikita'); ?></a>
+                    <input type="submit" name="submit" class="button button-primary" value="<?php echo esc_attr($id !== '' ? __('Update Template', 'koperasikita') : __('Add Template', 'koperasikita')); ?>">
+                    <a href="<?php echo esc_url($pageUrl); ?>" class="button"><?php esc_html_e('Cancel', 'koperasikita'); ?></a>
                 </div>
             </div>
             <?php /* Table display settings: style, title placement,
@@ -651,7 +651,7 @@ final class DataDeskTemplatesPage
                             <?php echo esc_html(Gold::brands()[$slug] ?? $slug); ?>
                         </label>
                     <?php endforeach; ?>
-                    <button type="button" class="kk-data-desk-button" data-kk-chart-colors-reset><?php esc_html_e('Reset colours', 'koperasikita'); ?></button>
+                    <button type="button" class="button" data-kk-chart-colors-reset><?php esc_html_e('Reset colours', 'koperasikita'); ?></button>
                 </div>
                 <div class="kk-data-desk-table-settings-field kk-data-desk-table-settings-field--colors">
                     <span class="kk-data-desk-topbar-label"><?php esc_html_e('Header colours', 'koperasikita'); ?></span>
@@ -708,7 +708,7 @@ final class DataDeskTemplatesPage
                 <div class="kk-data-desk-popup-head">
                     <h2 id="kk-data-desk-placeholders-popup-title"><?php esc_html_e('Placeholder settings', 'koperasikita'); ?></h2>
                     <div class="kk-data-desk-popup-actions">
-                        <button type="button" class="kk-data-desk-button" data-kk-placeholder-popup-close><?php esc_html_e('Close', 'koperasikita'); ?></button>
+                        <button type="button" class="button" data-kk-placeholder-popup-close><?php esc_html_e('Close', 'koperasikita'); ?></button>
                     </div>
                 </div>
                 <div class="kk-data-desk-popup-body">
@@ -764,7 +764,7 @@ final class DataDeskTemplatesPage
                 <div class="kk-data-desk-popup-head">
                     <h2 id="kk-data-desk-placeholders-insert-popup-title"><?php esc_html_e('Insert placeholder', 'koperasikita'); ?></h2>
                     <div class="kk-data-desk-popup-actions">
-                        <button type="button" class="kk-data-desk-button" data-kk-placeholder-insert-popup-close><?php esc_html_e('Close', 'koperasikita'); ?></button>
+                        <button type="button" class="button" data-kk-placeholder-insert-popup-close><?php esc_html_e('Close', 'koperasikita'); ?></button>
                     </div>
                 </div>
                 <div class="kk-data-desk-popup-body" data-kk-placeholder-insert-popup-body></div>
@@ -785,8 +785,8 @@ final class DataDeskTemplatesPage
                 <div class="kk-data-desk-popup-head">
                     <h2 id="kk-data-desk-field-popup-title"></h2>
                     <div class="kk-data-desk-popup-actions">
-                        <button type="button" class="kk-data-desk-button kk-data-desk-button--primary" data-kk-field-popup-save><?php esc_html_e('Save', 'koperasikita'); ?></button>
-                        <button type="button" class="kk-data-desk-button" data-kk-field-popup-close><?php esc_html_e('Cancel', 'koperasikita'); ?></button>
+                        <button type="button" class="button button-primary" data-kk-field-popup-save><?php esc_html_e('Save', 'koperasikita'); ?></button>
+                        <button type="button" class="button" data-kk-field-popup-close><?php esc_html_e('Cancel', 'koperasikita'); ?></button>
                     </div>
                 </div>
                 <div class="kk-data-desk-popup-body">

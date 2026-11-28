@@ -897,13 +897,23 @@ function initDataDeskPreview(): void {
 	/* The palette is a segmented control in the top bar (radios),
 	 * synced into the hidden #kk-template-palette input the
 	 * refresh reads. A segment click updates the hidden value and
-	 * fires its change listener, so the preview refreshes. */
-	document.querySelectorAll<HTMLInputElement>('input[name="kk_template_palette_ui"]').forEach((radio) => {
+	 * fires its change listener, so the preview refreshes. The
+	 * labels are WP buttons; the checked one also carries
+	 * .button-primary, synced here and once at init. */
+	const paletteRadios = document.querySelectorAll<HTMLInputElement>('input[name="kk_template_palette_ui"]');
+	const syncPaletteButtons = (): void => {
+		paletteRadios.forEach((radio) => {
+			radio.nextElementSibling?.classList.toggle('button-primary', radio.checked);
+		});
+	};
+	paletteRadios.forEach((radio) => {
 		radio.addEventListener('change', () => {
 			palette.value = radio.value;
 			palette.dispatchEvent(new Event('change'));
+			syncPaletteButtons();
 		});
 	});
+	syncPaletteButtons();
 	/* Placeholders: the settings popup holds the three choices
 	 * (date format, percent type, zone colour); its Configure
 	 * button lives in the Help tab and is bound document-wide.
@@ -2016,7 +2026,7 @@ function initDataDeskPreview(): void {
 				const confirmLine = document.createElement('p');
 				const confirm = document.createElement('button');
 				confirm.type = 'button';
-				confirm.className = 'kk-data-desk-button kk-data-desk-button--primary';
+				confirm.className = 'button button-primary';
 				confirm.textContent = adminStrings().insertConfirm;
 				confirm.addEventListener('click', confirmPlaceholderInsert);
 				confirmLine.append(confirm);
