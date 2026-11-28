@@ -831,6 +831,13 @@
 	cursor: pointer;
 }
 
+/* The inline-flex above beats the user-agent [hidden] rule, so
+ * the script hiding the button at the end of the list needs an
+ * explicit rule, or the button stays visible. */
+.kk-load-more[hidden] {
+	display: none;
+}
+
 .kk-load-more:hover {
 	border-color: var(--kk-green, #0B6B3A);
 	color: var(--kk-green, #0B6B3A);
