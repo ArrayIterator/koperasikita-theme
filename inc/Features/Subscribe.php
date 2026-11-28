@@ -635,11 +635,18 @@ final class Subscribe
      * and last_subscribed_at on the MailPoet subscribers row.
      * The row is written directly because the MP v1 API offers
      * no call for it (see mailPoetAddToLists). The flip is
-     * verified by re-reading the record through the API, so a
-     * write that did not land reads as a failure, never as a
-     * success. No welcome mail, no notification, no automation
-     * hook: the admin sync is a silent import, and the list
-     * subscriptions were already ensured by subscribeToLists.
+     * verified by reading the row straight off the table, never
+     * through the API: the API reads through MailPoet's ORM,
+     * whose identity map hands back the subscriber entity it
+     * already loaded this request - still unconfirmed - after
+     * the row below was flipped by the direct write, so an API
+     * re-read reports the flip as a failure even when it
+     * landed (a live sync once reported exactly that while the
+     * record in MailPoet was already subscribed). The row is
+     * the ground truth. No welcome mail, no notification, no
+     * automation hook: the admin sync is a silent import, and
+     * the list subscriptions were already ensured by
+     * subscribeToLists.
      *
      * @param mixed $api
      */
@@ -651,14 +658,14 @@ final class Subscribe
             return false;
         }
 
-        if ((string) ($found['status'] ?? '') === 'subscribed') {
-            return true;
-        }
-
         $subscriberId = (int) ($found['id'] ?? 0);
 
         if ($subscriberId <= 0) {
             return false;
+        }
+
+        if (self::mailPoetSubscriberStatus($subscriberId) === 'subscribed') {
+            return true;
         }
 
         global $wpdb;
@@ -682,9 +689,25 @@ final class Subscribe
             return false;
         }
 
-        $confirmed = self::mailPoetFindSubscriber($api, $email);
+        return self::mailPoetSubscriberStatus($subscriberId) === 'subscribed';
+    }
 
-        return $confirmed !== null && (string) ($confirmed['status'] ?? '') === 'subscribed';
+    /**
+     * One MailPoet subscriber's status, read straight off the
+     * subscribers row. The API must never be used for this: its
+     * ORM hands back the entity it already loaded this request,
+     * stale after a direct write (see mailPoetConfirmSubscriber).
+     */
+    private static function mailPoetSubscriberStatus(int $subscriberId): string
+    {
+        global $wpdb;
+
+        $status = $wpdb->get_var($wpdb->prepare(
+            "SELECT status FROM {$wpdb->prefix}mailpoet_subscribers WHERE id = %d",
+            $subscriberId
+        ));
+
+        return is_string($status) ? $status : '';
     }
 
     /**
@@ -878,6 +901,15 @@ final class Subscribe
         $failed = 0;
         $ignored = 0;
 
+        /* One address, one category, one line: an address the
+         * push already gave a line is never counted again by
+         * the pull, or a single run reports the same address as
+         * both pushed and already synced - and a failed push
+         * would read as failed and already synced at once. The
+         * value is the push outcome, so the pull still backfills
+         * the audit IPs for an address the push landed. */
+        $handled = [];
+
         $api = self::mailPoetApi();
 
         /* Push: local subscribed rows into MailPoet. The batch
@@ -896,6 +928,7 @@ final class Subscribe
                 if (Subscribers::isIgnoredSyncAddress($email)) {
                     $ignored++;
                     $lines[] = sprintf(__('%s: ignored (test address)', 'koperasikita'), $email);
+                    $handled[strtolower($email)] = 'ignored';
                     continue;
                 }
 
@@ -904,12 +937,15 @@ final class Subscribe
                 if ($result['status'] === 'ok' && Subscribers::setSource($email, Subscribers::SOURCE_MAILPOET)) {
                     $pushed++;
                     $lines[] = sprintf(__('%s: pushed to MailPoet', 'koperasikita'), $email);
+                    $handled[strtolower($email)] = 'pushed';
                 } elseif ($result['status'] === 'ok') {
                     $failed++;
                     $lines[] = sprintf(__('%s: failed - could not update the local record', 'koperasikita'), $email);
+                    $handled[strtolower($email)] = 'failed';
                 } else {
                     $failed++;
                     $lines[] = sprintf(__('%s: failed - %s', 'koperasikita'), $email, $result['reason']);
+                    $handled[strtolower($email)] = 'failed';
                 }
             }
         }
@@ -923,6 +959,19 @@ final class Subscribe
          * that happened in MailPoet still lands here. */
         foreach (self::mailPoetSubscribedRows($listIds, $batch) as $contact) {
             $email = $contact['email'];
+            $key = strtolower($email);
+
+            if (isset($handled[$key])) {
+                /* Already given a line by the push: the pull
+                 * never counts it again. A pushed address still
+                 * takes the audit IPs off the MailPoet record,
+                 * the way it did before the counting fix. */
+                if ($handled[$key] === 'pushed') {
+                    Subscribers::backfillIps($email, $contact['subscribed_ip'], $contact['confirmed_ip']);
+                }
+
+                continue;
+            }
 
             if (Subscribers::isIgnoredSyncAddress($email)) {
                 $ignored++;
@@ -999,7 +1048,18 @@ final class Subscribe
             );
         }
 
-        return self::runTwoWaySync(self::SYNC_BATCH);
+        /* The click carries the toggle as the user sees it: a
+         * flip without a save still runs the mode the button
+         * advertises, instead of the saved setting behind it
+         * (a flipped-but-unsaved toggle once ran two-way while
+         * the button said import-only, and the pull-only
+         * summary came back carrying a pushed count). Without
+         * the flag - an old cached page - the saved setting
+         * decides, as before. */
+        $rawPush = isset($_POST['push']) ? (string) wp_unslash($_POST['push']) : '';
+        $push = $rawPush === '1' ? true : ($rawPush === '0' ? false : null);
+
+        return self::runTwoWaySync(self::SYNC_BATCH, $push);
     }
 
     private static function isRateLimited(): bool

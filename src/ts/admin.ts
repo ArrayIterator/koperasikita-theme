@@ -3029,7 +3029,17 @@ function initMailPoetSync(): void {
 		closeButton.focus();
 
 		try {
-			const data = await postAjax<MailPoetSyncResult>(config, 'kk_mailpoet_sync', {});
+			/* The toggle as the user sees it rides along: a
+			 * flip without a save still runs the mode the
+			 * button advertises, instead of the saved setting
+			 * behind it. Without a toggle (a stale page) the
+			 * request carries no flag and the server falls back
+			 * to the saved setting. */
+			const params: Record<string, string> = {};
+			if (toggle) {
+				params.push = toggle.checked ? '1' : '0';
+			}
+			const data = await postAjax<MailPoetSyncResult>(config, 'kk_mailpoet_sync', params);
 			statusEl.textContent = data.lines.join('\n');
 			resultEl.textContent = data.summary;
 			resultEl.hidden = false;
