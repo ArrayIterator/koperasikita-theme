@@ -30,7 +30,7 @@ abstract class AbstractStoryWidget extends WP_Widget
     /**
      * Fetch the posts this widget lists.
      *
-     * @param array{title: string, count: int, layout: string, show_thumbnail: bool} $settings
+     * @param array{title: string, count: int, layout: string, show_thumbnail: bool, show_date: bool, show_clock: bool, show_category: bool} $settings
      * @return WP_Post[]
      */
     abstract protected function getPosts(array $settings): array;
@@ -65,7 +65,7 @@ abstract class AbstractStoryWidget extends WP_Widget
     }
 
     /**
-     * @return array{title: string, count: int, layout: string, show_thumbnail: bool, header_style: string, margins: array{top: int, bottom: int}}
+     * @return array{title: string, count: int, layout: string, show_thumbnail: bool, show_date: bool, show_clock: bool, show_category: bool, header_style: string, margins: array{top: int, bottom: int}}
      */
     protected function settings(array $instance): array
     {
@@ -74,6 +74,11 @@ abstract class AbstractStoryWidget extends WP_Widget
             'count' => isset($instance['count']) ? max(1, min(self::MAX_COUNT, (int) $instance['count'])) : self::DEFAULT_COUNT,
             'layout' => isset($instance['layout']) && in_array($instance['layout'], ['list', 'grid'], true) ? (string) $instance['layout'] : 'list',
             'show_thumbnail' => !empty($instance['show_thumbnail']),
+            // Unset means an instance saved before the toggle existed,
+            // when the date always showed - so unset defaults to on.
+            'show_date' => !isset($instance['show_date']) || !empty($instance['show_date']),
+            'show_clock' => !empty($instance['show_clock']),
+            'show_category' => !empty($instance['show_category']),
             'header_style' => WidgetHeader::style($instance),
             'margins' => WidgetSpacing::margins($instance, WidgetSpacing::DEFAULT_BOTTOM_ARTICLE),
         ];
@@ -127,10 +132,36 @@ abstract class AbstractStoryWidget extends WP_Widget
                             </span>
                         <?php endif; ?>
                         <span class="kk-widget-story-text">
+                            <?php if ($settings['show_category']) : ?>
+                                <?php $story_categories = get_the_category($post->ID); ?>
+                                <?php if ($story_categories !== []) : ?>
+                                    <span class="kk-widget-story-category"><?php echo esc_html($story_categories[0]->name); ?></span>
+                                <?php endif; ?>
+                            <?php endif; ?>
                             <span class="kk-widget-story-title"><?php echo get_the_title($post); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></span>
-                            <time class="kk-widget-story-date" datetime="<?php echo esc_attr(get_the_date('c', $post)); ?>">
-                                <?php echo esc_html(get_the_date('', $post)); ?>
-                            </time>
+                            <?php
+                            // Date and clock are independent toggles
+                            // sharing one <time>: date only is today's
+                            // look, clock only is just the time, both on
+                            // reads "24 November 2026 · 08.30 WIB".
+                            // wp_date(), not date_i18n(), for the true
+                            // timestamp - date_i18n() shifts it by the
+                            // site offset. The clock follows the Category
+                            // Summary convention (H.i + zone).
+                            $story_time_parts = [];
+                            if ($settings['show_date']) {
+                                $story_time_parts[] = get_the_date('', $post);
+                            }
+                            $story_timestamp = get_post_timestamp($post);
+                            if ($settings['show_clock'] && $story_timestamp !== false) {
+                                $story_time_parts[] = wp_date('H.i', $story_timestamp) . ' ' . wp_date('T', $story_timestamp);
+                            }
+                            ?>
+                            <?php if ($story_time_parts !== []) : ?>
+                                <time class="kk-widget-story-date" datetime="<?php echo esc_attr(get_the_date('c', $post)); ?>">
+                                    <?php echo esc_html(implode(' · ', $story_time_parts)); ?>
+                                </time>
+                            <?php endif; ?>
                         </span>
                     </a>
                 </li>
@@ -205,6 +236,45 @@ abstract class AbstractStoryWidget extends WP_Widget
                 <?php esc_html_e('Show thumbnails', 'koperasikita'); ?>
             </label>
         </p>
+        <p>
+            <input
+                class="checkbox"
+                type="checkbox"
+                id="<?php echo esc_attr($this->get_field_id('show_date')); ?>"
+                name="<?php echo esc_attr($this->get_field_name('show_date')); ?>"
+                value="1"
+                <?php checked($settings['show_date']); ?>
+            >
+            <label for="<?php echo esc_attr($this->get_field_id('show_date')); ?>">
+                <?php esc_html_e('Show Date', 'koperasikita'); ?>
+            </label>
+        </p>
+        <p>
+            <input
+                class="checkbox"
+                type="checkbox"
+                id="<?php echo esc_attr($this->get_field_id('show_clock')); ?>"
+                name="<?php echo esc_attr($this->get_field_name('show_clock')); ?>"
+                value="1"
+                <?php checked($settings['show_clock']); ?>
+            >
+            <label for="<?php echo esc_attr($this->get_field_id('show_clock')); ?>">
+                <?php esc_html_e('Show Clock', 'koperasikita'); ?>
+            </label>
+        </p>
+        <p>
+            <input
+                class="checkbox"
+                type="checkbox"
+                id="<?php echo esc_attr($this->get_field_id('show_category')); ?>"
+                name="<?php echo esc_attr($this->get_field_name('show_category')); ?>"
+                value="1"
+                <?php checked($settings['show_category']); ?>
+            >
+            <label for="<?php echo esc_attr($this->get_field_id('show_category')); ?>">
+                <?php esc_html_e('Show Category', 'koperasikita'); ?>
+            </label>
+        </p>
         <?php
 
         $this->renderExtraFields($instance);
@@ -226,6 +296,9 @@ abstract class AbstractStoryWidget extends WP_Widget
             ? (string) $new['layout']
             : 'list';
         $instance['show_thumbnail'] = !empty($new['show_thumbnail']) ? 1 : 0;
+        $instance['show_date'] = !empty($new['show_date']) ? 1 : 0;
+        $instance['show_clock'] = !empty($new['show_clock']) ? 1 : 0;
+        $instance['show_category'] = !empty($new['show_category']) ? 1 : 0;
         $instance['header_style'] = WidgetHeader::sanitize($new['header_style'] ?? WidgetHeader::CLASSIC_TOP);
         $instance = array_merge($instance, WidgetSpacing::sanitizeInstance($new, $old, WidgetSpacing::DEFAULT_BOTTOM_ARTICLE));
 
