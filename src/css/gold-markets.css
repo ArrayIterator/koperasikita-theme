@@ -648,6 +648,61 @@ html[data-color-scheme="dark"] .kk-market-header .kk-market-change-down {
 	}
 }
 
+/* Header index strip: desktop marquee
+   Below the header the picked items are one flat row; on desktop the
+   row is wider than its box, so the overflowing items sit cut off
+   past the right edge. When the row overflows, the strip scrolls on
+   its own like a marquee: the script (gold-markets.ts) wraps the
+   items in a track with two identical sets and the track translates
+   -50% on a linear loop, so the seam never shows. The loop passes
+   one item per cycle interval (the strip's data-speed, 7s by
+   default), so the pace follows the same Customizer setting as the
+   mobile rotation - no new setting. Mobile keeps the one-item
+   rotation (max-width: 767px above) and reduced motion never builds
+   the marquee at all, so the strip stays the plain swipeable row.
+   Hover/focus pauses the loop so an item can be read. */
+@media (min-width: 768px) {
+	.kk-market-header .kk-index-strip--marquee {
+		overflow: hidden;
+	}
+
+	.kk-index-strip-track {
+		display: flex;
+		width: max-content;
+		animation: kk-index-strip-marquee var(--kk-index-strip-duration, 35s) linear infinite;
+	}
+
+	.kk-market-header .kk-index-strip--marquee:hover .kk-index-strip-track,
+	.kk-market-header .kk-index-strip--marquee:focus-within .kk-index-strip-track {
+		animation-play-state: paused;
+	}
+
+	.kk-index-strip-set {
+		display: flex;
+		flex-shrink: 0;
+		/* The header strip's own gaps (8px 16px): each set carries
+		 * its trailing column gap as padding, so the two sets are
+		 * exactly equal and the -50% wrap lands on the seam. */
+		gap: 8px 16px;
+		padding-right: 16px;
+	}
+}
+
+@keyframes kk-index-strip-marquee {
+	from {
+		transform: translateX(0);
+	}
+	to {
+		transform: translateX(-50%);
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.kk-index-strip-track {
+		animation: none;
+	}
+}
+
 .kk-market-group-title {
 	margin: 0 0 8px;
 	font-size: 12px;

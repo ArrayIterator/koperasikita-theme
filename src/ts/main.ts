@@ -738,7 +738,10 @@ function initMarketHeaderTicker(): void {
 	if (!strip) {
 		return;
 	}
-	const items = $all<HTMLElement>('.kk-index-item', strip);
+	// Clones excluded: the desktop marquee (gold-markets.ts) appends
+	// a second identical set, and the rotation must only cycle the
+	// real items - the clones are aria-hidden duplicates.
+	const items = $all<HTMLElement>('.kk-index-item:not(.kk-index-item--clone)', strip);
 	if (items.length <= 1) {
 		return;
 	}

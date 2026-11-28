@@ -466,6 +466,7 @@ function initGoldMarkets(): void {
 	$all<HTMLElement>('[data-kk-gold-slider]').forEach((slider) => initGoldSlider(slider));
 	$all<HTMLElement>('[data-kk-markets-slider]').forEach((slider) => initMarketsSlider(slider));
 	initLivePrices();
+	initMarketHeaderMarquee();
 }
 
 // Live prices (client-side refresh).
@@ -907,6 +908,128 @@ function initStripPrices(container: HTMLElement, endpoint: string, ttlMs: number
 		}
 		applyStripData(container, data.markets, data.caption);
 	});
+}
+
+/* Market header index: desktop marquee.
+ *
+ * On desktop the picked items are wider than the strip's box, so the
+ * overflowing items sit cut off past the right edge. When the row
+ * overflows, the strip scrolls on its own like a marquee: the items
+ * are wrapped in a track with two identical sets and the track
+ * translates -50% on a linear loop (the same two-set pattern as the
+ * markets marquee), so the seam never shows. The loop passes one
+ * item per cycle interval (the strip's data-speed, 7s by default),
+ * so the pace follows the same Customizer setting as the mobile
+ * rotation - no new setting.
+ *
+ * The marquee only exists on desktop (min-width: 768px, the mirror
+ * of the mobile rotation's max-width: 767px) and never under reduced
+ * motion; below the breakpoint the markup is restored to exactly
+ * what the server rendered, so the mobile rotation and the plain
+ * swipeable row are untouched. The clones carry the same
+ * data-kk-symbol attributes, so updatePriceDom() refreshes them in
+ * place with the originals. Hover/focus pauses the loop (CSS); the
+ * animation itself is CSS, so a hidden tab pauses it too.
+ */
+function initMarketHeaderMarquee(): void {
+	const strip = document.getElementById('kk-market-header-strip');
+	if (!strip) {
+		return;
+	}
+	const desktop = window.matchMedia('(min-width: 768px)');
+	const reduced = window.matchMedia('(prefers-reduced-motion: reduce)');
+	let built = false;
+	let resizeTimer: number | null = null;
+
+	const speedSeconds = (): number => {
+		const raw = Number(strip.getAttribute('data-speed') ?? '');
+		if (!Number.isFinite(raw) || raw <= 0) {
+			return 7;
+		}
+		return Math.min(120, Math.max(2, raw));
+	}
+
+	const originals = (): HTMLElement[] => {
+		return $all<HTMLElement>('.kk-index-item:not(.kk-index-item--clone)', strip);
+	}
+
+	const overflows = (): boolean => {
+		const set = strip.querySelector<HTMLElement>('.kk-index-strip-set:not(.kk-index-strip-set--clone)');
+		const measured = set ?? strip;
+		return measured.scrollWidth > strip.clientWidth;
+	}
+
+	const build = (): void => {
+		if (built) {
+			return;
+		}
+		const items = originals();
+		if (items.length <= 1 || !overflows()) {
+			return;
+		}
+		const track = document.createElement('div');
+		track.className = 'kk-index-strip-track';
+		const set = document.createElement('div');
+		set.className = 'kk-index-strip-set';
+		const cloneSet = document.createElement('div');
+		cloneSet.className = 'kk-index-strip-set kk-index-strip-set--clone';
+		cloneSet.setAttribute('aria-hidden', 'true');
+		for (const item of items) {
+			set.appendChild(item);
+		}
+		for (const item of items) {
+			const clone = item.cloneNode(true) as HTMLElement;
+			clone.classList.add('kk-index-item--clone');
+			clone.classList.remove('is-active', 'is-leaving');
+			clone.setAttribute('aria-hidden', 'true');
+			cloneSet.appendChild(clone);
+		}
+		track.append(set, cloneSet);
+		strip.appendChild(track);
+		strip.classList.add('kk-index-strip--marquee');
+		strip.style.setProperty('--kk-index-strip-duration', `${items.length * speedSeconds()}s`);
+		built = true;
+	}
+
+	const teardown = (): void => {
+		if (!built) {
+			return;
+		}
+		const track = strip.querySelector<HTMLElement>('.kk-index-strip-track');
+		if (track) {
+			const set = track.querySelector<HTMLElement>('.kk-index-strip-set:not(.kk-index-strip-set--clone)');
+			if (set) {
+				for (const item of $all<HTMLElement>('.kk-index-item:not(.kk-index-item--clone)', set)) {
+					strip.appendChild(item);
+				}
+			}
+			track.remove();
+		}
+		strip.classList.remove('kk-index-strip--marquee');
+		strip.style.removeProperty('--kk-index-strip-duration');
+		built = false;
+	}
+
+	const sync = (): void => {
+		if (desktop.matches && !reduced.matches && overflows()) {
+			build();
+		} else {
+			teardown();
+		}
+	}
+
+	desktop.addEventListener('change', sync);
+	reduced.addEventListener('change', sync);
+	window.addEventListener('resize', () => {
+		if (resizeTimer !== null) {
+			window.clearTimeout(resizeTimer);
+		}
+		resizeTimer = window.setTimeout(sync, 150);
+	});
+	if (typeof document.fonts !== 'undefined') {
+		void document.fonts.ready.then(sync);
+	}
+	sync();
 }
 
 document.addEventListener('DOMContentLoaded', initGoldMarkets);
