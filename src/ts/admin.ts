@@ -2494,12 +2494,13 @@ function initSidebarSettingsPopup(): void {
  * LogamMuliaApiProvider::enabledSyncSources()): the first call
  * carries no source, each step returns `next` (the following
  * source, or null when done) plus `step`/`total` for the progress
- * bar. Clicking Scrape now opens the popup (same centered +
+ * bar. Clicking Sync now opens the popup (same centered +
  * blurred-backdrop pattern as the Data Desk preview popup) and
- * runs the sync inside it: while a sync runs the Scrape now button
- * is disabled (aria-busy), the progress bar + status line show
+ * runs the sync inside it: while a sync runs the Sync now button
+ * is disabled (aria-busy), the progress bar + status pre show
  * which source is scraping ("Scraping galeri24... 1/3"), each
- * finished source gets its own line in the step list, and the
+ * finished source gets its own line in the pre, and the run
+ * summary shows once in a success notice below the pre. The
  * automatic-sync form is disabled with a note saying it is paused.
  * A per-source failure is reported as its own line and does not
  * stop the remaining sources. The popup stays open with the full
@@ -2519,10 +2520,9 @@ function initGoldSync(): void {
 	}
 	const bar = popup.querySelector<HTMLProgressElement>('[data-kk-gold-sync-bar]');
 	const statusEl = popup.querySelector<HTMLElement>('[data-kk-gold-sync-status]');
-	const stepsEl = popup.querySelector<HTMLElement>('[data-kk-gold-sync-steps]');
-	const result = popup.querySelector<HTMLElement>('[data-kk-gold-sync-result]');
+	const resultEl = popup.querySelector<HTMLElement>('[data-kk-gold-sync-result]');
 	const closeButton = popup.querySelector<HTMLButtonElement>('[data-kk-gold-sync-popup-close]');
-	if (!bar || !statusEl || !stepsEl || !result || !closeButton) {
+	if (!bar || !statusEl || !resultEl || !closeButton) {
 		return;
 	}
 	const settingsForm = document.querySelector<HTMLFormElement>('[data-kk-gold-sync-settings]');
@@ -2572,9 +2572,7 @@ function initGoldSync(): void {
 	const config = adminData();
 	if (!config) {
 		button.addEventListener('click', () => {
-			statusEl.textContent = '';
-			stepsEl.textContent = '';
-			result.textContent = adminStrings().adminDataMissing;
+			statusEl.textContent = adminStrings().adminDataMissing;
 			popup.hidden = false;
 			closeButton.focus();
 		});
@@ -2587,17 +2585,40 @@ function initGoldSync(): void {
 		}
 		const strings = adminStrings();
 		setRunning(true);
-		result.textContent = '';
-		stepsEl.textContent = '';
-		statusEl.textContent = '';
+		/* The per-source status lives in one pre, set from these
+		 * lines: one line per finished source, the in-progress
+		 * line while a call runs. A source that somehow finishes
+		 * twice rewrites its own line instead of adding a second
+		 * one. The run summary shows once, in the success notice
+		 * below the pre, not as another pre line. */
+		const lines: string[] = [];
+		const lineBySource = new Map<string, number>();
+		let current = '';
+		let total = 0;
+		const renderStatus = (): void => {
+			statusEl.textContent = [...lines, current].filter((line) => line !== '').join('\n');
+		};
+		const setSourceLine = (source: string, text: string): void => {
+			const at = lineBySource.get(source);
+			if (at !== undefined) {
+				lines[at] = text;
+			} else {
+				lineBySource.set(source, lines.length);
+				lines.push(text);
+			}
+		};
+		renderStatus();
+		resultEl.textContent = '';
+		resultEl.hidden = true;
 		bar.max = 100;
 		bar.value = 0;
 		popup.hidden = false;
 		closeButton.focus();
 
-		let totalInserted = 0;
-		let totalUpdated = 0;
-		let totalSkipped = 0;
+		/* Totals count each source once, like its line: a source the
+		 * server chains back to rewrites its line, and its numbers
+		 * with it, so the summary always adds up to the lines. */
+		const sourceTotals = new Map<string, { inserted: number; updated: number; skipped: number }>();
 		/* null = first call, no source (starts from the first one). */
 		let source: string | null = null;
 
@@ -2606,13 +2627,14 @@ function initGoldSync(): void {
 			 * a server that ever returns a cycle in `next`. */
 			for (let step = 0; step < 10; step += 1) {
 				const params: Record<string, string> = source === null ? {} : { source };
-				const current = source ?? '';
-				/* The step line appears first as "Scraping <source>..."
-				 * and is rewritten with its result when the call
-				 * returns, so the list always shows live progress. */
-				const line = document.createElement('li');
-				line.textContent = formatTemplate(strings.syncingSource, current);
-				stepsEl.appendChild(line);
+				const currentSource = source ?? '';
+				/* The in-progress line shows first as "Scraping
+				 * <source>..." and is replaced by its result when
+				 * the call returns, so the pre always shows live
+				 * progress. */
+				current = formatTemplate(strings.syncingSource, currentSource)
+					+ (total > 0 ? ` (${lines.length}/${total})` : '');
+				renderStatus();
 
 				const data: GoldSyncStep = await postAjax<GoldSyncStep>(config, 'kk_logam_mulia_sync', params);
 
@@ -2622,10 +2644,11 @@ function initGoldSync(): void {
 				 * or the remaining sources were disabled mid-run
 				 * (total > 0 - finish with what already synced). */
 				if (!data.source) {
+					current = '';
 					if (data.total === 0) {
 						if (data.error) {
-							line.textContent = formatTemplate(strings.failed, data.error);
-							result.textContent = data.error;
+							setSourceLine('', formatTemplate(strings.failed, data.error));
+							renderStatus();
 						}
 						setRunning(false);
 						return;
@@ -2633,20 +2656,19 @@ function initGoldSync(): void {
 					break;
 				}
 
-				totalInserted += data.inserted;
-				totalUpdated += data.updated;
-				totalSkipped += data.skipped;
+				sourceTotals.set(data.source, { inserted: data.inserted, updated: data.updated, skipped: data.skipped });
 
-				const total = typeof data.total === 'number' && data.total > 0 ? data.total : 3;
+				total = typeof data.total === 'number' && data.total > 0 ? data.total : 3;
 				const done = typeof data.step === 'number' && data.step > 0 ? data.step : step + 1;
 				bar.max = total;
 				bar.value = done;
-				statusEl.textContent = `${formatTemplate(strings.syncingSource, data.source)} (${done}/${total})`;
+				current = '';
 
-				line.textContent = data.error
+				setSourceLine(data.source, data.error
 					? formatTemplate(strings.failed, `${data.source}: ${data.error}`)
 					: formatTemplate(strings.syncStepDone, data.source, data.inserted, data.updated, data.skipped)
-						+ (data.latest_date ? formatTemplate(strings.syncStepLatest, data.latest_date) : '');
+						+ (data.latest_date ? formatTemplate(strings.syncStepLatest, data.latest_date) : ''));
+				renderStatus();
 
 				if (data.next === null) {
 					break;
@@ -2655,15 +2677,23 @@ function initGoldSync(): void {
 			}
 
 			bar.value = bar.max;
-			statusEl.textContent = formatTemplate(strings.syncDone, totalInserted, totalUpdated, totalSkipped);
-			const summary = document.createElement('div');
-			summary.textContent = formatTemplate(strings.syncDone, totalInserted, totalUpdated, totalSkipped);
-			result.appendChild(summary);
+			current = '';
+			let totalInserted = 0;
+			let totalUpdated = 0;
+			let totalSkipped = 0;
+			for (const totals of sourceTotals.values()) {
+				totalInserted += totals.inserted;
+				totalUpdated += totals.updated;
+				totalSkipped += totals.skipped;
+			}
+			resultEl.textContent = formatTemplate(strings.syncDone, totalInserted, totalUpdated, totalSkipped);
+			resultEl.hidden = false;
+			renderStatus();
 			setRunning(false);
 		} catch (error) {
-			const line = document.createElement('div');
-			line.textContent = errorMessage(error);
-			result.appendChild(line);
+			current = '';
+			lines.push(errorMessage(error));
+			renderStatus();
 			setRunning(false);
 		}
 	});

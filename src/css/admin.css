@@ -1329,9 +1329,8 @@
 	margin: 0;
 }
 
-/* Buttons: the popup Close button keeps Setup's green primary +
- * green-outline secondary via .kk-gold-button. WP .button /
- * .button-primary are WP default everywhere on this page. */
+/* Buttons: WP .button / .button-primary are WP default everywhere
+ * on this page, including the popup Close button. */
 .kk-gold-button {
 	display: inline-flex;
 	align-items: center;
@@ -1496,19 +1495,28 @@
 	color: #666;
 }
 
-/* Manual sync progress: green bar, unstyled step list. */
+/* Manual sync progress: green bar, status in one pre that scrolls
+ * instead of growing the popup. */
 .kk-gold-page progress {
 	accent-color: #0b6b3a;
 }
 
-.kk-gold-page [data-kk-gold-sync-steps] {
+.kk-gold-page [data-kk-gold-sync-status] {
 	margin: 12px 0 0;
-	padding: 0;
-	list-style: none;
+	max-height: 16rem;
+	overflow: auto;
+	font-family: inherit;
+	white-space: pre-wrap;
 }
 
-.kk-gold-page [data-kk-gold-sync-steps] li {
-	padding: 4px 0;
+/* Run summary: the WP notice banner below the pre, shown once at
+ * the end of a run. */
+.kk-gold-page .notice[data-kk-gold-sync-result] {
+	margin: 12px 0 0;
+}
+
+.kk-gold-page .notice[data-kk-gold-sync-result][hidden] {
+	display: none;
 }
 
 /* Narrow screens: cards tighten like Setup's, buttons go full width. */
