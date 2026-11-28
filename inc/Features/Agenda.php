@@ -1025,14 +1025,8 @@ final class Agenda
             <p class="description"><?php esc_html_e('Use the Pick Location button, or type a custom name.', 'koperasikita'); ?></p>
         </div>
         <div class="kk-agenda-map-picker" data-kk-agenda-map-picker data-kk-agenda-default-lat="<?php echo esc_attr((string) self::DEFAULT_LAT); ?>" data-kk-agenda-default-lng="<?php echo esc_attr((string) self::DEFAULT_LNG); ?>" data-kk-agenda-no-pin="<?php esc_attr_e('No pin placed', 'koperasikita'); ?>">
-            <p>
-                <label for="kk-agenda-lat"><strong><?php esc_html_e('Latitude', 'koperasikita'); ?></strong></label><br>
-                <input type="number" id="kk-agenda-lat" name="kk_agenda_lat" value="<?php echo esc_attr($meta['lat'] !== null ? (string) $meta['lat'] : ''); ?>" step="any" min="-90" max="90" inputmode="decimal" style="width: 100%;" data-kk-agenda-lat>
-            </p>
-            <p>
-                <label for="kk-agenda-lng"><strong><?php esc_html_e('Longitude', 'koperasikita'); ?></strong></label><br>
-                <input type="number" id="kk-agenda-lng" name="kk_agenda_lng" value="<?php echo esc_attr($meta['lng'] !== null ? (string) $meta['lng'] : ''); ?>" step="any" min="-180" max="180" inputmode="decimal" style="width: 100%;" data-kk-agenda-lng>
-            </p>
+            <input type="hidden" id="kk-agenda-lat" name="kk_agenda_lat" value="<?php echo esc_attr($meta['lat'] !== null ? (string) $meta['lat'] : ''); ?>" data-kk-agenda-lat>
+            <input type="hidden" id="kk-agenda-lng" name="kk_agenda_lng" value="<?php echo esc_attr($meta['lng'] !== null ? (string) $meta['lng'] : ''); ?>" data-kk-agenda-lng>
             <p>
                 <button type="button" class="button" data-kk-agenda-pick><?php esc_html_e('Pick Location', 'koperasikita'); ?></button>
             </p>
