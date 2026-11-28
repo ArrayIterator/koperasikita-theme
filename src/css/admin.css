@@ -1986,6 +1986,29 @@
 	box-sizing: border-box;
 }
 
+/* Market Index: Sync now is the outline secondary so it reads as a
+ * separate action from the solid Save primary; the column gap keeps
+ * the pair from touching. Both share the 36px height. */
+.kk-market-header-card-actions {
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: 12px;
+}
+
+.kk-market-header-button {
+	height: 36px;
+	min-height: 36px;
+	box-sizing: border-box;
+}
+
+/* Market Index: checkbox descriptions sit on their own line below
+ * the checkboxes, in the page's existing description style. */
+.kk-market-header-page form p .description {
+	display: block;
+	margin-top: 4px;
+}
+
 /* Row actions are always visible on this list: core parks them
  * off-screen until hover, which makes Edit/Delete undiscoverable
  * at rest. Same treatment core uses on hover, just always on. */
