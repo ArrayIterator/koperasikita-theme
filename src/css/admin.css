@@ -1149,14 +1149,12 @@
 }
 /* Palette segmented control: one radio per segment, Green first.
  * The radios are visually hidden (kept focusable); the labels are
- * the segments, the checked one reads as the active button. */
+ * WP buttons, the checked one carrying .button-primary (synced by
+ * admin.ts), so the control reads as WP default. The segments join
+ * with collapsed borders. */
 .kk-segmented {
 	position: relative;
 	display: inline-flex;
-	border: 1px solid var(--kk-border, #ddd);
-	border-radius: 3px;
-	overflow: hidden;
-	background: #fff;
 }
 .kk-segmented input {
 	position: absolute;
@@ -1166,24 +1164,22 @@
 	clip: rect(0 0 0 0);
 	white-space: nowrap;
 }
-.kk-segmented label {
-	padding: 4px 12px;
-	font-size: 13px;
-	line-height: 1.6;
-	color: var(--kk-ink, #1a1a1a);
-	background: #fff;
-	cursor: pointer;
+.kk-segmented label.button {
+	margin-left: -1px;
+	border-radius: 0;
 }
-.kk-segmented label:not(:first-of-type) {
-	border-left: 1px solid var(--kk-border, #ddd);
+.kk-segmented label.button:first-of-type {
+	margin-left: 0;
+	border-top-left-radius: 3px;
+	border-bottom-left-radius: 3px;
 }
-.kk-segmented input:checked + label {
-	color: #fff;
-	background: var(--kk-green, #0b6b3a);
+.kk-segmented label.button:last-of-type {
+	border-top-right-radius: 3px;
+	border-bottom-right-radius: 3px;
 }
 .kk-segmented input:focus-visible + label {
-	outline: 2px solid var(--kk-green, #0b6b3a);
-	outline-offset: -2px;
+	outline: 2px solid var(--wp-admin-theme-color, #3858e9);
+	outline-offset: 2px;
 }
 /* Hint line above the preview editor. */
 .kk-data-desk-editor-hint {
@@ -1601,8 +1597,9 @@
 }
 
 /* Buttons: the Setup button language - green outline by default,
- * filled green primary. The blue WP button-primary is gone from
- * this page entirely. */
+ * filled green primary. This class survives only for the list
+ * preview popup Close; every editor button is a WP .button /
+ * .button-primary instead. */
 .kk-data-desk-button {
 	display: inline-flex;
 	align-items: center;
