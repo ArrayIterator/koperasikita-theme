@@ -578,6 +578,13 @@ html[data-color-scheme="dark"] .kk-market-header .kk-market-change-down {
 	.kk-market-header .kk-index-item.is-leaving {
 		animation: kk-ticker-out 0.4s ease forwards;
 	}
+
+	/* The snapshot label stays off the row on small screens when
+	 * the "Show snapshot label on mobile" setting is off, so the
+	 * strip gets the full width. Desktop is untouched. */
+	.kk-market-header-snapshot.kk-market-header-snapshot--hide-mobile {
+		display: none;
+	}
 }
 
 /* Reduced motion: no cycling, the plain swipeable row instead, so

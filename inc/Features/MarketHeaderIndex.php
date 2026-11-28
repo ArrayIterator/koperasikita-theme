@@ -28,7 +28,8 @@ use KoperasiKita\Widgets\MarketsWidget;
  * Customizer section and the Koperasi Kita -> Market Index admin
  * page: ['enabled' => bool, 'items' => [{item, hidden}],
  * 'cycle_interval' => int, 'snapshot_label' => string,
- * 'snapshot_show_datetime' => bool, 'snapshot_format' => string].
+ * 'snapshot_show_datetime' => bool, 'snapshot_format' => string,
+ * 'snapshot_show_mobile' => bool].
  * `cycle_interval` is the seconds between items when the strip
  * cycles one item at a time on small screens - 7 by default,
  * deliberately not the news ticker's 5, so the two rotations
@@ -39,10 +40,13 @@ use KoperasiKita\Widgets\MarketsWidget;
  * again, but never render. An empty picked list means the default
  * set, the same as the Customizer picker's empty state.
  * The snapshot caption under the strip is customizable:
- * `snapshot_label` is the text before the date and time (empty
- * hides the label), `snapshot_show_datetime` toggles the day and
- * time, and `snapshot_format` is the PHP date format for them
- * (default 'l H.i T', e.g. "Sabtu 08.30 WIB").
+ * `snapshot_label` is the text before the date and time (an empty
+ * label falls back to the default), `snapshot_show_datetime`
+ * toggles the day and time, and `snapshot_format` is the PHP date
+ * format for them (default 'l H.i T', e.g. "Sabtu 08.30 WIB").
+ * `snapshot_show_mobile` toggles the whole snapshot caption on
+ * small screens only; off hides it below 768px so the strip gets
+ * the full row, desktop is untouched.
  */
 final class MarketHeaderIndex
 {
@@ -84,7 +88,7 @@ final class MarketHeaderIndex
         ];
     }
 
-    /** @return array{enabled: bool, items: array<int, array{item: string, hidden: bool}>, cycle_interval: int, snapshot_label: string, snapshot_show_datetime: bool, snapshot_format: string} */
+    /** @return array{enabled: bool, items: array<int, array{item: string, hidden: bool}>, cycle_interval: int, snapshot_label: string, snapshot_show_datetime: bool, snapshot_format: string, snapshot_show_mobile: bool} */
     public static function settings(): array
     {
         $stored = get_option(self::OPTION, []);
@@ -97,6 +101,7 @@ final class MarketHeaderIndex
                 'snapshot_label' => __('Market Snapshot', 'koperasikita'),
                 'snapshot_show_datetime' => true,
                 'snapshot_format' => self::DEFAULT_SNAPSHOT_FORMAT,
+                'snapshot_show_mobile' => true,
             ];
         }
 
@@ -109,6 +114,7 @@ final class MarketHeaderIndex
             'snapshot_label' => isset($stored['snapshot_label']) ? self::sanitizeSnapshotLabel($stored['snapshot_label']) : __('Market Snapshot', 'koperasikita'),
             'snapshot_show_datetime' => isset($stored['snapshot_show_datetime']) ? self::sanitizeSnapshotShowDatetime($stored['snapshot_show_datetime']) : true,
             'snapshot_format' => isset($stored['snapshot_format']) ? self::sanitizeSnapshotFormat($stored['snapshot_format']) : self::DEFAULT_SNAPSHOT_FORMAT,
+            'snapshot_show_mobile' => isset($stored['snapshot_show_mobile']) ? self::sanitizeSnapshotShowMobile($stored['snapshot_show_mobile']) : true,
         ];
     }
 
@@ -128,7 +134,8 @@ final class MarketHeaderIndex
 
     /**
      * The caption label: plain text, trimmed, at most 80 chars.
-     * An empty string is kept - it hides the label.
+     * An empty label falls back to the default, so the label never
+     * renders as nothing by accident.
      */
     public static function sanitizeSnapshotLabel(mixed $value): string
     {
@@ -138,10 +145,19 @@ final class MarketHeaderIndex
 
         $label = trim(sanitize_text_field(wp_unslash($value)));
 
+        if ($label === '') {
+            return __('Market Snapshot', 'koperasikita');
+        }
+
         return mb_substr($label, 0, self::MAX_SNAPSHOT_LABEL_LENGTH);
     }
 
     public static function sanitizeSnapshotShowDatetime(mixed $value): bool
+    {
+        return (bool) $value;
+    }
+
+    public static function sanitizeSnapshotShowMobile(mixed $value): bool
     {
         return (bool) $value;
     }
@@ -286,13 +302,12 @@ final class MarketHeaderIndex
 
     /**
      * The snapshot caption text: the label, the day and time, or
-     * both, joined with a middot - or '' when there is nothing to
-     * show (empty label and day/time off, or day/time on with no
-     * snapshot timestamp). The day and time use wp_date() with the
-     * true Unix timestamp: date_i18n() with a true timestamp
-     * renders 7 hours early under Asia/Jakarta (WP 7.1.5), which
-     * is why the caption used to read 08.30 for data taken at
-     * 15.30.
+     * both, joined with a middot. The label always renders - an
+     * empty label falls back to the default - so the caption is
+     * never empty. The day and time use wp_date() with the true
+     * Unix timestamp: date_i18n() with a true timestamp renders 7
+     * hours early under Asia/Jakarta (WP 7.1.5), which is why the
+     * caption used to read 08.30 for data taken at 15.30.
      */
     public static function captionText(?int $snapshot): string
     {
@@ -317,7 +332,7 @@ final class MarketHeaderIndex
      * cannot reset the rest to defaults.
      *
      * @param array<string, mixed> $settings
-     * @return array{enabled: bool, items: array<int, array{item: string, hidden: bool}>, cycle_interval: int, snapshot_label: string, snapshot_show_datetime: bool, snapshot_format: string}
+     * @return array{enabled: bool, items: array<int, array{item: string, hidden: bool}>, cycle_interval: int, snapshot_label: string, snapshot_show_datetime: bool, snapshot_format: string, snapshot_show_mobile: bool}
      */
     public static function update(array $settings): array
     {
@@ -330,6 +345,7 @@ final class MarketHeaderIndex
             'snapshot_label' => isset($settings['snapshot_label']) ? self::sanitizeSnapshotLabel($settings['snapshot_label']) : $current['snapshot_label'],
             'snapshot_show_datetime' => isset($settings['snapshot_show_datetime']) ? self::sanitizeSnapshotShowDatetime($settings['snapshot_show_datetime']) : $current['snapshot_show_datetime'],
             'snapshot_format' => isset($settings['snapshot_format']) ? self::sanitizeSnapshotFormat($settings['snapshot_format']) : $current['snapshot_format'],
+            'snapshot_show_mobile' => isset($settings['snapshot_show_mobile']) ? self::sanitizeSnapshotShowMobile($settings['snapshot_show_mobile']) : $current['snapshot_show_mobile'],
         ];
 
         update_option(self::OPTION, $saved);
