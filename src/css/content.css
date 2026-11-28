@@ -805,6 +805,39 @@
 	aspect-ratio: 4 / 3;
 }
 
+/* Archive layout switcher: a toolbar row above the post grid, the
+ * switcher at the right end. The button rules mirror the homepage
+ * switcher (home-sections.css loads front-page only), so the archive
+ * switcher is styled on its own pages. */
+.kk-archive-toolbar {
+	display: flex;
+	justify-content: flex-end;
+	margin-bottom: 16px;
+}
+
+.kk-layout-switcher {
+	display: flex;
+	border: 1px solid var(--kk-border);
+	border-radius: var(--kk-radius);
+	overflow: hidden;
+}
+
+.kk-layout-button {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	min-height: 36px;
+	padding: 6px 12px;
+	font-size: 13px;
+	font-weight: 600;
+	color: var(--kk-muted);
+}
+
+.kk-layout-button.is-active {
+	background: var(--kk-green, #0B6B3A);
+	color: #fff;
+}
+
 /* Load-more loader. */
 .kk-pagination-loader {
 	display: grid;

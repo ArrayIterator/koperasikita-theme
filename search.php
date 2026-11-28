@@ -43,6 +43,8 @@ $kk_has_sidebar = is_active_sidebar( $kk_sidebar_id );
 		</header>
 
 		<?php if ( ! $kk_no_results ) : ?>
+			<?php get_template_part( 'template-parts/content/archive-layout-switcher' ); ?>
+
 			<div class="kk-card-grid kk-layout-<?php echo esc_attr( \KoperasiKita\Features\Pagination::archiveLayout() ); ?>">
 				<?php
 				while ( have_posts() ) :
