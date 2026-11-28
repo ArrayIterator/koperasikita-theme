@@ -1,0 +1,41 @@
+/* Admin menu: the Dashboard item shows the KK K mark.
+ *
+ * The rule lives in its own entry because the kk-admin bundle is
+ * only enqueued on a few admin screens (Setup, nav-menus, Gold
+ * Prices, Data Desk, Agenda, Subscribers, Market Header, widgets,
+ * Customizer) - while the admin sidebar, Dashboard included, is on
+ * every admin page. This stylesheet is enqueued unconditionally by
+ * Enqueue::registerAdmin(), so the icon is the KK mark everywhere.
+ *
+ * Only the Dashboard item is touched; every other menu keeps its
+ * own icon. The mark is the shipped square K (assets/img/logo-k.svg),
+ * shown at the admin menu's 20px icon size. The SVG's own artwork
+ * is 282..1319 x 204..1415 inside a 1600 viewBox, so it is centred
+ * in the slot rather than cropped to the viewBox edge.
+ *
+ * The URL below is relative to the theme root on purpose: Vite
+ * rewrites url() in CSS against its base ('/'), so a Vite-built
+ * file would point at /assets/... - the site root, where the file
+ * does not live (the theme sits at /wp-content/themes/koperasikita).
+ * A path relative to this stylesheet's served location
+ * (wp-content/themes/koperasikita/dist/assets/) resolves to the
+ * theme's own assets/img/logo-k.svg instead. The url() climbs
+ * three levels (dist/assets -> dist -> theme root -> assets/img),
+ * one more than the source file's own depth, because Vite resolves
+ * CSS url() against the OUTPUT file (dist/assets/), not the source
+ * (src/css/). A url() Vite cannot resolve is left untouched, so the
+ * relative path survives the build verbatim.
+ */
+
+#adminmenu #menu-dashboard .wp-menu-image {
+	background-image: url('../../../assets/img/logo-k.svg');
+	background-repeat: no-repeat;
+	background-position: center;
+	background-size: 20px 20px;
+}
+
+/* The dashicon glyph renders in ::before; without this it would
+ * sit on top of the K mark. */
+#adminmenu #menu-dashboard .wp-menu-image::before {
+	content: none;
+}

@@ -89,6 +89,7 @@ export default defineConfig({
         'widgets-css': 'src/css/widgets.css',
         'editor-css': 'src/css/editor.css',
         'editor-outer-css': 'src/css/editor-outer.css',
+        'admin-menu-css': 'src/css/admin-menu.css',
       },
     },
   },
