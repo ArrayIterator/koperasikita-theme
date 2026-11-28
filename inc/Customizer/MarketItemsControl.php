@@ -17,9 +17,11 @@ use WP_Customize_Control;
  * order, synced into the hidden input (data-customize-setting-link)
  * on every change - the same JSON-in-a-hidden-input pattern as
  * TermMultiSelectControl. The list is a row per item with move
- * up/down, hide/show and remove buttons; the add select lists the
- * items not picked yet. The <template> row gives the JS the button
- * markup (with server-rendered icons) for rows added after load.
+ * up/down, hide/show and remove buttons; the add select lists only
+ * the determined items not picked yet - items from this setting
+ * itself, never the full catalogue. The <template> row gives the JS
+ * the button markup (with server-rendered icons) for rows added
+ * after load.
  */
 final class MarketItemsControl extends WP_Customize_Control
 {
@@ -52,7 +54,14 @@ final class MarketItemsControl extends WP_Customize_Control
             $picked[$row['item']] = true;
         }
 
-        $remaining = array_diff_key($all, $picked);
+        /* The add select offers only the items this setting
+         * determines, never the full catalogue. The determined set
+         * is the picked set itself, so nothing is offered at load;
+         * a removed item returns to the select (the JS appends it
+         * back) and can be re-added, but no catalogue item outside
+         * the determined set can enter the index from here. */
+        $determined = array_intersect_key($all, $picked);
+        $remaining = array_diff_key($determined, $picked);
         ?>
         <span class="customize-control-title"><?php echo esc_html($this->label); ?></span>
         <?php if ($this->description !== '') : ?>
