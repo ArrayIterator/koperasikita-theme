@@ -3047,16 +3047,13 @@ function initFastSearchBuild(): void {
  * Summary tab chart (Gold Prices page): the brand picker + days
  * selector re-render the chart through kk_gold_chart without a
  * page reload. Mirrors the Data Desk preview refresh: debounced,
- * loading state, last-good kept on failure. The brand search
- * filters the checkbox list in place - the list is six brands,
- * so no server round-trip is needed for it. No box checked means
+ * loading state, last-good kept on failure. No box checked means
  * the enabled brands (the server falls back the same way), so
  * the chart never goes empty from unchecking alone.
  */
 function initGoldSummaryChart(): void {
 	const container = document.querySelector<HTMLElement>('[data-kk-gold-summary-chart]');
 	const days = document.querySelector<HTMLSelectElement>('[data-kk-gold-summary-days]');
-	const search = document.querySelector<HTMLInputElement>('[data-kk-gold-summary-search]');
 	const status = document.querySelector<HTMLElement>('[data-kk-gold-summary-status]');
 	if (!container || !days) {
 		return;
@@ -3064,17 +3061,6 @@ function initGoldSummaryChart(): void {
 
 	const config = adminData();
 	const boxes = Array.from(document.querySelectorAll<HTMLInputElement>('[data-kk-gold-summary-brand]'));
-
-	const filterBrands = (): void => {
-		const query = (search?.value ?? '').trim().toLowerCase();
-		for (const box of boxes) {
-			const row = box.closest<HTMLElement>('[data-kk-gold-summary-brand-row]');
-			if (row) {
-				row.hidden = query !== '' && !(row.textContent ?? '').toLowerCase().includes(query);
-			}
-		}
-	};
-	search?.addEventListener('input', filterBrands);
 
 	let timer: number | null = null;
 	let lastGood = container.innerHTML;
