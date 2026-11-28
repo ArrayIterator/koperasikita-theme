@@ -30,7 +30,7 @@ use KoperasiKita\Widgets\Blocks;
 
 final class Theme
 {
-    public const VERSION = '1.0.1';
+    public const VERSION = '2.0.0';
 
     public static function boot(): void
     {

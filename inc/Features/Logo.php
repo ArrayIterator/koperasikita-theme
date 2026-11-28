@@ -404,7 +404,7 @@ final class Logo
                 $dark = self::ignoreDefault() ? 0 : self::mobileDarkId();
 
                 if (0 === $light && 0 === $dark) {
-                    $html .= '<img class="kk-drawer-brand-logo" src="' . esc_url(get_template_directory_uri() . '/assets/img/logo-k.svg') . '" alt="' . esc_attr((string) get_bloginfo('name')) . '" width="32" height="32">';
+                    $html .= '<img class="kk-drawer-brand-logo" src="' . esc_url(get_template_directory_uri() . '/assets/img/kk-v2-gradient-gold.svg') . '" alt="' . esc_attr((string) get_bloginfo('name')) . '" width="32" height="32">';
                 } else {
                     $html .= self::pair($light, $dark, 'kk-drawer-brand-logo kk-logo--light', 'kk-drawer-brand-logo kk-logo--dark', 'kk-drawer-brand-logos');
                 }

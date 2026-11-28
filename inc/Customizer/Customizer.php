@@ -1825,7 +1825,8 @@ final class Customizer
         // App icon (the PWA logo). Pick an image from the media
         // library; it becomes the manifest icons and the
         // apple-touch-icon. Leave empty to use the shipped logo
-        // (assets/img/logo-192.png / logo-512.png). A cropped-image
+        // (assets/img/kk-v2-gradient-gold-192.png /
+        // kk-v2-gradient-gold-512.png). A cropped-image
         // control, like the core Custom Logo picker, so picking a
         // non-square image offers the crop step to a square 512x512
         // icon instead of silently using the whole image.

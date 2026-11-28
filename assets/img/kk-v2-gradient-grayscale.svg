@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 913 913" role="img" aria-label="Koperasi Kita">
+<defs><linearGradient id="grad" gradientUnits="userSpaceOnUse" x1="103" y1="48" x2="809" y2="865"><stop offset="0" stop-color="#111111"/><stop offset="0.3" stop-color="#3F3F3F"/><stop offset="0.55" stop-color="#757575"/><stop offset="0.78" stop-color="#A8A8A8"/><stop offset="1" stop-color="#D9D9D9"/></linearGradient></defs>
+<path d="M 810 48 L 709 50 L 220 542 C 154 608 213 738 257 795 L 342 795 C 302 749 217 656 277 595 L 810 48 Z" fill="url(#grad)"/>
+<path d="M 657 48 L 572 54 L 179 424 C 138 463 134 543 164 589 C 164 562 168 530 189 509 L 657 48 Z" fill="url(#grad)"/>
+<path d="M 435 484 L 395 524 L 670 864 L 743 865 L 435 484 Z" fill="url(#grad)"/>
+<path d="M 355 560 L 308 608 L 510 861 L 609 865 L 355 560 Z" fill="url(#grad)"/>
+<path d="M 509 48 L 430 49 L 134 315 C 95 350 97 419 118 462 C 119 426 127 387 154 363 L 509 48 Z" fill="url(#grad)"/>
+</svg>

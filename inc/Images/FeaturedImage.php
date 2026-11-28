@@ -307,19 +307,15 @@ final class FeaturedImage
             }
         }
 
-        /* The shipped placeholder. The build emits it with a content
-         * hash (src/ts/main.ts imports it for that purpose), so a new
-         * build serves a new URL and neither the service worker nor
-         * the 10-year max-age on this file can serve stale artwork.
-         * Without a build (no dist manifest) it falls back to the
-         * plain theme file, which is the same artwork. */
-        $built = ViteLoader::assetUrl('assets/img/placeholder-v1.svg');
-
-        if ($built !== '') {
-            return $built;
-        }
-
-        return KK_URI . '/assets/img/placeholder-v1.svg';
+        /* The shipped placeholder. This SVG is under Vite's 4 KB inline
+         * limit, so the main.ts import is inlined as a data URI and
+         * dropped - Vite never emits it as a file, so no manifest entry
+         * can exist for it. Resolving it through ViteLoader would
+         * return the dev-server URL under WP_DEBUG instead of a real
+         * file, so the plain theme file is served directly. It is the
+         * same artwork; the v1 -> v2 filename change itself busts any
+         * cache of the old placeholder. */
+        return KK_URI . '/assets/img/placeholder-v2.svg';
     }
 
     public static function srcset(int $postId, string $size = 'kk-card'): string
