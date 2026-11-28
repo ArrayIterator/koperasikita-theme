@@ -42,7 +42,7 @@ if ($items === []) {
 			<?php if ($show_change && $price->change !== null) : ?>
 				<span class="kk-index-change <?php echo $price->change >= 0 ? 'kk-market-change-up' : 'kk-market-change-down'; ?>"<?php if ($cycle) : ?> data-kk-change data-kk-icon-up="<?php echo esc_attr(Icon::svg('trending-up', 12)); ?>" data-kk-icon-down="<?php echo esc_attr(Icon::svg('trending-down', 12)); ?>"<?php endif; ?>>
 					<?php echo Icon::svg($price->change >= 0 ? 'trending-up' : 'trending-down', 12); ?>
-					<?php if ($cycle) : ?><span class="kk-index-change-text"><?php echo esc_html(Markets::formatChange($price->change)); ?></span><?php else : ?><?php echo esc_html(Markets::formatChange($price->change)); ?><?php endif; ?>
+					<?php if ($cycle) : ?><span class="kk-index-change-text" data-kk-change-text><?php echo esc_html(Markets::formatChange($price->change)); ?></span><?php else : ?><?php echo esc_html(Markets::formatChange($price->change)); ?><?php endif; ?>
 				</span>
 			<?php endif; ?>
 		</span>
