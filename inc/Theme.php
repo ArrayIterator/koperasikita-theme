@@ -94,7 +94,7 @@ final class Theme
         add_action('admin_post_kk_setup_activate', [Setup::class, 'handleActivate']);
         add_action('admin_post_kk_fast_search_save', [Setup::class, 'handleFastSearchSave']);
         add_action('admin_post_kk_export_subscribers', [SubscribersPage::class, 'handleExport']);
-        add_action('admin_post_kk_delete_subscriber', [SubscribersPage::class, 'handleDelete']);
+        add_action('admin_init', [SubscribersPage::class, 'maybeHandleActions']);
         add_action('admin_post_kk_save_mailpoet_settings', [SubscribersPage::class, 'handleMailPoetSettings']);
         add_action('admin_post_kk_sync_subscribers_mailpoet', [SubscribersPage::class, 'handleMailPoetSync']);
         add_action('admin_post_kk_export_gold_prices', [GoldPricesPage::class, 'handleExport']);

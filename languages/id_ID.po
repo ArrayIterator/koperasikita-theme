@@ -4397,6 +4397,9 @@ msgstr "Tambah Lokasi"
 msgid "Delete this location?"
 msgstr "Hapus lokasi ini?"
 
+msgid "Delete this subscriber?"
+msgstr "Hapus pelanggan ini?"
+
 msgid "No saved locations yet."
 msgstr "Belum ada lokasi tersimpan."
 
