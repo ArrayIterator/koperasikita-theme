@@ -1721,6 +1721,31 @@
 	border-bottom: 1px solid #e5e5e5;
 }
 
+/* MailPoet card head: the title and the Sync With MailPoet button
+ * share one row, title left and button right, with the head
+ * carrying the title's old margin, padding and border - the same
+ * head as the Fast Search card on the Setup page. */
+.kk-subscribers-card-head {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	justify-content: space-between;
+	gap: 16px;
+	margin: 0 0 16px;
+	padding-bottom: 12px;
+	border-bottom: 1px solid #e5e5e5;
+}
+
+.kk-subscribers-card-head .kk-subscribers-card-title {
+	margin: 0;
+	padding-bottom: 0;
+	border-bottom: 0;
+}
+
+.kk-subscribers-card-body > :last-child {
+	margin-bottom: 0;
+}
+
 /* Sync card head: the title and the Sync now button share one
  * row, title left and button right, with the head carrying the
  * title's old margin, padding and border. */

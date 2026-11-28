@@ -6550,8 +6550,8 @@ msgid "MailPoet settings saved."
 msgstr "Pengaturan MailPoet disimpan."
 
 #: inc/Admin/SubscribersPage.php
-msgid "Sync subscribers to MailPoet"
-msgstr "Sinkronkan pelanggan ke MailPoet"
+msgid "Sync With MailPoet"
+msgstr "Sync With MailPoet"
 
 #: inc/Admin/SubscribersPage.php
 msgid "Copies the subscribers stored here into MailPoet."
