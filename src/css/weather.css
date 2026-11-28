@@ -431,6 +431,7 @@ html[data-color-scheme="dark"] .kk-weather-modal .kk-button-ghost {
 	margin-bottom: 6px;
 }
 
+.kk-weather-field input[type="text"],
 .kk-weather-field input[type="search"],
 .kk-weather-field input[type="number"] {
 	width: 100%;
@@ -584,6 +585,24 @@ html[data-color-scheme="dark"] .kk-weather-modal .kk-button-ghost {
 	font-size: 14px;
 	font-weight: 600;
 	color: var(--kk-green, #0b6b3a);
+}
+
+.kk-weather-cancel {
+	background: transparent;
+	border: none;
+	padding: 10px 4px;
+	min-height: 44px;
+	font-size: 14px;
+	font-weight: 600;
+	color: var(--kk-muted);
+	cursor: pointer;
+	margin-right: auto;
+}
+
+.kk-weather-cancel:hover,
+.kk-weather-cancel:focus-visible {
+	color: var(--kk-ink);
+	outline: none;
 }
 
 .kk-weather-modal-actions {

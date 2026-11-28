@@ -3786,7 +3786,7 @@ msgstr "Alamat"
 #: template-parts/agenda/popup-pick-location.php
 
 msgid "Cancel"
-msgstr "Batal"
+msgstr "Batalkan"
 
 #: inc/Admin/AgendaLocationsSettings.php
 
@@ -4356,6 +4356,9 @@ msgstr "Nama dan koordinat yang valid wajib diisi."
 msgid "Update Location"
 msgstr "Perbarui Lokasi"
 
+msgid "Update"
+msgstr "Update"
+
 msgid "Add Location"
 msgstr "Tambah Lokasi"
 
@@ -4709,8 +4712,8 @@ msgstr "Pencarian tidak tersedia saat ini. Coba koordinat."
 
 #: inc/Assets/Enqueue.php
 
-msgid "Moved the map to %s. Press \"Use this location\" to apply it."
-msgstr "Peta dipindah ke %s. Tekan \"Gunakan lokasi ini\" untuk menerapkannya."
+msgid "Moved the map to %s. Press \"Update\" to apply it."
+msgstr "Peta dipindah ke %s. Tekan \"Update\" untuk menerapkannya."
 
 #: inc/Assets/Enqueue.php
 
