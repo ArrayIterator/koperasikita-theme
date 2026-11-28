@@ -322,12 +322,13 @@ final class GoldPricesTable
      * about the filter. An empty $provider means "all providers".
      *
      * Filters: ['symbol' => slug or '', 'symbols' => [slugs] or [],
-     * 'from' => 'Y-m-d' or '', 'to' => 'Y-m-d' or '']. Empty values
-     * mean "no filter". Dates that are not real Y-m-d dates are
-     * ignored here too, so a hand-made URL can never break the
-     * query. 'symbols' filters to any of the listed symbols; it
-     * is ignored when empty or when 'symbol' already filters to
-     * one.
+     * 'from' => 'Y-m-d' or '', 'to' => 'Y-m-d' or '', 'search' =>
+     * text or '']. Empty values mean "no filter". Dates that are
+     * not real Y-m-d dates are ignored here too, so a hand-made
+     * URL can never break the query. 'symbols' filters to any of
+     * the listed symbols; it is ignored when empty or when
+     * 'symbol' already filters to one. 'search' matches a brand
+     * slug, a provider id or a recorded date.
      *
      * $official maps symbol => provider id (see
      * Gold::officialProviders()). When given and no provider
@@ -336,11 +337,17 @@ final class GoldPricesTable
      * else the most recently fetched row. A provider filter
      * always shows that provider's rows as stored.
      *
-     * @param array{symbol?: string, symbols?: array<int, string>, from?: string, to?: string} $filters
+     * $orderBy is one of date / brand / sell / buyback, $order
+     * asc or desc; anything else falls back to date desc, the
+     * list the tab always showed. The official-preference pass
+     * sorts in PHP after deduping, so a sorted table never shows
+     * a brand+date twice.
+     *
+     * @param array{symbol?: string, symbols?: array<int, string>, from?: string, to?: string, search?: string} $filters
      * @param array<string, string> $official
      * @return array<int, array{provider: string, symbol: string, sell_price: float, buyback_price: float|null, currency: string, recorded_date: string, fetched_at: int}>
      */
-    public static function historyFiltered(string $provider, array $filters, int $limit = 200, int $offset = 0, array $official = []): array
+    public static function historyFiltered(string $provider, array $filters, int $limit = 200, int $offset = 0, array $official = [], string $orderBy = 'date', string $order = 'desc'): array
     {
         global $wpdb;
 
@@ -350,8 +357,10 @@ final class GoldPricesTable
             return [];
         }
 
+        [$orderKey, $column, $direction] = self::historyOrder($orderBy, $order);
+
         if ($official !== [] && $provider === '') {
-            $rows = self::preferOfficial(self::historyRows($provider, $filters), $official);
+            $rows = self::historySortRows(self::preferOfficial(self::historyRows($provider, $filters), $official), $orderKey, $direction);
 
             return array_slice($rows, max(0, $offset), max(0, $limit));
         }
@@ -360,11 +369,17 @@ final class GoldPricesTable
         $params[] = max(0, $limit);
         $params[] = max(0, $offset);
 
+        $orderBySql = $column === 'recorded_date'
+            ? "{$column} {$direction}, symbol ASC"
+            : ($column === 'symbol'
+                ? "{$column} {$direction}, recorded_date DESC"
+                : "{$column} {$direction}, recorded_date DESC, symbol ASC");
+
         $rows = $wpdb->get_results(
             $wpdb->prepare(
                 "SELECT provider, symbol, sell_price, buyback_price, currency, recorded_date, fetched_at
                  FROM {$table} {$where}
-                 ORDER BY recorded_date DESC, symbol ASC LIMIT %d OFFSET %d",
+                 ORDER BY {$orderBySql} LIMIT %d OFFSET %d",
                 ...$params
             ),
             ARRAY_A
@@ -378,11 +393,84 @@ final class GoldPricesTable
     }
 
     /**
+     * A list sort request as a validated [key, column,
+     * direction]: the key is what the table passes back in the
+     * URL, the column is the real DB column. Anything unknown
+     * falls back to date desc, the list the tab always showed.
+     *
+     * @return array{0: string, 1: string, 2: string}
+     */
+    private static function historyOrder(string $orderBy, string $order): array
+    {
+        $columns = [
+            'date' => 'recorded_date',
+            'brand' => 'symbol',
+            'sell' => 'sell_price',
+            'buyback' => 'buyback_price',
+        ];
+
+        $key = isset($columns[$orderBy]) ? $orderBy : 'date';
+
+        return [$key, $columns[$key], strtolower($order) === 'asc' ? 'asc' : 'desc'];
+    }
+
+    /**
+     * The deduped official-preference rows in list order: the
+     * same key order as the SQL branch (primary key, then
+     * recorded_date desc, then symbol asc, each used once). A
+     * missing buyback sorts like SQL NULL - smallest, so first
+     * ascending and last descending.
+     *
+     * @param array<int, array{provider: string, symbol: string, sell_price: float, buyback_price: float|null, currency: string, recorded_date: string, fetched_at: int}> $rows
+     * @return array<int, array{provider: string, symbol: string, sell_price: float, buyback_price: float|null, currency: string, recorded_date: string, fetched_at: int}>
+     */
+    private static function historySortRows(array $rows, string $orderKey, string $direction): array
+    {
+        $flip = $direction === 'desc' ? -1 : 1;
+
+        usort($rows, static function (array $a, array $b) use ($orderKey, $flip): int {
+            $cmp = 0;
+
+            if ($orderKey === 'date') {
+                $cmp = strcmp((string) ($a['recorded_date'] ?? ''), (string) ($b['recorded_date'] ?? ''));
+            } elseif ($orderKey === 'brand') {
+                $cmp = strnatcasecmp((string) ($a['symbol'] ?? ''), (string) ($b['symbol'] ?? ''));
+            } elseif ($orderKey === 'sell') {
+                $cmp = (float) ($a['sell_price'] ?? 0) <=> (float) ($b['sell_price'] ?? 0);
+            } elseif ($orderKey === 'buyback') {
+                $aPrice = $a['buyback_price'] ?? null;
+                $bPrice = $b['buyback_price'] ?? null;
+                $cmp = $aPrice === null && $bPrice === null ? 0 : ($aPrice === null ? -1 : ($bPrice === null ? 1 : (float) $aPrice <=> (float) $bPrice));
+            }
+
+            if ($cmp !== 0) {
+                return $flip * $cmp;
+            }
+
+            if ($orderKey !== 'date') {
+                $cmp = strcmp((string) ($b['recorded_date'] ?? ''), (string) ($a['recorded_date'] ?? ''));
+
+                if ($cmp !== 0) {
+                    return $cmp;
+                }
+            }
+
+            if ($orderKey !== 'brand') {
+                return strnatcasecmp((string) ($a['symbol'] ?? ''), (string) ($b['symbol'] ?? ''));
+            }
+
+            return 0;
+        });
+
+        return $rows;
+    }
+
+    /**
      * All rows matching a filter, newest first, with no paging:
      * the input for the official-preference pass, which must see
      * every candidate row for a brand+date before it can pick one.
      *
-     * @param array{symbol?: string, symbols?: array<int, string>, from?: string, to?: string} $filters
+     * @param array{symbol?: string, symbols?: array<int, string>, from?: string, to?: string, search?: string} $filters
      * @return array<int, array{provider: string, symbol: string, sell_price: float, buyback_price: float|null, currency: string, recorded_date: string, fetched_at: int}>
      */
     private static function historyRows(string $provider, array $filters): array
@@ -478,7 +566,7 @@ final class GoldPricesTable
      * provider filter) it counts the preferred rows, so the
      * page count matches the deduped table.
      *
-     * @param array{symbol?: string, symbols?: array<int, string>, from?: string, to?: string} $filters
+     * @param array{symbol?: string, symbols?: array<int, string>, from?: string, to?: string, search?: string} $filters
      * @param array<string, string> $official
      */
     public static function historyCount(string $provider, array $filters, array $official = []): int
@@ -541,6 +629,8 @@ final class GoldPricesTable
      */
     private static function historyWhere(string $provider, array $filters): array
     {
+        global $wpdb;
+
         $where = 'WHERE 1 = 1';
         $params = [];
 
@@ -578,6 +668,15 @@ final class GoldPricesTable
         if ($to !== '') {
             $where .= ' AND recorded_date <= %s';
             $params[] = $to;
+        }
+
+        $search = (string) ($filters['search'] ?? '');
+        if ($search !== '') {
+            $like = '%' . $wpdb->esc_like($search) . '%';
+            $where .= ' AND (symbol LIKE %s OR provider LIKE %s OR recorded_date LIKE %s)';
+            $params[] = $like;
+            $params[] = $like;
+            $params[] = $like;
         }
 
         return [$where, $params];

@@ -4369,6 +4369,9 @@ msgstr "Tambah Lokasi Baru"
 msgid "Search Locations"
 msgstr "Cari Lokasi"
 
+msgid "Search History"
+msgstr "Cari Riwayat"
+
 msgid "Search Templates"
 msgstr "Cari Template"
 
