@@ -63,6 +63,11 @@ interface KkData {
 	// Temperature unit (Customizer: kk_weather_unit). The API always
 	// returns Celsius; Fahrenheit converts on display.
 	weatherUnit?: string;
+	// User-facing picker strings, translated server-side
+	// (wp_localize_script) and keyed by the English source text, so
+	// the status lines and labels follow the site language instead of
+	// staying hardcoded English. Missing keys fall back to English.
+	weatherStrings?: Record<string, string>;
 }
 
 // No global augmentation here: src/ts/main.ts already declares
@@ -107,6 +112,11 @@ interface Location {
 	latitude: number;
 	longitude: number;
 	source: 'default' | 'quick' | 'search' | 'coords' | 'geolocation' | 'map';
+	// Full hierarchy ("Kelurahan, Kecamatan, Kota/Kab") when the
+	// location came from reverse geocoding; the name is the short
+	// display ("Kelurahan, Kota/Kab"). The full form rides in the
+	// title attribute of the top-bar and widget place elements.
+	fullName?: string;
 }
 
 interface WeatherData {
@@ -124,6 +134,10 @@ interface WeatherData {
 	// Rendered condition icon (SVG markup from the server). Present on
 	// the top-bar response; older or widget-only shapes omit it.
 	icon?: string;
+	// Full hierarchy ("Kelurahan, Kecamatan, Kota/Kab") for the title
+	// attribute; the name is the short display. Attached by the client
+	// from the picked location - the cached server response omits it.
+	fullName?: string;
 }
 
 interface SearchResult {
@@ -233,6 +247,18 @@ function getKkData(): KkData {
 	return (window as unknown as { kkData?: KkData }).kkData ?? {};
 }
 
+/* Localised picker string: the English source text is the key into
+ * the server-localized table; the fallback is the English text
+ * itself, so a missing key still reads correctly. */
+function t(key: string): string {
+	const strings = getKkData().weatherStrings;
+	return strings !== undefined && typeof strings[key] === 'string' && strings[key] !== '' ? strings[key] : key;
+}
+
+function tf(key: string, value: string): string {
+	return t(key).replace('%s', value);
+}
+
 function $(selector: string, root: ParentNode = document): HTMLElement | null {
 	return root.querySelector(selector);
 }
@@ -271,10 +297,18 @@ function getStoredLocation(storageKey: string): Location | null {
 		) {
 			return null;
 		}
+		// The stored full hierarchy survives the round-trip: the
+		// title attribute ("Kelurahan, Kecamatan, Kota/Kab") reads
+		// it from the stored location on every paint, cached ones
+		// included. Dropping it here left every title at the
+		// short display name.
 		return {
 			name: candidate.name,
 			latitude: candidate.latitude,
 			longitude: candidate.longitude,
+			...(typeof candidate.fullName === 'string' && candidate.fullName.trim() !== ''
+				? { fullName: candidate.fullName.trim() }
+				: {}),
 			source: 'default',
 		};
 	} catch {
@@ -383,6 +417,11 @@ async function fetchWeather(cacheKey: string, location: Location): Promise<Weath
 		throw new Error('Weather is unavailable right now.');
 	}
 	setCachedWeather(cacheKey, location, result.weather);
+	// The server echoes the requested name; the full hierarchy comes
+	// from the picked location itself, so it survives the cache.
+	if (location.fullName !== undefined && location.fullName !== result.weather.name) {
+		return { ...result.weather, fullName: location.fullName };
+	}
 	return result.weather;
 }
 
@@ -405,21 +444,63 @@ async function searchPlaces(query: string, signal: AbortSignal): Promise<SearchR
  * anonymous "My location" / "Custom location". Null when the place
  * cannot be resolved - the caller keeps the generic label then. */
 async function reverseGeocode(latitude: number, longitude: number): Promise<string | null> {
+	const details = await reverseGeocodeDetails(latitude, longitude);
+	return details === null ? null : details.name;
+}
+
+interface ReverseGeocodeDetails {
+	name: string;
+	fullName: string;
+	kelurahan: string | null;
+	kecamatan: string | null;
+	kota: string | null;
+}
+
+/* Full area hierarchy for coordinates: the short display name plus
+ * the full "Kelurahan, Kecamatan, Kota/Kab" form and the levels it
+ * came from. The name is what the top bar and widget show; the full
+ * form rides the title attribute. */
+async function reverseGeocodeDetails(latitude: number, longitude: number): Promise<ReverseGeocodeDetails | null> {
 	const data = getKkData();
 	if (!data.ajaxUrl || !data.nonce) {
 		return null;
 	}
 	try {
-		const result = await postAjax<{ name?: string | null }>(
+		const result = await postAjax<{
+			name?: string | null;
+			fullName?: string | null;
+			kelurahan?: string | null;
+			kecamatan?: string | null;
+			kota?: string | null;
+		}>(
 			{ ajaxUrl: data.ajaxUrl, nonce: data.nonce },
 			'kk_weather_reverse',
 			{ latitude: String(latitude), longitude: String(longitude) },
 		);
 		const name = typeof result.name === 'string' ? result.name.trim() : '';
-		return name !== '' ? name : null;
+		if (name === '') {
+			return null;
+		}
+		const fullName = typeof result.fullName === 'string' && result.fullName.trim() !== '' ? result.fullName.trim() : name;
+		return {
+			name,
+			fullName,
+			kelurahan: typeof result.kelurahan === 'string' && result.kelurahan !== '' ? result.kelurahan : null,
+			kecamatan: typeof result.kecamatan === 'string' && result.kecamatan !== '' ? result.kecamatan : null,
+			kota: typeof result.kota === 'string' && result.kota !== '' ? result.kota : null,
+		};
 	} catch {
 		return null;
 	}
+}
+
+/* Attach the full hierarchy to a location, unless it adds nothing
+ * over the display name. */
+function locationWithDetails(base: Location, details: ReverseGeocodeDetails | null): Location {
+	if (details === null || details.fullName === base.name) {
+		return base;
+	}
+	return { ...base, fullName: details.fullName };
 }
 
 /* Rendering                                                           */
@@ -447,7 +528,10 @@ function renderTopbar(weather: WeatherData): void {
 	place.className = 'kk-topbar-weather-place';
 	place.textContent = weather.name;
 	slot.append(temp, document.createTextNode(' '), place);
-	slot.setAttribute('title', weather.condition);
+	// The tooltip carries the full hierarchy ("Kelurahan, Kecamatan,
+	// Kota/Kab"); the slot itself shows only the short display
+	// ("Kelurahan, Kota/Kab"), truncated with an ellipsis when long.
+	slot.setAttribute('title', weather.fullName ?? topbarLocation.fullName ?? weather.name);
 }
 
 // Loading state for the top bar, shown while the first fetch runs and
@@ -469,7 +553,7 @@ function renderTopbarLoading(location: Location): void {
 	place.className = 'kk-topbar-weather-place';
 	place.textContent = location.name;
 	slot.append(temp, document.createTextNode(' '), place);
-	slot.setAttribute('title', 'Loading weather');
+	slot.setAttribute('title', location.fullName ?? location.name);
 }
 
 // Paint one widget from one weather object.
@@ -478,6 +562,10 @@ function renderWidget(widget: HTMLElement, weather: WeatherData): void {
 	const place = widget.querySelector<HTMLElement>('.kk-weather-place');
 	if (place) {
 		place.textContent = weather.name;
+		// The tooltip carries the full hierarchy; the widget shows
+		// only the short display, truncated with an ellipsis when long.
+		const stored = getTargetLocation({ kind: 'widget', element: widget, key: widgetKey(widget) });
+		place.setAttribute('title', weather.fullName ?? stored.fullName ?? weather.name);
 	}
 	if (body) {
 		renderWidgetBody(body, weather, widget.dataset.showDetails === '1', widget.dataset.showIcon !== '0', widgetTempUnit(widget));
@@ -556,7 +644,7 @@ function renderWidgetEmpty(body: HTMLElement): void {
 	body.textContent = '';
 	const empty = document.createElement('p');
 	empty.className = 'kk-widget-empty';
-	empty.textContent = 'Weather is unavailable right now.';
+	empty.textContent = t('Weather is unavailable right now.');
 	body.appendChild(empty);
 }
 
@@ -679,7 +767,7 @@ function updateCurrentLine(): void {
 	const line = $('[data-kk-weather-current]');
 	if (line) {
 		const location = getTargetLocation(pickerTarget);
-		line.textContent = `Current location: ${location.name} (${formatCoords(location)})`;
+		line.textContent = tf('Current location: %s', `${location.name} (${formatCoords(location)})`);
 	}
 }
 
@@ -688,7 +776,7 @@ function applyLocation(location: Location, target: PickerTarget, announce = true
 	updateCurrentLine();
 	syncCoordsInputs();
 	if (announce) {
-		setStatus(`Location set to ${location.name}.`);
+		setStatus(tf('Location set to %s.', location.name));
 	}
 	if (target.kind === 'topbar') {
 		void refreshTopbar(location);
@@ -853,8 +941,12 @@ function initMap(): void {
 		// and stays an anonymous custom location when it does not.
 		void (async () => {
 			const typed = els.name.value.trim();
-			const resolved = typed !== '' ? typed : (await reverseGeocode(pos.lat, pos.lng)) ?? 'Custom location';
-			applyLocation({ name: resolved, latitude: pos.lat, longitude: pos.lng, source: 'map' }, pickerTarget);
+			const details = await reverseGeocodeDetails(pos.lat, pos.lng);
+			const base: Location =
+				typed !== ''
+					? { name: typed, latitude: pos.lat, longitude: pos.lng, source: 'map' }
+					: { name: details?.name ?? t('Custom location'), latitude: pos.lat, longitude: pos.lng, source: 'map' };
+			applyLocation(locationWithDetails(base, details), pickerTarget);
 			closePicker();
 		})();
 	});
@@ -973,7 +1065,7 @@ function renderStrip(): void {
 			const remove = document.createElement('button');
 			remove.type = 'button';
 			remove.className = 'kk-weather-chip-remove';
-			remove.setAttribute('aria-label', `Remove ${city.name} from quick picks`);
+			remove.setAttribute('aria-label', tf('Remove %s from quick picks', city.name));
 			remove.textContent = 'x';
 			remove.addEventListener('click', (event) => {
 				event.stopPropagation();
@@ -1043,18 +1135,18 @@ function initStrip(): void {
 		if (existing) {
 			applyLocation({ ...existing, source: existing.source }, pickerTarget);
 			renderStrip();
-			setStatus(`${existing.name} is already in your quick picks.`);
+			setStatus(tf('%s is already in your quick picks.', existing.name));
 			return;
 		}
 		const customs = getCustomCities();
 		if (customs.length >= MAX_CUSTOM_CITIES) {
-			setStatus('Quick picks is full. Remove one first.');
+			setStatus(t('Quick picks is full. Remove one first.'));
 			return;
 		}
 		customs.push({ ...current, source: 'search' });
 		storeCustomCities(customs);
 		renderStrip();
-		setStatus(`${current.name} added to quick picks.`);
+		setStatus(tf('%s added to quick picks.', current.name));
 	});
 }
 
@@ -1090,7 +1182,7 @@ function initSearch(): void {
 			setStatus('');
 			return;
 		}
-		setStatus('Searching...');
+		setStatus(t('Searching...'));
 		timer = window.setTimeout(() => {
 			controller?.abort();
 			controller = new AbortController();
@@ -1098,7 +1190,7 @@ function initSearch(): void {
 				.then((places) => {
 					results.textContent = '';
 					if (places.length === 0) {
-						setStatus('No places found. Try another name.');
+						setStatus(t('No places found. Try another name.'));
 						return;
 					}
 					setStatus('');
@@ -1135,7 +1227,7 @@ function initSearch(): void {
 							setMapPin(place.latitude, place.longitude, place.name);
 							results.textContent = '';
 							input.value = place.name;
-							setStatus(`Moved the map to ${place.name}. Press "Use this location" to apply it.`);
+							setStatus(tf('Moved the map to %s. Press "Use this location" to apply it.', place.name));
 						});
 						item.appendChild(button);
 						results.appendChild(item);
@@ -1146,7 +1238,7 @@ function initSearch(): void {
 						return;
 					}
 					results.textContent = '';
-					setStatus('Search is unavailable right now. Try coordinates instead.');
+					setStatus(t('Search is unavailable right now. Try coordinates instead.'));
 				});
 		}, 300);
 	});
@@ -1179,7 +1271,7 @@ function initCoords(): void {
 		lonInput.setAttribute('aria-invalid', valid ? 'false' : 'true');
 		if (!valid) {
 			if (errorEl) {
-				errorEl.textContent = 'Enter a latitude between -90 and 90 and a longitude between -180 and 180.';
+				errorEl.textContent = t('Enter a latitude between -90 and 90 and a longitude between -180 and 180.');
 				errorEl.hidden = false;
 			}
 			return;
@@ -1189,11 +1281,12 @@ function initCoords(): void {
 			errorEl.hidden = true;
 		}
 		// Typed coordinates have no name of their own: resolve the area
-		// first so the top bar reads e.g. "Kabupaten Malang" instead of
-		// the anonymous "Custom location".
+		// first so the top bar reads e.g. "Pakis, Kabupaten Malang"
+		// instead of the anonymous "Custom location".
 		void (async () => {
-			const name = await reverseGeocode(latitude, longitude);
-			applyLocation({ name: name ?? 'Custom location', latitude, longitude, source: 'coords' }, pickerTarget);
+			const details = await reverseGeocodeDetails(latitude, longitude);
+			const base: Location = { name: details?.name ?? t('Custom location'), latitude, longitude, source: 'coords' };
+			applyLocation(locationWithDetails(base, details), pickerTarget);
 			renderStrip();
 		})();
 	});
@@ -1206,15 +1299,15 @@ function initGeolocate(): void {
 	}
 	button.addEventListener('click', () => {
 		if (!('geolocation' in navigator)) {
-			setStatus('Geolocation is not supported by this browser. Search for a city or enter coordinates.');
+			setStatus(t('Geolocation is not supported by this browser. Search for a city or enter coordinates.'));
 			return;
 		}
-		setStatus('Asking for your location...');
+		setStatus(t('Asking for your location...'));
 		navigator.geolocation.getCurrentPosition(
 			(position) => {
 				void (async () => {
 					const resolved: Location = {
-						name: 'My location',
+						name: t('My location'),
 						latitude: position.coords.latitude,
 						longitude: position.coords.longitude,
 						source: 'geolocation',
@@ -1225,24 +1318,25 @@ function initGeolocate(): void {
 					const existing = findExistingPick(resolved);
 					if (existing) {
 						applyLocation({ ...existing, source: existing.source }, pickerTarget, false);
-						setStatus(`You're near ${existing.name} - showing its weather.`);
+						setStatus(tf("You're near %s - showing its weather.", existing.name));
 					} else {
 						// Otherwise resolve the fix to its area name so
-						// the top bar reads "Kabupaten Malang", not
+						// the top bar reads "Pakis, Kabupaten Malang", not
 						// "My location".
-						const name = await reverseGeocode(resolved.latitude, resolved.longitude);
-						applyLocation({ ...resolved, name: name ?? 'My location' }, pickerTarget);
+						const details = await reverseGeocodeDetails(resolved.latitude, resolved.longitude);
+						const base: Location = { ...resolved, name: details?.name ?? t('My location') };
+						applyLocation(locationWithDetails(base, details), pickerTarget);
 					}
 					renderStrip();
 				})();
 			},
 			(error) => {
 				if (error.code === error.PERMISSION_DENIED) {
-					setStatus('Location permission was denied. You can still search for a city or enter coordinates.');
+					setStatus(t('Location permission was denied. You can still search for a city or enter coordinates.'));
 				} else if (error.code === error.TIMEOUT) {
-					setStatus('Finding your location timed out. Try again, or search for a city.');
+					setStatus(t('Finding your location timed out. Try again, or search for a city.'));
 				} else {
-					setStatus('Your location could not be determined. Search for a city or enter coordinates.');
+					setStatus(t('Your location could not be determined. Search for a city or enter coordinates.'));
 				}
 			},
 			{ timeout: 10000, maximumAge: 60000 },
@@ -1294,7 +1388,7 @@ function initPicker(): void {
 				: widgetDefaultLocation(pickerTarget.element);
 		applyLocation(def, pickerTarget);
 		renderStrip();
-		setStatus(`Location reset to ${def.name}.`);
+		setStatus(tf('Location reset to %s.', def.name));
 	});
 	initMap();
 	initStrip();
@@ -1311,18 +1405,21 @@ function initPicker(): void {
 // it - the name updates in place when the lookup returns.
 function upgradeGenericName(target: PickerTarget): void {
 	const stored = getTargetLocation(target);
-	if (stored.name !== 'My location' && stored.name !== 'Custom location') {
+	// Both the English and the localized generic labels: older stored
+	// entries carry the English form, newer ones the site language.
+	const genericNames = ['My location', t('My location'), 'Custom location', t('Custom location')];
+	if (!genericNames.includes(stored.name)) {
 		return;
 	}
-	void reverseGeocode(stored.latitude, stored.longitude).then((name) => {
-		if (!name) {
+	void reverseGeocodeDetails(stored.latitude, stored.longitude).then((details) => {
+		if (!details) {
 			return;
 		}
 		// Skip when the visitor already picked another place meanwhile.
 		if (getTargetLocation(target) !== stored) {
 			return;
 		}
-		const next = { ...stored, name };
+		const next = locationWithDetails({ ...stored, name: details.name }, details);
 		setTargetLocation(target, next);
 		updateCurrentLine();
 		if (target.kind === 'topbar') {

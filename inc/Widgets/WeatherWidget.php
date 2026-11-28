@@ -79,7 +79,7 @@ final class WeatherWidget extends WP_Widget
             data-show-details="<?php echo $showDetails ? '1' : '0'; ?>"
             data-show-icon="<?php echo $showIcon ? '1' : '0'; ?>"
             data-temp-unit="<?php echo esc_attr($tempUnit); ?>">
-            <p class="kk-weather-place"><?php echo esc_html($location['name']); ?></p>
+            <p class="kk-weather-place" title="<?php echo esc_attr(isset($location['fullName']) && is_string($location['fullName']) && $location['fullName'] !== '' ? $location['fullName'] : $location['name']); ?>"><?php echo esc_html($location['name']); ?></p>
             <div class="kk-weather-body" data-kk-weather-body>
                 <?php
                 if ($weather !== null) {

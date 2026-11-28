@@ -3929,6 +3929,86 @@ msgstr "Pencarian tidak tersedia saat ini."
 msgid "No places found. Try another name."
 msgstr "Tidak ada tempat ditemukan. Coba nama lain."
 
+#: src/ts/widget-blocks.ts
+msgid "Show map"
+msgstr "Tampilkan peta"
+
+#: src/ts/widget-blocks.ts
+msgid "Hide map"
+msgstr "Sembunyikan peta"
+
+#: src/ts/widget-blocks.ts
+msgid "Asking for your location..."
+msgstr "Meminta lokasi Anda…"
+
+#: src/ts/widget-blocks.ts
+msgid "Geolocation is not supported by this browser. Search for a city or enter coordinates."
+msgstr "Geolokasi tidak didukung browser ini. Cari kota atau masukkan koordinat."
+
+#: src/ts/widget-blocks.ts
+msgid "Location permission was denied. You can still search for a city or enter coordinates."
+msgstr "Izin lokasi ditolak. Anda tetap bisa mencari kota atau memasukkan koordinat."
+
+#: src/ts/widget-blocks.ts
+msgid "Finding your location timed out. Try again, or search for a city."
+msgstr "Mencari lokasi Anda kehabisan waktu. Coba lagi, atau cari kota."
+
+#: src/ts/widget-blocks.ts
+msgid "Your location could not be determined. Search for a city or enter coordinates."
+msgstr "Lokasi Anda tidak dapat ditentukan. Cari kota atau memasukkan koordinat."
+
+#: inc/Assets/Enqueue.php
+msgid "Location set to %s."
+msgstr "Lokasi diatur ke %s."
+
+#: inc/Assets/Enqueue.php
+msgid "%s is already in your quick picks."
+msgstr "%s sudah ada di pilihan cepat Anda."
+
+#: inc/Assets/Enqueue.php
+msgid "Quick picks is full. Remove one first."
+msgstr "Pilihan cepat sudah penuh. Hapus salah satu dulu."
+
+#: inc/Assets/Enqueue.php
+msgid "%s added to quick picks."
+msgstr "%s ditambahkan ke pilihan cepat."
+
+#: inc/Assets/Enqueue.php
+msgid "Remove %s from quick picks"
+msgstr "Hapus %s dari pilihan cepat"
+
+#: inc/Assets/Enqueue.php
+msgid "Searching..."
+msgstr "Mencari…"
+
+#: inc/Assets/Enqueue.php
+msgid "Search is unavailable right now. Try coordinates instead."
+msgstr "Pencarian tidak tersedia saat ini. Coba koordinat."
+
+#: inc/Assets/Enqueue.php
+msgid "Moved the map to %s. Press \"Use this location\" to apply it."
+msgstr "Peta dipindah ke %s. Tekan \"Gunakan lokasi ini\" untuk menerapkannya."
+
+#: inc/Assets/Enqueue.php
+msgid "Enter a latitude between -90 and 90 and a longitude between -180 and 180."
+msgstr "Masukkan lintang antara -90 dan 90 dan bujur antara -180 dan 180."
+
+#: inc/Assets/Enqueue.php
+msgid "You're near %s - showing its weather."
+msgstr "Anda berada di dekat %s - menampilkan cuacanya."
+
+#: inc/Assets/Enqueue.php
+msgid "Location reset to %s."
+msgstr "Lokasi dikembalikan ke %s."
+
+#: inc/Assets/Enqueue.php
+msgid "My location"
+msgstr "Lokasi saya"
+
+#: inc/Assets/Enqueue.php
+msgid "Custom location"
+msgstr "Lokasi khusus"
+
 msgid "is already in the list."
 msgstr "sudah ada di daftar."
 

@@ -173,6 +173,10 @@ interface WeatherLocation {
 	name: string;
 	latitude: number;
 	longitude: number;
+	// Full hierarchy ("Kelurahan, Kecamatan, Kota/Kab") when the
+	// location came from reverse geocoding; the name is the short
+	// display. The full form rides the title attribute on the front end.
+	fullName?: string;
 }
 
 interface WeatherSearchResult {
@@ -280,13 +284,57 @@ async function searchWeatherPlaces(query: string): Promise<WeatherSearchResult[]
  * pin the user placed by hand. Null when it cannot be resolved -
  * the caller keeps whatever label it already has. */
 async function reverseGeocodeWeather(latitude: number, longitude: number): Promise<string | null> {
+	const details = await reverseGeocodeWeatherDetails(latitude, longitude);
+	return details === null ? null : details.name;
+}
+
+interface ReverseGeocodeDetails {
+	name: string;
+	fullName: string;
+	kelurahan: string | null;
+	kecamatan: string | null;
+	kota: string | null;
+	latitude: number;
+	longitude: number;
+}
+
+/* Full area hierarchy for coordinates: the short display name plus
+ * the full "Kelurahan, Kecamatan, Kota/Kab" form and the levels it
+ * came from, with the queried coordinates attached so the caller can
+ * tell whether the details still belong to the current pin. */
+async function reverseGeocodeWeatherDetails(latitude: number, longitude: number): Promise<ReverseGeocodeDetails | null> {
 	const json = await postWeatherAjax('kk_weather_reverse', {
 		latitude: String(latitude),
 		longitude: String(longitude),
 	});
-	const data = json as { success?: boolean; data?: { name?: string | null } };
+	const data = json as {
+		success?: boolean;
+		data?: { name?: string | null; fullName?: string | null; kelurahan?: string | null; kecamatan?: string | null; kota?: string | null };
+	};
 	const name = typeof data?.data?.name === 'string' ? data.data.name.trim() : '';
-	return name !== '' ? name : null;
+	if (name === '') {
+		return null;
+	}
+	const fullName =
+		typeof data?.data?.fullName === 'string' && data.data.fullName.trim() !== '' ? data.data.fullName.trim() : name;
+	return {
+		name,
+		fullName,
+		kelurahan: typeof data?.data?.kelurahan === 'string' && data.data.kelurahan !== '' ? data.data.kelurahan : null,
+		kecamatan: typeof data?.data?.kecamatan === 'string' && data.data.kecamatan !== '' ? data.data.kecamatan : null,
+		kota: typeof data?.data?.kota === 'string' && data.data.kota !== '' ? data.data.kota : null,
+		latitude,
+		longitude,
+	};
+}
+
+/* Attach the full hierarchy to a location, unless it adds nothing
+ * over the display name. */
+function locationWithDetails(base: WeatherLocation, details: ReverseGeocodeDetails | null): WeatherLocation {
+	if (details === null || details.fullName === base.name) {
+		return base;
+	}
+	return { ...base, fullName: details.fullName };
 }
 
 /** The KK-green map pin: a CSS teardrop, no marker-image assets. The
@@ -309,12 +357,15 @@ const LOCATION_DEFAULT_LAT = -0.9471;
 const LOCATION_DEFAULT_LNG = 100.4172;
 const LOCATION_DEFAULT_ZOOM = 15;
 
-/* The map picker popup for one weather location: a Leaflet map the
- * user clicks (or drags the pin on), a city search that also takes
- * raw coordinates, Latitude / Longitude inputs, and a free name
- * label. The location is the lat/lon the pin sits on - the name is
- * only the label for it. Nothing is saved until "Use this
- * location": Cancel leaves the saved list untouched. */
+/* The map picker popup for one weather location. City search stays
+ * the primary way in: typing a city moves the pin and sets the name.
+ * The map is a secondary way, hidden behind a link-styled "Show map"
+ * text and revealed on demand - when it opens it follows the widget
+ * model: the map on top, the coordinates readout, Latitude /
+ * Longitude inputs, "Use these coordinates", the one name field, and
+ * Cancel / "Use this location". The location is the lat/lon the pin
+ * sits on - the name is only the label for it. Nothing is saved until
+ * "Use this location": Cancel leaves the saved list untouched. */
 function LocationPickerModal(props: {
 	api: Wp;
 	onUse: (location: WeatherLocation) => void;
@@ -329,13 +380,46 @@ function LocationPickerModal(props: {
 	const [results, setResults] = api.element.useState<WeatherSearchResult[]>([]);
 	const [searching, setSearching] = api.element.useState(false);
 	const [status, setStatus] = api.element.useState('');
+	const [mapOpen, setMapOpen] = api.element.useState(false);
+	const [locating, setLocating] = api.element.useState(false);
 	const mapBox = api.element.useRef<HTMLElement | null>(null);
 	const mapState = api.element.useRef<{ map: L.Map; marker: L.Marker | null } | null>(null);
 	const nameTyped = api.element.useRef(false);
+	const nameValue = api.element.useRef('');
 	const reverseToken = api.element.useRef(0);
+	const lastDetails = api.element.useRef<ReverseGeocodeDetails | null>(null);
 	const timer = api.element.useRef<number | null>(null);
 
 	const coords = parseCoordPair(latText, lngText);
+
+	/* The name as the visitor last left it, readable from an async
+	 * callback: the state value a lookup closes over goes stale the
+	 * moment the visitor types, so the ref is the only honest
+	 * "is the field still empty" at resolve time. */
+	const updateName = (next: string): void => {
+		nameValue.current = next;
+		setName(next);
+	};
+
+	/* Put the marker on the map (creating it on first use) and centre
+	 * the view on it. The drag handler places by hand, like a click. */
+	const ensureMarker = (latitude: number, longitude: number): void => {
+		const state = mapState.current;
+		if (state === null) {
+			return;
+		}
+		if (state.marker === null) {
+			state.marker = L.marker([latitude, longitude], { icon: makeLocationPin(), draggable: true }).addTo(state.map);
+			state.marker.on('dragend', () => {
+				const pos = state.marker?.getLatLng();
+				if (pos) {
+					placePin(pos.lat, pos.lng);
+				}
+			});
+		} else {
+			state.marker.setLatLng([latitude, longitude]);
+		}
+	};
 
 	/* Move the pin (and the readout) to a coordinate pair: the
 	 * lat/lon inputs are the source of truth, the marker follows
@@ -347,47 +431,82 @@ function LocationPickerModal(props: {
 		reverseToken.current += 1;
 		setLatText(String(latitude));
 		setLngText(String(longitude));
+		ensureMarker(latitude, longitude);
 		const state = mapState.current;
-		if (state === null) {
-			return;
+		if (state !== null) {
+			state.map.setView([latitude, longitude], state.map.getZoom());
 		}
-		if (state.marker === null) {
-			state.marker = L.marker([latitude, longitude], { icon: makeLocationPin(), draggable: true }).addTo(state.map);
-			state.marker.on('dragend', () => {
-				const pos = state.marker?.getLatLng();
-				if (pos) {
-					setPin(pos.lat, pos.lng);
-				}
-			});
-		} else {
-			state.marker.setLatLng([latitude, longitude]);
-		}
-		state.map.setView([latitude, longitude], state.map.getZoom());
 	};
 
-	/* Build the map once the modal is mounted (the container has a
-	 * laid-out box then) and destroy it on unmount, so reopening
-	 * the popup never hits "Map container is already initialized". */
+	/* Move only the marker, leaving the inputs and the view alone:
+	 * typing coordinates moves the map without the inputs rewriting
+	 * what the visitor is still typing. */
+	const moveMarker = (latitude: number, longitude: number): void => {
+		ensureMarker(latitude, longitude);
+	};
+
+	/* Fill the name from the API when the field is empty: picking on
+	 * the map (or typing coordinates) resolves the area, but a name
+	 * the visitor typed is never overwritten. The resolve-time check
+	 * reads the ref, not the state the lookup closed over: a name
+	 * typed while the lookup was in flight still wins, and a typed
+	 * name the visitor cleared leaves the field empty again, so the
+	 * next pick fills it. The token and the pin position guard the
+	 * async answer against a newer pin. */
+	const maybeReverseName = (latitude: number, longitude: number): void => {
+		if (name.trim() !== '') {
+			return;
+		}
+		const token = reverseToken.current;
+		void reverseGeocodeWeatherDetails(latitude, longitude).then((details) => {
+			if (details === null || nameValue.current.trim() !== '' || token !== reverseToken.current) {
+				return;
+			}
+			const pos = mapState.current?.marker?.getLatLng();
+			if (pos && (Math.abs(pos.lat - latitude) > 0.0001 || Math.abs(pos.lng - longitude) > 0.0001)) {
+				return;
+			}
+			lastDetails.current = details;
+			updateName(details.name);
+		});
+	};
+
+	/* Place the marker by hand (map click or marker drag): the name
+	 * follows with the area name when the field is empty. */
+	const placePin = (latitude: number, longitude: number): void => {
+		setPin(latitude, longitude);
+		maybeReverseName(latitude, longitude);
+	};
+
+	/* Build the map when the visitor opens it (the container has a
+	 * laid-out box then) and destroy it on close, so reopening the
+	 * popup never hits "Map container is already initialized". A pin
+	 * staged by search or coordinates is placed on the fresh map. */
 	api.element.useEffect(() => {
+		if (!mapOpen) {
+			return undefined;
+		}
 		const el = mapBox.current;
 		if (el === null) {
 			return undefined;
 		}
-		const map = L.map(el, { scrollWheelZoom: false }).setView(
-			[LOCATION_DEFAULT_LAT, LOCATION_DEFAULT_LNG],
-			LOCATION_DEFAULT_ZOOM,
-		);
+		const start: [number, number] =
+			coords !== null ? [coords.latitude, coords.longitude] : [LOCATION_DEFAULT_LAT, LOCATION_DEFAULT_LNG];
+		const map = L.map(el, { scrollWheelZoom: false }).setView(start, LOCATION_DEFAULT_ZOOM);
 		L.tileLayer(LOCATION_TILE_URL, { attribution: LOCATION_TILE_ATTRIBUTION, maxZoom: 19 }).addTo(map);
 		map.on('click', (event: L.LeafletMouseEvent) => {
-			setPin(event.latlng.lat, event.latlng.lng);
+			placePin(event.latlng.lat, event.latlng.lng);
 		});
 		mapState.current = { map, marker: null };
+		if (coords !== null) {
+			setPin(coords.latitude, coords.longitude);
+		}
 		requestAnimationFrame(() => map.invalidateSize());
 		return () => {
 			map.remove();
 			mapState.current = null;
 		};
-	}, []);
+	}, [mapOpen]);
 
 	const runSearch = (nextQuery: string): void => {
 		if (timer.current !== null) {
@@ -411,9 +530,10 @@ function LocationPickerModal(props: {
 				setResults([]);
 				setStatus('');
 				const token = reverseToken.current;
-				void reverseGeocodeWeather(parsed.latitude, parsed.longitude).then((resolved) => {
-					if (resolved !== null && !nameTyped.current && token === reverseToken.current) {
-						setName(resolved);
+				void reverseGeocodeWeatherDetails(parsed.latitude, parsed.longitude).then((details) => {
+					if (details !== null && !nameTyped.current && token === reverseToken.current) {
+						lastDetails.current = details;
+						updateName(details.name);
 					}
 				});
 				return;
@@ -434,27 +554,92 @@ function LocationPickerModal(props: {
 
 	const pickResult = (place: WeatherSearchResult): void => {
 		setPin(place.latitude, place.longitude);
-		setName(place.name);
+		updateName(place.name);
+		lastDetails.current = null;
 		setResults([]);
 		setQuery(place.name);
 		setStatus('');
 	};
 
+	/* Typing coordinates moves the marker live, so the map and the
+	 * inputs stay in sync in both directions: a map pick writes the
+	 * inputs, and the inputs move the pin. */
+	const onLatChange = (next: string): void => {
+		setLatText(next);
+		const parsed = parseCoordPair(next, lngText);
+		if (parsed !== null) {
+			moveMarker(parsed.latitude, parsed.longitude);
+		}
+	};
+
+	const onLngChange = (next: string): void => {
+		setLngText(next);
+		const parsed = parseCoordPair(latText, next);
+		if (parsed !== null) {
+			moveMarker(parsed.latitude, parsed.longitude);
+		}
+	};
+
 	const applyCoords = (): void => {
 		if (coords !== null) {
 			setPin(coords.latitude, coords.longitude);
+			maybeReverseName(coords.latitude, coords.longitude);
 		}
+	};
+
+	/* The visitor's current position (browser geolocation): the pin
+	 * moves there and the map opens so the fix is visible. A denial
+	 * or an unsupported browser only sets the status - the picker
+	 * keeps working. */
+	const geolocate = (): void => {
+		if (!('geolocation' in navigator)) {
+			setStatus(__('Geolocation is not supported by this browser. Search for a city or enter coordinates.'));
+			return;
+		}
+		setLocating(true);
+		setStatus(__('Asking for your location...'));
+		navigator.geolocation.getCurrentPosition(
+			(position) => {
+				setLocating(false);
+				setStatus('');
+				const latitude = position.coords.latitude;
+				const longitude = position.coords.longitude;
+				setMapOpen(true);
+				setPin(latitude, longitude);
+				maybeReverseName(latitude, longitude);
+			},
+			(error) => {
+				setLocating(false);
+				if (error.code === error.PERMISSION_DENIED) {
+					setStatus(__('Location permission was denied. You can still search for a city or enter coordinates.'));
+				} else if (error.code === error.TIMEOUT) {
+					setStatus(__('Finding your location timed out. Try again, or search for a city.'));
+				} else {
+					setStatus(__('Your location could not be determined. Search for a city or enter coordinates.'));
+				}
+			},
+			{ timeout: 10000, maximumAge: 60000 },
+		);
 	};
 
 	const useLocation = (): void => {
 		if (coords === null) {
 			return;
 		}
-		onUse({
-			name: name.trim() !== '' ? name.trim() : `${coords.latitude.toFixed(4)}, ${coords.longitude.toFixed(4)}`,
-			latitude: coords.latitude,
-			longitude: coords.longitude,
-		});
+		// Only the details for these exact coordinates travel with the
+		// place: a stale lookup for an earlier pin stays behind.
+		const details = lastDetails.current;
+		const fresh =
+			details !== null &&
+			Math.abs(details.latitude - coords.latitude) < 0.0001 &&
+			Math.abs(details.longitude - coords.longitude) < 0.0001
+				? details
+				: null;
+		const label =
+			name.trim() !== ''
+				? name.trim()
+				: fresh?.name ?? `${coords.latitude.toFixed(4)}, ${coords.longitude.toFixed(4)}`;
+		onUse(locationWithDetails({ name: label, latitude: coords.latitude, longitude: coords.longitude }, fresh));
 	};
 
 	const resultButtons = results.map((place) =>
@@ -485,63 +670,116 @@ function LocationPickerModal(props: {
 			{ className: 'kk-locations-picker-hint' },
 			__('Click the map to place the pin, or drag the pin to move it. The coordinates are saved with the location.'),
 		),
-		api.element.createElement(api.components.TextControl, {
-			label: __('Search for a city'),
-			value: query,
-			onChange: (next: string) => {
-				setQuery(next);
-				runSearch(next);
-			},
-		}),
-		searching ? api.element.createElement(api.components.Spinner, null) : null,
-		resultButtons.length > 0
-			? api.element.createElement('ul', { className: 'kk-locations-results' }, ...resultButtons)
-			: null,
-		api.element.createElement('div', {
-			className: 'kk-locations-picker-map',
-			ref: (el: HTMLElement | null) => {
-				mapBox.current = el;
-			},
-		}),
-		api.element.createElement(
-			'p',
-			{ className: 'kk-locations-picker-coords' },
-			coords !== null ? `${coords.latitude}, ${coords.longitude}` : __('No pin placed'),
-		),
 		api.element.createElement(
 			'div',
-			{ className: 'kk-locations-picker-coords-row' },
+			{ className: 'kk-locations-picker-search' },
 			api.element.createElement(api.components.TextControl, {
-				label: __('Latitude'),
-				type: 'number',
-				value: latText,
-				onChange: (next: string) => setLatText(next),
+				label: __('Search for a city'),
+				value: query,
+				onChange: (next: string) => {
+					setQuery(next);
+					runSearch(next);
+				},
 			}),
-			api.element.createElement(api.components.TextControl, {
-				label: __('Longitude'),
-				type: 'number',
-				value: lngText,
-				onChange: (next: string) => setLngText(next),
-			}),
+			searching ? api.element.createElement(api.components.Spinner, null) : null,
+			resultButtons.length > 0
+				? api.element.createElement('ul', { className: 'kk-locations-results' }, ...resultButtons)
+				: null,
 		),
 		api.element.createElement(
 			'button',
 			{
 				type: 'button',
-				className: 'components-button is-secondary kk-locations-picker-apply-coords',
-				disabled: coords === null,
-				onClick: applyCoords,
+				className: 'components-button is-secondary kk-locations-geolocate',
+				disabled: locating,
+				onClick: geolocate,
 			},
-			__('Use these coordinates'),
+			api.element.createElement(
+				'svg',
+				{
+					width: 18,
+					height: 18,
+					viewBox: '0 0 24 24',
+					fill: 'none',
+					stroke: 'currentColor',
+					strokeWidth: 2,
+					strokeLinecap: 'round',
+					strokeLinejoin: 'round',
+					'aria-hidden': 'true',
+				},
+				api.element.createElement('path', { d: 'M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z' }),
+				api.element.createElement('circle', { cx: 12, cy: 10, r: 3 }),
+			),
+			api.element.createElement('span', null, __('Use my location')),
 		),
-		api.element.createElement(api.components.TextControl, {
-			label: __('Name'),
-			value: name,
-			onChange: (next: string) => {
-				nameTyped.current = true;
-				setName(next);
+		api.element.createElement(
+			'span',
+			{
+				className: 'kk-locations-map-toggle',
+				role: 'button',
+				tabIndex: 0,
+				'aria-expanded': mapOpen,
+				onClick: () => setMapOpen(!mapOpen),
+				onKeyDown: (event: KeyboardEvent) => {
+					if (event.key === 'Enter' || event.key === ' ') {
+						event.preventDefault();
+						setMapOpen(!mapOpen);
+					}
+				},
 			},
-		}),
+			mapOpen ? __('Hide map') : __('Show map'),
+		),
+		mapOpen
+			? api.element.createElement(
+					'div',
+					{ className: 'kk-locations-picker-map-section' },
+					api.element.createElement('div', {
+						className: 'kk-locations-picker-map',
+						ref: (el: HTMLElement | null) => {
+							mapBox.current = el;
+						},
+					}),
+					api.element.createElement(
+						'p',
+						{ className: 'kk-locations-picker-coords' },
+						coords !== null ? `${coords.latitude}, ${coords.longitude}` : __('No pin placed'),
+					),
+					api.element.createElement(
+						'div',
+						{ className: 'kk-locations-picker-coords-row' },
+						api.element.createElement(api.components.TextControl, {
+							label: __('Latitude'),
+							type: 'number',
+							value: latText,
+							onChange: onLatChange,
+						}),
+						api.element.createElement(api.components.TextControl, {
+							label: __('Longitude'),
+							type: 'number',
+							value: lngText,
+							onChange: onLngChange,
+						}),
+					),
+					api.element.createElement(
+						'button',
+						{
+							type: 'button',
+							className: 'components-button is-secondary kk-locations-picker-apply-coords',
+							disabled: coords === null,
+							onClick: applyCoords,
+						},
+						__('Use these coordinates'),
+					),
+					api.element.createElement(api.components.TextControl, {
+						label: __('Name'),
+						value: name,
+						onChange: (next: string) => {
+							nameTyped.current = true;
+							updateName(next);
+						},
+					}),
+			  )
+			: null,
 		status !== ''
 			? api.element.createElement('p', { className: 'components-base-control__help' }, status)
 			: null,

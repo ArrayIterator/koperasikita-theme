@@ -554,6 +554,11 @@ final class Blocks
                 'ajaxUrl' => admin_url('admin-ajax.php'),
                 'nonce' => Ajax::nonce(),
             ]);
+            // The block script translates through wp.i18n: without
+            // this the editor serves the English strings even when
+            // the .po has them, because the JSON translations are
+            // never loaded for this handle.
+            wp_set_script_translations('kk-widget-blocks', 'koperasikita', get_template_directory() . '/languages');
         }
 
         $css = ViteLoader::css('src/css/widget-blocks.css');
