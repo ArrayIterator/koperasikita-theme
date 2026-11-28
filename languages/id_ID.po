@@ -428,6 +428,14 @@ msgid "JPEG Quality"
 msgstr "Kualitas JPEG"
 
 #: inc/Customizer/Customizer.php
+msgid "Auto Resolve ALT"
+msgstr "Isi ALT Otomatis"
+
+#: inc/Customizer/Customizer.php
+msgid "Use the article title as the featured image ALT text when the image has no ALT text of its own."
+msgstr "Gunakan judul artikel sebagai teks ALT gambar utama ketika gambar tidak memiliki teks ALT sendiri."
+
+#: inc/Customizer/Customizer.php
 msgid "Breadcrumb Separator"
 msgstr "Pemisah Breadcrumb"
 
