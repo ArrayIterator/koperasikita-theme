@@ -15,6 +15,14 @@
 
 export {};
 
+import select2Factory from 'select2';
+
+declare global {
+	interface Window {
+		jQuery?: JQueryStatic;
+	}
+}
+
 declare const kkCustomizerControls:
 	| { ajaxUrl: string; nonce: string }
 	| undefined;
@@ -787,6 +795,64 @@ function initMultiImage(container: HTMLElement): void {
  * server-rendered. */
 const MAX_MARKET_ITEMS = 16;
 
+/* Real Select2 for the market-items add select: the same attach
+ * shape as select2-terms.ts (factory onto the admin's jQuery,
+ * Indonesian strings from the package) but a local picker - every
+ * option is already rendered server-side, so there is no AJAX
+ * search; typing filters the rendered options instead. */
+function attachSelect2(): boolean {
+	const jq = window.jQuery;
+	if (!jq) {
+		return false;
+	}
+	if (typeof jq.fn.select2 === 'function') {
+		return true;
+	}
+	if (typeof select2Factory !== 'function') {
+		return false;
+	}
+	try {
+		select2Factory(window, jq);
+	} catch {
+		return false;
+	}
+	return typeof jq.fn.select2 === 'function';
+}
+
+/* The Indonesian strings register with Select2's AMD loader, so
+ * they must load after the factory ran - a static import would
+ * execute first and silently no-op. */
+async function loadIndonesianStrings(): Promise<void> {
+	try {
+		// @ts-expect-error TS7016: the translation ships as an untyped UMD side-effect script.
+		await import('select2/dist/js/i18n/id.js');
+	} catch {
+		/* English strings stay: the picker still works. */
+	}
+}
+
+function initMarketItemsSelect2(select: HTMLSelectElement): void {
+	if (select.dataset.kkSelect2Init === '1') {
+		return;
+	}
+	const jq = window.jQuery;
+	if (!attachSelect2() || !jq || typeof jq.fn.select2 !== 'function') {
+		return;
+	}
+	select.dataset.kkSelect2Init = '1';
+	const placeholder =
+		select.querySelector('option[value=""]')?.textContent ?? '';
+	jq(select).select2({
+		width: '100%',
+		language: 'id',
+		placeholder: placeholder === '' ? undefined : placeholder,
+		allowClear: false,
+		dropdownParent: jq(select).parent(),
+		minimumInputLength: 0,
+		minimumResultsForSearch: 0,
+	});
+}
+
 function initMarketItems(container: HTMLElement): void {
 	const list = container.querySelector<HTMLElement>('.kk-market-items-list');
 	const empty = container.querySelector<HTMLElement>('.kk-market-items-empty');
@@ -802,6 +868,20 @@ function initMarketItems(container: HTMLElement): void {
 
 	const hideLabel = container.dataset.hideLabel ?? 'Hide item';
 	const showLabel = container.dataset.showLabel ?? 'Show item';
+
+	/* The Select2 picker opens once the Indonesian strings are
+	 * registered; the native select stays usable until then. */
+	void loadIndonesianStrings().then(() => {
+		initMarketItemsSelect2(select);
+	});
+
+	/* Tell Select2 the native select changed (option added or
+	 * removed, disabled state flipped) so its dropdown re-renders;
+	 * a plain select just fires its change listener, which only
+	 * re-checks the Add button. */
+	const notifySelect = (): void => {
+		window.jQuery?.(select).trigger('change');
+	};
 
 	const rows = (): HTMLElement[] =>
 		Array.from(list.querySelectorAll<HTMLElement>('.kk-market-items-row'));
@@ -825,6 +905,7 @@ function initMarketItems(container: HTMLElement): void {
 		const full = rows().length >= MAX_MARKET_ITEMS;
 		addButton.disabled = full || select.value === '';
 		select.disabled = full;
+		notifySelect();
 	};
 
 	list.addEventListener('click', (event) => {

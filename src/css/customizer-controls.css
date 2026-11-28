@@ -5,6 +5,11 @@
    only in the Customizer controls pane, never on the frontend.
    */
 
+/* Real Select2 for the market-items add select: Vite bundles the
+ * package stylesheet into this entry, so it loads through the
+ * existing kk-customizer-controls handle. */
+@import 'select2/dist/css/select2.css';
+
 /* Searchable term select */
 /* A trigger button (looks like a native select) + an absolutely
  * positioned panel with a search field and a scrollable option list. */
@@ -322,7 +327,7 @@
  * 3px radius); a hidden row dims like a disabled option, and the
  * hide button swaps its eye icon for the eye-off one. */
 .kk-market-items-list {
-	margin: 0 0 8px;
+	margin: 8px 0;
 	padding: 0;
 	list-style: none;
 }
@@ -331,8 +336,8 @@
 	display: flex;
 	align-items: center;
 	gap: 8px;
-	padding: 4px 4px 4px 8px;
-	margin-bottom: 4px;
+	padding: 6px 6px 6px 10px;
+	margin-bottom: 6px;
 	border: 1px solid #dcdcde;
 	border-radius: 3px;
 	background: #fff;
@@ -348,7 +353,7 @@
 	overflow: hidden;
 	text-overflow: ellipsis;
 	white-space: nowrap;
-	font-size: 13px;
+	font-size: 14px;
 	font-weight: 600;
 	color: #1d2327;
 }
@@ -364,8 +369,8 @@
 	display: inline-flex;
 	align-items: center;
 	justify-content: center;
-	width: 22px;
-	height: 22px;
+	width: 26px;
+	height: 26px;
 	padding: 0;
 	border: 0;
 	border-radius: 3px;
@@ -409,9 +414,31 @@
 .kk-market-items-add {
 	display: flex;
 	gap: 6px;
+	/* The Select2 dropdown anchors to this row. */
+	position: relative;
 }
 
 .kk-market-items-select {
 	flex: 1 1 auto;
 	min-width: 0;
+}
+
+/* Select2 replaces the native select with its own container, so
+ * the container takes the select's share of the add row and the
+ * single selection matches the Add button's height. */
+.kk-market-items-add .select2-container {
+	flex: 1 1 auto;
+	min-width: 0;
+}
+
+.kk-market-items-add .select2-selection--single {
+	height: 30px;
+}
+
+.kk-market-items-add .select2-selection--single .select2-selection__rendered {
+	line-height: 30px;
+}
+
+.kk-market-items-add .select2-selection--single .select2-selection__arrow {
+	height: 28px;
 }
