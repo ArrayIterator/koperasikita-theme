@@ -111,6 +111,14 @@ final class Enqueue
                 'Location reset to %s.' => __('Location reset to %s.', 'koperasikita'),
                 'My location' => __('My location', 'koperasikita'),
                 'Custom location' => __('Custom location', 'koperasikita'),
+                // The widget detail rows the client renders after a
+                // refresh: same source strings as the server-side
+                // render in Weather.php, so the labels follow the
+                // site language instead of staying English.
+                'Feels like' => __('Feels like', 'koperasikita'),
+                'High / Low' => __('High / Low', 'koperasikita'),
+                'Humidity' => __('Humidity', 'koperasikita'),
+                'Wind' => __('Wind', 'koperasikita'),
             ],
             'isPwaEnabled' => Features::isEnabled('pwa'),
             'pwaPromptDelayMs' => Pwa::promptDelayMs(),
