@@ -436,6 +436,40 @@ function initPickLocationPopup(): void {
 	const popupDesc = descInput;
 	const popupApply = applyButton;
 
+	// The pin carries its location's label: a permanent tooltip with
+	// the name beside the pin, and a click popup with name + description,
+	// the same shape as the single-event display map. Both follow the
+	// popup's current name and description and stay put when the pin
+	// moves; with neither, the pin stays bare.
+	function syncPopupMarkerLabel(): void {
+		if (popupMarker === null) {
+			return;
+		}
+		const nameInput = document.getElementById('kk-agenda-location');
+		const name = nameInput instanceof HTMLInputElement ? nameInput.value.trim() : '';
+		const desc = popupDesc.value.trim();
+		if (name === '' && desc === '') {
+			popupMarker.unbindTooltip();
+			popupMarker.unbindPopup();
+			return;
+		}
+		if (name !== '') {
+			// The pin's tip sits 34px below the top of its 28px box, so
+			// the label rides 36px above the anchor: clear of the pin.
+			popupMarker.bindTooltip(escapeHtml(name), { permanent: true, direction: 'top', offset: [0, -36] });
+		} else {
+			popupMarker.unbindTooltip();
+		}
+		const parts: string[] = [];
+		if (name !== '') {
+			parts.push(`<strong>${escapeHtml(name)}</strong>`);
+		}
+		if (desc !== '') {
+			parts.push(escapeHtml(desc));
+		}
+		popupMarker.bindPopup(parts.join('<br>'));
+	}
+
 	function setPopupPin(lat: number, lng: number): void {
 		popupLat.value = String(lat);
 		popupLng.value = String(lng);
@@ -456,6 +490,7 @@ function initPickLocationPopup(): void {
 			popupMarker.setLatLng([lat, lng]);
 		}
 
+		syncPopupMarkerLabel();
 		popupMap.setView([lat, lng], popupMap.getZoom());
 	}
 
@@ -479,6 +514,7 @@ function initPickLocationPopup(): void {
 			popupMarker.setLatLng([lat, lng]);
 		}
 
+		syncPopupMarkerLabel();
 		popupMap.setView([lat, lng], DEFAULT_ZOOM);
 	}
 
@@ -620,6 +656,11 @@ function initPickLocationPopup(): void {
 		});
 	});
 
+	// Typing the description updates the pin's popup to match.
+	popupDesc.addEventListener('input', () => {
+		syncPopupMarkerLabel();
+	});
+
 	// A saved location fills the pin, the description and the
 	// event's Location text together: picking it is choosing that
 	// location, name and coordinates alike.
@@ -637,12 +678,13 @@ function initPickLocationPopup(): void {
 			popupLat.value = String(lat);
 			popupLng.value = String(lng);
 			popupDesc.value = option.dataset.desc ?? '';
-			setPopupPin(lat, lng);
-
+			// The name goes in before the pin moves: setPopupPin syncs
+			// the pin's label from this input.
 			const locationInput = document.getElementById('kk-agenda-location');
 			if (locationInput instanceof HTMLInputElement) {
 				locationInput.value = option.value;
 			}
+			setPopupPin(lat, lng);
 		});
 	}
 }
