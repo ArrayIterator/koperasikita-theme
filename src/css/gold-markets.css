@@ -1232,10 +1232,15 @@ html[data-color-scheme="dark"] .kk-data-desk-panel--auto .kk-data-desk-preview-b
 	color: var(--dd-down);
 }
 
+.kk-data-desk-panel .kk-market-change-flat {
+	color: var(--dd-kicker);
+}
+
 /* The {zone} placeholder word in the date line / stat notes takes
  * the configured zone colour from the palette's own vars, so it
  * reads on every palette (green/red are the up/down colours, gold
- * is the kicker gold). */
+ * is the kicker gold). A custom colour comes from the inline
+ * style on the span, so --custom only carries the weight. */
 .kk-data-desk-panel .kk-data-desk-zone--green {
 	color: var(--dd-up);
 	font-weight: 600;
@@ -1248,6 +1253,10 @@ html[data-color-scheme="dark"] .kk-data-desk-panel--auto .kk-data-desk-preview-b
 
 .kk-data-desk-panel .kk-data-desk-zone--gold {
 	color: var(--dd-kicker);
+	font-weight: 600;
+}
+
+.kk-data-desk-panel .kk-data-desk-zone--custom {
 	font-weight: 600;
 }
 

@@ -918,7 +918,39 @@ function initDataDeskPreview(): void {
 		};
 		placeholderChoice('kk_placeholder_date_format_ui', placeholderDateFormat);
 		placeholderChoice('kk_placeholder_percent_ui', placeholderPercent);
-		placeholderChoice('kk_placeholder_zone_color_ui', placeholderZoneColor);
+		/* Zone colour: the keyword radios write their value; the
+		 * Custom radio reveals a colour input whose hex is the
+		 * value, and picking a colour checks Custom. */
+		const zoneColorCustom = document.getElementById('kk-placeholder-zone-color-custom') as HTMLInputElement | null;
+		const syncZoneColorCustom = (): void => {
+			const custom = document.querySelector<HTMLInputElement>('input[name="kk_placeholder_zone_color_ui"][value="custom"]');
+			if (zoneColorCustom) {
+				zoneColorCustom.hidden = !(custom?.checked ?? false);
+			}
+		};
+		document.querySelectorAll<HTMLInputElement>('input[name="kk_placeholder_zone_color_ui"]').forEach((radio) => {
+			radio.addEventListener('change', () => {
+				if (radio.value === 'custom' && zoneColorCustom) {
+					placeholderZoneColor.value = zoneColorCustom.value;
+				} else {
+					placeholderZoneColor.value = radio.value;
+				}
+				syncZoneColorCustom();
+				refresh();
+			});
+		});
+		if (zoneColorCustom) {
+			zoneColorCustom.addEventListener('input', () => {
+				const custom = document.querySelector<HTMLInputElement>('input[name="kk_placeholder_zone_color_ui"][value="custom"]');
+				if (custom) {
+					custom.checked = true;
+				}
+				placeholderZoneColor.value = zoneColorCustom.value;
+				syncZoneColorCustom();
+				refresh();
+			});
+		}
+		syncZoneColorCustom();
 	}
 	/* Placeholder menu + autocomplete on the capable fields only:
 	 * the title ({label} and {day}), the date line (date
@@ -1546,7 +1578,23 @@ function initDataDeskPreview(): void {
 	const fieldPopupSub = fieldPopup?.querySelector<HTMLElement>('[data-kk-field-popup-sub]');
 	const fieldPopupPercent = fieldPopup?.querySelector<HTMLSelectElement>('[data-kk-field-popup-percent]');
 	const fieldPopupZone = fieldPopup?.querySelector<HTMLSelectElement>('[data-kk-field-popup-zone]');
+	const fieldPopupZoneCustom = fieldPopup?.querySelector<HTMLInputElement>('[data-kk-field-popup-zone-custom]');
 	const fieldPopupDateLine = fieldPopup?.querySelector<HTMLElement>('[data-kk-field-popup-date-line]');
+	/* The zone colour the popup holds: the custom hex when the
+	 * select is on Custom, the select's keyword otherwise. */
+	const fieldPopupZoneValue = (): string => {
+		if (fieldPopupZone?.value === 'custom') {
+			return fieldPopupZoneCustom?.value ?? fieldPopupZone.value;
+		}
+		return fieldPopupZone?.value ?? '';
+	};
+	/* Show the custom colour input only while the zone select
+	 * is on Custom. */
+	const syncFieldPopupZoneCustom = (): void => {
+		if (fieldPopupZoneCustom) {
+			fieldPopupZoneCustom.hidden = fieldPopupZone?.value !== 'custom';
+		}
+	};
 	let fieldPopupOpener: HTMLElement | null = null;
 	/* Resolve a raw token format against the token blob's
 	 * samples: the blob carries each token's resolved value
@@ -1579,7 +1627,7 @@ function initDataDeskPreview(): void {
 		}
 		const staleSamples =
 			placeholderPercent.value !== fieldPopupPercent.value ||
-			placeholderZoneColor.value !== fieldPopupZone.value;
+			placeholderZoneColor.value !== fieldPopupZoneValue();
 		if (block === 'date-line') {
 			const raw = dateLine.value;
 			const line = container.querySelector('.kk-data-desk-subtitle[data-kk-date-line]');
@@ -1631,7 +1679,7 @@ function initDataDeskPreview(): void {
 					subInput.value = fieldPopupSub.textContent?.trim() ?? '';
 				}
 				placeholderPercent.value = fieldPopupPercent.value;
-				placeholderZoneColor.value = fieldPopupZone.value;
+				placeholderZoneColor.value = fieldPopupZoneValue();
 			}
 		}
 		[fieldPopupLabel, fieldPopupSub, fieldPopupDateLine].forEach((field) => {
@@ -1697,7 +1745,19 @@ function initDataDeskPreview(): void {
 			fieldPopupSub.textContent = statInputs[`${block}-sub`]?.value ?? '';
 			fieldPopupSub.setAttribute('data-kk-placeholder', noteText);
 			fieldPopupPercent.value = placeholderPercent.value;
-			fieldPopupZone.value = placeholderZoneColor.value;
+			/* A stored custom colour is a hex, not a select
+			 * option: show Custom and put the hex in the
+			 * colour input. */
+			const storedZone = placeholderZoneColor.value;
+			if (/^#[0-9a-f]{6}$/.test(storedZone)) {
+				fieldPopupZone.value = 'custom';
+				if (fieldPopupZoneCustom) {
+					fieldPopupZoneCustom.value = storedZone;
+				}
+			} else {
+				fieldPopupZone.value = storedZone;
+			}
+			syncFieldPopupZoneCustom();
 			/* Focus the field the user clicked: the note when
 			 * they clicked the note, the label otherwise. */
 			focusField = clicked?.closest?.('[data-kk-stat-field="sell-sub"], [data-kk-stat-field="buyback-sub"], [data-kk-stat-field="performance-sub"]')
@@ -1733,6 +1793,9 @@ function initDataDeskPreview(): void {
 		fieldPopup.querySelector('[data-kk-field-popup-save]')?.addEventListener('click', () => {
 			closeFieldPopup(true);
 		});
+		/* The zone select drives the custom colour input: it
+		 * appears only while Custom is chosen. */
+		fieldPopupZone?.addEventListener('change', syncFieldPopupZoneCustom);
 		/* Single-line fields: Enter never inserts a newline,
 		 * Escape cancels the popup. */
 		fieldPopup.addEventListener('keydown', (event) => {

@@ -414,11 +414,12 @@ final class DataDesk
     public const DEFAULT_PERCENT_TYPE = 'daily';
 
     public const ZONE_COLORS = [
+        'auto' => 'Auto',
         'green' => 'Green',
         'red' => 'Red',
         'gold' => 'Gold',
     ];
-    public const DEFAULT_ZONE_COLOR = 'green';
+    public const DEFAULT_ZONE_COLOR = 'auto';
 
     public static function dateFormatLabel(string $value): string
     {
@@ -442,11 +443,29 @@ final class DataDesk
     public static function zoneColorLabel(string $value): string
     {
         return match ($value) {
+            'auto' => __('Auto', 'koperasikita'),
             'red' => __('Red', 'koperasikita'),
             'gold' => __('Gold', 'koperasikita'),
             'green' => __('Green', 'koperasikita'),
             default => $value,
         };
+    }
+
+    /**
+     * A custom zone colour as a lowercase #rrggbb hex, or '' when
+     * the value is not a hex colour. Accepts #rgb and #rrggbb.
+     */
+    public static function normalizeHexColor(string $value): string
+    {
+        $value = trim($value);
+        if (!preg_match('/^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/', $value, $matches)) {
+            return '';
+        }
+        $hex = strtolower($matches[1]);
+        if (strlen($hex) === 3) {
+            $hex = $hex[0] . $hex[0] . $hex[1] . $hex[1] . $hex[2] . $hex[2];
+        }
+        return '#' . $hex;
     }
 
     public static function sanitizeDateFormat(mixed $value): string
@@ -463,8 +482,12 @@ final class DataDesk
 
     public static function sanitizeZoneColor(mixed $value): string
     {
-        $value = is_string($value) ? $value : '';
-        return isset(self::ZONE_COLORS[$value]) ? $value : self::DEFAULT_ZONE_COLOR;
+        $value = is_string($value) ? trim($value) : '';
+        if (isset(self::ZONE_COLORS[$value])) {
+            return $value;
+        }
+        $hex = self::normalizeHexColor($value);
+        return $hex !== '' ? $hex : self::DEFAULT_ZONE_COLOR;
     }
 
     /** @return array{date_format: string, percent: string, zone_color: string} */
@@ -550,14 +573,18 @@ final class DataDesk
      * date format, {year} the year of the last date, {day} / {days}
      * the chart window, {label} the symbol name, {arrow} / {delta}
      * / {delta_pct} the change (daily or whole period, per the
-     * configured percent type), {spread} the sell-buyback spread,
-     * {streak} the up-streak in days and {zone} the zone name in
-     * the configured zone colour.
+     * configured percent type) - {arrow} and {delta} carry the
+     * direction colour (up green, down red, flat gold) - {spread}
+     * the sell-buyback spread, {streak} the up-streak in days and
+     * {zone} the zone name in the zone colour ('auto' follows the
+     * week trend, a fixed colour is used as-is, a custom hex is
+     * applied as an inline style).
      * Unknown placeholders stay literal, so a typo never eats
      * text, the same rule as the title tokens. The literal text
      * is escaped here, so the result is safe to print as-is; the
-     * only markup it can carry is the {zone} span, built from a
-     * validated colour class and an escaped zone name.
+     * only markup it can carry is the {zone} span and the {arrow}
+     * / {delta} direction spans, built from validated colour
+     * classes and escaped text.
      */
     public static function replacePlaceholders(string $text, array $data, int $days, array $placeholders = []): string
     {
@@ -587,9 +614,40 @@ final class DataDesk
         }
 
         $arrow = $changePct === null ? '' : ((float) $changePct >= 0 ? '↑' : '↓');
-        $zoneUp = !isset($data['week_change']) || $data['week_change'] === null || (float) $data['week_change'] >= 0;
-        $zoneName = $zoneUp ? __('zona hijau', 'koperasikita') : __('zona merah', 'koperasikita');
-        $zoneClass = 'kk-data-desk-zone kk-data-desk-zone--' . $placeholders['zone_color'];
+        /* The delta direction, from the change the placeholders
+         * show: up when it rose, down when it fell, flat when it
+         * did not move. A missing change has no direction, so
+         * {arrow} / {delta} render plain. Prices are whole IDR,
+         * so an exact zero is a flat move, not float noise. */
+        $direction = $changePct === null ? null : ((float) $changePct > 0 ? 'up' : ((float) $changePct < 0 ? 'down' : 'flat'));
+        $deltaClass = $direction === null ? '' : 'kk-market-change kk-market-change-' . $direction;
+        $wrapDelta = static function (string $text) use ($deltaClass): string {
+            return $deltaClass === '' ? $text : sprintf('<span class="%s">%s</span>', esc_attr($deltaClass), $text);
+        };
+        /* The zone: the name follows the week trend (up, down, or
+         * flat when the price did not move); the colour follows
+         * the setting - 'auto' resolves from the same trend, a
+         * fixed colour is used as-is, a custom hex is applied as
+         * an inline style. A missing week change has no trend, so
+         * it reads as up, the same as before. */
+        $weekChange = isset($data['week_change']) && $data['week_change'] !== null ? (float) $data['week_change'] : null;
+        $zoneDirection = $weekChange === null ? 'up' : ($weekChange > 0 ? 'up' : ($weekChange < 0 ? 'down' : 'flat'));
+        $zoneName = match ($zoneDirection) {
+            'down' => __('zona merah', 'koperasikita'),
+            'flat' => __('zona emas', 'koperasikita'),
+            default => __('zona hijau', 'koperasikita'),
+        };
+        $zoneColor = $placeholders['zone_color'];
+        if ($zoneColor === 'auto') {
+            $zoneColor = match ($zoneDirection) {
+                'down' => 'red',
+                'flat' => 'gold',
+                default => 'green',
+            };
+        }
+        $zoneCustom = self::normalizeHexColor($zoneColor);
+        $zoneClass = 'kk-data-desk-zone kk-data-desk-zone--' . ($zoneCustom !== '' ? 'custom' : $zoneColor);
+        $zoneStyle = $zoneCustom !== '' ? sprintf(' style="color: %s"', esc_attr($zoneCustom)) : '';
 
         return strtr(esc_html($text), [
             '{label}' => esc_html($label),
@@ -599,12 +657,12 @@ final class DataDesk
             '{end}' => esc_html(self::formatPlaceholderDate($lastDate, $placeholders['date_format'])),
             '{date}' => esc_html(self::formatPlaceholderDate($lastDate, $placeholders['date_format'])),
             '{year}' => esc_html($lastYear),
-            '{arrow}' => esc_html($arrow),
-            '{delta}' => $changeAbs === null ? '' : esc_html(Markets::formatPrice(abs($changeAbs), $currency)),
+            '{arrow}' => $wrapDelta(esc_html($arrow)),
+            '{delta}' => $changeAbs === null ? '' : $wrapDelta(esc_html(Markets::formatPrice(abs($changeAbs), $currency))),
             '{delta_pct}' => $changePct === null ? '' : esc_html(Markets::formatChange($changePct)),
             '{spread}' => !isset($data['spread']) || $data['spread'] === null ? '' : esc_html(number_format_i18n((float) $data['spread'], 1) . '%'),
             '{streak}' => esc_html((string) (int) ($data['streak'] ?? 0)),
-            '{zone}' => sprintf('<span class="%s">%s</span>', esc_attr($zoneClass), esc_html($zoneName)),
+            '{zone}' => sprintf('<span class="%s"%s>%s</span>', esc_attr($zoneClass), $zoneStyle, esc_html($zoneName)),
         ]);
     }
 

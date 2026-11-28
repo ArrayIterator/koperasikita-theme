@@ -231,11 +231,11 @@ final class DataDeskTemplatesPage
             ['{day}', __('Number of days in the chart', 'koperasikita')],
             ['{days}', __('Number of days in the chart', 'koperasikita')],
             ['{arrow}', __('Direction arrow (up or down)', 'koperasikita')],
-            ['{delta}', __('Change amount', 'koperasikita')],
+            ['{delta}', __('Change amount, coloured by direction', 'koperasikita')],
             ['{delta_pct}', __('Change in percent', 'koperasikita')],
             ['{spread}', __('Sell–buyback spread', 'koperasikita')],
             ['{streak}', __('Consecutive up days', 'koperasikita')],
-            ['{zone}', __('Zone name, in the chosen zone colour', 'koperasikita')],
+            ['{zone}', __('Zone name, in the zone colour (auto follows the trend)', 'koperasikita')],
         ];
 
         $rows = [];
@@ -738,6 +738,7 @@ final class DataDeskTemplatesPage
                             <?php esc_html_e('Whole period (first day to today)', 'koperasikita'); ?>
                         </label>
                     </fieldset>
+                    <?php $zoneCustomColor = DataDesk::normalizeHexColor($placeholders['zone_color']); ?>
                     <fieldset class="kk-data-desk-placeholder-group">
                         <legend><?php esc_html_e('Zone colour', 'koperasikita'); ?></legend>
                         <?php foreach (DataDesk::ZONE_COLORS as $value => $label) : ?>
@@ -746,6 +747,11 @@ final class DataDeskTemplatesPage
                             <?php echo esc_html(DataDesk::zoneColorLabel($value)); ?>
                         </label>
                         <?php endforeach; ?>
+                        <label class="kk-data-desk-placeholder-option">
+                            <input type="radio" name="kk_placeholder_zone_color_ui" value="custom" <?php checked($zoneCustomColor !== ''); ?>>
+                            <?php esc_html_e('Custom', 'koperasikita'); ?>
+                        </label>
+                        <input type="color" id="kk-placeholder-zone-color-custom" value="<?php echo esc_attr($zoneCustomColor !== '' ? $zoneCustomColor : '#0b6b3a'); ?>" aria-label="<?php esc_attr_e('Custom zone colour', 'koperasikita'); ?>"<?php echo $zoneCustomColor !== '' ? '' : ' hidden'; ?>>
                     </fieldset>
                 </div>
             </div>
@@ -810,7 +816,9 @@ final class DataDeskTemplatesPage
                                 <?php foreach (DataDesk::ZONE_COLORS as $value => $label) : ?>
                                     <option value="<?php echo esc_attr($value); ?>"><?php echo esc_html(DataDesk::zoneColorLabel($value)); ?></option>
                                 <?php endforeach; ?>
+                                <option value="custom"><?php esc_html_e('Custom', 'koperasikita'); ?></option>
                             </select>
+                            <input type="color" id="kk-data-desk-field-popup-zone-custom" data-kk-field-popup-zone-custom value="#0b6b3a" aria-label="<?php esc_attr_e('Custom zone colour', 'koperasikita'); ?>" hidden>
                         </p>
                     </div>
                     <div data-kk-field-popup-date hidden>

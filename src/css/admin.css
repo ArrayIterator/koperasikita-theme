@@ -584,6 +584,28 @@
 	width: 100%;
 }
 
+/* The zone colour's custom colour input, shown only while the
+ * zone colour is Custom: the same swatch as the chart colour
+ * inputs. The [hidden] rule keeps it hidden until then - the
+ * UA rule alone loses to an author display, so it is stated
+ * here. */
+#kk-data-desk-field-popup-zone-custom,
+#kk-placeholder-zone-color-custom {
+	width: 32px;
+	height: 28px;
+	margin-top: 8px;
+	padding: 2px;
+	border: 1px solid #8c8f94;
+	border-radius: 3px;
+	background: #fff;
+	cursor: pointer;
+}
+
+#kk-data-desk-field-popup-zone-custom[hidden],
+#kk-placeholder-zone-color-custom[hidden] {
+	display: none;
+}
+
 .kk-data-desk-popup-field-label {
 	display: block;
 	margin-bottom: 4px;
