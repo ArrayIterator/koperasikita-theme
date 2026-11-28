@@ -659,6 +659,11 @@ msgstr "Navigasi seluler"
 msgid "News, announcements and market updates from the cooperative, delivered to your inbox."
 msgstr "Berita, pengumuman, dan kabar pasar dari koperasi, dikirim ke kotak masuk Anda."
 
+#: inc/Features/Pwa.php
+
+msgid "News, announcements and market updates from {app_name}."
+msgstr "Berita, pengumuman, dan update pasar dari {app_name}."
+
 #: footer.php
 
 msgid "Stay informed"
@@ -4337,6 +4342,26 @@ msgstr "Instal {app_name}"
 
 msgid "Install %s"
 msgstr "Instal %s"
+
+#: inc/Features/Pwa.php
+
+msgid "Add {app_name} to your home screen for faster access to news, announcements and market updates — even offline."
+msgstr "Tambahkan {app_name} ke layar utama untuk akses cepat ke berita, pengumuman, dan update pasar — bahkan saat offline."
+
+#: inc/Features/Pwa.php
+
+msgid "%s - Offline"
+msgstr "%s - Offline"
+
+#: inc/Features/Pwa.php
+
+msgid "You are offline"
+msgstr "Anda sedang offline"
+
+#: inc/Features/Pwa.php
+
+msgid "%s could not be reached. Please check your connection and try again."
+msgstr "%s tidak dapat dijangkau. Periksa koneksi Anda dan coba lagi."
 
 msgid "Add New Location"
 msgstr "Tambah Lokasi Baru"
