@@ -37,6 +37,8 @@ $month = $eventTs > 0 ? wp_date('M', $eventTs) : '';
 
         <?php get_template_part('template-parts/agenda/agenda-meta'); ?>
 
+        <?php if (\KoperasiKita\Features\Agenda::showExcerpt()) : ?>
         <p class="kk-card-excerpt"><?php echo esc_html(get_the_excerpt()); ?></p>
+        <?php endif; ?>
     </div>
 </article>

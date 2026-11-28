@@ -3632,6 +3632,9 @@ msgstr "Pengaturan Sidebar"
 msgid "Show Event Location on Agenda Pages"
 msgstr "Tampilkan Lokasi Acara di Halaman Agenda"
 
+msgid "Show Excerpt on Agenda List"
+msgstr "Tampilkan excerpt di Daftar Agenda"
+
 msgid "View map"
 msgstr "Lihat peta"
 

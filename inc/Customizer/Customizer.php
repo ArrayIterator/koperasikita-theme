@@ -1428,6 +1428,7 @@ final class Customizer
             'kk_single_reading_time' => ['koperasikita_single', 'Show Reading Time', true, 10],
             'kk_single_show_share' => ['koperasikita_single', 'Show Share Buttons', true, 10],
             'kk_agenda_location_enabled' => ['koperasikita_agenda', 'Show Event Location on Agenda Pages', true, 10],
+            'kk_agenda_show_excerpt' => ['koperasikita_agenda', 'Show Excerpt on Agenda List', true, 10],
             'kk_comments_avatars' => ['koperasikita_comments', 'Show Comment Avatars', true, 10],
             'kk_images_lazy' => ['koperasikita_media', 'Lazy-Load Images', true, 10],
             'kk_images_srcset' => ['koperasikita_media', 'Enable Responsive Images', true, 10],

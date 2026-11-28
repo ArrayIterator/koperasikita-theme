@@ -25,8 +25,12 @@ namespace KoperasiKita\Features;
  * a nonce, a capability check, sanitisation of every field, a honeypot
  * field, and a per-IP rate limit of three attempts per hour.
  *
- * When the feature is disabled in the Customizer nothing here hooks in at
- * all: no post type, no shortcode, no meta box, no frontend output.
+ * The Customizer toggle gates frontend display only: when it is off,
+ * the widget and blocks render nothing, the submission form is
+ * closed, and the archive and single pages redirect home (302).
+ * The post type, its meta and the admin screens always register,
+ * so editors keep working with agenda items while the feature
+ * is off.
  */
 final class Agenda
 {
@@ -113,12 +117,19 @@ final class Agenda
         return in_array($position, self::locationPositions(), true) ? $position : 'below-info';
     }
 
+    /** Whether the agenda excerpt is shown on list cards. */
+    public static function showExcerpt(): bool
+    {
+        return (bool) get_theme_mod('kk_agenda_show_excerpt', true);
+    }
+
     public static function register(): void
     {
-        if (!self::isEnabled()) {
-            return;
-        }
-
+        // The toggle gates frontend display only, never the post type
+        // or the admin screens: they always register, so editors keep
+        // working with agenda items while the feature is off, and the
+        // archive/single redirect below can still tell an agenda URL
+        // from any other request.
         // We are already running on 'init' (Features::register is hooked
         // there), so register the post type and meta directly. Hooking them
         // to 'init' again at the same priority would run too late: a
@@ -159,6 +170,29 @@ final class Agenda
         add_action('admin_init', [self::class, 'maybeCreateIndex']);
         add_action('after_switch_theme', [self::class, 'maybeCreateIndex']);
         add_shortcode(self::SHORTCODE, [self::class, 'renderShortcode']);
+        // With the feature off, the archive and single pages redirect
+        // home instead of rendering (see maybeRedirectWhenDisabled).
+        add_action('template_redirect', [self::class, 'maybeRedirectWhenDisabled']);
+    }
+
+    /**
+     * With the feature off, the agenda archive and single pages
+     * redirect to the homepage. 302, not 301: the feature may be
+     * re-enabled later, so the redirect must never be cached as
+     * permanent. Runs on template_redirect, before any output.
+     */
+    public static function maybeRedirectWhenDisabled(): void
+    {
+        if (self::isEnabled()) {
+            return;
+        }
+
+        if (!is_post_type_archive(self::POST_TYPE) && !is_singular(self::POST_TYPE)) {
+            return;
+        }
+
+        wp_redirect(home_url('/'), 302);
+        exit;
     }
 
     public static function registerPostType(): void
@@ -1297,6 +1331,10 @@ final class Agenda
      */
     public static function renderShortcode(): string
     {
+        if (!self::isEnabled()) {
+            return '';
+        }
+
         if (!is_user_logged_in()) {
             ob_start();
             ?>
@@ -1362,6 +1400,10 @@ final class Agenda
      */
     public static function handleSubmission(): void
     {
+        if (!self::isEnabled()) {
+            return;
+        }
+
         if (($_SERVER['REQUEST_METHOD'] ?? '') !== 'POST' || !isset($_POST['kk_agenda_submit'])) {
             return;
         }
