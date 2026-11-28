@@ -1257,12 +1257,29 @@ function initPwa(): void {
 	if (data.isPwaEnabled === false) {
 		return;
 	}
+	/* Already installed: running as the standalone app (or iOS
+	 * standalone), so there is nothing left to install. */
+	if (window.matchMedia('(display-mode: standalone)').matches
+		|| (window.navigator as Navigator & { standalone?: boolean }).standalone === true) {
+		return;
+	}
 	const installButton = $('#kk-pwa-install') as HTMLButtonElement | null;
 	const installWrap = document.querySelector('[data-kk-pwa-button]') as HTMLElement | null;
 	const promptModal = $('#kk-install-prompt');
 	let deferredPrompt: BeforeInstallPromptEvent | null = null;
 	let installShown = false;
 	let interacted = false;
+
+	/* The prompt-seen flag lives in a session cookie, not
+	 * localStorage: no Expires/Max-Age means it dies with the
+	 * browser session, so the prompt can show again later. */
+	function isInstallSeen(): boolean {
+		return document.cookie.split('; ').some((part) => part.split('=')[0] === INSTALL_SEEN_KEY);
+	}
+	function markInstallSeen(): void {
+		const secure = window.location.protocol === 'https:' ? '; Secure' : '';
+		document.cookie = `${INSTALL_SEEN_KEY}=1; Path=/; SameSite=Lax${secure}`;
+	}
 
 	/* The install banner only appears once the reader has interacted
 	 * with the page (scroll, hover, click, tap, key) - never on load.
@@ -1290,7 +1307,7 @@ function initPwa(): void {
 				installWrap.hidden = false;
 			}
 		}
-		if (promptModal && !window.localStorage.getItem(INSTALL_SEEN_KEY)) {
+		if (promptModal && !isInstallSeen()) {
 			// Delay comes from the Customizer (kk_pwa_prompt_delay, in
 			// seconds); 1500ms is the shipped default when it is missing.
 			const delay = Math.min(60000, Math.max(0, data.pwaPromptDelayMs ?? 1500));
@@ -1363,12 +1380,12 @@ function initPwa(): void {
 		if (promptModal) {
 			closeModal(promptModal);
 		}
-		window.localStorage.setItem(INSTALL_SEEN_KEY, '1');
+		markInstallSeen();
 		void runPrompt();
 	});
 	promptModal?.querySelectorAll('[data-kk-modal-close]').forEach((closer) => {
 		closer.addEventListener('click', () => {
-			window.localStorage.setItem(INSTALL_SEEN_KEY, '1');
+			markInstallSeen();
 		});
 	});
 }
