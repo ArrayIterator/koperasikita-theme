@@ -175,7 +175,7 @@
 }
 
 .kk-newsletter-more {
-	@apply mt-5 text-xs font-bold tracking-[0.14em] text-kk-green uppercase;
+	@apply mt-5 mb-5 text-xs font-bold tracking-[0.14em] text-kk-green uppercase;
 }
 
 /* Subscribe call to action */
