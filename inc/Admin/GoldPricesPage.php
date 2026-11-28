@@ -430,8 +430,6 @@ final class GoldPricesPage
         <section class="kk-gold-card">
         <h2 class="kk-gold-card-title"><?php esc_html_e('Price chart', 'koperasikita'); ?></h2>
         <p class="kk-gold-filters">
-            <label for="kk-summary-search"><?php esc_html_e('Brands', 'koperasikita'); ?></label>
-            <input type="search" id="kk-summary-search" data-kk-gold-summary-search placeholder="<?php esc_attr_e('Search brands', 'koperasikita'); ?>">
             <label for="kk-summary-days"><?php esc_html_e('Days', 'koperasikita'); ?></label>
             <select id="kk-summary-days" data-kk-gold-summary-days>
                 <?php foreach ([7, 14, 30, 60, 90] as $option) : ?>
