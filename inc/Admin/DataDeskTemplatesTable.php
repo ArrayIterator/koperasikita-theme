@@ -15,7 +15,7 @@ if (!class_exists('WP_List_Table')) {
 /**
  * The Data Desk templates list: a post-type-style table over the
  * stored templates - checkboxes with bulk duplicate, search,
- * sortable name, pagination. Rows are keyed by template id: the
+ * sortable name/kind/shows, pagination. Rows are keyed by template id: the
  * built-ins (default, Antam 7-day) always come first, then user
  * templates in creation order, so a row never shifts when another
  * template is removed. The built-ins carry a lock badge and offer
@@ -67,6 +67,8 @@ final class DataDeskTemplatesTable extends \WP_List_Table
     {
         return [
             'name' => ['name', false],
+            'kind' => ['kind', false],
+            'shows' => ['shows', false],
         ];
     }
 
@@ -113,7 +115,15 @@ final class DataDeskTemplatesTable extends \WP_List_Table
         return $name . $this->row_actions($this->actionLinks($item));
     }
 
-    /** @param array{id: string, name: string, kind: string, symbol: string, brands: array<int, string>, palette: string, days: int, table_style: string} $item @return list<string> */
+    /**
+     * Row actions. The array keys are the span classes WP_List_Table
+     * wraps each link in, so the Delete action must be keyed 'delete':
+     * core's red-delete rule (.row-actions span.delete a) only matches
+     * that class. Numerically indexed arrays give the spans classes
+     * "0"/"1" and the link stays blue.
+     *
+     * @param array{id: string, name: string, kind: string, symbol: string, brands: array<int, string>, palette: string, days: int, table_style: string} $item @return array<string, string>
+     */
     private function actionLinks(array $item): array
     {
         $id = $item['id'];
@@ -121,24 +131,24 @@ final class DataDeskTemplatesTable extends \WP_List_Table
 
         if (DataDesk::isBuiltIn($id)) {
             $links = [
-                '<a href="' . esc_url(wp_nonce_url(add_query_arg('kk_data_desk_duplicate', $id, $pageUrl), 'kk_data_desk_duplicate')) . '">' . esc_html__('Use', 'koperasikita') . '</a>',
-                '<a href="' . esc_url(add_query_arg(['action' => 'edit', 'id' => $id], $pageUrl)) . '">' . esc_html__('Edit', 'koperasikita') . '</a>',
+                'use' => '<a href="' . esc_url(wp_nonce_url(add_query_arg('kk_data_desk_duplicate', $id, $pageUrl), 'kk_data_desk_duplicate')) . '">' . esc_html__('Use', 'koperasikita') . '</a>',
+                'edit' => '<a href="' . esc_url(add_query_arg(['action' => 'edit', 'id' => $id], $pageUrl)) . '">' . esc_html__('Edit', 'koperasikita') . '</a>',
             ];
 
             if (DataDesk::isOverridden($id)) {
-                $links[] = '<a href="' . esc_url(wp_nonce_url(add_query_arg('kk_data_desk_restore', $id, $pageUrl), 'kk_data_desk_restore')) . '" onclick="return confirm(\'' . esc_js(__('Restore this template to its built-in values?', 'koperasikita')) . '\');">' . esc_html__('Restore', 'koperasikita') . '</a>';
+                $links['restore'] = '<a href="' . esc_url(wp_nonce_url(add_query_arg('kk_data_desk_restore', $id, $pageUrl), 'kk_data_desk_restore')) . '" onclick="return confirm(\'' . esc_js(__('Restore this template to its built-in values?', 'koperasikita')) . '\');">' . esc_html__('Restore', 'koperasikita') . '</a>';
             }
 
-            $links[] = '<a href="#" data-kk-data-desk-preview-link data-kk-template-id="' . esc_attr($id) . '" data-kk-template-name="' . esc_attr($item['name']) . '">' . esc_html__('Preview', 'koperasikita') . '</a>';
+            $links['preview'] = '<a href="#" data-kk-data-desk-preview-link data-kk-template-id="' . esc_attr($id) . '" data-kk-template-name="' . esc_attr($item['name']) . '">' . esc_html__('Preview', 'koperasikita') . '</a>';
 
             return $links;
         }
 
         return [
-            '<a href="' . esc_url(add_query_arg(['action' => 'edit', 'id' => $id], $pageUrl)) . '">' . esc_html__('Edit', 'koperasikita') . '</a>',
-            '<a href="' . esc_url(wp_nonce_url(add_query_arg('kk_data_desk_duplicate', $id, $pageUrl), 'kk_data_desk_duplicate')) . '">' . esc_html__('Duplicate', 'koperasikita') . '</a>',
-            '<a href="' . esc_url(wp_nonce_url(add_query_arg('kk_data_desk_delete', $id, $pageUrl), 'kk_data_desk_delete')) . '" onclick="return confirm(\'' . esc_js(__('Delete this template?', 'koperasikita')) . '\');">' . esc_html__('Delete', 'koperasikita') . '</a>',
-            '<a href="#" data-kk-data-desk-preview-link data-kk-template-id="' . esc_attr($id) . '" data-kk-template-name="' . esc_attr($item['name']) . '">' . esc_html__('Preview', 'koperasikita') . '</a>',
+            'edit' => '<a href="' . esc_url(add_query_arg(['action' => 'edit', 'id' => $id], $pageUrl)) . '">' . esc_html__('Edit', 'koperasikita') . '</a>',
+            'duplicate' => '<a href="' . esc_url(wp_nonce_url(add_query_arg('kk_data_desk_duplicate', $id, $pageUrl), 'kk_data_desk_duplicate')) . '">' . esc_html__('Duplicate', 'koperasikita') . '</a>',
+            'delete' => '<a href="' . esc_url(wp_nonce_url(add_query_arg('kk_data_desk_delete', $id, $pageUrl), 'kk_data_desk_delete')) . '" onclick="return confirm(\'' . esc_js(__('Delete this template?', 'koperasikita')) . '\');">' . esc_html__('Delete', 'koperasikita') . '</a>',
+            'preview' => '<a href="#" data-kk-data-desk-preview-link data-kk-template-id="' . esc_attr($id) . '" data-kk-template-name="' . esc_attr($item['name']) . '">' . esc_html__('Preview', 'koperasikita') . '</a>',
         ];
     }
 
@@ -153,19 +163,25 @@ final class DataDeskTemplatesTable extends \WP_List_Table
     /** @param array{id: string, name: string, kind: string, symbol: string, brands: array<int, string>, palette: string, days: int, table_style: string} $item */
     protected function column_shows($item): string
     {
+        return esc_html($this->showsLabel($item));
+    }
+
+    /** The unescaped text the Shows column renders; also the sort key for that column. */
+    private function showsLabel(array $item): string
+    {
         if ($item['kind'] === DataDesk::KIND_TABLE) {
             if ($item['brands'] !== []) {
                 $brands = Gold::brands();
 
-                return esc_html(implode(', ', array_map(static fn(string $slug): string => $brands[$slug] ?? $slug, $item['brands'])));
+                return implode(', ', array_map(static fn(string $slug): string => $brands[$slug] ?? $slug, $item['brands']));
             }
 
-            return esc_html(__('All brands', 'koperasikita'));
+            return __('All brands', 'koperasikita');
         }
 
         $symbols = DataDesk::symbols();
 
-        return esc_html($symbols[$item['symbol']] ?? $item['symbol']);
+        return $symbols[$item['symbol']] ?? $item['symbol'];
     }
 
     /** @param array{id: string, name: string, kind: string, symbol: string, brands: array<int, string>, palette: string, days: int, table_style: string} $item */
@@ -214,8 +230,10 @@ final class DataDeskTemplatesTable extends \WP_List_Table
             }));
         }
 
-        // Sort by name when requested; otherwise the stored order
-        // (built-ins first, then user templates in creation order).
+        // Sort when requested; otherwise the stored order (built-ins
+        // first, then user templates in creation order). The kind sort
+        // uses the rendered kind label and the shows sort uses the
+        // rendered brands/symbol text, so rows order as displayed.
         // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- sorting is a read-only list filter.
         $orderby = isset($_REQUEST['orderby']) ? sanitize_key((string) wp_unslash($_REQUEST['orderby'])) : '';
         // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- sorting is a read-only list filter.
@@ -223,6 +241,19 @@ final class DataDeskTemplatesTable extends \WP_List_Table
         if ($orderby === 'name') {
             usort($items, static function (array $a, array $b) use ($order): int {
                 $cmp = strnatcasecmp($a['name'], $b['name']);
+
+                return $order === 'desc' ? -$cmp : $cmp;
+            });
+        } elseif ($orderby === 'kind') {
+            $kinds = DataDesk::kinds();
+            usort($items, static function (array $a, array $b) use ($order, $kinds): int {
+                $cmp = strnatcasecmp($kinds[$a['kind']] ?? $a['kind'], $kinds[$b['kind']] ?? $b['kind']);
+
+                return $order === 'desc' ? -$cmp : $cmp;
+            });
+        } elseif ($orderby === 'shows') {
+            usort($items, function (array $a, array $b) use ($order): int {
+                $cmp = strnatcasecmp($this->showsLabel($a), $this->showsLabel($b));
 
                 return $order === 'desc' ? -$cmp : $cmp;
             });
