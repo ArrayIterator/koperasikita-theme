@@ -9,7 +9,7 @@
 
 $thumb_url = \KoperasiKita\Images\FeaturedImage::url( get_the_ID(), 'large' );
 $thumb_alt = get_post_meta( get_post_thumbnail_id(), '_wp_attachment_image_alt', true );
-if ( ! $thumb_alt ) {
+if ( ! $thumb_alt && get_theme_mod( 'kk_images_auto_alt', true ) ) {
 	$thumb_alt = get_the_title();
 }
 $font_size = \KoperasiKita\Features\ArticleFontSize::currentSize();

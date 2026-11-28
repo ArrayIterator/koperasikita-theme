@@ -2125,6 +2125,23 @@ final class Customizer
             'input_attrs' => ['min' => 60, 'max' => 100],
         ]);
 
+        /* Auto Resolve ALT: the article featured image falls back
+         * to the article title when the image itself has no ALT
+         * text. Turn it off to leave the ALT empty instead. */
+        self::addSetting(
+            $wpCustomize,
+            'kk_images_auto_alt',
+            true,
+            [self::class, 'sanitizeBool'],
+            'refresh'
+        );
+        $wpCustomize->add_control('kk_images_auto_alt', [
+            'label' => esc_html__('Auto Resolve ALT', 'koperasikita'),
+            'description' => esc_html__('Use the article title as the featured image ALT text when the image has no ALT text of its own.', 'koperasikita'),
+            'section' => 'koperasikita_media',
+            'type' => 'checkbox',
+        ]);
+
         self::addSetting(
             $wpCustomize,
             'kk_breadcrumb_separator',
