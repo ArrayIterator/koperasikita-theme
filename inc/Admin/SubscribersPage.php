@@ -207,8 +207,9 @@ final class SubscribersPage
      * The MailPoet card above the list: the plugin status, the
      * yes/no setting for new signups, and the one-click sync of
      * the subscribers stored here. Same card language as the
-     * TrayDigita Stack card on the Setup page - title, description,
-     * status line - and WP-default buttons only. When MailPoet is
+     * Setup page - a head row with the title and the sync action,
+     * then a body with the description, the status line and the
+     * setting form - and WP-default buttons only. When MailPoet is
      * not active there is nothing to sync into, so the forms stay
      * hidden and only the status line shows.
      */
@@ -216,40 +217,46 @@ final class SubscribersPage
     {
         $status = Subscribe::mailPoetStatus();
         $syncEnabled = Subscribe::mailPoetSyncEnabled();
+        $pending = $status === Subscribe::MAILPOET_ACTIVE ? Subscribers::countLocalPending() : 0;
         ?>
         <section class="kk-subscribers-card">
-            <h2 class="kk-subscribers-card-title"><?php esc_html_e('MailPoet', 'koperasikita'); ?></h2>
-            <p><?php esc_html_e('MailPoet is the newsletter plugin. When it is active, new subscribers can also be added to the MailPoet database, and the subscribers already stored here can be synced into it.', 'koperasikita'); ?></p>
-            <p><strong><?php echo esc_html(self::mailPoetStatusLine($status)); ?></strong></p>
-            <?php if ($status !== Subscribe::MAILPOET_INACTIVE) : ?>
-                <form method="post" action="<?php echo esc_url(admin_url('admin-post.php')); ?>">
-                    <input type="hidden" name="action" value="kk_save_mailpoet_settings">
-                    <?php wp_nonce_field(self::NONCE_MAILPOET_SETTINGS, 'kk_mailpoet_settings_nonce'); ?>
-                    <p>
-                        <span><?php esc_html_e('Add new subscribers to the MailPoet database', 'koperasikita'); ?></span>
-                        <label><input type="radio" name="kk_mailpoet_sync" value="yes"<?php checked($syncEnabled); ?>> <?php esc_html_e('Yes', 'koperasikita'); ?></label>
-                        <label><input type="radio" name="kk_mailpoet_sync" value="no"<?php checked(! $syncEnabled); ?>> <?php esc_html_e('No', 'koperasikita'); ?></label>
-                    </p>
-                    <?php submit_button(__('Save MailPoet settings', 'koperasikita'), 'primary', 'submit', false); ?>
-                </form>
-            <?php endif; ?>
-            <?php if ($status === Subscribe::MAILPOET_ACTIVE) : ?>
-                <?php $pending = Subscribers::countLocalPending(); ?>
-                <?php if ($pending > 0) : ?>
-                    <p><?php
-                        // translators: %d is the number of subscribers not in MailPoet yet.
-                        printf(esc_html__('Subscribers stored here but not in MailPoet yet: %d.', 'koperasikita'), $pending);
-                    ?></p>
+            <div class="kk-subscribers-card-head">
+                <h2 class="kk-subscribers-card-title"><?php esc_html_e('MailPoet', 'koperasikita'); ?></h2>
+                <?php if ($status === Subscribe::MAILPOET_ACTIVE && $pending > 0) : ?>
                     <form method="post" action="<?php echo esc_url(admin_url('admin-post.php')); ?>">
                         <input type="hidden" name="action" value="kk_sync_subscribers_mailpoet">
                         <?php wp_nonce_field(self::NONCE_MAILPOET_SYNC, 'kk_mailpoet_sync_nonce'); ?>
-                        <p><?php esc_html_e('Copies the subscribers stored here into MailPoet.', 'koperasikita'); ?></p>
-                        <?php submit_button(__('Sync subscribers to MailPoet', 'koperasikita'), 'secondary', 'submit', false); ?>
+                        <?php submit_button(__('Sync With MailPoet', 'koperasikita'), 'secondary', 'submit', false); ?>
                     </form>
-                <?php else : ?>
-                    <p><?php esc_html_e('All subscribers are already in MailPoet.', 'koperasikita'); ?></p>
                 <?php endif; ?>
-            <?php endif; ?>
+            </div>
+            <div class="kk-subscribers-card-body">
+                <?php if ($status === Subscribe::MAILPOET_ACTIVE) : ?>
+                    <?php if ($pending > 0) : ?>
+                        <p><?php
+                            // translators: %d is the number of subscribers not in MailPoet yet.
+                            printf(esc_html__('Subscribers stored here but not in MailPoet yet: %d.', 'koperasikita'), $pending);
+                        ?></p>
+                        <p><?php esc_html_e('Copies the subscribers stored here into MailPoet.', 'koperasikita'); ?></p>
+                    <?php else : ?>
+                        <p><?php esc_html_e('All subscribers are already in MailPoet.', 'koperasikita'); ?></p>
+                    <?php endif; ?>
+                <?php endif; ?>
+                <p><?php esc_html_e('MailPoet is the newsletter plugin. When it is active, new subscribers can also be added to the MailPoet database, and the subscribers already stored here can be synced into it.', 'koperasikita'); ?></p>
+                <p><strong><?php echo esc_html(self::mailPoetStatusLine($status)); ?></strong></p>
+                <?php if ($status !== Subscribe::MAILPOET_INACTIVE) : ?>
+                    <form method="post" action="<?php echo esc_url(admin_url('admin-post.php')); ?>">
+                        <input type="hidden" name="action" value="kk_save_mailpoet_settings">
+                        <?php wp_nonce_field(self::NONCE_MAILPOET_SETTINGS, 'kk_mailpoet_settings_nonce'); ?>
+                        <p>
+                            <span><?php esc_html_e('Add new subscribers to the MailPoet database', 'koperasikita'); ?></span>
+                            <label><input type="radio" name="kk_mailpoet_sync" value="yes"<?php checked($syncEnabled); ?>> <?php esc_html_e('Yes', 'koperasikita'); ?></label>
+                            <label><input type="radio" name="kk_mailpoet_sync" value="no"<?php checked(! $syncEnabled); ?>> <?php esc_html_e('No', 'koperasikita'); ?></label>
+                        </p>
+                        <?php submit_button(__('Save MailPoet settings', 'koperasikita'), 'primary', 'submit', false); ?>
+                    </form>
+                <?php endif; ?>
+            </div>
         </section>
         <?php
     }
