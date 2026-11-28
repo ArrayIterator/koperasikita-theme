@@ -272,9 +272,10 @@ html[data-color-scheme="dark"] .kk-weather-modal .kk-button-ghost {
 	color: var(--kk-ink);
 }
 
-/* Map picker: the map is the picker, the search below it only moves
- * the marker. The coordinates line always shows where the marker
- * sits, so the saved lat/lon come from the marker. */
+/* Map picker order: name, search, then the map below them. The map
+ * still owns the marker; the search only moves it. The coordinates
+ * line always shows where the marker sits, so the saved lat/lon come
+ * from the marker. */
 
 .kk-weather-map-wrap {
 	margin-bottom: 20px;
