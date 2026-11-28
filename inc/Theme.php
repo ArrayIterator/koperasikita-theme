@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace KoperasiKita;
 
 use KoperasiKita\Admin\AdminMenu;
+use KoperasiKita\Admin\GoldPricesPage;
 use KoperasiKita\Admin\SidebarSettings;
 use KoperasiKita\Admin\SubscribersPage;
 use KoperasiKita\Api\Api;
@@ -92,5 +93,6 @@ final class Theme
         add_action('admin_post_kk_fast_search_save', [Setup::class, 'handleFastSearchSave']);
         add_action('admin_post_kk_export_subscribers', [SubscribersPage::class, 'handleExport']);
         add_action('admin_post_kk_delete_subscriber', [SubscribersPage::class, 'handleDelete']);
+        add_action('admin_post_kk_export_gold_prices', [GoldPricesPage::class, 'handleExport']);
     }
 }

@@ -5306,3 +5306,15 @@ msgstr "Otomatis (pengaturan situs)"
 #: src/ts/widget-blocks.ts
 msgid "Kelvin (K)"
 msgstr "Kelvin (K)"
+
+#: inc/Admin/GoldPricesPage.php
+msgid "Incremental Export"
+msgstr "Ekspor Bertahap"
+
+#: inc/Admin/GoldPricesPage.php
+msgid "Export All"
+msgstr "Ekspor Semua"
+
+#: inc/Admin/GoldPricesPage.php
+msgid "Download the price history as CSV. Exports stream row by row from the database, so exporting the full history uses almost no memory."
+msgstr "Unduh riwayat harga sebagai CSV. Ekspor mengalir baris demi baris dari database, jadi mengekspor seluruh riwayat hampir tidak memakai memori."
