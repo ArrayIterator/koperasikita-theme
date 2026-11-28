@@ -1004,8 +1004,9 @@ final class Customizer
         ]);
 
         /* Load More: the button text, what shows while loading, and
-         * how many pages load-more may fetch before the normal
-         * numbered navigation takes over. Max 0 means unlimited. */
+         * how many times load-more may load before the normal
+         * numbered navigation takes over. Each load fetches one more
+         * page. Max 0 means unlimited. */
         self::addSetting(
             $wpCustomize,
             'kk_load_more_text',
@@ -1046,7 +1047,7 @@ final class Customizer
         );
         $wpCustomize->add_control('kk_load_more_max_pages', [
             'label' => esc_html__('Load More Max Pages', 'koperasikita'),
-            'description' => esc_html__('How many pages Load More may fetch. After that the link navigates to the next page instead. 0 means unlimited.', 'koperasikita'),
+            'description' => esc_html__('How many times Load More may load. Each load fetches one more page. After that the link navigates to the next page instead. 0 means unlimited.', 'koperasikita'),
             'section' => 'koperasikita_accessibility',
             'type' => 'number',
             'input_attrs' => ['min' => 0, 'max' => 10],
