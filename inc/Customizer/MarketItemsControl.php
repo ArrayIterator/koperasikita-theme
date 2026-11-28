@@ -17,11 +17,10 @@ use WP_Customize_Control;
  * order, synced into the hidden input (data-customize-setting-link)
  * on every change - the same JSON-in-a-hidden-input pattern as
  * TermMultiSelectControl. The list is a row per item with move
- * up/down, hide/show and remove buttons; the add select lists only
- * the determined items not picked yet - items from this setting
- * itself, never the full catalogue. The <template> row gives the JS
- * the button markup (with server-rendered icons) for rows added
- * after load.
+ * up/down, hide/show and remove buttons; the add select lists every
+ * catalogue item not picked yet, so any market item can be added.
+ * The <template> row gives the JS the button markup (with
+ * server-rendered icons) for rows added after load.
  */
 final class MarketItemsControl extends WP_Customize_Control
 {
@@ -54,14 +53,10 @@ final class MarketItemsControl extends WP_Customize_Control
             $picked[$row['item']] = true;
         }
 
-        /* The add select offers only the items this setting
-         * determines, never the full catalogue. The determined set
-         * is the picked set itself, so nothing is offered at load;
-         * a removed item returns to the select (the JS appends it
-         * back) and can be re-added, but no catalogue item outside
-         * the determined set can enter the index from here. */
-        $determined = array_intersect_key($all, $picked);
-        $remaining = array_diff_key($determined, $picked);
+        /* The add select offers every catalogue item not picked
+         * yet, in catalogue order; a removed item returns to the
+         * select (the JS appends it back) and can be re-added. */
+        $remaining = array_diff_key($all, $picked);
         ?>
         <span class="customize-control-title"><?php echo esc_html($this->label); ?></span>
         <?php if ($this->description !== '') : ?>
@@ -73,6 +68,15 @@ final class MarketItemsControl extends WP_Customize_Control
             data-hide-label="<?php echo esc_attr(__('Hide item', 'koperasikita')); ?>"
             data-show-label="<?php echo esc_attr(__('Show item', 'koperasikita')); ?>"
         >
+            <div class="kk-market-items-add">
+                <select class="kk-market-items-select" aria-label="<?php esc_attr_e('Add item', 'koperasikita'); ?>">
+                    <option value=""><?php esc_html_e('Add item…', 'koperasikita'); ?></option>
+                    <?php foreach ($remaining as $value => $label) : ?>
+                        <option value="<?php echo esc_attr($value); ?>"><?php echo esc_html($label); ?></option>
+                    <?php endforeach; ?>
+                </select>
+                <button type="button" class="button kk-market-items-add-button"><?php esc_html_e('Add', 'koperasikita'); ?></button>
+            </div>
             <ul class="kk-market-items-list">
                 <?php foreach ($items as $row) : ?>
                     <li class="kk-market-items-row<?php echo $row['hidden'] ? ' is-hidden' : ''; ?>" data-item="<?php echo esc_attr($row['item']); ?>" data-hidden="<?php echo $row['hidden'] ? '1' : '0'; ?>">
@@ -90,15 +94,6 @@ final class MarketItemsControl extends WP_Customize_Control
                 <?php endforeach; ?>
             </ul>
             <p class="kk-market-items-empty"<?php echo $items !== [] ? ' hidden' : ''; ?>><?php esc_html_e('No items picked. The default set shows instead.', 'koperasikita'); ?></p>
-            <div class="kk-market-items-add">
-                <select class="kk-market-items-select" aria-label="<?php esc_attr_e('Add item', 'koperasikita'); ?>">
-                    <option value=""><?php esc_html_e('Add item…', 'koperasikita'); ?></option>
-                    <?php foreach ($remaining as $value => $label) : ?>
-                        <option value="<?php echo esc_attr($value); ?>"><?php echo esc_html($label); ?></option>
-                    <?php endforeach; ?>
-                </select>
-                <button type="button" class="button kk-market-items-add-button"><?php esc_html_e('Add', 'koperasikita'); ?></button>
-            </div>
             <template class="kk-market-items-template">
                 <li class="kk-market-items-row" data-item="" data-hidden="0">
                     <span class="kk-market-items-label"></span>
