@@ -323,7 +323,26 @@
 
 /* Fast Search: status badges, index table and behaviour rows.
  * The table itself is WP widefat/striped; only the badges and
- * the checkbox rows need theme rules. */
+ * the checkbox rows need theme rules. The Build indexes button
+ * sits in the card head next to the title, space-between like
+ * the market sync head, so it is a plain WP button there. */
+
+.kk-setup-fast-search-card-head {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	justify-content: space-between;
+	gap: 16px;
+	margin: 0 0 16px;
+	padding-bottom: 12px;
+	border-bottom: 1px solid #e5e5e5;
+}
+
+.kk-setup-fast-search-card-head .kk-setup-card-title {
+	margin: 0;
+	padding-bottom: 0;
+	border-bottom: 0;
+}
 
 .kk-setup-fast-search-badge {
 	display: inline-block;

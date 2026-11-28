@@ -265,7 +265,9 @@ final class FastSearch
         $job = IndexManager::jobProgress();
 
         echo '<section class="kk-setup-card" data-kk-fast-search>';
-        echo '<h2 class="kk-setup-card-title">' . esc_html__('Fast Search', 'koperasikita') . '</h2>';
+        echo '<div class="kk-setup-fast-search-card-head"><h2 class="kk-setup-card-title">' . esc_html__('Fast Search', 'koperasikita') . '</h2>'
+            . '<button type="button" class="button" data-kk-fast-search-build' . disabled($job !== null, true, false) . '>'
+            . esc_html__('Build indexes', 'koperasikita') . '</button></div>';
         echo '<div class="kk-setup-card-body">';
         echo '<p>' . esc_html__('Speed up frontend search with FULLTEXT and composite database indexes, with a safe fallback to standard WordPress search while the indexes are missing.', 'koperasikita') . '</p>';
 
@@ -301,9 +303,7 @@ final class FastSearch
             echo '<p class="kk-setup-stack-status">' . esc_html__('An index build is already running. Wait for it to finish before starting another one.', 'koperasikita') . '</p>';
         }
 
-        echo '<p class="kk-setup-fast-search-build"><button type="button" class="kk-setup-button kk-setup-button--primary" data-kk-fast-search-build' . disabled($job !== null, true, false) . '>'
-            . esc_html__('Build indexes', 'koperasikita') . '</button> '
-            . '<span class="description">' . esc_html__('Installs the missing indexes one at a time. Large tables can take a while per index; the page stays responsive and shows progress in a popup.', 'koperasikita') . '</span></p>';
+        echo '<p class="kk-setup-fast-search-build"><span class="description">' . esc_html__('Installs the missing indexes one at a time. Large tables can take a while per index; the page stays responsive and shows progress in a popup.', 'koperasikita') . '</span></p>';
 
         if ($missingSqlText !== '') {
             echo '<p>' . esc_html__('Run these statements in the MariaDB / MySQL console to install the missing indexes manually, then reload this page.', 'koperasikita') . '</p>';
@@ -319,7 +319,7 @@ final class FastSearch
         echo '<p class="kk-setup-fast-search-check"><label><input type="hidden" name="limit_to_posts" value="0"><input type="checkbox" name="limit_to_posts" value="1"' . checked($settings['limit_to_posts'], true, false) . '> '
             . esc_html__('Limit frontend search to posts', 'koperasikita') . '</label><br>'
             . '<span class="description">' . esc_html__('A search with no post type requested only searches posts, not pages or attachments. A search that explicitly asks for another post type is left alone.', 'koperasikita') . '</span></p>';
-        echo '<button class="kk-setup-button" type="submit">' . esc_html__('Save settings', 'koperasikita') . '</button>';
+        echo '<button class="button button-primary" type="submit">' . esc_html__('Save settings', 'koperasikita') . '</button>';
         echo '</form>';
 
         echo '</div>';
@@ -336,7 +336,7 @@ final class FastSearch
                 <div class="kk-data-desk-popup-head">
                     <h2 id="kk-fast-search-popup-title"><?php esc_html_e('Build search indexes', 'koperasikita'); ?></h2>
                     <div class="kk-data-desk-popup-actions">
-                        <button type="button" class="kk-setup-button" data-kk-fast-search-popup-close><?php esc_html_e('Close', 'koperasikita'); ?></button>
+                        <button type="button" class="button" data-kk-fast-search-popup-close><?php esc_html_e('Close', 'koperasikita'); ?></button>
                     </div>
                 </div>
                 <div class="kk-data-desk-popup-body">
