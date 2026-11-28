@@ -145,6 +145,11 @@ interface SearchResult {
 	latitude: number;
 	longitude: number;
 	country: string;
+	// Three-section display ("Name, Local, Province") and the full
+	// hierarchy ("Name, Kelurahan, Kecamatan, Kabupaten, Provinsi,
+	// Country") for the title attribute.
+	label: string;
+	fullName: string;
 }
 
 /* One location store per surface: the top bar keeps its own key
@@ -474,11 +479,19 @@ async function searchOpenMeteo(query: string, signal: AbortSignal): Promise<Sear
 			if (typeof p.name !== 'string' || typeof p.latitude !== 'number' || typeof p.longitude !== 'number') {
 				continue;
 			}
+			const admin4 = typeof p.admin4 === 'string' ? p.admin4.trim() : '';
+			const admin3 = typeof p.admin3 === 'string' ? p.admin3.trim() : '';
+			const admin2 = typeof p.admin2 === 'string' ? p.admin2.trim() : '';
+			const admin1 = typeof p.admin1 === 'string' ? p.admin1.trim() : '';
+			const countryName = typeof p.country === 'string' ? p.country.trim() : '';
+			const local = admin4 !== '' ? admin4 : admin3 !== '' ? admin3 : admin2 !== '' ? admin2 : null;
 			results.push({
 				name: p.name,
 				latitude: p.latitude,
 				longitude: p.longitude,
-				country: placeLabel(p),
+				country: countryName,
+				label: searchLabel(p.name, local, admin1 !== '' ? admin1 : null, countryName !== '' ? countryName : null),
+				fullName: joinHierarchy([p.name, admin4, admin3, admin2, admin1, countryName]),
 			});
 		}
 		return results;
@@ -490,22 +503,38 @@ async function searchOpenMeteo(query: string, signal: AbortSignal): Promise<Sear
 	}
 }
 
-/* Open-Meteo's place label: admin2, admin1, country, most specific
- * first - the same label the server built for the search results. */
-function placeLabel(place: Record<string, unknown>): string {
-	const parts: string[] = [];
-	for (const key of ['admin2', 'admin1', 'country']) {
-		const value = place[key];
-		if (typeof value === 'string' && value.trim() !== '') {
-			parts.push(value.trim());
+/* Join hierarchy parts into one comma-separated form, dropping
+ * empties. Levels are kept even when two share a spelling (Adana
+ * the city in Adana the province): they are different levels, and
+ * dropping one would lose a section the display must show. */
+function joinHierarchy(parts: (string | null | undefined)[]): string {
+	const out: string[] = [];
+	for (const part of parts) {
+		if (typeof part !== 'string') {
+			continue;
 		}
+		const trimmed = part.trim();
+		if (trimmed === '') {
+			continue;
+		}
+		out.push(trimmed);
 	}
-	return parts.join(', ');
+	return out.join(', ');
+}
+
+/* The three-section display: the name, the most specific local
+ * level (kelurahan / kecamatan / kabupaten), and the province (or
+ * the country when there is no province). Every level the provider
+ * returns rides the full form instead, on the title attribute. */
+function searchLabel(name: string, local: string | null, province: string | null, country: string | null): string {
+	const middle = local ?? province ?? country;
+	const broad = local !== null ? (province ?? country) : country;
+	return joinHierarchy([name, middle, broad]);
 }
 
 async function searchNominatim(query: string, signal: AbortSignal): Promise<SearchResult[]> {
 	try {
-		const url = `${NOMINATIM_SEARCH_URL}?format=json&limit=5&accept-language=id&q=${encodeURIComponent(query)}`;
+		const url = `${NOMINATIM_SEARCH_URL}?format=json&limit=5&accept-language=id&addressdetails=1&q=${encodeURIComponent(query)}`;
 		const response = await fetch(url, { signal });
 		if (!response.ok) {
 			return [];
@@ -533,11 +562,21 @@ async function searchNominatim(query: string, signal: AbortSignal): Promise<Sear
 			if (name === '') {
 				continue;
 			}
+			const address = typeof r.address === 'object' && r.address !== null ? (r.address as Record<string, unknown>) : null;
+			const hamlet = addressPart(address, ['hamlet']);
+			const kelurahan = addressPart(address, ['village', 'suburb']);
+			const kecamatan = addressPart(address, ['town', 'city_district', 'district', 'municipality']);
+			const kabupaten = addressPart(address, ['county', 'city']);
+			const provinsi = addressPart(address, ['state']);
+			const countryName = addressPart(address, ['country']) ?? (parts.length > 1 ? parts[parts.length - 1] : null);
+			const local = kelurahan ?? kecamatan ?? kabupaten;
 			results.push({
 				name,
 				latitude,
 				longitude,
-				country: parts.slice(1).join(', '),
+				country: countryName ?? '',
+				label: address !== null ? searchLabel(name, local, provinsi, countryName) : parts.slice(0, 3).join(', '),
+				fullName: address !== null ? joinHierarchy([name, hamlet, kelurahan, kecamatan, kabupaten, provinsi, countryName]) : parts.join(', '),
 			});
 		}
 		return results;
@@ -877,6 +916,14 @@ let quickCities: Location[] = [];
 let weatherMap: L.Map | null = null;
 let mapMarker: L.Marker | null = null;
 let mapNameEdited = false;
+/* Full hierarchy of the search result currently staged on the map.
+ * The name field only holds the short display, so the complete
+ * form ("Kelurahan, Kecamatan, Kabupaten, Provinsi, Country") is
+ * kept here and attached to the location when Update applies it,
+ * so the title attribute reads the full form. Cleared whenever the
+ * staged place changes (pin move, name edit, coordinates, quick
+ * pick, geolocation, reset) and when the picker opens or closes. */
+let stagedFullName: string | null = null;
 
 // Resolved per-widget key, stamped at boot from the server-rendered
 // data-weather-key (the widget id for classic widgets, a render-order
@@ -1050,6 +1097,7 @@ function setMapPin(latitude: number, longitude: number, name?: string): void {
  * of their own - a typed name is never overwritten. */
 async function placeMapPin(latitude: number, longitude: number): Promise<void> {
 	setMapPin(latitude, longitude);
+	stagedFullName = null;
 	if (mapNameEdited) {
 		return;
 	}
@@ -1123,7 +1171,7 @@ function setMapVisible(visible: boolean): void {
 		return;
 	}
 	wrap.hidden = !visible;
-	toggle.textContent = visible ? t('Hide map') : t('Show map');
+	toggle.textContent = visible ? `- ${t('Hide map')}` : `+ ${t('Show map')}`;
 	toggle.setAttribute('aria-expanded', visible ? 'true' : 'false');
 	if (visible) {
 		stageMapForTarget();
@@ -1147,6 +1195,7 @@ function initMapToggle(): void {
  * the map section (stale cached markup) the location applies
  * directly, as it used to. */
 function stageLocation(location: Location): void {
+	stagedFullName = null;
 	if (mapEls() === null) {
 		applyLocation(location, pickerTarget);
 		return;
@@ -1172,28 +1221,71 @@ function initMap(): void {
 	}
 	els.name.addEventListener('input', () => {
 		mapNameEdited = true;
+		stagedFullName = null;
 	});
-	// Update is the only path that applies the staged location: read
-	// the marker, resolve the area name when the field is empty, then
-	// apply and close.
+	// Update is the only path that applies the staged location.
+	// Order: apply the staged lat/lon first, then close
+	// immediately. The weather is fetched after the close, as a
+	// Promise the close never awaits: applyLocation already kicks
+	// the fetch off fire-and-forget, and awaiting a lookup before
+	// closing left the picker open while the call ran and read as
+	// a dead button. The position comes from the fields, not the
+	// marker: the marker only exists once the map has been shown
+	// (lazy init), but a search, coordinates or geolocation can
+	// stage a place without ever opening the map.
 	const update = $('[data-kk-weather-update]') as HTMLButtonElement | null;
 	update?.addEventListener('click', () => {
-		const pos = mapMarker?.getLatLng();
-		if (!pos) {
-			return;
+		const staged = stagedLocationFromFields();
+		const typed = els.name.value.trim();
+		const base: Location =
+			typed !== ''
+				? { name: typed, latitude: staged.latitude, longitude: staged.longitude, source: 'map' }
+				: { name: t('Custom location'), latitude: staged.latitude, longitude: staged.longitude, source: 'map' };
+		// A search result carries its full hierarchy from the
+		// provider (province + country included); prefer it over
+		// the reverse lookup, which only knows the local levels.
+		const location =
+			stagedFullName !== null && stagedFullName !== base.name
+				? { ...base, fullName: stagedFullName }
+				: base;
+		applyLocation(location, pickerTarget);
+		// Whether a search result staged a full hierarchy: read
+		// before closePicker, which resets stagedFullName. The
+		// background lookup only runs when the staged place had
+		// none (a map click); a search fullName must never be
+		// overwritten by the reverse lookup.
+		const hadSearchFullName = stagedFullName !== null;
+		closePicker();
+		// After the close, resolve the area hierarchy in the
+		// background (a Promise the close never awaited). It only
+		// adds the full form for the title when the staged place
+		// had none (a map click): the name itself is final at
+		// apply time, so the background lookup never rewrites it
+		// and never races the weather fetch already in flight.
+		if (!hadSearchFullName) {
+			void (async () => {
+				const details = await reverseGeocodeDetails(staged.latitude, staged.longitude);
+				if (details === null) {
+					return;
+				}
+				const current = getTargetLocation(pickerTarget);
+				if (current.latitude !== staged.latitude || current.longitude !== staged.longitude) {
+					return;
+				}
+				const refined = locationWithDetails(current, details);
+				if (refined.fullName === current.fullName) {
+					return;
+				}
+				setTargetLocation(pickerTarget, refined);
+				if (pickerTarget.kind === 'topbar') {
+					const slot = $('#kk-topbar-weather');
+					slot?.setAttribute('title', refined.fullName ?? refined.name);
+				} else {
+					const place = pickerTarget.element.querySelector<HTMLElement>('.kk-weather-place');
+					place?.setAttribute('title', refined.fullName ?? refined.name);
+				}
+			})();
 		}
-		// An unnamed pin takes the area name when the lookup knows it,
-		// and stays an anonymous custom location when it does not.
-		void (async () => {
-			const typed = els.name.value.trim();
-			const details = await reverseGeocodeDetails(pos.lat, pos.lng);
-			const base: Location =
-				typed !== ''
-					? { name: typed, latitude: pos.lat, longitude: pos.lng, source: 'map' }
-					: { name: details?.name ?? t('Custom location'), latitude: pos.lat, longitude: pos.lng, source: 'map' };
-			applyLocation(locationWithDetails(base, details), pickerTarget);
-			closePicker();
-		})();
 	});
 }
 
@@ -1221,6 +1313,7 @@ function openPicker(opener: HTMLElement): void {
 	syncCoordsInputs();
 	renderStrip();
 	const staged = getTargetLocation(pickerTarget);
+	stagedFullName = null;
 	setMapPin(staged.latitude, staged.longitude, staged.name);
 	setMapVisible(false);
 	const search = $('[data-kk-weather-search]') as HTMLInputElement | null;
@@ -1235,6 +1328,7 @@ function closePicker(): void {
 		return;
 	}
 	modal.hidden = true;
+	stagedFullName = null;
 	document.body.style.overflow = '';
 	document.documentElement.style.overflow = '';
 	if (lastFocusedElement) {
@@ -1419,10 +1513,8 @@ function initSearch(): void {
 						const button = document.createElement('button');
 						button.type = 'button';
 						button.className = 'kk-weather-result';
-						button.textContent =
-							place.country && place.country !== place.name
-								? `${place.name}, ${place.country}`
-								: place.name;
+						button.textContent = place.label;
+						button.title = place.fullName;
 						button.addEventListener('click', () => {
 							// Search is a helper: it moves the map and the
 							// marker to the found place. Nothing is applied
@@ -1436,6 +1528,7 @@ function initSearch(): void {
 										latitude: place.latitude,
 										longitude: place.longitude,
 										source: 'search',
+										...(place.fullName !== '' && place.fullName !== place.name ? { fullName: place.fullName } : {}),
 									},
 									pickerTarget,
 								);
@@ -1445,6 +1538,7 @@ function initSearch(): void {
 								return;
 							}
 							setMapPin(place.latitude, place.longitude, place.name);
+							stagedFullName = place.fullName !== '' && place.fullName !== place.name ? place.fullName : null;
 							results.textContent = '';
 							input.value = place.name;
 							setStatus(tf('Moved the map to %s. Press "Update" to apply it.', place.name));
