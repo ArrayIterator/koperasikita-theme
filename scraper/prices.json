@@ -1,5 +1,5 @@
 {
-  "updated": "2026-11-28T02:11:18.123Z",
+  "updated": "2026-11-28T10:27:07.935Z",
   "prices": {
     "antam": {
       "price": 2501000,
@@ -7,34 +7,34 @@
       "updated": "2026-11-28T02:11:18.123Z"
     },
     "galeri-24": {
-      "price": 2356000,
+      "price": 2372000,
       "currency": "IDR",
-      "updated": "2026-11-28T02:11:18.123Z"
+      "updated": "2026-11-28T10:27:07.935Z"
     },
     "ubs": {
-      "price": 2378000,
+      "price": 2395000,
       "currency": "IDR",
-      "updated": "2026-11-28T02:11:18.123Z"
+      "updated": "2026-11-28T10:27:07.935Z"
     },
     "lotus-archi": {
       "price": 2312000,
       "currency": "IDR",
-      "updated": "2026-11-28T02:11:18.123Z"
+      "updated": "2026-11-28T10:27:07.935Z"
     },
     "spot": {
       "price": 2150098,
       "currency": "IDR",
-      "updated": "2026-11-28T02:11:18.123Z"
+      "updated": "2026-11-28T10:27:07.935Z"
     },
     "hartadinata": {
       "price": 2305000,
       "currency": "IDR",
-      "updated": "2026-11-28T02:11:18.123Z"
+      "updated": "2026-11-28T10:27:07.935Z"
     },
     "king-halim": {
       "price": 2275000,
       "currency": "IDR",
-      "updated": "2026-11-28T02:11:18.123Z"
+      "updated": "2026-11-28T10:27:07.935Z"
     }
   },
   "sources": {
