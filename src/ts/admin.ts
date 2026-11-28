@@ -806,7 +806,7 @@ function initDataDeskPreview(): void {
 			if (editing === target) {
 				return;
 			}
-			beginInlineEdit(target, null);
+			beginInlineEdit(target, { x: event.clientX, y: event.clientY });
 			return;
 		}
 		/* The date line and the stat blocks open the field popup
